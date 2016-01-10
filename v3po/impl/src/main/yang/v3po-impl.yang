@@ -1,0 +1,35 @@
+module v3po-impl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:v3po:impl";
+    prefix "v3po-impl";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+
+    description
+        "Service definition for v3po project";
+
+    revision "2014-12-10" {
+        description
+            "Initial revision";
+    }
+
+    identity v3po {
+        base config:module-type;
+        config:java-name-prefix V3po;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case v3po {
+            when "/config:modules/config:module/config:type = 'v3po'";
+            container broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-broker-osgi-registry;
+                    }
+                }
+            }
+        }
+    }
+}

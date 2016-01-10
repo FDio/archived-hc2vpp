@@ -1,0 +1,366 @@
+module v3po {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:v3po";
+  prefix "v3po";
+
+  revision "2015-01-05" {
+    description "Initial revision of v3po model";
+  }
+
+  import iana-if-type {
+    prefix "ianaift";
+  }
+  import ietf-interfaces {
+    prefix "if";
+  }
+  import ietf-yang-types {
+    prefix "yang";
+  }
+  import ietf-inet-types {
+    prefix "inet";
+  }
+  import ietf-ip {
+    prefix "ip";
+  }
+  import yang-ext {
+    prefix "ext";
+  }
+
+  typedef bridge-domain-ref {
+    type leafref {
+      path "/vpp/bridge-domains/bridge-domain/name";
+    }
+    description
+      "This type is used by to reference a bridge domain table";
+  }
+
+  typedef bridged-virtual-interface-ref {
+    type leafref {
+      path "/if:interfaces/if:interface/l2/bridged-virtual-interface";
+    }
+    description
+      "This type is used by to reference a bridged virtual interface";
+  }
+
+  identity vxlan-tunnel {
+    base if:interface-type;
+  }
+
+  augment /if:interfaces/if:interface {
+    ext:augment-identifier "vpp-interface-augmentation";
+    container ethernet {
+      when "../if:type = 'ianaift:ethernetCsmacd'";
+      leaf mtu {
+        type uint16 {
+          range "64..9216";
+        }
+        units "octets";
+        default 9216;
+        description
+        "The size, in octets, of the largest packet that the
+         hardware interface will send and receive.";
+      }
+    }
+    container routing {
+      leaf vrf-id {
+        type uint32;
+        default 0;
+      }
+    }
+    container vxlan {
+      when "../if:type = 'v3po:vxlan-tunnel'";
+
+      leaf src {
+        /* mandatory true; */
+        type inet:ipv4-address;
+      }
+      leaf dst {
+        /* mandatory true; */
+        type inet:ipv4-address;
+      }
+      leaf vni {
+        /* mandatory true; */
+        type uint32;
+      }
+      leaf encap-vrf-id {
+        type uint32;
+      }
+    }
+    container l2 {
+      description 
+      "Parameters for configuring Layer2 features on interfaces.";
+      must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
+      "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
+
+      choice interconnection {
+        case xconnect-based {
+          leaf xconnect-outgoing-interface {
+            /* Don't allow selection of this interface */
+            must "../../if:name != current()";
+            type if:interface-ref;
+            description
+              "L2 xconnect mode";
+          }
+        }
+        case bridge-based {
+          leaf bridge-domain {
+            type bridge-domain-ref;
+            description
+              "Interfaces in a bridge-domain forward packets to other
+               interfaces in the same bridge-domain based on
+               destination mac address.";
+          }
+          leaf split-horizon-group {
+            when "../bridge-domain";
+            type uint8 {
+              range "0..255";
+            }
+            default 0;
+            description
+              "Interface's split-horizon group. Interfaces in the same
+               bridge-domain and split-horizon group can not forward
+               packets between each other. ";
+          }
+          leaf bridged-virtual-interface {
+            when "../bridge-domain";
+            type boolean;
+            default false;
+            description
+              "Interface forward packets in the bridge-domain
+               associated with the BVI.";
+          }
+        }
+      }
+    }
+  }
+
+  container vpp {
+    description
+    "VPP config data";
+
+    container bridge-domains {
+      list bridge-domain {
+        key "name";
+        max-elements 1024;
+
+        leaf name {
+          type string;
+        }
+        leaf flood {
+          type boolean;
+          default true;
+          description
+          "Enable/disable L2 flooding.";
+        }
+        leaf forward {
+          type boolean;
+          default true;
+          description
+          "Enable/disable L2 forwarding.";
+        }
+        leaf learn {
+          type boolean;
+          default true;
+          description
+          "Enable/disable L2 learning.";
+        }
+        leaf unknown-unicast-flood {
+          type boolean;
+          default true;
+        }
+        leaf arp-termination {
+          type boolean;
+          default false;
+        }
+        list l2-fib {
+          key "phys-address";
+          
+          leaf phys-address {
+            type yang:phys-address;
+          }
+          leaf action {
+            type enumeration {
+              enum "forward";
+              enum "filter";
+            }
+            mandatory true;
+          }
+          leaf outgoing-interface {
+            type if:interface-ref;
+          }
+        }
+      }
+    }
+  }
+
+  augment /if:interfaces-state/if:interface {
+    ext:augment-identifier "vpp-interface-state-augmentation";
+
+    leaf description {
+      type string;
+    }
+    container ethernet {
+      when "../if:type = 'ianaift:ethernetCsmacd'";
+      leaf mtu {
+        type uint16;
+      }
+      leaf manufacturer-description {
+        type string;
+      }
+      leaf duplex {
+        type enumeration {
+          enum "half";
+          enum "full";
+        }
+      }
+    }
+    container vxlan {
+      when "../if:type = 'v3po:vxlan-tunnel'";
+
+      leaf src {
+        type inet:ipv4-address;
+      }
+      leaf dst {
+        type inet:ipv4-address;
+      }
+      leaf vni {
+        type uint32;
+      }
+      leaf encap-vrf-id {
+        type uint32;
+      }
+    }
+    container l2 {
+      choice interconnection {
+        case xconnect-based {
+          leaf xconnect-outgoing-interface {
+            type if:interface-ref;
+          }
+        }
+        case bridge-based {
+          leaf bridge-domain {
+            type bridge-domain-ref;
+          }
+          leaf split-horizon-group {
+            type uint8;
+          }
+          leaf bridged-virtual-interface {
+            type boolean;
+          }
+        }
+      }
+    }
+  }
+
+  augment /if:interfaces-state/if:interface/if:statistics {
+    ext:augment-identifier "vpp-interface-statistics-augmentation";
+    leaf in-errors-no-buf {
+      type yang:counter64;
+    }
+    leaf in-errors-miss {
+      type yang:counter64;
+    }
+    leaf out-discards-fifo-full {
+      type yang:counter64;
+    }
+  }
+
+  container vpp-state {
+    config false;
+
+    description
+      "VPP operational data";
+
+    container bridge-domains {
+      list bridge-domain {
+        
+        key "name";
+        leaf name {
+          type string;
+        }
+        leaf flood {
+          type boolean;
+        }
+        leaf unknown-unicast-flood {
+          type boolean;
+        }
+        leaf arp-termination {
+          type boolean;
+        }
+        leaf forward {
+          type boolean;
+        }
+        leaf learn {
+          type boolean;
+        }
+        list interface {
+          key "name";
+
+          leaf name {
+            type if:interface-state-ref;
+          }
+
+          leaf split-horizon-group {
+            type uint8;
+          }
+
+          leaf bridged-virtual-interface {
+            type boolean;
+          }
+        }
+        list l2-fib {
+          key "phys-address";
+
+          leaf phys-address {
+            type yang:phys-address;
+          }
+          leaf static-config {
+            type boolean;
+          }
+          leaf outgoing-interface {
+            when "../v3po:action = 'forward'";
+            type if:interface-state-ref;
+          }
+          leaf action {
+            type enumeration {
+              enum "forward";
+              enum "filter";
+            }
+            mandatory true;
+          }
+          leaf bridged-virtual-interface {
+            when "../v3po:action = 'forward'";
+            type boolean;
+          }
+        }
+        description 
+          "bridge-domain operational data";
+      }
+    }
+    
+    container version {
+      leaf name {
+        type string;
+      }
+      leaf build-directory {
+        type string;
+      }
+      leaf build-date {
+        type string;
+      }
+      leaf branch {
+        type string;
+      }
+      description
+      "vlib version info";
+    }
+  }
+    
+  rpc vpp-poll-oper-data {
+    output {
+      leaf status {
+        type uint32;
+      }
+    }
+  }
+}
