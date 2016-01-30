@@ -46,6 +46,43 @@ module v3po {
     base if:interface-type;
   }
 
+  typedef vxlan-vni {
+    // FIXME: should be in a vxlan-specific model
+    description "VNI used in a VXLAN tunnel";
+    type uint32 {
+      range "0..16777215";
+    }
+  }
+
+  grouping bridge-domain-attributes {
+    leaf flood {
+      type boolean;
+      default true;
+      description
+      "Enable/disable L2 flooding.";
+    }
+    leaf forward {
+      type boolean;
+      default true;
+      description
+      "Enable/disable L2 forwarding.";
+    }
+    leaf learn {
+      type boolean;
+      default true;
+      description
+      "Enable/disable L2 learning.";
+    }
+    leaf unknown-unicast-flood {
+      type boolean;
+      default true;
+    }
+    leaf arp-termination {
+      type boolean;
+      default false;
+    }
+  }
+
   augment /if:interfaces/if:interface {
     ext:augment-identifier "vpp-interface-augmentation";
     container ethernet {
@@ -68,6 +105,7 @@ module v3po {
       }
     }
     container vxlan {
+      // FIXME: this should be in an vxlan-specific extension
       when "../if:type = 'v3po:vxlan-tunnel'";
 
       leaf src {
@@ -80,14 +118,14 @@ module v3po {
       }
       leaf vni {
         /* mandatory true; */
-        type uint32;
+        type vxlan-vni;
       }
       leaf encap-vrf-id {
         type uint32;
       }
     }
     container l2 {
-      description 
+      description
       "Parameters for configuring Layer2 features on interfaces.";
       must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
       "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
@@ -141,40 +179,18 @@ module v3po {
     container bridge-domains {
       list bridge-domain {
         key "name";
+        // TODO: where does this come from?
         max-elements 1024;
 
         leaf name {
           type string;
         }
-        leaf flood {
-          type boolean;
-          default true;
-          description
-          "Enable/disable L2 flooding.";
-        }
-        leaf forward {
-          type boolean;
-          default true;
-          description
-          "Enable/disable L2 forwarding.";
-        }
-        leaf learn {
-          type boolean;
-          default true;
-          description
-          "Enable/disable L2 learning.";
-        }
-        leaf unknown-unicast-flood {
-          type boolean;
-          default true;
-        }
-        leaf arp-termination {
-          type boolean;
-          default false;
-        }
+
+        uses bridge-domain-attributes;
+
         list l2-fib {
           key "phys-address";
-          
+
           leaf phys-address {
             type yang:phys-address;
           }
@@ -272,27 +288,16 @@ module v3po {
       "VPP operational data";
 
     container bridge-domains {
+      // FIXME: Should this live in bridge-domain.yang in a modular fashion ?
       list bridge-domain {
-        
+
         key "name";
         leaf name {
           type string;
         }
-        leaf flood {
-          type boolean;
-        }
-        leaf unknown-unicast-flood {
-          type boolean;
-        }
-        leaf arp-termination {
-          type boolean;
-        }
-        leaf forward {
-          type boolean;
-        }
-        leaf learn {
-          type boolean;
-        }
+
+        uses bridge-domain-attributes;
+
         list interface {
           key "name";
 
@@ -308,6 +313,7 @@ module v3po {
             type boolean;
           }
         }
+
         list l2-fib {
           key "phys-address";
 
@@ -333,11 +339,11 @@ module v3po {
             type boolean;
           }
         }
-        description 
+        description
           "bridge-domain operational data";
       }
     }
-    
+
     container version {
       leaf name {
         type string;
@@ -355,7 +361,7 @@ module v3po {
       "vlib version info";
     }
   }
-    
+
   rpc vpp-poll-oper-data {
     output {
       leaf status {

@@ -242,7 +242,7 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
         int srcAddr = parseIp(srcAddress.getValue());
         int dstAddr = parseIp(dstAddress.getValue());
         int encapVrfId = vxlan.getEncapVrfId().intValue();
-        int vni = vxlan.getVni().intValue();
+        int vni = vxlan.getVni().getValue().intValue();
         
         int ctxId = api.vxlanAddDelTunnel((byte)1 /* is add */, srcAddr, dstAddr, encapVrfId, -1, vni);
         String apiName = "api.vxlanAddDelTunnel";
