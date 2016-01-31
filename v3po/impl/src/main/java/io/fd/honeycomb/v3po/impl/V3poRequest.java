@@ -16,13 +16,16 @@
 
 package io.fd.honeycomb.v3po.impl;
 
-import org.openvpp.vppjapi.vppApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /*
  * Abstract class overriding all callbacks with default error message
  */
-public abstract class V3poRequest extends vppApi {
+public abstract class V3poRequest {
     private static final Logger LOG = LoggerFactory.getLogger(V3poRequest.class);
+
+    protected V3poRequest() {
+
+    }
 }

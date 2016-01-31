@@ -16,9 +16,11 @@
 
 package io.fd.honeycomb.v3po.impl;
 
+import com.google.common.primitives.Ints;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.net.InetAddress;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -55,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.l2.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.l2.interconnection.XconnectBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.vppjapi.vppApi;
 import org.openvpp.vppjapi.vppBridgeDomainDetails;
 import org.openvpp.vppjapi.vppBridgeDomainInterfaceDetails;
 import org.openvpp.vppjapi.vppIPv4Address;
@@ -65,48 +68,47 @@ import org.openvpp.vppjapi.vppVxlanTunnelDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.Ints;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
 /*
  * VPP API Class overriding interface details callback
  */
 public class V3poApiRequest extends V3poRequest {
     private static final Logger LOG = LoggerFactory.getLogger(V3poApiRequest.class);
     public String ifNames = "";
-    private VppPollOperDataImpl caller;
+    private final VppPollOperDataImpl caller;
+    private final vppApi api;
 
-    public V3poApiRequest(VppPollOperDataImpl vppPollOperData) {
+    public V3poApiRequest(final vppApi api, final VppPollOperDataImpl vppPollOperData) {
+        this.api = api;
         caller = vppPollOperData;
     }
 
-    private InstanceIdentifier<Interface> getStateInterfaceIid(String interfaceName) {
+    private InstanceIdentifier<Interface> getStateInterfaceIid(final String interfaceName) {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class,
                 new InterfaceKey(interfaceName));
     }
-    
-    private InstanceIdentifier<Interface2> getStateInterfaceIpId(InstanceIdentifier<Interface> iid) {
+
+    private InstanceIdentifier<Interface2> getStateInterfaceIpId(final InstanceIdentifier<Interface> iid) {
         return iid.augmentation(Interface2.class);
     }
-    
-    private InstanceIdentifier<Statistics> getStateInterfaceStatsId(InstanceIdentifier<Interface> iid) {
+
+    private InstanceIdentifier<Statistics> getStateInterfaceStatsId(final InstanceIdentifier<Interface> iid) {
         return iid.child(Statistics.class);
     }
-    
-    private static Counter64 getCounter64(long num) {
+
+    private static Counter64 getCounter64(final long num) {
         return new Counter64(BigInteger.valueOf(num));
     }
-    
-    private static Counter32 getCounter32(long num) {
+
+    private static Counter32 getCounter32(final long num) {
         return new Counter32(num);
     }
-    
-    private Statistics buildInterfaceStatistics(vppInterfaceCounters ifCounters) {
+
+    private Statistics buildInterfaceStatistics(final vppInterfaceCounters ifCounters) {
         if (ifCounters == null) {
             return null;
         }
         StatisticsBuilder statsBuilder = new StatisticsBuilder();
-        
+
         statsBuilder.setInBroadcastPkts(getCounter64(ifCounters.rxBroadcast));
         statsBuilder.setInDiscards(getCounter32(ifCounters.rxDiscard));
         statsBuilder.setInErrors(getCounter32(ifCounters.rxError));
@@ -121,20 +123,20 @@ public class V3poApiRequest extends V3poRequest {
         statsBuilder.setOutMulticastPkts(getCounter64(ifCounters.txMulticast));
         statsBuilder.setOutOctets(getCounter64(ifCounters.txOctets));
         statsBuilder.setOutUnicastPkts(getCounter64(ifCounters.txUnicast));
-        
+
         VppInterfaceStatisticsAugmentationBuilder statsAugBuilder =
             new VppInterfaceStatisticsAugmentationBuilder();
         statsAugBuilder.setInErrorsMiss(getCounter64(ifCounters.rxMiss));
         statsAugBuilder.setInErrorsNoBuf(getCounter64(ifCounters.rxFifoFull)); // FIXME? Is this right?
         statsAugBuilder.setOutDiscardsFifoFull(getCounter64(ifCounters.txFifoFull));
-        
+
         statsBuilder.addAugmentation(VppInterfaceStatisticsAugmentation.class,
                                      statsAugBuilder.build());
-        
+
         return statsBuilder.build();
     }
 
-    private static String getMacAddress(byte[] mac) {
+    private static String getMacAddress(final byte[] mac) {
         StringBuilder sb = new StringBuilder(18);
         for (byte b : mac) {
             if (sb.length() > 0) {
@@ -144,16 +146,16 @@ public class V3poApiRequest extends V3poRequest {
         }
         return sb.toString();
     }
-    
-    private static final Gauge64 vppSpeed0 = new Gauge64(BigInteger.ZERO);
-    private static final Gauge64 vppSpeed1 = new Gauge64(BigInteger.valueOf(10 * 1000000)); 
-    private static final Gauge64 vppSpeed2 = new Gauge64(BigInteger.valueOf(100 * 1000000)); 
-    private static final Gauge64 vppSpeed4 = new Gauge64(BigInteger.valueOf(1000 * 1000000)); 
-    private static final Gauge64 vppSpeed8 = new Gauge64(BigInteger.valueOf(10000L * 1000000)); 
-    private static final Gauge64 vppSpeed16 = new Gauge64(BigInteger.valueOf(40000L * 1000000)); 
-    private static final Gauge64 vppSpeed32 = new Gauge64(BigInteger.valueOf(100000L * 1000000)); 
 
-    private static Gauge64 getSpeed(byte vppSpeed) {
+    private static final Gauge64 vppSpeed0 = new Gauge64(BigInteger.ZERO);
+    private static final Gauge64 vppSpeed1 = new Gauge64(BigInteger.valueOf(10 * 1000000));
+    private static final Gauge64 vppSpeed2 = new Gauge64(BigInteger.valueOf(100 * 1000000));
+    private static final Gauge64 vppSpeed4 = new Gauge64(BigInteger.valueOf(1000 * 1000000));
+    private static final Gauge64 vppSpeed8 = new Gauge64(BigInteger.valueOf(10000L * 1000000));
+    private static final Gauge64 vppSpeed16 = new Gauge64(BigInteger.valueOf(40000L * 1000000));
+    private static final Gauge64 vppSpeed32 = new Gauge64(BigInteger.valueOf(100000L * 1000000));
+
+    private static Gauge64 getSpeed(final byte vppSpeed) {
         switch (vppSpeed) {
             case 1: return vppSpeed1;
             case 2: return vppSpeed2;
@@ -164,8 +166,8 @@ public class V3poApiRequest extends V3poRequest {
             default: return vppSpeed0;
         }
     }
-    
-    private static String ipv4IntToString(int ip) {
+
+    private static String ipv4IntToString(final int ip) {
         InetAddress addr = null;
         byte[] bytes = Ints.toByteArray(ip);
         try {
@@ -177,26 +179,26 @@ public class V3poApiRequest extends V3poRequest {
         return addr.getHostAddress();
     }
 
-    private Interface buildStateInterface(int ifIndex,
-                                          String interfaceName,
-                                          int supIfIndex,
-                                          byte[] physAddr,
-                                          byte adminUp, byte linkUp,
-                                          byte linkDuplex, byte linkSpeed,
-                                          int subId, byte subDot1ad,
-                                          byte subNumberOfTags,
-                                          int subOuterVlanId,
-                                          int subInnerVlanId,
-                                          byte subExactMatch,
-                                          byte subDefault,
-                                          byte subOuterVlanIdAny,
-                                          byte subInnerVlanIdAny,
-                                          int vtrOp, int vtrPushDot1q,
-                                          int vtrTag1, int vtrTag2,
-                                          Statistics stats) {
+    private Interface buildStateInterface(final int ifIndex,
+                                          final String interfaceName,
+                                          final int supIfIndex,
+                                          final byte[] physAddr,
+                                          final byte adminUp, final byte linkUp,
+                                          final byte linkDuplex, final byte linkSpeed,
+                                          final int subId, final byte subDot1ad,
+                                          final byte subNumberOfTags,
+                                          final int subOuterVlanId,
+                                          final int subInnerVlanId,
+                                          final byte subExactMatch,
+                                          final byte subDefault,
+                                          final byte subOuterVlanIdAny,
+                                          final byte subInnerVlanIdAny,
+                                          final int vtrOp, final int vtrPushDot1q,
+                                          final int vtrTag1, final int vtrTag2,
+                                          final Statistics stats) {
         InterfaceBuilder ifBuilder = new InterfaceBuilder();
         java.lang.Class<? extends InterfaceType> ifType;
-        
+
         // FIXME: missing types for virtualethernet, subinterface, tap interface etc
         if (interfaceName.startsWith("loop")) {
             ifType = SoftwareLoopback.class;
@@ -209,50 +211,48 @@ public class V3poApiRequest extends V3poRequest {
             .setType(ifType)
             .setAdminStatus((adminUp == 0 ? AdminStatus.Down : AdminStatus.Up))
             .setOperStatus((linkUp == 0 ? OperStatus.Down : OperStatus.Up));
-/*        
+/*
         DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> builder = ImmutableNodes.mapEntryBuilder()
             .withNodeIdentifier(new NodeIdentifierWithPredicates(Interface.QNAME, NAME_QNAME, interfaceName));
         builder.withChild(ImmutableNodes.leafNode(IF_TYPE, SoftwareLoopback.QNAME))*/
-        
+
         // subinterface?
         if (ifIndex != supIfIndex) {
             // TODO: get name and set
         }
-        
+
         if (physAddr != null) {
             ifBuilder.setPhysAddress(new PhysAddress(getMacAddress(physAddr)));
         }
         ifBuilder.setSpeed(getSpeed(linkSpeed));
-        
+
         if (stats != null) {
             ifBuilder.setStatistics(stats);
         }
-        int bdId = this.bridgeDomainIdFromInterfaceName(interfaceName);
-        vppBridgeDomainDetails bd = (bdId != -1 ? this.getBridgeDomainDetails(bdId) : null);
-        
+        int bdId = api.bridgeDomainIdFromInterfaceName(interfaceName);
+        vppBridgeDomainDetails bd = (bdId != -1 ? api.getBridgeDomainDetails(bdId) : null);
+
         String bdName = null;
         short splitHorizonGroup = 0;
         boolean bvi = false;
-        
+
         if (bd != null) {
             bdName = bd.name;
-            for (int ifIdx = 0; ifIdx < bd.interfaces.length; ifIdx++) {
-                vppBridgeDomainInterfaceDetails bdIf = bd.interfaces[ifIdx];
-                
+            for (vppBridgeDomainInterfaceDetails bdIf : bd.interfaces) {
                 if (bdIf.interfaceName != interfaceName) {
                     continue;
                 }
                 if (bd.bviInterfaceName == interfaceName) {
                     bvi = true;
                 }
-                splitHorizonGroup = (short)bdIf.splitHorizonGroup;
+                splitHorizonGroup = bdIf.splitHorizonGroup;
             }
         }
 
         VppInterfaceStateAugmentationBuilder vppIfStateAugBuilder =
             new VppInterfaceStateAugmentationBuilder();
 
-        vppIfStateAugBuilder.setDescription(this.getInterfaceDescription(interfaceName));
+        vppIfStateAugBuilder.setDescription(api.getInterfaceDescription(interfaceName));
 
         setStateInterfaceL2(vppIfStateAugBuilder, bdId != -1, false, null,
                             bdName, splitHorizonGroup, bvi);
@@ -262,7 +262,7 @@ public class V3poApiRequest extends V3poRequest {
                                       "ACME Inc.", 1234);
         }
 
-        vppVxlanTunnelDetails[] vxlanDet = this.vxlanTunnelDump(ifIndex);
+        vppVxlanTunnelDetails[] vxlanDet = api.vxlanTunnelDump(ifIndex);
         if (null != vxlanDet && vxlanDet.length >= 1) {
             setStateInterfaceVxlan(vppIfStateAugBuilder, vxlanDet[0].srcAddress,
                                    vxlanDet[0].dstAddress, vxlanDet[0].vni,
@@ -271,20 +271,20 @@ public class V3poApiRequest extends V3poRequest {
 
         ifBuilder.addAugmentation(VppInterfaceStateAugmentation.class,
                                   vppIfStateAugBuilder.build());
-        
+
         InterfaceStateIpv4Builder ipv4Builder = new InterfaceStateIpv4Builder();
 // TODO        ipv4Builder.setMtu(1234);
-        
+
         InetAddress addr = null;
-        
-        vppIPv4Address[] ipv4Addrs = ipv4AddressDump(interfaceName);
+
+        vppIPv4Address[] ipv4Addrs = api.ipv4AddressDump(interfaceName);
         if (ipv4Addrs != null) {
             for (vppIPv4Address vppAddr : ipv4Addrs) {
                 if (null == vppAddr) {
                     LOG.error("ipv4 address structure in null");
                     continue;
                 }
-    
+
                 // FIXME: vppIPv4Address and vppIPv6 address can be the same if both will use
                 // byte array for ip
                 byte[] bytes = Ints.toByteArray(vppAddr.ip);
@@ -294,22 +294,22 @@ public class V3poApiRequest extends V3poRequest {
                     e.printStackTrace();
                     continue;
                 }
-                
+
                 ipv4Builder.addAddress(addr.getHostAddress(), vppAddr.prefixLength, IpAddressOrigin.Static);
             }
         }
-        
+
         InterfaceStateIpv6Builder ipv6Builder = new InterfaceStateIpv6Builder();
 // TODO        ipv6Builder.setMtu(1234);
-        
-        vppIPv6Address[] ipv6Addrs = ipv6AddressDump(interfaceName);
+
+        vppIPv6Address[] ipv6Addrs = api.ipv6AddressDump(interfaceName);
         if (ipv6Addrs != null) {
             for (vppIPv6Address vppAddr : ipv6Addrs) {
                 if (null == vppAddr) {
                     LOG.error("ipv6 address structure in null");
                     continue;
                 }
-    
+
                 byte[] bytes = vppAddr.ip;
                 try {
                     addr = InetAddress.getByAddress(bytes);
@@ -317,28 +317,28 @@ public class V3poApiRequest extends V3poRequest {
                     e.printStackTrace();
                     continue;
                 }
-                
+
                 ipv6Builder.addAddress(addr.getHostAddress(), vppAddr.prefixLength, IpAddressOrigin.Static);
             }
         }
         Interface2Builder ipBuilder = new Interface2Builder();
-        
+
         ipBuilder.setIpv4(ipv4Builder.build());
         ipBuilder.setIpv6(ipv6Builder.build());
-        
+
         ifBuilder.addAugmentation(Interface2.class, ipBuilder.build());
-        
+
         return ifBuilder.build();
     }
-    
+
     private void setStateInterfaceL2(
-            VppInterfaceStateAugmentationBuilder augBuilder,
-            boolean isL2BridgeBased, boolean isXconnect,
-            String xconnectOutgoingInterface,
-            String bdName, short splitHorizonGroup, boolean bvi) {
+            final VppInterfaceStateAugmentationBuilder augBuilder,
+            final boolean isL2BridgeBased, final boolean isXconnect,
+            final String xconnectOutgoingInterface,
+            final String bdName, final short splitHorizonGroup, final boolean bvi) {
 
         L2Builder l2Builder = new L2Builder();
-        
+
         if (isXconnect) {
             l2Builder.setInterconnection(
                     new XconnectBasedBuilder()
@@ -352,13 +352,13 @@ public class V3poApiRequest extends V3poRequest {
                         .setBridgedVirtualInterface(bvi)
                         .build());
         }
-            
+
         augBuilder.setL2(l2Builder.build());
     }
-    
+
     private void setStateInterfaceEthernet(
-            VppInterfaceStateAugmentationBuilder augBuilder,
-            boolean isFullDuplex, String manufacturerDesc, Integer mtu) {
+            final VppInterfaceStateAugmentationBuilder augBuilder,
+            final boolean isFullDuplex, final String manufacturerDesc, final Integer mtu) {
 
         EthernetBuilder ethBuilder = new EthernetBuilder();
         ethBuilder.setDuplex((isFullDuplex ? Duplex.Full : Duplex.Half))
@@ -369,8 +369,8 @@ public class V3poApiRequest extends V3poRequest {
     }
 
     private void setStateInterfaceVxlan(
-            VppInterfaceStateAugmentationBuilder augBuilder, int srcAddress,
-            int dstAddress, int vni, int encapVrfId) {
+            final VppInterfaceStateAugmentationBuilder augBuilder, final int srcAddress,
+            final int dstAddress, final int vni, final int encapVrfId) {
 
         String srcAddressStr = ipv4IntToString(srcAddress);
         String dstAddressStr = ipv4IntToString(dstAddress);
@@ -386,8 +386,8 @@ public class V3poApiRequest extends V3poRequest {
         augBuilder.setVxlan(vxlan);
     }
 
-    private void writeToIfState(InstanceIdentifier<Interface> iid,
-                                Interface intf) {
+    private void writeToIfState(final InstanceIdentifier<Interface> iid,
+                                final Interface intf) {
         DataBroker db = caller.getDataBroker();
         WriteTransaction transaction = db.newWriteOnlyTransaction();
         // TODO: how to delete existing interfaces that disappeared? (reset it before each dumpInterfaces call?)
@@ -395,61 +395,61 @@ public class V3poApiRequest extends V3poRequest {
         /*LOG.info("VPPOPER-INFO: Adding interface " + intf.getName()
                  + " to oper DataStore.");*/
         transaction.put(LogicalDatastoreType.OPERATIONAL, iid, intf);
-        
+
         CheckedFuture<Void, TransactionCommitFailedException> future =
             transaction.submit();
         Futures.addCallback(future, new LoggingFuturesCallBack<Void>(
                 "VPPOPER-WARNING: Failed to write "
                 + "interface to ietf-interfaces state", LOG));
     }
-    
-    private void processInterfaces(vppInterfaceDetails[] ifaces) {
+
+    private void processInterfaces(final vppInterfaceDetails[] ifaces) {
         for (vppInterfaceDetails swIf : ifaces) {
             interfaceDetails(swIf);
         }
     }
-    
+
     /**
      * TODO-ADD-JAVADOC.
      */
     public void swInterfaceDumpAll() {
         vppInterfaceDetails[] ifaces;
-        
-        ifaces = swInterfaceDump((byte) 1, "Ether".getBytes());
+
+        ifaces = api.swInterfaceDump((byte) 1, "Ether".getBytes());
         processInterfaces(ifaces);
-        
-        ifaces = swInterfaceDump((byte) 1, "lo".getBytes());
+
+        ifaces = api.swInterfaceDump((byte) 1, "lo".getBytes());
         processInterfaces(ifaces);
-        
-        ifaces = swInterfaceDump((byte) 1, "vxlan".getBytes());
+
+        ifaces = api.swInterfaceDump((byte) 1, "vxlan".getBytes());
         processInterfaces(ifaces);
-        
-        ifaces = swInterfaceDump((byte) 1, "l2tpv3_tunnel".getBytes());
+
+        ifaces = api.swInterfaceDump((byte) 1, "l2tpv3_tunnel".getBytes());
         processInterfaces(ifaces);
-        
-        ifaces = swInterfaceDump((byte) 1, "tap".getBytes());
+
+        ifaces = api.swInterfaceDump((byte) 1, "tap".getBytes());
         processInterfaces(ifaces);
     }
 
-    private void interfaceDetails(vppInterfaceDetails swIf) {
+    private void interfaceDetails(final vppInterfaceDetails swIf) {
         /*LOG.info("Got interface {} (idx: {}) adminUp: {} linkUp: {} duplex: {} speed: {} subId: {}",
          swIf.interfaceName, swIf.ifIndex, swIf.adminUp, swIf.linkUp, swIf.linkDuplex, swIf.linkSpeed, swIf.subId);*/
 
-        vppInterfaceCounters ifCounters = getInterfaceCounters(swIf.ifIndex);
+        vppInterfaceCounters ifCounters = api.getInterfaceCounters(swIf.ifIndex);
 
         InstanceIdentifier<Interface> iid = getStateInterfaceIid(swIf.interfaceName);
 
         Statistics stats = buildInterfaceStatistics(ifCounters);
-        
+
         Interface intf = buildStateInterface(swIf.ifIndex, swIf.interfaceName,
-                                             swIf.supIfIndex, swIf.physAddr, 
+                                             swIf.supIfIndex, swIf.physAddr,
                                              swIf.adminUp, swIf.linkUp,
                                              swIf.linkDuplex, swIf.linkSpeed,
                                              swIf.subId, swIf.subDot1ad,
-                                             swIf.subNumberOfTags, 
+                                             swIf.subNumberOfTags,
                                              swIf.subOuterVlanId,
                                              swIf.subInnerVlanId,
-                                             swIf.subExactMatch, swIf.subDefault, 
+                                             swIf.subExactMatch, swIf.subDefault,
                                              swIf.subOuterVlanIdAny,
                                              swIf.subInnerVlanIdAny,
                                              swIf.vtrOp, swIf.vtrPushDot1q,

@@ -16,11 +16,13 @@
 
 package io.fd.honeycomb.v3po.impl;
 
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.Futures;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -64,23 +66,20 @@ import org.openvpp.vppjapi.vppApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.Futures;
-
 public class V3poProvider implements BindingAwareProvider, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(V3poProvider.class);
     private RpcRegistration<V3poService> v3poService;
     private VppIetfInterfaceListener vppInterfaceListener;
     private VppBridgeDomainListener vppBridgeDomainListener;
-    private static final vppApi api  = new vppApi();
-    private static DataBroker db;
+    private vppApi api;
+    private DataBroker db;
     VppPollOperDataImpl vppPollOperData;
 
-    private void writeToBridgeDomain(String bdName, Boolean flood,
-                                     Boolean forward, Boolean learn,
-                                     Boolean unknownUnicastFlood,
-                                     Boolean arpTermination) {
+    private void writeToBridgeDomain(final String bdName, final Boolean flood,
+                                     final Boolean forward, final Boolean learn,
+                                     final Boolean unknownUnicastFlood,
+                                     final Boolean arpTermination) {
 
         BridgeDomainBuilder bdBuilder = new BridgeDomainBuilder();
         bdBuilder.setName(bdName);
@@ -91,7 +90,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         bdBuilder.setArpTermination(arpTermination);
 
         LOG.info("VPPCFG-INFO: Adding Bridge Domain " + bdName + " to DataStore.");
-        InstanceIdentifier<BridgeDomain> iid = 
+        InstanceIdentifier<BridgeDomain> iid =
             InstanceIdentifier.create(Vpp.class)
             .child(BridgeDomains.class)
             .child(BridgeDomain.class, new BridgeDomainKey(bdName));
@@ -102,7 +101,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
                 "VPPCFG-WARNING: Failed to write bridge domain " + bdName + " to Bridge Domains", LOG));
     }
 
-    private void writeIpv4AddressToInterface(String name, Ipv4AddressNoZone ipv4Addr, short plen) {
+    private void writeIpv4AddressToInterface(final String name, final Ipv4AddressNoZone ipv4Addr, final short plen) {
         AddressKey addrKey = new AddressKey(ipv4Addr);
         AddressBuilder addrBuilder = new AddressBuilder();
         PrefixLength prefixLen = new PrefixLengthBuilder().setPrefixLength(plen).build();
@@ -122,7 +121,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         ifBuilder.addAugmentation(Interface1.class, if1Builder.build());
 
         LOG.info("VPPCFG-INFO: Adding ipv4 address {} to interface {} to DataStore.", ipv4Addr, name);
-        InstanceIdentifier<Interface> iid = 
+        InstanceIdentifier<Interface> iid =
             InstanceIdentifier.create(Interfaces.class)
             .child(Interface.class, new InterfaceKey(name));
         WriteTransaction transaction = db.newWriteOnlyTransaction();
@@ -132,8 +131,8 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
                 "VPPCFG-WARNING: Failed to write " + name + "interface to ietf-interfaces", LOG));
     }
 
-    private void writeToInterface(String name, String description,
-                                  Boolean enabled, String bdName, int vrfId) {
+    private void writeToInterface(final String name, final String description,
+                                  final Boolean enabled, final String bdName, final int vrfId) {
         VppInterfaceAugmentationBuilder ifAugBuilder = new VppInterfaceAugmentationBuilder();
 
         EthernetBuilder ethBuilder = new EthernetBuilder();
@@ -145,7 +144,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
             bridgeBuilder.setBridgeDomain(bdName);
             bridgeBuilder.setSplitHorizonGroup((short)0);
             bridgeBuilder.setBridgedVirtualInterface(false);
-            
+
             L2Builder l2Builder = new L2Builder();
             l2Builder.setInterconnection(bridgeBuilder.build());
             ifAugBuilder.setL2(l2Builder.build());
@@ -183,7 +182,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         Vpp vpp = new VppBuilder().build();
         transaction.put(LogicalDatastoreType.CONFIGURATION, viid, vpp);
         CheckedFuture<Void, TransactionCommitFailedException> future = transaction.submit();
-        Futures.addCallback(future, new 
+        Futures.addCallback(future, new
                             LoggingFuturesCallBack<>("VPPCFG-WARNING: Failed to create Vpp "
                                                      + "configuration db.",
                                                      LOG));
@@ -195,7 +194,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         Interfaces intf = new InterfacesBuilder().build();
         transaction.put(LogicalDatastoreType.CONFIGURATION, iid, intf);
         future = transaction.submit();
-        Futures.addCallback(future, new 
+        Futures.addCallback(future, new
                             LoggingFuturesCallBack<>("VPPCFG-WARNING: Failed to create IETF "
                                                      + "Interface list configuration db.",
                                                      LOG));
@@ -221,7 +220,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
                             false /*arpTermination*/);
 
 
-        writeToInterface("TenGigabitEthernet86/0/1", 
+        writeToInterface("TenGigabitEthernet86/0/1",
                          "Physical 10GbE Interface (Transport)",
                          true, null, 7);
         writeToInterface("TenGigabitEthernet86/0/0", "Physical 10GbE Interface",
@@ -284,10 +283,10 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         Futures.addCallback(tx.submit(), new LoggingFuturesCallBack<>(
                 "VPPOPER-WARNING: Failed to create IETF " + "Interface state list operational db.", LOG));
     }
-    
+
     private void startOperationalUpdateTimer() {
         Timer timer = new Timer();
-        
+
         // fire task after 1 second and then repeat each 10 seconds
         timer.scheduleAtFixedRate(new TimerTask() {
                 @Override
@@ -298,19 +297,23 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
     }
 
     @Override
-    public void onSessionInitiated(ProviderContext session) {
+    public void onSessionInitiated(final ProviderContext session) {
         LOG.info("VPP-INFO: V3poProvider Session Initiated");
-        int rv = api.clientConnect("v3poODL");
-        LOG.info("VPP-INFO: VPP api client connection return value = {}", rv);
-        if (rv != 0) {
-            LOG.error("VPP-ERROR: VPP api client connection failed: return value = {}", rv);
+
+        try {
+	    api = new vppApi("v3poODL");
+        } catch (IOException e) {
+            LOG.error("VPP-ERROR: VPP api client connection failed", e);
             return;
         }
+
+        LOG.info("VPP-INFO: VPP api client connection established");
+
         db = session.getSALService(DataBroker.class);
         initializeVppConfig();
         initVppOperational();
 
-        vppPollOperData = new VppPollOperDataImpl(db);
+        vppPollOperData = new VppPollOperDataImpl(api, db);
         v3poService = session.addRpcImplementation(V3poService.class,
                                                    vppPollOperData);
         startOperationalUpdateTimer();
@@ -321,6 +324,9 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         LOG.info("VPP-INFO: V3poProvider Closed");
         if (v3poService != null) {
             v3poService.close();
+        }
+        if (api != null) {
+            api.close();
         }
     }
 }
