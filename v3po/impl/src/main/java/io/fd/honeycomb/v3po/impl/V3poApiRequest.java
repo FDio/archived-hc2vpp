@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.v3po.impl;
 
+import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
@@ -168,15 +169,7 @@ public class V3poApiRequest extends V3poRequest {
     }
 
     private static String ipv4IntToString(final int ip) {
-        InetAddress addr = null;
-        byte[] bytes = Ints.toByteArray(ip);
-        try {
-            addr = InetAddress.getByAddress(bytes);
-        } catch (java.net.UnknownHostException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return addr.getHostAddress();
+        return InetAddresses.fromInteger(ip).getHostAddress();
     }
 
     private Interface buildStateInterface(final int ifIndex,
@@ -197,7 +190,7 @@ public class V3poApiRequest extends V3poRequest {
                                           final int vtrTag1, final int vtrTag2,
                                           final Statistics stats) {
         InterfaceBuilder ifBuilder = new InterfaceBuilder();
-        java.lang.Class<? extends InterfaceType> ifType;
+        Class<? extends InterfaceType> ifType;
 
         // FIXME: missing types for virtualethernet, subinterface, tap interface etc
         if (interfaceName.startsWith("loop")) {
