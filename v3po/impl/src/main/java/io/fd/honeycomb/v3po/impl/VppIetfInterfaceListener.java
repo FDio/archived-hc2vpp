@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.v3po.impl;
 
+import com.google.common.base.Splitter;
 import java.util.Collection;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -52,6 +53,7 @@ import org.slf4j.LoggerFactory;
 
 public class VppIetfInterfaceListener implements DataTreeChangeListener<Interface>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VppIetfInterfaceListener.class);
+    private static final Splitter DOT_SPLITTER = Splitter.on('.');
 
     private final ListenerRegistration<VppIetfInterfaceListener> registration;
     private final DataBroker db;
@@ -220,7 +222,7 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
         int result = 0;
 
         // iterate over each octet
-        for (String part : address.split("\\.")) {
+        for (String part : DOT_SPLITTER.split(address)) {
             // shift the previously parsed bits over by 1 byte
             result = result << 8;
             // set the low order bits to the current octet
