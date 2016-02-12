@@ -82,16 +82,16 @@ public class V3poApiRequest extends V3poRequest {
         caller = vppPollOperData;
     }
 
-    private InstanceIdentifier<Interface> getStateInterfaceIid(final String interfaceName) {
+    private static InstanceIdentifier<Interface> getStateInterfaceIid(final String interfaceName) {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class,
                 new InterfaceKey(interfaceName));
     }
 
-    private InstanceIdentifier<Interface2> getStateInterfaceIpId(final InstanceIdentifier<Interface> iid) {
+    private static InstanceIdentifier<Interface2> getStateInterfaceIpId(final InstanceIdentifier<Interface> iid) {
         return iid.augmentation(Interface2.class);
     }
 
-    private InstanceIdentifier<Statistics> getStateInterfaceStatsId(final InstanceIdentifier<Interface> iid) {
+    private static InstanceIdentifier<Statistics> getStateInterfaceStatsId(final InstanceIdentifier<Interface> iid) {
         return iid.child(Statistics.class);
     }
 
@@ -103,7 +103,7 @@ public class V3poApiRequest extends V3poRequest {
         return new Counter32(num);
     }
 
-    private Statistics buildInterfaceStatistics(final vppInterfaceCounters ifCounters) {
+    private static Statistics buildInterfaceStatistics(final vppInterfaceCounters ifCounters) {
         if (ifCounters == null) {
             return null;
         }
@@ -331,7 +331,7 @@ public class V3poApiRequest extends V3poRequest {
         return ifBuilder.build();
     }
 
-    private void setStateInterfaceL2(
+    private static void setStateInterfaceL2(
             final VppInterfaceStateAugmentationBuilder augBuilder,
             final boolean isL2BridgeBased, final boolean isXconnect,
             final String xconnectOutgoingInterface,
@@ -356,7 +356,7 @@ public class V3poApiRequest extends V3poRequest {
         augBuilder.setL2(l2Builder.build());
     }
 
-    private void setStateInterfaceEthernet(
+    private static void setStateInterfaceEthernet(
             final VppInterfaceStateAugmentationBuilder augBuilder,
             final boolean isFullDuplex, final String manufacturerDesc, final Integer mtu) {
 
@@ -368,7 +368,7 @@ public class V3poApiRequest extends V3poRequest {
         augBuilder.setEthernet(ethBuilder.build());
     }
 
-    private void setStateInterfaceVxlan(
+    private static void setStateInterfaceVxlan(
             final VppInterfaceStateAugmentationBuilder augBuilder, final int srcAddress,
             final int dstAddress, final int vni, final int encapVrfId) {
 

@@ -17,7 +17,6 @@
 package io.fd.honeycomb.v3po.impl;
 
 import java.util.Collection;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -52,12 +51,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VppIetfInterfaceListener implements DataTreeChangeListener<Interface>, AutoCloseable {
-    private static final Logger LOG = 
-        LoggerFactory.getLogger(VppIetfInterfaceListener.class);
-    
-    private ListenerRegistration<VppIetfInterfaceListener> registration;
-    private DataBroker db;
-    private vppApi api;
+    private static final Logger LOG = LoggerFactory.getLogger(VppIetfInterfaceListener.class);
+
+    private final ListenerRegistration<VppIetfInterfaceListener> registration;
+    private final DataBroker db;
+    private final vppApi api;
 
     private enum DataChangeType {
         CREATE, UPDATE, DELETE
@@ -66,27 +64,27 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
     /**
      * TODO-ADD-JAVADOC.
      */
-    public VppIetfInterfaceListener(DataBroker db, vppApi api) {
+    public VppIetfInterfaceListener(final DataBroker db, final vppApi api) {
         this.db = db;
         this.api = api;
         InstanceIdentifier<Interface> iid = InstanceIdentifier
                 .create(Interfaces.class)
                 .child(Interface.class);
         LOG.info("VPPCFG-INFO: Register listener for VPP Ietf Interface data changes");
-        
-        DataTreeIdentifier<Interface> path = 
+
+        DataTreeIdentifier<Interface> path =
                 new DataTreeIdentifier<Interface>(LogicalDatastoreType.CONFIGURATION, iid);
-        
+
         registration = this.db.registerDataTreeChangeListener(path, this);
     }
-    
-    @Override 
-    public void onDataTreeChanged(Collection<DataTreeModification<Interface>> changes) { 
+
+    @Override
+    public void onDataTreeChanged(final Collection<DataTreeModification<Interface>> changes) {
         LOG.info("VPPCFG-INFO: swIf onDataTreeChanged()");
         for (DataTreeModification<Interface> change: changes) {
             InstanceIdentifier<Interface> iid = change.getRootPath().getRootIdentifier();
             DataObjectModification<Interface> changeDiff = change.getRootNode();
-            
+
             switch (changeDiff.getModificationType()) {
                 case SUBTREE_MODIFIED:
                 case WRITE:
@@ -101,17 +99,17 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                              changeDiff.getModificationType(), iid);
             }
         }
-    } 
-    
-    private void vppSetVppInterfaceEthernetAndL2(int swIfIndex,
-                                                 String swIfName,
-                                                 VppInterfaceAugmentation
+    }
+
+    private void vppSetVppInterfaceEthernetAndL2(final int swIfIndex,
+                                                 final String swIfName,
+                                                 final VppInterfaceAugmentation
                                                  vppInterface) {
         int ctxId = 0;
         int rv = -77;
         int cnt = 0;
         String apiName = "";
-        
+
         LOG.info("VPPCFG-INFO: <vppSetVppInterfaceEthernetAndL2>");
         LOG.info("VPPCFG-INFO:     swIfIndex = {}", swIfIndex);
         LOG.info("VPPCFG-INFO:     swIfName  = {}", swIfName);
@@ -120,11 +118,11 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
         if (vppInterface != null) {
             Ethernet vppEth = vppInterface.getEthernet();
             if (vppEth != null) {
-                LOG.info("VPPCFG-INFO: {} Ethernet MTU = {}", 
+                LOG.info("VPPCFG-INFO: {} Ethernet MTU = {}",
                          swIfName, vppEth.getMtu());
                 /* DAW-FIXME: Need vpe-api msg to configure the Ethernet MTU */
             }
-            
+
             L2 vppL2 = vppInterface.getL2();
             if (vppL2 != null) {
                 Interconnection ic = vppL2.getInterconnection();
@@ -134,11 +132,11 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                     LOG.info("VPPCFG-INFO: XconnectBased");
                     LOG.info("VPPCFG-INFO:   XconnectOutgoingInterface = {}",
                              outSwIfName);
-                    
+
                     int outSwIfIndex = api.swIfIndexFromName(outSwIfName);
                     if (swIfIndex != -1) {
                         apiName = "api.swInterfaceSetL2Xconnect";
-                        ctxId = 
+                        ctxId =
                             api.swInterfaceSetL2Xconnect(swIfIndex,
                                                          outSwIfIndex,
                                                          (byte)1 /* enable */);
@@ -165,16 +163,16 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                         LOG.warn("VPPCFG-WARNING: Unknown Outgoing Interface ({})"
                                  + " specified", outSwIfName);
                     }
-                    
+
                 } else if (ic instanceof BridgeBased) {
                     BridgeBased bb = (BridgeBased) ic;
                     String bdName = bb.getBridgeDomain();
                     int bdId = api.bridgeDomainIdFromName(bdName);
                     if (bdId > 0) {
-                        byte bvi = 
+                        byte bvi =
                             bb.isBridgedVirtualInterface() ? (byte) 1 : (byte) 0;
                         byte shg = bb.getSplitHorizonGroup().byteValue();
-                        
+
                         LOG.info("VPPCFG-INFO: BridgeBased");
                         LOG.info("VPPCFG-INFO:   BridgeDomain = {}, bdId = {}",
                                  bdName, bdId);
@@ -182,14 +180,13 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                                  shg);
                         LOG.info("VPPCFG-INFO:   isBridgedVirtualInterface = {}",
                                  bvi);
-                        
+
                         apiName = "api.swInterfaceSetL2Bridge";
-                        ctxId = 
+                        ctxId =
                             api.swInterfaceSetL2Bridge(swIfIndex,
                                                        bdId, shg, bvi,
                                                        (byte)1 /* enable */);
-                        LOG.info("VPPCFG-INFO: {}() : bdId = {}, shg = {}, "
-                                 + "bvi = {}, ctxId = {}", apiName, bdId,
+                        LOG.info("VPPCFG-INFO: {}() : bdId = {}, shg = {}, bvi = {}, ctxId = {}", apiName, bdId,
                                  shg, bvi, ctxId);
                         cnt = 0;
                         rv = -77;
@@ -198,20 +195,17 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                             cnt++;
                         }
                         if (rv < 0) {
-                            LOG.warn("VPPCFG-WARNING:{}() ctxId = {} failed: "
-                                     + "retval = {}!", apiName, ctxId, rv);
+                            LOG.warn("VPPCFG-WARNING:{}() ctxId = {} failed: retval = {}!", apiName, ctxId, rv);
                             /* DAW-FIXME: throw exception on failure? */
                         } else {
-                            LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {}"
-                                     + " after {} tries.", apiName, ctxId,
+                            LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {} after {} tries.", apiName, ctxId,
                                      rv, cnt);
                         }
 
                     } else {
-                        LOG.error("VPPCFG-ERROR: Bridge Domain {} does not exist!",
-                                  bdName);
+                        LOG.error("VPPCFG-ERROR: Bridge Domain {} does not exist!", bdName);
                     }
-                    
+
                 } else {
                     LOG.error("VPPCFG-ERROR: unknonwn interconnection type!");
                 }
@@ -222,7 +216,7 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
     /**
      * TODO-ADD-JAVADOC.
      */
-    public static int parseIp(String address) {
+    public static int parseIp(final String address) {
         int result = 0;
 
         // iterate over each octet
@@ -234,22 +228,21 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
         }
         return result;
     }
-    
-    private void createVxlanTunnel(String swIfName, Vxlan vxlan) {
+
+    private void createVxlanTunnel(final String swIfName, final Vxlan vxlan) {
         Ipv4Address srcAddress = vxlan.getSrc();
         Ipv4Address dstAddress = vxlan.getDst();
-        
+
         int srcAddr = parseIp(srcAddress.getValue());
         int dstAddr = parseIp(dstAddress.getValue());
         int encapVrfId = vxlan.getEncapVrfId().intValue();
         int vni = vxlan.getVni().getValue().intValue();
-        
+
         int ctxId = api.vxlanAddDelTunnel((byte)1 /* is add */, srcAddr, dstAddr, encapVrfId, -1, vni);
         String apiName = "api.vxlanAddDelTunnel";
-        LOG.info("VPPCFG-INFO: {}({}, src: {}, dst: {} enabled ([]), ...) : "
-                 + "ctxId = {}", apiName, swIfName, srcAddress.getValue(),
-                 dstAddress.getValue(), ctxId);
-        
+        LOG.info("VPPCFG-INFO: {}({}, src: {}, dst: {} enabled ([]), ...) : ctxId = {}",
+            apiName, swIfName, srcAddress.getValue(), dstAddress.getValue(), ctxId);
+
         /* need to wait for creation of interface */
         int rv = -77;
         int cnt = 0;
@@ -264,8 +257,8 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
             LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {} after {} tries.", apiName, ctxId, rv, cnt);
         }
     }
-    
-    private byte [] ipv4AddressNoZoneToArray(Ipv4AddressNoZone ipv4Addr) {
+
+    private static byte [] ipv4AddressNoZoneToArray(final Ipv4AddressNoZone ipv4Addr) {
         byte [] retval = new byte [4];
         String addr = ipv4Addr.getValue().toString();
         String [] dots = addr.split("\\.");
@@ -276,9 +269,9 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
         return retval;
     }
 
-    private void vppSetInterface(Interface swIf, DataChangeType type, 
-                                 Interface originalIf) {
-        VppInterfaceAugmentation vppInterface = 
+    private void vppSetInterface(final Interface swIf, final DataChangeType type,
+                                 final Interface originalIf) {
+        VppInterfaceAugmentation vppInterface =
             swIf.getAugmentation(VppInterfaceAugmentation.class);
         int ctxId = 0;
         int cnt = 0;
@@ -290,36 +283,34 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
          *            For now, all parameters must be set at the same time.
          */
         LOG.info("VPPCFG-INFO: {} <swIf>", type);
-        LOG.info("VPPCFG-INFO:    Name: " + swIf.getName());
-        LOG.info("VPPCFG-INFO:    Desc: " + swIf.getDescription());
-        java.lang.Class<? extends 
+        LOG.info("VPPCFG-INFO:    Name: {}", swIf.getName());
+        LOG.info("VPPCFG-INFO:    Desc: {}", swIf.getDescription());
+        java.lang.Class<? extends
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType>
             ifType = swIf.getType();
         if (ifType != null) {
-            LOG.info("VPPCFG-INFO:    Type: " + swIf.getType().getSimpleName());
+            LOG.info("VPPCFG-INFO:    Type: {}", swIf.getType().getSimpleName());
         }
         LOG.info("VPPCFG-INFO: {} </swIf>", type);
-        
+
         String swIfName = swIf.getName();
         int swIfIndex = api.swIfIndexFromName(swIfName);
 
         if ((ifType != null) && ifType.isAssignableFrom(EthernetCsmacd.class)) {
             if (swIfIndex != -1) {
-                LOG.info("VPPCFG-INFO: {} : swIfIndex = {}",
-                         swIfName, swIfIndex);
-                
+                LOG.info("VPPCFG-INFO: {} : swIfIndex = {}", swIfName, swIfIndex);
+
                 /* set vpp ethernet and l2 containers */
                 vppSetVppInterfaceEthernetAndL2(swIfIndex, swIfName,
                                                 vppInterface);
-               
+
                 byte enabled = swIf.isEnabled() ? (byte) 1 : (byte) 0;
                 apiName = "api.swInterfaceSetFlags";
-                ctxId = api.swInterfaceSetFlags((int)swIfIndex,
-                                                (byte)enabled,
-                                                (byte)enabled,
+                ctxId = api.swInterfaceSetFlags(swIfIndex,
+                                                enabled,
+                                                enabled,
                                                 (byte)0 /* deleted */);
-                LOG.info("VPPCFG-INFO: {}({} ([]), enabled ([]), ...) : "
-                         + "ctxId = {}", apiName, swIfName, swIfIndex,
+                LOG.info("VPPCFG-INFO: {}({} ([]), enabled ([]), ...) : ctxId = {}", apiName, swIfName, swIfIndex,
                          enabled, ctxId);
                 cnt = 0;
                 rv = -77;
@@ -328,18 +319,14 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                     cnt++;
                 }
                 if (rv < 0) {
-                    LOG.warn("VPPCFG-WARNING: api.swInterfaceSetFlags() "
-                             + "ctxId = {} failed: retval = {}!", ctxId, rv);
+                    LOG.warn("VPPCFG-WARNING: api.swInterfaceSetFlags() ctxId = {} failed: retval = {}!", ctxId, rv);
                     /* DAW-FIXME: throw exception on failure? */
                 } else {
-                    LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {} after"
-                             + " {} tries.", apiName, ctxId, rv, cnt);
+                    LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {} after {} tries.", apiName, ctxId, rv, cnt);
                 }
             } else {
-                LOG.error("VPPCFG-ERROR: {} not found!",
-                         swIf.getType().getSimpleName());
-                LOG.error("VPPCFG-ERROR: cannot create {} type interfaces : "
-                         + "ignoring create request for {} !",
+                LOG.error("VPPCFG-ERROR: {} not found!", swIf.getType().getSimpleName());
+                LOG.error("VPPCFG-ERROR: cannot create {} type interfaces : ignoring create request for {} !",
                          swIf.getType().getSimpleName(), swIf.getName());
             }
 
@@ -349,7 +336,7 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
 
             // TODO: check name of interface, make use of renumber to change vpp
             //       interface name to desired one
-            
+
             if (swIfIndex != -1) {
                 // interface exists in vpp
                 if (type == DataChangeType.DELETE) {
@@ -357,7 +344,7 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                 } else {
                     // TODO
                     Vxlan vxlan = vppInterface.getVxlan();
-                    
+
                     LOG.info("Vxlan update: {}", vxlan);
                 }
             } else {
@@ -369,28 +356,27 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                     Vxlan vxlan = vppInterface.getVxlan();
 
                     createVxlanTunnel(swIfName, vxlan);
-                    
+
                     // refresh interfaces to be able to get ifIndex
                     api.swInterfaceDump((byte)1, "vxlan".getBytes());
-                    
+
                     int newSwIfIndex = api.swIfIndexFromName(swIfName);
-                    
+
                     /* set vpp ethernet and l2 containers */
                     vppSetVppInterfaceEthernetAndL2(newSwIfIndex,
                                                     swIfName,
                                                     vppInterface);
-                    
+
                     byte enabled = swIf.isEnabled() ? (byte) 1 : (byte) 0;
-                    ctxId = api.swInterfaceSetFlags((int)newSwIfIndex,
-                                                    (byte)enabled,
-                                                    (byte)enabled,
+                    ctxId = api.swInterfaceSetFlags(newSwIfIndex,
+                                                    enabled,
+                                                    enabled,
                                                     (byte)0 /* deleted */);
-                    
+
                     swIfIndex = newSwIfIndex;
-                    
+
                     apiName = "api.swInterfaceSetFlags";
-                    LOG.info("VPPCFG-INFO: {}({} ({}), enabled ({}), ...) :"
-                             + " ctxId = {}", apiName, swIfName,
+                    LOG.info("VPPCFG-INFO: {}({} ({}), enabled ({}), ...) : ctxId = {}", apiName, swIfName,
                              newSwIfIndex, enabled, ctxId);
                     cnt = 0;
                     rv = -77;
@@ -406,14 +392,13 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                     }
                 }
             }
-            
-        /* DAW-FIXME: Add additional interface types here. 
+
+        /* DAW-FIXME: Add additional interface types here.
          *
          * } else if ((ifType != null) && ifType.isAssignableFrom(*.class)) {
          */
         } else if (ifType != null) {
-            LOG.error("VPPCFG-ERROR: Unsupported interface type ({}) : {}"
-                      + " cannot be created!", ifType.getSimpleName(),
+            LOG.error("VPPCFG-ERROR: Unsupported interface type ({}) : {} cannot be created!", ifType.getSimpleName(),
                       swIf.getName());
         }
 
@@ -421,7 +406,7 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
             LOG.warn("VPPCFG-INFO: Unknown Interface {}", swIfName);
             return;
         }
-        
+
         if (swIf.getDescription() != null) {
             api.setInterfaceDescription(swIfName, swIf.getDescription());
         } else {
@@ -432,7 +417,7 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
         LOG.info("VPPCFG-INFO: vrfId = {}", vrfId);
         if (vrfId > 0) {
             apiName = "api.swInterfaceSetTable";
-            ctxId = api.swInterfaceSetTable((int)swIfIndex,
+            ctxId = api.swInterfaceSetTable(swIfIndex,
                                             (byte)0, /* isIpv6 */
                                             vrfId);
             LOG.info("VPPCFG-INFO: {}({} ([]), 0 /* isIpv6 */, {} /* vrfId */)"
@@ -445,13 +430,13 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                 cnt++;
             }
             if (rv < 0) {
-                LOG.warn("VPPCFG-WARNING: api.swInterfaceSetTable() ctxId = {} failed: retval = {}!", ctxId, rv); 
+                LOG.warn("VPPCFG-WARNING: api.swInterfaceSetTable() ctxId = {} failed: retval = {}!", ctxId, rv);
                 /* DAW-FIXME: throw exception on failure? */
             } else {
                 LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {} after {} tries.", apiName, ctxId, rv, cnt);
             }
         }
-        
+
         Interface1 ipIf = swIf.getAugmentation(Interface1.class);
         LOG.info("VPPCFG-INFO: ipIf = {}", ipIf);
         if (ipIf != null) {
@@ -461,21 +446,20 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
 
                 for (Address v4Addr : v4.getAddress()) {
                     Subnet subnet = v4Addr.getSubnet();
-                    
+
                     if (subnet instanceof PrefixLength) {
                         Short plen = ((PrefixLength)subnet).getPrefixLength();
                         byte [] addr = ipv4AddressNoZoneToArray(v4Addr.getIp());
 
                         if ((plen > 0) && (addr != null)) {
                             apiName = "api.swInterfaceAddDelAddress";
-                            ctxId = 
-                                api.swInterfaceAddDelAddress((int)swIfIndex,
+                            ctxId =
+                                api.swInterfaceAddDelAddress(swIfIndex,
                                                              (byte)1 /* isAdd */,
                                                              (byte)0 /* isIpv6 */,
                                                              (byte)0 /* delAll */,
                                                              plen.byteValue(), addr);
-                            LOG.info("VPPCFG-INFO: {}({}/{}) to {} ({}): {}()"
-                                     + " returned ctxId = {}", apiName, addr,
+                            LOG.info("VPPCFG-INFO: {}({}/{}) to {} ({}): {}() returned ctxId = {}", apiName, addr,
                                      plen, swIfName, swIfIndex, ctxId);
                             cnt = 0;
                             rv = -77;
@@ -484,13 +468,11 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                                 cnt++;
                             }
                             if (rv < 0) {
-                                LOG.warn("VPPCFG-WARNING: {}() ctxId = {} "
-                                         + "failed: retval = {}!", apiName,
+                                LOG.warn("VPPCFG-WARNING: {}() ctxId = {} failed: retval = {}!", apiName,
                                          ctxId, rv);
                                 /* DAW-FIXME: throw exception on failure? */
                             } else {
-                                LOG.info("VPPCFG-INFO: {}() ctxId = {} retval"
-                                         + " = {} after {} tries.", apiName,
+                                LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {} after {} tries.", apiName,
                                          ctxId, rv, cnt);
                             }
                         } else {
@@ -520,25 +502,25 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
         }
     }
 
-    private void createOrUpdateInterface(DataObjectModification<Interface> changeDiff) {
+    private void createOrUpdateInterface(final DataObjectModification<Interface> changeDiff) {
         if (changeDiff.getDataBefore() == null) {
             // create
             vppSetInterface(changeDiff.getDataAfter(),
                     DataChangeType.CREATE, null);
         } else {
             // update
-            vppSetInterface(changeDiff.getDataAfter(), 
-                    DataChangeType.UPDATE, 
+            vppSetInterface(changeDiff.getDataAfter(),
+                    DataChangeType.UPDATE,
                     changeDiff.getDataBefore());
         }
     }
-    
-    private void deleteInterface(DataObjectModification<Interface> changeDiff) {
+
+    private static void deleteInterface(final DataObjectModification<Interface> changeDiff) {
         Interface swIf = changeDiff.getDataBefore();
         LOG.info("VPPCFG-INFO: <swIf>");
-        LOG.info("VPPCFG-INFO:    Name: " + swIf.getName());
-        LOG.info("VPPCFG-INFO:    Desc: " + swIf.getDescription());
-        LOG.info("VPPCFG-INFO:    Type: " + swIf.getType().getSimpleName());
+        LOG.info("VPPCFG-INFO:    Name: {},", swIf.getName());
+        LOG.info("VPPCFG-INFO:    Desc: {}", swIf.getDescription());
+        LOG.info("VPPCFG-INFO:    Type: {}", swIf.getType().getSimpleName());
         LOG.info("VPPCFG-INFO: </swIf>");
 
         if (swIf.getType().isAssignableFrom(EthernetCsmacd.class)) {
@@ -546,16 +528,15 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                      swIf.getType().getSimpleName(),
                      swIf.getName());
 
-        /* DAW-FIXME: Add additional interface types here. 
+        /* DAW-FIXME: Add additional interface types here.
          *
          * } else if (swIf.getType().isAssignableFrom(*.class)) {
          */
 
         } else {
-            LOG.error("VPPCFG-ERROR: Unsupported interface type ({}) : "
-                     + "{} cannot be deleted!",
-                     swIf.getType().getSimpleName(),
-                     swIf.getName());
+            LOG.error("VPPCFG-ERROR: Unsupported interface type ({}) : {} cannot be deleted!",
+                swIf.getType().getSimpleName(),
+                swIf.getName());
         }
     }
 

@@ -21,22 +21,21 @@ import org.slf4j.Logger;
 
 public class LoggingFuturesCallBack<V> implements FutureCallback<V> {
 
-    private static Logger LOG;
-    private String message;
+    private final Logger log;
+    private final String message;
 
-    public LoggingFuturesCallBack(String message, Logger log) {
+    public LoggingFuturesCallBack(final String message, final Logger log) {
         this.message = message;
-        this.LOG = log;
+        this.log = log;
     }
 
     @Override
-    public void onFailure(Throwable err) {
-        LOG.warn(message,err);
-
+    public void onFailure(final Throwable err) {
+        log.warn(message,err);
     }
 
     @Override
-    public void onSuccess(V arg0) {
+    public void onSuccess(final V arg0) {
         /* suppress success messages
         if (arg0 == null) {
             LOG.info("Success!");

@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 public class VppPollOperDataImpl implements V3poService {
     private static final Logger LOG = LoggerFactory.getLogger(VppPollOperDataImpl.class);
+    private static final InstanceIdentifier<VppState> VPP_STATE = InstanceIdentifier.create(VppState.class);
     private vppVersion version;
     private final DataBroker db;
     private int[] bdIds;
@@ -114,7 +115,7 @@ public class VppPollOperDataImpl implements V3poService {
         stateBuilder.setVersion(version);
 
         // write to oper
-        writeVppState(getVppStateIid(), stateBuilder.build());
+        writeVppState(VPP_STATE, stateBuilder.build());
 
         return req.ifNames;
     }
@@ -128,10 +129,6 @@ public class VppPollOperDataImpl implements V3poService {
             .setStatus(new Long(1)).build();
 
         return RpcResultBuilder.success(output).buildFuture();
-    }
-
-    private InstanceIdentifier<VppState> getVppStateIid() {
-        return (InstanceIdentifier.create(VppState.class));
     }
 
     private void writeVppState(final InstanceIdentifier<VppState> iid, final VppState vppState) {
