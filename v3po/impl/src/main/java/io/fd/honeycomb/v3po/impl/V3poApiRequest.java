@@ -72,7 +72,7 @@ import org.slf4j.LoggerFactory;
 /*
  * VPP API Class overriding interface details callback
  */
-public class V3poApiRequest extends V3poRequest {
+public class V3poApiRequest {
     private static final Logger LOG = LoggerFactory.getLogger(V3poApiRequest.class);
     public String ifNames = "";
     private final VppPollOperDataImpl caller;
