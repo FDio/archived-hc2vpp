@@ -15,20 +15,19 @@
  */
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210;
 
-import org.junit.Test;
-import org.opendaylight.controller.config.api.DependencyResolver;
-import org.opendaylight.controller.config.api.JmxAttribute;
-import org.opendaylight.controller.config.api.ModuleIdentifier;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import io.fd.honeycomb.v3po.impl.V3poProvider;
-
-import javax.management.ObjectName;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import io.fd.honeycomb.v3po.impl.V3poProvider;
+import javax.management.ObjectName;
+import org.junit.Test;
+import org.opendaylight.controller.config.api.DependencyResolver;
+import org.opendaylight.controller.config.api.JmxAttribute;
+import org.opendaylight.controller.config.api.ModuleIdentifier;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 
 public class V3poModuleTest {
     @Test
@@ -45,7 +44,11 @@ public class V3poModuleTest {
         // configure mocks
         DependencyResolver dependencyResolver = mock(DependencyResolver.class);
         BindingAwareBroker broker = mock(BindingAwareBroker.class);
-        when(dependencyResolver.resolveInstance(eq(BindingAwareBroker.class), any(ObjectName.class), any(JmxAttribute.class))).thenReturn(broker);
+        when(dependencyResolver.resolveInstance(eq(BindingAwareBroker.class), any(ObjectName.class), any(JmxAttribute.class)))
+            .thenReturn(broker);
+        final org.opendaylight.controller.sal.core.api.Broker domBroker = mock(org.opendaylight.controller.sal.core.api.Broker.class);
+        when(dependencyResolver.resolveInstance(eq(org.opendaylight.controller.sal.core.api.Broker.class), any(ObjectName.class), any(JmxAttribute.class)))
+            .thenReturn(domBroker);
 
         // create instance of module with injected mocks
         V3poModule module = new V3poModule(mock(ModuleIdentifier.class), dependencyResolver);
