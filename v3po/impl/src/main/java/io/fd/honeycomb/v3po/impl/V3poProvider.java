@@ -16,9 +16,13 @@
 
 package io.fd.honeycomb.v3po.impl;
 
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -28,15 +32,23 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.SoftwareLoopback;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.V3poService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.vppjapi.vppApi;
+import org.openvpp.vppjapi.vppInterfaceDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,10 +78,10 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
 
         LOG.info("VPPCFG-INFO: Preparing to initialize the IETF Interface " + "list configuration db.");
         transaction = db.newWriteOnlyTransaction();
-        InstanceIdentifier<Interfaces> iid = InstanceIdentifier.create(Interfaces.class);
-        Interfaces intf = new InterfacesBuilder().build();
-        // FIXME uncomment after ODL bug-5382 is fixed
-//        transaction.put(LogicalDatastoreType.CONFIGURATION, iid, intf);
+
+        // FIXME this is minimal and we need to sync the entire configuration
+        syncInterfaces(transaction, api);
+
         future = transaction.submit();
         Futures.addCallback(future, new
                             LoggingFuturesCallBack<>("VPPCFG-WARNING: Failed to create IETF "
@@ -77,6 +89,40 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
                                                      LOG));
         vppInterfaceListener = new VppIetfInterfaceListener(db, api);
 
+    }
+
+    private static final Map<String, Class<? extends InterfaceType>> IFC_TYPES =
+        new HashMap<String, Class<? extends InterfaceType>>() {{
+            put("vxlan", VxlanTunnel.class);
+            put("lo", SoftwareLoopback.class);
+            put("Ether", EthernetCsmacd.class);
+            // TODO missing types below
+            put("l2tpv3_tunnel", EthernetCsmacd.class);
+            put("tap", EthernetCsmacd.class);
+        }};
+
+    /**
+     * Dump all interfaces from VPP and populate config datastore to sync initial state (interfaces)
+     * Only the mandatory leaves are stored in config datastore
+     */
+    private void syncInterfaces(final WriteTransaction transaction, final vppApi api) {
+        LOG.info("Starting interface configuration sync");
+        final List<Interface> ifcs = Lists.newArrayList();
+        for (Map.Entry<String, Class<? extends InterfaceType>> ifcType : IFC_TYPES.entrySet()) {
+
+            for (vppInterfaceDetails vppIfc : api.swInterfaceDump(((byte) 1), ifcType.getKey().getBytes())) {
+                ifcs.add(new InterfaceBuilder()
+                    .setName(vppIfc.interfaceName)
+                    .setKey(new InterfaceKey(vppIfc.interfaceName))
+                    .setEnabled(vppIfc.adminUp == 1)
+                    .setType(ifcType.getValue())
+                    .build());
+            }
+        }
+
+        InstanceIdentifier<Interfaces> iid = InstanceIdentifier.create(Interfaces.class);
+        transaction.put(LogicalDatastoreType.CONFIGURATION, iid, new InterfacesBuilder().setInterface(ifcs).build());
+        LOG.info("Interface configuration sync ended with following interfaces: {}", ifcs);
     }
 
     /* operational data */
