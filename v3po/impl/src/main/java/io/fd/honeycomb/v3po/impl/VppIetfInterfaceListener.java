@@ -274,7 +274,7 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
     private void vppSetInterface(final Interface swIf, final DataChangeType type,
                                  final Interface originalIf) {
         VppInterfaceAugmentation vppInterface =
-            swIf.getAugmentation(VppInterfaceAugmentation.class);
+            swIf.getAugmentation(VppInterfaceAugmentation.class); // FIXME what if vppInterface is null?
         int ctxId = 0;
         int cnt = 0;
         int rv = -77;
@@ -332,8 +332,8 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
                          swIf.getType().getSimpleName(), swIf.getName());
             }
 
-        } else if ((ifType != null)
-                    && ifType.isAssignableFrom(VxlanTunnel.class)) {
+        } else if ((ifType != null) && ifType.isAssignableFrom(VxlanTunnel.class)
+                && vppInterface != null) { // FIXME handle vppInterface==null case in consistent manner
             LOG.info("VPPCFG-INFO: VxLAN tunnel configuration");
 
             // TODO: check name of interface, make use of renumber to change vpp
@@ -414,28 +414,33 @@ public class VppIetfInterfaceListener implements DataTreeChangeListener<Interfac
         } else {
             api.setInterfaceDescription(swIfName, "");
         }
-        Routing rt = vppInterface.getRouting();
-        int vrfId = (rt != null) ? rt.getVrfId().intValue() : 0;
-        LOG.info("VPPCFG-INFO: vrfId = {}", vrfId);
-        if (vrfId > 0) {
-            apiName = "api.swInterfaceSetTable";
-            ctxId = api.swInterfaceSetTable(swIfIndex,
-                                            (byte)0, /* isIpv6 */
-                                            vrfId);
-            LOG.info("VPPCFG-INFO: {}({} ([]), 0 /* isIpv6 */, {} /* vrfId */)"
-                     + " : ctxId = {}", apiName, swIfName, swIfIndex,
-                     vrfId, ctxId);
-            cnt = 0;
-            rv = -77;
-            while (rv == -77) {
-                rv = api.getRetval(ctxId, 1 /* release */);
-                cnt++;
-            }
-            if (rv < 0) {
-                LOG.warn("VPPCFG-WARNING: api.swInterfaceSetTable() ctxId = {} failed: retval = {}!", ctxId, rv);
+
+        if (vppInterface != null) { // FIXME handle vppInterface==null case in consistent manner
+            Routing rt = vppInterface.getRouting();
+            int vrfId = (rt != null)
+                    ? rt.getVrfId().intValue()
+                    : 0;
+            LOG.info("VPPCFG-INFO: vrfId = {}", vrfId);
+            if (vrfId > 0) {
+                apiName = "api.swInterfaceSetTable";
+                ctxId = api.swInterfaceSetTable(swIfIndex,
+                        (byte) 0, /* isIpv6 */
+                        vrfId);
+                LOG.info("VPPCFG-INFO: {}({} ([]), 0 /* isIpv6 */, {} /* vrfId */)"
+                                + " : ctxId = {}", apiName, swIfName, swIfIndex,
+                        vrfId, ctxId);
+                cnt = 0;
+                rv = -77;
+                while (rv == -77) {
+                    rv = api.getRetval(ctxId, 1 /* release */);
+                    cnt++;
+                }
+                if (rv < 0) {
+                    LOG.warn("VPPCFG-WARNING: api.swInterfaceSetTable() ctxId = {} failed: retval = {}!", ctxId, rv);
                 /* DAW-FIXME: throw exception on failure? */
-            } else {
-                LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {} after {} tries.", apiName, ctxId, rv, cnt);
+                } else {
+                    LOG.info("VPPCFG-INFO: {}() ctxId = {} retval = {} after {} tries.", apiName, ctxId, rv, cnt);
+                }
             }
         }
 
