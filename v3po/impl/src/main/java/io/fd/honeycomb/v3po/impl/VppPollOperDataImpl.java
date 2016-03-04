@@ -96,9 +96,11 @@ public class VppPollOperDataImpl implements V3poService {
                             bd.arpTerm, bd.forward, bd.learn);
 
             for (vppBridgeDomainInterfaceDetails bdIf : bd.interfaces) {
-                bdBuilder.addInterface(bdIf.interfaceName,
-                        bd.bviInterfaceName == bdIf.interfaceName,
-                        bdIf.splitHorizonGroup);
+                if (bdIf.interfaceName != null) {
+                    bdBuilder.addInterface(bdIf.interfaceName,
+                            bdIf.interfaceName.equals(bd.bviInterfaceName),
+                            bdIf.splitHorizonGroup);
+                }
             }
 
             vppL2Fib[] bdFibs = l2fibByBdId.get(bdId);

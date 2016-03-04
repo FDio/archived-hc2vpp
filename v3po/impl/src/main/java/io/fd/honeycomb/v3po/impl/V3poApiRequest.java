@@ -16,12 +16,14 @@
 
 package io.fd.honeycomb.v3po.impl;
 
+import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -173,7 +175,7 @@ public class V3poApiRequest {
     }
 
     private Interface buildStateInterface(final int ifIndex,
-                                          final String interfaceName,
+                                          @Nonnull final String interfaceName,
                                           final int supIfIndex,
                                           final byte[] physAddr,
                                           final byte adminUp, final byte linkUp,
@@ -189,6 +191,7 @@ public class V3poApiRequest {
                                           final int vtrOp, final int vtrPushDot1q,
                                           final int vtrTag1, final int vtrTag2,
                                           final Statistics stats) {
+        Preconditions.checkNotNull(interfaceName, "interfaceName should not be null");
         InterfaceBuilder ifBuilder = new InterfaceBuilder();
         Class<? extends InterfaceType> ifType;
 
@@ -232,10 +235,10 @@ public class V3poApiRequest {
         if (bd != null) {
             bdName = bd.name;
             for (vppBridgeDomainInterfaceDetails bdIf : bd.interfaces) {
-                if (bdIf.interfaceName != interfaceName) {
+                if (!interfaceName.equals(bdIf.interfaceName)) {
                     continue;
                 }
-                if (bd.bviInterfaceName == interfaceName) {
+                if (interfaceName.equals(bd.bviInterfaceName)) {
                     bvi = true;
                 }
                 splitHorizonGroup = bdIf.splitHorizonGroup;
