@@ -66,10 +66,9 @@ public class VppPollOperDataImpl implements V3poService {
 
     /**
      * TODO-ADD-JAVADOC.
-     * Update operational data and return string of space separated
-     * interfaces names
+     * Updates operational data
      */
-    public String updateOperational() {
+    public void updateOperational() {
         V3poApiRequest req = new V3poApiRequest(api, this);
         version = api.getVppVersion();
 
@@ -118,17 +117,14 @@ public class VppPollOperDataImpl implements V3poService {
 
         // write to oper
         writeVppState(VPP_STATE, stateBuilder.build());
-
-        return req.ifNames;
     }
 
     @Override
     public Future<RpcResult<VppPollOperDataOutput>> vppPollOperData() {
-        String ifNames = updateOperational();
-
+        updateOperational();
 
         VppPollOperDataOutput output = new VppPollOperDataOutputBuilder()
-            .setStatus(new Long(1)).build();
+            .setStatus(Long.valueOf(1)).build();
 
         return RpcResultBuilder.success(output).buildFuture();
     }

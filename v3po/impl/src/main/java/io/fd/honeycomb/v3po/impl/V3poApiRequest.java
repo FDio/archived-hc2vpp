@@ -76,7 +76,6 @@ import org.slf4j.LoggerFactory;
  */
 public class V3poApiRequest {
     private static final Logger LOG = LoggerFactory.getLogger(V3poApiRequest.class);
-    public String ifNames = "";
     private final VppPollOperDataImpl caller;
     private final vppApi api;
 
@@ -451,7 +450,5 @@ public class V3poApiRequest {
                                              swIf.vtrOp, swIf.vtrPushDot1q,
                                              swIf.vtrTag1, swIf.vtrTag2, stats);
         writeToIfState(iid, intf);
-
-        ifNames += " " + swIf.interfaceName;
     }
 }
