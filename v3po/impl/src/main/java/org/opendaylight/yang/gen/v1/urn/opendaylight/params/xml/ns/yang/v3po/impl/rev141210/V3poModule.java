@@ -31,13 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class V3poModule extends
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210.AbstractV3poModule {
-
-    private static final Logger LOG = LoggerFactory.getLogger(V3poModule.class);
 
     public V3poModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
                       org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -53,14 +49,14 @@ public class V3poModule extends
 
     @Override
     public void customValidation() {
-        // add custom validation form module attributes here.AbstractModule
+        // add custom validation form module attributes here
     }
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        getDomBrokerDependency().registerProvider(new InitializationProvider());
-
-        V3poProvider provider = new V3poProvider();
+        final Broker domBroker = getDomBrokerDependency();
+        domBroker.registerProvider(new InitializationProvider());
+        final V3poProvider provider = new V3poProvider(domBroker);
         getBrokerDependency().registerProvider(provider);
         return provider;
     }
@@ -108,5 +104,6 @@ public class V3poModule extends
             return null;
         }
     }
+
 
 }

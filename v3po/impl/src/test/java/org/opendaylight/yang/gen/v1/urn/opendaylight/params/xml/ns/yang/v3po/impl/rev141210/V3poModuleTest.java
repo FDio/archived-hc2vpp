@@ -40,7 +40,7 @@ public class V3poModuleTest {
     }
 
 
-    // @Test
+    @Test
     public void testCreateInstance() throws Exception {
         // configure mocks
         DependencyResolver dependencyResolver = mock(DependencyResolver.class);

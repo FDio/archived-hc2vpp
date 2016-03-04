@@ -16,15 +16,18 @@
 
 package io.fd.honeycomb.v3po.impl;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
+import io.fd.honeycomb.v3po.impl.data.VppDataBrokerInitializationProvider;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -32,6 +35,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
+import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.SoftwareLoopback;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
@@ -55,12 +59,18 @@ import org.slf4j.LoggerFactory;
 public class V3poProvider implements BindingAwareProvider, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(V3poProvider.class);
+    private final Broker domBroker;
     private RpcRegistration<V3poService> v3poService;
     private VppIetfInterfaceListener vppInterfaceListener;
     private VppBridgeDomainListener vppBridgeDomainListener;
     private vppApi api;
     private DataBroker db;
     VppPollOperDataImpl vppPollOperData;
+    private VppDataBrokerInitializationProvider vppDataBrokerInitializationProvider;
+
+    public V3poProvider(@Nonnull final Broker domBroker) {
+        this.domBroker = Preconditions.checkNotNull(domBroker, "domBroker should not be null");
+    }
 
     private void initializeVppConfig() {
 
@@ -176,6 +186,10 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         v3poService = session.addRpcImplementation(V3poService.class,
                                                    vppPollOperData);
         startOperationalUpdateTimer();
+
+        // TODO make configurable
+        vppDataBrokerInitializationProvider = new VppDataBrokerInitializationProvider(db);
+        domBroker.registerProvider(vppDataBrokerInitializationProvider);
     }
 
     @Override
@@ -186,6 +200,9 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         }
         if (api != null) {
             api.close();
+        }
+        if (vppDataBrokerInitializationProvider != null) {
+            vppDataBrokerInitializationProvider.close();
         }
     }
 }
