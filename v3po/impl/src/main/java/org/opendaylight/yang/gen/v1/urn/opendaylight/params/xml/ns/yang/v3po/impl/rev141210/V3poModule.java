@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210;
 
 import io.fd.honeycomb.v3po.impl.V3poProvider;
@@ -25,30 +26,39 @@ import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.controller.sal.core.api.Provider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class V3poModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210.AbstractV3poModule {
-    public V3poModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+public class V3poModule extends
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210.AbstractV3poModule {
+
+    private static final Logger LOG = LoggerFactory.getLogger(V3poModule.class);
+
+    public V3poModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+                      org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public V3poModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210.V3poModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public V3poModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+                      org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+                      org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210.V3poModule oldModule,
+                      java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
     @Override
     public void customValidation() {
-        // add custom validation form module attributes here.
+        // add custom validation form module attributes here.AbstractModule
     }
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-       getDomBrokerDependency().registerProvider(new InitializationProvider());
+        getDomBrokerDependency().registerProvider(new InitializationProvider());
 
         V3poProvider provider = new V3poProvider();
         getBrokerDependency().registerProvider(provider);
@@ -56,8 +66,8 @@ public class V3poModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.pa
     }
 
     /**
-     * Writes list parents as a workaround for ODL issue
-     * TODO remove (also remove from yang model and cfg) and fix ODL bug-5382
+     * Writes list parents as a workaround for ODL issue TODO remove (also remove from yang model and cfg) and fix ODL
+     * bug-5382
      */
     private class InitializationProvider implements Provider {
         @Override
@@ -69,17 +79,18 @@ public class V3poModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.pa
             YangInstanceIdentifier.NodeIdentifier nodeId = getNodeId(Interfaces.QNAME);
             YangInstanceIdentifier interfacesYid = YangInstanceIdentifier.create(nodeId);
             domDataWriteTransaction.merge(LogicalDatastoreType.CONFIGURATION,
-                interfacesYid, Builders.containerBuilder().withNodeIdentifier(nodeId)
-                    .withChild(Builders.mapBuilder().withNodeIdentifier(getNodeId(Interface.QNAME)).build())
-                    .build());
+                    interfacesYid, Builders.containerBuilder().withNodeIdentifier(nodeId)
+                            .withChild(Builders.mapBuilder().withNodeIdentifier(getNodeId(Interface.QNAME)).build())
+                            .build());
 
             // Initialize bridge domains list
             nodeId = getNodeId(BridgeDomains.QNAME);
-            interfacesYid = YangInstanceIdentifier.create(getNodeId(Vpp.QNAME), nodeId);
+            interfacesYid = YangInstanceIdentifier.create(getNodeId(
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp.QNAME), nodeId);
             domDataWriteTransaction.merge(LogicalDatastoreType.CONFIGURATION,
-                interfacesYid, Builders.containerBuilder().withNodeIdentifier(nodeId)
-                    .withChild(Builders.mapBuilder().withNodeIdentifier(getNodeId(BridgeDomain.QNAME)).build())
-                    .build());
+                    interfacesYid, Builders.containerBuilder().withNodeIdentifier(nodeId)
+                            .withChild(Builders.mapBuilder().withNodeIdentifier(getNodeId(BridgeDomain.QNAME)).build())
+                            .build());
 
             try {
                 domDataWriteTransaction.submit().checkedGet();
@@ -97,4 +108,5 @@ public class V3poModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.pa
             return null;
         }
     }
+
 }
