@@ -16,14 +16,17 @@
 
 package io.fd.honeycomb.v3po.impl.trans.util;
 
-import com.google.common.base.Optional;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import io.fd.honeycomb.v3po.impl.trans.ChildVppReader;
-import java.lang.reflect.Method;
+import io.fd.honeycomb.v3po.impl.trans.SubtreeManager;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
@@ -32,9 +35,9 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public final class VppReaderUtils {
+public final class VppRWUtils {
 
-    private VppReaderUtils() {}
+    private VppRWUtils() {}
 
     /**
      * Find next item in ID after provided type
@@ -77,7 +80,7 @@ public final class VppReaderUtils {
      */
     @SuppressWarnings("unchecked")
     @Nonnull
-    public static <D extends DataObject & Identifiable<K>, K extends Identifier<D>> InstanceIdentifier<D> getCurrentId(
+    public static <D extends DataObject & Identifiable<K>, K extends Identifier<D>> InstanceIdentifier<D> replaceLastInId(
         @Nonnull final InstanceIdentifier<D> id, final InstanceIdentifier.IdentifiableItem<D, K> currentBdItem) {
 
         final Iterable<InstanceIdentifier.PathArgument> pathArguments = id.getPathArguments();
@@ -116,37 +119,46 @@ public final class VppReaderUtils {
     }
 
     /**
-     * Find a specific method using reflection
+     * Create a map from a collection, checking for duplicity in the process
      */
     @Nonnull
-    public static Optional<Method> findMethodReflex(@Nonnull final Class<?> managedType,
-                                                    @Nonnull final String prefix,
-                                                    @Nonnull final List<Class<?>> paramTypes,
-                                                    @Nonnull final Class<?> retType) {
-        top:
-        for (Method method : managedType.getMethods()) {
-            if (!method.getName().toLowerCase().startsWith(prefix.toLowerCase())) {
-                continue;
-            }
-
-            final Class<?>[] parameterTypes = method.getParameterTypes();
-            if (parameterTypes.length != paramTypes.size()) {
-                continue;
-            }
-
-            for (int i = 0; i < parameterTypes.length; i++) {
-                if (!parameterTypes[i].isAssignableFrom(paramTypes.get(i))) {
-                    continue top;
-                }
-            }
-
-            if (!method.getReturnType().equals(retType)) {
-                continue;
-            }
-
-            return Optional.of(method);
+    public static <K, V> Map<K, V> uniqueLinkedIndex(@Nonnull final Collection<V> values, @Nonnull final Function<? super V, K> keyFunction) {
+        final Map<K, V> objectObjectLinkedHashMap = Maps.newLinkedHashMap();
+        for (V value : values) {
+            final K key = keyFunction.apply(value);
+            Preconditions.checkArgument(objectObjectLinkedHashMap.put(key, value) == null,
+                "Duplicate key detected : %s", key);
         }
+        return objectObjectLinkedHashMap;
+    }
 
-        return Optional.absent();
+    public static final Function<SubtreeManager<? extends DataObject>, Class<? extends DataObject>>
+        MANAGER_CLASS_FUNCTION = new Function<SubtreeManager<? extends DataObject>, Class<? extends DataObject>>() {
+        @Override
+        public Class<? extends DataObject> apply(final SubtreeManager<? extends DataObject> input) {
+            return input.getManagedDataObjectType().getTargetType();
+        }
+    };
+
+    public static final Function<SubtreeManager<? extends Augmentation<?>>, Class<? extends DataObject>>
+        MANAGER_CLASS_AUG_FUNCTION = new Function<SubtreeManager<? extends Augmentation<?>>, Class<? extends DataObject>>() {
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Class<? extends DataObject> apply(final SubtreeManager<? extends Augmentation<?>> input) {
+            final Class<? extends Augmentation<?>> targetType = input.getManagedDataObjectType().getTargetType();
+            Preconditions.checkArgument(DataObject.class.isAssignableFrom(targetType));
+            return (Class<? extends DataObject>) targetType;
+        }
+    };
+
+    @SuppressWarnings("unchecked")
+    public static <D extends DataObject> InstanceIdentifier<D> appendTypeToId(
+        final InstanceIdentifier<? extends DataObject> parentId, final InstanceIdentifier<D> type) {
+        Preconditions.checkArgument(!parentId.contains(type),
+            "Unexpected InstanceIdentifier %s, already contains %s", parentId, type);
+        final InstanceIdentifier.PathArgument t = Iterables.getOnlyElement(type.getPathArguments());
+        return (InstanceIdentifier<D>) InstanceIdentifier.create(Iterables.concat(
+            parentId.getPathArguments(), Collections.singleton(t)));
     }
 }

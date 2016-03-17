@@ -17,13 +17,27 @@
 package io.fd.honeycomb.v3po.impl.trans.impl.spi;
 
 import com.google.common.annotations.Beta;
+import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * io.fd.honeycomb.v3po.impl.trans.impl.CompositeRootVppReader SPI to customize its behavior
+ */
 @Beta
 public interface RootVppReaderCustomizer<C extends DataObject, B extends Builder<C>> {
 
-    B getBuilder();
+    // TODO add (un)checked, well defined exception here to indicate issues in the customizer
 
-    void readCurrentAttributes(B builder);
+    /**
+     * Create new builder that will be used to build read value
+     */
+    @Nonnull
+    B getBuilder(@Nonnull final InstanceIdentifier<C> id);
+
+    /**
+     * Add current data (identified by id) to the provided builder
+     */
+    void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder);
 }

@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.v3po.impl.trans;
 
+import com.google.common.annotations.Beta;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -23,7 +24,12 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 /**
  * Simple delegating reader suitable as a holder for all other root readers, providing readAll feature
  */
+@Beta
 public interface ReaderRegistry extends VppReader<DataObject> {
 
-    @Nonnull List<? extends DataObject> readAll();
+    /**
+     * Perform read on all underlying readers and merge the results into a single list
+     */
+    @Nonnull
+    List<? extends DataObject> readAll();
 }

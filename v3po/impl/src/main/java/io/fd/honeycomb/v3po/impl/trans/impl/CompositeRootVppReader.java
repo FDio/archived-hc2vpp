@@ -20,7 +20,7 @@ import com.google.common.annotations.Beta;
 import io.fd.honeycomb.v3po.impl.trans.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.impl.spi.RootVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppReaderUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -30,6 +30,9 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * Composite implementation of {@link VppReader}
+ */
 @Beta
 @ThreadSafe
 public final class CompositeRootVppReader<C extends DataObject, B extends Builder<C>> extends AbstractCompositeVppReader<C, B>
@@ -37,35 +40,49 @@ public final class CompositeRootVppReader<C extends DataObject, B extends Builde
 
     private final RootVppReaderCustomizer<C, B> customizer;
 
+    /**
+     * Create new {@link CompositeRootVppReader}
+     *
+     * @param managedDataObjectType Class object for managed data type
+     * @param childReaders Child nodes(container, list) readers
+     * @param augReaders Child augmentations readers
+     * @param customizer Customizer instance to customize this generic reader
+     *
+     */
     public CompositeRootVppReader(@Nonnull final Class<C> managedDataObjectType,
                                   @Nonnull final List<ChildVppReader<? extends ChildOf<C>>> childReaders,
-                                  @Nonnull final List<ChildVppReader<? extends Augmentation<C>>> childAugReaders,
+                                  @Nonnull final List<ChildVppReader<? extends Augmentation<C>>> augReaders,
                                   @Nonnull final RootVppReaderCustomizer<C, B> customizer) {
-        super(managedDataObjectType, childReaders, childAugReaders);
+        super(managedDataObjectType, childReaders, augReaders);
         this.customizer = customizer;
     }
 
+    /**
+     * @see {@link CompositeRootVppReader#CompositeRootVppReader(Class, List, List, RootVppReaderCustomizer)}
+     */
     public CompositeRootVppReader(@Nonnull final Class<C> managedDataObjectType,
                                   @Nonnull final List<ChildVppReader<? extends ChildOf<C>>> childReaders,
                                   @Nonnull final RootVppReaderCustomizer<C, B> customizer) {
-        this(managedDataObjectType, childReaders, VppReaderUtils.<C>emptyAugReaderList(), customizer);
+        this(managedDataObjectType, childReaders, VppRWUtils.<C>emptyAugReaderList(), customizer);
     }
 
+    /**
+     * @see {@link CompositeRootVppReader#CompositeRootVppReader(Class, List, List, RootVppReaderCustomizer)}
+     */
     public CompositeRootVppReader(@Nonnull final Class<C> managedDataObjectType,
                                   @Nonnull final RootVppReaderCustomizer<C, B> customizer) {
-        this(managedDataObjectType, VppReaderUtils.<C>emptyChildReaderList(), VppReaderUtils.<C>emptyAugReaderList(),
+        this(managedDataObjectType, VppRWUtils.<C>emptyChildReaderList(), VppRWUtils.<C>emptyAugReaderList(),
             customizer);
     }
 
     @Override
     protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder) {
-        customizer.readCurrentAttributes(builder);
+        customizer.readCurrentAttributes(id, builder);
     }
 
     @Override
-    protected B getBuilder(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
-        // TODO instantiate builder from customizer(as is) or reflection ?
-        return customizer.getBuilder();
+    protected B getBuilder(@Nonnull final InstanceIdentifier<C> id) {
+        return customizer.getBuilder(id);
     }
 
 }

@@ -20,10 +20,9 @@ import io.fd.honeycomb.v3po.impl.trans.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.impl.CompositeChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.impl.CompositeListVppReader;
 import io.fd.honeycomb.v3po.impl.trans.impl.CompositeRootVppReader;
-import io.fd.honeycomb.v3po.impl.trans.impl.spi.RootVppReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.util.ReflexiveChildReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.util.ReflexiveRootReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppReaderUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -38,32 +37,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.openvpp.vppjapi.vppApi;
 
-public final class VppStateUtils {
+final class VppStateUtils {
 
     public VppStateUtils() {}
 
     /**
      * Create root VppState reader with all its children wired
      */
-    public static CompositeRootVppReader<VppState, VppStateBuilder> getVppStateReader(@Nonnull final vppApi vppApi) {
-        final RootVppReaderCustomizer<VppState, VppStateBuilder> rootVppReaderCustomizer =
-            new ReflexiveRootReaderCustomizer<>(VppStateBuilder.class);
+    static CompositeRootVppReader<VppState, VppStateBuilder> getVppStateReader(@Nonnull final vppApi vppApi) {
 
         final ChildVppReader<Version> versionReader = new CompositeChildVppReader<>(
-            Version.class,
-            new VersionCustomizer(vppApi));
+            Version.class, new VersionCustomizer(vppApi));
 
         final CompositeListVppReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder>
-            identifierBuilderCompositeListVppReader = new CompositeListVppReader<>(
+            bridgeDomainReader = new CompositeListVppReader<>(
             BridgeDomain.class,
             new BridgeDomainCustomizer(vppApi));
 
-        final List<ChildVppReader<? extends ChildOf<BridgeDomains>>> bdChildReaders = new ArrayList<>();
-        bdChildReaders.add(identifierBuilderCompositeListVppReader);
-
         final ChildVppReader<BridgeDomains> bridgeDomainsReader = new CompositeChildVppReader<>(
             BridgeDomains.class,
-            bdChildReaders,
+            VppRWUtils.singletonChildReaderList(bridgeDomainReader),
             new ReflexiveChildReaderCustomizer<>(BridgeDomainsBuilder.class));
 
         final List<ChildVppReader<? extends ChildOf<VppState>>> childVppReaders = new ArrayList<>();
@@ -73,7 +66,7 @@ public final class VppStateUtils {
         return new CompositeRootVppReader<>(
             VppState.class,
             childVppReaders,
-            VppReaderUtils.<VppState>emptyAugReaderList(),
-            rootVppReaderCustomizer);
+            VppRWUtils.<VppState>emptyAugReaderList(),
+            new ReflexiveRootReaderCustomizer<>(VppStateBuilder.class));
     }
 }

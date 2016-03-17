@@ -23,10 +23,12 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Base VPP reader, responsible for translation between DataObjects and VPP apis
+ * Base VPP reader, responsible for translation between DataObjects and VPP APIs
+ *
+ * @param <D> Specific DataObject derived type, that is handled by this reader
  */
 @Beta
-public interface VppReader<D extends DataObject> {
+public interface VppReader<D extends DataObject> extends SubtreeManager<D> {
 
     // TODO add vpp read context that will be shared by all readers during a single read to keep useful information
     // preventing possible duplicate reads from VPP
@@ -35,21 +37,12 @@ public interface VppReader<D extends DataObject> {
     /**
      * Reads from VPP data identified by id
      *
-     * @param id unique identifier of subtree to be read.
-     *           The subtree must contain managed data object type enforcing it to point
-     *           to the node type managed by this reader or below. For identifiers pointing below
-     *           node managed by this reader, its reader's responsibility to filter out the right
-     *           node or to delegate the read to a child reader.
-     *
-     * @return  List of DataObjects identified by id. If the ID points to a single node, it will be wrapped in a list
+     * @param id unique identifier of subtree to be read. The subtree must contain managed data object type. For
+     *           identifiers pointing below node managed by this reader, it's reader's responsibility to filter out the
+     *           right node or to delegate the read to a child reader.
+     * @return List of DataObjects identified by id. If the ID points to a single node, it will be wrapped in a list
      */
-    @Nonnull List<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id);
+    @Nonnull
+    List<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id);
 
-
-    /**
-     * Get the type of node managed by this reader
-     *
-     * @return Class object for node managed by this reader
-     */
-    @Nonnull InstanceIdentifier<D> getManagedDataObjectType();
 }

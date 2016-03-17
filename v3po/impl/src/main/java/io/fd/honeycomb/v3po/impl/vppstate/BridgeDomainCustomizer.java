@@ -19,8 +19,9 @@ package io.fd.honeycomb.v3po.impl.vppstate;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.impl.trans.impl.spi.ListVppReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.util.VppApiReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppReaderUtils;
+import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomainsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
@@ -32,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2Fib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.vppjapi.vppBridgeDomainDetails;
 import org.openvpp.vppjapi.vppBridgeDomainInterfaceDetails;
@@ -40,27 +42,19 @@ import org.openvpp.vppjapi.vppL2Fib;
 public final class BridgeDomainCustomizer extends VppApiReaderCustomizer
     implements ListVppReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
 
-    public BridgeDomainCustomizer(final org.openvpp.vppjapi.vppApi vppApi) {
+    public BridgeDomainCustomizer(@Nonnull final org.openvpp.vppjapi.vppApi vppApi) {
         super(vppApi);
     }
 
     @Override
-    public void readCurrentAttributes(final InstanceIdentifier<BridgeDomain> id,
-                                      final BridgeDomainBuilder builder) {
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
+                                      @Nonnull final BridgeDomainBuilder builder) {
         final BridgeDomainKey key = id.firstKeyOf(id.getTargetType());
-        final int bdId;
-        try {
-            bdId = Integer.parseInt(key.getName());
-        } catch (NumberFormatException e) {
-            // LOG.warn("Invalid key", e);
-            return;
-        }
+        // TODO find out if bd exists based on name and if not return
+
+        final int bdId = getVppApi().bridgeDomainIdFromName(key.getName());
         final vppBridgeDomainDetails bridgeDomainDetails = getVppApi().getBridgeDomainDetails(bdId);
 
-        // FIXME, the problem here is that while going to VPP, the id for vbd is integer ID
-        // However in the models vbd's key is the name
-        // And you can get vbd name from vbd's ID using vppAPI, but not the other way around, making the API hard to use
-        // TO solve it, we need to store the vbd ID <-> vbd Name mapping in the (not-yet-available) read context and use it here
         builder.setName(key.getName());
         // builder.setName(bridgeDomainDetails.name);
         builder.setArpTermination(bridgeDomainDetails.arpTerm);
@@ -99,7 +93,7 @@ public final class BridgeDomainCustomizer extends VppApiReaderCustomizer
     }
 
     private List<Interface> getIfcs(final vppBridgeDomainDetails bridgeDomainDetails) {
-        final List<Interface> ifcs = Lists.newArrayListWithExpectedSize(bridgeDomainDetails.interfaces.length);
+        final List<Interface> ifcs = new ArrayList<>(bridgeDomainDetails.interfaces.length);
         for (vppBridgeDomainInterfaceDetails anInterface : bridgeDomainDetails.interfaces) {
             ifcs.add(new InterfaceBuilder()
                 .setBridgedVirtualInterface(bridgeDomainDetails.bviInterfaceName.equals(anInterface.interfaceName))
@@ -110,27 +104,29 @@ public final class BridgeDomainCustomizer extends VppApiReaderCustomizer
         return ifcs;
     }
 
+    @Nonnull
     @Override
-    public BridgeDomainBuilder getBuilder(final BridgeDomainKey id) {
+    public BridgeDomainBuilder getBuilder(@Nonnull final InstanceIdentifier<BridgeDomain> id) {
         return new BridgeDomainBuilder();
     }
 
+    @Nonnull
     @Override
-    public List<InstanceIdentifier<BridgeDomain>> getAllIds(final InstanceIdentifier<BridgeDomain> id) {
-        final int[] ints = getVppApi().bridgeDomainDump(-1);
-        final List<InstanceIdentifier<BridgeDomain>> allIds = Lists.newArrayListWithExpectedSize(ints.length);
-        for (int i : ints) {
-            final InstanceIdentifier.IdentifiableItem<BridgeDomain, BridgeDomainKey> currentBdItem =
-                VppReaderUtils.getCurrentIdItem(id, new BridgeDomainKey(Integer.toString(i)));
-            final InstanceIdentifier<BridgeDomain> e = VppReaderUtils.getCurrentId(id, currentBdItem);
-            allIds.add(e);
+    public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id) {
+        final int[] bIds = getVppApi().bridgeDomainDump(-1);
+        final List<BridgeDomainKey> allIds = new ArrayList<>(bIds.length);
+        for (int bId : bIds) {
+            // FIXME this is highly inefficient having to dump all of the bridge domain details
+            final vppBridgeDomainDetails bridgeDomainDetails = getVppApi().getBridgeDomainDetails(bId);
+            final String bName = bridgeDomainDetails.name;
+            allIds.add(new BridgeDomainKey(bName));
         }
 
         return allIds;
     }
 
     @Override
-    public void merge(final Builder<?> builder, final List<BridgeDomain> currentBuilder) {
-        ((BridgeDomainsBuilder) builder).setBridgeDomain(currentBuilder);
+    public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<BridgeDomain> readData) {
+        ((BridgeDomainsBuilder) builder).setBridgeDomain(readData);
     }
 }

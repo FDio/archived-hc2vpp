@@ -24,16 +24,20 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Child VPP reader allowing its parent to pass the builder object
+ *
+ * @param <C> Specific DataObject derived type, that is handled by this reader
  */
 @Beta
 public interface ChildVppReader<C extends DataObject> extends VppReader<C> {
 
     /**
-     * Read subtree starting from node managed by this reader and place the subtree within parent builder object if
-     * the data exists.
+     * Reads subtree starting from node managed by this reader and place the subtree within parent builder object if the
+     * data exists.
      *
-     * @param id Unique identifier pointing to the node managed by this reader. Useful when necessary to determine
-     *           the exact position within more complex subtrees.
+     * @param id            Unique identifier pointing to the node managed by this reader. Useful when necessary to
+     *                      determine the exact position within more complex subtrees.
+     * @param parentBuilder Builder of parent DataObject. Objects read on this level (if any) must be placed into the
+     *                      parent builder.
      */
     void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
               @Nonnull final Builder<? extends DataObject> parentBuilder);

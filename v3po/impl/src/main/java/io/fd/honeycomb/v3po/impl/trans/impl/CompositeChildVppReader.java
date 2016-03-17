@@ -20,7 +20,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.impl.trans.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.impl.spi.ChildVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppReaderUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -30,13 +30,26 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * Composite implementation of {@link ChildVppReader} able to place the read result into
+ * parent builder object.
+ */
 @Beta
 @ThreadSafe
-public class CompositeChildVppReader<C extends DataObject, B extends Builder<C>> extends AbstractCompositeVppReader<C, B>
+public final class CompositeChildVppReader<C extends DataObject, B extends Builder<C>> extends AbstractCompositeVppReader<C, B>
     implements ChildVppReader<C> {
 
     private final ChildVppReaderCustomizer<C, B> customizer;
 
+    /**
+     * Create new {@link CompositeChildVppReader}
+     *
+     * @param managedDataObjectType Class object for managed data type
+     * @param childReaders Child nodes(container, list) readers
+     * @param augReaders Child augmentations readers
+     * @param customizer Customizer instance to customize this generic reader
+     *
+     */
     public CompositeChildVppReader(@Nonnull final Class<C> managedDataObjectType,
                                    @Nonnull final List<ChildVppReader<? extends ChildOf<C>>> childReaders,
                                    @Nonnull final List<ChildVppReader<? extends Augmentation<C>>> augReaders,
@@ -45,22 +58,29 @@ public class CompositeChildVppReader<C extends DataObject, B extends Builder<C>>
         this.customizer = customizer;
     }
 
+    /**
+     * @see {@link CompositeChildVppReader#CompositeChildVppReader(Class, List, List, ChildVppReaderCustomizer)}
+     */
     public CompositeChildVppReader(@Nonnull final Class<C> managedDataObjectType,
                                    @Nonnull final List<ChildVppReader<? extends ChildOf<C>>> childReaders,
                                    @Nonnull final ChildVppReaderCustomizer<C, B> customizer) {
-        this(managedDataObjectType, childReaders, VppReaderUtils.<C>emptyAugReaderList(), customizer);
+        this(managedDataObjectType, childReaders, VppRWUtils.<C>emptyAugReaderList(), customizer);
     }
 
+    /**
+     * @see {@link CompositeChildVppReader#CompositeChildVppReader(Class, List, List, ChildVppReaderCustomizer)}
+     */
     public CompositeChildVppReader(@Nonnull final Class<C> managedDataObjectType,
                                    @Nonnull final ChildVppReaderCustomizer<C, B> customizer) {
-        this(managedDataObjectType, VppReaderUtils.<C>emptyChildReaderList(), VppReaderUtils.<C>emptyAugReaderList(),
+        this(managedDataObjectType, VppRWUtils.<C>emptyChildReaderList(), VppRWUtils.<C>emptyAugReaderList(),
             customizer);
     }
 
     @Override
     public final void read(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                            @Nonnull final Builder<? extends DataObject> parentBuilder) {
-        final Optional<C> read = Optional.fromNullable(readCurrent(getCurrentId(parentId)).get(0));
+        final Optional<C> read = Optional.fromNullable(readCurrent(VppRWUtils.appendTypeToId(parentId,
+            getManagedDataObjectType())).get(0));
 
         if(read.isPresent()) {
             customizer.merge(parentBuilder, read.get());
@@ -69,12 +89,12 @@ public class CompositeChildVppReader<C extends DataObject, B extends Builder<C>>
 
     @Override
     protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder) {
-        customizer.readCurrentAttributes(builder);
+        customizer.readCurrentAttributes(id, builder);
     }
 
     @Override
-    protected B getBuilder(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
-        return customizer.getBuilder();
+    protected B getBuilder(@Nonnull final InstanceIdentifier<C> id) {
+        return customizer.getBuilder(id);
     }
 
 }

@@ -41,7 +41,7 @@ public class ReflexiveChildReaderCustomizer<C extends DataObject, B extends Buil
     @Override
     public void merge(final Builder<? extends DataObject> parentBuilder, final C readValue) {
         final Optional<Method> method =
-            VppReaderUtils.findMethodReflex(parentBuilder.getClass(), "set",
+            ReflectionUtils.findMethodReflex(parentBuilder.getClass(), "set",
                 Collections.<Class<?>>singletonList(readValue.getClass()), parentBuilder.getClass());
 
         Preconditions.checkArgument(method.isPresent(), "Unable to set %s to %s", readValue, parentBuilder);

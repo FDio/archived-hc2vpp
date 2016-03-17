@@ -17,13 +17,22 @@
 package io.fd.honeycomb.v3po.impl.trans.impl.spi;
 
 import com.google.common.annotations.Beta;
+import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
+/**
+ * io.fd.honeycomb.v3po.impl.trans.impl.CompositeChildVppReader SPI to customize its behavior
+ */
 @Beta
 public interface ChildVppReaderCustomizer<C extends DataObject, B extends Builder<C>> extends
     RootVppReaderCustomizer<C, B> {
 
-    // FIXME need to capture parent builder type, but that's a inconvenient
-    void merge(Builder<? extends DataObject> parentBuilder, C readValue);
+    // FIXME need to capture parent builder type, but that's inconvenient at best, is it ok to leave it Builder<?> and
+    // cast in specific customizers ? ... probably better than adding another type parameter
+
+    /**
+     * Merge read data into provided parent builder
+     */
+    void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final C readValue);
 }

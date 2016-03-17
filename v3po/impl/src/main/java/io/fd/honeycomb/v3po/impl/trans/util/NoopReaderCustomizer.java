@@ -19,11 +19,12 @@ package io.fd.honeycomb.v3po.impl.trans.util;
 import io.fd.honeycomb.v3po.impl.trans.impl.spi.RootVppReaderCustomizer;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public abstract class NoopReaderCustomizer<C extends DataObject, B extends Builder<C>> implements RootVppReaderCustomizer<C, B> {
 
     @Override
-    public void readCurrentAttributes(final B builder) {
+    public void readCurrentAttributes(InstanceIdentifier<C> id, final B builder) {
         // Noop
     }
 }

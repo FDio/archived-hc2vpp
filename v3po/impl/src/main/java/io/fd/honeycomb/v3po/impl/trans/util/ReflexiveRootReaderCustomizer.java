@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.impl.trans.util;
 
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Might be slow !
@@ -31,7 +32,7 @@ public class ReflexiveRootReaderCustomizer<C extends DataObject, B extends Build
     }
 
     @Override
-    public B getBuilder() {
+    public B getBuilder(InstanceIdentifier<C> id) {
         try {
             return builderClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {

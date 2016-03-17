@@ -16,15 +16,15 @@
 
 package io.fd.honeycomb.v3po.impl.trans.impl;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.impl.trans.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.impl.spi.ListVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppReaderUtils;
-import java.util.Collections;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -36,13 +36,29 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * Composite implementation of {@link ChildVppReader} able to place the read result into
+ * parent builder object intended for list node type.
+ *
+ * This reader checks if the IDs are wildcarded in which case it performs read of all
+ * list entries. In case the ID has a key, it reads only the specified value.
+ */
 @Beta
 @ThreadSafe
 public final class CompositeListVppReader<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
     extends AbstractCompositeVppReader<C, B> implements ChildVppReader<C> {
 
-    private ListVppReaderCustomizer<C, K, B> customizer;
+    private final ListVppReaderCustomizer<C, K, B> customizer;
 
+    /**
+     * Create new {@link CompositeListVppReader}
+     *
+     * @param managedDataObjectType Class object for managed data type. Must come from a list node type.
+     * @param childReaders Child nodes(container, list) readers
+     * @param augReaders Child augmentations readers
+     * @param customizer Customizer instance to customize this generic reader
+     *
+     */
     public CompositeListVppReader(@Nonnull final Class<C> managedDataObjectType,
                                   @Nonnull final List<ChildVppReader<? extends ChildOf<C>>> childReaders,
                                   @Nonnull final List<ChildVppReader<? extends Augmentation<C>>> augReaders,
@@ -51,60 +67,51 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
         this.customizer = customizer;
     }
 
+    /**
+     * @see {@link CompositeListVppReader#CompositeListVppReader(Class, List, List, ListVppReaderCustomizer)}
+     */
     public CompositeListVppReader(@Nonnull final Class<C> managedDataObjectType,
                                   @Nonnull final List<ChildVppReader<? extends ChildOf<C>>> childReaders,
                                   @Nonnull final ListVppReaderCustomizer<C, K, B> customizer) {
-        this(managedDataObjectType, childReaders, VppReaderUtils.<C>emptyAugReaderList(), customizer);
+        this(managedDataObjectType, childReaders, VppRWUtils.<C>emptyAugReaderList(), customizer);
     }
 
+    /**
+     * @see {@link CompositeListVppReader#CompositeListVppReader(Class, List, List, ListVppReaderCustomizer)}
+     */
     public CompositeListVppReader(@Nonnull final Class<C> managedDataObjectType,
                                   @Nonnull final ListVppReaderCustomizer<C, K, B> customizer) {
-        this(managedDataObjectType, VppReaderUtils.<C>emptyChildReaderList(), VppReaderUtils.<C>emptyAugReaderList(),
+        this(managedDataObjectType, VppRWUtils.<C>emptyChildReaderList(), VppRWUtils.<C>emptyAugReaderList(),
             customizer);
     }
 
     @Override
     protected List<C> readCurrent(@Nonnull final InstanceIdentifier<C> id) {
-        if(shouldReadAll(id)) {
-            return readList(id);
-        }
-        return super.readCurrent(id);
+        return shouldReadAll(id) ? readList(id) : super.readCurrent(id);
     }
 
     @Override
     public void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                      @Nonnull final Builder<? extends DataObject> parentBuilder) {
-        final InstanceIdentifier<C> currentId = getCurrentId(id);
-
-        final List<C> ifcs;
-        if (shouldReadAll(id)) {
-            ifcs = readList(currentId);
-        } else {
-            final Optional<? extends DataObject> readSingle = Optional.fromNullable(read(id).get(0));
-            final Optional<C> read = readSingle.transform(new Function<DataObject, C>() {
-                @Override
-                public C apply(final DataObject input) {
-                    Preconditions.checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(input.getClass()));
-                    return getManagedDataObjectType().getTargetType().cast(input);
-                }
-            });
-            ifcs = read.isPresent() ? Collections.singletonList(read.get()) : Collections.<C>emptyList();
-        }
-
+        // Create ID pointing to current node
+        final InstanceIdentifier<C> currentId = VppRWUtils.appendTypeToId(id, getManagedDataObjectType());
+        // Read all, since current ID is definitely wildcarded
+        final List<C> ifcs = readList(currentId);
         customizer.merge(parentBuilder, ifcs);
     }
 
     private List<C> readList(@Nonnull final InstanceIdentifier<C> id) {
-        Preconditions.checkArgument(id.getTargetType().equals(getManagedDataObjectType().getTargetType()),
-            "Id %s does not contain expected type %s", id, getManagedDataObjectType());
-
-        return Lists.transform(customizer.getAllIds(id), new Function<InstanceIdentifier<? extends DataObject>, C>() {
+        return Lists.transform(customizer.getAllIds(id), new Function<K, C>() {
                 @Override
-                public C apply(final InstanceIdentifier<? extends DataObject> input) {
-                    final List<? extends DataObject> read = read(input);
-                    Preconditions.checkState(read.size() == 1);
-                    Preconditions.checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(read.get(0).getClass()));
-                    return getManagedDataObjectType().getTargetType().cast(read.get(0));
+                public C apply(final K key) {
+                    final InstanceIdentifier.IdentifiableItem<C, K> currentBdItem =
+                        VppRWUtils.getCurrentIdItem(id, key);
+                    final InstanceIdentifier<C> keyedId = VppRWUtils.replaceLastInId(id, currentBdItem);
+                    final List<? extends DataObject> read = read(keyedId);
+                    checkState(read.size() == 1);
+                    final DataObject singleItem = read.get(0);
+                    checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleItem.getClass()));
+                    return getManagedDataObjectType().getTargetType().cast(singleItem);
                 }
             });
     }
@@ -120,8 +127,8 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
     }
 
     @Override
-    protected B getBuilder(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
-        return customizer.getBuilder(id.firstKeyOf(getManagedDataObjectType().getTargetType()));
+    protected B getBuilder(@Nonnull final InstanceIdentifier<C> id) {
+        return customizer.getBuilder(id);
     }
 
 }

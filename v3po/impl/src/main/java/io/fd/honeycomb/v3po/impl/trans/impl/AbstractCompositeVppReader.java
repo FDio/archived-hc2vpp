@@ -18,18 +18,16 @@ package io.fd.honeycomb.v3po.impl.trans.impl;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.impl.trans.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.VppReader;
-import io.fd.honeycomb.v3po.impl.trans.util.VppReaderUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.ReflectionUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -50,44 +48,12 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
     private final Map<Class<? extends DataObject>, ChildVppReader<? extends Augmentation<D>>> augReaders;
     private final InstanceIdentifier<D> instanceIdentifier;
 
-    public AbstractCompositeVppReader(
-            final Class<D> managedDataObjectType,
+    AbstractCompositeVppReader(final Class<D> managedDataObjectType,
             final List<ChildVppReader<? extends ChildOf<D>>> childReaders,
             final List<ChildVppReader<? extends Augmentation<D>>> augReaders) {
-        this.childReaders = childReadersToMap(childReaders);
-        this.augReaders = augReadersToMap(augReaders);
+        this.childReaders = VppRWUtils.uniqueLinkedIndex(childReaders, VppRWUtils.MANAGER_CLASS_FUNCTION);
+        this.augReaders = VppRWUtils.uniqueLinkedIndex(augReaders, VppRWUtils.MANAGER_CLASS_AUG_FUNCTION);
         this.instanceIdentifier = InstanceIdentifier.create(managedDataObjectType);
-    }
-
-    protected final Map<Class<? extends DataObject>, ChildVppReader<? extends ChildOf<D>>> childReadersToMap(
-            final List<ChildVppReader<? extends ChildOf<D>>> childReaders) {
-        final LinkedHashMap<Class<? extends DataObject>, ChildVppReader<? extends ChildOf<D>>>
-                classVppReaderLinkedHashMap = new LinkedHashMap<>();
-
-        for (ChildVppReader<? extends ChildOf<D>> childReader : childReaders) {
-            Preconditions.checkArgument(
-                    classVppReaderLinkedHashMap.put(childReader.getManagedDataObjectType().getTargetType(), childReader) == null,
-                    "Duplicate (%s) child readers detected under: %s", childReader.getManagedDataObjectType(),
-                    getManagedDataObjectType());
-        }
-
-        return classVppReaderLinkedHashMap;
-    }
-
-    // FIXME add child/augReaders to one list and unify toMap helper methods + move to utils
-    protected final Map<Class<? extends DataObject>, ChildVppReader<? extends Augmentation<D>>> augReadersToMap(
-            final List<ChildVppReader<? extends Augmentation<D>>> childReaders) {
-        final LinkedHashMap<Class<? extends DataObject>, ChildVppReader<? extends Augmentation<D>>>
-                classVppReaderLinkedHashMap = new LinkedHashMap<>();
-
-        for (ChildVppReader<? extends DataObject> childReader : childReaders) {
-            Preconditions.checkArgument(
-                    classVppReaderLinkedHashMap.put(childReader.getManagedDataObjectType().getTargetType(),
-                            (ChildVppReader<? extends Augmentation<D>>) childReader) == null,
-                    "Duplicate (%s) child readers detected under: %s", childReader.getManagedDataObjectType(),
-                    getManagedDataObjectType());
-        }
-        return classVppReaderLinkedHashMap;
     }
 
     @Nonnull
@@ -96,6 +62,9 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
         return instanceIdentifier;
     }
 
+    /**
+     * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
+     */
     protected List<D> readCurrent(final InstanceIdentifier<D> id) {
         final B builder = getBuilder(id);
         // Cache empty value to determine if anything has changed later TODO cache in a field
@@ -103,6 +72,7 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
 
         readCurrentAttributes(id, builder);
 
+        // TODO expect exceptions from reader
         for (ChildVppReader<? extends ChildOf<D>> child : childReaders.values()) {
             child.read(id, builder);
         }
@@ -132,53 +102,57 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
 
     private List<? extends DataObject> readSubtree(final InstanceIdentifier<? extends DataObject> id) {
         // Read only specific subtree
-        final Class<? extends DataObject> next = VppReaderUtils.getNextId(id, getManagedDataObjectType()).getType();
+        final Class<? extends DataObject> next = VppRWUtils.getNextId(id, getManagedDataObjectType()).getType();
         final ChildVppReader<? extends ChildOf<D>> vppReader = childReaders.get(next);
 
         if (vppReader != null) {
             return vppReader.read(id);
         } else {
             // If there's no dedicated reader, use read current
-            final InstanceIdentifier<D> currentId = VppReaderUtils.cutId(id, getManagedDataObjectType());
+            final InstanceIdentifier<D> currentId = VppRWUtils.cutId(id, getManagedDataObjectType());
             final List<D> current = readCurrent(currentId);
             // then perform post-reading filtering (return only requested sub-node)
             return current.isEmpty() ? current : filterSubtree(current, id, getManagedDataObjectType().getTargetType()) ;
         }
     }
 
-    @SuppressWarnings("unchecked")
-    protected InstanceIdentifier<D> getCurrentId(final InstanceIdentifier<? extends DataObject> parentId) {
-        Preconditions.checkArgument(!parentId.contains(getManagedDataObjectType()),
-            "Unexpected InstanceIdentifier %s, already contains %s", parentId, getManagedDataObjectType());
-        final InstanceIdentifier.PathArgument t = Iterables.getOnlyElement(getManagedDataObjectType().getPathArguments());
-        return (InstanceIdentifier<D>) InstanceIdentifier.create(Iterables.concat(
-            parentId.getPathArguments(), Collections.singleton(t)));
-    }
-
+    /**
+     * Fill in current node's attributes
+     *
+     * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
+     * @param builder Builder object for current node where the read attributes must be placed
+     */
     protected abstract void readCurrentAttributes(final InstanceIdentifier<D> id, B builder);
 
-    protected abstract B getBuilder(InstanceIdentifier<? extends DataObject> id);
+    /**
+     * Return new instance of a builder object for current node
+     *
+     * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
+     * @return Builder object for current node type
+     */
+    protected abstract B getBuilder(InstanceIdentifier<D> id);
 
     // TODO move filtering out of here into a dedicated Filter ifc
     @Nonnull
     private static List<? extends DataObject> filterSubtree(@Nonnull final List<? extends DataObject> built,
                                                             @Nonnull final InstanceIdentifier<? extends DataObject> absolutPath,
                                                             @Nonnull final Class<?> managedType) {
-        // TODO is there a better way than reflection ?
+        // TODO is there a better way than reflection ? e.g. convert into NN and filter out with a utility
+        // FIXME this needs to be recursive. right now it expects only 1 additional element in ID + test
 
         List<DataObject> filtered = Lists.newArrayList();
         for (DataObject parent : built) {
             final InstanceIdentifier.PathArgument nextId =
-                VppReaderUtils.getNextId(absolutPath, InstanceIdentifier.create(parent.getClass()));
+                VppRWUtils.getNextId(absolutPath, InstanceIdentifier.create(parent.getClass()));
 
-            Optional<Method> method = VppReaderUtils.findMethodReflex(managedType, "get",
+            Optional<Method> method = ReflectionUtils.findMethodReflex(managedType, "get",
                 Collections.<Class<?>>emptyList(), nextId.getType());
 
             if (method.isPresent()) {
                 filterSingle(filtered, parent, nextId, method);
             } else {
                 // List child nodes
-                method = VppReaderUtils.findMethodReflex(managedType,
+                method = ReflectionUtils.findMethodReflex(managedType,
                     "get" + nextId.getType().getSimpleName(), Collections.<Class<?>>emptyList(), List.class);
 
                 if (method.isPresent()) {
@@ -204,7 +178,7 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
                 @Override
                 public boolean apply(@Nullable final DataObject input) {
                     final Optional<Method> keyGetter =
-                        VppReaderUtils.findMethodReflex(nextId.getType(), "get",
+                        ReflectionUtils.findMethodReflex(nextId.getType(), "get",
                             Collections.<Class<?>>emptyList(), key.getClass());
                     final Object actualKey;
                     actualKey = invoke(keyGetter.get(), nextId, input);
@@ -229,5 +203,4 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
             throw new IllegalArgumentException("Unable to get " + nextId + " from " + parent, e);
         }
     }
-
 }

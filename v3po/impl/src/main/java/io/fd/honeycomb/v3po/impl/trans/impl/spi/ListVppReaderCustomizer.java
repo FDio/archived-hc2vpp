@@ -18,20 +18,30 @@ package io.fd.honeycomb.v3po.impl.trans.impl.spi;
 
 import com.google.common.annotations.Beta;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * io.fd.honeycomb.v3po.impl.trans.impl.CompositeListVppReader SPI to customize its behavior
+ */
 @Beta
-public interface ListVppReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>> {
+public interface ListVppReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
+    extends RootVppReaderCustomizer<C, B> {
 
-    void readCurrentAttributes(final InstanceIdentifier<C> id, B builder);
+    /**
+     * Return list with IDs of all list nodes to be read.
+     *
+     * @param id wildcarded ID pointing to list node managed by enclosing reader
+     */
+    @Nonnull
+    List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id);
 
-    B getBuilder(K id);
-
-    List<InstanceIdentifier<C>> getAllIds(InstanceIdentifier<C> id);
-
-    void merge(Builder<?> builder, List<C> currentBuilder);
+    /**
+     * Merge read data into provided parent builder
+     */
+    void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<C> readData);
 }

@@ -16,42 +16,41 @@
 
 package io.fd.honeycomb.v3po.impl.trans.util;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.fd.honeycomb.v3po.impl.trans.ReaderRegistry;
 import io.fd.honeycomb.v3po.impl.trans.VppReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * Simple reader registry able to perform and aggregated read (ROOT read) on top of all
+ * provided readers. Also able to delegate a specific read to one of the delegate readers.
+ *
+ * This could serve as a utility to hold & hide all available readers in upper layers.
+ */
 public final class DelegatingReaderRegistry implements ReaderRegistry {
 
     private final Map<Class<? extends DataObject>, VppReader<? extends DataObject>> rootReaders;
 
+    /**
+     * Create new {@link DelegatingReaderRegistry}
+     *
+     * @param rootReaders List of delegate readers
+     */
     public DelegatingReaderRegistry(@Nonnull final List<VppReader<? extends DataObject>> rootReaders) {
-        this.rootReaders = toMap(rootReaders);
-    }
-
-    private static Map<Class<? extends DataObject>, VppReader<? extends DataObject>> toMap(
-        final List<VppReader<? extends DataObject>> rootReaders) {
-        return Maps
-            .uniqueIndex(rootReaders, new Function<VppReader<? extends DataObject>, Class<? extends DataObject>>() {
-                @Override
-                public Class<? extends DataObject> apply(final VppReader<? extends DataObject> input) {
-                    return input.getManagedDataObjectType().getTargetType();
-                }
-            });
+        this.rootReaders = VppRWUtils.uniqueLinkedIndex(checkNotNull(rootReaders), VppRWUtils.MANAGER_CLASS_FUNCTION);
     }
 
     @Override
     @Nonnull
     public List<? extends DataObject> readAll() {
-        final List<DataObject> objects = Lists.newArrayListWithExpectedSize(rootReaders.size());
+        final List<DataObject> objects = new ArrayList<>(rootReaders.size());
         for (VppReader<? extends DataObject> rootReader : rootReaders.values()) {
             final List<? extends DataObject> read = rootReader.read(rootReader.getManagedDataObjectType());
             objects.addAll(read);
@@ -62,14 +61,18 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
     @Nonnull
     @Override
     public List<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
-        final InstanceIdentifier.PathArgument first = Preconditions.checkNotNull(
+        final InstanceIdentifier.PathArgument first = checkNotNull(
             Iterables.getFirst(id.getPathArguments(), null), "Empty id");
         final VppReader<? extends DataObject> vppReader = rootReaders.get(first.getType());
-        Preconditions.checkNotNull(vppReader,
+        checkNotNull(vppReader,
             "Unable to read %s. Missing reader. Current readers for: %s", id, rootReaders.keySet());
         return vppReader.read(id);
     }
 
+    /**
+     * @throws UnsupportedOperationException This getter is not supported for reader registry since it does not manage a
+     *                                       specific node type
+     */
     @Nonnull
     @Override
     public InstanceIdentifier<DataObject> getManagedDataObjectType() {
