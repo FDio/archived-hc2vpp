@@ -14,29 +14,24 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans;
+package io.fd.honeycomb.v3po.impl.trans.impl.spi;
 
 import com.google.common.annotations.Beta;
-import javax.annotation.Nonnull;
+import java.util.List;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-/**
- * Child VPP reader allowing its parent to pass the builder object
- */
 @Beta
-public interface ChildVppReader<C extends DataObject> extends VppReader<C> {
+public interface ListVppReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>> {
 
-    /**
-     * Read subtree starting from node managed by this reader and place the subtree within parent builder object if
-     * the data exists.
-     *
-     * @param id Unique identifier pointing to the node managed by this reader. Useful when necessary to determine
-     *           the exact position within more complex subtrees.
-     */
-    void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-              @Nonnull final Builder<? extends DataObject> parentBuilder);
+    void readCurrentAttributes(final InstanceIdentifier<C> id, B builder);
 
+    B getBuilder(K id);
+
+    List<InstanceIdentifier<C>> getAllIds(InstanceIdentifier<C> id);
+
+    void merge(Builder<?> builder, List<C> currentBuilder);
 }
-
