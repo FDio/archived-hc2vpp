@@ -31,8 +31,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.impl.trans.VppApiInvocationException;
-import io.fd.honeycomb.v3po.impl.trans.VppWriter;
+import io.fd.honeycomb.v3po.impl.trans0.VppApiInvocationException;
+import io.fd.honeycomb.v3po.impl.trans0.VppWriter;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;

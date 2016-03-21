@@ -20,7 +20,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import io.fd.honeycomb.v3po.impl.trans.VppReader;
+import io.fd.honeycomb.v3po.impl.trans0.VppReader;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;

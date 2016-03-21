@@ -26,7 +26,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.impl.trans.VppReader;
+import io.fd.honeycomb.v3po.impl.trans0.VppReader;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
