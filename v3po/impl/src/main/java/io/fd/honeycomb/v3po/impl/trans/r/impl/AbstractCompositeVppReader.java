@@ -38,11 +38,13 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Beta
 abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builder<D>> implements VppReader<D> {
 
-    // TODO add debug + trace logs here and there
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCompositeVppReader.class);
 
     private final Map<Class<? extends DataObject>, ChildVppReader<? extends ChildOf<D>>> childReaders;
     private final Map<Class<? extends DataObject>, ChildVppReader<? extends Augmentation<D>>> augReaders;
@@ -66,33 +68,40 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
      * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
      */
     protected List<D> readCurrent(final InstanceIdentifier<D> id) {
+        LOG.debug("{}: Reading current: {}", this, id);
         final B builder = getBuilder(id);
         // Cache empty value to determine if anything has changed later TODO cache in a field
         final D emptyValue = builder.build();
 
+        LOG.trace("{}: Reading current attributes", this);
         readCurrentAttributes(id, builder);
 
         // TODO expect exceptions from reader
         for (ChildVppReader<? extends ChildOf<D>> child : childReaders.values()) {
+            LOG.debug("{}: Reading child from: {}", this, child);
             child.read(id, builder);
         }
 
         for (ChildVppReader<? extends Augmentation<D>> child : augReaders.values()) {
+            LOG.debug("{}: Reading augment from: {}", this, child);
             child.read(id, builder);
         }
 
         // Need to check whether anything was filled in to determine if data is present or not.
         final D built = builder.build();
-        return built.equals(emptyValue) ? Collections.<D>emptyList() : Collections.singletonList(built);
+        final List<D> read = built.equals(emptyValue)
+            ? Collections.<D>emptyList()
+            : Collections.singletonList(built);
+
+        LOG.debug("{}: Current node read successfully. Result: {}", this, read);
+        return read;
     }
 
     @Nonnull
     @Override
     @SuppressWarnings("unchecked")
     public List<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
-        // This is read for one of children, we need to read and then filter, not parent)
-
-        // If this is target, just read
+        LOG.trace("{}: Reading : {}", this, id);
         if (id.getTargetType().equals(getManagedDataObjectType().getTargetType())) {
             return readCurrent((InstanceIdentifier<D>) id);
         } else {
@@ -101,18 +110,25 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
     }
 
     private List<? extends DataObject> readSubtree(final InstanceIdentifier<? extends DataObject> id) {
-        // Read only specific subtree
+        LOG.debug("{}: Reading subtree: {}", this, id);
         final Class<? extends DataObject> next = VppRWUtils.getNextId(id, getManagedDataObjectType()).getType();
         final ChildVppReader<? extends ChildOf<D>> vppReader = childReaders.get(next);
 
         if (vppReader != null) {
+            LOG.debug("{}: Reading subtree: {} from: {}", this, id, vppReader);
             return vppReader.read(id);
         } else {
+            LOG.debug("{}: Dedicated subtree reader missing for: {}. Reading current and filtering", this, next);
             // If there's no dedicated reader, use read current
             final InstanceIdentifier<D> currentId = VppRWUtils.cutId(id, getManagedDataObjectType());
             final List<D> current = readCurrent(currentId);
             // then perform post-reading filtering (return only requested sub-node)
-            return current.isEmpty() ? current : filterSubtree(current, id, getManagedDataObjectType().getTargetType()) ;
+            final List<? extends DataObject> readSubtree = current.isEmpty()
+                ? current
+                : filterSubtree(current, id, getManagedDataObjectType().getTargetType());
+
+            LOG.debug("{}: Subtree: {} read successfully. Result: {}", this, id, readSubtree);
+            return readSubtree;
         }
     }
 
@@ -202,5 +218,10 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalArgumentException("Unable to get " + nextId + " from " + parent, e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Reader[%s]", getManagedDataObjectType().getTargetType().getSimpleName());
     }
 }

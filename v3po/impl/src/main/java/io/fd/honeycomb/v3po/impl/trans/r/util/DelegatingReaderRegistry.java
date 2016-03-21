@@ -27,6 +27,8 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple reader registry able to perform and aggregated read (ROOT read) on top of all
@@ -35,6 +37,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * This could serve as a utility to hold & hide all available readers in upper layers.
  */
 public final class DelegatingReaderRegistry implements ReaderRegistry {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DelegatingReaderRegistry.class);
 
     private final Map<Class<? extends DataObject>, VppReader<? extends DataObject>> rootReaders;
 
@@ -50,8 +54,12 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
     @Override
     @Nonnull
     public List<? extends DataObject> readAll() {
+        LOG.debug("Reading from all delegates");
+        LOG.trace("Reading from all delegates: {}", rootReaders.values());
+
         final List<DataObject> objects = new ArrayList<>(rootReaders.size());
         for (VppReader<? extends DataObject> rootReader : rootReaders.values()) {
+            LOG.debug("Reading from delegate: {}", rootReader);
             final List<? extends DataObject> read = rootReader.read(rootReader.getManagedDataObjectType());
             objects.addAll(read);
         }
@@ -66,6 +74,7 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
         final VppReader<? extends DataObject> vppReader = rootReaders.get(first.getType());
         checkNotNull(vppReader,
             "Unable to read %s. Missing reader. Current readers for: %s", id, rootReaders.keySet());
+        LOG.debug("Reading from delegate: {}", vppReader);
         return vppReader.read(id);
     }
 
@@ -78,5 +87,4 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
     public InstanceIdentifier<DataObject> getManagedDataObjectType() {
         throw new UnsupportedOperationException("Root registry has no type");
     }
-
 }

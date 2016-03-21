@@ -20,11 +20,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.r.util.VppRWUtils;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
@@ -35,6 +34,8 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Composite implementation of {@link ChildVppReader} able to place the read result into
@@ -47,6 +48,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @ThreadSafe
 public final class CompositeListVppReader<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
     extends AbstractCompositeVppReader<C, B> implements ChildVppReader<C> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CompositeListVppReader.class);
 
     private final ListVppReaderCustomizer<C, K, B> customizer;
 
@@ -101,19 +104,22 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
     }
 
     private List<C> readList(@Nonnull final InstanceIdentifier<C> id) {
-        return Lists.transform(customizer.getAllIds(id), new Function<K, C>() {
-                @Override
-                public C apply(final K key) {
-                    final InstanceIdentifier.IdentifiableItem<C, K> currentBdItem =
-                        VppRWUtils.getCurrentIdItem(id, key);
-                    final InstanceIdentifier<C> keyedId = VppRWUtils.replaceLastInId(id, currentBdItem);
-                    final List<? extends DataObject> read = read(keyedId);
-                    checkState(read.size() == 1);
-                    final DataObject singleItem = read.get(0);
-                    checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleItem.getClass()));
-                    return getManagedDataObjectType().getTargetType().cast(singleItem);
-                }
-            });
+        LOG.trace("{}: Reading all list entries", this);
+        final List<K> allIds = customizer.getAllIds(id);
+        LOG.debug("{}: Reading list entries for: {}", this, allIds);
+
+        final ArrayList<C> allEntries = new ArrayList<>(allIds.size());
+        for (K key : allIds) {
+            final InstanceIdentifier.IdentifiableItem<C, K> currentBdItem =
+                VppRWUtils.getCurrentIdItem(id, key);
+            final InstanceIdentifier<C> keyedId = VppRWUtils.replaceLastInId(id, currentBdItem);
+            final List<? extends DataObject> read = readCurrent(keyedId);
+            checkState(read.size() == 1);
+            final DataObject singleItem = read.get(0);
+            checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleItem.getClass()));
+            allEntries.add(getManagedDataObjectType().getTargetType().cast(singleItem));
+        }
+        return allEntries;
     }
 
      private boolean shouldReadAll(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
