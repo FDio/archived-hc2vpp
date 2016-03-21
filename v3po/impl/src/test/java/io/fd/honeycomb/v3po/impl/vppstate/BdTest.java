@@ -22,9 +22,9 @@ import static org.mockito.Matchers.anyString;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import io.fd.honeycomb.v3po.impl.trans.VppReader;
-import io.fd.honeycomb.v3po.impl.trans.impl.CompositeRootVppReader;
-import io.fd.honeycomb.v3po.impl.trans.util.DelegatingReaderRegistry;
+import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.util.DelegatingReaderRegistry;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;

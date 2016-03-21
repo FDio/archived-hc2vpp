@@ -14,28 +14,22 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.util;
+package io.fd.honeycomb.v3po.impl.trans.r;
 
 import com.google.common.annotations.Beta;
+import java.util.List;
+import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
 /**
- * Abstract utility to hold the vppApi reference.
+ * Simple delegating reader suitable as a holder for all other root readers, providing readAll feature
  */
 @Beta
-public abstract class VppApiReaderCustomizer {
-
-    private final org.openvpp.vppjapi.vppApi vppApi;
-
-    protected VppApiReaderCustomizer(final org.openvpp.vppjapi.vppApi vppApi) {
-        this.vppApi = vppApi;
-    }
+public interface ReaderRegistry extends VppReader<DataObject> {
 
     /**
-     * Get vppApi reference
-     *
-     * @return vppApi reference
+     * Perform read on all underlying readers and merge the results into a single list
      */
-    public org.openvpp.vppjapi.vppApi getVppApi() {
-        return vppApi;
-    }
+    @Nonnull
+    List<? extends DataObject> readAll();
 }

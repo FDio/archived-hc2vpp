@@ -14,25 +14,34 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.impl.spi;
+package io.fd.honeycomb.v3po.impl.trans.r.impl.spi;
 
 import com.google.common.annotations.Beta;
+import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * io.fd.honeycomb.v3po.impl.trans.impl.CompositeChildVppReader SPI to customize its behavior
+ * io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeListVppReader SPI to customize its behavior
  */
 @Beta
-public interface ChildVppReaderCustomizer<C extends DataObject, B extends Builder<C>> extends
-    RootVppReaderCustomizer<C, B> {
+public interface ListVppReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
+    extends RootVppReaderCustomizer<C, B> {
 
-    // FIXME need to capture parent builder type, but that's inconvenient at best, is it ok to leave it Builder<?> and
-    // cast in specific customizers ? ... probably better than adding another type parameter
+    /**
+     * Return list with IDs of all list nodes to be read.
+     *
+     * @param id wildcarded ID pointing to list node managed by enclosing reader
+     */
+    @Nonnull
+    List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id);
 
     /**
      * Merge read data into provided parent builder
      */
-    void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final C readValue);
+    void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<C> readData);
 }

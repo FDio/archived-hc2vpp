@@ -14,17 +14,26 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.util;
+package io.fd.honeycomb.v3po.impl.trans.r;
 
-import io.fd.honeycomb.v3po.impl.trans.impl.spi.RootVppReaderCustomizer;
-import org.opendaylight.yangtools.concepts.Builder;
+import com.google.common.annotations.Beta;
+import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public abstract class NoopReaderCustomizer<C extends DataObject, B extends Builder<C>> implements RootVppReaderCustomizer<C, B> {
+/**
+ * Base identifiable subtree manager(reader, writer etc.)
+ *
+ * @param <D> Specific DataObject derived type, that is managed by this manager
+ */
+@Beta
+public interface SubtreeManager<D extends DataObject> {
 
-    @Override
-    public void readCurrentAttributes(InstanceIdentifier<C> id, final B builder) {
-        // Noop
-    }
+    /**
+     * Gets the type of node managed by this reader
+     *
+     * @return Class object for node managed by this reader
+     */
+    @Nonnull
+    InstanceIdentifier<D> getManagedDataObjectType();
 }

@@ -16,13 +16,13 @@
 
 package io.fd.honeycomb.v3po.impl.vppstate;
 
-import io.fd.honeycomb.v3po.impl.trans.ChildVppReader;
-import io.fd.honeycomb.v3po.impl.trans.impl.CompositeChildVppReader;
-import io.fd.honeycomb.v3po.impl.trans.impl.CompositeListVppReader;
-import io.fd.honeycomb.v3po.impl.trans.impl.CompositeRootVppReader;
-import io.fd.honeycomb.v3po.impl.trans.util.ReflexiveChildReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.ReflexiveRootReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
+import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeChildVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeListVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.util.ReflexiveChildReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.r.util.ReflexiveRootReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.r.util.VppRWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;

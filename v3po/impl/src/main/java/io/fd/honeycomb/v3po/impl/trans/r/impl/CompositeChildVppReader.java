@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.impl;
+package io.fd.honeycomb.v3po.impl.trans.r.impl;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.impl.trans.ChildVppReader;
-import io.fd.honeycomb.v3po.impl.trans.impl.spi.ChildVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
+import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ChildVppReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.r.util.VppRWUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;

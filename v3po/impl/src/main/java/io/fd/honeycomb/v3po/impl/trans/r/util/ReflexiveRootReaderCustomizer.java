@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.util;
+package io.fd.honeycomb.v3po.impl.trans.r.util;
 
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.impl.spi;
+package io.fd.honeycomb.v3po.impl.trans.r.impl.spi;
 
 import com.google.common.annotations.Beta;
 import javax.annotation.Nonnull;
@@ -23,7 +23,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * io.fd.honeycomb.v3po.impl.trans.impl.CompositeRootVppReader SPI to customize its behavior
+ * io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader SPI to customize its behavior
  */
 @Beta
 public interface RootVppReaderCustomizer<C extends DataObject, B extends Builder<C>> {

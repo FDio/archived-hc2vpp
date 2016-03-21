@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.util;
+package io.fd.honeycomb.v3po.impl.trans.r.util;
 
 import com.google.common.base.Optional;
 import java.lang.reflect.Method;

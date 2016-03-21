@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans;
+package io.fd.honeycomb.v3po.impl.trans.r;
 
 import com.google.common.annotations.Beta;
 import javax.annotation.Nonnull;

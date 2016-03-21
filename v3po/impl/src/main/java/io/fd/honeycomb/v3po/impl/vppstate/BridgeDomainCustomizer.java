@@ -17,8 +17,9 @@
 package io.fd.honeycomb.v3po.impl.vppstate;
 
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.impl.trans.impl.spi.ListVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppApiReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.r.util.VppApiReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.r.util.VppRWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
