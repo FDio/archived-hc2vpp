@@ -20,7 +20,7 @@ import com.google.common.annotations.Beta;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.RootVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.r.util.VppRWUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;

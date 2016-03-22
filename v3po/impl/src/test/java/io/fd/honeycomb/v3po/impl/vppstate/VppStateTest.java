@@ -59,7 +59,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @SuppressStaticInitializationFor("org.openvpp.vppjapi.vppConn")
 @PrepareForTest(vppApi.class)
-public class BdTest {
+public class VppStateTest {
 
     public static final vppVersion VERSION = new vppVersion("test", "1", "2", "33");
 

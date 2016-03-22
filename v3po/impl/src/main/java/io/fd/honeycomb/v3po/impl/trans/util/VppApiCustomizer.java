@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.r;
+package io.fd.honeycomb.v3po.impl.trans.util;
 
 import com.google.common.annotations.Beta;
-import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Base identifiable subtree manager(reader, writer etc.)
- *
- * @param <D> Specific DataObject derived type, that is managed by this manager
+ * Abstract utility to hold the vppApi reference.
  */
 @Beta
-public interface SubtreeManager<D extends DataObject> {
+public abstract class VppApiCustomizer {
+
+    private final org.openvpp.vppjapi.vppApi vppApi;
+
+    protected VppApiCustomizer(final org.openvpp.vppjapi.vppApi vppApi) {
+        this.vppApi = vppApi;
+    }
 
     /**
-     * Gets the type of node managed by this reader
+     * Get vppApi reference
      *
-     * @return Class object for node managed by this reader
+     * @return vppApi reference
      */
-    @Nonnull
-    InstanceIdentifier<D> getManagedDataObjectType();
+    public org.openvpp.vppjapi.vppApi getVppApi() {
+        return vppApi;
+    }
 }

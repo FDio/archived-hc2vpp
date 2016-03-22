@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.r.util;
+package io.fd.honeycomb.v3po.impl.trans.util;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import io.fd.honeycomb.v3po.impl.trans.SubtreeManager;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
-import io.fd.honeycomb.v3po.impl.trans.r.SubtreeManager;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

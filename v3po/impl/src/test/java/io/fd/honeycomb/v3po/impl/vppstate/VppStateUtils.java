@@ -22,7 +22,7 @@ import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeListVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.util.ReflexiveChildReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.r.util.ReflexiveRootReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.r.util.VppRWUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;

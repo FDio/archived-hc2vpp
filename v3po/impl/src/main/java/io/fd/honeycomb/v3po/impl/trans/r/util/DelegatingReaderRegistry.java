@@ -19,6 +19,7 @@ package io.fd.honeycomb.v3po.impl.trans.r.util;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Iterables;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import java.util.ArrayList;

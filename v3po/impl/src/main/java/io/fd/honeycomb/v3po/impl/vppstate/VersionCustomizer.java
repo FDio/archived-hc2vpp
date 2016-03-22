@@ -17,7 +17,7 @@
 package io.fd.honeycomb.v3po.impl.vppstate;
 
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ChildVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.r.util.VppApiReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.util.VppApiCustomizer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
@@ -28,7 +28,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.vppjapi.vppVersion;
 
 public final class VersionCustomizer
-    extends VppApiReaderCustomizer
+    extends VppApiCustomizer
     implements ChildVppReaderCustomizer<Version, VersionBuilder> {
 
     public VersionCustomizer(@Nonnull final org.openvpp.vppjapi.vppApi vppApi) {

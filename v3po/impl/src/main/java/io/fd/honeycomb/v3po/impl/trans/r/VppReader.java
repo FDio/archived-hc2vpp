@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.impl.trans.r;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.impl.trans.SubtreeManager;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;

@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.annotations.Beta;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.r.util.VppRWUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;

@@ -18,8 +18,8 @@ package io.fd.honeycomb.v3po.impl.vppstate;
 
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.r.util.VppApiReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.r.util.VppRWUtils;
+import io.fd.honeycomb.v3po.impl.trans.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -40,7 +40,7 @@ import org.openvpp.vppjapi.vppBridgeDomainDetails;
 import org.openvpp.vppjapi.vppBridgeDomainInterfaceDetails;
 import org.openvpp.vppjapi.vppL2Fib;
 
-public final class BridgeDomainCustomizer extends VppApiReaderCustomizer
+public final class BridgeDomainCustomizer extends VppApiCustomizer
     implements ListVppReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
 
     public BridgeDomainCustomizer(@Nonnull final org.openvpp.vppjapi.vppApi vppApi) {
