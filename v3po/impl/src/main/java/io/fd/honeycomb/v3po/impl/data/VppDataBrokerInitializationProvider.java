@@ -85,6 +85,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private final ReaderRegistry readerRegistry;
     private final InstanceIdentifier<Node> mountPointPath;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
+    private DOMDataBroker broker;
 
     public VppDataBrokerInitializationProvider(@Nonnull final DataBroker bindingBroker, final ReaderRegistry readerRegistry) {
         this.bindingBroker = Preconditions.checkNotNull(bindingBroker, "bindingBroker should not be null");
@@ -116,7 +117,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final DOMMountPointService.DOMMountPointBuilder mountPointBuilder = mountPointService.createMountPoint(path);
         mountPointBuilder.addInitialSchemaContext(globalContext);
 
-        final DOMDataBroker broker = initVppDataBroker(globalContext, serializer);
+        broker = initVppDataBroker(globalContext, serializer);
         mountPointBuilder.addService(DOMDataBroker.class, broker);
 
         mountPointRegistration = mountPointBuilder.register();
@@ -245,11 +246,20 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
                 new LoggingFuturesCallBack<Void>("Initializing VPP config DataTree failed", LOG));
     }
 
+    public Optional<DOMDataBroker> getBroker() {
+        return Optional.fromNullable(broker);
+    }
+
     @Override
     public void close() throws Exception {
         if (mountPointRegistration != null) {
             mountPointRegistration.close();
         }
+
+        if (broker != null) {
+            broker = null;
+        }
+
         // remove MD-SAL placeholder data for VPP mount point:
         final WriteTransaction rwTx = bindingBroker.newWriteOnlyTransaction();
         // does not fail if data is not present:

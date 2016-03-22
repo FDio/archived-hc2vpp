@@ -15,6 +15,7 @@
  limitations under the License.
 -->
 <snapshot>
+  <!--TODO update required caps-->
   <required-capabilities>
       <capability>urn:opendaylight:params:xml:ns:yang:v3po:impl?module=v3po-impl&amp;revision=2014-12-10</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
@@ -36,6 +37,19 @@
           </dom-broker>
         </module>
       </modules>
+
+      <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+        <service>
+          <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">
+            dom:dom-broker-osgi-registry
+          </type>
+          <instance>
+            <name>vpp-dom-broker</name>
+            <provider>/modules/module[type='v3po'][name='v3po-default']
+            </provider>
+          </instance>
+        </service>
+      </services>
     </data>
   </configuration>
 </snapshot>

@@ -23,20 +23,26 @@ import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.impl.data.VppDataBrokerInitializationProvider;
 import io.fd.honeycomb.v3po.impl.data.VppReaderRegistry;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.sal.core.api.Broker;
+import org.opendaylight.controller.sal.core.api.BrokerService;
+import org.opendaylight.controller.sal.core.api.Consumer;
+import org.opendaylight.controller.sal.core.api.Provider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.SoftwareLoopback;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
@@ -54,10 +60,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.vppjapi.vppApi;
 import org.openvpp.vppjapi.vppInterfaceDetails;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class V3poProvider implements BindingAwareProvider, AutoCloseable {
+public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker {
 
     private static final Logger LOG = LoggerFactory.getLogger(V3poProvider.class);
     private final Broker domBroker;
@@ -207,6 +214,87 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable {
         }
         if (vppDataBrokerInitializationProvider != null) {
             vppDataBrokerInitializationProvider.close();
+        }
+    }
+
+    // DomBroker functionality below. Should go out of here. TODO do that when cleaning up this provider
+
+    @Override
+    public ConsumerSession registerConsumer(final Consumer consumer) {
+        final SimpleConsumerSession session = new SimpleConsumerSession(
+            Collections.<Class<? extends BrokerService>, BrokerService>singletonMap(DOMDataBroker.class,
+                vppDataBrokerInitializationProvider.getBroker().get()));
+        consumer.onSessionInitiated(session);
+        return session;
+    }
+
+    @Deprecated
+    @Override
+    public ConsumerSession registerConsumer(final Consumer consumer, final BundleContext bundleContext) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ProviderSession registerProvider(final Provider provider) {
+        final SimpleProviderSession session = new SimpleProviderSession(
+            Collections.<Class<? extends BrokerService>, BrokerService>singletonMap(DOMDataBroker.class,
+                vppDataBrokerInitializationProvider.getBroker().get()));
+        provider.onSessionInitiated(session);
+        return session;
+    }
+
+    @Override
+    public ProviderSession registerProvider(final Provider provider, final BundleContext bundleContext) {
+        throw new UnsupportedOperationException();
+    }
+
+    @NotThreadSafe
+    private static class SimpleConsumerSession implements ConsumerSession {
+        private boolean closed;
+        private final Map<Class<? extends BrokerService>, BrokerService> services;
+
+        private SimpleConsumerSession(final Map<Class<? extends BrokerService>, BrokerService> services) {
+            this.services = services;
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
+
+        @Override
+        public <T extends BrokerService> T getService(final Class<T> aClass) {
+            return (T)services.get(aClass);
+        }
+
+        @Override
+        public void close() {
+            closed = true;
+        }
+    }
+
+    @NotThreadSafe
+    private static class SimpleProviderSession implements ProviderSession {
+        private boolean closed;
+        private final Map<Class<? extends BrokerService>, BrokerService> services;
+
+        private SimpleProviderSession(final Map<Class<? extends BrokerService>, BrokerService> services) {
+            this.services = services;
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
+
+        @Override
+        public <T extends BrokerService> T getService(final Class<T> aClass) {
+            return (T)services.get(aClass);
+        }
+
+        @Override
+        public void close() {
+            closed = true;
         }
     }
 }

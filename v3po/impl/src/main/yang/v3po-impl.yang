@@ -17,6 +17,7 @@ module v3po-impl {
 
     identity v3po {
         base config:module-type;
+        config:provided-service dom:dom-broker-osgi-registry;
         config:java-name-prefix V3po;
     }
 
@@ -40,6 +41,28 @@ module v3po-impl {
                     }
                 }
             }
+        }
+    }
+
+    identity binding-broker-netconf {
+        base config:module-type;
+        config:provided-service md-sal-binding:binding-broker-osgi-registry;
+        config:java-name-prefix NetconfBindingBroker;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case binding-broker-netconf {
+            when "/config:modules/config:module/config:type = 'binding-broker-netconf'";
+
+                container netconf-binding-broker {
+                    uses config:service-ref {
+                        refine type {
+                            mandatory true;
+                            config:required-identity md-sal-binding:binding-async-data-broker;
+                        }
+                    }
+                }
+
         }
     }
 }
