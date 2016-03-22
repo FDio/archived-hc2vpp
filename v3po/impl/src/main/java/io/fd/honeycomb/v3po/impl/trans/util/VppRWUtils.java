@@ -23,6 +23,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import io.fd.honeycomb.v3po.impl.trans.SubtreeManager;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
+import io.fd.honeycomb.v3po.impl.trans.w.ChildVppWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +62,15 @@ public final class VppRWUtils {
         return Collections.emptyList();
     }
 
+    public static <T> List<ChildVppWriter<? extends ChildOf<T>>> emptyChildWriterList() {
+        return Collections.emptyList();
+    }
+
     public static <T> List<ChildVppReader<? extends Augmentation<T>>> emptyAugReaderList() {
+        return Collections.emptyList();
+    }
+
+    public static <T> List<ChildVppWriter<? extends Augmentation<T>>> emptyAugWriterList() {
         return Collections.emptyList();
     }
 
@@ -73,6 +82,11 @@ public final class VppRWUtils {
     public static <T> List<ChildVppReader<? extends ChildOf<T>>> singletonChildReaderList(
         ChildVppReader<? extends ChildOf<T>> item) {
         return Collections.<ChildVppReader<? extends ChildOf<T>>>singletonList(item);
+    }
+
+    public static <T> List<ChildVppWriter<? extends ChildOf<T>>> singletonChildWriterList(
+        ChildVppWriter<? extends ChildOf<T>> item) {
+        return Collections.<ChildVppWriter<? extends ChildOf<T>>>singletonList(item);
     }
 
     /**
