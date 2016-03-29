@@ -22,8 +22,8 @@ import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.impl.LoggingFuturesCallBack;
+import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import io.fd.honeycomb.v3po.impl.trans0.DefaultVppWriter;
-import io.fd.honeycomb.v3po.impl.trans0.VppInterfacesReader;
 import java.util.Collection;
 import java.util.Collections;
 import javassist.ClassPool;
@@ -43,7 +43,8 @@ import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.controller.sal.core.api.Provider;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -81,11 +82,13 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private final TopologyId VPP_TOPOLOGY_ID = TopologyId.getDefaultInstance("vpp-topology");
     private final NodeId VPP_TOPOLOGY_NODE_ID = NodeId.getDefaultInstance("vpp");
     private final DataBroker bindingBroker;
+    private final ReaderRegistry readerRegistry;
     private final InstanceIdentifier<Node> mountPointPath;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
 
-    public VppDataBrokerInitializationProvider(@Nonnull final DataBroker bindingBroker) {
+    public VppDataBrokerInitializationProvider(@Nonnull final DataBroker bindingBroker, final ReaderRegistry readerRegistry) {
         this.bindingBroker = Preconditions.checkNotNull(bindingBroker, "bindingBroker should not be null");
+        this.readerRegistry = Preconditions.checkNotNull(readerRegistry, "readerRegistry should not be null");
         this.mountPointPath = getMountPointPath();
     }
 
@@ -123,7 +126,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
 
         createMountPointPlaceholder();
 
-        initialVppStateSynchronization(broker);
+        initialVppConfigSynchronization(broker);
     }
 
     @Override
@@ -170,12 +173,13 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private DOMDataBroker initVppDataBroker(final SchemaContext globalContext,
                                             final BindingNormalizedNodeSerializer serializer) {
         final ReadableVppDataTree operationalData =
-                new VppOperationalDataTree(serializer, new VppInterfacesReader()); // TODO make configurable
+                new VppOperationalDataTree(serializer, globalContext, readerRegistry); // TODO make configurable
 
         final DataTree dataTree =
                 InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION); // TODO make configurable
         dataTree.setSchemaContext(globalContext);
 
+        // FIXME use the new writer API
         final VppDataTree configDataProxy = new VppConfigDataTree(serializer, dataTree,
                 new DefaultVppWriter()); // TODO make configurable
         return new VppDataBroker(operationalData, configDataProxy);
@@ -202,21 +206,32 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
 
     // TODO operational and config models are not 1-1
     // decide what part of operational data should be written to config during initialization
-    private void initialVppStateSynchronization(final DOMDataBroker broker) {
+    private void initialVppConfigSynchronization(final DOMDataBroker broker) {
         // read from operational
         final DOMDataReadOnlyTransaction readTx = broker.newReadOnlyTransaction();
 
-        final YangInstanceIdentifier interfacesID = YangInstanceIdentifier.of(Interfaces.QNAME);
+        final YangInstanceIdentifier
+            id = YangInstanceIdentifier.builder().node(VppState.QNAME).node(BridgeDomains.QNAME).build();
+
+        LOG.trace("initialVppStateSynchronization id: {}", id);
 
         final ListenableFuture<Void> writeFuture = Futures.transform(
-                readTx.read(LogicalDatastoreType.OPERATIONAL, interfacesID),
+                readTx.read(LogicalDatastoreType.OPERATIONAL, id),
                 new AsyncFunction<Optional<NormalizedNode<?, ?>>, Void>() {
                     @Override
                     public ListenableFuture<Void> apply(final Optional<NormalizedNode<?, ?>> readResult)
                             throws Exception {
                         if (readResult.isPresent()) {
                             final DOMDataWriteTransaction writeTx = broker.newWriteOnlyTransaction();
-                            writeTx.put(LogicalDatastoreType.CONFIGURATION, interfacesID, readResult.get());
+                            final NormalizedNode<?, ?> node = readResult.get();
+                            LOG.trace("Read result: {}", node);
+
+                            // FIXME
+                            // this will fail because we are reading OPERATIONAL data and writing to CONFIGURATION
+                            // we need to provide extensible way to register initializer that would
+                            // translate between models
+
+                            // writeTx.put(LogicalDatastoreType.CONFIGURATION, id, node);
                             return writeTx.submit();
                         } else {
                             return Futures

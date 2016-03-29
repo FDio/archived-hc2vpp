@@ -22,6 +22,7 @@ import static org.mockito.Matchers.anyString;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.util.DelegatingReaderRegistry;
@@ -140,9 +141,9 @@ public class VppStateTest {
 
     @Test
     public void testReadAll() throws Exception {
-        final List<? extends DataObject> dataObjects = readerRegistry.readAll();
+        final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects = readerRegistry.readAll();
         assertEquals(dataObjects.size(), 1);
-        final DataObject dataObject = dataObjects.get(0);
+        final DataObject dataObject = Iterables.getOnlyElement(dataObjects.get(Iterables.getOnlyElement(dataObjects.keySet())));
         assertTrue(dataObject instanceof VppState);
         assertVersion((VppState) dataObject);
         assertEquals(2, ((VppState) dataObject).getBridgeDomains().getBridgeDomain().size());

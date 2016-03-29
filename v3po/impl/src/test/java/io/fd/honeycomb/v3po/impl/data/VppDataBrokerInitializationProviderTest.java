@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
+import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -41,14 +42,16 @@ public class VppDataBrokerInitializationProviderTest {
     private DataBroker bindingBroker;
     @Mock
     private WriteTransaction writeTx;
+    @Mock
+    private ReaderRegistry readerRegistry;
+
 
     private VppDataBrokerInitializationProvider provider;
-
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         doReturn(writeTx).when(bindingBroker).newWriteOnlyTransaction();
-        provider = new VppDataBrokerInitializationProvider(bindingBroker);
+        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry);
     }
 
     @Test

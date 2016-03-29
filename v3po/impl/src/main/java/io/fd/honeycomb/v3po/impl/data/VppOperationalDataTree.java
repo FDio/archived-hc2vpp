@@ -16,65 +16,170 @@
 
 package io.fd.honeycomb.v3po.impl.data;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.getOnlyElement;
+
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import io.fd.honeycomb.v3po.impl.trans0.VppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
+import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.CollectionNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeAttrBuilder;
+import org.opendaylight.yangtools.yang.model.api.DataSchemaNode;
+import org.opendaylight.yangtools.yang.model.api.ListSchemaNode;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * ReadableVppDataTree implementation for operational data.
  */
 public final class VppOperationalDataTree implements ReadableVppDataTree {
     private static final Logger LOG = LoggerFactory.getLogger(VppOperationalDataTree.class);
+
     private final BindingNormalizedNodeSerializer serializer;
-    private final VppReader reader;
+    private final ReaderRegistry readerRegistry;
+    private final SchemaContext globalContext;
 
     /**
      * Creates operational data tree instance.
      *
-     * @param serializer service for serialization between Java Binding Data representation and NormalizedNode
-     *                   representation.
-     * @param reader     service for translation between Vpp and Java Binding Data.
+     * @param serializer     service for serialization between Java Binding Data representation and NormalizedNode
+     *                       representation.
+     * @param globalContext  service for obtaining top level context data from all yang modules.
+     * @param readerRegistry service responsible for translation between DataObjects and VPP APIs.
      */
     public VppOperationalDataTree(@Nonnull BindingNormalizedNodeSerializer serializer,
-                                  @Nonnull VppReader reader) {
-        this.serializer = Preconditions.checkNotNull(serializer, "serializer should not be null");
-        this.reader = Preconditions.checkNotNull(reader, "reader should not be null");
+                                  @Nonnull final SchemaContext globalContext, @Nonnull ReaderRegistry readerRegistry) {
+        this.globalContext = checkNotNull(globalContext, "serializer should not be null");
+        this.serializer = checkNotNull(serializer, "serializer should not be null");
+        this.readerRegistry = checkNotNull(readerRegistry, "reader should not be null");
     }
 
     @Override
     public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
-            final YangInstanceIdentifier yangInstanceIdentifier) {
-        // TODO What if the path is ROOT/empty?
+            @Nonnull final YangInstanceIdentifier yangInstanceIdentifier) {
+
+        if (checkNotNull(yangInstanceIdentifier).equals(YangInstanceIdentifier.EMPTY)) {
+            LOG.debug("VppOperationalDataProxy.read(), yangInstanceIdentifier=ROOT");
+            return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>of(readRoot()));
+        }
+
+        LOG.debug("VppOperationalDataProxy.read(), yangInstanceIdentifier={}", yangInstanceIdentifier);
         final InstanceIdentifier<?> path = serializer.fromYangInstanceIdentifier(yangInstanceIdentifier);
+        if (path == null) {
+            // TODO try to translate wildcarded identifiers here as a workaround if it is expected to be used that way
+            // Currently its not possible to read list using wildcarded ID. SO we may not need this at all.
+        }
+        checkNotNull(path, "Invalid instance identifier %s. Cannot create BA equivalent.", yangInstanceIdentifier);
         LOG.debug("VppOperationalDataProxy.read(), path={}", path);
 
-        final DataObject dataObject = reader.read(path); // FIXME we need to expect a list of dataObjects here
-        return Futures.immediateCheckedFuture(toNormalizedNode(path, dataObject));
+        final List<? extends DataObject> dataObjects = readerRegistry.read(path);
+
+        if (dataObjects.isEmpty()) {
+            return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>absent());
+        }
+
+        final NormalizedNode<?, ?> value = wrapDataObjects(yangInstanceIdentifier, path, dataObjects);
+        return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>fromNullable(value));
     }
 
-    private Optional<NormalizedNode<?, ?>> toNormalizedNode(final InstanceIdentifier path,
-                                                            final DataObject dataObject) {
-        LOG.trace("VppOperationalDataProxy.toNormalizedNode(), path={}, path={}", path, dataObject);
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> entry =
-                serializer.toNormalizedNode(path, dataObject);
+    private DataSchemaNode getSchemaNode(final @Nonnull YangInstanceIdentifier yangInstanceIdentifier) {
+        return globalContext.getDataChildByName(yangInstanceIdentifier.getLastPathArgument().getNodeType());
+    }
 
-        final NormalizedNode<?, ?> value = entry.getValue();
-        LOG.trace("VppOperationalDataProxy.toNormalizedNode(), value={}", value);
+    private NormalizedNode<?, ?> readRoot() {
+        final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> dataNodeBuilder =
+                Builders.containerBuilder()
+                        .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(SchemaContext.NAME));
 
-        final Optional<NormalizedNode<?, ?>> optional = Optional.<NormalizedNode<?, ?>>fromNullable(value);
-        LOG.trace("VppOperationalDataProxy.toNormalizedNode(), optional={}", optional);
-        return optional;
+        final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects =
+                readerRegistry.readAll();
+
+        for (final InstanceIdentifier<? extends DataObject> instanceIdentifier : dataObjects.keySet()) {
+            final YangInstanceIdentifier rootElementId = serializer.toYangInstanceIdentifier(instanceIdentifier);
+            final NormalizedNode<?, ?> node =
+                    wrapDataObjects(rootElementId, instanceIdentifier, dataObjects.get(instanceIdentifier));
+            dataNodeBuilder.withChild((DataContainerChild<?, ?>) node);
+        }
+
+        return dataNodeBuilder.build();
+    }
+
+    private NormalizedNode<?, ?> wrapDataObjects(final YangInstanceIdentifier yangInstanceIdentifier,
+                                              final InstanceIdentifier<? extends DataObject> instanceIdentifier,
+                                              final Collection<? extends DataObject> dataObjects) {
+        final Collection<NormalizedNode<?, ?>> normalizedRootElements = Collections2
+                .transform(dataObjects, toNormalizedNodeFunction(instanceIdentifier));
+
+        final DataSchemaNode schemaNode = getSchemaNode(yangInstanceIdentifier);
+        if (schemaNode instanceof ListSchemaNode) {
+            // In case of a list, wrap all the values in a Mixin parent node
+            final ListSchemaNode listSchema = (ListSchemaNode) schemaNode;
+            return wrapListIntoMixinNode(normalizedRootElements, listSchema);
+        } else {
+            Preconditions.checkState(dataObjects.size() == 1, "Singleton list was expected");
+            return getOnlyElement(normalizedRootElements);
+        }
+    }
+
+    private static DataContainerChild<?, ?> wrapListIntoMixinNode(
+        final Collection<NormalizedNode<?, ?>> normalizedRootElements, final ListSchemaNode listSchema) {
+        if (listSchema.getKeyDefinition().isEmpty()) {
+            final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> listBuilder =
+                Builders.unkeyedListBuilder();
+            for (NormalizedNode<?, ?> normalizedRootElement : normalizedRootElements) {
+                listBuilder.withChild((UnkeyedListEntryNode) normalizedRootElement);
+            }
+            return listBuilder.build();
+        } else {
+            final CollectionNodeBuilder<MapEntryNode, ? extends MapNode> listBuilder =
+                listSchema.isUserOrdered()
+                    ? Builders.orderedMapBuilder()
+                    : Builders.mapBuilder();
+
+            for (NormalizedNode<?, ?> normalizedRootElement : normalizedRootElements) {
+                listBuilder.withChild((MapEntryNode) normalizedRootElement);
+            }
+            return listBuilder.build();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Function<DataObject, NormalizedNode<?, ?>> toNormalizedNodeFunction(final InstanceIdentifier path) {
+        return new Function<DataObject, NormalizedNode<?, ?>>() {
+            @Override
+            public NormalizedNode<?, ?> apply(@Nullable final DataObject dataObject) {
+                LOG.trace("VppOperationalDataProxy.toNormalizedNode(), path={}, dataObject={}", path, dataObject);
+                final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> entry =
+                        serializer.toNormalizedNode(path, dataObject);
+
+                LOG.trace("VppOperationalDataProxy.toNormalizedNode(), normalizedNodeEntry={}", entry);
+                return entry.getValue();
+            }
+        };
     }
 }

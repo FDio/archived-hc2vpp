@@ -19,10 +19,11 @@ package io.fd.honeycomb.v3po.impl.trans.r.util;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Iterables;
-import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
-import java.util.ArrayList;
+import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -54,15 +55,15 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
 
     @Override
     @Nonnull
-    public List<? extends DataObject> readAll() {
-        LOG.debug("Reading from all delegates");
+    public Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll() {
+        LOG.debug("Reading from all delegates: {}", this);
         LOG.trace("Reading from all delegates: {}", rootReaders.values());
 
-        final List<DataObject> objects = new ArrayList<>(rootReaders.size());
+        final Multimap<InstanceIdentifier<? extends DataObject>, DataObject> objects = LinkedListMultimap.create();
         for (VppReader<? extends DataObject> rootReader : rootReaders.values()) {
             LOG.debug("Reading from delegate: {}", rootReader);
             final List<? extends DataObject> read = rootReader.read(rootReader.getManagedDataObjectType());
-            objects.addAll(read);
+            objects.putAll(rootReader.getManagedDataObjectType(), read);
         }
         return objects;
     }

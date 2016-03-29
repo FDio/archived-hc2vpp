@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.impl.data;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -26,7 +27,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.impl.trans0.VppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
+import java.util.Collections;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,15 +37,19 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.model.api.DataSchemaNode;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 public class VppOperationalDataTreeTest {
 
     @Mock
     private BindingNormalizedNodeSerializer serializer;
     @Mock
-    private VppReader reader;
+    private ReaderRegistry reader;
 
     private VppOperationalDataTree operationalData;
 
@@ -51,24 +57,32 @@ public class VppOperationalDataTreeTest {
     private InstanceIdentifier<DataObject> id;
     @Mock
     private Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> entry;
+    @Mock
+    private SchemaContext globalContext;
+    @Mock
+    private DataSchemaNode schemaNode;
 
     @Before
     public void setUp() {
         initMocks(this);
-        operationalData = new VppOperationalDataTree(serializer, reader);
+        operationalData = new VppOperationalDataTree(serializer, globalContext, reader);
     }
 
     @Test
     public void testRead() throws Exception {
         final YangInstanceIdentifier yangId = mock(YangInstanceIdentifier.class);
+        final YangInstanceIdentifier.PathArgument pArg = mock(YangInstanceIdentifier.PathArgument.class);
+        doReturn(pArg).when(yangId).getLastPathArgument();
 
+        doReturn(QName.create("namespace", "2012-12-12", "local")).when(pArg).getNodeType();
+        doReturn(schemaNode).when(globalContext).getDataChildByName(any(QName.class));
         doReturn(id).when(serializer).fromYangInstanceIdentifier(yangId);
 
         final DataObject dataObject = mock(DataObject.class);
-        when(reader.read(id)).thenReturn(dataObject);
+        doReturn(Collections.singletonList(dataObject)).when(reader).read(id);
 
         when(serializer.toNormalizedNode(id, dataObject)).thenReturn(entry);
-        final NormalizedNode<?, ?> expectedValue = mock(NormalizedNode.class);
+        final DataContainerChild<?, ?> expectedValue = mock(DataContainerChild.class);
         doReturn(expectedValue).when(entry).getValue();
 
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future = operationalData.read(yangId);

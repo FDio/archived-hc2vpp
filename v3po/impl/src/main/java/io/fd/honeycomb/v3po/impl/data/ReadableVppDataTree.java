@@ -19,6 +19,7 @@ package io.fd.honeycomb.v3po.impl.data;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -34,5 +35,5 @@ public interface ReadableVppDataTree {
      * @param path Path of the node
      * @return a CheckFuture containing the result of the read.
      */
-    CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(YangInstanceIdentifier path);
+    CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(@Nonnull final YangInstanceIdentifier path);
 }

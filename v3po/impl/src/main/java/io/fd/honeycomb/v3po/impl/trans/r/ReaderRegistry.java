@@ -17,19 +17,23 @@
 package io.fd.honeycomb.v3po.impl.trans.r;
 
 import com.google.common.annotations.Beta;
-import java.util.List;
+import com.google.common.collect.Multimap;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Simple delegating reader suitable as a holder for all other root readers, providing readAll feature
+ * Simple delegating reader suitable as a holder for all other root readers, providing readAll feature.
  */
 @Beta
 public interface ReaderRegistry extends VppReader<DataObject> {
 
     /**
-     * Perform read on all underlying readers and merge the results into a single list
+     * Performs read on all registered root readers and merges the results into a Multimap.
+     * Keys represent identifiers for root DataObjects from the data tree modeled by YANG.
+     *
+     * @return multimap that preserves deterministic iteration order across non-distinct key values
      */
     @Nonnull
-    List<? extends DataObject> readAll();
+    Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll();
 }

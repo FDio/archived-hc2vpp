@@ -136,7 +136,11 @@ public final class VppConfigDataTree implements VppDataTree {
         @Override
         public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
                 final YangInstanceIdentifier path) {
-            return Futures.immediateCheckedFuture(snapshot.readNode(path));
+            final Optional<NormalizedNode<?, ?>> node = snapshot.readNode(path);
+            if (LOG.isTraceEnabled() && node.isPresent()) {
+                LOG.trace("ConfigSnapshot.read: {}", node.get());
+            }
+            return Futures.immediateCheckedFuture(node);
         }
 
         @Override
@@ -183,7 +187,7 @@ public final class VppConfigDataTree implements VppDataTree {
         }
 
         void revertChanges() throws VppApiInvocationException {
-            Preconditions.checkNotNull(writer, "VppWriter is nuserializerll!");
+            Preconditions.checkNotNull(writer, "VppWriter is null!");
 
             // revert changes in reverse order they were applied
             final ListIterator<InstanceIdentifier<?>> iterator = processedNodes.listIterator(processedNodes.size());

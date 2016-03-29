@@ -19,7 +19,6 @@ package io.fd.honeycomb.v3po.impl.vppstate;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.util.VppApiCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -66,7 +65,9 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
 
         builder.setInterface(getIfcs(bridgeDomainDetails));
 
-        final vppL2Fib[] vppL2Fibs = getVppApi().l2FibTableDump(bdId);
+        // final vppL2Fib[] vppL2Fibs = getVppApi().l2FibTableDump(bdId); FIXME we need writer for L2Fib
+        final vppL2Fib[] vppL2Fibs = getL2Fibs(bdId);
+
         final List<L2Fib> l2Fibs = Lists.newArrayListWithCapacity(vppL2Fibs.length);
         for (vppL2Fib vppL2Fib : vppL2Fibs) {
             l2Fibs.add(new L2FibBuilder()
@@ -80,6 +81,22 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
                 .build());
         }
         builder.setL2Fib(l2Fibs);
+    }
+
+    // FIXME remove when list read is implemented
+    // updating L2Fib was BD was is implemented
+    // this was added to test reading list
+    private vppL2Fib[] getL2Fibs(final int bdId) {
+        if (bdId == 0) {
+            return new vppL2Fib[]{
+                    new vppL2Fib(new byte[]{1, 2, 3, 4, 5, 6}, true, "ifc1", true, true)
+            };
+        } else {
+            return new vppL2Fib[]{
+                    new vppL2Fib(new byte[]{1, 2, 3, 4, 5, 6}, true, "ifc1", true, true),
+                    new vppL2Fib(new byte[]{2, 2, 3, 4, 5, 6}, true, "ifc2", true, true),
+            };
+        }
     }
 
     private static String getMacAddress(byte[] mac) {
