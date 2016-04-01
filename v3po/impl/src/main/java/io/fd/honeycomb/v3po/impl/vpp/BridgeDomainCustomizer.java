@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.impl.vpp;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.honeycomb.v3po.impl.trans.util.Context;
@@ -38,9 +40,9 @@ public class BridgeDomainCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
 
-    static final byte ADD_BD = (byte) 1;
-    static final int NO_RET_VAL = -77;
-    static final int RELEASE = 1;
+    private static final byte ADD_OR_UPDATE_BD = (byte) 1;
+    private static final int RESPONSE_NOT_READY = -77;
+    private static final int RELEASE = 1;
 
     public BridgeDomainCustomizer(final org.openvpp.vppjapi.vppApi api) {
         super(api);
@@ -53,30 +55,37 @@ public class BridgeDomainCustomizer
         return ((BridgeDomains) parentData).getBridgeDomain();
     }
 
+    private int waitForResponse(final int ctxId) {
+        int rv;
+        while ((rv = getVppApi().getRetval(ctxId, RELEASE)) == RESPONSE_NOT_READY) {
+            // TODO limit attempts
+        }
+        return rv;
+    }
+
+    private int addOrUpdateBridgeDomain(final int bdId, @Nonnull final BridgeDomain bd) {
+        byte flood = booleanToByte(bd.isFlood());
+        byte forward = booleanToByte(bd.isForward());
+        byte learn = booleanToByte(bd.isLearn());
+        byte uuf = booleanToByte(bd.isUnknownUnicastFlood());
+        byte arpTerm = booleanToByte(bd.isArpTermination());
+
+        int ctxId = getVppApi().bridgeDomainAddDel(bdId, flood, forward, learn, uuf, arpTerm, ADD_OR_UPDATE_BD);
+        return waitForResponse(ctxId);
+    }
+
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                        @Nonnull final BridgeDomain current,
                                        @Nonnull final Context ctx) {
+        LOG.debug("writeCurrentAttributes: id={}, current={}, ctx={}", id, current, ctx);
         final String bdName = current.getName();
         int bdId = getVppApi().findOrAddBridgeDomainId(bdName);
         checkState(bdId > 0, "Unable to find or create bridge domain. Return code: %s", bdId);
 
-        byte flood = booleanToByte(current.isFlood());
-        byte forward = booleanToByte(current.isForward());
-        byte learn = booleanToByte(current.isLearn());
-        byte uuf = booleanToByte(current.isUnknownUnicastFlood());
-        byte arpTerm = booleanToByte(current.isArpTermination());
+        int rv = addOrUpdateBridgeDomain(bdId, current);
 
-        int ctxId = getVppApi().bridgeDomainAddDel(bdId, flood, forward, learn, uuf, arpTerm, ADD_BD);
-
-        int rv = NO_RET_VAL;
-        while (rv == -77) {
-            rv = getVppApi().getRetval(ctxId, RELEASE /* release */);
-            // TODO limit attempts
-        }
-        checkState(rv > 0, "Bridge domain %s(%s) write failed. Return code: %s", bdName, bdId, rv);
-
-        bdId = getVppApi().bridgeDomainIdFromName(bdName);
+        checkState(rv >= 0, "Bridge domain %s(%s) write failed. Return code: %s", bdName, bdId, rv);
         LOG.debug("Bridge domain {} written as {} successfully", bdName, bdId);
     }
 
@@ -88,9 +97,10 @@ public class BridgeDomainCustomizer
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore,
                                         @Nonnull final Context ctx) {
+        LOG.debug("deleteCurrentAttributes: id={}, dataBefore={}, ctx={}", id, dataBefore, ctx);
         String bdName = id.firstKeyOf(BridgeDomain.class).getName();
 
-        int bdId = getVppApi().findOrAddBridgeDomainId(bdName);
+        int bdId = getVppApi().bridgeDomainIdFromName(bdName);
         checkState(bdId > 0, "Unable to delete bridge domain. Does not exist. Return code: %s", bdId);
 
         int ctxId = getVppApi().bridgeDomainAddDel(bdId,
@@ -101,13 +111,9 @@ public class BridgeDomainCustomizer
             (byte) 0 /* arpTerm */,
             (byte) 0 /* isAdd */);
 
-        int rv = NO_RET_VAL;
-        while (rv == NO_RET_VAL) {
-            rv = getVppApi().getRetval(ctxId, RELEASE /* release */);
-            // TODO limit attempts
-        }
+        int rv = waitForResponse(ctxId);
 
-        checkState(rv > 0, "Bridge domain delete failed. Return code: %s", rv);
+        checkState(rv >= 0, "Bridge domain delete failed. Return code: %s", rv);
         LOG.debug("Bridge domain {} deleted as {} successfully", bdName, bdId);
     }
 
@@ -115,9 +121,18 @@ public class BridgeDomainCustomizer
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore, @Nonnull final BridgeDomain dataAfter,
                                         @Nonnull final Context ctx) {
-        // Most basic update implementation: Delete + Write
-        deleteCurrentAttributes(id, dataBefore, ctx);
-        writeCurrentAttributes(id, dataAfter, ctx);
+        LOG.debug("updateCurrentAttributes: id={}, dataBefore={}, dataAfter={}, ctx={}", id, dataBefore, dataAfter, ctx);
+
+        final String bdName = checkNotNull(dataAfter.getName());
+        checkArgument(bdName.equals(dataBefore.getName()), "BridgeDomain name changed. It should be deleted and then created.");
+
+        int bdId = getVppApi().bridgeDomainIdFromName(bdName);
+        checkState(bdId > 0, "Unable to find bridge domain. Return code: %s", bdId);
+
+        final int rv = addOrUpdateBridgeDomain(bdId, dataAfter);
+
+        checkState(rv >= 0, "Bridge domain %s(%s) update failed. Return code: %s", bdName, bdId, rv);
+        LOG.debug("Bridge domain {}({}) updated successfully", bdName, bdId);
     }
 
 }

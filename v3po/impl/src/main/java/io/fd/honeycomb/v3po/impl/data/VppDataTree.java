@@ -17,7 +17,7 @@
 package io.fd.honeycomb.v3po.impl.data;
 
 import com.google.common.annotations.Beta;
-import io.fd.honeycomb.v3po.impl.trans0.VppApiInvocationException;
+import io.fd.honeycomb.v3po.impl.trans.VppApiInvocationException;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 

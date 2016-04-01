@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.v3po.impl.vpp;
 
+import static io.fd.honeycomb.v3po.impl.vpp.BridgeDomainTestUtils.BD_NAME_TO_ID_ANSWER;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -33,8 +34,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
@@ -71,14 +70,8 @@ public class VppTest {
     public void setUp() throws Exception {
         api = PowerMockito.mock(vppApi.class);
         ctx = mock(WriteContext.class);
-        PowerMockito.doAnswer(new Answer<Integer>() {
-            @Override
-            public Integer answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                final String bName = (String) invocationOnMock.getArguments()[0];
-                return Integer.parseInt(((Character)bName.charAt(bName.length() - 1)).toString());
-            }
-        }).when(api).findOrAddBridgeDomainId(anyString());
-        PowerMockito.doReturn(1).when(api).bridgeDomainIdFromName(anyString());
+        PowerMockito.doAnswer(BD_NAME_TO_ID_ANSWER).when(api).findOrAddBridgeDomainId(anyString());
+        PowerMockito.doAnswer(BD_NAME_TO_ID_ANSWER).when(api).bridgeDomainIdFromName(anyString());
         PowerMockito.doReturn(1).when(api).getRetval(anyInt(), anyInt());
         vppWriter = VppUtils.getVppWriter(api);
         rootRegistry = new DelegatingWriterRegistry(

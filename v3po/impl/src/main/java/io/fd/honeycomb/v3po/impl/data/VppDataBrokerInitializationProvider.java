@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.impl.data;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AsyncFunction;
@@ -23,7 +25,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.impl.LoggingFuturesCallBack;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
-import io.fd.honeycomb.v3po.impl.trans0.DefaultVppWriter;
 import java.util.Collection;
 import java.util.Collections;
 import javassist.ClassPool;
@@ -84,12 +85,16 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private final DataBroker bindingBroker;
     private final ReaderRegistry readerRegistry;
     private final InstanceIdentifier<Node> mountPointPath;
+    private final VppWriterRegistry writerRegistry;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
     private DOMDataBroker broker;
 
-    public VppDataBrokerInitializationProvider(@Nonnull final DataBroker bindingBroker, final ReaderRegistry readerRegistry) {
-        this.bindingBroker = Preconditions.checkNotNull(bindingBroker, "bindingBroker should not be null");
-        this.readerRegistry = Preconditions.checkNotNull(readerRegistry, "readerRegistry should not be null");
+    public VppDataBrokerInitializationProvider(@Nonnull final DataBroker bindingBroker,
+                                               final ReaderRegistry readerRegistry,
+                                               final VppWriterRegistry writerRegistry) {
+        this.bindingBroker = checkNotNull(bindingBroker, "bindingBroker should not be null");
+        this.readerRegistry = checkNotNull(readerRegistry, "readerRegistry should not be null");
+        this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");
         this.mountPointPath = getMountPointPath();
     }
 
@@ -180,9 +185,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
                 InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION); // TODO make configurable
         dataTree.setSchemaContext(globalContext);
 
-        // FIXME use the new writer API
-        final VppDataTree configDataProxy = new VppConfigDataTree(serializer, dataTree,
-                new DefaultVppWriter()); // TODO make configurable
+        final VppDataTree configDataProxy = new VppConfigDataTree(serializer, dataTree, writerRegistry); // TODO make configurable
         return new VppDataBroker(operationalData, configDataProxy);
     }
 

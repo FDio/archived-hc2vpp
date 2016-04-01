@@ -16,10 +16,12 @@
 
 package io.fd.honeycomb.v3po.impl.data;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -31,17 +33,17 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.impl.trans0.VppApiInvocationException;
-import io.fd.honeycomb.v3po.impl.trans0.VppWriter;
+import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
+import io.fd.honeycomb.v3po.impl.trans.VppApiInvocationException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -67,7 +69,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailed
 public class VPPConfigDataTreeTest {
 
     @Mock
-    private VppWriter<DataObject> vppWriter;
+    private VppWriterRegistry vppWriter;
     @Mock
     private BindingNormalizedNodeSerializer serializer;
     @Mock
@@ -135,7 +137,8 @@ public class VPPConfigDataTreeTest {
         proxy.commit(modification);
 
         // Verify all changes were processed:
-        verify(vppWriter).process(dataBefore, dataAfter);
+        verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(dataBefore)),
+            eq(singletonList(dataAfter)), any(WriteContext.class));
 
         // Verify modification was validated
         verify(dataTree).validate(modification);
@@ -155,8 +158,9 @@ public class VPPConfigDataTreeTest {
 
         final List<Map.Entry<DataObject, DataObject>> processedChanges = new ArrayList<>();
         // reject third applied change
-        final Answer answer = new VppWriterAnswer(processedChanges, Arrays.asList(1,2), Collections.singletonList(3));
-        doAnswer(answer).when(vppWriter).process(any(DataObject.class), any(DataObject.class));
+        final Answer answer = new VppWriterAnswer(processedChanges, Arrays.asList(1,2), singletonList(3));
+        doAnswer(answer).when(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), anyListOf(DataObject.class),
+            anyListOf(DataObject.class), any(WriteContext.class));
 
         // Prepare modification:
         final DataTreeCandidateNode rootNode = mockRootNode();
@@ -172,16 +176,20 @@ public class VPPConfigDataTreeTest {
             proxy.commit(modification);
         } catch (DataValidationFailedException | VppApiInvocationException e) {
             // verify that all changes were processed:
-            verify(vppWriter).process(dataBefore1, dataAfter1);
-            verify(vppWriter).process(dataBefore2, dataAfter2);
-            verify(vppWriter).process(dataBefore3, dataAfter3);
+            verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(dataBefore1)),
+                eq(singletonList(dataAfter1)), any(WriteContext.class));
+            verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(dataBefore2)),
+                eq(singletonList(dataAfter2)), any(WriteContext.class));
+            verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(dataBefore3)),
+                eq(singletonList(dataAfter3)), any(WriteContext.class));
 
             // verify that only two changes were processed successfully:
             assertEquals(2, processedChanges.size());
 
             // verify that successful changes were undone
             for (final Map.Entry<DataObject, DataObject> change : processedChanges) {
-                verify(vppWriter).process(change.getValue(), change.getKey());
+                verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(change.getValue())),
+                    eq(singletonList(change.getKey())), any(WriteContext.class));
             }
             return;
         }
@@ -204,7 +212,8 @@ public class VPPConfigDataTreeTest {
         // reject third applied change and fourth (first undo):
         final List<Map.Entry<DataObject, DataObject>> processedChanges = new ArrayList<>();
         final Answer answer = new VppWriterAnswer(processedChanges, Arrays.asList(1,2), Arrays.asList(3,4));
-        doAnswer(answer).when(vppWriter).process(any(DataObject.class), any(DataObject.class));
+        doAnswer(answer).when(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), anyListOf(DataObject.class),
+            anyListOf(DataObject.class), any(WriteContext.class));
 
         // Prepare modification:
         final DataTreeCandidateNode rootNode = mockRootNode();
@@ -220,20 +229,25 @@ public class VPPConfigDataTreeTest {
             proxy.commit(modification);
         } catch (DataValidationFailedException | VppApiInvocationException e) {
             // verify that all changes were processed:
-            verify(vppWriter).process(dataBefore1, dataAfter1);
-            verify(vppWriter).process(dataBefore2, dataAfter2);
-            verify(vppWriter).process(dataBefore3, dataAfter3);
+            verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(dataBefore1)),
+                eq(singletonList(dataAfter1)), any(WriteContext.class));
+            verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(dataBefore2)),
+                eq(singletonList(dataAfter2)), any(WriteContext.class));
+            verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(dataBefore3)),
+                eq(singletonList(dataAfter3)), any(WriteContext.class));
 
             // verify that only two changes were processed successfully:
             assertEquals(2, processedChanges.size());
 
             // verify we tried to undo the last successful change:
             Map.Entry<DataObject, DataObject> change = processedChanges.get(1);
-            verify(vppWriter).process(change.getValue(), change.getKey());
+            verify(vppWriter).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(change.getValue())),
+                eq(singletonList(change.getKey())), any(WriteContext.class));
 
             // but failed, and did not try to undo the first:
             change = processedChanges.get(0);
-            verify(vppWriter, never()).process(change.getValue(), change.getKey());
+            verify(vppWriter, never()).update(Matchers.<InstanceIdentifier<?>>any(), eq(singletonList(change.getValue())),
+                eq(singletonList(change.getKey())), any(WriteContext.class));
             return;
         }
 
@@ -295,12 +309,12 @@ public class VPPConfigDataTreeTest {
         public Object answer(final InvocationOnMock invocation) throws Throwable {
             ++count;
             if (toCapture.contains(count)) {
-                final DataObject dataBefore = (DataObject)invocation.getArguments()[0];
-                final DataObject dataAfter = (DataObject)invocation.getArguments()[1];
+                final DataObject dataBefore = (DataObject) ((List)invocation.getArguments()[1]).get(0);
+                final DataObject dataAfter = (DataObject) ((List)invocation.getArguments()[2]).get(0);
                 capturedChanges.add(new AbstractMap.SimpleImmutableEntry<>(dataBefore, dataAfter));
             }
             if (toReject.contains(count)) {
-                throw mock(VppApiInvocationException.class);
+                throw mock(RuntimeException.class);
             }
             return null;
         }

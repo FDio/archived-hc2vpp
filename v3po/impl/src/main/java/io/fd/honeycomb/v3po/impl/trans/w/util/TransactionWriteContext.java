@@ -22,29 +22,30 @@ import io.fd.honeycomb.v3po.impl.trans.util.Context;
 import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
 import java.util.Collections;
 import java.util.List;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import java.util.Map;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public class TransactionWriteContext implements WriteContext, AutoCloseable {
 
-    private final ReadOnlyTransaction beforeTx;
-    private final ReadOnlyTransaction afterTx;
+    private final DOMDataReadOnlyTransaction beforeTx;
+    private final DOMDataReadOnlyTransaction afterTx;
     private final Context ctx;
+    private final BindingNormalizedNodeSerializer serializer;
 
-    public TransactionWriteContext(final ReadOnlyTransaction beforeTx, final ReadOnlyTransaction afterTx,
-                                   final Context ctx) {
-        super();
+    public TransactionWriteContext(final BindingNormalizedNodeSerializer serializer,
+                                   final DOMDataReadOnlyTransaction beforeTx,
+                                   final DOMDataReadOnlyTransaction afterTx) {
+        this.serializer = serializer;
         this.beforeTx = beforeTx;
         this.afterTx = afterTx;
-        this.ctx = ctx;
-    }
-
-    public TransactionWriteContext(final ReadOnlyTransaction beforeTx,
-                                   final ReadOnlyTransaction afterTx) {
-        this(beforeTx, afterTx, new Context());
+        this.ctx = new Context();
     }
 
     @Override
@@ -53,16 +54,26 @@ public class TransactionWriteContext implements WriteContext, AutoCloseable {
     }
 
     private List<? extends DataObject> read(final InstanceIdentifier<? extends DataObject> currentId,
-                                            final ReadOnlyTransaction tx) {
+                                            final DOMDataReadOnlyTransaction tx) {
         // FIXME how to read all for list (using wildcarded ID) ?
 
-        final CheckedFuture<? extends Optional<? extends DataObject>, ReadFailedException> read =
-            tx.read(LogicalDatastoreType.CONFIGURATION, currentId);
+        final YangInstanceIdentifier path = serializer.toYangInstanceIdentifier(currentId);
+
+        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read =
+                tx.read(LogicalDatastoreType.CONFIGURATION, path);
+
         try {
-            final Optional<? extends DataObject> optional = read.checkedGet();
-            return optional.isPresent()
-                ? Collections.singletonList(optional.get())
-                : Collections.<DataObject>emptyList();
+            final Optional<NormalizedNode<?, ?>> optional = read.checkedGet();
+
+            if (!optional.isPresent()) {
+                return Collections.<DataObject>emptyList();
+            }
+
+            final NormalizedNode<?, ?> data = optional.get();
+            final Map.Entry<InstanceIdentifier<?>, DataObject> entry =
+                    serializer.fromNormalizedNode(path, data);
+
+            return Collections.singletonList(entry.getValue());
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to perform read", e);
         }

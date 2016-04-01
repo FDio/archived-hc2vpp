@@ -44,14 +44,17 @@ public class VppDataBrokerInitializationProviderTest {
     private WriteTransaction writeTx;
     @Mock
     private ReaderRegistry readerRegistry;
+    @Mock
+    private VppWriterRegistry writerRegistry;
 
 
     private VppDataBrokerInitializationProvider provider;
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         doReturn(writeTx).when(bindingBroker).newWriteOnlyTransaction();
-        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry);
+        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry, writerRegistry);
     }
 
     @Test
