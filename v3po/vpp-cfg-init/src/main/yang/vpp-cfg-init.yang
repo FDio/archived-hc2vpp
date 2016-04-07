@@ -1,0 +1,43 @@
+module vpp-cfg-init {
+    yang-version 1;
+    namespace "urn:honeycomb:params:xml:ns:yang:vpp:data:init";
+    prefix "init";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import translate-api { prefix tapi; revision-date 2016-04-06; }
+
+    description
+        "This module contains initializers for VPP config data tree";
+
+    revision "2016-04-07" {
+        description
+            "Initial revision";
+    }
+
+    identity vpp-cfg-initializer {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.vpp.data.init.InitializerRegistry;
+    }
+
+    identity vpp-cfg-initializer-impl {
+        base config:module-type;
+        config:provided-service vpp-cfg-initializer;
+        config:java-name-prefix VppConfigurationInitializer;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case vpp-cfg-initializer-impl {
+            when "/config:modules/config:module/config:type = 'vpp-cfg-initializer-impl'";
+
+            container reader-registry {
+                uses config:service-ref {
+                    refine type {
+                       mandatory true;
+                        config:required-identity tapi:honeycomb-reader-registry;
+                    }
+                }
+            }
+        }
+    }
+
+}

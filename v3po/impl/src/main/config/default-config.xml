@@ -19,6 +19,7 @@
       <capability>urn:opendaylight:params:xml:ns:yang:v3po:impl?module=v3po-impl&amp;revision=2014-12-10</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:translate:utils?module=translate-utils&amp;revision=2016-04-06</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg?module=vpp-japi-cfg&amp;revision=2016-04-06</capability>
+      <capability>urn:honeycomb:params:xml:ns:yang:vpp:data:init?module=vpp-cfg-init&amp;revision=2016-04-07</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
   </required-capabilities>
   <configuration>
@@ -59,6 +60,16 @@
             <name>write-registry</name>
           </writer-registry>
         </module>
+
+        <module>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:vpp-cfg-initializer-impl</type>
+          <name>vpp-cfg-initializer</name>
+          <reader-registry>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-registry</type>
+            <name>read-registry</name>
+          </reader-registry>
+        </module>
+
       </modules>
 
       <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -74,6 +85,14 @@
           <instance>
             <name>write-registry</name>
             <provider>/modules/module[type='delegating-writer-registry'][name='write-registry']</provider>
+          </instance>
+        </service>
+        <service>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:vpp-cfg-initializer</type>
+          <instance>
+            <name>vpp-cfg-initializer</name>
+            <provider>/modules/module[type='vpp-cfg-initializer-impl'][name='vpp-cfg-initializer']
+            </provider>
           </instance>
         </service>
         <service>

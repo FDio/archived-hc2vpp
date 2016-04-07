@@ -157,6 +157,11 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>vpp-cfg-init</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>translate-api</artifactId>
       <version>${project.version}</version>
     </dependency>

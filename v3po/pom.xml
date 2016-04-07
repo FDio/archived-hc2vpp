@@ -42,6 +42,7 @@
     <module>vpp-translate-utils</module>
     <module>vpp-japi-cfg</module>
     <module>v3po2vpp</module>
+    <module>vpp-cfg-init</module>
     <module>impl</module>
     <module>karaf</module>
     <module>features</module>
