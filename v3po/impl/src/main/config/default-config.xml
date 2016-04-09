@@ -161,6 +161,10 @@
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">prefix:dom-async-data-broker</type>
             <name>honeycomb-dom-data-broker</name>
           </honeycomb-dom-data-broker>
+          <honeycomb-dom-notification-service>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:notification:api">prefix:dom-notification-service</type>
+            <name>honeycomb-dom-notification-service</name>
+          </honeycomb-dom-notification-service>
         </module>
       </modules>
 

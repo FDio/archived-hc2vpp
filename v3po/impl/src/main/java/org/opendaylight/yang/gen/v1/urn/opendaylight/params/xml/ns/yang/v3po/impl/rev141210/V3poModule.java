@@ -16,7 +16,7 @@
 
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210;
 
-import io.fd.honeycomb.v3po.impl.NetconfFacadeHoneycombBindingBroker;
+import io.fd.honeycomb.v3po.impl.NorthboundFacadeHoneycombDOMBroker;
 import org.opendaylight.controller.sal.core.api.AbstractProvider;
 import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
@@ -53,7 +53,8 @@ public class V3poModule extends
             });
         final SchemaService schemaBiService = providerSession.getService(SchemaService.class);
 
-        return new NetconfFacadeHoneycombBindingBroker(getHoneycombDomDataBrokerDependency(), schemaBiService);
+        return new NorthboundFacadeHoneycombDOMBroker(getHoneycombDomDataBrokerDependency(), schemaBiService,
+            getHoneycombDomNotificationServiceDependency());
     }
 
 }

@@ -42,6 +42,8 @@
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-translate-utils/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/data-api/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/data-impl/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/notification-api/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/notification-impl/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-impl/${project.version}</bundle>
     <bundle>wrap:mvn:io.fd.vpp/jvpp/16.09-SNAPSHOT</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-jvpp-cfg/${project.version}</bundle>
@@ -49,6 +51,7 @@
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-cfg-init/${project.version}</bundle>
     <configfile finalname="${configfile.directory}/vpp-jvpp.xml">mvn:io.fd.honeycomb.v3po/vpp-jvpp-cfg/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po-context.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/context</configfile>
+    <configfile finalname="${configfile.directory}/v3po-notification.xml">mvn:io.fd.honeycomb.v3po/notification-impl/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po-init.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/init</configfile>
     <configfile finalname="${configfile.directory}/v3po2vpp.xml">mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}/xml/config</configfile>
@@ -59,6 +62,7 @@
     <feature version="${restconf.version}">odl-restconf</feature>
     <!-- Northbound interfaces configuration -->
     <configfile finalname="${configfile.directory}/v3po-netconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/netconf</configfile>
+    <configfile finalname="${configfile.directory}/v3po-notification2netconf.xml">mvn:io.fd.honeycomb.v3po/notification-impl/${project.version}/xml/notification2netconf</configfile>
     <configfile finalname="${configfile.directory}/v3po-restconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/restconf</configfile>
   </feature>
 

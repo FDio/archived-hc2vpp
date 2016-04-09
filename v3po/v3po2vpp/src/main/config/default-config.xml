@@ -26,6 +26,7 @@
         <capability>
             urn:opendaylight:params:xml:ns:yang:controller:threadpool:impl:scheduled?module=threadpool-impl-scheduled&amp;revision=2013-12-01
         </capability>
+        <capability>urn:honeycomb:params:xml:ns:yang:notification:impl?module=notification-impl&amp;revision=2016-06-01</capability>
     </required-capabilities>
     <configuration>
 
@@ -65,6 +66,35 @@
                         <name>global-netconf-ssh-scheduled-executor</name>
                     </keepalive-executor>
                 </module>
+
+                <!-- Interface notification producer-->
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-interface-notification-producer</type>
+                    <name>vpp-interface-notification-producer</name>
+                    <vpp-jvpp>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg">prefix:vpp-jvpp</type>
+                        <name>vpp-jvpp</name>
+                    </vpp-jvpp>
+                    <interface-context>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>interface-context</name>
+                    </interface-context>
+                    <realtime-mapping-context>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-mapping-context</type>
+                        <name>realtime-mapping-context</name>
+                    </realtime-mapping-context>
+                </module>
+                <!-- Register to HC notification collector-->
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:notification:impl">prefix:honeycomb-notification-manager</type>
+                    <name>honeycomb-notification-manager</name>
+                    <notification-producers>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:notification:api">prefix:honeycomb-notification-producer</type>
+                        <name>vpp-interface-notification-producer</name>
+                    </notification-producers>
+                </module>
+                <!-- /Interface notification producer -->
+
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:interfaces-state-honeycomb-reader</type>
                     <name>interfaces-state-honeycomb-reader</name>
@@ -154,6 +184,13 @@
                     <instance>
                         <name>interfaces-state-honeycomb-reader</name>
                         <provider>/modules/module[type='interfaces-state-honeycomb-reader'][name='interfaces-state-honeycomb-reader']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:notification:api">prefix:honeycomb-notification-producer</type>
+                    <instance>
+                        <name>vpp-interface-notification-producer</name>
+                        <provider>/modules/module[type='vpp-interface-notification-producer'][name='vpp-interface-notification-producer']</provider>
                     </instance>
                 </service>
                 <service>

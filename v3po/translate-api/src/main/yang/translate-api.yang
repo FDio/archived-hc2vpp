@@ -34,4 +34,9 @@ module translate-api {
         config:java-class io.fd.honeycomb.v3po.translate.write.WriterRegistry;
     }
 
+    identity honeycomb-mapping-context {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.translate.MappingContext;
+    }
+
 }

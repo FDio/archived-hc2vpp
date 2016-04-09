@@ -39,6 +39,7 @@
     <module>translate-api</module>
     <module>translate-impl</module>
     <module>translate-utils</module>
+    <module>notification</module>
     <module>vpp-translate-utils</module>
     <module>vpp-jvpp-cfg</module>
     <module>v3po2vpp</module>

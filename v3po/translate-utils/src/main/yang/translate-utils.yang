@@ -5,6 +5,7 @@ module translate-utils {
 
     import config { prefix config; revision-date 2013-04-05; }
     import translate-api { prefix tapi; revision-date 2016-04-06; }
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
 
     description
         "This module contains translation layer utilities";
@@ -67,6 +68,26 @@ module translate-utils {
     augment "/config:modules/config:module/config:configuration" {
         case noop-writer-registry {
             when "/config:modules/config:module/config:type = 'noop-writer-registry'";
+        }
+    }
+
+    identity realtime-mapping-context {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-mapping-context;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case realtime-mapping-context {
+            when "/config:modules/config:module/config:type = 'realtime-mapping-context'";
+
+            container context-binding-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-async-data-broker;
+                    }
+                }
+            }
         }
     }
 }

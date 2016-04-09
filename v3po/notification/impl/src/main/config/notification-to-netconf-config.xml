@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+ Copyright (c) 2015 Cisco and/or its affiliates.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at:
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<snapshot>
+<required-capabilities>
+  <capability>urn:honeycomb:params:xml:ns:yang:notification:impl?module=notification-impl&amp;revision=2016-06-01</capability>
+</required-capabilities>
+<configuration>
+
+  <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+      <module>
+        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:notification:impl">prefix:honeycomb-notification-to-netconf-translator</type>
+        <name>honeycomb-notification-to-netconf-translator</name>
+        <netconf-notification-registry>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:notification">
+            prefix:netconf-notification-registry
+          </type>
+          <name>vpp-netconf-notification-manager</name>
+        </netconf-notification-registry>
+        <netconf-notification-collector>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:notification">
+            prefix:netconf-notification-collector
+          </type>
+          <name>vpp-netconf-notification-manager</name>
+        </netconf-notification-collector>
+        <schema-service>
+          <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+          <name>yang-schema-service</name>
+        </schema-service>
+        <honeycomb-notification-collector>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:notification:api">prefix:honeycomb-notification-collector</type>
+          <name>honeycomb-notification-manager</name>
+        </honeycomb-notification-collector>
+        <dom-notification-service>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:notification:api">prefix:dom-notification-service</type>
+          <name>honeycomb-dom-notification-service</name>
+        </dom-notification-service>
+        <netconf-stream-name>honeycomb</netconf-stream-name>
+        <netconf-stream-description>All notifications received by honeycomb's plugins</netconf-stream-description>
+      </module>
+    </modules>
+  </data>
+</configuration>
+</snapshot>

@@ -9,6 +9,7 @@ module v3po-impl {
     import vpp-jvpp-cfg { prefix vjvppc; revision-date 2016-04-06; }
     import translate-api { prefix tapi; revision-date 2016-04-06; }
     import data-api { prefix dapi; revision-date 2016-04-11; }
+    import notification-api { prefix hc-notif-a; revision-date 2016-06-01; }
 
     description
         "Service definition for v3po project";
@@ -41,6 +42,15 @@ module v3po-impl {
                     refine type {
                         mandatory true;
                         config:required-identity dom:dom-async-data-broker;
+                    }
+                }
+            }
+
+            container honeycomb-dom-notification-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity hc-notif-a:dom-notification-service;
                     }
                 }
             }

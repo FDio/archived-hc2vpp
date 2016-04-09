@@ -505,4 +505,44 @@ module v3po {
       "vlib version info";
     }
   }
+
+  // VPP Notifications
+
+  typedef interface-status {
+    type enumeration {
+      enum up {
+        value 1;
+      }
+      enum down {
+        value 0;
+      }
+    }
+  }
+
+  typedef interface-name-or-index {
+    type union {
+      type string;
+      type uint32;
+    }
+  }
+
+  notification interface-state-change {
+    leaf name {
+        type interface-name-or-index;
+    }
+
+    leaf admin-status {
+        type interface-status;
+    }
+
+    leaf oper-status {
+        type interface-status;
+    }
+  }
+
+  notification interface-deleted {
+    leaf name {
+        type interface-name-or-index;
+    }
+  }
 }

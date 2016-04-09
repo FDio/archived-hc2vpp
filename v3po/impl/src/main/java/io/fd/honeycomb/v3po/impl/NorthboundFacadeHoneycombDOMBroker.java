@@ -27,6 +27,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPoint;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
+import org.opendaylight.controller.md.sal.dom.api.DOMNotificationPublishService;
+import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcAvailabilityListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcException;
 import org.opendaylight.controller.md.sal.dom.api.DOMRpcImplementationNotAvailableException;
@@ -45,23 +47,27 @@ import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.osgi.framework.BundleContext;
 
 /**
- * Implementation of dom broker to facade VPP pipeline for netconf northbound server
+ * Implementation of dom broker to facade VPP pipeline for northbound APIs
  */
-public class NetconfFacadeHoneycombBindingBroker implements AutoCloseable, Broker {
+public class NorthboundFacadeHoneycombDOMBroker implements AutoCloseable, Broker {
 
     private static final BrokerService EMPTY_DOM_RPC_SERVICE = new EmptyDomRpcService();
     private static final BrokerService EMPTY_DOM_MOUNT_SERVICE = new EmptyDomMountService();
 
     private Map<Class<? extends BrokerService>, BrokerService> services;
 
-    public NetconfFacadeHoneycombBindingBroker(@Nonnull final DOMDataBroker domDataBrokerDependency,
-                                               @Nonnull final SchemaService schemaBiService) {
+    public NorthboundFacadeHoneycombDOMBroker(@Nonnull final DOMDataBroker domDataBrokerDependency,
+                                              @Nonnull final SchemaService schemaBiService,
+                                              @Nonnull final DOMNotificationService domNotificatioNService) {
         services = Maps.newHashMap();
         services.put(DOMDataBroker.class, domDataBrokerDependency);
         // All services below are required to be present by Restconf northbound
         services.put(SchemaService.class, schemaBiService);
         services.put(DOMRpcService.class, EMPTY_DOM_RPC_SERVICE);
         services.put(DOMMountPointService.class, EMPTY_DOM_MOUNT_SERVICE);
+        services.put(DOMNotificationService.class, domNotificatioNService);
+        // TODO do both notification service types have to be registered ?
+        services.put(DOMNotificationPublishService.class, domNotificatioNService);
     }
 
     @Override

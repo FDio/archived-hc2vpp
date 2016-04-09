@@ -1,0 +1,31 @@
+module notification-api {
+    yang-version 1;
+    namespace "urn:honeycomb:params:xml:ns:yang:notification:api";
+    prefix "hc-notif-a";
+
+    import config { prefix config; revision-date 2013-04-05; }
+
+    description
+        "Module definition for honeycomb notification service APIs";
+
+    revision "2016-06-01" {
+        description
+            "Initial revision";
+    }
+
+    identity honeycomb-notification-collector {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.notification.NotificationCollector;
+    }
+
+    identity dom-notification-service {
+        base "config:service-type";
+        config:java-class org.opendaylight.controller.md.sal.dom.broker.impl.DOMNotificationRouter;
+    }
+
+    identity honeycomb-notification-producer {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.notification.ManagedNotificationProducer;
+    }
+
+}
