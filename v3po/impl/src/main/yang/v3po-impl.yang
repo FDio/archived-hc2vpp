@@ -90,6 +90,15 @@ module v3po-impl {
                 }
             }
 
+            container operational-data-tree {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dapi:honeycomb-readable-data-tree;
+                    }
+                }
+            }
+
         }
     }
 

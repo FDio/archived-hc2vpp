@@ -37,7 +37,7 @@ module data-impl {
                 }
             }
 
-            container binding-normalized-node-serializer {
+            container serializer {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
@@ -51,6 +51,46 @@ module data-impl {
                     refine type {
                         mandatory true;
                         config:required-identity tapi:honeycomb-writer-registry;
+                    }
+                }
+            }
+
+        }
+    }
+
+    identity honeycomb-operational-data-tree {
+        base config:module-type;
+        config:provided-service dapi:honeycomb-readable-data-tree;
+        config:java-name-prefix OperationalDataTree;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case honeycomb-operational-data-tree {
+            when "/config:modules/config:module/config:type = 'honeycomb-operational-data-tree'";
+
+            container schema-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dom:schema-service;
+                    }
+                }
+            }
+
+            container serializer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-normalized-node-serializer;
+                    }
+                }
+            }
+
+            container reader-registry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity tapi:honeycomb-reader-registry;
                     }
                 }
             }

@@ -88,19 +88,35 @@
         <module>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:honeycomb-config-data-tree</type>
           <name>config-data-tree</name>
-
           <schema-service>
             <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
             <name>yang-schema-service</name>
           </schema-service>
-          <binding-normalized-node-serializer>
+          <serializer>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
             <name>runtime-mapping-singleton</name>
-          </binding-normalized-node-serializer>
+          </serializer>
           <writer-registry>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
             <name>write-registry</name>
           </writer-registry>
+        </module>
+
+        <module>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:honeycomb-operational-data-tree</type>
+          <name>operational-data-tree</name>
+          <schema-service>
+            <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+            <name>yang-schema-service</name>
+          </schema-service>
+          <serializer>
+            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
+            <name>runtime-mapping-singleton</name>
+          </serializer>
+          <reader-registry>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-registry</type>
+            <name>read-registry</name>
+          </reader-registry>
         </module>
 
         <module>
@@ -134,6 +150,10 @@
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
             <name>config-data-tree</name>
           </config-data-tree>
+          <operational-data-tree>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-readable-data-tree</type>
+            <name>operational-data-tree</name>
+          </operational-data-tree>
         </module>
 
         <module>
@@ -185,6 +205,14 @@
           <instance>
             <name>config-data-tree</name>
             <provider>/modules/module[type='honeycomb-config-data-tree'][name='config-data-tree']
+            </provider>
+          </instance>
+        </service>
+        <service>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-readable-data-tree</type>
+          <instance>
+            <name>operational-data-tree</name>
+            <provider>/modules/module[type='honeycomb-operational-data-tree'][name='operational-data-tree']
             </provider>
           </instance>
         </service>

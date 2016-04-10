@@ -26,7 +26,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.data.ModifiableDataTree;
 import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.data.impl.DataBroker;
-import io.fd.honeycomb.v3po.data.impl.OperationalDataTree;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
@@ -95,19 +94,22 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private final BindingNormalizedNodeSerializer serializer;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
     private DOMDataBroker broker;
-    private ModifiableDataTree configDataTree;
+    private final ModifiableDataTree configDataTree;
+    private final ReadableDataTree operationalDataTree;
 
     public VppDataBrokerInitializationProvider(
             @Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker bindingBroker,
             @Nonnull final ReaderRegistry readerRegistry,
             @Nonnull final WriterRegistry writerRegistry,
             @Nonnull final BindingNormalizedNodeSerializer serializer,
-            @Nonnull final ModifiableDataTree configDataTree) {
+            @Nonnull final ModifiableDataTree configDataTree,
+            @Nonnull final ReadableDataTree operationalDataTree) {
         this.bindingBroker = checkNotNull(bindingBroker, "bindingBroker should not be null");
         this.readerRegistry = checkNotNull(readerRegistry, "readerRegistry should not be null");
         this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.configDataTree = checkNotNull(configDataTree, "configDataTree should not be null");
+        this.operationalDataTree = checkNotNull(operationalDataTree, "configDataTree should not be null");
         this.mountPointPath = getMountPointPath();
     }
 
@@ -129,13 +131,12 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final SchemaService schemaService = providerSession.getService(SchemaService.class);
 
         final SchemaContext globalContext = schemaService.getGlobalContext();
-        // final BindingNormalizedNodeSerializer serializer = initSerializer(globalContext);
         final YangInstanceIdentifier path = serializer.toYangInstanceIdentifier(mountPointPath);
 
         final DOMMountPointService.DOMMountPointBuilder mountPointBuilder = mountPointService.createMountPoint(path);
         mountPointBuilder.addInitialSchemaContext(globalContext);
 
-        broker = initVppDataBroker(globalContext, serializer, configDataTree);
+        broker = initVppDataBroker(operationalDataTree, serializer, configDataTree);
         mountPointBuilder.addService(DOMDataBroker.class, broker);
 
         mountPointRegistration = mountPointBuilder.register();
@@ -167,19 +168,9 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         }
     }
 
-    private DOMDataBroker initVppDataBroker(final SchemaContext globalContext,
+    private DOMDataBroker initVppDataBroker(final ReadableDataTree operationalDataTree,
                                             final BindingNormalizedNodeSerializer serializer,
                                             final ModifiableDataTree configDataTree) {
-        final ReadableDataTree operationalDataTree =
-                new OperationalDataTree(serializer, globalContext, readerRegistry); // TODO make configurable
-
-//        final DataTree dataTree =
-//                InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION); // TODO make configurable
-//        dataTree.setSchemaContext(globalContext);
-
-//        final ModifiableDataTree configDataTree =
-//                new ConfigDataTree(serializer, dataTree, writerRegistry); // TODO make configurable
-
         // init operational data tree before data broker is initialized
 
         try {
@@ -191,6 +182,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         return new DataBroker(operationalDataTree, configDataTree);
     }
 
+    // FIXME move to initializer after wiring is finished
     private void initConfig(final BindingNormalizedNodeSerializer serializer, final ModifiableDataTree configDataTree)
             throws TranslationException, DataValidationFailedException {
         LOG.info("Config initialization");
@@ -230,7 +222,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain>
                 listOfBDs = new ArrayList<>();
 
-        // TODO use reflexions
+        // TODO use reflexion
         for (BridgeDomain bd : bridgeDomainList) {
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder bdBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder();
             bdBuilder.setLearn(bd.isLearn());

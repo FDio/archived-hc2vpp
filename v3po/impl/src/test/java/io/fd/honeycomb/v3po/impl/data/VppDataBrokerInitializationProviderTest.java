@@ -27,6 +27,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.v3po.data.ModifiableDataTree;
+import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.impl.VppDataBrokerInitializationProvider;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
@@ -55,6 +56,8 @@ public class VppDataBrokerInitializationProviderTest {
     private BindingNormalizedNodeSerializer serializer;
     @Mock
     private ModifiableDataTree configDataTree;
+    @Mock
+    private ReadableDataTree operationalDataTree;
 
     private VppDataBrokerInitializationProvider provider;
 
@@ -62,7 +65,8 @@ public class VppDataBrokerInitializationProviderTest {
     public void setUp() throws Exception {
         initMocks(this);
         doReturn(writeTx).when(bindingBroker).newWriteOnlyTransaction();
-        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry, writerRegistry, serializer, configDataTree);
+        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry, writerRegistry, serializer,
+                configDataTree, operationalDataTree);
     }
 
     @Test

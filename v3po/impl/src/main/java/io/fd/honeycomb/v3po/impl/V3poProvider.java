@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.data.ModifiableDataTree;
+import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.Collections;
@@ -80,18 +81,21 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
     VppPollOperDataImpl vppPollOperData;
     private VppDataBrokerInitializationProvider vppDataBrokerInitializationProvider;
     private final ModifiableDataTree configDataTree;
+    private final ReadableDataTree operationalDataTree;
 
     public V3poProvider(@Nonnull final Broker domBroker, final vppApi vppJapi,
                         @Nonnull final ReaderRegistry readerRegistry,
                         @Nonnull final WriterRegistry writerRegistry,
                         @Nonnull final BindingNormalizedNodeSerializer serializer,
-                        @Nonnull final ModifiableDataTree configDataTree) {
+                        @Nonnull final ModifiableDataTree configDataTree,
+                        @Nonnull final ReadableDataTree operationalDataTree) {
         api = vppJapi;
         this.readerRegistry = Preconditions.checkNotNull(readerRegistry, "readerRegistry should not be null");
         this.writerRegistry = Preconditions.checkNotNull(writerRegistry, "writerRegistry should not be null");
         this.domBroker = Preconditions.checkNotNull(domBroker, "domBroker should not be null");
         this.serializer = Preconditions.checkNotNull(serializer, "serializer should not be null");
         this.configDataTree = Preconditions.checkNotNull(configDataTree, "configDataTree should not be null");
+        this.operationalDataTree = Preconditions.checkNotNull(operationalDataTree, "operationalDataTree should not be null");
     }
 
     private void initializeVppConfig() {
@@ -202,7 +206,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
         startOperationalUpdateTimer();
 
         // TODO make configurable:
-        vppDataBrokerInitializationProvider = new VppDataBrokerInitializationProvider(db, readerRegistry, writerRegistry, serializer, configDataTree);
+        vppDataBrokerInitializationProvider = new VppDataBrokerInitializationProvider(db, readerRegistry, writerRegistry, serializer, configDataTree, operationalDataTree);
         // TODO pull the registration into Module
         domBroker.registerProvider(vppDataBrokerInitializationProvider);
     }

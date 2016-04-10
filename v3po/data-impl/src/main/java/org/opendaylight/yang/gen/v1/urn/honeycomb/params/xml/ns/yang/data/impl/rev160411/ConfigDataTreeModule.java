@@ -33,8 +33,8 @@ public class ConfigDataTreeModule extends
     public java.lang.AutoCloseable createInstance() {
         final DataTree dataTree = InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION);
         dataTree.setSchemaContext(getSchemaServiceDependency().getGlobalContext());
-        return new CloseableConfigDataTree(new ConfigDataTree(getBindingNormalizedNodeSerializerDependency(), dataTree,
-                getWriterRegistryDependency()));
+        return new CloseableConfigDataTree(
+                new ConfigDataTree(getSerializerDependency(), dataTree, getWriterRegistryDependency()));
     }
 
     private static final class CloseableConfigDataTree implements ModifiableDataTree, AutoCloseable {
