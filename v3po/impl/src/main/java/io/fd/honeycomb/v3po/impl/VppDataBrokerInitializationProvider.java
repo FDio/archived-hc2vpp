@@ -26,13 +26,18 @@ import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.data.ModifiableDataTree;
 import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.data.impl.ConfigDataTree;
-import io.fd.honeycomb.v3po.data.impl.OperationalDataTree;
 import io.fd.honeycomb.v3po.data.impl.DataBroker;
+import io.fd.honeycomb.v3po.data.impl.OperationalDataTree;
+import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.TranslationException;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import javassist.ClassPool;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -47,9 +52,12 @@ import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
 import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.controller.sal.core.api.Provider;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -58,18 +66,16 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.binding.data.codec.gen.impl.DataObjectSerializerGenerator;
-import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
-import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
-import org.opendaylight.yangtools.sal.binding.generator.impl.GeneratedClassLoadingStrategy;
-import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
@@ -90,15 +96,19 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private final ReaderRegistry readerRegistry;
     private final InstanceIdentifier<Node> mountPointPath;
     private final WriterRegistry writerRegistry;
+    private final BindingNormalizedNodeSerializer serializer;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
     private DOMDataBroker broker;
 
-    public VppDataBrokerInitializationProvider(@Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker bindingBroker,
-                                               final ReaderRegistry readerRegistry,
-                                               final WriterRegistry writerRegistry) {
+    public VppDataBrokerInitializationProvider(
+            @Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker bindingBroker,
+            final ReaderRegistry readerRegistry,
+            final WriterRegistry writerRegistry,
+            final BindingNormalizedNodeSerializer serializer) {
         this.bindingBroker = checkNotNull(bindingBroker, "bindingBroker should not be null");
         this.readerRegistry = checkNotNull(readerRegistry, "readerRegistry should not be null");
         this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");
+        this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.mountPointPath = getMountPointPath();
     }
 
@@ -120,7 +130,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final SchemaService schemaService = providerSession.getService(SchemaService.class);
 
         final SchemaContext globalContext = schemaService.getGlobalContext();
-        final BindingNormalizedNodeSerializer serializer = initSerializer(globalContext);
+        // final BindingNormalizedNodeSerializer serializer = initSerializer(globalContext);
         final YangInstanceIdentifier path = serializer.toYangInstanceIdentifier(mountPointPath);
 
         final DOMMountPointService.DOMMountPointBuilder mountPointBuilder = mountPointService.createMountPoint(path);
@@ -158,42 +168,105 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         }
     }
 
-    private BindingNormalizedNodeSerializer initSerializer(final SchemaContext globalContext) {
-        final JavassistUtils utils = JavassistUtils.forClassPool(ClassPool.getDefault());
-        // TODO this produces ClassNotFoundException
-        //final GeneratedClassLoadingStrategy loading = GeneratedClassLoadingStrategy.getTCCLClassLoadingStrategy();
-
-        // FIXME get global class loader instance
-        final GeneratedClassLoadingStrategy loadingStrategy =
-                new GeneratedClassLoadingStrategy() {
-                    @Override
-                    public Class<?> loadClass(final String fullyQualifiedName)
-                            throws ClassNotFoundException {
-                        return Class.forName(fullyQualifiedName);
-                    }
-                };
-        final DataObjectSerializerGenerator generator = StreamWriterGenerator.create(utils);
-
-        // TODO make configurable:
-        final BindingNormalizedNodeCodecRegistry serializer = new BindingNormalizedNodeCodecRegistry(generator);
-        final BindingRuntimeContext context = BindingRuntimeContext.create(loadingStrategy, globalContext);
-        serializer.onBindingRuntimeContextUpdated(context);
-        return serializer;
-    }
-
     private DOMDataBroker initVppDataBroker(final SchemaContext globalContext,
                                             final BindingNormalizedNodeSerializer serializer) {
-        final ReadableDataTree operationalData =
+        final ReadableDataTree operationalDataTree =
                 new OperationalDataTree(serializer, globalContext, readerRegistry); // TODO make configurable
 
         final DataTree dataTree =
                 InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION); // TODO make configurable
         dataTree.setSchemaContext(globalContext);
 
-        final ModifiableDataTree configDataProxy =
+        final ModifiableDataTree configDataTree =
                 new ConfigDataTree(serializer, dataTree, writerRegistry); // TODO make configurable
-        return new DataBroker(operationalData, configDataProxy);
+
+        // init operational data tree before data broker is initialized
+
+        try {
+            initConfig(serializer, configDataTree);
+        } catch (Exception e) {
+            LOG.warn("Failed to initialize config", e);
+        }
+
+        return new DataBroker(operationalDataTree, configDataTree);
     }
+
+    private void initConfig(final BindingNormalizedNodeSerializer serializer, final ModifiableDataTree configDataTree)
+            throws TranslationException, DataValidationFailedException {
+        LOG.info("Config initialization");
+
+        final Optional<? extends DataObject> data = readerRegistry.read(InstanceIdentifier.create(VppState.class), new ReadContextImpl());
+        LOG.info("Config initialization data={}", data);
+
+        if (data.isPresent()) {
+            // conversion
+            VppState vppOperationalData = (VppState) data.get();
+            final Vpp vppConfigData = convert(vppOperationalData);
+
+            final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedData =
+                    serializer.toNormalizedNode(InstanceIdentifier.create(Vpp.class), vppConfigData);
+
+            final DataTreeModification modification = configDataTree.takeSnapshot().newModification();
+            final YangInstanceIdentifier biPath = normalizedData.getKey();
+            final NormalizedNode<?, ?> biData = normalizedData.getValue();
+            LOG.info("Config initialization biPath={}, biData={}", biPath, biData);
+            modification.write(biPath, biData);
+            modification.ready();
+
+            LOG.info("Config writing modification ...");
+            configDataTree.modify(modification); // TODO do not write to VPP
+            LOG.info("Config writing modification written successfully.");
+        } else {
+            LOG.info("Data is not present");
+        }
+    }
+
+    private Vpp convert(final VppState vppState) {
+        final BridgeDomains bridgeDomains = vppState.getBridgeDomains();
+        final List<BridgeDomain> bridgeDomainList = bridgeDomains.getBridgeDomain();
+
+        VppBuilder vppBuilder = new VppBuilder();
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomainsBuilder bdsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomainsBuilder();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain>
+                listOfBDs = new ArrayList<>();
+
+        // TODO use reflexions
+        for (BridgeDomain bd : bridgeDomainList) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder bdBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder();
+            bdBuilder.setLearn(bd.isLearn());
+            bdBuilder.setUnknownUnicastFlood(bd.isUnknownUnicastFlood());
+            bdBuilder.setArpTermination(bd.isArpTermination());
+            bdBuilder.setFlood(bd.isFlood());
+            bdBuilder.setForward(bd.isForward());
+            bdBuilder.setKey(new BridgeDomainKey(bd.getKey().getName()));
+            // TODO bdBuilder.setL2Fib(bd.getL2Fib());
+            bdBuilder.setName(bd.getName());
+            listOfBDs.add(bdBuilder.build());
+        }
+
+        bdsBuilder.setBridgeDomain(listOfBDs);
+        vppBuilder.setBridgeDomains(bdsBuilder.build());
+        return vppBuilder.build();
+    }
+
+
+    // TODO move to utility module
+    private static final class ReadContextImpl implements ReadContext {
+        public final Context ctx = new Context();
+
+        @Nonnull
+        @Override
+        public Context getContext() {
+            return ctx;
+        }
+
+        @Override
+        public void close() {
+            // Make sure to clear the storage in case some customizer stored it  to prevent memory leaks
+            ctx.close();
+        }
+    }
+
 
     /**
      * Writes placeholder data into MD-SAL's global datastore to indicate the presence of VPP mountpoint.

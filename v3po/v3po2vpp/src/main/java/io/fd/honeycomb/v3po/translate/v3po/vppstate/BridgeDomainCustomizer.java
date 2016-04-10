@@ -39,9 +39,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.vppjapi.vppBridgeDomainDetails;
 import org.openvpp.vppjapi.vppBridgeDomainInterfaceDetails;
 import org.openvpp.vppjapi.vppL2Fib;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class BridgeDomainCustomizer extends VppApiCustomizer
     implements ListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
 
     public BridgeDomainCustomizer(@Nonnull final org.openvpp.vppjapi.vppApi vppApi) {
         super(vppApi);
@@ -50,11 +54,18 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                       @Nonnull final BridgeDomainBuilder builder, @Nonnull final Context context) {
+        LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: id={}, builderbuilder={}, context={}",
+                id, builder, context);
+
         final BridgeDomainKey key = id.firstKeyOf(id.getTargetType());
         // TODO find out if bd exists based on name and if not return
+        LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: key={}", key);
 
         final int bdId = getVppApi().bridgeDomainIdFromName(key.getName());
+        LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: bdId={}", bdId);
+
         final vppBridgeDomainDetails bridgeDomainDetails = getVppApi().getBridgeDomainDetails(bdId);
+        logBridgeDomainDetails(bridgeDomainDetails);
 
         builder.setName(key.getName());
         // builder.setName(bridgeDomainDetails.name);
@@ -82,6 +93,21 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
         }
         builder.setL2Fib(l2Fibs);
     }
+
+    private void logBridgeDomainDetails(final vppBridgeDomainDetails bridgeDomainDetails) {
+        LOG.debug("bridgeDomainDetails={}", bridgeDomainDetails);
+        if (bridgeDomainDetails != null) {
+            LOG.debug("bridgeDomainDetails.arpTerm={}", bridgeDomainDetails.arpTerm);
+            LOG.debug("bridgeDomainDetails.bdId={}", bridgeDomainDetails.bdId);
+            LOG.debug("bridgeDomainDetails.bviInterfaceName={}", bridgeDomainDetails.bviInterfaceName);
+            LOG.debug("bridgeDomainDetails.flood={}", bridgeDomainDetails.flood);
+            LOG.debug("bridgeDomainDetails.forward={}", bridgeDomainDetails.forward);
+            LOG.debug("bridgeDomainDetails.learn={}", bridgeDomainDetails.learn);
+            LOG.debug("bridgeDomainDetails.name={}", bridgeDomainDetails.name);
+            LOG.debug("bridgeDomainDetails.uuFlood={}", bridgeDomainDetails.uuFlood);
+        }
+    }
+
 
     private static String getMacAddress(byte[] mac) {
         StringBuilder sb = new StringBuilder(18);
@@ -116,13 +142,18 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
     @Override
     public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id, @Nonnull final Context context) {
         final int[] bIds = getVppApi().bridgeDomainDump(-1);
+        LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bIds.length={}", bIds.length);
         final List<BridgeDomainKey> allIds = new ArrayList<>(bIds.length);
         for (int bId : bIds) {
+            LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bId={}", bId);
             // FIXME this is highly inefficient having to dump all of the bridge domain details
             // Use context to store already read information
             // TODO Or just remove the getAllIds method and replace with a simple readAll
             final vppBridgeDomainDetails bridgeDomainDetails = getVppApi().getBridgeDomainDetails(bId);
+            logBridgeDomainDetails(bridgeDomainDetails);
+
             final String bName = bridgeDomainDetails.name;
+            LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bName={}", bName);
             allIds.add(new BridgeDomainKey(bName));
         }
 

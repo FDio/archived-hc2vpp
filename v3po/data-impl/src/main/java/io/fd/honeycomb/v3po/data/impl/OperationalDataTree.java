@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -75,7 +75,7 @@ public final class OperationalDataTree implements ReadableDataTree {
      */
     public OperationalDataTree(@Nonnull BindingNormalizedNodeSerializer serializer,
                                @Nonnull final SchemaContext globalContext, @Nonnull ReaderRegistry readerRegistry) {
-        this.globalContext = checkNotNull(globalContext, "serializer should not be null");
+        this.globalContext = checkNotNull(globalContext, "globalContext should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.readerRegistry = checkNotNull(readerRegistry, "reader should not be null");
     }

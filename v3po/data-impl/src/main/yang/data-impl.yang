@@ -1,0 +1,61 @@
+module translate-utils {
+    yang-version 1;
+    namespace "urn:honeycomb:params:xml:ns:yang:translate:utils";
+    prefix "tutils";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import translate-api { prefix tapi; revision-date 2016-04-06; }
+
+    description
+        "This module contains translation layer utilities";
+
+    revision "2016-04-06" {
+        description
+            "Initial revision.";
+    }
+
+    identity delegating-reader-registry {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-reader-registry;
+        config:java-name-prefix DelegatingReaderRegistry;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case delegating-reader-registry {
+            when "/config:modules/config:module/config:type = 'delegating-reader-registry'";
+
+                list root-readers {
+                    uses config:service-ref {
+                        refine type {
+                            mandatory true;
+                            config:required-identity tapi:honeycomb-reader;
+                        }
+                    }
+                }
+
+        }
+    }
+
+    identity delegating-writer-registry {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-writer-registry;
+        config:java-name-prefix DelegatingWriterRegistry;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case delegating-writer-registry {
+            when "/config:modules/config:module/config:type = 'delegating-writer-registry'";
+
+                list root-writers {
+                    uses config:service-ref {
+                        refine type {
+                            mandatory true;
+                            config:required-identity tapi:honeycomb-writer;
+                        }
+                    }
+                }
+
+        }
+    }
+
+}

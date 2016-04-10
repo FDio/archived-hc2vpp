@@ -17,9 +17,9 @@
 package io.fd.honeycomb.v3po.data.impl;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
 import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ModifiableDataTree;
+import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -37,36 +37,37 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 /**
- * Data Broker which provides data transaction functionality for YANG capable data provider
- * using {@link NormalizedNode} data format.
+ * Data Broker which provides data transaction functionality for YANG capable data provider using {@link NormalizedNode}
+ * data format.
  */
 public class DataBroker implements DOMDataBroker {
 
-    private final ReadableDataTree operationalData;
+    private final ReadableDataTree operationalDataTree;
     private final ModifiableDataTree configDataTree;
 
     /**
      * Creates DataBroker instance.
      *
-     * @param operationalData operational data
-     * @param configDataTree  configuration data
+     * @param operationalDataTree operational data
+     * @param configDataTree      configuration data
      */
-    public DataBroker(@Nonnull final ReadableDataTree operationalData,
+    public DataBroker(@Nonnull final ReadableDataTree operationalDataTree,
                       @Nonnull final ModifiableDataTree configDataTree) {
-        this.operationalData = Preconditions.checkNotNull(operationalData, "operationalData should not be null");
-        this.configDataTree = Preconditions.checkNotNull(configDataTree, "configDataProxy should not be null");
+        this.operationalDataTree =
+                Preconditions.checkNotNull(operationalDataTree, "operationalDataTree should not be null");
+        this.configDataTree = Preconditions.checkNotNull(configDataTree, "configDataTree should not be null");
     }
 
     @Override
     public DOMDataReadOnlyTransaction newReadOnlyTransaction() {
-        return new ReadOnlyTransaction(operationalData, configDataTree.takeSnapshot());
+        return new ReadOnlyTransaction(operationalDataTree, configDataTree.takeSnapshot());
     }
 
     @Override
     public DOMDataReadWriteTransaction newReadWriteTransaction() {
         // todo use the same snapshot
         final DataTreeSnapshot configSnapshot = configDataTree.takeSnapshot();
-        final DOMDataReadOnlyTransaction readOnlyTx = new ReadOnlyTransaction(operationalData, configSnapshot);
+        final DOMDataReadOnlyTransaction readOnlyTx = new ReadOnlyTransaction(operationalDataTree, configSnapshot);
         final DOMDataWriteTransaction writeOnlyTx = new WriteTransaction(configDataTree, configSnapshot);
         return new ReadWriteTransaction(readOnlyTx, writeOnlyTx);
     }

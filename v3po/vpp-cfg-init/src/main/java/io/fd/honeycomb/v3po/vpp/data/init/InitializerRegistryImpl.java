@@ -42,7 +42,7 @@ public class InitializerRegistryImpl implements InitializerRegistry, AutoCloseab
 
     @Override
     public void close() throws Exception {
-        LOG.debug("Initializer.close()");
+        LOG.info("Initializer.close()");
         // TODO remove data
     }
 

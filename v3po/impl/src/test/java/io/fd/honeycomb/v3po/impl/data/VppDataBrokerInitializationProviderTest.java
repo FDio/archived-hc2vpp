@@ -36,6 +36,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class VppDataBrokerInitializationProviderTest {
@@ -48,6 +49,8 @@ public class VppDataBrokerInitializationProviderTest {
     private ReaderRegistry readerRegistry;
     @Mock
     private WriterRegistry writerRegistry;
+    @Mock
+    private BindingNormalizedNodeSerializer serializer;
 
 
     private VppDataBrokerInitializationProvider provider;
@@ -56,7 +59,7 @@ public class VppDataBrokerInitializationProviderTest {
     public void setUp() throws Exception {
         initMocks(this);
         doReturn(writeTx).when(bindingBroker).newWriteOnlyTransaction();
-        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry, writerRegistry);
+        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry, writerRegistry, serializer);
     }
 
     @Test

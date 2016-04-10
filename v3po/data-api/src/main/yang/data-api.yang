@@ -1,0 +1,37 @@
+module translate-api {
+    yang-version 1;
+    namespace "urn:honeycomb:params:xml:ns:yang:translate:api";
+    prefix "tapi";
+
+    import config { prefix config; revision-date 2013-04-05; }
+
+    description
+        "This module contains the base YANG definitions for
+         readers/writers plugged into a honeycomb";
+
+    revision "2016-04-06" {
+        description
+            "Initial revision.";
+    }
+
+    identity honeycomb-reader {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.translate.read.Reader;
+    }
+
+    identity honeycomb-reader-registry {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+    }
+
+    identity honeycomb-writer {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.translate.write.Writer;
+    }
+
+    identity honeycomb-writer-registry {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+    }
+
+}

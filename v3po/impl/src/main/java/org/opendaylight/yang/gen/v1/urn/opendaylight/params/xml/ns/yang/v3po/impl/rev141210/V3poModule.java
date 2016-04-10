@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
@@ -61,7 +62,12 @@ public class V3poModule extends
 
         final Broker domBroker = getDomBrokerDependency();
         domBroker.registerProvider(new InitializationProvider());
-        final V3poProvider provider = new V3poProvider(domBroker, getVppJapiDependency(), readerRegistry, writerRegistry);
+
+        final BindingNormalizedNodeSerializer serializer =
+                getBindingNormalizedNodeSerializerDependency();
+
+        final V3poProvider provider =
+                new V3poProvider(domBroker, getVppJapiDependency(), readerRegistry, writerRegistry, serializer);
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

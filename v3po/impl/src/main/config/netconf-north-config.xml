@@ -62,6 +62,8 @@
                         <name>netconf-operational-store-service</name>
                     </operational-data-store>
                 </module>
+
+
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-forwarded-data-broker</type>
                     <name>netconf-binding-data-broker</name>

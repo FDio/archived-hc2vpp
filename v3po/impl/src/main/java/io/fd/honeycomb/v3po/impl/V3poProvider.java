@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.vppjapi.vppApi;
 import org.openvpp.vppjapi.vppInterfaceDetails;
@@ -67,6 +68,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
 
     private static final Logger LOG = LoggerFactory.getLogger(V3poProvider.class);
     private final Broker domBroker;
+    private final BindingNormalizedNodeSerializer serializer;
     private RpcRegistration<V3poService> v3poService;
     private VppIetfInterfaceListener vppInterfaceListener;
     private VppBridgeDomainListener vppBridgeDomainListener;
@@ -77,13 +79,15 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
     VppPollOperDataImpl vppPollOperData;
     private VppDataBrokerInitializationProvider vppDataBrokerInitializationProvider;
 
-    public V3poProvider(@Nonnull final Broker domBroker, final vppApi vppJapiDependency,
-                        final ReaderRegistry readerRegistry,
-                        final WriterRegistry writerRegistry) {
-        api = vppJapiDependency;
-        this.readerRegistry = readerRegistry;
-        this.writerRegistry = writerRegistry;
+    public V3poProvider(@Nonnull final Broker domBroker, final vppApi vppJapi,
+                        @Nonnull final ReaderRegistry readerRegistry,
+                        @Nonnull final WriterRegistry writerRegistry,
+                        @Nonnull final BindingNormalizedNodeSerializer serializer) {
+        api = vppJapi;
+        this.readerRegistry = Preconditions.checkNotNull(readerRegistry, "readerRegistry should not be null");
+        this.writerRegistry = Preconditions.checkNotNull(writerRegistry, "writerRegistry should not be null");
         this.domBroker = Preconditions.checkNotNull(domBroker, "domBroker should not be null");
+        this.serializer = Preconditions.checkNotNull(serializer, "serializer should not be null");
     }
 
     private void initializeVppConfig() {
@@ -194,7 +198,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
         startOperationalUpdateTimer();
 
         // TODO make configurable:
-        vppDataBrokerInitializationProvider = new VppDataBrokerInitializationProvider(db, readerRegistry, writerRegistry);
+        vppDataBrokerInitializationProvider = new VppDataBrokerInitializationProvider(db, readerRegistry, writerRegistry, serializer);
         // TODO pull the registration into Module
         domBroker.registerProvider(vppDataBrokerInitializationProvider);
     }

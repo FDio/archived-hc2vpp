@@ -70,6 +70,16 @@ module v3po-impl {
                     }
                 }
             }
+
+            container binding-normalized-node-serializer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-normalized-node-serializer;
+                    }
+                }
+            }
+
         }
     }
 
