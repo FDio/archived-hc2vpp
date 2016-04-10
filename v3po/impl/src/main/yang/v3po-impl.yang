@@ -8,6 +8,7 @@ module v3po-impl {
     import opendaylight-md-sal-dom {prefix dom;}
     import vpp-japi-cfg { prefix vjc; revision-date 2016-04-06; }
     import translate-api { prefix tapi; revision-date 2016-04-06; }
+    import data-api { prefix dapi; revision-date 2016-04-11; }
 
     description
         "Service definition for v3po project";
@@ -76,6 +77,15 @@ module v3po-impl {
                     refine type {
                         mandatory true;
                         config:required-identity md-sal-binding:binding-normalized-node-serializer;
+                    }
+                }
+            }
+
+            container config-data-tree {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dapi:honeycomb-modifiable-data-tree;
                     }
                 }
             }

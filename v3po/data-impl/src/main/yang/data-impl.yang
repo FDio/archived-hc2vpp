@@ -1,59 +1,59 @@
-module translate-utils {
+module data-impl {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:translate:utils";
+    namespace "urn:honeycomb:params:xml:ns:yang:data:impl";
     prefix "tutils";
 
     import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import opendaylight-md-sal-dom { prefix dom; revision-date 2013-10-28;}
+    import data-api { prefix dapi; revision-date 2016-04-11; }
     import translate-api { prefix tapi; revision-date 2016-04-06; }
 
     description
-        "This module contains translation layer utilities";
+        "This module contains YANG module definitions
+        for honeycomd data layer";
 
-    revision "2016-04-06" {
+    revision "2016-04-11" {
         description
             "Initial revision.";
     }
 
-    identity delegating-reader-registry {
+    identity honeycomb-config-data-tree {
         base config:module-type;
-        config:provided-service tapi:honeycomb-reader-registry;
-        config:java-name-prefix DelegatingReaderRegistry;
+        config:provided-service dapi:honeycomb-modifiable-data-tree;
+        config:java-name-prefix ConfigDataTree;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case delegating-reader-registry {
-            when "/config:modules/config:module/config:type = 'delegating-reader-registry'";
+        case honeycomb-config-data-tree {
+            when "/config:modules/config:module/config:type = 'honeycomb-config-data-tree'";
 
-                list root-readers {
-                    uses config:service-ref {
-                        refine type {
-                            mandatory true;
-                            config:required-identity tapi:honeycomb-reader;
-                        }
+            container schema-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dom:schema-service;
                     }
                 }
+            }
 
-        }
-    }
-
-    identity delegating-writer-registry {
-        base config:module-type;
-        config:provided-service tapi:honeycomb-writer-registry;
-        config:java-name-prefix DelegatingWriterRegistry;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case delegating-writer-registry {
-            when "/config:modules/config:module/config:type = 'delegating-writer-registry'";
-
-                list root-writers {
-                    uses config:service-ref {
-                        refine type {
-                            mandatory true;
-                            config:required-identity tapi:honeycomb-writer;
-                        }
+            container binding-normalized-node-serializer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-normalized-node-serializer;
                     }
                 }
+            }
+
+            container writer-registry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity tapi:honeycomb-writer-registry;
+                    }
+                }
+            }
 
         }
     }

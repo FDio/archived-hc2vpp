@@ -1,37 +1,27 @@
-module translate-api {
+module data-api {
     yang-version 1;
-    namespace "urn:honeycomb:params:xml:ns:yang:translate:api";
-    prefix "tapi";
+    namespace "urn:honeycomb:params:xml:ns:yang:data:api";
+    prefix "dapi";
 
     import config { prefix config; revision-date 2013-04-05; }
 
     description
-        "This module contains the base YANG definitions for
-         readers/writers plugged into a honeycomb";
+        "This module contains the base YANG data tree definitions
+        for data store modeling";
 
-    revision "2016-04-06" {
+    revision "2016-04-11" {
         description
             "Initial revision.";
     }
 
-    identity honeycomb-reader {
+    identity honeycomb-readable-data-tree {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.read.Reader;
+        config:java-class io.fd.honeycomb.v3po.data.ReadableDataTree;
     }
 
-    identity honeycomb-reader-registry {
+    identity honeycomb-modifiable-data-tree {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
-    }
-
-    identity honeycomb-writer {
-        base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.Writer;
-    }
-
-    identity honeycomb-writer-registry {
-        base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+        config:java-class io.fd.honeycomb.v3po.data.ModifiableDataTree;
     }
 
 }

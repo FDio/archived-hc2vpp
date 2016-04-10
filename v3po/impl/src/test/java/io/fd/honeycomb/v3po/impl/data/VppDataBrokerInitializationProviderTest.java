@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
+import io.fd.honeycomb.v3po.data.ModifiableDataTree;
 import io.fd.honeycomb.v3po.impl.VppDataBrokerInitializationProvider;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
@@ -38,6 +39,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.Configurable;
 
 public class VppDataBrokerInitializationProviderTest {
 
@@ -51,7 +53,8 @@ public class VppDataBrokerInitializationProviderTest {
     private WriterRegistry writerRegistry;
     @Mock
     private BindingNormalizedNodeSerializer serializer;
-
+    @Mock
+    private ModifiableDataTree configDataTree;
 
     private VppDataBrokerInitializationProvider provider;
 
@@ -59,7 +62,7 @@ public class VppDataBrokerInitializationProviderTest {
     public void setUp() throws Exception {
         initMocks(this);
         doReturn(writeTx).when(bindingBroker).newWriteOnlyTransaction();
-        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry, writerRegistry, serializer);
+        provider = new VppDataBrokerInitializationProvider(bindingBroker, readerRegistry, writerRegistry, serializer, configDataTree);
     }
 
     @Test

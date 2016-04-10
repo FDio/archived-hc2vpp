@@ -57,7 +57,7 @@ public final class ConfigDataTree implements ModifiableDataTree {
 
     private final BindingNormalizedNodeSerializer serializer;
     private final DataTree dataTree;
-    private final WriterRegistry writer;
+    private final WriterRegistry writerRegistry;
     public static final ReadableDataTree EMPTY_OPERATIONAL = new ReadableDataTree() {
         @Override
         public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
@@ -69,16 +69,17 @@ public final class ConfigDataTree implements ModifiableDataTree {
     /**
      * Creates configuration data tree instance.
      *
-     * @param serializer service for serialization between Java Binding Data representation and NormalizedNode
-     *                   representation.
-     * @param dataTree   data tree for configuration data representation
-     * @param writer  service for translation between Java Binding Data and data provider.
+     * @param serializer     service for serialization between Java Binding Data representation and NormalizedNode
+     *                       representation.
+     * @param dataTree       data tree for configuration data representation
+     * @param writerRegistry service for translation between Java Binding Data and data provider, capable of performing
+     *                       bulk updates.
      */
     public ConfigDataTree(@Nonnull final BindingNormalizedNodeSerializer serializer,
-                          @Nonnull final DataTree dataTree, @Nonnull final WriterRegistry writer) {
+                          @Nonnull final DataTree dataTree, @Nonnull final WriterRegistry writerRegistry) {
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.dataTree = checkNotNull(dataTree, "dataTree should not be null");
-        this.writer = checkNotNull(writer, "writer should not be null");
+        this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");
     }
 
     @Override
@@ -110,8 +111,8 @@ public final class ConfigDataTree implements ModifiableDataTree {
         final DOMDataReadOnlyTransaction beforeTx = new ReadOnlyTransaction(EMPTY_OPERATIONAL, takeSnapshot());
         final ConfigSnapshot modificationSnapshot = new ConfigSnapshot(modification);
         final DOMDataReadOnlyTransaction afterTx = new ReadOnlyTransaction(EMPTY_OPERATIONAL, modificationSnapshot);
-        try(final WriteContext ctx = new TransactionWriteContext(serializer, beforeTx, afterTx)) {
-            writer.update(nodesBefore, nodesAfter, ctx);
+        try (final WriteContext ctx = new TransactionWriteContext(serializer, beforeTx, afterTx)) {
+            writerRegistry.update(nodesBefore, nodesAfter, ctx);
         } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException e) {
             LOG.warn("Failed to apply all changes", e);
             LOG.info("Trying to revert successful changes for current transaction");

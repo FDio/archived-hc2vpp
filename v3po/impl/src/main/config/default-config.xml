@@ -20,6 +20,7 @@
       <capability>urn:honeycomb:params:xml:ns:yang:translate:utils?module=translate-utils&amp;revision=2016-04-06</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg?module=vpp-japi-cfg&amp;revision=2016-04-06</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:vpp:data:init?module=vpp-cfg-init&amp;revision=2016-04-07</capability>
+      <capability>urn:honeycomb:params:xml:ns:yang:data:impl?module=data-impl&amp;revision=2016-04-11</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
   </required-capabilities>
   <configuration>
@@ -85,6 +86,24 @@
         </module>
 
         <module>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:honeycomb-config-data-tree</type>
+          <name>config-data-tree</name>
+
+          <schema-service>
+            <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+            <name>yang-schema-service</name>
+          </schema-service>
+          <binding-normalized-node-serializer>
+            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
+            <name>runtime-mapping-singleton</name>
+          </binding-normalized-node-serializer>
+          <writer-registry>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
+            <name>write-registry</name>
+          </writer-registry>
+        </module>
+
+        <module>
           <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:v3po</type>
           <name>v3po-default</name>
           <broker>
@@ -107,17 +126,14 @@
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
             <name>write-registry</name>
           </writer-registry>
-
-
-          <!--<binding-mapping-service>-->
-            <!--<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">binding:binding-dom-mapping-service</type>-->
-            <!--<name>runtime-mapping-singleton</name>-->
-          <!--</binding-mapping-service>-->
-
           <binding-normalized-node-serializer>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
             <name>runtime-mapping-singleton</name>
           </binding-normalized-node-serializer>
+          <config-data-tree>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
+            <name>config-data-tree</name>
+          </config-data-tree>
         </module>
 
         <module>
@@ -165,6 +181,14 @@
           </instance>
         </service>
         <service>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
+          <instance>
+            <name>config-data-tree</name>
+            <provider>/modules/module[type='honeycomb-config-data-tree'][name='config-data-tree']
+            </provider>
+          </instance>
+        </service>
+        <service>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:vpp-cfg-initializer</type>
           <instance>
             <name>vpp-cfg-initializer</name>
@@ -181,15 +205,6 @@
             <provider>/modules/module[type='v3po'][name='v3po-default']</provider>
           </instance>
         </service>
-
-
-        <!--<service>-->
-          <!--<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:runtime-generated-mapping</type>-->
-          <!--<instance>-->
-            <!--<name>runtime-generated-mappingy</name>-->
-            <!--<provider>/modules/module[type='runtime-generated-mapping'][name='runtime-generated-mapping']</provider>-->
-          <!--</instance>-->
-        <!--</service>-->
 
       </services>
     </data>

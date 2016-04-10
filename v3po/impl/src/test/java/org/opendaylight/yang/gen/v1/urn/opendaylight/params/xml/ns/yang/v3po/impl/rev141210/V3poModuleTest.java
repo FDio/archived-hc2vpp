@@ -21,6 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.honeycomb.v3po.data.ModifiableDataTree;
 import io.fd.honeycomb.v3po.impl.V3poProvider;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
@@ -59,6 +60,8 @@ public class V3poModuleTest {
                 .thenReturn(mock(WriterRegistry.class));
         when(dependencyResolver.resolveInstance(eq(BindingNormalizedNodeSerializer.class), any(ObjectName.class), any(JmxAttribute.class)))
                 .thenReturn(mock(BindingNormalizedNodeSerializer.class));
+        when(dependencyResolver.resolveInstance(eq(ModifiableDataTree.class), any(ObjectName.class), any(JmxAttribute.class)))
+                .thenReturn(mock(ModifiableDataTree.class));
 
         // create instance of module with injected mocks
         V3poModule module = new V3poModule(mock(ModuleIdentifier.class), dependencyResolver);

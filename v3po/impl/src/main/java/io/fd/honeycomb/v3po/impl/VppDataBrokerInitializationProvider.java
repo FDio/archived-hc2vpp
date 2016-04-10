@@ -25,7 +25,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.data.ModifiableDataTree;
 import io.fd.honeycomb.v3po.data.ReadableDataTree;
-import io.fd.honeycomb.v3po.data.impl.ConfigDataTree;
 import io.fd.honeycomb.v3po.data.impl.DataBroker;
 import io.fd.honeycomb.v3po.data.impl.OperationalDataTree;
 import io.fd.honeycomb.v3po.translate.Context;
@@ -73,11 +72,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
-import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,16 +95,19 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private final BindingNormalizedNodeSerializer serializer;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
     private DOMDataBroker broker;
+    private ModifiableDataTree configDataTree;
 
     public VppDataBrokerInitializationProvider(
             @Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker bindingBroker,
-            final ReaderRegistry readerRegistry,
-            final WriterRegistry writerRegistry,
-            final BindingNormalizedNodeSerializer serializer) {
+            @Nonnull final ReaderRegistry readerRegistry,
+            @Nonnull final WriterRegistry writerRegistry,
+            @Nonnull final BindingNormalizedNodeSerializer serializer,
+            @Nonnull final ModifiableDataTree configDataTree) {
         this.bindingBroker = checkNotNull(bindingBroker, "bindingBroker should not be null");
         this.readerRegistry = checkNotNull(readerRegistry, "readerRegistry should not be null");
         this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
+        this.configDataTree = checkNotNull(configDataTree, "configDataTree should not be null");
         this.mountPointPath = getMountPointPath();
     }
 
@@ -136,7 +135,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final DOMMountPointService.DOMMountPointBuilder mountPointBuilder = mountPointService.createMountPoint(path);
         mountPointBuilder.addInitialSchemaContext(globalContext);
 
-        broker = initVppDataBroker(globalContext, serializer);
+        broker = initVppDataBroker(globalContext, serializer, configDataTree);
         mountPointBuilder.addService(DOMDataBroker.class, broker);
 
         mountPointRegistration = mountPointBuilder.register();
@@ -169,16 +168,17 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     }
 
     private DOMDataBroker initVppDataBroker(final SchemaContext globalContext,
-                                            final BindingNormalizedNodeSerializer serializer) {
+                                            final BindingNormalizedNodeSerializer serializer,
+                                            final ModifiableDataTree configDataTree) {
         final ReadableDataTree operationalDataTree =
                 new OperationalDataTree(serializer, globalContext, readerRegistry); // TODO make configurable
 
-        final DataTree dataTree =
-                InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION); // TODO make configurable
-        dataTree.setSchemaContext(globalContext);
+//        final DataTree dataTree =
+//                InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION); // TODO make configurable
+//        dataTree.setSchemaContext(globalContext);
 
-        final ModifiableDataTree configDataTree =
-                new ConfigDataTree(serializer, dataTree, writerRegistry); // TODO make configurable
+//        final ModifiableDataTree configDataTree =
+//                new ConfigDataTree(serializer, dataTree, writerRegistry); // TODO make configurable
 
         // init operational data tree before data broker is initialized
 
