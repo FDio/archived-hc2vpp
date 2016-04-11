@@ -16,18 +16,16 @@
 
 package io.fd.honeycomb.v3po.vpp.data.init;
 
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +33,8 @@ import org.slf4j.LoggerFactory;
 public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
     private static final Logger LOG = LoggerFactory.getLogger(VppInitializer.class);
 
-    public VppInitializer(@Nonnull final ReaderRegistry readerRegistry,
-                          @Nonnull final ModifiableDataTree configDataTree,
-                          @Nonnull final BindingNormalizedNodeSerializer serializer) {
-        super(readerRegistry, configDataTree, serializer, InstanceIdentifier.create(VppState.class), InstanceIdentifier.create(Vpp.class) );
+    public VppInitializer(@Nonnull final DataBroker bindingDataBroker) {
+        super(bindingDataBroker, InstanceIdentifier.create(VppState.class), InstanceIdentifier.create(Vpp.class));
     }
 
     @Override
@@ -61,7 +57,6 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain>
                 listOfBDs = new ArrayList<>();
 
-        // TODO use reflexion
         for (BridgeDomain bd : bridgeDomainList) {
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder
                     bdBuilder =

@@ -36,14 +36,6 @@ public interface ModifiableDataTree {
     void modify(final DataTreeModification modification) throws DataValidationFailedException, TranslationException;
 
     /**
-     * Initializes data tree using supplied modification.
-     *
-     * @param modification data tree modification
-     * @throws DataValidationFailedException if modification data is not valid
-     */
-    void initialize(final DataTreeModification modification) throws DataValidationFailedException;
-
-    /**
      * Creates read-only snapshot of a ModifiableDataTree.
      *
      * @return Data tree snapshot.

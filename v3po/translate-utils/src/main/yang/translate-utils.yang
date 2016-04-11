@@ -58,4 +58,15 @@ module translate-utils {
         }
     }
 
+    identity noop-writer-registry {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-writer-registry;
+        config:java-name-prefix NoopWriterRegistry;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case noop-writer-registry {
+            when "/config:modules/config:module/config:type = 'noop-writer-registry'";
+        }
+    }
 }

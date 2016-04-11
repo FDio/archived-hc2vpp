@@ -41,7 +41,7 @@ public class DataBrokerModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        LOG.info("DataBrokerModule.createInstance()");
+        LOG.debug("DataBrokerModule.createInstance()");
         return new CloseableDataBroker(
                 new DataBroker(getOperationalDataTreeDependency(), getConfigDataTreeDependency()));
     }
@@ -56,7 +56,7 @@ public class DataBrokerModule extends
 
         @Override
         public void close() throws Exception {
-            LOG.info("CloseableDataBroker.close()");
+            LOG.debug("CloseableDataBroker.close()");
             // NOP
         }
 

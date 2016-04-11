@@ -20,20 +20,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.translate.Context;
-import io.fd.honeycomb.v3po.translate.read.ReadContext;
-import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
+import com.google.common.util.concurrent.CheckedFuture;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,20 +42,14 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
         implements DataTreeInitializer {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDataTreeConverter.class);
 
-    private final ReaderRegistry readerRegistry;
-    private final ModifiableDataTree configDataTree;
-    private final BindingNormalizedNodeSerializer serializer;
     private final InstanceIdentifier<O> idOper;
     private final InstanceIdentifier<C> idConfig;
+    private final DataBroker bindingDataBroker;
 
-    public AbstractDataTreeConverter(@Nonnull final ReaderRegistry readerRegistry,
-                                     @Nonnull final ModifiableDataTree configDataTree,
-                                     @Nonnull final BindingNormalizedNodeSerializer serializer,
-                                     @Nonnull final InstanceIdentifier<O> idOper,
-                                     @Nonnull final InstanceIdentifier<C> idConfig) {
-        this.readerRegistry = checkNotNull(readerRegistry, "readerRegistry should not be null");
-        this.configDataTree = checkNotNull(configDataTree, "configDataTree should not be null");
-        this.serializer = checkNotNull(serializer, "serializer should not be null");
+    public AbstractDataTreeConverter(final DataBroker bindingDataBroker,
+                                     final InstanceIdentifier<O> idOper,
+                                     final InstanceIdentifier<C> idConfig) {
+        this.bindingDataBroker = checkNotNull(bindingDataBroker, "bindingDataBroker should not be null");
         this.idOper = checkNotNull(idOper, "idOper should not be null");
         this.idConfig = checkNotNull(idConfig, "idConfig should not be null");
     }
@@ -69,59 +57,42 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
     @Override
     public final void initialize() throws InitializeException {
         LOG.debug("AbstractDataTreeConverter.initialize()");
-
-        final Optional<? extends DataObject> data;
-        try (ReadContext ctx = new ReadContextImpl()) {
-            data = readerRegistry.read(idOper, ctx);
-        } catch (ReadFailedException e) {
-            LOG.warn("Failed to read operational state", e);
-            return;
-        }
-        LOG.debug("Config initialization data={}", data);
+        final Optional<O> data = readData();
 
         if (data.isPresent()) {
-            // conversion
-            final O operationalData = idOper.getTargetType().cast(data.get());
+            LOG.debug("Config initialization data={}", data);
+
+            final O operationalData = data.get();
             final C configData = convert(operationalData);
 
-            final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedData =
-                    serializer.toNormalizedNode(idConfig, configData);
-
-            final DataTreeModification modification = configDataTree.takeSnapshot().newModification();
-            final YangInstanceIdentifier biPath = normalizedData.getKey();
-            final NormalizedNode<?, ?> biData = normalizedData.getValue();
-            LOG.debug("Config initialization biPath={}, biData={}", biPath, biData);
-            modification.write(biPath, biData);
-            modification.ready();
-
-            LOG.debug("Config writing modification ...");
             try {
-                configDataTree.initialize(modification);
-                LOG.debug("Config writing modification written successfully.");
-            } catch (DataValidationFailedException e) {
-                throw new InitializeException("Failed to read operational state", e);
+                LOG.debug("Initializing config with data={}", configData);
+                writeData(configData);
+                LOG.debug("Config initialization successful");
+            } catch (TransactionCommitFailedException e) {
+                throw new InitializeException("Failed to perform config initialization", e);
             }
         } else {
             LOG.warn("Data is not present");
         }
     }
 
-    protected abstract C convert(final O operationalData);
-
-    // TODO move to utility module
-    private static final class ReadContextImpl implements ReadContext {
-        public final Context ctx = new Context();
-
-        @Nonnull
-        @Override
-        public Context getContext() {
-            return ctx;
+    private Optional<O> readData() {
+        try (ReadOnlyTransaction readTx = bindingDataBroker.newReadOnlyTransaction()) {
+            final CheckedFuture<Optional<O>, org.opendaylight.controller.md.sal.common.api.data.ReadFailedException>
+                    readFuture = readTx.read(LogicalDatastoreType.OPERATIONAL, idOper);
+            return readFuture.checkedGet();
+        } catch (org.opendaylight.controller.md.sal.common.api.data.ReadFailedException e) {
+            LOG.warn("Failed to read operational state", e);
         }
-
-        @Override
-        public void close() {
-            // Make sure to clear the storage in case some customizer stored it  to prevent memory leaks
-            ctx.close();
-        }
+        return Optional.absent();
     }
+
+    private void writeData(final C configData) throws TransactionCommitFailedException {
+        final WriteTransaction writeTx = bindingDataBroker.newWriteOnlyTransaction();
+        writeTx.merge(LogicalDatastoreType.CONFIGURATION, idConfig, configData);
+        writeTx.submit().checkedGet();
+    }
+
+    protected abstract C convert(final O operationalData);
 }

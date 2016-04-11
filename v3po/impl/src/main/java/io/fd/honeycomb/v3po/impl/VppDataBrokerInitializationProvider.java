@@ -20,11 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
-import io.fd.honeycomb.v3po.data.impl.DataBroker;
-import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
-import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nonnull;
@@ -67,28 +62,18 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private final TopologyId VPP_TOPOLOGY_ID = TopologyId.getDefaultInstance("vpp-topology");
     private final NodeId VPP_TOPOLOGY_NODE_ID = NodeId.getDefaultInstance("vpp");
     private final org.opendaylight.controller.md.sal.binding.api.DataBroker bindingBroker;
-    private final ReaderRegistry readerRegistry;
     private final InstanceIdentifier<Node> mountPointPath;
-    private final WriterRegistry writerRegistry;
     private final BindingNormalizedNodeSerializer serializer;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
-    private DOMDataBroker broker;
-    private final ModifiableDataTree configDataTree;
-    private final ReadableDataTree operationalDataTree;
+    private final DOMDataBroker domDataBroker;
 
     public VppDataBrokerInitializationProvider(
             @Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker bindingBroker,
-            @Nonnull final ReaderRegistry readerRegistry,
-            @Nonnull final WriterRegistry writerRegistry,
             @Nonnull final BindingNormalizedNodeSerializer serializer,
-            @Nonnull final ModifiableDataTree configDataTree,
-            @Nonnull final ReadableDataTree operationalDataTree) {
+            @Nonnull final DOMDataBroker domDataBroker) {
         this.bindingBroker = checkNotNull(bindingBroker, "bindingBroker should not be null");
-        this.readerRegistry = checkNotNull(readerRegistry, "readerRegistry should not be null");
-        this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
-        this.configDataTree = checkNotNull(configDataTree, "configDataTree should not be null");
-        this.operationalDataTree = checkNotNull(operationalDataTree, "configDataTree should not be null");
+        this.domDataBroker = checkNotNull(domDataBroker, "domDataBroker should not be null");
         this.mountPointPath = getMountPointPath();
     }
 
@@ -115,8 +100,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final DOMMountPointService.DOMMountPointBuilder mountPointBuilder = mountPointService.createMountPoint(path);
         mountPointBuilder.addInitialSchemaContext(globalContext);
 
-        broker = new DataBroker(operationalDataTree, configDataTree);
-        mountPointBuilder.addService(DOMDataBroker.class, broker);
+        mountPointBuilder.addService(DOMDataBroker.class, domDataBroker);
 
         mountPointRegistration = mountPointBuilder.register();
         final DOMMountPoint mountPoint = mountPointRegistration.getInstance();
@@ -164,17 +148,13 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     }
 
     public Optional<DOMDataBroker> getBroker() {
-        return Optional.fromNullable(broker);
+        return Optional.fromNullable(domDataBroker);
     }
 
     @Override
     public void close() throws Exception {
         if (mountPointRegistration != null) {
             mountPointRegistration.close();
-        }
-
-        if (broker != null) {
-            broker = null;
         }
 
         // remove MD-SAL placeholder data for VPP mount point:

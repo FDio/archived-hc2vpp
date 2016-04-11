@@ -137,14 +137,6 @@ public final class ConfigDataTree implements ModifiableDataTree {
         dataTree.commit(candidate);
     }
 
-    @Override
-    public void initialize(final DataTreeModification modification) throws DataValidationFailedException {
-        LOG.debug("ConfigDataTree.initialize");
-        dataTree.validate(modification);
-        final DataTreeCandidate candidate = dataTree.prepare(modification);
-        dataTree.commit(candidate);
-    }
-
     private Map<InstanceIdentifier<?>, DataObject> extractNetconfData(
             final Optional<NormalizedNode<?, ?>> parentOptional) {
         if (parentOptional.isPresent()) {

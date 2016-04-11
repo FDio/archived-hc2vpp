@@ -19,7 +19,6 @@ package io.fd.honeycomb.v3po.vpp.data.init;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,18 +33,12 @@ public class InitializerRegistryImplTest {
     @Mock(name="dti3")
     private DataTreeInitializer dti3;
 
-    private ArrayList<DataTreeInitializer> initializers;
-
     private InitializerRegistryImpl initializerRegistry;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        initializers = new ArrayList<>();
-        initializers.add(dti1);
-        initializers.add(dti2);
-        initializers.add(dti3);
-        initializerRegistry = new InitializerRegistryImpl(initializers);
+        initializerRegistry = new InitializerRegistryImpl(Arrays.asList(dti1, dti2, dti3));
     }
 
     @Test(expected = IllegalArgumentException.class)

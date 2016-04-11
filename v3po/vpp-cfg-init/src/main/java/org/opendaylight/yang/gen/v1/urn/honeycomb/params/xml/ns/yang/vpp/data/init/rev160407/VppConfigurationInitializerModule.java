@@ -1,13 +1,11 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.vpp.data.init.rev160407;
 
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import io.fd.honeycomb.v3po.vpp.data.init.DataTreeInitializer;
 import io.fd.honeycomb.v3po.vpp.data.init.InitializerRegistry;
 import io.fd.honeycomb.v3po.vpp.data.init.InitializerRegistryImpl;
 import io.fd.honeycomb.v3po.vpp.data.init.VppInitializer;
 import java.util.Collections;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +33,12 @@ public class VppConfigurationInitializerModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        LOG.info("VppConfigurationInitializerModule.createInstance()");
-        final ReaderRegistry readerRegistry = getReaderRegistryDependency();
-        final ModifiableDataTree configDataTree = getConfigDataTreeDependency();
-        final BindingNormalizedNodeSerializer serializer = getSerializerDependency();
+        LOG.debug("VppConfigurationInitializerModule.createInstance()");
+        final DataBroker bindingDataBroker = getBindingDataBrokerDependency();
 
         // TODO make configurable
         final VppInitializer vppInitializer =
-                new VppInitializer(readerRegistry, configDataTree, serializer);
+                new VppInitializer(bindingDataBroker);
 
         final InitializerRegistry initializer =
                 new InitializerRegistryImpl(Collections.<DataTreeInitializer>singletonList(vppInitializer));

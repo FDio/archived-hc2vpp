@@ -57,9 +57,8 @@ public class V3poModule extends
         final Broker domBroker = getDomBrokerDependency();
         domBroker.registerProvider(new InitializationProvider());
 
-        final V3poProvider provider = new V3poProvider(domBroker, getVppJapiDependency(), getReaderRegistryDependency(),
-                getWriterRegistryDependency(), getSerializerDependency(),
-                getConfigDataTreeDependency(), getOperationalDataTreeDependency());
+        final V3poProvider provider = new V3poProvider(domBroker, getVppJapiDependency(), getSerializerDependency(),
+                getDomDataBrokerDependency());
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

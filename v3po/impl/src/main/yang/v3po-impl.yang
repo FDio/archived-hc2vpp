@@ -54,24 +54,6 @@ module v3po-impl {
                 }
             }
 
-            container reader-registry {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity tapi:honeycomb-reader-registry;
-                    }
-                }
-            }
-
-            container writer-registry {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity tapi:honeycomb-writer-registry;
-                    }
-                }
-            }
-
             container serializer {
                 uses config:service-ref {
                     refine type {
@@ -81,20 +63,11 @@ module v3po-impl {
                 }
             }
 
-            container config-data-tree {
+            container dom-data-broker {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity dapi:honeycomb-modifiable-data-tree;
-                    }
-                }
-            }
-
-            container operational-data-tree {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity dapi:honeycomb-readable-data-tree;
+                        config:required-identity dom:dom-async-data-broker;
                     }
                 }
             }

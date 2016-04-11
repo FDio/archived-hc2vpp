@@ -31,33 +31,14 @@ module vpp-cfg-init {
         case vpp-cfg-initializer-impl {
             when "/config:modules/config:module/config:type = 'vpp-cfg-initializer-impl'";
 
-            container reader-registry {
-                uses config:service-ref {
-                    refine type {
-                       mandatory true;
-                        config:required-identity tapi:honeycomb-reader-registry;
-                    }
-                }
-            }
-
-            // TODO swich to binding broker
-            container config-data-tree {
+             container binding-data-broker {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity dapi:honeycomb-modifiable-data-tree;
+                        config:required-identity md-sal-binding:binding-async-data-broker;
                     }
                 }
-            }
-
-            container serializer {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity md-sal-binding:binding-normalized-node-serializer;
-                    }
-                }
-            }
+             }
         }
     }
 

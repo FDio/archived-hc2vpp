@@ -21,16 +21,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.impl.V3poProvider;
-import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
-import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import javax.management.ObjectName;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.DependencyResolver;
 import org.opendaylight.controller.config.api.JmxAttribute;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 
@@ -55,16 +52,10 @@ public class V3poModuleTest {
         final org.opendaylight.controller.sal.core.api.Broker domBroker = mock(org.opendaylight.controller.sal.core.api.Broker.class);
         when(dependencyResolver.resolveInstance(eq(org.opendaylight.controller.sal.core.api.Broker.class), any(ObjectName.class), any(JmxAttribute.class)))
             .thenReturn(domBroker);
-        when(dependencyResolver.resolveInstance(eq(ReaderRegistry.class), any(ObjectName.class), any(JmxAttribute.class)))
-                .thenReturn(mock(ReaderRegistry.class));
-        when(dependencyResolver.resolveInstance(eq(WriterRegistry.class), any(ObjectName.class), any(JmxAttribute.class)))
-                .thenReturn(mock(WriterRegistry.class));
         when(dependencyResolver.resolveInstance(eq(BindingNormalizedNodeSerializer.class), any(ObjectName.class), any(JmxAttribute.class)))
                 .thenReturn(mock(BindingNormalizedNodeSerializer.class));
-        when(dependencyResolver.resolveInstance(eq(ModifiableDataTree.class), any(ObjectName.class), any(JmxAttribute.class)))
-                .thenReturn(mock(ModifiableDataTree.class));
-        when(dependencyResolver.resolveInstance(eq(ReadableDataTree.class), any(ObjectName.class), any(JmxAttribute.class)))
-                .thenReturn(mock(ReadableDataTree.class));
+        when(dependencyResolver.resolveInstance(eq(DOMDataBroker.class), any(ObjectName.class), any(JmxAttribute.class)))
+                .thenReturn(mock(DOMDataBroker.class));
 
         // create instance of module with injected mocks
         V3poModule module = new V3poModule(mock(ModuleIdentifier.class), dependencyResolver);

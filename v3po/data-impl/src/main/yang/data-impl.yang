@@ -18,6 +18,32 @@ module data-impl {
             "Initial revision.";
     }
 
+    identity data-tree {
+        base "config:service-type";
+        config:java-class org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
+    }
+
+    identity inmemory-config-data-tree {
+        base config:module-type;
+        config:provided-service data-tree;
+        config:java-name-prefix InMemoryConfigDataTree;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case inmemory-config-data-tree {
+            when "/config:modules/config:module/config:type = 'inmemory-config-data-tree'";
+
+            container schema-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dom:schema-service;
+                    }
+                }
+            }
+        }
+    }
+
     identity honeycomb-config-data-tree {
         base config:module-type;
         config:provided-service dapi:honeycomb-modifiable-data-tree;
@@ -28,11 +54,11 @@ module data-impl {
         case honeycomb-config-data-tree {
             when "/config:modules/config:module/config:type = 'honeycomb-config-data-tree'";
 
-            container schema-service {
+            container data-tree {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity dom:schema-service;
+                        config:required-identity data-tree;
                     }
                 }
             }
@@ -97,5 +123,4 @@ module data-impl {
 
         }
     }
-
 }

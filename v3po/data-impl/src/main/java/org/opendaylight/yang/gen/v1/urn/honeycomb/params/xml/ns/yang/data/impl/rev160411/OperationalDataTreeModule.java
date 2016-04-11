@@ -35,7 +35,7 @@ public class OperationalDataTreeModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        LOG.info("OperationalDataTreeModule.createInstance()");
+        LOG.debug("OperationalDataTreeModule.createInstance()");
         return new CloseableOperationalDataTree(
                 new OperationalDataTree(getSerializerDependency(), getSchemaServiceDependency().getGlobalContext(),
                         getReaderRegistryDependency()));
@@ -51,7 +51,7 @@ public class OperationalDataTreeModule extends
 
         @Override
         public void close() throws Exception {
-            LOG.info("CloseableOperationalDataTree.close()");
+            LOG.debug("CloseableOperationalDataTree.close()");
             // NOP
         }
 
