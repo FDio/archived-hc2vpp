@@ -8,9 +8,14 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OperationalDataTreeModule extends
         org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.impl.rev160411.AbstractOperationalDataTreeModule {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OperationalDataTreeModule.class);
+
     public OperationalDataTreeModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
                                      org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -30,6 +35,7 @@ public class OperationalDataTreeModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        LOG.info("OperationalDataTreeModule.createInstance()");
         return new CloseableOperationalDataTree(
                 new OperationalDataTree(getSerializerDependency(), getSchemaServiceDependency().getGlobalContext(),
                         getReaderRegistryDependency()));
@@ -45,12 +51,14 @@ public class OperationalDataTreeModule extends
 
         @Override
         public void close() throws Exception {
+            LOG.info("CloseableOperationalDataTree.close()");
             // NOP
         }
 
         @Override
         public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
                 @Nonnull final YangInstanceIdentifier path) {
+            LOG.trace("CloseableOperationalDataTree.read path={}", path);
             return delegate.read(path);
         }
     }

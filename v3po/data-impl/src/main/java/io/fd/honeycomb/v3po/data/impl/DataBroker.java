@@ -35,6 +35,8 @@ import org.opendaylight.controller.md.sal.dom.api.DOMTransactionChain;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Data Broker which provides data transaction functionality for YANG capable data provider using {@link NormalizedNode}
@@ -42,6 +44,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
  */
 public class DataBroker implements DOMDataBroker {
 
+    private static final Logger LOG = LoggerFactory.getLogger(DataBroker.class);
     private final ReadableDataTree operationalDataTree;
     private final ModifiableDataTree configDataTree;
 
@@ -56,16 +59,18 @@ public class DataBroker implements DOMDataBroker {
         this.operationalDataTree =
                 Preconditions.checkNotNull(operationalDataTree, "operationalDataTree should not be null");
         this.configDataTree = Preconditions.checkNotNull(configDataTree, "configDataTree should not be null");
+        LOG.trace("DataBroker({}).init() operationalDataTree={}, configDataTree={}", this, operationalDataTree, configDataTree);
     }
 
     @Override
     public DOMDataReadOnlyTransaction newReadOnlyTransaction() {
+        LOG.trace("DataBroker({}).newReadOnlyTransaction()", this);
         return new ReadOnlyTransaction(operationalDataTree, configDataTree.takeSnapshot());
     }
 
     @Override
     public DOMDataReadWriteTransaction newReadWriteTransaction() {
-        // todo use the same snapshot
+        LOG.trace("DataBroker({}).newReadWriteTransaction()", this);
         final DataTreeSnapshot configSnapshot = configDataTree.takeSnapshot();
         final DOMDataReadOnlyTransaction readOnlyTx = new ReadOnlyTransaction(operationalDataTree, configSnapshot);
         final DOMDataWriteTransaction writeOnlyTx = new WriteTransaction(configDataTree, configSnapshot);
@@ -74,6 +79,7 @@ public class DataBroker implements DOMDataBroker {
 
     @Override
     public DOMDataWriteTransaction newWriteOnlyTransaction() {
+        LOG.trace("DataBroker({}).newWriteOnlyTransaction()", this);
         return new WriteTransaction(configDataTree);
     }
 

@@ -20,22 +20,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.AsyncFunction;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.data.ModifiableDataTree;
 import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.data.impl.DataBroker;
-import io.fd.honeycomb.v3po.translate.Context;
-import io.fd.honeycomb.v3po.translate.TranslationException;
-import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -43,19 +34,11 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPoint;
 import org.opendaylight.controller.md.sal.dom.api.DOMMountPointService;
 import org.opendaylight.controller.sal.core.api.Broker;
 import org.opendaylight.controller.sal.core.api.Provider;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -66,13 +49,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +115,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final DOMMountPointService.DOMMountPointBuilder mountPointBuilder = mountPointService.createMountPoint(path);
         mountPointBuilder.addInitialSchemaContext(globalContext);
 
-        broker = initVppDataBroker(operationalDataTree, serializer, configDataTree);
+        broker = new DataBroker(operationalDataTree, configDataTree);
         mountPointBuilder.addService(DOMDataBroker.class, broker);
 
         mountPointRegistration = mountPointBuilder.register();
@@ -145,9 +124,6 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
                 mountPoint.getSchemaContext());
 
         createMountPointPlaceholder();
-
-        // TODO initial sync has to go out of here
-//        initialVppConfigSynchronization(broker);
     }
 
     @Override
@@ -168,98 +144,6 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         }
     }
 
-    private DOMDataBroker initVppDataBroker(final ReadableDataTree operationalDataTree,
-                                            final BindingNormalizedNodeSerializer serializer,
-                                            final ModifiableDataTree configDataTree) {
-        // init operational data tree before data broker is initialized
-
-        try {
-            initConfig(serializer, configDataTree);
-        } catch (Exception e) {
-            LOG.warn("Failed to initialize config", e);
-        }
-
-        return new DataBroker(operationalDataTree, configDataTree);
-    }
-
-    // FIXME move to initializer after wiring is finished
-    private void initConfig(final BindingNormalizedNodeSerializer serializer, final ModifiableDataTree configDataTree)
-            throws TranslationException, DataValidationFailedException {
-        LOG.info("Config initialization");
-
-        final Optional<? extends DataObject> data = readerRegistry.read(InstanceIdentifier.create(VppState.class), new ReadContextImpl());
-        LOG.info("Config initialization data={}", data);
-
-        if (data.isPresent()) {
-            // conversion
-            VppState vppOperationalData = (VppState) data.get();
-            final Vpp vppConfigData = convert(vppOperationalData);
-
-            final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedData =
-                    serializer.toNormalizedNode(InstanceIdentifier.create(Vpp.class), vppConfigData);
-
-            final DataTreeModification modification = configDataTree.takeSnapshot().newModification();
-            final YangInstanceIdentifier biPath = normalizedData.getKey();
-            final NormalizedNode<?, ?> biData = normalizedData.getValue();
-            LOG.info("Config initialization biPath={}, biData={}", biPath, biData);
-            modification.write(biPath, biData);
-            modification.ready();
-
-            LOG.info("Config writing modification ...");
-            configDataTree.modify(modification); // TODO do not write to VPP
-            LOG.info("Config writing modification written successfully.");
-        } else {
-            LOG.info("Data is not present");
-        }
-    }
-
-    private Vpp convert(final VppState vppState) {
-        final BridgeDomains bridgeDomains = vppState.getBridgeDomains();
-        final List<BridgeDomain> bridgeDomainList = bridgeDomains.getBridgeDomain();
-
-        VppBuilder vppBuilder = new VppBuilder();
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomainsBuilder bdsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomainsBuilder();
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain>
-                listOfBDs = new ArrayList<>();
-
-        // TODO use reflexion
-        for (BridgeDomain bd : bridgeDomainList) {
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder bdBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder();
-            bdBuilder.setLearn(bd.isLearn());
-            bdBuilder.setUnknownUnicastFlood(bd.isUnknownUnicastFlood());
-            bdBuilder.setArpTermination(bd.isArpTermination());
-            bdBuilder.setFlood(bd.isFlood());
-            bdBuilder.setForward(bd.isForward());
-            bdBuilder.setKey(new BridgeDomainKey(bd.getKey().getName()));
-            // TODO bdBuilder.setL2Fib(bd.getL2Fib());
-            bdBuilder.setName(bd.getName());
-            listOfBDs.add(bdBuilder.build());
-        }
-
-        bdsBuilder.setBridgeDomain(listOfBDs);
-        vppBuilder.setBridgeDomains(bdsBuilder.build());
-        return vppBuilder.build();
-    }
-
-
-    // TODO move to utility module
-    private static final class ReadContextImpl implements ReadContext {
-        public final Context ctx = new Context();
-
-        @Nonnull
-        @Override
-        public Context getContext() {
-            return ctx;
-        }
-
-        @Override
-        public void close() {
-            // Make sure to clear the storage in case some customizer stored it  to prevent memory leaks
-            ctx.close();
-        }
-    }
-
-
     /**
      * Writes placeholder data into MD-SAL's global datastore to indicate the presence of VPP mountpoint.
      */
@@ -277,47 +161,6 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         } catch (TransactionCommitFailedException e) {
             throw new IllegalStateException("Failed to create mountpoint placeholder", e);
         }
-    }
-
-    // TODO operational and config models are not 1-1
-    // decide what part of operational data should be written to config during initialization
-    private void initialVppConfigSynchronization(final DOMDataBroker broker) {
-        // read from operational
-        final DOMDataReadOnlyTransaction readTx = broker.newReadOnlyTransaction();
-
-        final YangInstanceIdentifier
-                id = YangInstanceIdentifier.builder().node(VppState.QNAME).node(BridgeDomains.QNAME).build();
-
-        LOG.trace("initialVppStateSynchronization id: {}", id);
-
-        final ListenableFuture<Void> writeFuture = Futures.transform(
-                readTx.read(LogicalDatastoreType.OPERATIONAL, id),
-                new AsyncFunction<Optional<NormalizedNode<?, ?>>, Void>() {
-                    @Override
-                    public ListenableFuture<Void> apply(final Optional<NormalizedNode<?, ?>> readResult)
-                            throws Exception {
-                        if (readResult.isPresent()) {
-                            final DOMDataWriteTransaction writeTx = broker.newWriteOnlyTransaction();
-                            final NormalizedNode<?, ?> node = readResult.get();
-                            LOG.trace("Read result: {}", node);
-
-                            // FIXME
-                            // this will fail because we are reading OPERATIONAL data and writing to CONFIGURATION
-                            // we need to provide extensible way to register initializer that would
-                            // translate between models
-
-                            // writeTx.put(LogicalDatastoreType.CONFIGURATION, id, node);
-                            return writeTx.submit();
-                        } else {
-                            return Futures
-                                    .immediateFailedFuture(
-                                            new IllegalStateException("Failed to read data from VPP."));
-                        }
-                    }
-                });
-
-        Futures.addCallback(writeFuture,
-                new LoggingFuturesCallBack<Void>("Initializing VPP config DataTree failed", LOG));
     }
 
     public Optional<DOMDataBroker> getBroker() {

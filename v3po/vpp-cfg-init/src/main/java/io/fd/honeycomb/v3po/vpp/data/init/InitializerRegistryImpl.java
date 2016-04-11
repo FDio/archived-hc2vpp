@@ -16,75 +16,37 @@
 
 package io.fd.honeycomb.v3po.vpp.data.init;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.Context;
-import io.fd.honeycomb.v3po.translate.read.ReadContext;
-import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InitializerRegistryImpl implements InitializerRegistry, AutoCloseable {
+public class InitializerRegistryImpl implements InitializerRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(InitializerRegistryImpl.class);
-    private final ReaderRegistry readerRegistry;
+    private final List<DataTreeInitializer> initializers;
 
-    public InitializerRegistryImpl(@Nonnull final ReaderRegistry readerRegistry) {
-       this.readerRegistry = checkNotNull(readerRegistry, "readerRegistry should not be null");
+    public InitializerRegistryImpl(@Nonnull List<DataTreeInitializer> initializers) {
+        this.initializers = checkNotNull(initializers, "initializers should not be null");
+        checkArgument(!initializers.contains(null), "initializers should not contain null elements");
     }
-
 
     @Override
     public void close() throws Exception {
-        LOG.info("Initializer.close()");
-        // TODO remove data
-    }
-
-    public void initialize() {
-        try {
-         initializeBridgeDomains();
-        } catch (Exception e) {
-            LOG.error("Initialization failed", e);
+        LOG.debug("InitializerRegistryImpl.close()");
+        for (DataTreeInitializer initializer : initializers) {
+            initializer.close();
         }
     }
 
     @Override
-    public void clean() {
-
-    }
-
-    // TODO make configurable
-    private void initializeBridgeDomains() throws ReadFailedException {
-
-        final InstanceIdentifier<BridgeDomains> bdsID =
-                InstanceIdentifier.create(VppState.class).child(BridgeDomains.class);
-        final ReadContext ctx = new ReadContextImpl();
-        final Optional<? extends DataObject> data = readerRegistry.read(bdsID, ctx);
-
-        LOG.info("BridgeDomains data: {}", data);
-
-    }
-
-    // TODO move to utility module
-    private static final class ReadContextImpl implements ReadContext {
-        public final Context ctx = new Context();
-
-        @Nonnull
-        @Override
-        public Context getContext() {
-            return ctx;
-        }
-
-        @Override
-        public void close() {
-            // Make sure to clear the storage in case some customizer stored it  to prevent memory leaks
-            ctx.close();
+    public void initialize() throws InitializeException {
+        // TODO check if readers are there
+        LOG.debug("InitializerRegistryImpl.initialize()");
+        for (DataTreeInitializer initializer : initializers) {
+            initializer.initialize();
         }
     }
 }

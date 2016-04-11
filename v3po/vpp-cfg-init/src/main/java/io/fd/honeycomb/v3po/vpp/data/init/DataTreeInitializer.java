@@ -19,15 +19,29 @@ package io.fd.honeycomb.v3po.vpp.data.init;
 import com.google.common.annotations.Beta;
 
 /**
- * Data tree initializer suitable as a holder for all other root initializers, providing initializeAll feature.
+ * Service for config data tree initialization.
+ * Implementation reads operational data and initializes config data tree.
+ * Initialization does not cause any change in VPP state, unlike ordinary writes to config.
  */
 @Beta
-public interface InitializerRegistry extends DataTreeInitializer {
+public interface DataTreeInitializer extends AutoCloseable {
 
     /**
-     * Performs initialize on all registered root initializers.
-     * @throws if initialization failed
+     * Initializes config data tree for supported root node.
+     * @throws InitializeException if initialization failed
+     */
+    void initialize() throws InitializeException;
+
+    /**
+     * Removes all data managed by the initializer.
      */
     @Override
-    void initialize() throws InitializeException;
+    void close() throws Exception;
+
+    class InitializeException extends Exception {
+
+        public InitializeException(final String message, final Throwable cause) {
+            super(message, cause);
+        }
+    }
 }

@@ -90,6 +90,8 @@ public final class ConfigDataTree implements ModifiableDataTree {
     @Override
     public void modify(final DataTreeModification modification)
             throws DataValidationFailedException, TranslationException {
+        LOG.debug("ConfigDataTree.modify");
+
         dataTree.validate(modification);
 
         final DataTreeCandidate candidate = dataTree.prepare(modification);
@@ -132,6 +134,14 @@ public final class ConfigDataTree implements ModifiableDataTree {
             throw e;
         }
 
+        dataTree.commit(candidate);
+    }
+
+    @Override
+    public void initialize(final DataTreeModification modification) throws DataValidationFailedException {
+        LOG.debug("ConfigDataTree.initialize");
+        dataTree.validate(modification);
+        final DataTreeCandidate candidate = dataTree.prepare(modification);
         dataTree.commit(candidate);
     }
 

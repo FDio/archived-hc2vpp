@@ -72,7 +72,7 @@ module v3po-impl {
                 }
             }
 
-            container binding-normalized-node-serializer {
+            container serializer {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
@@ -120,6 +120,37 @@ module v3po-impl {
                         }
                     }
                 }
+
+        }
+    }
+
+    identity honeycomb-dom-data-broker {
+        base config:module-type;
+        config:provided-service dom:dom-async-data-broker;
+        config:java-name-prefix DataBroker;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case honeycomb-dom-data-broker {
+            when "/config:modules/config:module/config:type = 'honeycomb-dom-data-broker'";
+
+            container config-data-tree {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dapi:honeycomb-modifiable-data-tree;
+                    }
+                }
+            }
+
+            container operational-data-tree {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dapi:honeycomb-readable-data-tree;
+                    }
+                }
+            }
 
         }
     }

@@ -28,54 +28,6 @@
     <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
       <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
 
-        <!--<module>-->
-          <!--<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom:impl">prefix:dom-inmemory-data-broker</type>-->
-          <!--<name>netconf-inmemory-data-broker</name>-->
-
-          <!--<schema-service>-->
-            <!--<type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>-->
-            <!--<name>yang-schema-service</name>-->
-          <!--</schema-service>-->
-
-          <!--<config-data-store>-->
-            <!--<type xmlns:config-dom-store-spi="urn:opendaylight:params:xml:ns:yang:controller:md:sal:core:spi:config-dom-store">config-dom-store-spi:config-dom-datastore</type>-->
-            <!--<name>netconf-config-store-service</name>-->
-          <!--</config-data-store>-->
-
-          <!--<operational-data-store>-->
-            <!--<type xmlns:operational-dom-store-spi="urn:opendaylight:params:xml:ns:yang:controller:md:sal:core:spi:operational-dom-store">operational-dom-store-spi:operational-dom-datastore</type>-->
-            <!--<name>netconf-operational-store-service</name>-->
-          <!--</operational-data-store>-->
-        <!--</module>-->
-
-        <!--<module>-->
-          <!--<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-forwarded-data-broker</type>-->
-          <!--<name>honeycomb-binding-data-broker</name>-->
-          <!--<binding-forwarded-data-broker xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">-->
-
-            <!--&lt;!&ndash;TODO &ndash;&gt;-->
-            <!--&lt;!&ndash;<dom-async-broker>&ndash;&gt;-->
-              <!--&lt;!&ndash;<type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>&ndash;&gt;-->
-              <!--&lt;!&ndash;<name>honeycomb-dom-data-broker</name>&ndash;&gt;-->
-            <!--&lt;!&ndash;</dom-async-broker>&ndash;&gt;-->
-
-            <!--<dom-async-broker>-->
-              <!--<type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>-->
-              <!--<name>netconf-inmemory-data-broker</name>-->
-            <!--</dom-async-broker>-->
-
-            <!--<schema-service>-->
-              <!--<type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>-->
-              <!--<name>yang-schema-service</name>-->
-            <!--</schema-service>-->
-            <!--<binding-mapping-service>-->
-              <!--<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">binding:binding-dom-mapping-service</type>-->
-              <!--<name>runtime-mapping-singleton</name>-->
-            <!--</binding-mapping-service>-->
-          <!--</binding-forwarded-data-broker>-->
-        <!--</module>-->
-
-
         <module>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-reader-registry</type>
           <name>read-registry</name>
@@ -120,6 +72,39 @@
         </module>
 
         <module>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:honeycomb-dom-data-broker</type>
+          <name>honeycomb-dom-data-broker</name>
+          <config-data-tree>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
+            <name>config-data-tree</name>
+          </config-data-tree>
+          <operational-data-tree>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-readable-data-tree</type>
+            <name>operational-data-tree</name>
+          </operational-data-tree>
+        </module>
+
+        <module>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-forwarded-data-broker</type>
+          <name>honeycomb-binding-data-broker</name>
+          <binding-forwarded-data-broker xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">
+
+            <dom-async-broker>
+              <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
+              <name>honeycomb-dom-data-broker</name>
+            </dom-async-broker>
+            <schema-service>
+              <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+              <name>yang-schema-service</name>
+            </schema-service>
+            <binding-mapping-service>
+              <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">binding:binding-dom-mapping-service</type>
+              <name>runtime-mapping-singleton</name>
+            </binding-mapping-service>
+          </binding-forwarded-data-broker>
+        </module>
+
+        <module>
           <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:v3po</type>
           <name>v3po-default</name>
           <broker>
@@ -142,10 +127,10 @@
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
             <name>write-registry</name>
           </writer-registry>
-          <binding-normalized-node-serializer>
+          <serializer>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
             <name>runtime-mapping-singleton</name>
-          </binding-normalized-node-serializer>
+          </serializer>
           <config-data-tree>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
             <name>config-data-tree</name>
@@ -163,28 +148,35 @@
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-registry</type>
             <name>read-registry</name>
           </reader-registry>
+          <config-data-tree>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
+            <name>config-data-tree</name>
+          </config-data-tree>
+          <serializer>
+            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">binding:binding-dom-mapping-service</type>
+            <name>runtime-mapping-singleton</name>
+          </serializer>
         </module>
 
       </modules>
 
       <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
 
-        <!--<service>-->
-          <!--<type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>-->
-          <!--<instance>-->
-            <!--<name>netconf-inmemory-data-broker</name>-->
-            <!--<provider>/modules/module[type='dom-inmemory-data-broker'][name='netconf-inmemory-data-broker']</provider>-->
-          <!--</instance>-->
-        <!--</service>-->
+        <service>
+          <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
+          <instance>
+            <name>honeycomb-dom-data-broker</name>
+            <provider>/modules/module[type='honeycomb-dom-data-broker'][name='honeycomb-dom-data-broker']</provider>
+          </instance>
+        </service>
 
-        <!--<service>-->
-          <!--<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>-->
-          <!--<instance>-->
-            <!--<name>honeycomb-binding-data-broker</name>-->
-            <!--<provider>/modules/module[type='binding-forwarded-data-broker'][name='honeycomb-binding-data-broker']</provider>-->
-          <!--</instance>-->
-        <!--</service>-->
-
+        <service>
+          <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
+          <instance>
+            <name>honeycomb-binding-data-broker</name>
+            <provider>/modules/module[type='binding-forwarded-data-broker'][name='honeycomb-binding-data-broker']</provider>
+          </instance>
+        </service>
 
         <service>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-registry</type>

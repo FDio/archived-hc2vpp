@@ -4,7 +4,9 @@ module vpp-cfg-init {
     prefix "init";
 
     import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import translate-api { prefix tapi; revision-date 2016-04-06; }
+    import data-api { prefix dapi; revision-date 2016-04-11; }
 
     description
         "This module contains initializers for VPP config data tree";
@@ -34,6 +36,25 @@ module vpp-cfg-init {
                     refine type {
                        mandatory true;
                         config:required-identity tapi:honeycomb-reader-registry;
+                    }
+                }
+            }
+
+            // TODO swich to binding broker
+            container config-data-tree {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dapi:honeycomb-modifiable-data-tree;
+                    }
+                }
+            }
+
+            container serializer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-normalized-node-serializer;
                     }
                 }
             }
