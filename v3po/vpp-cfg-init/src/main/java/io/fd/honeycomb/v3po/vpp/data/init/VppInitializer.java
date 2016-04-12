@@ -16,20 +16,25 @@
 
 package io.fd.honeycomb.v3po.vpp.data.init;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomainsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Initializes vpp node in config data tree based on operational state
+ */
 public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
     private static final Logger LOG = LoggerFactory.getLogger(VppInitializer.class);
 
@@ -38,42 +43,34 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
     }
 
     @Override
-    public void close() throws Exception {
-        // NOP
-        LOG.debug("VppStateInitializer.close()");
-        // FIXME implement delete
-    }
-
-    @Override
     protected Vpp convert(final VppState operationalData) {
-        LOG.debug("VppStateInitializer.convert()");
-        final BridgeDomains bridgeDomains = operationalData.getBridgeDomains();
-        final List<BridgeDomain> bridgeDomainList = bridgeDomains.getBridgeDomain();
+        LOG.debug("VppInitializer.convert()");
 
         VppBuilder vppBuilder = new VppBuilder();
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomainsBuilder
-                bdsBuilder =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomainsBuilder();
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain>
-                listOfBDs = new ArrayList<>();
+        BridgeDomainsBuilder bdsBuilder = new BridgeDomainsBuilder();
 
-        for (BridgeDomain bd : bridgeDomainList) {
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder
-                    bdBuilder =
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder();
-            bdBuilder.setLearn(bd.isLearn());
-            bdBuilder.setUnknownUnicastFlood(bd.isUnknownUnicastFlood());
-            bdBuilder.setArpTermination(bd.isArpTermination());
-            bdBuilder.setFlood(bd.isFlood());
-            bdBuilder.setForward(bd.isForward());
-            bdBuilder.setKey(new BridgeDomainKey(bd.getKey().getName()));
-            // TODO bdBuilder.setL2Fib(bd.getL2Fib());
-            bdBuilder.setName(bd.getName());
-            listOfBDs.add(bdBuilder.build());
-        }
-
-        bdsBuilder.setBridgeDomain(listOfBDs);
+        bdsBuilder.setBridgeDomain(Lists.transform(operationalData.getBridgeDomains().getBridgeDomain(), CONVERT_BD));
         vppBuilder.setBridgeDomains(bdsBuilder.build());
         return vppBuilder.build();
     }
+
+    private static final Function<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain, BridgeDomain>
+            CONVERT_BD =
+            new Function<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain, BridgeDomain>() {
+                @Nullable
+                @Override
+                public BridgeDomain apply(
+                        @Nullable final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain input) {
+                    final BridgeDomainBuilder builder = new BridgeDomainBuilder();
+                    builder.setLearn(input.isLearn());
+                    builder.setUnknownUnicastFlood(input.isUnknownUnicastFlood());
+                    builder.setArpTermination(input.isArpTermination());
+                    builder.setFlood(input.isFlood());
+                    builder.setForward(input.isForward());
+                    builder.setKey(new BridgeDomainKey(input.getKey().getName()));
+                    // TODO bdBuilder.setL2Fib(bd.getL2Fib());
+                    builder.setName(input.getName());
+                    return builder.build();
+                }
+            };
 }

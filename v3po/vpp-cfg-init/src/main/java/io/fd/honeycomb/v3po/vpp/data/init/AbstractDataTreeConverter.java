@@ -47,11 +47,20 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
     private final DataBroker bindingDataBroker;
 
     public AbstractDataTreeConverter(final DataBroker bindingDataBroker,
-                                     final InstanceIdentifier<O> idOper,
-                                     final InstanceIdentifier<C> idConfig) {
+                                     final InstanceIdentifier<O> operRootId,
+                                     final InstanceIdentifier<C> cfgRootId) {
         this.bindingDataBroker = checkNotNull(bindingDataBroker, "bindingDataBroker should not be null");
-        this.idOper = checkNotNull(idOper, "idOper should not be null");
-        this.idConfig = checkNotNull(idConfig, "idConfig should not be null");
+        this.idOper = checkNotNull(operRootId, "operRootId should not be null");
+        this.idConfig = checkNotNull(cfgRootId, "cfgRootId should not be null");
+    }
+
+    @Override
+    public void close() throws Exception {
+        LOG.debug("AbstractDataTreeConverter.close()");
+        final WriteTransaction writeTx = bindingDataBroker.newWriteOnlyTransaction();
+        writeTx.delete(LogicalDatastoreType.CONFIGURATION, idConfig);
+        writeTx.submit().checkedGet();
+        LOG.info("Config initialization data for {} successfully removed.", idConfig);
     }
 
     @Override
@@ -90,9 +99,15 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
 
     private void writeData(final C configData) throws TransactionCommitFailedException {
         final WriteTransaction writeTx = bindingDataBroker.newWriteOnlyTransaction();
-        writeTx.merge(LogicalDatastoreType.CONFIGURATION, idConfig, configData);
+        writeTx.put(LogicalDatastoreType.CONFIGURATION, idConfig, configData);
         writeTx.submit().checkedGet();
     }
 
+    // TODO make this class concrete and use function dependency instead of abstract method
+    /**
+     * Converts operational data to config data for given root node
+     * @param operationalData data object representing operational data
+     * @return data object representing config data
+     */
     protected abstract C convert(final O operationalData);
 }

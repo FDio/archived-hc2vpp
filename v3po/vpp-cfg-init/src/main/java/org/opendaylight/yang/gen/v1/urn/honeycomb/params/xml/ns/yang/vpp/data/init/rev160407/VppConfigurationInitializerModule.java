@@ -3,8 +3,9 @@ package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.vpp.data.i
 import io.fd.honeycomb.v3po.vpp.data.init.DataTreeInitializer;
 import io.fd.honeycomb.v3po.vpp.data.init.InitializerRegistry;
 import io.fd.honeycomb.v3po.vpp.data.init.InitializerRegistryImpl;
+import io.fd.honeycomb.v3po.vpp.data.init.InterfacesInitializer;
 import io.fd.honeycomb.v3po.vpp.data.init.VppInitializer;
-import java.util.Collections;
+import java.util.Arrays;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,21 +34,22 @@ public class VppConfigurationInitializerModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        LOG.debug("VppConfigurationInitializerModule.createInstance()");
+        LOG.info("VppConfigurationInitializerModule.createInstance(): initialization started");
         final DataBroker bindingDataBroker = getBindingDataBrokerDependency();
 
-        // TODO make configurable
-        final VppInitializer vppInitializer =
-                new VppInitializer(bindingDataBroker);
+        final VppInitializer vppInitializer = new VppInitializer(bindingDataBroker);
+        final InterfacesInitializer interfacesInitializer = new InterfacesInitializer(bindingDataBroker);
 
+        // TODO make configurable
         final InitializerRegistry initializer =
-                new InitializerRegistryImpl(Collections.<DataTreeInitializer>singletonList(vppInitializer));
+                new InitializerRegistryImpl(Arrays.<DataTreeInitializer>asList(vppInitializer, interfacesInitializer));
 
         try {
             initializer.initialize();
         } catch (Exception e) {
             LOG.warn("Failed to initialize config", e);
         }
+        LOG.info("VppConfigurationInitializerModule.createInstance(): initialization completed");
 
         return initializer;
     }
