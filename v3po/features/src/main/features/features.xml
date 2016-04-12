@@ -39,6 +39,9 @@
     <bundle>mvn:io.fd.honeycomb.v3po/translate-spi/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-utils/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-translate-utils/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/config/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/data-api/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/data-impl/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-impl/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}</bundle>
     <bundle>wrap:mvn:io.fd.vpp/vppjapi/1.0.0-SNAPSHOT</bundle>

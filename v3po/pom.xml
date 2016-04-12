@@ -33,6 +33,9 @@
   </prerequisites>
   <modules>
     <module>api</module>
+    <module>config</module>
+    <module>data-api</module>
+    <module>data-impl</module>
     <module>translate-spi</module>
     <module>translate-api</module>
     <module>translate-impl</module>

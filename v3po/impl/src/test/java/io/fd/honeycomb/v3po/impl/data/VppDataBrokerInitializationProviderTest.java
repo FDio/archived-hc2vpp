@@ -26,6 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
+import io.fd.honeycomb.v3po.config.WriterRegistry;
+import io.fd.honeycomb.v3po.impl.VppDataBrokerInitializationProvider;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import org.junit.Before;
 import org.junit.Test;
