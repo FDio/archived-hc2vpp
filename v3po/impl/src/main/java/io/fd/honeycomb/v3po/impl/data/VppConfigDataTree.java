@@ -118,15 +118,13 @@ public final class VppConfigDataTree implements VppDataTree {
             try {
                 e.revertChanges();
                 LOG.info("Changes successfully reverted");
-            } catch (VppException | RuntimeException e2) {
-                LOG.error("Failed to revert successful changes", e2);
+            } catch (WriterRegistry.Reverter.RevertFailedException revertFailedException) {
+                // fail with failed revert
+                LOG.error("Failed to revert successful changes", revertFailedException);
+                throw revertFailedException;
             }
 
-            // rethrow as we can't do anything more about it
-            // FIXME we need to throw a different kind of exception here to differentiate between:
-            // fail with success revert
-            // fail with failed revert (this one needs to contain IDs of changes that were not reverted)
-            throw e;
+            throw e; // fail with success revert
         } catch (VppException e) {
             LOG.error("Error while processing data change (before={}, after={})", nodesBefore, nodesAfter, e);
             throw e;

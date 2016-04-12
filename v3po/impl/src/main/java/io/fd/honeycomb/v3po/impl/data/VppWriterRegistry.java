@@ -98,7 +98,7 @@ public class VppWriterRegistry implements WriterRegistry {
     public void update(@Nonnull final Map<InstanceIdentifier<?>, DataObject> dataBefore,
                        @Nonnull final Map<InstanceIdentifier<?>, DataObject> dataAfter,
                        @Nonnull final WriteContext ctx)
-        throws VppException, BulkUpdateException {
+        throws VppException {
         writer.update(dataBefore, dataAfter, ctx);
     }
 }

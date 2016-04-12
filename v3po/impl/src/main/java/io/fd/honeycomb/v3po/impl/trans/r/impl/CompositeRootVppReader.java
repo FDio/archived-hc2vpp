@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.impl.trans.r.impl;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.RootVppReaderCustomizer;
@@ -76,7 +77,8 @@ public final class CompositeRootVppReader<C extends DataObject, B extends Builde
     }
 
     @Override
-    protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder) {
+    protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder)
+            throws ReadFailedException {
         customizer.readCurrentAttributes(id, builder);
     }
 

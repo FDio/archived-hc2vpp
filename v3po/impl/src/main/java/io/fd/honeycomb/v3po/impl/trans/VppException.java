@@ -19,7 +19,7 @@ package io.fd.honeycomb.v3po.impl.trans;
 import com.google.common.annotations.Beta;
 
 /**
- * Base exception for Vpp writers
+ * Base exception for Vpp translation layer
  */
 @Beta
 public class VppException extends Exception {
@@ -28,11 +28,11 @@ public class VppException extends Exception {
         super(s);
     }
 
-    public VppException(final String s, final Throwable throwable) {
-        super(s, throwable);
+    public VppException(final String s, final Throwable cause) {
+        super(s, cause);
     }
 
-    public VppException(final Throwable throwable) {
-        super(throwable);
+    public VppException(final Throwable cause) {
+        super(cause);
     }
 }

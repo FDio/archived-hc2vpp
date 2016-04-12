@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.impl.trans.r;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -38,9 +39,10 @@ public interface ChildVppReader<C extends DataObject> extends VppReader<C> {
      *                      determine the exact position within more complex subtrees.
      * @param parentBuilder Builder of parent DataObject. Objects read on this level (if any) must be placed into the
      *                      parent builder.
+     * @throws ReadFailedException if read was unsuccessful
      */
     void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-              @Nonnull final Builder<? extends DataObject> parentBuilder);
+              @Nonnull final Builder<? extends DataObject> parentBuilder) throws ReadFailedException;
 
 }
 

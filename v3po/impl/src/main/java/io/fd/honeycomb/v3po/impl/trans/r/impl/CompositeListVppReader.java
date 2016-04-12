@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.ListVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
@@ -39,17 +40,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Composite implementation of {@link ChildVppReader} able to place the read result into
- * parent builder object intended for list node type.
+ * Composite implementation of {@link ChildVppReader} able to place the read result into parent builder object intended
+ * for list node type.
  *
- * This reader checks if the IDs are wildcarded in which case it performs read of all
- * list entries. In case the ID has a key, it reads only the specified value.
+ * This reader checks if the IDs are wildcarded in which case it performs read of all list entries. In case the ID has a
+ * key, it reads only the specified value.
  */
 @Beta
 @ThreadSafe
 public final class CompositeListVppReader<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
-    extends AbstractCompositeVppReader<C, B> implements ChildVppReader<C>, ListVppReader<C, K>
-{
+        extends AbstractCompositeVppReader<C, B> implements ChildVppReader<C>, ListVppReader<C, K> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompositeListVppReader.class);
 
@@ -59,10 +59,9 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
      * Create new {@link CompositeListVppReader}
      *
      * @param managedDataObjectType Class object for managed data type. Must come from a list node type.
-     * @param childReaders Child nodes(container, list) readers
-     * @param augReaders Child augmentations readers
-     * @param customizer Customizer instance to customize this generic reader
-     *
+     * @param childReaders          Child nodes(container, list) readers
+     * @param augReaders            Child augmentations readers
+     * @param customizer            Customizer instance to customize this generic reader
      */
     public CompositeListVppReader(@Nonnull final Class<C> managedDataObjectType,
                                   @Nonnull final List<ChildVppReader<? extends ChildOf<C>>> childReaders,
@@ -87,12 +86,12 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
     public CompositeListVppReader(@Nonnull final Class<C> managedDataObjectType,
                                   @Nonnull final ListVppReaderCustomizer<C, K, B> customizer) {
         this(managedDataObjectType, VppRWUtils.<C>emptyChildReaderList(), VppRWUtils.<C>emptyAugReaderList(),
-            customizer);
+                customizer);
     }
 
     @Override
     public void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                     @Nonnull final Builder<? extends DataObject> parentBuilder) {
+                     @Nonnull final Builder<? extends DataObject> parentBuilder) throws ReadFailedException {
         // Create ID pointing to current node
         final InstanceIdentifier<C> currentId = VppRWUtils.appendTypeToId(id, getManagedDataObjectType());
         // Read all, since current ID is definitely wildcarded
@@ -102,7 +101,7 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
 
     @Override
     @Nonnull
-    public List<C> readList(@Nonnull final InstanceIdentifier<C> id) {
+    public List<C> readList(@Nonnull final InstanceIdentifier<C> id) throws ReadFailedException {
         LOG.trace("{}: Reading all list entries", this);
         final List<K> allIds = customizer.getAllIds(id);
         LOG.debug("{}: Reading list entries for: {}", this, allIds);
@@ -110,7 +109,7 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
         final ArrayList<C> allEntries = new ArrayList<>(allIds.size());
         for (K key : allIds) {
             final InstanceIdentifier.IdentifiableItem<C, K> currentBdItem =
-                VppRWUtils.getCurrentIdItem(id, key);
+                    VppRWUtils.getCurrentIdItem(id, key);
             final InstanceIdentifier<C> keyedId = VppRWUtils.replaceLastInId(id, currentBdItem);
             final Optional<C> read = readCurrent(keyedId);
             final DataObject singleItem = read.get();
@@ -121,7 +120,8 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
     }
 
     @Override
-    protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder) {
+    protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder)
+            throws ReadFailedException {
         customizer.readCurrentAttributes(id, builder);
     }
 

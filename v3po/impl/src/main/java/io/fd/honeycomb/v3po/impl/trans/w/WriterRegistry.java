@@ -16,8 +16,12 @@
 
 package io.fd.honeycomb.v3po.impl.trans.w;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.annotations.Beta;
+import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.v3po.impl.trans.VppException;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -33,23 +37,51 @@ public interface WriterRegistry extends VppWriter<DataObject> {
      * Performs bulk update
      *
      * @throws BulkUpdateException in case bulk update fails
+     * @throws VppException        in case some other error occurs while processing update request
      */
     void update(@Nonnull final Map<InstanceIdentifier<?>, DataObject> dataBefore,
                 @Nonnull final Map<InstanceIdentifier<?>, DataObject> dataAfter,
-                @Nonnull final WriteContext ctx) throws VppException, BulkUpdateException;
+                @Nonnull final WriteContext ctx) throws VppException;
 
+    /**
+     * Thrown when bulk update failed.
+     */
     @Beta
-    public class BulkUpdateException extends VppException {
+    class BulkUpdateException extends VppException {
 
-        private final Revert runnable;
+        private final Reverter reverter;
+        private final InstanceIdentifier<?> failedId; // TODO change to VppDataModification
 
-        public BulkUpdateException(final InstanceIdentifier<?> id, final RuntimeException e, final Revert runnable) {
-            super("Bulk edit failed at " + id, e);
-            this.runnable = runnable;
+        /**
+         * Constructs an BulkUpdateException.
+         *
+         * @param failedId instance identifier of the data object that caused bulk update to fail.
+         * @param cause    the cause of bulk update failure
+         */
+        public BulkUpdateException(@Nonnull final InstanceIdentifier<?> failedId, @Nonnull final Reverter reverter,
+                                   final Throwable cause) {
+            super("Bulk update failed at " + failedId, cause);
+            this.failedId = checkNotNull(failedId, "failedId should not be null");
+            this.reverter = checkNotNull(reverter, "reverter should not be null");
         }
 
-        public void revertChanges() throws VppException {
-            runnable.revert();
+        /**
+         * Reverts changes that were successfully applied during bulk update before failure occurred.
+         *
+         * @throws Reverter.RevertFailedException if revert fails
+         */
+        public void revertChanges() throws Reverter.RevertFailedException {
+            reverter.revert();
+        }
+
+        /**
+         * Returns instance identifier of the data object that caused bulk update to fail.
+         *
+         * @return data object's instance identifier
+         */
+        @Nonnull
+        public InstanceIdentifier<?> getFailedId() {
+            return failedId;
         }
     }
 
@@ -57,8 +89,47 @@ public interface WriterRegistry extends VppWriter<DataObject> {
      * Abstraction over revert mechanism in cast of a bulk update failure
      */
     @Beta
-    public interface Revert {
+    interface Reverter {
 
-        public void revert() throws VppException;
+        /**
+         * Reverts changes that were successfully applied during bulk update before failure occurred. Changes are
+         * reverted in reverse order they were applied.
+         *
+         * @throws RevertFailedException if not all of applied changes were successfully reverted
+         */
+        void revert() throws RevertFailedException;
+
+        /**
+         * Thrown when some of the changes applied during bulk update were not reverted.
+         */
+        @Beta
+        class RevertFailedException extends VppException {
+
+            // TODO change to list of VppDataModifications to make debugging easier
+            private final List<InstanceIdentifier<?>> notRevertedChanges;
+
+            /**
+             * Constructs an RevertFailedException with the list of changes that were not reverted.
+             *
+             * @param notRevertedChanges list of changes that were not reverted
+             * @param cause              the cause of revert failure
+             */
+            public RevertFailedException(@Nonnull final List<InstanceIdentifier<?>> notRevertedChanges,
+                                         final Throwable cause) {
+                super(cause);
+                checkNotNull(notRevertedChanges, "notRevertedChanges should not be null");
+                this.notRevertedChanges = ImmutableList.copyOf(notRevertedChanges);
+            }
+
+            /**
+             * Returns the list of changes that were not reverted.
+             *
+             * @return list of changes that were not reverted
+             */
+            @Nonnull
+            public List<InstanceIdentifier<?>> getNotRevertedChanges() {
+                return notRevertedChanges;
+            }
+        }
     }
 }

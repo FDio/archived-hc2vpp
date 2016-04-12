@@ -29,8 +29,8 @@ import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import io.fd.honeycomb.v3po.impl.trans.w.VppWriter;
 import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
 import io.fd.honeycomb.v3po.impl.trans.w.WriterRegistry;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,8 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple writer registry able to perform and aggregated read (ROOT write) on top of all
- * provided writers. Also able to delegate a specific read to one of the delegate writers.
+ * Simple writer registry able to perform and aggregated read (ROOT write) on top of all provided writers. Also able to
+ * delegate a specific read to one of the delegate writers.
  *
  * This could serve as a utility to hold & hide all available writers in upper layers.
  */
@@ -50,12 +50,12 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(DelegatingWriterRegistry.class);
 
     private static final Function<InstanceIdentifier<?>, Class<? extends DataObject>> ID_TO_CLASS =
-        new Function<InstanceIdentifier<?>, Class<? extends DataObject>>() {
-        @Override
-        public Class<? extends DataObject> apply(final InstanceIdentifier<?> input) {
-            return input.getTargetType();
-        }
-    };
+            new Function<InstanceIdentifier<?>, Class<? extends DataObject>>() {
+                @Override
+                public Class<? extends DataObject> apply(final InstanceIdentifier<?> input) {
+                    return input.getTargetType();
+                }
+            };
 
     private final Map<Class<? extends DataObject>, VppWriter<? extends DataObject>> rootWriters;
 
@@ -84,10 +84,10 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
                        @Nullable final DataObject dataAfter,
                        @Nonnull final WriteContext ctx) throws VppException {
         final InstanceIdentifier.PathArgument first = checkNotNull(
-            Iterables.getFirst(id.getPathArguments(), null), "Empty id");
+                Iterables.getFirst(id.getPathArguments(), null), "Empty id");
         final VppWriter<? extends DataObject> vppWriter = rootWriters.get(first.getType());
         checkNotNull(vppWriter,
-            "Unable to write %s. Missing writer. Current writers for: %s", id, rootWriters.keySet());
+                "Unable to write %s. Missing writer. Current writers for: %s", id, rootWriters.keySet());
         vppWriter.update(id, dataBefore, dataAfter, ctx);
     }
 
@@ -101,7 +101,7 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
         final List<InstanceIdentifier<?>> processedNodes = Lists.newArrayList();
 
         for (Map.Entry<Class<? extends DataObject>, VppWriter<? extends DataObject>> rootWriterEntry : rootWriters
-            .entrySet()) {
+                .entrySet()) {
 
             final InstanceIdentifier<? extends DataObject> id = rootWriterEntry.getValue().getManagedDataObjectType();
 
@@ -109,7 +109,7 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
             final DataObject dataAfter = nodesAfter.get(id);
 
             // No change to current writer
-            if(dataBefore == null && dataAfter == null) {
+            if (dataBefore == null && dataAfter == null) {
                 continue;
             }
 
@@ -118,31 +118,32 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
             try {
                 update(id, dataBefore, dataAfter, ctx);
                 processedNodes.add(id);
-            } catch (RuntimeException e) {
-                LOG.error("Error while processing data change of: {} (before={}, after={})", id, dataBefore, dataAfter, e);
-                throw new BulkUpdateException(id, e, new RevertImpl(this, processedNodes, nodesBefore, nodesAfter, ctx));
+            } catch (Exception e) {
+                LOG.error("Error while processing data change of: {} (before={}, after={})",
+                        id, dataBefore, dataAfter, e);
+                throw new BulkUpdateException(
+                        id, new ReverterImpl(this, processedNodes, nodesBefore, nodesAfter, ctx), e);
             }
         }
-
     }
 
     private void checkAllWritersPresent(final @Nonnull Map<InstanceIdentifier<?>, DataObject> nodesBefore) {
         checkArgument(rootWriters.keySet().containsAll(Collections2.transform(nodesBefore.keySet(), ID_TO_CLASS)),
-            "Unable to handle all changes. Missing dedicated writers for: %s",
-            Sets.difference(nodesBefore.keySet(), rootWriters.keySet()));
+                "Unable to handle all changes. Missing dedicated writers for: %s",
+                Sets.difference(nodesBefore.keySet(), rootWriters.keySet()));
     }
 
-    private static final class RevertImpl implements Revert {
+    private static final class ReverterImpl implements Reverter {
         private final WriterRegistry delegatingWriterRegistry;
         private final List<InstanceIdentifier<?>> processedNodes;
         private final Map<InstanceIdentifier<?>, DataObject> nodesBefore;
         private final Map<InstanceIdentifier<?>, DataObject> nodesAfter;
         private final WriteContext ctx;
 
-        public RevertImpl(final WriterRegistry delegatingWriterRegistry,
-                          final List<InstanceIdentifier<?>> processedNodes,
-                          final Map<InstanceIdentifier<?>, DataObject> nodesBefore,
-                          final Map<InstanceIdentifier<?>, DataObject> nodesAfter, final WriteContext ctx) {
+        ReverterImpl(final WriterRegistry delegatingWriterRegistry,
+                            final List<InstanceIdentifier<?>> processedNodes,
+                            final Map<InstanceIdentifier<?>, DataObject> nodesBefore,
+                            final Map<InstanceIdentifier<?>, DataObject> nodesAfter, final WriteContext ctx) {
             this.delegatingWriterRegistry = delegatingWriterRegistry;
             this.processedNodes = processedNodes;
             this.nodesBefore = nodesBefore;
@@ -151,12 +152,11 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
         }
 
         @Override
-        public void revert() throws VppException {
+        public void revert() throws RevertFailedException {
+            final LinkedList<InstanceIdentifier<?>> notReverted = new LinkedList<>(processedNodes);
 
-            final ListIterator<InstanceIdentifier<?>> iterator = processedNodes.listIterator(processedNodes.size());
-
-            while (iterator.hasPrevious()) {
-                final InstanceIdentifier<?> node = iterator.previous();
+            while (notReverted.size() > 0) {
+                final InstanceIdentifier<?> node = notReverted.peekLast();
                 LOG.debug("ChangesProcessor.revertChanges() processing node={}", node);
 
                 final DataObject dataBefore = nodesBefore.get(node);
@@ -165,9 +165,11 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
                 // revert a change by invoking writer with reordered arguments
                 try {
                     delegatingWriterRegistry.update(node, dataAfter, dataBefore, ctx);
-                } catch (RuntimeException e) {
-                    throw new RuntimeException();
+                    notReverted.removeLast(); // change was successfully reverted
+                } catch (Exception e) {
+                    throw new RevertFailedException(notReverted, e);
                 }
+
             }
         }
     }

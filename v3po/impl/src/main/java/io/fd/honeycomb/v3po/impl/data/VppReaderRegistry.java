@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.impl.data;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
@@ -95,13 +96,15 @@ public class VppReaderRegistry implements ReaderRegistry {
 
     @Nonnull
     @Override
-    public Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll() {
+    public Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll()
+            throws io.fd.honeycomb.v3po.impl.trans.ReadFailedException {
         return reader.readAll();
     }
 
     @Nonnull
     @Override
-    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id)
+            throws ReadFailedException {
         return reader.read(id);
     }
 

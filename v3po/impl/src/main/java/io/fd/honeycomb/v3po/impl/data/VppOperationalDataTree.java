@@ -26,12 +26,12 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -51,7 +51,6 @@ import org.opendaylight.yangtools.yang.model.api.ListSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * ReadableVppDataTree implementation for operational data.
@@ -79,34 +78,44 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
     }
 
     @Override
-    public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
+    public CheckedFuture<Optional<NormalizedNode<?, ?>>,
+            org.opendaylight.controller.md.sal.common.api.data.ReadFailedException> read(
             @Nonnull final YangInstanceIdentifier yangInstanceIdentifier) {
 
-        if (checkNotNull(yangInstanceIdentifier).equals(YangInstanceIdentifier.EMPTY)) {
-            LOG.debug("VppOperationalDataProxy.read(), yangInstanceIdentifier=ROOT");
-            return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>of(readRoot()));
+        try {
+            if (checkNotNull(yangInstanceIdentifier).equals(YangInstanceIdentifier.EMPTY)) {
+                return Futures.immediateCheckedFuture(readRoot());
+            } else {
+                return Futures.immediateCheckedFuture(readNode(yangInstanceIdentifier));
+            }
+        } catch (ReadFailedException e) {
+            return Futures.immediateFailedCheckedFuture(
+                    new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException(
+                            "Failed to read VPP data", e));
         }
+    }
 
-        LOG.debug("VppOperationalDataProxy.read(), yangInstanceIdentifier={}", yangInstanceIdentifier);
+    private Optional<NormalizedNode<?, ?>> readNode(final YangInstanceIdentifier yangInstanceIdentifier)
+            throws ReadFailedException {
+        LOG.debug("VppOperationalDataTree.readNode(), yangInstanceIdentifier={}", yangInstanceIdentifier);
         final InstanceIdentifier<?> path = serializer.fromYangInstanceIdentifier(yangInstanceIdentifier);
         checkNotNull(path, "Invalid instance identifier %s. Cannot create BA equivalent.", yangInstanceIdentifier);
-        LOG.debug("VppOperationalDataProxy.read(), path={}", path);
+        LOG.debug("VppOperationalDataTree.readNode(), path={}", path);
 
-        final Optional<? extends DataObject> dataObject = readerRegistry.read(path);
+        final Optional<? extends DataObject> dataObject;
 
+        dataObject = readerRegistry.read(path);
         if (dataObject.isPresent()) {
             final NormalizedNode<?, ?> value = toNormalizedNodeFunction(path).apply(dataObject.get());
-            return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>fromNullable(value));
+            return Optional.<NormalizedNode<?, ?>>fromNullable(value);
+        } else {
+            return Optional.absent();
         }
-
-        return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>absent());
     }
 
-    private DataSchemaNode getSchemaNode(final @Nonnull YangInstanceIdentifier yangInstanceIdentifier) {
-        return globalContext.getDataChildByName(yangInstanceIdentifier.getLastPathArgument().getNodeType());
-    }
+    private Optional<NormalizedNode<?, ?>> readRoot() throws ReadFailedException {
+        LOG.debug("VppOperationalDataTree.readRoot()");
 
-    private NormalizedNode<?, ?> readRoot() {
         final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> dataNodeBuilder =
                 Builders.containerBuilder()
                         .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(SchemaContext.NAME));
@@ -121,16 +130,17 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
             dataNodeBuilder.withChild((DataContainerChild<?, ?>) node);
         }
 
-        return dataNodeBuilder.build();
+        return Optional.<NormalizedNode<?, ?>>of(dataNodeBuilder.build());
     }
 
     private NormalizedNode<?, ?> wrapDataObjects(final YangInstanceIdentifier yangInstanceIdentifier,
-                                              final InstanceIdentifier<? extends DataObject> instanceIdentifier,
-                                              final Collection<? extends DataObject> dataObjects) {
+                                                 final InstanceIdentifier<? extends DataObject> instanceIdentifier,
+                                                 final Collection<? extends DataObject> dataObjects) {
         final Collection<NormalizedNode<?, ?>> normalizedRootElements = Collections2
                 .transform(dataObjects, toNormalizedNodeFunction(instanceIdentifier));
 
-        final DataSchemaNode schemaNode = getSchemaNode(yangInstanceIdentifier);
+        final DataSchemaNode schemaNode =
+                globalContext.getDataChildByName(yangInstanceIdentifier.getLastPathArgument().getNodeType());
         if (schemaNode instanceof ListSchemaNode) {
             // In case of a list, wrap all the values in a Mixin parent node
             final ListSchemaNode listSchema = (ListSchemaNode) schemaNode;
@@ -142,19 +152,19 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
     }
 
     private static DataContainerChild<?, ?> wrapListIntoMixinNode(
-        final Collection<NormalizedNode<?, ?>> normalizedRootElements, final ListSchemaNode listSchema) {
+            final Collection<NormalizedNode<?, ?>> normalizedRootElements, final ListSchemaNode listSchema) {
         if (listSchema.getKeyDefinition().isEmpty()) {
             final CollectionNodeBuilder<UnkeyedListEntryNode, UnkeyedListNode> listBuilder =
-                Builders.unkeyedListBuilder();
+                    Builders.unkeyedListBuilder();
             for (NormalizedNode<?, ?> normalizedRootElement : normalizedRootElements) {
                 listBuilder.withChild((UnkeyedListEntryNode) normalizedRootElement);
             }
             return listBuilder.build();
         } else {
             final CollectionNodeBuilder<MapEntryNode, ? extends MapNode> listBuilder =
-                listSchema.isUserOrdered()
-                    ? Builders.orderedMapBuilder()
-                    : Builders.mapBuilder();
+                    listSchema.isUserOrdered()
+                            ? Builders.orderedMapBuilder()
+                            : Builders.mapBuilder();
 
             for (NormalizedNode<?, ?> normalizedRootElement : normalizedRootElements) {
                 listBuilder.withChild((MapEntryNode) normalizedRootElement);
@@ -168,11 +178,11 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
         return new Function<DataObject, NormalizedNode<?, ?>>() {
             @Override
             public NormalizedNode<?, ?> apply(@Nullable final DataObject dataObject) {
-                LOG.trace("VppOperationalDataProxy.toNormalizedNode(), path={}, dataObject={}", path, dataObject);
+                LOG.trace("VppOperationalDataTree.toNormalizedNode(), path={}, dataObject={}", path, dataObject);
                 final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> entry =
-                    serializer.toNormalizedNode(path, dataObject);
+                        serializer.toNormalizedNode(path, dataObject);
 
-                LOG.trace("VppOperationalDataProxy.toNormalizedNode(), normalizedNodeEntry={}", entry);
+                LOG.trace("VppOperationalDataTree.toNormalizedNode(), normalizedNodeEntry={}", entry);
                 return entry.getValue();
             }
         };

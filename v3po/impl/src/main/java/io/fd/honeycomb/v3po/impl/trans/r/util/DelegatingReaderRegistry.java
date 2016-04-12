@@ -22,6 +22,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ListVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
@@ -36,8 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple reader registry able to perform and aggregated read (ROOT read) on top of all
- * provided readers. Also able to delegate a specific read to one of the delegate readers.
+ * Simple reader registry able to perform and aggregated read (ROOT read) on top of all provided readers. Also able to
+ * delegate a specific read to one of the delegate readers.
  *
  * This could serve as a utility to hold & hide all available readers in upper layers.
  */
@@ -58,7 +59,8 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
 
     @Override
     @Nonnull
-    public Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll() {
+    public Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll()
+            throws ReadFailedException {
         LOG.debug("Reading from all delegates: {}", this);
         LOG.trace("Reading from all delegates: {}", rootReaders.values());
 
@@ -66,15 +68,15 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
         for (VppReader<? extends DataObject> rootReader : rootReaders.values()) {
             LOG.debug("Reading from delegate: {}", rootReader);
 
-            if(rootReader instanceof ListVppReader) {
+            if (rootReader instanceof ListVppReader) {
                 final List<? extends DataObject> listEntries =
-                    ((ListVppReader) rootReader).readList(rootReader.getManagedDataObjectType());
-                if(!listEntries.isEmpty()) {
+                        ((ListVppReader) rootReader).readList(rootReader.getManagedDataObjectType());
+                if (!listEntries.isEmpty()) {
                     objects.putAll(rootReader.getManagedDataObjectType(), listEntries);
                 }
             } else {
                 final Optional<? extends DataObject> read = rootReader.read(rootReader.getManagedDataObjectType());
-                if(read.isPresent()) {
+                if (read.isPresent()) {
                     objects.putAll(rootReader.getManagedDataObjectType(), Collections.singletonList(read.get()));
                 }
             }
@@ -85,12 +87,13 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
 
     @Nonnull
     @Override
-    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id)
+            throws ReadFailedException {
         final InstanceIdentifier.PathArgument first = checkNotNull(
-            Iterables.getFirst(id.getPathArguments(), null), "Empty id");
+                Iterables.getFirst(id.getPathArguments(), null), "Empty id");
         final VppReader<? extends DataObject> vppReader = rootReaders.get(first.getType());
         checkNotNull(vppReader,
-            "Unable to read %s. Missing reader. Current readers for: %s", id, rootReaders.keySet());
+                "Unable to read %s. Missing reader. Current readers for: %s", id, rootReaders.keySet());
         LOG.debug("Reading from delegate: {}", vppReader);
         return vppReader.read(id);
     }

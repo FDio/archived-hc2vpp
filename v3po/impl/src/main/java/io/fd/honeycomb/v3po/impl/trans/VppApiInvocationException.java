@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 
 /**
- * Throws when Vpp jAPI method invocation failed.
+ * Thrown when Vpp jAPI method invocation failed.
  */
 @Beta
 public class VppApiInvocationException extends VppException {

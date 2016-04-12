@@ -44,8 +44,6 @@ import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -58,7 +56,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 
 public class VPPConfigDataTreeTest {
 
@@ -89,7 +86,8 @@ public class VPPConfigDataTreeTest {
         doReturn(node).when(snapshot).readNode(path);
 
         final VppDataTreeSnapshot vppDataTreeSnapshot = proxy.takeSnapshot();
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future = vppDataTreeSnapshot.read(path);
+        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
+                vppDataTreeSnapshot.read(path);
 
         verify(dataTree).takeSnapshot();
         verify(snapshot).readNode(path);
@@ -132,9 +130,9 @@ public class VPPConfigDataTreeTest {
 
         // Verify all changes were processed:
         verify(vppWriter).update(
-            mapOf(dataBefore, Ethernet.class),
-            mapOf(dataAfter, Ethernet.class),
-            any(WriteContext.class));
+                mapOf(dataBefore, Ethernet.class),
+                mapOf(dataAfter, Ethernet.class),
+                any(WriteContext.class));
 
         // Verify modification was validated
         verify(dataTree).validate(modification);
@@ -142,7 +140,8 @@ public class VPPConfigDataTreeTest {
 
     private Map<InstanceIdentifier<?>, DataObject> mapOf(final DataObject dataBefore, final Class<Ethernet> type) {
         return eq(
-            Collections.<InstanceIdentifier<?>, DataObject>singletonMap(InstanceIdentifier.create(type), dataBefore));
+                Collections.<InstanceIdentifier<?>, DataObject>singletonMap(InstanceIdentifier.create(type),
+                        dataBefore));
     }
 
     private DataObject mockDataObject(final String name, final Class<? extends DataObject> classToMock) {
@@ -154,79 +153,77 @@ public class VPPConfigDataTreeTest {
     @Test
     public void testCommitUndoSuccessful() throws Exception {
         // Prepare data changes:
-        final DataObject dataBefore1 = mockDataObject("before", Ethernet.class);
-        final DataObject dataAfter1 = mockDataObject("after", Ethernet.class);
+        final DataObject dataBefore = mockDataObject("before", Ethernet.class);
+        final DataObject dataAfter = mockDataObject("after", Ethernet.class);
 
-        final DataObject dataBefore2 = mockDataObject("before", Vxlan.class);
-        final DataObject dataAfter2 = mockDataObject("after", Vxlan.class);
+        final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
 
-        final DataObject dataBefore3 = mockDataObject("before", L2.class);
-        final DataObject dataAfter3 = mockDataObject("after", L2.class);
-
-        // reject third applied change
-        final WriterRegistry.Revert revert = mock(WriterRegistry.Revert.class);
-        doThrow(new WriterRegistry.BulkUpdateException(InstanceIdentifier.create(L2.class), new RuntimeException(),
-            revert)).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
+        // Fail on update:
+        final VppException failedOnUpdateException = new VppException("update failed");
+        doThrow(new WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
+                failedOnUpdateException)).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
 
         // Prepare modification:
         final DataTreeCandidateNode rootNode = mockRootNode();
         // data before:
-        final ContainerNode nodeBefore = mockContainerNode(dataBefore1, dataBefore2, dataBefore3);
+        final ContainerNode nodeBefore = mockContainerNode(dataBefore);
         when(rootNode.getDataBefore()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeBefore));
         // data after:
-        final ContainerNode nodeAfter = mockContainerNode(dataAfter1, dataAfter2, dataAfter3);
+        final ContainerNode nodeAfter = mockContainerNode(dataAfter);
         when(rootNode.getDataAfter()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeAfter));
 
         // Run the test
         try {
             proxy.commit(modification);
-        } catch (DataValidationFailedException | VppException e) {
+        } catch (WriterRegistry.BulkUpdateException e) {
             verify(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
-            verify(revert).revert();
+            verify(reverter).revert();
+            assertEquals(failedOnUpdateException, e.getCause());
             return;
         }
 
-        fail("DataValidationFailedException was expected");
+        fail("WriterRegistry.BulkUpdateException was expected");
     }
 
     @Test
     public void testCommitUndoFailed() throws Exception {
         // Prepare data changes:
-        final DataObject dataBefore1 = mockDataObject("before", Ethernet.class);
-        final DataObject dataAfter1 = mockDataObject("after", Ethernet.class);
+        final DataObject dataBefore = mockDataObject("before", Ethernet.class);
+        final DataObject dataAfter = mockDataObject("after", Ethernet.class);
 
-        final DataObject dataBefore2 = mockDataObject("before", Vxlan.class);
-        final DataObject dataAfter2 = mockDataObject("after", Vxlan.class);
+        final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
 
-        final DataObject dataBefore3 = mockDataObject("before", L2.class);
-        final DataObject dataAfter3 = mockDataObject("after", L2.class);
+        // Fail on update:
+        doThrow(new WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
+                new VppException("update failed"))).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
 
-        // reject third applied change
-        final WriterRegistry.Revert revert = mock(WriterRegistry.Revert.class);
-        doThrow(new RuntimeException("revert failed")).when(revert).revert();
-        doThrow(new WriterRegistry.BulkUpdateException(InstanceIdentifier.create(L2.class), new RuntimeException(),
-            revert)).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
+        // Fail on revert:
+        final VppException failedOnRevertException = new VppException("update failed");
+        final WriterRegistry.Reverter.RevertFailedException revertFailedException =
+                new WriterRegistry.Reverter.RevertFailedException(Collections.<InstanceIdentifier<?>>emptyList(),
+                        failedOnRevertException);
+        doThrow(revertFailedException).when(reverter).revert();
 
         // Prepare modification:
         final DataTreeCandidateNode rootNode = mockRootNode();
         // data before:
-        final ContainerNode nodeBefore = mockContainerNode(dataBefore1, dataBefore2, dataBefore3);
+        final ContainerNode nodeBefore = mockContainerNode(dataBefore);
         when(rootNode.getDataBefore()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeBefore));
         // data after:
-        final ContainerNode nodeAfter = mockContainerNode(dataAfter1, dataAfter2, dataAfter3);
+        final ContainerNode nodeAfter = mockContainerNode(dataAfter);
         when(rootNode.getDataAfter()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeAfter));
 
         // Run the test
         try {
             proxy.commit(modification);
-        } catch (DataValidationFailedException | VppException e) {
-            // FIXME the behavior with successful and failed revert is the same from outside world
+        } catch (WriterRegistry.Reverter.RevertFailedException e) {
             verify(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
-            verify(revert).revert();
+            verify(reverter).revert();
+            assertEquals(failedOnRevertException, e.getCause());
             return;
         }
 
-        fail("DataValidationFailedException was expected");
+        fail("RevertFailedException was expected");
     }
 
     private DataTreeCandidateNode mockRootNode() {
@@ -256,9 +253,9 @@ public class VPPConfigDataTreeTest {
             when(child.getIdentifier()).thenReturn(mock(YangInstanceIdentifier.PathArgument.class));
             list.add(child);
 
-            final Map.Entry entry  = mock(Map.Entry.class);
+            final Map.Entry entry = mock(Map.Entry.class);
             final Class<? extends DataObject> implementedInterface =
-                (Class<? extends DataObject>) modification.getImplementedInterface();
+                    (Class<? extends DataObject>) modification.getImplementedInterface();
             final InstanceIdentifier<?> id = InstanceIdentifier.create(implementedInterface);
 
             doReturn(id).when(entry).getKey();
@@ -267,5 +264,4 @@ public class VPPConfigDataTreeTest {
         }
         return node;
     }
-
 }

@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.impl.trans.r.impl.spi;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -31,16 +32,20 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @Beta
 public interface RootVppReaderCustomizer<C extends DataObject, B extends Builder<C>> {
 
-    // TODO add (un)checked, well defined exception here to indicate issues in the customizer
-
     /**
-     * Create new builder that will be used to build read value
+     * Creates new builder that will be used to build read value.
      */
     @Nonnull
     B getBuilder(@Nonnull final InstanceIdentifier<C> id);
 
+
     /**
-     * Add current data (identified by id) to the provided builder
+     * Adds current data (identified by id) to the provided builder.
+     *
+     * @param id      id of current data object
+     * @param builder builder for creating read value
+     * @throws ReadFailedException if read was unsuccessful
      */
-    void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder);
+    void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder) throws
+            ReadFailedException;
 }

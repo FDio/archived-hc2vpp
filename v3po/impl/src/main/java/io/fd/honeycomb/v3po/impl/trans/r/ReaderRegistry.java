@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.impl.trans.r;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -29,11 +30,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public interface ReaderRegistry extends VppReader<DataObject> {
 
     /**
-     * Performs read on all registered root readers and merges the results into a Multimap.
-     * Keys represent identifiers for root DataObjects from the data tree modeled by YANG.
+     * Performs read on all registered root readers and merges the results into a Multimap. Keys represent identifiers
+     * for root DataObjects from the data tree modeled by YANG.
      *
      * @return multimap that preserves deterministic iteration order across non-distinct key values
+     * @throws ReadFailedException if read was unsuccessful
      */
     @Nonnull
-    Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll();
+    Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll()
+            throws ReadFailedException;
 }

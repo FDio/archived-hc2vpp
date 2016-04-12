@@ -25,7 +25,8 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Base VPP writer, responsible for translation between DataObjects and VPP APIs. Handling all update operations(create, update, delete)
+ * Base VPP writer, responsible for translation between DataObjects and VPP APIs. Handling all update operations(create,
+ * update, delete)
  *
  * @param <D> Specific DataObject derived type, that is handled by this writer
  */
@@ -35,10 +36,11 @@ public interface VppWriter<D extends DataObject> extends SubtreeManager<D> {
     /**
      * Handle update operation. U from CRUD.
      *
-     * @param id Identifier(from root) of data being written
+     * @param id         Identifier(from root) of data being written
      * @param dataBefore Old data
-     * @param dataAfter New, updated data
-     * @param ctx Write context enabling writer to get information about candidate data as well as current data
+     * @param dataAfter  New, updated data
+     * @param ctx        Write context enabling writer to get information about candidate data as well as current data
+     * @throws VppException if update failed
      */
     void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                 @Nullable final DataObject dataBefore,

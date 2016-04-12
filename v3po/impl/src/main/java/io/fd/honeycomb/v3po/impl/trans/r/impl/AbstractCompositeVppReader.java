@@ -22,6 +22,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.util.ReflectionUtils;
@@ -68,7 +69,8 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
     /**
      * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
      */
-    protected Optional<D> readCurrent(final InstanceIdentifier<D> id) {
+    protected Optional<D> readCurrent(final InstanceIdentifier<D> id) throws
+            ReadFailedException {
         LOG.debug("{}: Reading current: {}", this, id);
         final B builder = getBuilder(id);
         // Cache empty value to determine if anything has changed later TODO cache in a field
@@ -101,7 +103,8 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
     @Nonnull
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id)
+            throws ReadFailedException {
         LOG.trace("{}: Reading : {}", this, id);
         if (id.getTargetType().equals(getManagedDataObjectType().getTargetType())) {
             return readCurrent((InstanceIdentifier<D>) id);
@@ -110,7 +113,8 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
         }
     }
 
-    private Optional<? extends DataObject> readSubtree(final InstanceIdentifier<? extends DataObject> id) {
+    private Optional<? extends DataObject> readSubtree(final InstanceIdentifier<? extends DataObject> id)
+            throws ReadFailedException {
         LOG.debug("{}: Reading subtree: {}", this, id);
         final Class<? extends DataObject> next = VppRWUtils.getNextId(id, getManagedDataObjectType()).getType();
         final ChildVppReader<? extends ChildOf<D>> vppReader = childReaders.get(next);
@@ -139,7 +143,8 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
      * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
      * @param builder Builder object for current node where the read attributes must be placed
      */
-    protected abstract void readCurrentAttributes(final InstanceIdentifier<D> id, B builder);
+    protected abstract void readCurrentAttributes(final InstanceIdentifier<D> id, B builder) throws
+            ReadFailedException;
 
     /**
      * Return new instance of a builder object for current node

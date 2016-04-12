@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.impl.trans.r;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -38,7 +39,8 @@ public interface ListVppReader<D extends DataObject & Identifiable<K>, K extends
      * @param id Wildcarded identifier of list managed by this reader
      *
      * @return List of all entries in this list
+     * @throws ReadFailedException if read was unsuccessful
      */
     @Nonnull
-    List<D> readList(@Nonnull final InstanceIdentifier<D> id);
+    List<D> readList(@Nonnull final InstanceIdentifier<D> id) throws ReadFailedException;
 }
