@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.impl.trans.r.impl.spi;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.impl.trans.util.Context;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -39,10 +40,11 @@ public interface ListVppReaderCustomizer<C extends DataObject & Identifiable<K>,
     /**
      * Return list with IDs of all list nodes to be read.
      *
-     * @param id wildcarded ID pointing to list node managed by enclosing reader
+     * @param id Wildcarded ID pointing to list node managed by enclosing reader
+     * @param context Read context
      */
     @Nonnull
-    List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id);
+    List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id, @Nonnull final Context context);
     // TODO does it make sense with vpp APIs ? Should we replace it with a simple readAll ?
 
     /**

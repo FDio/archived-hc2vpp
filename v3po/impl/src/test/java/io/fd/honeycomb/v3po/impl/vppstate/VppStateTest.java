@@ -20,11 +20,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.v3po.impl.trans.r.ReadContext;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeListVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader;
@@ -73,10 +75,13 @@ public class VppStateTest {
     private DelegatingReaderRegistry readerRegistry;
     private vppBridgeDomainDetails bdDetails;
     private vppBridgeDomainDetails bdDetails2;
+    private ReadContext ctx;
 
     @Before
     public void setUp() throws Exception {
         api = PowerMockito.mock(vppApi.class);
+
+        ctx = mock(ReadContext.class);
 
         bdDetails = new vppBridgeDomainDetails();
         setIfcs(bdDetails);
@@ -145,7 +150,7 @@ public class VppStateTest {
 
     @Test
     public void testReadAll() throws Exception {
-        final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects = readerRegistry.readAll();
+        final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects = readerRegistry.readAll(ctx);
         assertEquals(dataObjects.size(), 1);
         final DataObject dataObject = Iterables.getOnlyElement(dataObjects.get(Iterables.getOnlyElement(dataObjects.keySet())));
         assertTrue(dataObject instanceof VppState);
@@ -166,17 +171,17 @@ public class VppStateTest {
 
     @Test
     public void testReadSpecific() throws Exception {
-        final Optional<? extends DataObject> read = readerRegistry.read(InstanceIdentifier.create(VppState.class));
+        final Optional<? extends DataObject> read = readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx);
         assertTrue(read.isPresent());
         assertVersion((VppState) read.get());
     }
 
     @Test
     public void testReadBridgeDomains() throws Exception {
-        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get();
+        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         Optional<? extends DataObject> read =
-            readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class));
+            readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class), ctx);
         assertTrue(read.isPresent());
         assertEquals(readRoot.getBridgeDomains(), read.get());
     }
@@ -190,38 +195,38 @@ public class VppStateTest {
         Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("bdn1"))
-                .child(L2Fib.class, new L2FibKey(new PhysAddress("01:02:03:04:05:06"))));
+                .child(L2Fib.class, new L2FibKey(new PhysAddress("01:02:03:04:05:06"))), ctx);
         assertTrue(read.isPresent());
 
         // non existing l2fib
         read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("bdn1"))
-                .child(L2Fib.class, new L2FibKey(new PhysAddress("FF:FF:FF:04:05:06"))));
+                .child(L2Fib.class, new L2FibKey(new PhysAddress("FF:FF:FF:04:05:06"))), ctx);
         assertFalse(read.isPresent());
     }
 
     @Test
     public void testReadBridgeDomainAll() throws Exception {
-        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get();
+        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         final CompositeListVppReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
             VppStateUtils.getBridgeDomainReader(api);
 
         final List<BridgeDomain> read =
             bridgeDomainReader.readList(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class));
+                BridgeDomain.class), ctx);
 
         assertEquals(readRoot.getBridgeDomains().getBridgeDomain(), read);
     }
 
     @Test
     public void testReadBridgeDomain() throws Exception {
-        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get();
+        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         final Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("bdn1")));
+                BridgeDomain.class, new BridgeDomainKey("bdn1")), ctx);
 
         assertTrue(read.isPresent());
         assertEquals(Iterables.find(readRoot.getBridgeDomains().getBridgeDomain(), new Predicate<BridgeDomain>() {
@@ -238,16 +243,16 @@ public class VppStateTest {
     public void testReadBridgeDomainNotExisting() throws Exception {
         final Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("NOT EXISTING")));
+                BridgeDomain.class, new BridgeDomainKey("NOT EXISTING")), ctx);
         assertFalse(read.isPresent());
     }
 
     @Test
     public void testReadVersion() throws Exception {
-        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get();
+        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         Optional<? extends DataObject> read =
-            readerRegistry.read(InstanceIdentifier.create(VppState.class).child(Version.class));
+            readerRegistry.read(InstanceIdentifier.create(VppState.class).child(Version.class), ctx);
         assertTrue(read.isPresent());
         assertEquals(readRoot.getVersion(), read.get());
     }

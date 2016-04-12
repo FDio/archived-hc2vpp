@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.impl.trans.r.util;
+package io.fd.honeycomb.v3po.impl.trans.r;
 
-import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.RootVppReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.util.Context;
-import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import javax.annotation.Nonnull;
 
-public abstract class NoopReaderCustomizer<C extends DataObject, B extends Builder<C>> implements RootVppReaderCustomizer<C, B> {
+/**
+ * Read Context
+ */
+public interface ReadContext extends AutoCloseable {
+
+    /**
+     * Get key value storage for customizers
+     *
+     * @return Context for customizers
+     */
+    @Nonnull
+    Context getContext();
 
     @Override
-    public void readCurrentAttributes(InstanceIdentifier<C> id, final B builder, final Context context) {
-        // Noop
-    }
+    void close();
 }

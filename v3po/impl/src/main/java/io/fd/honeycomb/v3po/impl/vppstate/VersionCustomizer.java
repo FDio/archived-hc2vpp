@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.impl.vppstate;
 
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ChildVppReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.util.Context;
 import io.fd.honeycomb.v3po.impl.trans.util.VppApiCustomizer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
@@ -47,7 +48,8 @@ public final class VersionCustomizer
     }
 
     @Override
-    public void readCurrentAttributes(@Nonnull InstanceIdentifier<Version> id, @Nonnull final VersionBuilder builder) {
+    public void readCurrentAttributes(@Nonnull InstanceIdentifier<Version> id, @Nonnull final VersionBuilder builder,
+                                      @Nonnull final Context context) {
         final vppVersion vppVersion = getVppApi().getVppVersion();
         builder.setBranch(vppVersion.gitBranch);
         builder.setName(vppVersion.programName);

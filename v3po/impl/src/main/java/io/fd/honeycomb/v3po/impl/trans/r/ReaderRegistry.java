@@ -33,10 +33,12 @@ public interface ReaderRegistry extends VppReader<DataObject> {
      * Performs read on all registered root readers and merges the results into a Multimap. Keys represent identifiers
      * for root DataObjects from the data tree modeled by YANG.
      *
+     * @param ctx Read context
+     *
      * @return multimap that preserves deterministic iteration order across non-distinct key values
      * @throws ReadFailedException if read was unsuccessful
      */
     @Nonnull
-    Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll()
+    Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll(@Nonnull final ReadContext ctx)
             throws ReadFailedException;
 }

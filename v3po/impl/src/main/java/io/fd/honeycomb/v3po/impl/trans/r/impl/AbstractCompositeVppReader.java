@@ -24,6 +24,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.ReadContext;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.util.ReflectionUtils;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
@@ -68,8 +69,10 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
 
     /**
      * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
+     *
      */
-    protected Optional<D> readCurrent(final InstanceIdentifier<D> id) throws
+    protected Optional<D> readCurrent(final InstanceIdentifier<D> id,
+                                      @Nonnull final ReadContext ctx) throws
             ReadFailedException {
         LOG.debug("{}: Reading current: {}", this, id);
         final B builder = getBuilder(id);
@@ -77,17 +80,17 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
         final D emptyValue = builder.build();
 
         LOG.trace("{}: Reading current attributes", this);
-        readCurrentAttributes(id, builder);
+        readCurrentAttributes(id, builder, ctx);
 
         // TODO expect exceptions from reader
         for (ChildVppReader<? extends ChildOf<D>> child : childReaders.values()) {
             LOG.debug("{}: Reading child from: {}", this, child);
-            child.read(id, builder);
+            child.read(id, builder, ctx);
         }
 
         for (ChildVppReader<? extends Augmentation<D>> child : augReaders.values()) {
             LOG.debug("{}: Reading augment from: {}", this, child);
-            child.read(id, builder);
+            child.read(id, builder, ctx);
         }
 
         // Need to check whether anything was filled in to determine if data is present or not.
@@ -103,17 +106,19 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
     @Nonnull
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id)
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                                               @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         LOG.trace("{}: Reading : {}", this, id);
         if (id.getTargetType().equals(getManagedDataObjectType().getTargetType())) {
-            return readCurrent((InstanceIdentifier<D>) id);
+            return readCurrent((InstanceIdentifier<D>) id, ctx);
         } else {
-            return readSubtree(id);
+            return readSubtree(id, ctx);
         }
     }
 
-    private Optional<? extends DataObject> readSubtree(final InstanceIdentifier<? extends DataObject> id)
+    private Optional<? extends DataObject> readSubtree(final InstanceIdentifier<? extends DataObject> id,
+                                                       @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("{}: Reading subtree: {}", this, id);
         final Class<? extends DataObject> next = VppRWUtils.getNextId(id, getManagedDataObjectType()).getType();
@@ -121,12 +126,12 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
 
         if (vppReader != null) {
             LOG.debug("{}: Reading subtree: {} from: {}", this, id, vppReader);
-            return vppReader.read(id);
+            return vppReader.read(id, ctx);
         } else {
             LOG.debug("{}: Dedicated subtree reader missing for: {}. Reading current and filtering", this, next);
             // If there's no dedicated reader, use read current
             final InstanceIdentifier<D> currentId = VppRWUtils.cutId(id, getManagedDataObjectType());
-            final Optional<D> current = readCurrent(currentId);
+            final Optional<D> current = readCurrent(currentId, ctx);
             // then perform post-reading filtering (return only requested sub-node)
             final Optional<? extends DataObject> readSubtree = current.isPresent()
                 ? filterSubtree(current.get(), id, getManagedDataObjectType().getTargetType())
@@ -142,9 +147,10 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
      *
      * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
      * @param builder Builder object for current node where the read attributes must be placed
+     * @param ctx Current read context
      */
-    protected abstract void readCurrentAttributes(final InstanceIdentifier<D> id, B builder) throws
-            ReadFailedException;
+    protected abstract void readCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final B builder,
+                                                  @Nonnull final ReadContext ctx) throws ReadFailedException;
 
     /**
      * Return new instance of a builder object for current node

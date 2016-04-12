@@ -27,7 +27,9 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
+import io.fd.honeycomb.v3po.impl.trans.r.ReadContext;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
+import io.fd.honeycomb.v3po.impl.trans.util.Context;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -82,11 +84,11 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
             org.opendaylight.controller.md.sal.common.api.data.ReadFailedException> read(
             @Nonnull final YangInstanceIdentifier yangInstanceIdentifier) {
 
-        try {
+        try(ReadContext ctx = new ReadContextImpl()) {
             if (checkNotNull(yangInstanceIdentifier).equals(YangInstanceIdentifier.EMPTY)) {
-                return Futures.immediateCheckedFuture(readRoot());
+                return Futures.immediateCheckedFuture(readRoot(ctx));
             } else {
-                return Futures.immediateCheckedFuture(readNode(yangInstanceIdentifier));
+                return Futures.immediateCheckedFuture(readNode(yangInstanceIdentifier, ctx));
             }
         } catch (ReadFailedException e) {
             return Futures.immediateFailedCheckedFuture(
@@ -95,7 +97,8 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
         }
     }
 
-    private Optional<NormalizedNode<?, ?>> readNode(final YangInstanceIdentifier yangInstanceIdentifier)
+    private Optional<NormalizedNode<?, ?>> readNode(final YangInstanceIdentifier yangInstanceIdentifier,
+                                                    final ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("VppOperationalDataTree.readNode(), yangInstanceIdentifier={}", yangInstanceIdentifier);
         final InstanceIdentifier<?> path = serializer.fromYangInstanceIdentifier(yangInstanceIdentifier);
@@ -104,7 +107,7 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
 
         final Optional<? extends DataObject> dataObject;
 
-        dataObject = readerRegistry.read(path);
+        dataObject = readerRegistry.read(path, ctx);
         if (dataObject.isPresent()) {
             final NormalizedNode<?, ?> value = toNormalizedNodeFunction(path).apply(dataObject.get());
             return Optional.<NormalizedNode<?, ?>>fromNullable(value);
@@ -113,7 +116,7 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
         }
     }
 
-    private Optional<NormalizedNode<?, ?>> readRoot() throws ReadFailedException {
+    private Optional<NormalizedNode<?, ?>> readRoot(final ReadContext ctx) throws ReadFailedException {
         LOG.debug("VppOperationalDataTree.readRoot()");
 
         final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> dataNodeBuilder =
@@ -121,7 +124,7 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
                         .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(SchemaContext.NAME));
 
         final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects =
-                readerRegistry.readAll();
+                readerRegistry.readAll(ctx);
 
         for (final InstanceIdentifier<? extends DataObject> instanceIdentifier : dataObjects.keySet()) {
             final YangInstanceIdentifier rootElementId = serializer.toYangInstanceIdentifier(instanceIdentifier);
@@ -186,5 +189,21 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
                 return entry.getValue();
             }
         };
+    }
+
+    private static final class ReadContextImpl implements ReadContext {
+        public final Context ctx = new Context();
+
+        @Nonnull
+        @Override
+        public Context getContext() {
+            return ctx;
+        }
+
+        @Override
+        public void close() {
+            // Make sure to clear the storage in case some customizer stored it  to prevent memory leaks
+            ctx.close();
+        }
     }
 }

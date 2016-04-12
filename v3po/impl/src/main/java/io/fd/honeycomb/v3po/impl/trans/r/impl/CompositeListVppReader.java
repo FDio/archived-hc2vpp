@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.ListVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.ReadContext;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.ArrayList;
@@ -91,19 +92,21 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
 
     @Override
     public void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                     @Nonnull final Builder<? extends DataObject> parentBuilder) throws ReadFailedException {
+                     @Nonnull final Builder<? extends DataObject> parentBuilder,
+                     @Nonnull final ReadContext ctx) throws ReadFailedException {
         // Create ID pointing to current node
         final InstanceIdentifier<C> currentId = VppRWUtils.appendTypeToId(id, getManagedDataObjectType());
         // Read all, since current ID is definitely wildcarded
-        final List<C> ifcs = readList(currentId);
+        final List<C> ifcs = readList(currentId, ctx);
         customizer.merge(parentBuilder, ifcs);
     }
 
     @Override
     @Nonnull
-    public List<C> readList(@Nonnull final InstanceIdentifier<C> id) throws ReadFailedException {
+    public List<C> readList(@Nonnull final InstanceIdentifier<C> id,
+                            @Nonnull final ReadContext ctx) throws ReadFailedException {
         LOG.trace("{}: Reading all list entries", this);
-        final List<K> allIds = customizer.getAllIds(id);
+        final List<K> allIds = customizer.getAllIds(id, ctx.getContext());
         LOG.debug("{}: Reading list entries for: {}", this, allIds);
 
         final ArrayList<C> allEntries = new ArrayList<>(allIds.size());
@@ -111,7 +114,7 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
             final InstanceIdentifier.IdentifiableItem<C, K> currentBdItem =
                     VppRWUtils.getCurrentIdItem(id, key);
             final InstanceIdentifier<C> keyedId = VppRWUtils.replaceLastInId(id, currentBdItem);
-            final Optional<C> read = readCurrent(keyedId);
+            final Optional<C> read = readCurrent(keyedId, ctx);
             final DataObject singleItem = read.get();
             checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleItem.getClass()));
             allEntries.add(getManagedDataObjectType().getTargetType().cast(singleItem));
@@ -120,9 +123,10 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
     }
 
     @Override
-    protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder)
+    protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder,
+                                         @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        customizer.readCurrentAttributes(id, builder);
+        customizer.readCurrentAttributes(id, builder, ctx.getContext());
     }
 
     @Override

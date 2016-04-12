@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -33,6 +34,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
+import io.fd.honeycomb.v3po.impl.trans.r.ReadContext;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import java.util.Map;
 import org.junit.Before;
@@ -68,6 +70,8 @@ public class VppOperationalDataTreeTest {
     private SchemaContext globalContext;
     @Mock
     private DataSchemaNode schemaNode;
+    @Mock
+    private ReadContext readCtx;
 
     @Before
     public void setUp() {
@@ -86,7 +90,7 @@ public class VppOperationalDataTreeTest {
         doReturn(id).when(serializer).fromYangInstanceIdentifier(yangId);
 
         final DataObject dataObject = mock(DataObject.class);
-        doReturn(Optional.of(dataObject)).when(reader).read(id);
+        doReturn(Optional.of(dataObject)).when(reader).read(same(id), any(ReadContext.class));
 
         when(serializer.toNormalizedNode(id, dataObject)).thenReturn(entry);
         final DataContainerChild<?, ?> expectedValue = mock(DataContainerChild.class);
@@ -95,7 +99,7 @@ public class VppOperationalDataTreeTest {
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future = operationalData.read(yangId);
 
         verify(serializer).fromYangInstanceIdentifier(yangId);
-        verify(reader).read(id);
+        verify(reader).read(same(id), any(ReadContext.class));
         final Optional<NormalizedNode<?, ?>> result = future.get();
         assertTrue(result.isPresent());
         assertEquals(expectedValue, result.get());
@@ -105,19 +109,19 @@ public class VppOperationalDataTreeTest {
     public void testReadNonExistingNode() throws Exception {
         final YangInstanceIdentifier yangId = mock(YangInstanceIdentifier.class);
         doReturn(id).when(serializer).fromYangInstanceIdentifier(yangId);
-        doReturn(Optional.absent()).when(reader).read(id);
+        doReturn(Optional.absent()).when(reader).read(same(id), any(ReadContext.class));
 
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future = operationalData.read(yangId);
 
         verify(serializer).fromYangInstanceIdentifier(yangId);
-        verify(reader).read(id);
+        verify(reader).read(same(id), any(ReadContext.class));
         final Optional<NormalizedNode<?, ?>> result = future.get();
         assertFalse(result.isPresent());
     }
 
     @Test
     public void testReadFailed() throws Exception{
-        doThrow(io.fd.honeycomb.v3po.impl.trans.ReadFailedException.class).when(reader).readAll();
+        doThrow(io.fd.honeycomb.v3po.impl.trans.ReadFailedException.class).when(reader).readAll(any(ReadContext.class));
 
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
                 operationalData.read( YangInstanceIdentifier.EMPTY);
@@ -138,7 +142,7 @@ public class VppOperationalDataTreeTest {
         final VppState vppState = mock(VppState.class);
         Multimap<InstanceIdentifier<?>, DataObject> dataObjects = LinkedListMultimap.create();
         dataObjects.put(vppStateII, vppState);
-        doReturn(dataObjects).when(reader).readAll();
+        doReturn(dataObjects).when(reader).readAll(any(ReadContext.class));
 
         // Init serializer
         final YangInstanceIdentifier vppYangId = YangInstanceIdentifier.builder().node(VppState.QNAME).build();
@@ -152,7 +156,7 @@ public class VppOperationalDataTreeTest {
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
                 operationalData.read(YangInstanceIdentifier.EMPTY);
 
-        verify(reader).readAll();
+        verify(reader).readAll(any(ReadContext.class));
         verify(serializer).toYangInstanceIdentifier(vppStateII);
         verify(serializer).toNormalizedNode(vppStateII, vppState);
 

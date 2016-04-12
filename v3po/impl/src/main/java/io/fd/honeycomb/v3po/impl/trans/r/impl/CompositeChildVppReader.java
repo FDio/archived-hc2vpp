@@ -20,6 +20,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.ReadContext;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ChildVppReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.List;
@@ -79,8 +80,9 @@ public final class CompositeChildVppReader<C extends DataObject, B extends Build
 
     @Override
     public final void read(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
-                           @Nonnull final Builder<? extends DataObject> parentBuilder) throws ReadFailedException {
-        final Optional<C> read = readCurrent(VppRWUtils.appendTypeToId(parentId, getManagedDataObjectType()));
+                           @Nonnull final Builder<? extends DataObject> parentBuilder,
+                           @Nonnull final ReadContext ctx) throws ReadFailedException {
+        final Optional<C> read = readCurrent(VppRWUtils.appendTypeToId(parentId, getManagedDataObjectType()), ctx);
 
         if(read.isPresent()) {
             customizer.merge(parentBuilder, read.get());
@@ -88,9 +90,10 @@ public final class CompositeChildVppReader<C extends DataObject, B extends Build
     }
 
     @Override
-    protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder)
+    protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder,
+                                         @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        customizer.readCurrentAttributes(id, builder);
+        customizer.readCurrentAttributes(id, builder, ctx.getContext());
     }
 
     @Override

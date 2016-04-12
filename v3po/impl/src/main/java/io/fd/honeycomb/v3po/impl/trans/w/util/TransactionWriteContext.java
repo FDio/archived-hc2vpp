@@ -34,7 +34,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 /**
  * Transaction based WriteContext
  */
-public final class TransactionWriteContext implements WriteContext, AutoCloseable {
+public final class TransactionWriteContext implements WriteContext {
 
     private final DOMDataReadOnlyTransaction beforeTx;
     private final DOMDataReadOnlyTransaction afterTx;
@@ -95,7 +95,7 @@ public final class TransactionWriteContext implements WriteContext, AutoCloseabl
      * Does not close the transactions
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         ctx.close();
     }
 }

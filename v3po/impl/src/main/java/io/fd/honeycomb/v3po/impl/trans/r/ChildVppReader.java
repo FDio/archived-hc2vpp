@@ -39,10 +39,13 @@ public interface ChildVppReader<C extends DataObject> extends VppReader<C> {
      *                      determine the exact position within more complex subtrees.
      * @param parentBuilder Builder of parent DataObject. Objects read on this level (if any) must be placed into the
      *                      parent builder.
+     * @param ctx Read context
+     *
      * @throws ReadFailedException if read was unsuccessful
      */
     void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-              @Nonnull final Builder<? extends DataObject> parentBuilder) throws ReadFailedException;
+              @Nonnull final Builder<? extends DataObject> parentBuilder,
+              @Nonnull final ReadContext ctx) throws ReadFailedException;
 
 }
 

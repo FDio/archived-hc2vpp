@@ -22,7 +22,7 @@ import java.util.HashMap;
 /**
  * Simple context class that provides transient storage during one or more read/write operations
  */
-public class Context {
+public class Context implements AutoCloseable {
 
     protected final HashMap<Object, Object> map;
 
@@ -42,7 +42,8 @@ public class Context {
         return map.put(o, o2);
     }
 
-    public void close() throws Exception {
+    @Override
+    public void close() {
         map.clear();
     }
 }

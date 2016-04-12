@@ -27,7 +27,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Context providing information about current state of DataTree to writers
  */
 @Beta
-public interface WriteContext {
+public interface WriteContext extends AutoCloseable {
 
     /**
      * Read any data object before current modification was applied
@@ -54,4 +54,7 @@ public interface WriteContext {
      */
     @Nonnull
     Context getContext();
+
+    @Override
+    void close();
 }

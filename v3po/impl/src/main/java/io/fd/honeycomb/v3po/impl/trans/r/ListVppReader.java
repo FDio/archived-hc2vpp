@@ -37,10 +37,12 @@ public interface ListVppReader<D extends DataObject & Identifiable<K>, K extends
      * Read all elements in this list
      *
      * @param id Wildcarded identifier of list managed by this reader
+     * @param ctx Read context
      *
      * @return List of all entries in this list
      * @throws ReadFailedException if read was unsuccessful
      */
     @Nonnull
-    List<D> readList(@Nonnull final InstanceIdentifier<D> id) throws ReadFailedException;
+    List<D> readList(@Nonnull final InstanceIdentifier<D> id,
+                     @Nonnull final ReadContext ctx) throws ReadFailedException;
 }

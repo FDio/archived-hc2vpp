@@ -107,9 +107,7 @@ public final class VppConfigDataTree implements VppDataTree {
         final DOMDataReadOnlyTransaction beforeTx = new VppReadOnlyTransaction(EMPTY_OPERATIONAL, takeSnapshot());
         final ConfigSnapshot modificationSnapshot = new ConfigSnapshot(modification);
         final DOMDataReadOnlyTransaction afterTx = new VppReadOnlyTransaction(EMPTY_OPERATIONAL, modificationSnapshot);
-        final WriteContext ctx = new TransactionWriteContext(serializer, beforeTx, afterTx);
-
-        try {
+        try(final WriteContext ctx = new TransactionWriteContext(serializer, beforeTx, afterTx)) {
             writer.update(nodesBefore, nodesAfter, ctx);
         } catch (WriterRegistry.BulkUpdateException e) {
             LOG.warn("Failed to apply all changes", e);

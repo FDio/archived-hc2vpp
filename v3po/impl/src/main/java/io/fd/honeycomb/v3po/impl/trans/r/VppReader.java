@@ -32,8 +32,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @Beta
 public interface VppReader<D extends DataObject> extends SubtreeManager<D> {
 
-    // TODO add vpp read context that will be shared by all readers during a single read to keep useful information
-    // preventing possible duplicate reads from VPP
     // TODO make async
 
     /**
@@ -42,11 +40,13 @@ public interface VppReader<D extends DataObject> extends SubtreeManager<D> {
      * @param id unique identifier of subtree to be read. The subtree must contain managed data object type. For
      *           identifiers pointing below node managed by this reader, it's reader's responsibility to filter out the
      *           right node or to delegate the read to a child reader.
+     * @param ctx Read context
+     *
      * @return List of DataObjects identified by id. If the ID points to a single node, it will be wrapped in a list
      * @throws ReadFailedException if read was unsuccessful
      */
     @Nonnull
-    Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) throws
-            ReadFailedException;
+    Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                                        @Nonnull ReadContext ctx) throws ReadFailedException;
 
 }

@@ -24,6 +24,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
 import io.fd.honeycomb.v3po.impl.trans.r.ListVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.ReadContext;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
@@ -59,8 +60,9 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
 
     @Override
     @Nonnull
-    public Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll()
-            throws ReadFailedException {
+    public Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll(
+        @Nonnull final ReadContext ctx) throws ReadFailedException {
+
         LOG.debug("Reading from all delegates: {}", this);
         LOG.trace("Reading from all delegates: {}", rootReaders.values());
 
@@ -70,12 +72,12 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
 
             if (rootReader instanceof ListVppReader) {
                 final List<? extends DataObject> listEntries =
-                        ((ListVppReader) rootReader).readList(rootReader.getManagedDataObjectType());
+                        ((ListVppReader) rootReader).readList(rootReader.getManagedDataObjectType(), ctx);
                 if (!listEntries.isEmpty()) {
                     objects.putAll(rootReader.getManagedDataObjectType(), listEntries);
                 }
             } else {
-                final Optional<? extends DataObject> read = rootReader.read(rootReader.getManagedDataObjectType());
+                final Optional<? extends DataObject> read = rootReader.read(rootReader.getManagedDataObjectType(), ctx);
                 if (read.isPresent()) {
                     objects.putAll(rootReader.getManagedDataObjectType(), Collections.singletonList(read.get()));
                 }
@@ -87,7 +89,8 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
 
     @Nonnull
     @Override
-    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id)
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+                                               @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         final InstanceIdentifier.PathArgument first = checkNotNull(
                 Iterables.getFirst(id.getPathArguments(), null), "Empty id");
@@ -95,7 +98,7 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
         checkNotNull(vppReader,
                 "Unable to read %s. Missing reader. Current readers for: %s", id, rootReaders.keySet());
         LOG.debug("Reading from delegate: {}", vppReader);
-        return vppReader.read(id);
+        return vppReader.read(id, ctx);
     }
 
     /**

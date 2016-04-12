@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.impl.vppstate;
 
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
+import io.fd.honeycomb.v3po.impl.trans.util.Context;
 import io.fd.honeycomb.v3po.impl.trans.util.VppApiCustomizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +49,7 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
-                                      @Nonnull final BridgeDomainBuilder builder) {
+                                      @Nonnull final BridgeDomainBuilder builder, @Nonnull final Context context) {
         final BridgeDomainKey key = id.firstKeyOf(id.getTargetType());
         // TODO find out if bd exists based on name and if not return
 
@@ -113,11 +114,13 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
 
     @Nonnull
     @Override
-    public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id) {
+    public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id, @Nonnull final Context context) {
         final int[] bIds = getVppApi().bridgeDomainDump(-1);
         final List<BridgeDomainKey> allIds = new ArrayList<>(bIds.length);
         for (int bId : bIds) {
             // FIXME this is highly inefficient having to dump all of the bridge domain details
+            // Use context to store already read information
+            // TODO Or just remove the getAllIds method and replace with a simple readAll
             final vppBridgeDomainDetails bridgeDomainDetails = getVppApi().getBridgeDomainDetails(bId);
             final String bName = bridgeDomainDetails.name;
             allIds.add(new BridgeDomainKey(bName));
