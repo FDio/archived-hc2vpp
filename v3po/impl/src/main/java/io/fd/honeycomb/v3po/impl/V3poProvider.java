@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -171,12 +170,12 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
         Timer timer = new Timer();
 
         // fire task after 1 second and then repeat each 10 seconds
-        timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    vppPollOperData.updateOperational();
-                }
-            }, 1000, 10000);
+//        timer.scheduleAtFixedRate(new TimerTask() {
+//                @Override
+//                public void run() {
+//                    vppPollOperData.updateOperational();
+//                }
+//            }, 1000, 10000);
     }
 
     @Override
