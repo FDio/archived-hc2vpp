@@ -33,10 +33,11 @@
   </prerequisites>
   <modules>
     <module>api</module>
-    <module>vpp-facade-spi</module>
-    <module>vpp-facade-api</module>
-    <module>vpp-facade-impl</module>
-    <module>vpp-facade-utils</module>
+    <module>translate-spi</module>
+    <module>translate-api</module>
+    <module>translate-impl</module>
+    <module>translate-utils</module>
+    <module>vpp-translate-utils</module>
     <module>v3po2vpp</module>
     <module>impl</module>
     <module>karaf</module>

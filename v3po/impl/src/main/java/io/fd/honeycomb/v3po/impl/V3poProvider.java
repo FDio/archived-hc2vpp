@@ -21,8 +21,8 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.impl.data.VppDataBrokerInitializationProvider;
-import io.fd.honeycomb.v3po.impl.data.VppReaderRegistry;
-import io.fd.honeycomb.v3po.impl.data.VppWriterRegistry;
+import io.fd.honeycomb.v3po.impl.data.ReaderRegistry;
+import io.fd.honeycomb.v3po.impl.data.WriterRegistry;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -196,8 +196,8 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
                                                    vppPollOperData);
         startOperationalUpdateTimer();
 
-        final VppReaderRegistry readerRegistry = VppReaderRegistry.getInstance(api);
-        final VppWriterRegistry writerRegistry = VppWriterRegistry.getInstance(api);
+        final ReaderRegistry readerRegistry = ReaderRegistry.getInstance(api);
+        final WriterRegistry writerRegistry = WriterRegistry.getInstance(api);
 
         // TODO make configurable:
         vppDataBrokerInitializationProvider = new VppDataBrokerInitializationProvider(db, readerRegistry, writerRegistry);

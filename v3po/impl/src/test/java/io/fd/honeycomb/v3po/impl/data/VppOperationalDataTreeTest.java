@@ -34,8 +34,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.vpp.facade.read.ReadContext;
-import io.fd.honeycomb.v3po.vpp.facade.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
+import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,7 +121,7 @@ public class VppOperationalDataTreeTest {
 
     @Test
     public void testReadFailed() throws Exception{
-        doThrow(io.fd.honeycomb.v3po.vpp.facade.read.ReadFailedException.class).when(reader).readAll(any(ReadContext.class));
+        doThrow(io.fd.honeycomb.v3po.translate.read.ReadFailedException.class).when(reader).readAll(any(ReadContext.class));
 
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
                 operationalData.read( YangInstanceIdentifier.EMPTY);
@@ -129,7 +129,7 @@ public class VppOperationalDataTreeTest {
         try {
             future.checkedGet();
         } catch (ReadFailedException e) {
-            assertTrue(e.getCause() instanceof io.fd.honeycomb.v3po.vpp.facade.read.ReadFailedException);
+            assertTrue(e.getCause() instanceof io.fd.honeycomb.v3po.translate.read.ReadFailedException);
             return;
         }
         fail("ReadFailedException was expected");

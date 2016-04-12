@@ -17,7 +17,7 @@
 package io.fd.honeycomb.v3po.impl.data;
 
 import com.google.common.annotations.Beta;
-import io.fd.honeycomb.v3po.vpp.facade.VppException;
+import io.fd.honeycomb.v3po.translate.TranslationException;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 
@@ -31,9 +31,9 @@ public interface VppDataTree {
      *
      * @param modification VPP data tree modification
      * @throws DataValidationFailedException if modification data is not valid
-     * @throws VppException if commit failed while updating VPP state
+     * @throws TranslationException if commit failed while updating VPP state
      */
-    void commit(final DataTreeModification modification) throws DataValidationFailedException, VppException;
+    void commit(final DataTreeModification modification) throws DataValidationFailedException, TranslationException;
 
     /**
      * Creates read-only snapshot of a VppDataTree.

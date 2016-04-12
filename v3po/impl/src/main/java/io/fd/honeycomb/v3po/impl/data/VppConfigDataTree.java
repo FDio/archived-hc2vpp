@@ -21,10 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import io.fd.honeycomb.v3po.vpp.facade.VppException;
-import io.fd.honeycomb.v3po.vpp.facade.impl.write.util.TransactionWriteContext;
-import io.fd.honeycomb.v3po.vpp.facade.write.WriteContext;
-import io.fd.honeycomb.v3po.vpp.facade.write.WriterRegistry;
+import io.fd.honeycomb.v3po.translate.TranslationException;
+import io.fd.honeycomb.v3po.translate.util.write.TransactionWriteContext;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -54,7 +53,7 @@ public final class VppConfigDataTree implements VppDataTree {
 
     private final BindingNormalizedNodeSerializer serializer;
     private final DataTree dataTree;
-    private final VppWriterRegistry writer;
+    private final WriterRegistry writer;
     public static final ReadableVppDataTree EMPTY_OPERATIONAL = new ReadableVppDataTree() {
         @Override
         public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
@@ -72,7 +71,7 @@ public final class VppConfigDataTree implements VppDataTree {
      * @param vppWriter  service for translation between Java Binding Data and Vpp.
      */
     public VppConfigDataTree(@Nonnull final BindingNormalizedNodeSerializer serializer,
-                             @Nonnull final DataTree dataTree, @Nonnull final VppWriterRegistry vppWriter) {
+                             @Nonnull final DataTree dataTree, @Nonnull final WriterRegistry vppWriter) {
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.dataTree = checkNotNull(dataTree, "dataTree should not be null");
         this.writer = checkNotNull(vppWriter, "vppWriter should not be null");
@@ -85,7 +84,7 @@ public final class VppConfigDataTree implements VppDataTree {
 
     @Override
     public void commit(final DataTreeModification modification)
-            throws DataValidationFailedException, VppException {
+            throws DataValidationFailedException, TranslationException {
         dataTree.validate(modification);
 
         final DataTreeCandidate candidate = dataTree.prepare(modification);
@@ -109,21 +108,21 @@ public final class VppConfigDataTree implements VppDataTree {
         final DOMDataReadOnlyTransaction afterTx = new VppReadOnlyTransaction(EMPTY_OPERATIONAL, modificationSnapshot);
         try(final WriteContext ctx = new TransactionWriteContext(serializer, beforeTx, afterTx)) {
             writer.update(nodesBefore, nodesAfter, ctx);
-        } catch (WriterRegistry.BulkUpdateException e) {
+        } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException e) {
             LOG.warn("Failed to apply all changes", e);
             LOG.info("Trying to revert successful changes for current transaction");
 
             try {
                 e.revertChanges();
                 LOG.info("Changes successfully reverted");
-            } catch (WriterRegistry.Reverter.RevertFailedException revertFailedException) {
+            } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException revertFailedException) {
                 // fail with failed revert
                 LOG.error("Failed to revert successful changes", revertFailedException);
                 throw revertFailedException;
             }
 
             throw e; // fail with success revert
-        } catch (VppException e) {
+        } catch (TranslationException e) {
             LOG.error("Error while processing data change (before={}, after={})", nodesBefore, nodesAfter, e);
             throw e;
         }

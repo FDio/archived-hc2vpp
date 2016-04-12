@@ -31,12 +31,17 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>vpp-facade-spi</artifactId>
+            <artifactId>translate-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>vpp-facade-utils</artifactId>
+            <artifactId>translate-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>vpp-translate-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -53,7 +58,7 @@
         <!-- Testing Dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>vpp-facade-impl</artifactId>
+            <artifactId>translate-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

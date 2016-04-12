@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.impl.LoggingFuturesCallBack;
-import io.fd.honeycomb.v3po.vpp.facade.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import java.util.Collection;
 import java.util.Collections;
 import javassist.ClassPool;
@@ -85,13 +85,13 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
     private final DataBroker bindingBroker;
     private final ReaderRegistry readerRegistry;
     private final InstanceIdentifier<Node> mountPointPath;
-    private final VppWriterRegistry writerRegistry;
+    private final WriterRegistry writerRegistry;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
     private DOMDataBroker broker;
 
     public VppDataBrokerInitializationProvider(@Nonnull final DataBroker bindingBroker,
                                                final ReaderRegistry readerRegistry,
-                                               final VppWriterRegistry writerRegistry) {
+                                               final WriterRegistry writerRegistry) {
         this.bindingBroker = checkNotNull(bindingBroker, "bindingBroker should not be null");
         this.readerRegistry = checkNotNull(readerRegistry, "readerRegistry should not be null");
         this.writerRegistry = checkNotNull(writerRegistry, "writerRegistry should not be null");

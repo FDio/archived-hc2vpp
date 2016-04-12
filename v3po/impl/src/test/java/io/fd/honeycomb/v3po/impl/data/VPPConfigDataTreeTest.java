@@ -31,9 +31,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.vpp.facade.VppException;
-import io.fd.honeycomb.v3po.vpp.facade.write.WriteContext;
-import io.fd.honeycomb.v3po.vpp.facade.write.WriterRegistry;
+import io.fd.honeycomb.v3po.translate.TranslationException;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +59,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
 public class VPPConfigDataTreeTest {
 
     @Mock
-    private VppWriterRegistry vppWriter;
+    private WriterRegistry vppWriter;
     @Mock
     private BindingNormalizedNodeSerializer serializer;
     @Mock
@@ -156,11 +155,12 @@ public class VPPConfigDataTreeTest {
         final DataObject dataBefore = mockDataObject("before", Ethernet.class);
         final DataObject dataAfter = mockDataObject("after", Ethernet.class);
 
-        final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
+        final io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter reverter = mock(
+            io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.class);
 
         // Fail on update:
-        final VppException failedOnUpdateException = new VppException("update failed");
-        doThrow(new WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
+        final TranslationException failedOnUpdateException = new TranslationException("update failed");
+        doThrow(new io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
                 failedOnUpdateException)).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
 
         // Prepare modification:
@@ -175,7 +175,7 @@ public class VPPConfigDataTreeTest {
         // Run the test
         try {
             proxy.commit(modification);
-        } catch (WriterRegistry.BulkUpdateException e) {
+        } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException e) {
             verify(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
             verify(reverter).revert();
             assertEquals(failedOnUpdateException, e.getCause());
@@ -191,16 +191,17 @@ public class VPPConfigDataTreeTest {
         final DataObject dataBefore = mockDataObject("before", Ethernet.class);
         final DataObject dataAfter = mockDataObject("after", Ethernet.class);
 
-        final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
+        final io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter reverter = mock(
+            io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.class);
 
         // Fail on update:
-        doThrow(new WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
-                new VppException("update failed"))).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
+        doThrow(new io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
+                new TranslationException("update failed"))).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
 
         // Fail on revert:
-        final VppException failedOnRevertException = new VppException("update failed");
-        final WriterRegistry.Reverter.RevertFailedException revertFailedException =
-                new WriterRegistry.Reverter.RevertFailedException(Collections.<InstanceIdentifier<?>>emptyList(),
+        final TranslationException failedOnRevertException = new TranslationException("update failed");
+        final io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException revertFailedException =
+                new io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException(Collections.<InstanceIdentifier<?>>emptyList(),
                         failedOnRevertException);
         doThrow(revertFailedException).when(reverter).revert();
 
@@ -216,7 +217,7 @@ public class VPPConfigDataTreeTest {
         // Run the test
         try {
             proxy.commit(modification);
-        } catch (WriterRegistry.Reverter.RevertFailedException e) {
+        } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException e) {
             verify(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
             verify(reverter).revert();
             assertEquals(failedOnRevertException, e.getCause());

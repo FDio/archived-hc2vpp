@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.vpp.facade.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -45,7 +45,7 @@ public class VppDataBrokerInitializationProviderTest {
     @Mock
     private ReaderRegistry readerRegistry;
     @Mock
-    private VppWriterRegistry writerRegistry;
+    private WriterRegistry writerRegistry;
 
 
     private VppDataBrokerInitializationProvider provider;
