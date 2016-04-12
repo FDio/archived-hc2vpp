@@ -1,0 +1,43 @@
+= Honeycomb Data layer. Implementation
+
+Models CONFIG data store as a DataTree.
+
+Every read transaction reads directly from the DataTree.
+Every write transaction is validated, then passed to the translation layer.
+After successful update, config data tree is updated.
+
+OPERATIONAL data store reads are passed directly to the translation layer.
+
+Data transaction functionality for higher layers (i.e NETCONF/RESTCONF layer) is provided by DataBroker.
+
+[ditaa, "data-layer-architecture"]
+....
+                   /------------------\
+                   | RESTCONF/NETCONF |
+                   \--------+---------/
+                            |
+----------------------------|------------------------------------
+                            v
+                   /------------------\
+                   |    DataBroker    |
+                   \-+--------------+-/
+                     |              |
+                     | read         | read/write
+ Honeycomb           v              v
+ data layer   /------+------\    /--+--------\       /----------\
+              |             |    |           |       |          |
+              | Operational |    | Config    +------>+ DataTree +
+              | DataTree    |    | DataTree  |       |          |
+              |             |    |           |       \----------/
+              \------+------/    \--+--------/
+                     |              |
+---------------------|--------------|----------------------------
+                     v              v
+               /-----+--------------+-----\
+               |     Translation layer    |
+               \--------------------------/
+....
+
+
+
+

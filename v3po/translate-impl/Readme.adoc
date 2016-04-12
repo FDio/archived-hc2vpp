@@ -1,0 +1,9 @@
+= Honeycomb translation layer implementation
+
+Provides composite implementations of child, list and root readers/writers.
+
+Root readers/writers can be used to provide data translation at root node level.
+List readers/writers help with data translation for nodes modeled as YANG lists.
+Child readers/writers can be used to provide data translation for non-leaf nodes.
+
+Readers and writers can be easily extended using customizers defined in the translate-spi module.

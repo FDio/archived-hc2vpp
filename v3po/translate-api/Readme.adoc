@@ -1,0 +1,9 @@
+= Honeycomb translation layer API
+
+Extensible API for translation between Binding Aware data and actual device data.
+Consists of readers and writers responsible for communication with the device.
+
+Provides registry of readers and writers for the data layer.
+For every supported YANG model there should be at least one reader and writer registered.
+Readers and writers form two tree structures matching corresponding YANG models.
+Readers and writers can be attached to any non-leaf YANG node.

@@ -1,0 +1,61 @@
+= Honeycomb
+
+Honeycomb is an VPP agent that runs the same host as a VPP instance
+and exposes YANG models via NETCONF and RESTCONF to allow management of that VPP instance.
+Honeycomb uses jAPI to communicate with the VPP.
+
+[ditaa, "hc-architecture"]
+....
+                   /------------------\
+ ODL               | RESTCONF/NETCONF |
+                   \-+--------------+-/
+                     |              ^
+---------------------|--------------|---------------------
+                     v              |
+                   /------------------\
+                   |    Data layer    |
+                   \-+--------------+-/
+                     |              ^
+ Honeycomb           v              |
+               /-----+--------------+-----\
+               |     Translation layer    |
+               \----+----------------+----+
+                    |  VPP SPI impl  |
+                    +---+------+-----+
+                        |      ^
+------------------------|------|--------------------------
+                        v      |
+                       ++------++
+                       |  jAPI  |
+ VPP              /----+--------+------\
+                  |        VPP         |
+                  \--------------------/
+
+....
+
+== NETCONF/RESTCONF layer
+
+NETCONF and RESTCONF support is provided by ODL (Honeycomb is an ODL application).
+In the future we plan to minimize ODL dependencies or completely remove karaf.
+
+Transaction functionality is provided by the data layer.
+
+== Data layer
+
+Models CONFIG data store as a DataTree.
+
+OPERATIONAL data store reads are passed directly to the translation layer.
+
+Provides transaction functionality for NETCONF/RESTCONF layer.
+
+
+== Translation layer
+
+Extensible API for translation between Binding Aware data and actual device data.
+Consists of readers and writers responsible for communication with the device.
+
+Provides registry of readers and writers for the data layer.
+
+
+
+

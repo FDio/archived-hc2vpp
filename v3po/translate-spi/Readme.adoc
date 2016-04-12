@@ -1,0 +1,4 @@
+= Honeycomb translation layer SPI
+
+Provides root, child and list customizer interfaces for extending readers/writers.
+Customizers can be used to implement actual data reads and writes.

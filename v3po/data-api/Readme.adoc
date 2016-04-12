@@ -1,0 +1,10 @@
+= Honeycomb Data layer. API
+
+Provides data tree abstraction for data store modeling.
+ModifiableDataTree can be used to model CONFIG data store.
+ReadableDataTree can be used to model OPERATIONAL data store.
+
+
+
+
+
