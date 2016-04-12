@@ -121,6 +121,16 @@ module data-impl {
                 }
             }
 
+            // FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/
+            container netconf-monitoring-dom-data-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dom:dom-async-data-broker;
+                    }
+                }
+            }
+
         }
     }
 }

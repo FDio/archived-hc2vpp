@@ -35,6 +35,10 @@ import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.NetconfState;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -64,17 +68,20 @@ public final class OperationalDataTree implements ReadableDataTree {
     private final BindingNormalizedNodeSerializer serializer;
     private final ReaderRegistry readerRegistry;
     private final SchemaContext globalContext;
+    private final DOMDataBroker netconfMonitoringDomDataBrokerDependency;
 
     /**
      * Creates operational data tree instance.
-     *
-     * @param serializer     service for serialization between Java Binding Data representation and NormalizedNode
+     *  @param serializer     service for serialization between Java Binding Data representation and NormalizedNode
      *                       representation.
      * @param globalContext  service for obtaining top level context data from all yang modules.
      * @param readerRegistry service responsible for translation between DataObjects and data provider.
+     * @param netconfMonitoringDomDataBrokerDependency
      */
     public OperationalDataTree(@Nonnull BindingNormalizedNodeSerializer serializer,
-                               @Nonnull final SchemaContext globalContext, @Nonnull ReaderRegistry readerRegistry) {
+                               @Nonnull final SchemaContext globalContext, @Nonnull ReaderRegistry readerRegistry,
+                               final DOMDataBroker netconfMonitoringDomDataBrokerDependency) {
+        this.netconfMonitoringDomDataBrokerDependency = netconfMonitoringDomDataBrokerDependency;
         this.globalContext = checkNotNull(globalContext, "globalContext should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.readerRegistry = checkNotNull(readerRegistry, "reader should not be null");
@@ -99,8 +106,14 @@ public final class OperationalDataTree implements ReadableDataTree {
     }
 
     private Optional<NormalizedNode<?, ?>> readNode(final YangInstanceIdentifier yangInstanceIdentifier,
-                                                    final ReadContext ctx)
-            throws ReadFailedException {
+                                                    final ReadContext ctx) throws ReadFailedException {
+
+        // FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/
+        if(yangInstanceIdentifier.getPathArguments().size() > 0 &&
+            yangInstanceIdentifier.getPathArguments().get(0).getNodeType().equals(NetconfState.QNAME)) {
+            return readFromNetconfDs(yangInstanceIdentifier);
+        }
+
         LOG.debug("OperationalDataTree.readNode(), yangInstanceIdentifier={}", yangInstanceIdentifier);
         final InstanceIdentifier<?> path = serializer.fromYangInstanceIdentifier(yangInstanceIdentifier);
         checkNotNull(path, "Invalid instance identifier %s. Cannot create BA equivalent.", yangInstanceIdentifier);
@@ -114,6 +127,19 @@ public final class OperationalDataTree implements ReadableDataTree {
             return Optional.<NormalizedNode<?, ?>>fromNullable(value);
         } else {
             return Optional.absent();
+        }
+    }
+
+    // FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/
+    private Optional<NormalizedNode<?, ?>> readFromNetconfDs(final YangInstanceIdentifier yangInstanceIdentifier)
+        throws ReadFailedException {
+        try(final DOMDataReadOnlyTransaction domDataReadOnlyTransaction =
+            netconfMonitoringDomDataBrokerDependency.newReadOnlyTransaction()) {
+            try {
+                return domDataReadOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, yangInstanceIdentifier).checkedGet();
+            } catch (org.opendaylight.controller.md.sal.common.api.data.ReadFailedException e) {
+                throw new ReadFailedException(InstanceIdentifier.create(NetconfState.class), e);
+            }
         }
     }
 
@@ -132,6 +158,13 @@ public final class OperationalDataTree implements ReadableDataTree {
             final NormalizedNode<?, ?> node =
                     wrapDataObjects(rootElementId, instanceIdentifier, dataObjects.get(instanceIdentifier));
             dataNodeBuilder.withChild((DataContainerChild<?, ?>) node);
+        }
+
+        // FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/
+        final Optional<NormalizedNode<?, ?>> normalizedNodeOptional =
+            readFromNetconfDs(YangInstanceIdentifier.builder().node(NetconfState.QNAME).build());
+        if(normalizedNodeOptional.isPresent()) {
+            dataNodeBuilder.withChild((DataContainerChild<?, ?>) normalizedNodeOptional.get());
         }
 
         return Optional.<NormalizedNode<?, ?>>of(dataNodeBuilder.build());

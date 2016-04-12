@@ -54,6 +54,19 @@
             <version>1.3.0-Beryllium</version> <!-- FIXME use dependency management -->
         </dependency>
 
+        <!-- FIXME workaround for https://git.opendaylight.org/gerrit/#/c/37499/-->
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>ietf-netconf-monitoring</artifactId>
+            <version>1.0.0-Beryllium</version>
+        </dependency>
+        <!-- FIXME workaround for https://git.opendaylight.org/gerrit/#/c/37499/-->
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>ietf-netconf-monitoring-extension</artifactId>
+            <version>1.0.0-Beryllium</version>
+        </dependency>
+
         <!-- Testing Dependencies -->
         <dependency>
             <groupId>junit</groupId>

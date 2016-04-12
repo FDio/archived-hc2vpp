@@ -21,6 +21,7 @@ import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
 import io.fd.honeycomb.v3po.translate.Context;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -142,6 +143,12 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
     @Override
     public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id, @Nonnull final Context context) {
         final int[] bIds = getVppApi().bridgeDomainDump(-1);
+
+        if(bIds == null) {
+            // No bridge domains
+            return Collections.emptyList();
+        }
+
         LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bIds.length={}", bIds.length);
         final List<BridgeDomainKey> allIds = new ArrayList<>(bIds.length);
         for (int bId : bIds) {

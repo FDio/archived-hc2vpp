@@ -127,4 +127,25 @@ module v3po-impl {
 
         }
     }
+
+    identity netconf-monitoring-reader {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-reader;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case netconf-monitoring-reader {
+            when "/config:modules/config:module/config:type = 'netconf-monitoring-reader'";
+
+            container netconf-monitoring-binding-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-async-data-broker;
+                    }
+                }
+            }
+
+        }
+    }
 }

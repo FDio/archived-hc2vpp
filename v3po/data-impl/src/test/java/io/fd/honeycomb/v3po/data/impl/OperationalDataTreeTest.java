@@ -34,15 +34,20 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+import java.util.Collections;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -72,12 +77,20 @@ public class OperationalDataTreeTest {
     private DataSchemaNode schemaNode;
     @Mock
     private ReadContext readCtx;
+    @Mock
+    private DOMDataBroker netconfMonitoringBroker;
+    @Mock
+    private DOMDataReadOnlyTransaction domDataReadOnlyTransaction;
 
     @Before
     public void setUp() {
         initMocks(this);
-        operationalData = new OperationalDataTree(serializer, globalContext, reader);
+        operationalData = new OperationalDataTree(serializer, globalContext, reader, netconfMonitoringBroker);
         doReturn(schemaNode).when(globalContext).getDataChildByName(any(QName.class));
+
+        doReturn(domDataReadOnlyTransaction).when(netconfMonitoringBroker).newReadOnlyTransaction();
+        doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(domDataReadOnlyTransaction)
+            .read(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
     }
 
     @Test
@@ -85,6 +98,7 @@ public class OperationalDataTreeTest {
         final YangInstanceIdentifier yangId = mock(YangInstanceIdentifier.class);
         final YangInstanceIdentifier.PathArgument pArg = mock(YangInstanceIdentifier.PathArgument.class);
         doReturn(pArg).when(yangId).getLastPathArgument();
+        doReturn(Collections.singletonList(pArg)).when(yangId).getPathArguments();
 
         doReturn(QName.create("namespace", "2012-12-12", "local")).when(pArg).getNodeType();
         doReturn(id).when(serializer).fromYangInstanceIdentifier(yangId);

@@ -66,6 +66,48 @@
           </writer-registry>
         </module>
 
+        <!-- FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/ Move to netconf-north-config-->
+        <module>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:inmemory-datastore-provider">prefix:inmemory-config-datastore-provider</type>
+          <name>netconf-config-store-service</name>
+          <inmemory-config-datastore-provider xmlns="urn:opendaylight:params:xml:ns:yang:controller:inmemory-datastore-provider">
+            <schema-service>
+              <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+              <name>yang-schema-service</name>
+            </schema-service>
+          </inmemory-config-datastore-provider>
+        </module>
+        <module>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:inmemory-datastore-provider">prefix:inmemory-operational-datastore-provider</type>
+          <name>netconf-operational-store-service</name>
+          <inmemory-operational-datastore-provider xmlns="urn:opendaylight:params:xml:ns:yang:controller:inmemory-datastore-provider">
+            <schema-service>
+              <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+              <name>yang-schema-service</name>
+            </schema-service>
+          </inmemory-operational-datastore-provider>
+        </module>
+        <module>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom:impl">prefix:dom-inmemory-data-broker</type>
+          <name>netconf-inmemory-data-broker</name>
+
+          <schema-service>
+            <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+            <name>yang-schema-service</name>
+          </schema-service>
+
+          <config-data-store>
+            <type xmlns:config-dom-store-spi="urn:opendaylight:params:xml:ns:yang:controller:md:sal:core:spi:config-dom-store">config-dom-store-spi:config-dom-datastore</type>
+            <name>netconf-config-store-service</name>
+          </config-data-store>
+
+          <operational-data-store>
+            <type xmlns:operational-dom-store-spi="urn:opendaylight:params:xml:ns:yang:controller:md:sal:core:spi:operational-dom-store">operational-dom-store-spi:operational-dom-datastore</type>
+            <name>netconf-operational-store-service</name>
+          </operational-data-store>
+        </module>
+        <!-- FIXME end-->
+
         <!-- HC operational data tree -->
         <module>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:honeycomb-operational-data-tree</type>
@@ -82,6 +124,10 @@
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-registry</type>
             <name>read-registry</name>
           </reader-registry>
+          <netconf-monitoring-dom-data-broker>
+            <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
+            <name>netconf-inmemory-data-broker</name>
+          </netconf-monitoring-dom-data-broker>
         </module>
 
         <!-- DOM data broker which provides transaction functionality for HC using BI format-->
@@ -212,6 +258,31 @@
       </modules>
 
       <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+        <!-- FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/ Move to netconf-north-config -->
+
+        <service>
+          <type xmlns:config-dom-store-spi="urn:opendaylight:params:xml:ns:yang:controller:md:sal:core:spi:config-dom-store">config-dom-store-spi:config-dom-datastore</type>
+          <instance>
+            <name>netconf-config-store-service</name>
+            <provider>/modules/module[type='inmemory-config-datastore-provider'][name='netconf-config-store-service']</provider>
+          </instance>
+        </service>
+        <service>
+          <type xmlns:operational-dom-store-spi="urn:opendaylight:params:xml:ns:yang:controller:md:sal:core:spi:operational-dom-store">operational-dom-store-spi:operational-dom-datastore</type>
+          <instance>
+            <name>netconf-operational-store-service</name>
+            <provider>/modules/module[type='inmemory-operational-datastore-provider'][name='netconf-operational-store-service']</provider>
+          </instance>
+        </service>
+        <service>
+          <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
+          <instance>
+            <name>netconf-inmemory-data-broker</name>
+            <provider>/modules/module[type='dom-inmemory-data-broker'][name='netconf-inmemory-data-broker']</provider>
+          </instance>
+        </service>
+        <!-- FIXME end-->
+
 
         <service>
           <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>

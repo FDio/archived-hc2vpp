@@ -54,6 +54,18 @@
       <artifactId>vpp-cfg-init</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- TODO used by NetconfMonitoringReaderModule, get it out of here-->
+    <dependency>
+      <groupId>org.opendaylight.netconf</groupId>
+      <artifactId>ietf-netconf-monitoring</artifactId>
+      <version>1.0.0-Beryllium</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.netconf</groupId>
+      <artifactId>ietf-netconf-monitoring-extension</artifactId>
+      <version>1.0.0-Beryllium</version>
+    </dependency>
+
 
     <dependency>
       <groupId>io.fd.vpp</groupId>
