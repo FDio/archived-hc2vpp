@@ -26,7 +26,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.fd.honeycomb.v3po.impl.trans.VppException;
+import io.fd.honeycomb.v3po.vpp.facade.VppException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;

@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.impl.LoggingFuturesCallBack;
-import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
+import io.fd.honeycomb.v3po.vpp.facade.read.ReaderRegistry;
 import java.util.Collection;
 import java.util.Collections;
 import javassist.ClassPool;

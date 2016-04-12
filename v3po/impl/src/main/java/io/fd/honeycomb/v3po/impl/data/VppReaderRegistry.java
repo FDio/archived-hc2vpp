@@ -18,20 +18,20 @@ package io.fd.honeycomb.v3po.impl.data;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
-import io.fd.honeycomb.v3po.impl.trans.ReadFailedException;
-import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
-import io.fd.honeycomb.v3po.impl.trans.r.ReadContext;
-import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
-import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
-import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeChildVppReader;
-import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeListVppReader;
-import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader;
-import io.fd.honeycomb.v3po.impl.trans.r.util.DelegatingReaderRegistry;
-import io.fd.honeycomb.v3po.impl.trans.r.util.ReflexiveChildReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.r.util.ReflexiveRootReaderCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
-import io.fd.honeycomb.v3po.impl.vppstate.BridgeDomainCustomizer;
-import io.fd.honeycomb.v3po.impl.vppstate.VersionCustomizer;
+import io.fd.honeycomb.v3po.vpp.facade.impl.read.CompositeChildVppReader;
+import io.fd.honeycomb.v3po.vpp.facade.impl.read.CompositeListVppReader;
+import io.fd.honeycomb.v3po.vpp.facade.impl.read.CompositeRootVppReader;
+import io.fd.honeycomb.v3po.vpp.facade.impl.read.util.DelegatingReaderRegistry;
+import io.fd.honeycomb.v3po.vpp.facade.impl.read.util.ReflexiveChildReaderCustomizer;
+import io.fd.honeycomb.v3po.vpp.facade.impl.read.util.ReflexiveRootReaderCustomizer;
+import io.fd.honeycomb.v3po.vpp.facade.impl.util.VppRWUtils;
+import io.fd.honeycomb.v3po.vpp.facade.read.ChildVppReader;
+import io.fd.honeycomb.v3po.vpp.facade.read.ReadContext;
+import io.fd.honeycomb.v3po.vpp.facade.read.ReadFailedException;
+import io.fd.honeycomb.v3po.vpp.facade.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.vpp.facade.read.VppReader;
+import io.fd.honeycomb.v3po.vpp.facade.v3po.vppstate.BridgeDomainCustomizer;
+import io.fd.honeycomb.v3po.vpp.facade.v3po.vppstate.VersionCustomizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -98,7 +98,7 @@ public class VppReaderRegistry implements ReaderRegistry {
     @Nonnull
     @Override
     public Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll(
-        @Nonnull final ReadContext ctx) throws io.fd.honeycomb.v3po.impl.trans.ReadFailedException {
+        @Nonnull final ReadContext ctx) throws ReadFailedException {
         return reader.readAll(ctx);
     }
 

@@ -31,9 +31,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.impl.trans.VppException;
-import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
-import io.fd.honeycomb.v3po.impl.trans.w.WriterRegistry;
+import io.fd.honeycomb.v3po.vpp.facade.VppException;
+import io.fd.honeycomb.v3po.vpp.facade.write.WriteContext;
+import io.fd.honeycomb.v3po.vpp.facade.write.WriterRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

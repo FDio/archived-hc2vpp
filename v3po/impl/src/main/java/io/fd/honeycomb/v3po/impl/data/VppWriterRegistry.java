@@ -16,18 +16,19 @@
 
 package io.fd.honeycomb.v3po.impl.data;
 
-import io.fd.honeycomb.v3po.impl.trans.VppException;
-import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
-import io.fd.honeycomb.v3po.impl.trans.w.ChildVppWriter;
-import io.fd.honeycomb.v3po.impl.trans.w.VppWriter;
-import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
-import io.fd.honeycomb.v3po.impl.trans.w.WriterRegistry;
-import io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeChildVppWriter;
-import io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeListVppWriter;
-import io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeRootVppWriter;
-import io.fd.honeycomb.v3po.impl.trans.w.util.DelegatingWriterRegistry;
-import io.fd.honeycomb.v3po.impl.trans.w.util.NoopWriterCustomizer;
-import io.fd.honeycomb.v3po.impl.trans.w.util.ReflexiveChildWriterCustomizer;
+import io.fd.honeycomb.v3po.vpp.facade.VppException;
+import io.fd.honeycomb.v3po.vpp.facade.impl.util.VppRWUtils;
+import io.fd.honeycomb.v3po.vpp.facade.impl.write.CompositeChildVppWriter;
+import io.fd.honeycomb.v3po.vpp.facade.impl.write.CompositeListVppWriter;
+import io.fd.honeycomb.v3po.vpp.facade.impl.write.CompositeRootVppWriter;
+import io.fd.honeycomb.v3po.vpp.facade.impl.write.util.DelegatingWriterRegistry;
+import io.fd.honeycomb.v3po.vpp.facade.impl.write.util.NoopWriterCustomizer;
+import io.fd.honeycomb.v3po.vpp.facade.impl.write.util.ReflexiveChildWriterCustomizer;
+import io.fd.honeycomb.v3po.vpp.facade.v3po.vpp.BridgeDomainCustomizer;
+import io.fd.honeycomb.v3po.vpp.facade.write.ChildVppWriter;
+import io.fd.honeycomb.v3po.vpp.facade.write.VppWriter;
+import io.fd.honeycomb.v3po.vpp.facade.write.WriteContext;
+import io.fd.honeycomb.v3po.vpp.facade.write.WriterRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +59,7 @@ public class VppWriterRegistry implements WriterRegistry {
     private static CompositeRootVppWriter<Vpp> initVppStateWriter(@Nonnull final vppApi vppApi) {
         final CompositeListVppWriter<BridgeDomain, BridgeDomainKey> bridgeDomainWriter = new CompositeListVppWriter<>(
             BridgeDomain.class,
-            new io.fd.honeycomb.v3po.impl.vpp.BridgeDomainCustomizer(vppApi));
+            new BridgeDomainCustomizer(vppApi));
 
         final ChildVppWriter<BridgeDomains> bridgeDomainsWriter = new CompositeChildVppWriter<>(
             BridgeDomains.class,

@@ -35,6 +35,11 @@
     <feature version='${netconf.version}'>odl-netconf-connector-ssh</feature>
     <feature version='${mdsal.version}'>odl-netconf-mdsal</feature>
     <bundle>mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/vpp-facade-api/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/vpp-facade-spi/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/vpp-facade-utils/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/vpp-facade-impl/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}</bundle>
     <bundle>wrap:mvn:io.fd.vpp/vppjapi/1.0.0-SNAPSHOT</bundle>
     <configfile finalname="${configfile.directory}/v3po.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po-netconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/netconf</configfile>
