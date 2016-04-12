@@ -22,6 +22,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import io.fd.honeycomb.v3po.translate.impl.TraversalType;
 import io.fd.honeycomb.v3po.translate.util.ReflectionUtils;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.read.ChildReader;
@@ -52,10 +53,13 @@ abstract class AbstractCompositeReader<D extends DataObject, B extends Builder<D
     private final Map<Class<? extends DataObject>, ChildReader<? extends ChildOf<D>>> childReaders;
     private final Map<Class<? extends DataObject>, ChildReader<? extends Augmentation<D>>> augReaders;
     private final InstanceIdentifier<D> instanceIdentifier;
+    private final TraversalType traversalType;
 
     AbstractCompositeReader(final Class<D> managedDataObjectType,
                             final List<ChildReader<? extends ChildOf<D>>> childReaders,
-                            final List<ChildReader<? extends Augmentation<D>>> augReaders) {
+                            final List<ChildReader<? extends Augmentation<D>>> augReaders,
+                            final TraversalType traversalType) {
+        this.traversalType = traversalType;
         this.childReaders = RWUtils.uniqueLinkedIndex(childReaders, RWUtils.MANAGER_CLASS_FUNCTION);
         this.augReaders = RWUtils.uniqueLinkedIndex(augReaders, RWUtils.MANAGER_CLASS_AUG_FUNCTION);
         this.instanceIdentifier = InstanceIdentifier.create(managedDataObjectType);
@@ -78,18 +82,17 @@ abstract class AbstractCompositeReader<D extends DataObject, B extends Builder<D
         // Cache empty value to determine if anything has changed later TODO cache in a field
         final D emptyValue = builder.build();
 
-        LOG.trace("{}: Reading current attributes", this);
-        readCurrentAttributes(id, builder, ctx);
-
-        // TODO expect exceptions from reader
-        for (ChildReader<? extends ChildOf<D>> child : childReaders.values()) {
-            LOG.debug("{}: Reading child from: {}", this, child);
-            child.read(id, builder, ctx);
-        }
-
-        for (ChildReader<? extends Augmentation<D>> child : augReaders.values()) {
-            LOG.debug("{}: Reading augment from: {}", this, child);
-            child.read(id, builder, ctx);
+        switch (traversalType) {
+            case PREORDER: {
+                LOG.trace("{}: Reading current attributes", this);
+                readCurrentAttributes(id, builder, ctx);
+                readChildren(id, ctx, builder);
+            }
+            case POSTORDER: {
+                readChildren(id, ctx, builder);
+                LOG.trace("{}: Reading current attributes", this);
+                readCurrentAttributes(id, builder, ctx);
+            }
         }
 
         // Need to check whether anything was filled in to determine if data is present or not.
@@ -100,6 +103,20 @@ abstract class AbstractCompositeReader<D extends DataObject, B extends Builder<D
 
         LOG.debug("{}: Current node read successfully. Result: {}", this, read);
         return read;
+    }
+
+    private void readChildren(final InstanceIdentifier<D> id, final @Nonnull ReadContext ctx, final B builder)
+        throws ReadFailedException {
+        // TODO expect exceptions from reader
+        for (ChildReader<? extends ChildOf<D>> child : childReaders.values()) {
+            LOG.debug("{}: Reading child from: {}", this, child);
+            child.read(id, builder, ctx);
+        }
+
+        for (ChildReader<? extends Augmentation<D>> child : augReaders.values()) {
+            LOG.debug("{}: Reading augment from: {}", this, child);
+            child.read(id, builder, ctx);
+        }
     }
 
     @Nonnull

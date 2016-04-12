@@ -20,10 +20,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import io.fd.honeycomb.v3po.translate.impl.TraversalType;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -54,7 +56,15 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
                                @Nonnull final List<ChildWriter<? extends ChildOf<D>>> childWriters,
                                @Nonnull final List<ChildWriter<? extends Augmentation<D>>> augWriters,
                                @Nonnull final ListWriterCustomizer<D, K> customizer) {
-        super(type, childWriters, augWriters);
+        this(type, childWriters, augWriters, customizer, TraversalType.PREORDER);
+    }
+
+    public CompositeListWriter(@Nonnull final Class<D> type,
+                               @Nonnull final List<ChildWriter<? extends ChildOf<D>>> childWriters,
+                               @Nonnull final List<ChildWriter<? extends Augmentation<D>>> augWriters,
+                               @Nonnull final ListWriterCustomizer<D, K> customizer,
+                               @Nonnull final TraversalType traversalType) {
+        super(type, childWriters, augWriters, traversalType);
         this.customizer = customizer;
     }
 
@@ -72,26 +82,27 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
 
     @Override
     protected void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D data,
-                                          @Nonnull final WriteContext ctx) {
+                                          @Nonnull final WriteContext ctx) throws WriteFailedException {
         customizer.writeCurrentAttributes(id, data, ctx.getContext());
     }
 
     @Override
     protected void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
-                                           @Nonnull final WriteContext ctx) {
+                                           @Nonnull final WriteContext ctx) throws WriteFailedException {
         customizer.deleteCurrentAttributes(id, dataBefore, ctx.getContext());
     }
 
     @Override
     protected void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
-                                           @Nonnull final D dataAfter, @Nonnull final WriteContext ctx) {
+                                           @Nonnull final D dataAfter, @Nonnull final WriteContext ctx)
+        throws WriteFailedException {
         customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx.getContext());
     }
 
     @Override
     public void writeChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                            @Nonnull final DataObject parentData,
-                           @Nonnull final WriteContext ctx) {
+                           @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final List<D> currentData = customizer.extract(currentId, parentData);
         for (D entry : currentData) {
@@ -102,7 +113,7 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
     @Override
     public void deleteChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                             @Nonnull final DataObject parentDataBefore,
-                            @Nonnull final WriteContext ctx) {
+                            @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final List<D> dataBefore = customizer.extract(currentId, parentDataBefore);
         for (D entry : dataBefore) {
@@ -113,7 +124,7 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
     @Override
     public void updateChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                             @Nonnull final DataObject parentDataBefore, @Nonnull final DataObject parentDataAfter,
-                            @Nonnull final WriteContext ctx) {
+                            @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final ImmutableMap<Object, D>
             dataBefore = Maps.uniqueIndex(customizer.extract(currentId, parentDataBefore), INDEX_FUNCTION);
@@ -138,7 +149,8 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
     }
 
     @Override
-    protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx) {
+    protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
+        throws WriteFailedException {
         // Make sure the key is present
         if(isWildcarded(id)) {
             super.writeCurrent(getSpecificId(id, data), data, ctx);
@@ -149,7 +161,7 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
 
     @Override
     protected void updateCurrent(final InstanceIdentifier<D> id, final D dataBefore, final D dataAfter,
-                                 final WriteContext ctx) {
+                                 final WriteContext ctx) throws WriteFailedException {
         // Make sure the key is present
         if(isWildcarded(id)) {
             super.updateCurrent(getSpecificId(id, dataBefore), dataBefore, dataAfter, ctx);
@@ -159,7 +171,8 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
     }
 
     @Override
-    protected void deleteCurrent(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx) {
+    protected void deleteCurrent(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx)
+        throws WriteFailedException {
         // Make sure the key is present
         if(isWildcarded(id)) {
             super.deleteCurrent(getSpecificId(id, dataBefore), dataBefore, ctx);

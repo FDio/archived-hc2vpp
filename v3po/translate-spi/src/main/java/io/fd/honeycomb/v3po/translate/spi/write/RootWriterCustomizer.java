@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.translate.spi.write;
 
 import com.google.common.annotations.Beta;
 import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -36,10 +37,12 @@ public interface RootWriterCustomizer<D extends DataObject> {
      * @param id Identifier(from root) of data being written
      * @param dataAfter New data to be written
      * @param writeContext Write context can be used to store any useful information and then utilized by other customizers
+     *
+     * @throws WriteFailedException if write was unsuccessful
      */
     void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                 @Nonnull final D dataAfter,
-                                @Nonnull final Context writeContext);
+                                @Nonnull final Context writeContext) throws WriteFailedException;
 
     /**
      * Handle update operation. U from CRUD.
@@ -48,11 +51,13 @@ public interface RootWriterCustomizer<D extends DataObject> {
      * @param dataBefore Old data
      * @param dataAfter New, updated data
      * @param writeContext Write context can be used to store any useful information and then utilized by other customizers
+     *
+     * @throws WriteFailedException if update was unsuccessful
      */
     void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                  @Nonnull final D dataBefore,
                                  @Nonnull final D dataAfter,
-                                 @Nonnull final Context writeContext);
+                                 @Nonnull final Context writeContext) throws WriteFailedException;
 
     /**
      * Handle delete operation. D from CRUD.
@@ -60,8 +65,10 @@ public interface RootWriterCustomizer<D extends DataObject> {
      * @param id Identifier(from root) of data being written
      * @param dataBefore Old data being deleted
      * @param writeContext Write context can be used to store any useful information and then utilized by other customizers
+     *
+     * @throws WriteFailedException if delete was unsuccessful
      */
     void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                  @Nonnull final D dataBefore,
-                                 @Nonnull final Context writeContext);
+                                 @Nonnull final Context writeContext) throws WriteFailedException;
 }

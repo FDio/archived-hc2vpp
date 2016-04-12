@@ -53,6 +53,15 @@
                 </module>
 
                 <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:interfaces-honeycomb-writer</type>
+                    <name>interfaces-honeycomb-writer</name>
+                    <vpp-japi-ifc>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg">prefix:vpp-japi</type>
+                        <name>vpp-japi</name>
+                    </vpp-japi-ifc>
+                </module>
+
+                <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-reader-registry</type>
                     <name>read-registry</name>
                     <root-readers>
@@ -64,6 +73,7 @@
                         <name>interfaces-state-honeycomb-reader</name>
                     </root-readers>
                 </module>
+
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-writer-registry</type>
                     <name>write-registry</name>
@@ -71,8 +81,13 @@
                         <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer</type>
                         <name>vpp-honeycomb-writer</name>
                     </root-writers>
+                    <root-writers>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer</type>
+                        <name>interfaces-honeycomb-writer</name>
+                    </root-writers>
                 </module>
             </modules>
+
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
                 <service>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
@@ -91,6 +106,11 @@
                     <instance>
                         <name>vpp-honeycomb-writer</name>
                         <provider>/modules/module[type='vpp-honeycomb-writer'][name='vpp-honeycomb-writer']
+                        </provider>
+                    </instance>
+                    <instance>
+                        <name>interfaces-honeycomb-writer</name>
+                        <provider>/modules/module[type='interfaces-honeycomb-writer'][name='interfaces-honeycomb-writer']
                         </provider>
                     </instance>
                 </service>

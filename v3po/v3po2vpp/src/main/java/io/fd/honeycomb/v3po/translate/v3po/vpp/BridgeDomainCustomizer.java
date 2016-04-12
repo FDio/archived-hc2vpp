@@ -23,6 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
 import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,8 +42,6 @@ public class BridgeDomainCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
 
     private static final byte ADD_OR_UPDATE_BD = (byte) 1;
-    private static final int RESPONSE_NOT_READY = -77;
-    private static final int RELEASE = 1;
 
     public BridgeDomainCustomizer(final org.openvpp.vppjapi.vppApi api) {
         super(api);
@@ -55,14 +54,6 @@ public class BridgeDomainCustomizer
         return ((BridgeDomains) parentData).getBridgeDomain();
     }
 
-    private int waitForResponse(final int ctxId) {
-        int rv;
-        while ((rv = getVppApi().getRetval(ctxId, RELEASE)) == RESPONSE_NOT_READY) {
-            // TODO limit attempts
-        }
-        return rv;
-    }
-
     private int addOrUpdateBridgeDomain(final int bdId, @Nonnull final BridgeDomain bd) {
         byte flood = booleanToByte(bd.isFlood());
         byte forward = booleanToByte(bd.isForward());
@@ -71,7 +62,7 @@ public class BridgeDomainCustomizer
         byte arpTerm = booleanToByte(bd.isArpTermination());
 
         int ctxId = getVppApi().bridgeDomainAddDel(bdId, flood, forward, learn, uuf, arpTerm, ADD_OR_UPDATE_BD);
-        return waitForResponse(ctxId);
+        return V3poUtils.waitForResponse(ctxId, getVppApi());
     }
 
     @Override
@@ -111,7 +102,7 @@ public class BridgeDomainCustomizer
             (byte) 0 /* arpTerm */,
             (byte) 0 /* isAdd */);
 
-        int rv = waitForResponse(ctxId);
+        int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
 
         checkState(rv >= 0, "Bridge domain delete failed. Return code: %s", rv);
         LOG.debug("Bridge domain {} deleted as {} successfully", bdName, bdId);

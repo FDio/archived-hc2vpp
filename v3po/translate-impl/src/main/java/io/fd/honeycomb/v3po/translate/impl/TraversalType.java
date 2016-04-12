@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.v3po.util;
-
-import com.google.common.annotations.Beta;
+package io.fd.honeycomb.v3po.translate.impl;
 
 /**
- * Abstract utility to hold the vppApi reference.
+ * Type of traversal to be used by readers/writers in a tree
  */
-@Beta
-public abstract class VppApiCustomizer {
-
-    private final org.openvpp.vppjapi.vppApi vppApi;
-
-    public VppApiCustomizer(final org.openvpp.vppjapi.vppApi vppApi) {
-        this.vppApi = vppApi;
-    }
+public enum TraversalType {
 
     /**
-     * Get vppApi reference
-     *
-     * @return vppApi reference
+     * Read current attributes before reading from children
      */
-    public org.openvpp.vppjapi.vppApi getVppApi() {
-        return vppApi;
-    }
+    PREORDER,
+
+    /**
+     * Read from children before reading current attributes
+     */
+    POSTORDER
+
+    // TODO implement different traversal types as injectable iterators
+    // TODO implement above traversal types in readers
+
 }

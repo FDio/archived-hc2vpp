@@ -47,10 +47,9 @@ public interface WriterRegistry extends Writer<DataObject> {
      * Thrown when bulk update failed.
      */
     @Beta
-    class BulkUpdateException extends TranslationException {
+    class BulkUpdateException extends WriteFailedException {
 
         private final Reverter reverter;
-        private final InstanceIdentifier<?> failedId; // TODO change to VppDataModification
 
         /**
          * Constructs an BulkUpdateException.
@@ -60,8 +59,7 @@ public interface WriterRegistry extends Writer<DataObject> {
          */
         public BulkUpdateException(@Nonnull final InstanceIdentifier<?> failedId, @Nonnull final Reverter reverter,
                                    final Throwable cause) {
-            super("Bulk update failed at " + failedId, cause);
-            this.failedId = checkNotNull(failedId, "failedId should not be null");
+            super(failedId, "Bulk update failed at " + failedId, cause);
             this.reverter = checkNotNull(reverter, "reverter should not be null");
         }
 
@@ -74,19 +72,10 @@ public interface WriterRegistry extends Writer<DataObject> {
             reverter.revert();
         }
 
-        /**
-         * Returns instance identifier of the data object that caused bulk update to fail.
-         *
-         * @return data object's instance identifier
-         */
-        @Nonnull
-        public InstanceIdentifier<?> getFailedId() {
-            return failedId;
-        }
     }
 
     /**
-     * Abstraction over revert mechanism in cast of a bulk update failure
+     * Abstraction over revert mechanism in case of a bulk update failure
      */
     @Beta
     interface Reverter {

@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.util.write.DelegatingWriterRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import io.fd.honeycomb.v3po.translate.write.Writer;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.List;
@@ -63,7 +64,7 @@ public class DelegatingWriterRegistryModule extends org.opendaylight.yang.gen.v1
         public void update(
             @Nonnull final InstanceIdentifier<? extends DataObject> id,
             @Nullable final DataObject dataBefore, @Nullable final DataObject dataAfter,
-            @Nonnull final WriteContext ctx) throws TranslationException {
+            @Nonnull final WriteContext ctx) throws WriteFailedException {
             delegatingWriterRegistry.update(id, dataBefore, dataAfter, ctx);
         }
 

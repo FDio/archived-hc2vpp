@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.translate.impl.read;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
+import io.fd.honeycomb.v3po.translate.impl.TraversalType;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
@@ -56,7 +57,25 @@ public final class CompositeChildReader<C extends DataObject, B extends Builder<
                                 @Nonnull final List<ChildReader<? extends ChildOf<C>>> childReaders,
                                 @Nonnull final List<ChildReader<? extends Augmentation<C>>> augReaders,
                                 @Nonnull final ChildReaderCustomizer<C, B> customizer) {
-        super(managedDataObjectType, childReaders, augReaders);
+        this(managedDataObjectType, childReaders, augReaders, customizer, TraversalType.PREORDER);
+    }
+
+    /**
+     * Create new {@link CompositeChildReader}
+     *
+     * @param managedDataObjectType Class object for managed data type
+     * @param childReaders Child nodes(container, list) readers
+     * @param augReaders Child augmentations readers
+     * @param customizer Customizer instance to customize this generic reader
+     * @param traversalType Type of traversal to use in the tree of readers
+     *
+     */
+    public CompositeChildReader(@Nonnull final Class<C> managedDataObjectType,
+                                @Nonnull final List<ChildReader<? extends ChildOf<C>>> childReaders,
+                                @Nonnull final List<ChildReader<? extends Augmentation<C>>> augReaders,
+                                @Nonnull final ChildReaderCustomizer<C, B> customizer,
+                                @Nonnull final TraversalType traversalType) {
+        super(managedDataObjectType, childReaders, augReaders, traversalType);
         this.customizer = customizer;
     }
 

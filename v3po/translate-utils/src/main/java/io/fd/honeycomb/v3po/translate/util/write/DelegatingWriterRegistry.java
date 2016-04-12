@@ -24,9 +24,9 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import io.fd.honeycomb.v3po.translate.write.Writer;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.LinkedList;
@@ -40,8 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple writer registry able to perform and aggregated read (ROOT write) on top of all provided writers. Also able to
- * delegate a specific read to one of the delegate writers.
+ * Simple writer registry able to perform and aggregated write (ROOT write) on top of all provided writers. Also able to
+ * delegate a specific write to one of the delegate writers.
  *
  * This could serve as a utility to hold & hide all available writers in upper layers.
  */
@@ -82,7 +82,7 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
     public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                        @Nullable final DataObject dataBefore,
                        @Nullable final DataObject dataAfter,
-                       @Nonnull final WriteContext ctx) throws TranslationException {
+                       @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier.PathArgument first = checkNotNull(
                 Iterables.getFirst(id.getPathArguments(), null), "Empty id");
         final Writer<? extends DataObject> writer = rootWriters.get(first.getType());
@@ -94,7 +94,7 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
     @Override
     public void update(@Nonnull final Map<InstanceIdentifier<?>, DataObject> nodesBefore,
                        @Nonnull final Map<InstanceIdentifier<?>, DataObject> nodesAfter,
-                       @Nonnull final WriteContext ctx) throws TranslationException {
+                       @Nonnull final WriteContext ctx) throws WriteFailedException {
         checkAllWritersPresent(nodesBefore);
         checkAllWritersPresent(nodesAfter);
 

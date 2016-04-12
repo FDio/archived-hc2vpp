@@ -17,7 +17,6 @@
 package io.fd.honeycomb.v3po.translate.write;
 
 import com.google.common.annotations.Beta;
-import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.SubtreeManager;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,14 +35,14 @@ public interface Writer<D extends DataObject> extends SubtreeManager<D> {
     /**
      * Handle update operation. U from CRUD.
      *
-     * @param id         Identifier(from root) of data being written
+     * @param id         Identifier of data being written
      * @param dataBefore Old data
      * @param dataAfter  New, updated data
      * @param ctx        Write context enabling writer to get information about candidate data as well as current data
-     * @throws TranslationException if update failed
+     * @throws WriteFailedException if update failed
      */
     void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                 @Nullable final DataObject dataBefore,
                 @Nullable final DataObject dataAfter,
-                @Nonnull final WriteContext ctx) throws TranslationException;
+                @Nonnull final WriteContext ctx) throws WriteFailedException;
 }

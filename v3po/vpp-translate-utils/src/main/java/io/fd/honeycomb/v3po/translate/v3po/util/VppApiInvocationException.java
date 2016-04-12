@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate;
+package io.fd.honeycomb.v3po.translate.v3po.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  * Thrown when Vpp jAPI method invocation failed.
  */
 @Beta
-public class VppApiInvocationException extends TranslationException {
+public class VppApiInvocationException extends Exception {
     private final String methodName;
     private final int ctxId;
     private final int errorCode;
@@ -73,4 +73,3 @@ public class VppApiInvocationException extends TranslationException {
         return errorCode;
     }
 }
-

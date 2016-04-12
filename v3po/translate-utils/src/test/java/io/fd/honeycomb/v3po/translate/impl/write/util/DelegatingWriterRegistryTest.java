@@ -24,9 +24,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.util.write.DelegatingWriterRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import io.fd.honeycomb.v3po.translate.write.Writer;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.ArrayList;
@@ -117,8 +117,8 @@ public class DelegatingWriterRegistryTest {
         final DataObject dataAfter2 = mockDataObject("VppState after", VppState.class);
 
         // Fail on update
-        Mockito.doThrow(new TranslationException("vpp failed")).when(vppStateWriter)
-                .update(vppStateId, dataBefore2, dataAfter2, ctx);
+        Mockito.doThrow(new WriteFailedException(InstanceIdentifier.create(Vpp.class), "vpp failed"))
+            .when(vppStateWriter).update(vppStateId, dataBefore2, dataAfter2, ctx);
 
         // Run the test
         try {
@@ -154,11 +154,11 @@ public class DelegatingWriterRegistryTest {
         final DataObject dataAfter3 = mockDataObject("Interfaces after", Interfaces.class);
 
         // Fail on the third update
-        doThrow(new TranslationException("vpp failed")).when(interfacesWriter)
+        doThrow(new WriteFailedException(InstanceIdentifier.create(Vpp.class), "vpp failed")).when(interfacesWriter)
                 .update(interfaceId, dataBefore3, dataAfter3, ctx);
 
         // Fail on the second revert
-        doThrow(new TranslationException("vpp failed again")).when(writer)
+        doThrow(new WriteFailedException(InstanceIdentifier.create(Vpp.class), "vpp failed")).when(writer)
                 .update(vppId, dataAfter1, dataBefore1, ctx);
 
         // Run the test

@@ -16,10 +16,12 @@
 
 package io.fd.honeycomb.v3po.translate.impl.write;
 
-import io.fd.honeycomb.v3po.translate.write.WriteContext;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
+import io.fd.honeycomb.v3po.translate.impl.TraversalType;
 import io.fd.honeycomb.v3po.translate.spi.write.RootWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
@@ -35,7 +37,15 @@ public class CompositeRootWriter<D extends DataObject> extends AbstractComposite
                                @Nonnull final List<ChildWriter<? extends ChildOf<D>>> childWriters,
                                @Nonnull final List<ChildWriter<? extends Augmentation<D>>> augWriters,
                                @Nonnull final RootWriterCustomizer<D> customizer) {
-        super(type, childWriters, augWriters);
+        this(type, childWriters, augWriters, customizer, TraversalType.PREORDER);
+    }
+
+    public CompositeRootWriter(@Nonnull final Class<D> type,
+                               @Nonnull final List<ChildWriter<? extends ChildOf<D>>> childWriters,
+                               @Nonnull final List<ChildWriter<? extends Augmentation<D>>> augWriters,
+                               @Nonnull final RootWriterCustomizer<D> customizer,
+                               @Nonnull final TraversalType traversalType) {
+        super(type, childWriters, augWriters, traversalType);
         this.customizer = customizer;
     }
 
@@ -52,13 +62,15 @@ public class CompositeRootWriter<D extends DataObject> extends AbstractComposite
 
     @Override
     protected void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D data,
-                                          @Nonnull final WriteContext ctx) {
+                                          @Nonnull final WriteContext ctx) throws WriteFailedException {
+        // TODO wrap all customizer invocations in try catch, and wrap runtime exceptions in ReadFailed
+        // TODO same for readers
         customizer.writeCurrentAttributes(id, data, ctx.getContext());
     }
 
     @Override
     protected void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
-                                           @Nonnull final WriteContext ctx) {
+                                           @Nonnull final WriteContext ctx) throws WriteFailedException {
         customizer.deleteCurrentAttributes(id, dataBefore, ctx.getContext());
     }
 
@@ -66,7 +78,7 @@ public class CompositeRootWriter<D extends DataObject> extends AbstractComposite
     protected void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                            @Nonnull final D dataBefore,
                                            @Nonnull final D dataAfter,
-                                           @Nonnull final WriteContext ctx) {
+                                           @Nonnull final WriteContext ctx) throws WriteFailedException {
         customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx.getContext());
     }
 }

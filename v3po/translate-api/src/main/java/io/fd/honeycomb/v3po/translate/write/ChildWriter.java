@@ -38,7 +38,7 @@ public interface ChildWriter<D extends DataObject> extends Writer<D> {
      */
     void writeChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                     @Nonnull final DataObject parentDataAfter,
-                    @Nonnull final WriteContext ctx);
+                    @Nonnull final WriteContext ctx) throws WriteFailedException;
 
     /**
      * Extract data object managed by this writer(if necessary) from parent data and perform delete.
@@ -49,7 +49,7 @@ public interface ChildWriter<D extends DataObject> extends Writer<D> {
      */
     void deleteChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                      @Nonnull final DataObject parentDataBefore,
-                     @Nonnull final WriteContext ctx);
+                     @Nonnull final WriteContext ctx) throws WriteFailedException;
 
     /**
      * Extract data object managed by this writer(if necessary) from parent data and perform delete.
@@ -62,5 +62,5 @@ public interface ChildWriter<D extends DataObject> extends Writer<D> {
     void updateChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                      @Nonnull final DataObject parentDataBefore,
                      @Nonnull final DataObject parentDataAfter,
-                     @Nonnull final WriteContext ctx);
+                     @Nonnull final WriteContext ctx) throws WriteFailedException;
 }

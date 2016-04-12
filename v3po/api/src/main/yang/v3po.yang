@@ -85,6 +85,11 @@ module v3po {
 
   augment /if:interfaces/if:interface {
     ext:augment-identifier "vpp-interface-augmentation";
+
+    // FIXME using ietf-interfaces model for vpp interfaces makes it hard to implement because:
+    // 1. The link between interface type and this augmentation is unclear
+    // 2. Only this augmentation with combination of ifc type is trigger to do something for vpp, what if user only configures base interface stuff ? + We need to get leaves defined by ietf-interfaces when we are processing this augment
+
     container ethernet {
       when "../if:type = 'ianaift:ethernetCsmacd'";
       leaf mtu {

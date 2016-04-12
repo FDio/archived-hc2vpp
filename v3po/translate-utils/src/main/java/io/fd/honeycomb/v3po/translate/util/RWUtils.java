@@ -89,6 +89,11 @@ public final class RWUtils {
         return Collections.<ChildWriter<? extends ChildOf<T>>>singletonList(item);
     }
 
+    public static <T> List<ChildWriter<? extends Augmentation<T>>> singletonAugWriterList(
+        ChildWriter<? extends Augmentation<T>> item) {
+        return Collections.<ChildWriter<? extends Augmentation<T>>>singletonList(item);
+    }
+
     /**
      * Replace last item in ID with a provided IdentifiableItem of the same type
      */

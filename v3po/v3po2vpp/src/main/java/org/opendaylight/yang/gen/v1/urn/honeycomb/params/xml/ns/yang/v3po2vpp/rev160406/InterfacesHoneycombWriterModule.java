@@ -1,0 +1,114 @@
+package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
+
+import com.google.common.collect.Lists;
+import io.fd.honeycomb.v3po.translate.impl.TraversalType;
+import io.fd.honeycomb.v3po.translate.impl.write.CompositeChildWriter;
+import io.fd.honeycomb.v3po.translate.impl.write.CompositeListWriter;
+import io.fd.honeycomb.v3po.translate.impl.write.CompositeRootWriter;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
+import io.fd.honeycomb.v3po.translate.util.write.CloseableWriter;
+import io.fd.honeycomb.v3po.translate.util.write.NoopWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.util.write.ReflexiveChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.EthernetCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.InterfaceCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.L2Customizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.RoutingCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.VppInterfaceCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.VxlanCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4Customizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv6Customizer;
+import io.fd.honeycomb.v3po.translate.write.ChildWriter;
+import java.util.ArrayList;
+import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
+import org.opendaylight.yangtools.yang.binding.Augmentation;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
+
+public class InterfacesHoneycombWriterModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractInterfacesHoneycombWriterModule {
+    public InterfacesHoneycombWriterModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
+
+    public InterfacesHoneycombWriterModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.InterfacesHoneycombWriterModule oldModule, java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
+
+    @Override
+    public void customValidation() {
+        // add custom validation form module attributes here.
+    }
+
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+
+        final List<ChildWriter<? extends Augmentation<Interface>>> ifcAugmentations = Lists.newArrayList();
+        ifcAugmentations.add(getVppIfcAugmentationWriter());
+
+        final ChildWriter<Interface> interfaceWriter = new CompositeListWriter<>(Interface.class,
+            RWUtils.<Interface>emptyChildWriterList(),
+            ifcAugmentations,
+            new InterfaceCustomizer(getVppJapiIfcDependency()));
+
+        final List<ChildWriter<? extends ChildOf<Interfaces>>> childWriters = new ArrayList<>();
+        childWriters.add(interfaceWriter);
+
+        // FIXME if we just return the root writer and cfg subsystem takes care to set it into reader registry,
+        // we loose the ordering information for root writers
+        // Or can we rely to the order in which readers are configured ?
+        return new CloseableWriter<>(new CompositeRootWriter<>(Interfaces.class,
+            childWriters, new NoopWriterCustomizer<Interfaces>()));
+    }
+
+    private ChildWriter<? extends Augmentation<Interface>> getInterface1AugmentationWriter() {
+        final ChildWriter<Ipv4> ipv4Writer = new CompositeChildWriter<>(Ipv4.class,
+            new Ipv4Customizer(getVppJapiIfcDependency()));
+        final ChildWriter<Ipv6> ipv6Writer = new CompositeChildWriter<>(Ipv6.class,
+            new Ipv6Customizer(getVppJapiIfcDependency()));
+
+        final List<ChildWriter<? extends ChildOf<Interface1>>> interface1ChildWriters = Lists.newArrayList();
+        interface1ChildWriters.add(ipv4Writer);
+        interface1ChildWriters.add(ipv6Writer);
+
+        return new CompositeChildWriter<>(Interface1.class,
+            interface1ChildWriters, new ReflexiveChildWriterCustomizer<Interface1>());
+    }
+
+    private ChildWriter<VppInterfaceAugmentation> getVppIfcAugmentationWriter() {
+
+        final ChildWriter<Ethernet> ethernetWriter = new CompositeChildWriter<>(Ethernet.class,
+            new EthernetCustomizer(getVppJapiIfcDependency()));
+
+        final ChildWriter<Routing> routingWriter = new CompositeChildWriter<>(Routing.class,
+            new RoutingCustomizer(getVppJapiIfcDependency()));
+
+        final ChildWriter<Vxlan> vxlanWriter = new CompositeChildWriter<>(Vxlan.class,
+            new VxlanCustomizer(getVppJapiIfcDependency()));
+
+        final ChildWriter<L2> l2Writer = new CompositeChildWriter<>(L2.class,
+            new L2Customizer(getVppJapiIfcDependency()));
+
+        final List<ChildWriter<? extends ChildOf<VppInterfaceAugmentation>>> vppIfcChildWriters = Lists.newArrayList();
+        // TODO what's the order here ?
+        vppIfcChildWriters.add(ethernetWriter);
+        vppIfcChildWriters.add(vxlanWriter);
+        vppIfcChildWriters.add(l2Writer);
+        vppIfcChildWriters.add(routingWriter);
+
+        return new CompositeChildWriter<>(VppInterfaceAugmentation.class,
+            vppIfcChildWriters,
+            RWUtils.<VppInterfaceAugmentation>emptyAugWriterList(),
+            new VppInterfaceCustomizer(getVppJapiIfcDependency()),
+            // It's important that this customizer is handled in a postorder way, because you first have to handle child nodes
+            // e.g. Vxlan before setting other interface or vppInterfaceAugmentation leaves
+            TraversalType.POSTORDER);
+    }
+}

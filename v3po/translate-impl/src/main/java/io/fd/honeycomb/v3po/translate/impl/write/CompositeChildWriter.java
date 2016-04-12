@@ -17,10 +17,12 @@
 package io.fd.honeycomb.v3po.translate.impl.write;
 
 import com.google.common.base.Optional;
+import io.fd.honeycomb.v3po.translate.impl.TraversalType;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
@@ -37,7 +39,16 @@ public class CompositeChildWriter<D extends DataObject> extends AbstractComposit
                                 @Nonnull final List<ChildWriter<? extends ChildOf<D>>> childWriters,
                                 @Nonnull final List<ChildWriter<? extends Augmentation<D>>> augWriters,
                                 @Nonnull final ChildWriterCustomizer<D> customizer) {
-        super(type, childWriters, augWriters);
+        this(type, childWriters, augWriters, customizer, TraversalType.PREORDER);
+    }
+
+
+    public CompositeChildWriter(@Nonnull final Class<D> type,
+                                @Nonnull final List<ChildWriter<? extends ChildOf<D>>> childWriters,
+                                @Nonnull final List<ChildWriter<? extends Augmentation<D>>> augWriters,
+                                @Nonnull final ChildWriterCustomizer<D> customizer,
+                                @Nonnull final TraversalType traversalType) {
+        super(type, childWriters, augWriters, traversalType);
         this.customizer = customizer;
     }
 
@@ -54,25 +65,27 @@ public class CompositeChildWriter<D extends DataObject> extends AbstractComposit
 
     @Override
     protected void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D data,
-                                          @Nonnull final WriteContext ctx) {
+                                          @Nonnull final WriteContext ctx) throws WriteFailedException {
         customizer.writeCurrentAttributes(id, data, ctx.getContext());
     }
 
     @Override
     protected void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
-                                           @Nonnull WriteContext ctx) {
+                                           @Nonnull WriteContext ctx) throws WriteFailedException {
         customizer.deleteCurrentAttributes(id, dataBefore, ctx.getContext());
     }
 
     @Override
     protected void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
-                                           @Nonnull final D dataAfter, @Nonnull WriteContext ctx) {
+                                           @Nonnull final D dataAfter, @Nonnull WriteContext ctx)
+        throws WriteFailedException {
         customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx.getContext());
     }
 
     @Override
     public void writeChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
-                           @Nonnull final DataObject parentData, @Nonnull WriteContext ctx) {
+                           @Nonnull final DataObject parentData, @Nonnull WriteContext ctx)
+        throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final Optional<D> currentData = customizer.extract(currentId, parentData);
         if(currentData.isPresent()) {
@@ -83,7 +96,7 @@ public class CompositeChildWriter<D extends DataObject> extends AbstractComposit
     @Override
     public void deleteChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                             @Nonnull final DataObject parentData,
-                            @Nonnull final WriteContext ctx) {
+                            @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final Optional<D> currentData = customizer.extract(currentId, parentData);
         if(currentData.isPresent()) {
@@ -94,7 +107,7 @@ public class CompositeChildWriter<D extends DataObject> extends AbstractComposit
     @Override
     public void updateChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                             @Nonnull final DataObject parentDataBefore, @Nonnull final DataObject parentDataAfter,
-                            @Nonnull final WriteContext ctx) {
+                            @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final Optional<D> before = customizer.extract(currentId, parentDataBefore);
         final Optional<D> after = customizer.extract(currentId, parentDataAfter);

@@ -20,10 +20,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.TranslationException;
+import io.fd.honeycomb.v3po.translate.impl.TraversalType;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import io.fd.honeycomb.v3po.translate.write.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,21 +47,42 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
     private final Map<Class<? extends DataObject>, ChildWriter<? extends ChildOf<D>>> childWriters;
     private final Map<Class<? extends DataObject>, ChildWriter<? extends Augmentation<D>>> augWriters;
     private final InstanceIdentifier<D> instanceIdentifier;
+    private TraversalType traversalType;
 
     public AbstractCompositeWriter(final Class<D> type,
                                    final List<ChildWriter<? extends ChildOf<D>>> childWriters,
-                                   final List<ChildWriter<? extends Augmentation<D>>> augWriters) {
+                                   final List<ChildWriter<? extends Augmentation<D>>> augWriters,
+                                   final TraversalType traversalType) {
+        this.traversalType = traversalType;
         this.instanceIdentifier = InstanceIdentifier.create(type);
         this.childWriters = RWUtils.uniqueLinkedIndex(childWriters, RWUtils.MANAGER_CLASS_FUNCTION);
         this.augWriters = RWUtils.uniqueLinkedIndex(augWriters, RWUtils.MANAGER_CLASS_AUG_FUNCTION);
     }
 
-    protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx) {
+    protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
+        throws WriteFailedException {
         LOG.debug("{}: Writing current: {} data: {}", this, id, data);
 
-        LOG.trace("{}: Writing current attributes", this);
-        writeCurrentAttributes(id, data, ctx);
+        switch (traversalType) {
+            case PREORDER: {
+                LOG.trace("{}: Writing current attributes", this);
+                writeCurrentAttributes(id, data, ctx);
+                writeChildren(id, data, ctx);
+                break;
+            }
+            case POSTORDER: {
+                writeChildren(id, data, ctx);
+                LOG.trace("{}: Writing current attributes", this);
+                writeCurrentAttributes(id, data, ctx);
+                break;
+            }
+        }
 
+        LOG.debug("{}: Current node written successfully", this);
+    }
+
+    private void writeChildren(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)
+        throws WriteFailedException {
         for (ChildWriter<? extends ChildOf<D>> child : childWriters.values()) {
             LOG.debug("{}: Writing child in: {}", this, child);
             child.writeChild(id, data, ctx);
@@ -70,23 +92,38 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
             LOG.debug("{}: Writing augment in: {}", this, child);
             child.writeChild(id, data, ctx);
         }
-
-        LOG.debug("{}: Current node written successfully", this);
     }
 
     protected void updateCurrent(final InstanceIdentifier<D> id, final D dataBefore, final D dataAfter,
-                                 final WriteContext ctx) {
+                                 final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Updating current: {} dataBefore: {}, datAfter: {}", this, id, dataBefore, dataAfter);
 
-        if(dataBefore.equals(dataAfter)) {
+        if (dataBefore.equals(dataAfter)) {
             LOG.debug("{}: Skipping current(no update): {}", this, id);
             // No change, ignore
             return;
         }
 
-        LOG.trace("{}: Updating current attributes", this);
-        updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
+        switch (traversalType) {
+            case PREORDER: {
+                LOG.trace("{}: Updating current attributes", this);
+                updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
+                updateChildren(id, dataBefore, dataAfter, ctx);
+                break;
+            }
+            case POSTORDER: {
+                updateChildren(id, dataBefore, dataAfter, ctx);
+                LOG.trace("{}: Updating current attributes", this);
+                updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
+                break;
+            }
+        }
 
+        LOG.debug("{}: Current node updated successfully", this);
+    }
+
+    private void updateChildren(final InstanceIdentifier<D> id, final D dataBefore, final D dataAfter,
+                                final WriteContext ctx) throws WriteFailedException {
         for (ChildWriter<? extends ChildOf<D>> child : childWriters.values()) {
             LOG.debug("{}: Updating child in: {}", this, child);
             child.updateChild(id, dataBefore, dataAfter, ctx);
@@ -96,14 +133,30 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
             LOG.debug("{}: Updating augment in: {}", this, child);
             child.updateChild(id, dataBefore, dataAfter, ctx);
         }
-
-        LOG.debug("{}: Current node updated successfully", this);
     }
 
-    protected void deleteCurrent(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx) {
+    protected void deleteCurrent(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx)
+        throws WriteFailedException {
         LOG.debug("{}: Deleting current: {} dataBefore: {}", this, id, dataBefore);
 
-        // delete in reversed order
+        switch (traversalType) {
+            case PREORDER: {
+                deleteChildren(id, dataBefore, ctx);
+                LOG.trace("{}: Deleting current attributes", this);
+                deleteCurrentAttributes(id, dataBefore, ctx);
+                break;
+            }
+            case POSTORDER: {
+                LOG.trace("{}: Deleting current attributes", this);
+                deleteCurrentAttributes(id, dataBefore, ctx);
+                deleteChildren(id, dataBefore, ctx);
+                break;
+            }
+        }
+    }
+
+    private void deleteChildren(final InstanceIdentifier<D> id, final D dataBefore, final WriteContext ctx)
+        throws WriteFailedException {
         for (ChildWriter<? extends Augmentation<D>> child : reverseCollection(augWriters.values())) {
             LOG.debug("{}: Deleting augment in: {}", this, child);
             child.deleteChild(id, dataBefore, ctx);
@@ -113,9 +166,6 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
             LOG.debug("{}: Deleting child in: {}", this, child);
             child.deleteChild(id, dataBefore, ctx);
         }
-
-        LOG.trace("{}: Deleting current attributes", this);
-        deleteCurrentAttributes(id, dataBefore, ctx);
     }
 
     @SuppressWarnings("unchecked")
@@ -123,7 +173,7 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
     public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                        @Nullable final DataObject dataBefore,
                        @Nullable final DataObject dataAfter,
-                       @Nonnull final WriteContext ctx) throws TranslationException {
+                       @Nonnull final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Updating : {}", this, id);
         LOG.trace("{}: Updating : {}, from: {} to: {}", this, id, dataBefore, dataAfter);
 
@@ -168,7 +218,7 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
     }
 
     private void writeSubtree(final InstanceIdentifier<? extends DataObject> id,
-                              final DataObject dataAfter, final WriteContext ctx) throws TranslationException {
+                              final DataObject dataAfter, final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Writing subtree: {}", this, id);
         final Writer<? extends ChildOf<D>> writer = getNextWriter(id);
 
@@ -190,9 +240,8 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
         return id.getTargetType().equals(getManagedDataObjectType().getTargetType());
     }
 
-    @SuppressWarnings("unchecked")
     private void deleteSubtree(final InstanceIdentifier<? extends DataObject> id,
-                               final DataObject dataBefore, final WriteContext ctx) throws TranslationException {
+                               final DataObject dataBefore, final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Deleting subtree: {}", this, id);
         final Writer<? extends ChildOf<D>> writer = getNextWriter(id);
 
@@ -205,7 +254,8 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
     }
 
     @SuppressWarnings("unchecked")
-    private void updateSubtreeFromCurrent(final InstanceIdentifier<? extends DataObject> id, final WriteContext ctx) {
+    private void updateSubtreeFromCurrent(final InstanceIdentifier<? extends DataObject> id, final WriteContext ctx)
+        throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.cutId(id, getManagedDataObjectType());
         Optional<DataObject> currentDataBefore = ctx.readBefore(currentId);
         Optional<DataObject> currentDataAfter = ctx.readAfter(currentId);
@@ -215,11 +265,10 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
             castToManaged(currentDataAfter.orNull()), ctx);
     }
 
-    @SuppressWarnings("unchecked")
     private void updateSubtree(final InstanceIdentifier<? extends DataObject> id,
                                final DataObject dataBefore,
                                final DataObject dataAfter,
-                               final WriteContext ctx) throws TranslationException {
+                               final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Updating subtree: {}", this, id);
         final Writer<? extends ChildOf<D>> writer = getNextWriter(id);
 
@@ -245,16 +294,16 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
 
     protected abstract void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                                    @Nonnull final D data,
-                                                   @Nonnull final WriteContext ctx);
+                                                   @Nonnull final WriteContext ctx) throws WriteFailedException;
 
     protected abstract void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                                     @Nonnull final D dataBefore,
-                                                    @Nonnull final WriteContext ctx);
+                                                    @Nonnull final WriteContext ctx) throws WriteFailedException;
 
     protected abstract void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                                     @Nonnull final D dataBefore,
                                                     @Nonnull final D dataAfter,
-                                                    @Nonnull final WriteContext ctx);
+                                                    @Nonnull final WriteContext ctx) throws WriteFailedException;
 
     @Nonnull
     @Override

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate;
+package io.fd.honeycomb.v3po.translate.v3po.util;
 
 import java.util.Random;
 import org.junit.Assert;
