@@ -34,6 +34,14 @@
                         <name>vpp-japi</name>
                     </vpp-japi>
                 </module>
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:interfaces-state-honeycomb-reader</type>
+                    <name>interfaces-state-honeycomb-reader</name>
+                    <vpp-japi>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg">prefix:vpp-japi</type>
+                        <name>vpp-japi</name>
+                    </vpp-japi>
+                </module>
 
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-honeycomb-writer</type>
@@ -50,6 +58,10 @@
                     <root-readers>
                         <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
                         <name>vpp-state-honeycomb-reader</name>
+                    </root-readers>
+                    <root-readers>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                        <name>interfaces-state-honeycomb-reader</name>
                     </root-readers>
                 </module>
                 <module>
@@ -68,6 +80,10 @@
                         <name>vpp-state-honeycomb-reader</name>
                         <provider>/modules/module[type='vpp-state-honeycomb-reader'][name='vpp-state-honeycomb-reader']
                         </provider>
+                    </instance>
+                    <instance>
+                        <name>interfaces-state-honeycomb-reader</name>
+                        <provider>/modules/module[type='interfaces-state-honeycomb-reader'][name='interfaces-state-honeycomb-reader']</provider>
                     </instance>
                 </service>
                 <service>

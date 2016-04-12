@@ -36,6 +36,28 @@ module v3po2vpp {
         }
     }
 
+    identity interfaces-state-honeycomb-reader {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-reader;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case interfaces-state-honeycomb-reader {
+            when "/config:modules/config:module/config:type = 'interfaces-state-honeycomb-reader'";
+
+            container vpp-japi {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vjc:vpp-japi;
+                    }
+                }
+            }
+
+        }
+    }
+
+
     identity vpp-honeycomb-writer {
         base config:module-type;
         config:provided-service tapi:honeycomb-writer;
