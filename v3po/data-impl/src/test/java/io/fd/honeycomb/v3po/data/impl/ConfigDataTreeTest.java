@@ -31,7 +31,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.data.VppDataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
@@ -56,12 +56,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
 
-public class VPPConfigDataTreeTest {
+public class ConfigDataTreeTest {
 
     @Mock
-    private WriterRegistry vppWriter;
+    private WriterRegistry writer;
     @Mock
     private BindingNormalizedNodeSerializer serializer;
     @Mock
@@ -69,26 +68,27 @@ public class VPPConfigDataTreeTest {
     @Mock
     private DataTreeModification modification;
 
-    private VppConfigDataTree proxy;
+    private ConfigDataTree configDataTree;
 
     @Before
     public void setUp() {
         initMocks(this);
-        proxy = new VppConfigDataTree(serializer, dataTree, vppWriter);
+        configDataTree = new ConfigDataTree(serializer, dataTree, writer);
     }
 
     @Test
     public void testRead() throws Exception {
-        final DataTreeSnapshot snapshot = mock(DataTreeSnapshot.class);
+        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
+                snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
         when(dataTree.takeSnapshot()).thenReturn(snapshot);
 
         final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
         final Optional node = mock(Optional.class);
         doReturn(node).when(snapshot).readNode(path);
 
-        final VppDataTreeSnapshot vppDataTreeSnapshot = proxy.takeSnapshot();
+        final DataTreeSnapshot dataTreeSnapshot = configDataTree.takeSnapshot();
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
-                vppDataTreeSnapshot.read(path);
+                dataTreeSnapshot.read(path);
 
         verify(dataTree).takeSnapshot();
         verify(snapshot).readNode(path);
@@ -99,13 +99,14 @@ public class VPPConfigDataTreeTest {
 
     @Test
     public void testNewModification() throws Exception {
-        final DataTreeSnapshot snapshot = mock(DataTreeSnapshot.class);
+        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
+                snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
         when(dataTree.takeSnapshot()).thenReturn(snapshot);
 
         when(snapshot.newModification()).thenReturn(modification);
 
-        final VppDataTreeSnapshot vppDataTreeSnapshot = proxy.takeSnapshot();
-        final DataTreeModification newModification = vppDataTreeSnapshot.newModification();
+        final DataTreeSnapshot dataTreeSnapshot = configDataTree.takeSnapshot();
+        final DataTreeModification newModification = dataTreeSnapshot.newModification();
         verify(dataTree).takeSnapshot();
         verify(snapshot).newModification();
 
@@ -127,10 +128,10 @@ public class VPPConfigDataTreeTest {
         when(rootNode.getDataAfter()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeAfter));
 
         // Run the test
-        proxy.commit(modification);
+        configDataTree.modify(modification);
 
         // Verify all changes were processed:
-        verify(vppWriter).update(
+        verify(writer).update(
                 mapOf(dataBefore, Ethernet.class),
                 mapOf(dataAfter, Ethernet.class),
                 any(WriteContext.class));
@@ -163,7 +164,7 @@ public class VPPConfigDataTreeTest {
         // Fail on update:
         final TranslationException failedOnUpdateException = new TranslationException("update failed");
         doThrow(new io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
-                failedOnUpdateException)).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
+                failedOnUpdateException)).when(writer).update(anyMap(), anyMap(), any(WriteContext.class));
 
         // Prepare modification:
         final DataTreeCandidateNode rootNode = mockRootNode();
@@ -176,9 +177,9 @@ public class VPPConfigDataTreeTest {
 
         // Run the test
         try {
-            proxy.commit(modification);
+            configDataTree.modify(modification);
         } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException e) {
-            verify(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
+            verify(writer).update(anyMap(), anyMap(), any(WriteContext.class));
             verify(reverter).revert();
             assertEquals(failedOnUpdateException, e.getCause());
             return;
@@ -198,7 +199,7 @@ public class VPPConfigDataTreeTest {
 
         // Fail on update:
         doThrow(new io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
-                new TranslationException("update failed"))).when(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
+                new TranslationException("update failed"))).when(writer).update(anyMap(), anyMap(), any(WriteContext.class));
 
         // Fail on revert:
         final TranslationException failedOnRevertException = new TranslationException("update failed");
@@ -218,9 +219,9 @@ public class VPPConfigDataTreeTest {
 
         // Run the test
         try {
-            proxy.commit(modification);
+            configDataTree.modify(modification);
         } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException e) {
-            verify(vppWriter).update(anyMap(), anyMap(), any(WriteContext.class));
+            verify(writer).update(anyMap(), anyMap(), any(WriteContext.class));
             verify(reverter).revert();
             assertEquals(failedOnRevertException, e.getCause());
             return;

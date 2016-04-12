@@ -53,14 +53,14 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.DataSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class VppOperationalDataTreeTest {
+public class OperationalDataTreeTest {
 
     @Mock
     private BindingNormalizedNodeSerializer serializer;
     @Mock
     private ReaderRegistry reader;
 
-    private VppOperationalDataTree operationalData;
+    private OperationalDataTree operationalData;
 
     @Mock
     private InstanceIdentifier<DataObject> id;
@@ -76,7 +76,7 @@ public class VppOperationalDataTreeTest {
     @Before
     public void setUp() {
         initMocks(this);
-        operationalData = new VppOperationalDataTree(serializer, globalContext, reader);
+        operationalData = new OperationalDataTree(serializer, globalContext, reader);
         doReturn(schemaNode).when(globalContext).getDataChildByName(any(QName.class));
     }
 

@@ -22,9 +22,9 @@ import static io.fd.honeycomb.v3po.data.impl.DataTreeUtils.childrenFromNormalize
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import io.fd.honeycomb.v3po.data.ReadableVppDataTree;
-import io.fd.honeycomb.v3po.data.VppDataTree;
-import io.fd.honeycomb.v3po.data.VppDataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ModifiableDataTree;
+import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.util.write.TransactionWriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
@@ -44,22 +44,21 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * VppDataTree implementation for configuration data.
+ * DataTree implementation for configuration data.
  */
-public final class VppConfigDataTree implements VppDataTree {
+public final class ConfigDataTree implements ModifiableDataTree {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VppConfigDataTree.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigDataTree.class);
 
     private final BindingNormalizedNodeSerializer serializer;
     private final DataTree dataTree;
     private final WriterRegistry writer;
-    public static final ReadableVppDataTree EMPTY_OPERATIONAL = new ReadableVppDataTree() {
+    public static final ReadableDataTree EMPTY_OPERATIONAL = new ReadableDataTree() {
         @Override
         public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
                 @Nonnull final YangInstanceIdentifier path) {
@@ -73,22 +72,22 @@ public final class VppConfigDataTree implements VppDataTree {
      * @param serializer service for serialization between Java Binding Data representation and NormalizedNode
      *                   representation.
      * @param dataTree   data tree for configuration data representation
-     * @param vppWriter  service for translation between Java Binding Data and Vpp.
+     * @param writer  service for translation between Java Binding Data and data provider.
      */
-    public VppConfigDataTree(@Nonnull final BindingNormalizedNodeSerializer serializer,
-                             @Nonnull final DataTree dataTree, @Nonnull final WriterRegistry vppWriter) {
+    public ConfigDataTree(@Nonnull final BindingNormalizedNodeSerializer serializer,
+                          @Nonnull final DataTree dataTree, @Nonnull final WriterRegistry writer) {
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.dataTree = checkNotNull(dataTree, "dataTree should not be null");
-        this.writer = checkNotNull(vppWriter, "vppWriter should not be null");
+        this.writer = checkNotNull(writer, "writer should not be null");
     }
 
     @Override
-    public VppDataTreeSnapshot takeSnapshot() {
+    public DataTreeSnapshot takeSnapshot() {
         return new ConfigSnapshot(dataTree.takeSnapshot());
     }
 
     @Override
-    public void commit(final DataTreeModification modification)
+    public void modify(final DataTreeModification modification)
             throws DataValidationFailedException, TranslationException {
         dataTree.validate(modification);
 
@@ -98,19 +97,19 @@ public final class VppConfigDataTree implements VppDataTree {
         final YangInstanceIdentifier rootPath = candidate.getRootPath();
         final Optional<NormalizedNode<?, ?>> normalizedDataBefore = rootNode.getDataBefore();
         final Optional<NormalizedNode<?, ?>> normalizedDataAfter = rootNode.getDataAfter();
-        LOG.debug("VppConfigDataTree.commit() rootPath={}, rootNode={}, dataBefore={}, dataAfter={}",
+        LOG.debug("ConfigDataTree.modify() rootPath={}, rootNode={}, dataBefore={}, dataAfter={}",
                 rootPath, rootNode, normalizedDataBefore, normalizedDataAfter);
 
         final Map<InstanceIdentifier<?>, DataObject> nodesBefore = extractNetconfData(normalizedDataBefore);
-        LOG.debug("VppConfigDataTree.commit() extracted nodesBefore={}", nodesBefore.keySet());
+        LOG.debug("ConfigDataTree.modify() extracted nodesBefore={}", nodesBefore.keySet());
 
         final Map<InstanceIdentifier<?>, DataObject> nodesAfter = extractNetconfData(normalizedDataAfter);
-        LOG.debug("VppConfigDataTree.commit() extracted nodesAfter={}", nodesAfter.keySet());
+        LOG.debug("ConfigDataTree.modify() extracted nodesAfter={}", nodesAfter.keySet());
 
 
-        final DOMDataReadOnlyTransaction beforeTx = new VppReadOnlyTransaction(EMPTY_OPERATIONAL, takeSnapshot());
+        final DOMDataReadOnlyTransaction beforeTx = new ReadOnlyTransaction(EMPTY_OPERATIONAL, takeSnapshot());
         final ConfigSnapshot modificationSnapshot = new ConfigSnapshot(modification);
-        final DOMDataReadOnlyTransaction afterTx = new VppReadOnlyTransaction(EMPTY_OPERATIONAL, modificationSnapshot);
+        final DOMDataReadOnlyTransaction afterTx = new ReadOnlyTransaction(EMPTY_OPERATIONAL, modificationSnapshot);
         try(final WriteContext ctx = new TransactionWriteContext(serializer, beforeTx, afterTx)) {
             writer.update(nodesBefore, nodesAfter, ctx);
         } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException e) {
@@ -144,10 +143,10 @@ public final class VppConfigDataTree implements VppDataTree {
         return Collections.emptyMap();
     }
 
-    private final static class ConfigSnapshot implements VppDataTreeSnapshot {
-        private final DataTreeSnapshot snapshot;
+    private final static class ConfigSnapshot implements DataTreeSnapshot {
+        private final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot snapshot;
 
-        ConfigSnapshot(@Nonnull final DataTreeSnapshot snapshot) {
+        ConfigSnapshot(@Nonnull final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot snapshot) {
             this.snapshot = snapshot;
         }
 

@@ -24,8 +24,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.data.ReadableVppDataTree;
-import io.fd.honeycomb.v3po.data.VppDataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ReadableDataTree;
+import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,19 +34,19 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-public class VppReadOnlyTransactionTest {
+public class ReadOnlyTransactionTest {
 
     @Mock
-    private ReadableVppDataTree operationalData;
+    private ReadableDataTree operationalData;
     @Mock
-    private VppDataTreeSnapshot configSnapshot;
+    private DataTreeSnapshot configSnapshot;
 
-    private VppReadOnlyTransaction readOnlyTx;
+    private ReadOnlyTransaction readOnlyTx;
 
     @Before
     public void setUp() {
         initMocks(this);
-        readOnlyTx = new VppReadOnlyTransaction(operationalData, configSnapshot);
+        readOnlyTx = new ReadOnlyTransaction(operationalData, configSnapshot);
     }
 
     @Test

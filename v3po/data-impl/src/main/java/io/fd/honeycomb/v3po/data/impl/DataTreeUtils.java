@@ -62,7 +62,7 @@ final class DataTreeUtils {
         for (final DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> child : children) {
             final YangInstanceIdentifier.PathArgument pathArgument = child.getIdentifier();
             final YangInstanceIdentifier identifier = YangInstanceIdentifier.create(pathArgument);
-            LOG.debug("VppConfigDataProxy.extractDataObject() child={}, pathArgument={}, identifier={}", child,
+            LOG.debug("DataTreeUtils.childrenFromNormalized() child={}, pathArgument={}, identifier={}", child,
                     pathArgument, identifier);
 
             final Map.Entry<InstanceIdentifier<?>, DataObject> entry = serializer.fromNormalizedNode(identifier, child);

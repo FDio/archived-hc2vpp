@@ -25,12 +25,12 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 /**
- * Facade over VPP data tree that allows reading tree nodes.
+ * Facade over data tree that allows reading tree nodes.
  */
 @Beta
-public interface ReadableVppDataTree {
+public interface ReadableDataTree {
     /**
-     * Reads a particular node from the VPP data tree.
+     * Reads a particular node from the data tree.
      *
      * @param path Path of the node
      * @return a CheckFuture containing the result of the read.

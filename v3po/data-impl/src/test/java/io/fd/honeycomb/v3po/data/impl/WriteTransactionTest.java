@@ -27,8 +27,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.data.VppDataTree;
-import io.fd.honeycomb.v3po.data.VppDataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ModifiableDataTree;
+import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -39,12 +39,12 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 
-public class VppWriteTransactionTest {
+public class WriteTransactionTest {
 
     @Mock
-    private VppDataTree configDataTree;
+    private ModifiableDataTree configDataTree;
     @Mock
-    private VppDataTreeSnapshot configSnapshot;
+    private DataTreeSnapshot configSnapshot;
     @Mock
     private YangInstanceIdentifier path;
     @Mock
@@ -52,13 +52,13 @@ public class VppWriteTransactionTest {
     @Mock
     private DataTreeModification dataTreeModification;
 
-    private VppWriteTransaction writeTx;
+    private WriteTransaction writeTx;
 
     @Before
     public void setUp() {
         initMocks(this);
         when(configSnapshot.newModification()).thenReturn(dataTreeModification);
-        writeTx = new VppWriteTransaction(configDataTree, configSnapshot);
+        writeTx = new WriteTransaction(configDataTree, configSnapshot);
     }
 
     @Test
@@ -107,12 +107,12 @@ public class VppWriteTransactionTest {
     public void testSubmit() throws Exception {
         writeTx.submit();
         verify(dataTreeModification).ready();
-        verify(configDataTree).commit(dataTreeModification);
+        verify(configDataTree).modify(dataTreeModification);
     }
 
     @Test
     public void testSubmitFailed() throws Exception {
-        doThrow(mock(DataValidationFailedException.class)).when(configDataTree).commit(dataTreeModification);
+        doThrow(mock(DataValidationFailedException.class)).when(configDataTree).modify(dataTreeModification);
         final CheckedFuture<Void, TransactionCommitFailedException> future = writeTx.submit();
         try {
             future.get();

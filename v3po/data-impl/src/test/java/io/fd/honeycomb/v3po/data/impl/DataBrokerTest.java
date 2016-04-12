@@ -22,9 +22,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.v3po.data.ReadableVppDataTree;
-import io.fd.honeycomb.v3po.data.VppDataTree;
-import io.fd.honeycomb.v3po.data.VppDataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ReadableDataTree;
+import io.fd.honeycomb.v3po.data.ModifiableDataTree;
+import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,21 +39,21 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
-public class VppDataBrokerTest {
+public class DataBrokerTest {
 
     @Mock
-    private ReadableVppDataTree operationalData;
+    private ReadableDataTree operationalData;
     @Mock
-    private VppDataTree confiDataTree;
+    private ModifiableDataTree confiDataTree;
     @Mock
-    private VppDataTreeSnapshot configSnapshot;
-    private VppDataBroker broker;
+    private DataTreeSnapshot configSnapshot;
+    private DataBroker broker;
 
     @Before
     public void setUp() {
         initMocks(this);
         when(confiDataTree.takeSnapshot()).thenReturn(configSnapshot);
-        broker = new VppDataBroker(operationalData, confiDataTree);
+        broker = new DataBroker(operationalData, confiDataTree);
     }
 
     @Test

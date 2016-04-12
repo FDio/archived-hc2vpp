@@ -24,17 +24,16 @@ import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.config.WriterRegistry;
-import io.fd.honeycomb.v3po.data.ReadableVppDataTree;
-import io.fd.honeycomb.v3po.data.VppDataTree;
-import io.fd.honeycomb.v3po.data.impl.VppConfigDataTree;
-import io.fd.honeycomb.v3po.data.impl.VppDataBroker;
-import io.fd.honeycomb.v3po.data.impl.VppOperationalDataTree;
+import io.fd.honeycomb.v3po.data.ModifiableDataTree;
+import io.fd.honeycomb.v3po.data.ReadableDataTree;
+import io.fd.honeycomb.v3po.data.impl.ConfigDataTree;
+import io.fd.honeycomb.v3po.data.impl.OperationalDataTree;
+import io.fd.honeycomb.v3po.data.impl.DataBroker;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import java.util.Collection;
 import java.util.Collections;
 import javassist.ClassPool;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -87,14 +86,14 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
 
     private final TopologyId VPP_TOPOLOGY_ID = TopologyId.getDefaultInstance("vpp-topology");
     private final NodeId VPP_TOPOLOGY_NODE_ID = NodeId.getDefaultInstance("vpp");
-    private final DataBroker bindingBroker;
+    private final org.opendaylight.controller.md.sal.binding.api.DataBroker bindingBroker;
     private final ReaderRegistry readerRegistry;
     private final InstanceIdentifier<Node> mountPointPath;
     private final WriterRegistry writerRegistry;
     private ObjectRegistration<DOMMountPoint> mountPointRegistration;
     private DOMDataBroker broker;
 
-    public VppDataBrokerInitializationProvider(@Nonnull final DataBroker bindingBroker,
+    public VppDataBrokerInitializationProvider(@Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker bindingBroker,
                                                final ReaderRegistry readerRegistry,
                                                final WriterRegistry writerRegistry) {
         this.bindingBroker = checkNotNull(bindingBroker, "bindingBroker should not be null");
@@ -183,15 +182,16 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
 
     private DOMDataBroker initVppDataBroker(final SchemaContext globalContext,
                                             final BindingNormalizedNodeSerializer serializer) {
-        final ReadableVppDataTree operationalData =
-                new VppOperationalDataTree(serializer, globalContext, readerRegistry); // TODO make configurable
+        final ReadableDataTree operationalData =
+                new OperationalDataTree(serializer, globalContext, readerRegistry); // TODO make configurable
 
         final DataTree dataTree =
                 InMemoryDataTreeFactory.getInstance().create(TreeType.CONFIGURATION); // TODO make configurable
         dataTree.setSchemaContext(globalContext);
 
-        final VppDataTree configDataProxy = new VppConfigDataTree(serializer, dataTree, writerRegistry); // TODO make configurable
-        return new VppDataBroker(operationalData, configDataProxy);
+        final ModifiableDataTree configDataProxy =
+                new ConfigDataTree(serializer, dataTree, writerRegistry); // TODO make configurable
+        return new DataBroker(operationalData, configDataProxy);
     }
 
     /**
@@ -220,7 +220,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final DOMDataReadOnlyTransaction readTx = broker.newReadOnlyTransaction();
 
         final YangInstanceIdentifier
-            id = YangInstanceIdentifier.builder().node(VppState.QNAME).node(BridgeDomains.QNAME).build();
+                id = YangInstanceIdentifier.builder().node(VppState.QNAME).node(BridgeDomains.QNAME).build();
 
         LOG.trace("initialVppStateSynchronization id: {}", id);
 

@@ -26,8 +26,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.fd.honeycomb.v3po.data.VppDataTree;
-import io.fd.honeycomb.v3po.data.VppDataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ModifiableDataTree;
+import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -44,15 +44,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @NotThreadSafe
-final class VppWriteTransaction implements DOMDataWriteTransaction {
+final class WriteTransaction implements DOMDataWriteTransaction {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VppWriteTransaction.class);
-    private final VppDataTree configDataTree;
+    private static final Logger LOG = LoggerFactory.getLogger(WriteTransaction.class);
+    private final ModifiableDataTree configDataTree;
     private DataTreeModification modification;
     private TransactionStatus status;
 
-    VppWriteTransaction(@Nonnull final VppDataTree configDataTree,
-                        @Nonnull final VppDataTreeSnapshot configSnapshot) {
+    WriteTransaction(@Nonnull final ModifiableDataTree configDataTree,
+                     @Nonnull final DataTreeSnapshot configSnapshot) {
         this.configDataTree = Preconditions.checkNotNull(configDataTree, "configDataTree should not be null");
         Preconditions.checkNotNull(configSnapshot, "configSnapshot should not be null");
         // initialize transaction state:
@@ -60,7 +60,7 @@ final class VppWriteTransaction implements DOMDataWriteTransaction {
         status = NEW;
     }
 
-    VppWriteTransaction(@Nonnull final VppDataTree configDataTree) {
+    WriteTransaction(@Nonnull final ModifiableDataTree configDataTree) {
         this(configDataTree, configDataTree.takeSnapshot());
     }
 
@@ -70,13 +70,13 @@ final class VppWriteTransaction implements DOMDataWriteTransaction {
 
     private void checkIsNew() {
         Preconditions.checkState(status == NEW, "Transaction was submitted or canceled");
-        Preconditions.checkState(modification != null, "VPPDataTree modification should not be null");
+        Preconditions.checkState(modification != null, "DataTree modification should not be null");
     }
 
     @Override
     public void put(final LogicalDatastoreType store, final YangInstanceIdentifier path,
                     final NormalizedNode<?, ?> data) {
-        LOG.debug("VppWriteTransaction.put() store={}, path={}, data={}", store, path, data);
+        LOG.debug("WriteTransaction.put() store={}, path={}, data={}", store, path, data);
         checkIsNew();
         checkConfigurationWrite(store);
         modification.write(path, data);
@@ -85,7 +85,7 @@ final class VppWriteTransaction implements DOMDataWriteTransaction {
     @Override
     public void merge(final LogicalDatastoreType store, final YangInstanceIdentifier path,
                       final NormalizedNode<?, ?> data) {
-        LOG.debug("VppWriteTransaction.merge() store={}, path={}, data={}", store, path, data);
+        LOG.debug("WriteTransaction.merge() store={}, path={}, data={}", store, path, data);
         checkIsNew();
         checkConfigurationWrite(store);
         modification.merge(path, data);
@@ -105,7 +105,7 @@ final class VppWriteTransaction implements DOMDataWriteTransaction {
 
     @Override
     public void delete(LogicalDatastoreType store, final YangInstanceIdentifier path) {
-        LOG.debug("VppWriteTransaction.delete() store={}, path={}", store, path);
+        LOG.debug("WriteTransaction.delete() store={}, path={}", store, path);
         checkIsNew();
         checkConfigurationWrite(store);
         modification.delete(path);
@@ -113,7 +113,7 @@ final class VppWriteTransaction implements DOMDataWriteTransaction {
 
     @Override
     public CheckedFuture<Void, TransactionCommitFailedException> submit() {
-        LOG.debug("VppWriteTransaction.submit()");
+        LOG.debug("WriteTransaction.submit()");
         checkIsNew();
 
         // seal transaction:
@@ -121,11 +121,11 @@ final class VppWriteTransaction implements DOMDataWriteTransaction {
         status = SUBMITED;
 
         try {
-            configDataTree.commit(modification);
+            configDataTree.modify(modification);
             status = COMMITED;
         } catch (DataValidationFailedException | TranslationException e) {
             status = FAILED;
-            LOG.error("Failed to commit VPP state modification", e);
+            LOG.error("Failed modify data tree", e);
             return Futures.immediateFailedCheckedFuture(
                     new TransactionCommitFailedException("Failed to validate DataTreeModification", e));
         } finally {

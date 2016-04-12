@@ -26,7 +26,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import io.fd.honeycomb.v3po.data.ReadableVppDataTree;
+import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
@@ -56,10 +56,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ReadableVppDataTree implementation for operational data.
+ * ReadableDataTree implementation for operational data.
  */
-public final class VppOperationalDataTree implements ReadableVppDataTree {
-    private static final Logger LOG = LoggerFactory.getLogger(VppOperationalDataTree.class);
+public final class OperationalDataTree implements ReadableDataTree {
+    private static final Logger LOG = LoggerFactory.getLogger(OperationalDataTree.class);
 
     private final BindingNormalizedNodeSerializer serializer;
     private final ReaderRegistry readerRegistry;
@@ -71,10 +71,10 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
      * @param serializer     service for serialization between Java Binding Data representation and NormalizedNode
      *                       representation.
      * @param globalContext  service for obtaining top level context data from all yang modules.
-     * @param readerRegistry service responsible for translation between DataObjects and VPP APIs.
+     * @param readerRegistry service responsible for translation between DataObjects and data provider.
      */
-    public VppOperationalDataTree(@Nonnull BindingNormalizedNodeSerializer serializer,
-                                  @Nonnull final SchemaContext globalContext, @Nonnull ReaderRegistry readerRegistry) {
+    public OperationalDataTree(@Nonnull BindingNormalizedNodeSerializer serializer,
+                               @Nonnull final SchemaContext globalContext, @Nonnull ReaderRegistry readerRegistry) {
         this.globalContext = checkNotNull(globalContext, "serializer should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.readerRegistry = checkNotNull(readerRegistry, "reader should not be null");
@@ -101,10 +101,10 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
     private Optional<NormalizedNode<?, ?>> readNode(final YangInstanceIdentifier yangInstanceIdentifier,
                                                     final ReadContext ctx)
             throws ReadFailedException {
-        LOG.debug("VppOperationalDataTree.readNode(), yangInstanceIdentifier={}", yangInstanceIdentifier);
+        LOG.debug("OperationalDataTree.readNode(), yangInstanceIdentifier={}", yangInstanceIdentifier);
         final InstanceIdentifier<?> path = serializer.fromYangInstanceIdentifier(yangInstanceIdentifier);
         checkNotNull(path, "Invalid instance identifier %s. Cannot create BA equivalent.", yangInstanceIdentifier);
-        LOG.debug("VppOperationalDataTree.readNode(), path={}", path);
+        LOG.debug("OperationalDataTree.readNode(), path={}", path);
 
         final Optional<? extends DataObject> dataObject;
 
@@ -118,7 +118,7 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
     }
 
     private Optional<NormalizedNode<?, ?>> readRoot(final ReadContext ctx) throws ReadFailedException {
-        LOG.debug("VppOperationalDataTree.readRoot()");
+        LOG.debug("OperationalDataTree.readRoot()");
 
         final DataContainerNodeAttrBuilder<YangInstanceIdentifier.NodeIdentifier, ContainerNode> dataNodeBuilder =
                 Builders.containerBuilder()
@@ -182,11 +182,11 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
         return new Function<DataObject, NormalizedNode<?, ?>>() {
             @Override
             public NormalizedNode<?, ?> apply(@Nullable final DataObject dataObject) {
-                LOG.trace("VppOperationalDataTree.toNormalizedNode(), path={}, dataObject={}", path, dataObject);
+                LOG.trace("OperationalDataTree.toNormalizedNode(), path={}, dataObject={}", path, dataObject);
                 final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> entry =
                         serializer.toNormalizedNode(path, dataObject);
 
-                LOG.trace("VppOperationalDataTree.toNormalizedNode(), normalizedNodeEntry={}", entry);
+                LOG.trace("OperationalDataTree.toNormalizedNode(), normalizedNodeEntry={}", entry);
                 return entry.getValue();
             }
         };
