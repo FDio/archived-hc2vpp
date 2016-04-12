@@ -56,11 +56,11 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
 
     @Override
     public final void initialize() throws InitializeException {
-        LOG.debug("AbstractDataTreeConverter.initialize()");
+        LOG.debug("AbstractDataTreeConverter.initialize() from(oper): {}, to(cfg): {}", idOper, idConfig);
         final Optional<O> data = readData();
 
         if (data.isPresent()) {
-            LOG.debug("Config initialization data={}", data);
+            LOG.debug("Config initialization, operational data={}", data);
 
             final O operationalData = data.get();
             final C configData = convert(operationalData);
@@ -68,12 +68,12 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
             try {
                 LOG.debug("Initializing config with data={}", configData);
                 writeData(configData);
-                LOG.debug("Config initialization successful");
+                LOG.info("Config initialization successful from(oper): {}, to(cfg): {}", idOper, idConfig);
             } catch (TransactionCommitFailedException e) {
                 throw new InitializeException("Failed to perform config initialization", e);
             }
         } else {
-            LOG.warn("Data is not present");
+            LOG.info("Data is not present under: {}, no initial changes to config at: {}", idOper, idConfig);
         }
     }
 
