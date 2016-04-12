@@ -206,13 +206,20 @@
                     </aggregator>
                 </module>
 
+                <!-- Change the port of global netconf north from 2830 to 2831, so that honeycomb netconf northbound can use 2830-->
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:ssh">prefix:netconf-northbound-ssh</type>
+                    <name>netconf-mdsal-ssh-server</name>
+                    <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:ssh">2831</port>
+                </module>
+
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:ssh">
                         prefix:netconf-northbound-ssh
                     </type>
                     <name>netconf-vpp-ssh-server</name>
 
-                    <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:ssh">7778</port>
+                    <port xmlns="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:ssh">2830</port>
                     <event-executor xmlns="urn:opendaylight:params:xml:ns:yang:controller:netconf:northbound:ssh">
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:netty">
                             prefix:netty-event-executor
