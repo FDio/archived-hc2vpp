@@ -49,10 +49,8 @@ final class VppStateUtils {
         final ChildVppReader<Version> versionReader = new CompositeChildVppReader<>(
             Version.class, new VersionCustomizer(vppApi));
 
-        final CompositeListVppReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder>
-            bridgeDomainReader = new CompositeListVppReader<>(
-            BridgeDomain.class,
-            new BridgeDomainCustomizer(vppApi));
+        final CompositeListVppReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
+            getBridgeDomainReader(vppApi);
 
         final ChildVppReader<BridgeDomains> bridgeDomainsReader = new CompositeChildVppReader<>(
             BridgeDomains.class,
@@ -68,5 +66,12 @@ final class VppStateUtils {
             childVppReaders,
             VppRWUtils.<VppState>emptyAugReaderList(),
             new ReflexiveRootReaderCustomizer<>(VppStateBuilder.class));
+    }
+
+    static CompositeListVppReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> getBridgeDomainReader(
+        final @Nonnull vppApi vppApi) {
+        return new CompositeListVppReader<>(
+        BridgeDomain.class,
+        new BridgeDomainCustomizer(vppApi));
     }
 }

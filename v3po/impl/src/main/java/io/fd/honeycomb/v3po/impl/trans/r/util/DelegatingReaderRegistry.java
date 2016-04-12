@@ -18,12 +18,15 @@ package io.fd.honeycomb.v3po.impl.trans.r.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.v3po.impl.trans.r.ListVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -62,15 +65,27 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
         final Multimap<InstanceIdentifier<? extends DataObject>, DataObject> objects = LinkedListMultimap.create();
         for (VppReader<? extends DataObject> rootReader : rootReaders.values()) {
             LOG.debug("Reading from delegate: {}", rootReader);
-            final List<? extends DataObject> read = rootReader.read(rootReader.getManagedDataObjectType());
-            objects.putAll(rootReader.getManagedDataObjectType(), read);
+
+            if(rootReader instanceof ListVppReader) {
+                final List<? extends DataObject> listEntries =
+                    ((ListVppReader) rootReader).readList(rootReader.getManagedDataObjectType());
+                if(!listEntries.isEmpty()) {
+                    objects.putAll(rootReader.getManagedDataObjectType(), listEntries);
+                }
+            } else {
+                final Optional<? extends DataObject> read = rootReader.read(rootReader.getManagedDataObjectType());
+                if(read.isPresent()) {
+                    objects.putAll(rootReader.getManagedDataObjectType(), Collections.singletonList(read.get()));
+                }
+            }
         }
+
         return objects;
     }
 
     @Nonnull
     @Override
-    public List<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
         final InstanceIdentifier.PathArgument first = checkNotNull(
             Iterables.getFirst(id.getPathArguments(), null), "Empty id");
         final VppReader<? extends DataObject> vppReader = rootReaders.get(first.getType());

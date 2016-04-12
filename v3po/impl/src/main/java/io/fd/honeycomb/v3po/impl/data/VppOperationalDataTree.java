@@ -28,7 +28,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -90,21 +89,17 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
 
         LOG.debug("VppOperationalDataProxy.read(), yangInstanceIdentifier={}", yangInstanceIdentifier);
         final InstanceIdentifier<?> path = serializer.fromYangInstanceIdentifier(yangInstanceIdentifier);
-        if (path == null) {
-            // TODO try to translate wildcarded identifiers here as a workaround if it is expected to be used that way
-            // Currently its not possible to read list using wildcarded ID. SO we may not need this at all.
-        }
         checkNotNull(path, "Invalid instance identifier %s. Cannot create BA equivalent.", yangInstanceIdentifier);
         LOG.debug("VppOperationalDataProxy.read(), path={}", path);
 
-        final List<? extends DataObject> dataObjects = readerRegistry.read(path);
+        final Optional<? extends DataObject> dataObject = readerRegistry.read(path);
 
-        if (dataObjects.isEmpty()) {
-            return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>absent());
+        if (dataObject.isPresent()) {
+            final NormalizedNode<?, ?> value = toNormalizedNodeFunction(path).apply(dataObject.get());
+            return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>fromNullable(value));
         }
 
-        final NormalizedNode<?, ?> value = wrapDataObjects(yangInstanceIdentifier, path, dataObjects);
-        return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>fromNullable(value));
+        return Futures.immediateCheckedFuture(Optional.<NormalizedNode<?, ?>>absent());
     }
 
     private DataSchemaNode getSchemaNode(final @Nonnull YangInstanceIdentifier yangInstanceIdentifier) {
@@ -175,7 +170,7 @@ public final class VppOperationalDataTree implements ReadableVppDataTree {
             public NormalizedNode<?, ?> apply(@Nullable final DataObject dataObject) {
                 LOG.trace("VppOperationalDataProxy.toNormalizedNode(), path={}, dataObject={}", path, dataObject);
                 final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> entry =
-                        serializer.toNormalizedNode(path, dataObject);
+                    serializer.toNormalizedNode(path, dataObject);
 
                 LOG.trace("VppOperationalDataProxy.toNormalizedNode(), normalizedNodeEntry={}", entry);
                 return entry.getValue();

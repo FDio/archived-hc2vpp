@@ -28,7 +28,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
-import java.util.Collections;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +78,7 @@ public class VppOperationalDataTreeTest {
         doReturn(id).when(serializer).fromYangInstanceIdentifier(yangId);
 
         final DataObject dataObject = mock(DataObject.class);
-        doReturn(Collections.singletonList(dataObject)).when(reader).read(id);
+        doReturn(Optional.of(dataObject)).when(reader).read(id);
 
         when(serializer.toNormalizedNode(id, dataObject)).thenReturn(entry);
         final DataContainerChild<?, ?> expectedValue = mock(DataContainerChild.class);

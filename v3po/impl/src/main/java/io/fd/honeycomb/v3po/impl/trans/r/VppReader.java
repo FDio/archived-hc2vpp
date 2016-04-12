@@ -17,8 +17,8 @@
 package io.fd.honeycomb.v3po.impl.trans.r;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.impl.trans.SubtreeManager;
-import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -44,6 +44,6 @@ public interface VppReader<D extends DataObject> extends SubtreeManager<D> {
      * @return List of DataObjects identified by id. If the ID points to a single node, it will be wrapped in a list
      */
     @Nonnull
-    List<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id);
+    Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id);
 
 }

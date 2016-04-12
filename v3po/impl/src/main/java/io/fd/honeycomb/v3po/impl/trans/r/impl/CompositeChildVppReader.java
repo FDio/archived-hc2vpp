@@ -79,8 +79,7 @@ public final class CompositeChildVppReader<C extends DataObject, B extends Build
     @Override
     public final void read(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                            @Nonnull final Builder<? extends DataObject> parentBuilder) {
-        final Optional<C> read = Optional.fromNullable(readCurrent(VppRWUtils.appendTypeToId(parentId,
-            getManagedDataObjectType())).get(0));
+        final Optional<C> read = readCurrent(VppRWUtils.appendTypeToId(parentId, getManagedDataObjectType()));
 
         if(read.isPresent()) {
             customizer.merge(parentBuilder, read.get());

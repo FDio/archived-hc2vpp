@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.v3po.impl.data;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.ReaderRegistry;
@@ -100,7 +101,7 @@ public class VppReaderRegistry implements ReaderRegistry {
 
     @Nonnull
     @Override
-    public List<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
         return reader.read(id);
     }
 

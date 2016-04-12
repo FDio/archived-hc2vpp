@@ -16,11 +16,12 @@
 
 package io.fd.honeycomb.v3po.impl.trans.r.impl;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Iterables;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
 import io.fd.honeycomb.v3po.impl.trans.util.ReflectionUtils;
@@ -67,7 +68,7 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
     /**
      * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
      */
-    protected List<D> readCurrent(final InstanceIdentifier<D> id) {
+    protected Optional<D> readCurrent(final InstanceIdentifier<D> id) {
         LOG.debug("{}: Reading current: {}", this, id);
         final B builder = getBuilder(id);
         // Cache empty value to determine if anything has changed later TODO cache in a field
@@ -89,9 +90,9 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
 
         // Need to check whether anything was filled in to determine if data is present or not.
         final D built = builder.build();
-        final List<D> read = built.equals(emptyValue)
-            ? Collections.<D>emptyList()
-            : Collections.singletonList(built);
+        final Optional<D> read = built.equals(emptyValue)
+            ? Optional.<D>absent()
+            : Optional.of(built);
 
         LOG.debug("{}: Current node read successfully. Result: {}", this, read);
         return read;
@@ -100,7 +101,7 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
     @Nonnull
     @Override
     @SuppressWarnings("unchecked")
-    public List<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
         LOG.trace("{}: Reading : {}", this, id);
         if (id.getTargetType().equals(getManagedDataObjectType().getTargetType())) {
             return readCurrent((InstanceIdentifier<D>) id);
@@ -109,7 +110,7 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
         }
     }
 
-    private List<? extends DataObject> readSubtree(final InstanceIdentifier<? extends DataObject> id) {
+    private Optional<? extends DataObject> readSubtree(final InstanceIdentifier<? extends DataObject> id) {
         LOG.debug("{}: Reading subtree: {}", this, id);
         final Class<? extends DataObject> next = VppRWUtils.getNextId(id, getManagedDataObjectType()).getType();
         final ChildVppReader<? extends ChildOf<D>> vppReader = childReaders.get(next);
@@ -121,11 +122,11 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
             LOG.debug("{}: Dedicated subtree reader missing for: {}. Reading current and filtering", this, next);
             // If there's no dedicated reader, use read current
             final InstanceIdentifier<D> currentId = VppRWUtils.cutId(id, getManagedDataObjectType());
-            final List<D> current = readCurrent(currentId);
+            final Optional<D> current = readCurrent(currentId);
             // then perform post-reading filtering (return only requested sub-node)
-            final List<? extends DataObject> readSubtree = current.isEmpty()
-                ? current
-                : filterSubtree(current, id, getManagedDataObjectType().getTargetType());
+            final Optional<? extends DataObject> readSubtree = current.isPresent()
+                ? filterSubtree(current.get(), id, getManagedDataObjectType().getTargetType())
+                : current;
 
             LOG.debug("{}: Subtree: {} read successfully. Result: {}", this, id, readSubtree);
             return readSubtree;
@@ -150,65 +151,59 @@ abstract class AbstractCompositeVppReader<D extends DataObject, B extends Builde
 
     // TODO move filtering out of here into a dedicated Filter ifc
     @Nonnull
-    private static List<? extends DataObject> filterSubtree(@Nonnull final List<? extends DataObject> built,
+    private static Optional<? extends DataObject> filterSubtree(@Nonnull final DataObject parent,
                                                             @Nonnull final InstanceIdentifier<? extends DataObject> absolutPath,
                                                             @Nonnull final Class<?> managedType) {
         // TODO is there a better way than reflection ? e.g. convert into NN and filter out with a utility
         // FIXME this needs to be recursive. right now it expects only 1 additional element in ID + test
 
-        List<DataObject> filtered = Lists.newArrayList();
-        for (DataObject parent : built) {
-            final InstanceIdentifier.PathArgument nextId =
-                VppRWUtils.getNextId(absolutPath, InstanceIdentifier.create(parent.getClass()));
+        final InstanceIdentifier.PathArgument nextId =
+            VppRWUtils.getNextId(absolutPath, InstanceIdentifier.create(parent.getClass()));
 
-            Optional<Method> method = ReflectionUtils.findMethodReflex(managedType, "get",
-                Collections.<Class<?>>emptyList(), nextId.getType());
+        Optional<Method> method = ReflectionUtils.findMethodReflex(managedType, "get",
+            Collections.<Class<?>>emptyList(), nextId.getType());
+
+        if (method.isPresent()) {
+            return Optional.fromNullable(filterSingle(parent, nextId, method.get()));
+        } else {
+            // List child nodes
+            method = ReflectionUtils.findMethodReflex(managedType,
+                "get" + nextId.getType().getSimpleName(), Collections.<Class<?>>emptyList(), List.class);
 
             if (method.isPresent()) {
-                filterSingle(filtered, parent, nextId, method);
+                return filterList(parent, nextId, method.get());
             } else {
-                // List child nodes
-                method = ReflectionUtils.findMethodReflex(managedType,
-                    "get" + nextId.getType().getSimpleName(), Collections.<Class<?>>emptyList(), List.class);
-
-                if (method.isPresent()) {
-                    filterList(filtered, parent, nextId, method);
-                } else {
-                    throw new IllegalStateException(
-                        "Unable to filter " + nextId + " from " + parent + " getters not found using reflexion");
-                }
+                throw new IllegalStateException(
+                    "Unable to filter " + nextId + " from " + parent + " getters not found using reflexion");
             }
         }
-
-        return filtered;
     }
 
     @SuppressWarnings("unchecked")
-    private static void filterList(final List<DataObject> filtered, final DataObject parent,
-                                   final InstanceIdentifier.PathArgument nextId, final Optional<Method> method) {
-        final List<? extends DataObject> invoke = (List<? extends DataObject>)invoke(method.get(), nextId, parent);
+    private static Optional<? extends DataObject> filterList(final DataObject parent,
+                                                             final InstanceIdentifier.PathArgument nextId,
+                                                             final Method method) {
+        final List<? extends DataObject> invoke = (List<? extends DataObject>) invoke(method, nextId, parent);
 
-        if (nextId instanceof InstanceIdentifier.IdentifiableItem<?, ?>) {
-            final Identifier key = ((InstanceIdentifier.IdentifiableItem) nextId).getKey();
-            filtered.addAll(Collections2.filter(invoke, new Predicate<DataObject>() {
-                @Override
-                public boolean apply(@Nullable final DataObject input) {
-                    final Optional<Method> keyGetter =
-                        ReflectionUtils.findMethodReflex(nextId.getType(), "get",
-                            Collections.<Class<?>>emptyList(), key.getClass());
-                    final Object actualKey;
-                    actualKey = invoke(keyGetter.get(), nextId, input);
-                    return key.equals(actualKey);
-                }
-            }));
-        } else {
-            filtered.addAll(invoke);
-        }
+        checkArgument(nextId instanceof InstanceIdentifier.IdentifiableItem<?, ?>,
+            "Unable to perform wildcarded read for %s", nextId);
+        final Identifier key = ((InstanceIdentifier.IdentifiableItem) nextId).getKey();
+        return Iterables.tryFind(invoke, new Predicate<DataObject>() {
+            @Override
+            public boolean apply(@Nullable final DataObject input) {
+                final Optional<Method> keyGetter =
+                    ReflectionUtils.findMethodReflex(nextId.getType(), "get",
+                        Collections.<Class<?>>emptyList(), key.getClass());
+                final Object actualKey;
+                actualKey = invoke(keyGetter.get(), nextId, input);
+                return key.equals(actualKey);
+            }
+        });
     }
 
-    private static void filterSingle(final List<DataObject> filtered, final DataObject parent,
-                                     final InstanceIdentifier.PathArgument nextId, final Optional<Method> method) {
-        filtered.add(nextId.getType().cast(invoke(method.get(), nextId, parent)));
+    private static DataObject filterSingle(final DataObject parent,
+                                           final InstanceIdentifier.PathArgument nextId, final Method method) {
+        return nextId.getType().cast(invoke(method, nextId, parent));
     }
 
     private static Object invoke(final Method method,

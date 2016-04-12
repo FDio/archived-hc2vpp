@@ -17,13 +17,16 @@
 package io.fd.honeycomb.v3po.impl.vppstate;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.impl.trans.r.VppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeListVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.util.DelegatingReaderRegistry;
 import java.util.Collections;
@@ -42,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.VersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2Fib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibKey;
@@ -162,20 +166,19 @@ public class VppStateTest {
 
     @Test
     public void testReadSpecific() throws Exception {
-        final List<? extends DataObject> read = readerRegistry.read(InstanceIdentifier.create(VppState.class));
-        assertEquals(read.size(), 1);
-        assertVersion((VppState) read.get(0));
+        final Optional<? extends DataObject> read = readerRegistry.read(InstanceIdentifier.create(VppState.class));
+        assertTrue(read.isPresent());
+        assertVersion((VppState) read.get());
     }
 
     @Test
     public void testReadBridgeDomains() throws Exception {
-        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get(0);
+        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get();
 
-        List<? extends DataObject> read =
+        Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class));
-//        System.err.println(read);
-        assertEquals(read.size(), 1);
-        assertEquals(readRoot.getBridgeDomains(), read.get(0));
+        assertTrue(read.isPresent());
+        assertEquals(readRoot.getBridgeDomains(), read.get());
     }
 
     /**
@@ -184,86 +187,68 @@ public class VppStateTest {
     @Test
     public void testReadL2Fib() throws Exception {
         // Deep child without a dedicated reader with specific l2fib key
-        List<? extends DataObject> read =
+        Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("bdn1"))
                 .child(L2Fib.class, new L2FibKey(new PhysAddress("01:02:03:04:05:06"))));
-//        System.err.println(read);
-        assertEquals(read.size(), 1);
+        assertTrue(read.isPresent());
 
         // non existing l2fib
         read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("bdn1"))
                 .child(L2Fib.class, new L2FibKey(new PhysAddress("FF:FF:FF:04:05:06"))));
-//        System.err.println(read);
-        assertEquals(read.size(), 0);
-    }
-
-    /**
-     * L2fib does not have a dedicated reader, relying on auto filtering
-     */
-    @Test
-    public void testReadL2FibAll() throws Exception {
-        // Deep child without a dedicated reader
-        final InstanceIdentifier<L2Fib> id = InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("bdn1")).child(L2Fib.class);
-        final List<? extends DataObject> read = readerRegistry.read(id);
-//        System.err.println(read);
-        assertEquals(read.toString(), read.size(), 2);
-
-        // test if direct read returns the same value
-        final List<? extends DataObject> read2 = vppStateReader.read(id);
-//        System.err.println(read);
-        assertEquals(read, read2);
+        assertFalse(read.isPresent());
     }
 
     @Test
     public void testReadBridgeDomainAll() throws Exception {
-        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get(0);
+        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get();
 
-        final List<? extends DataObject> read =
-            readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
+        final CompositeListVppReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
+            VppStateUtils.getBridgeDomainReader(api);
+
+        final List<BridgeDomain> read =
+            bridgeDomainReader.readList(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class));
-//        System.err.println(read);
-        assertEquals(read.size(), 2);
+
         assertEquals(readRoot.getBridgeDomains().getBridgeDomain(), read);
     }
 
     @Test
     public void testReadBridgeDomain() throws Exception {
-        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get(0);
+        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get();
 
-        final List<? extends DataObject> read =
+        final Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("bdn1")));
 
-        assertEquals(read.size(), 1);
+        assertTrue(read.isPresent());
         assertEquals(Iterables.find(readRoot.getBridgeDomains().getBridgeDomain(), new Predicate<BridgeDomain>() {
             @Override
             public boolean apply(final BridgeDomain input) {
                 return input.getKey().getName().equals("bdn1");
             }
-        }), read.get(0));
+        }), read.get());
     }
 
+    // FIXME
     @Ignore("Bridge domain customizer does not check whether the bd exists or not and fails with NPE, add it there")
     @Test
     public void testReadBridgeDomainNotExisting() throws Exception {
-        final List<? extends DataObject> read =
+        final Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("NOT EXISTING")));
-        assertEquals(read.size(), 0);
+        assertFalse(read.isPresent());
     }
 
     @Test
     public void testReadVersion() throws Exception {
-        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get(0);
+        VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class)).get();
 
-        List<? extends DataObject> read =
+        Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(Version.class));
-//        System.err.println(read);
-        assertEquals(read.size(), 1);
-        assertEquals(readRoot.getVersion(), read.get(0));
+        assertTrue(read.isPresent());
+        assertEquals(readRoot.getVersion(), read.get());
     }
 }

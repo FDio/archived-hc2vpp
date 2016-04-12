@@ -17,10 +17,11 @@
 package io.fd.honeycomb.v3po.impl.trans.r.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.impl.trans.r.ChildVppReader;
+import io.fd.honeycomb.v3po.impl.trans.r.ListVppReader;
 import io.fd.honeycomb.v3po.impl.trans.r.impl.spi.ListVppReaderCustomizer;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import java.util.ArrayList;
@@ -47,7 +48,8 @@ import org.slf4j.LoggerFactory;
 @Beta
 @ThreadSafe
 public final class CompositeListVppReader<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
-    extends AbstractCompositeVppReader<C, B> implements ChildVppReader<C> {
+    extends AbstractCompositeVppReader<C, B> implements ChildVppReader<C>, ListVppReader<C, K>
+{
 
     private static final Logger LOG = LoggerFactory.getLogger(CompositeListVppReader.class);
 
@@ -89,11 +91,6 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
     }
 
     @Override
-    protected List<C> readCurrent(@Nonnull final InstanceIdentifier<C> id) {
-        return shouldReadAll(id) ? readList(id) : super.readCurrent(id);
-    }
-
-    @Override
     public void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                      @Nonnull final Builder<? extends DataObject> parentBuilder) {
         // Create ID pointing to current node
@@ -103,7 +100,9 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
         customizer.merge(parentBuilder, ifcs);
     }
 
-    private List<C> readList(@Nonnull final InstanceIdentifier<C> id) {
+    @Override
+    @Nonnull
+    public List<C> readList(@Nonnull final InstanceIdentifier<C> id) {
         LOG.trace("{}: Reading all list entries", this);
         final List<K> allIds = customizer.getAllIds(id);
         LOG.debug("{}: Reading list entries for: {}", this, allIds);
@@ -113,18 +112,12 @@ public final class CompositeListVppReader<C extends DataObject & Identifiable<K>
             final InstanceIdentifier.IdentifiableItem<C, K> currentBdItem =
                 VppRWUtils.getCurrentIdItem(id, key);
             final InstanceIdentifier<C> keyedId = VppRWUtils.replaceLastInId(id, currentBdItem);
-            final List<? extends DataObject> read = readCurrent(keyedId);
-            checkState(read.size() == 1);
-            final DataObject singleItem = read.get(0);
+            final Optional<C> read = readCurrent(keyedId);
+            final DataObject singleItem = read.get();
             checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleItem.getClass()));
             allEntries.add(getManagedDataObjectType().getTargetType().cast(singleItem));
         }
         return allEntries;
-    }
-
-     private boolean shouldReadAll(@Nonnull final InstanceIdentifier<? extends DataObject> id) {
-        final InstanceIdentifier instanceIdentifier = id.firstIdentifierOf(getManagedDataObjectType().getTargetType());
-        return instanceIdentifier == null || instanceIdentifier.isWildcarded();
     }
 
     @Override
