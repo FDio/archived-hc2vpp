@@ -18,16 +18,30 @@ package io.fd.honeycomb.v3po.impl.trans.w;
 
 import com.google.common.annotations.Beta;
 import io.fd.honeycomb.v3po.impl.trans.SubtreeManager;
-import java.util.List;
+import io.fd.honeycomb.v3po.impl.trans.VppException;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * Base VPP writer, responsible for translation between DataObjects and VPP APIs. Handling all update operations(create, update, delete)
+ *
+ * @param <D> Specific DataObject derived type, that is handled by this writer
+ */
 @Beta
 public interface VppWriter<D extends DataObject> extends SubtreeManager<D> {
 
+    /**
+     * Handle update operation. U from CRUD.
+     *
+     * @param id Identifier(from root) of data being written
+     * @param dataBefore Old data
+     * @param dataAfter New, updated data
+     * @param ctx Write context enabling writer to get information about candidate data as well as current data
+     */
     void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                @Nonnull final List<? extends DataObject> dataBefore,
-                @Nonnull final List<? extends DataObject> data,
-                @Nonnull final WriteContext ctx);
+                @Nullable final DataObject dataBefore,
+                @Nullable final DataObject dataAfter,
+                @Nonnull final WriteContext ctx) throws VppException;
 }

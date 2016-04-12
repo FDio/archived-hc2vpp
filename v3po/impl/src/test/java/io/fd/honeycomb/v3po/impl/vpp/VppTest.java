@@ -82,18 +82,29 @@ public class VppTest {
     public void writeVpp() throws Exception {
         rootRegistry.update(
             InstanceIdentifier.create(Vpp.class),
-            Collections.<DataObject>emptyList(),
-            Lists.newArrayList(new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build()),
+            null,
+            new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build(),
             ctx);
 
         verify(api).bridgeDomainAddDel(1, flood, forward, learn, uuf, arpTerm, add);
 
         vppWriter.update(InstanceIdentifier.create(Vpp.class),
-            Collections.<DataObject>emptyList(),
-            Lists.newArrayList(new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build()),
+            null,
+            new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build(),
             ctx);
 
         verify(api, times(2)).bridgeDomainAddDel(1, flood, forward, learn, uuf, arpTerm, add);
+    }
+
+    @Test
+    public void writeVppFromRoot() throws Exception {
+        final Vpp vpp = new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build();
+
+        rootRegistry.update(Collections.<InstanceIdentifier<?>, DataObject>emptyMap(),
+            Collections.<InstanceIdentifier<?>, DataObject>singletonMap(InstanceIdentifier.create(Vpp.class),
+                vpp), ctx);
+
+        verify(api).bridgeDomainAddDel(1, flood, forward, learn, uuf, arpTerm, add);
     }
 
     private BridgeDomains getBridgeDomains(String... name) {
@@ -116,8 +127,8 @@ public class VppTest {
     public void deleteVpp() throws Exception {
         rootRegistry.update(
             InstanceIdentifier.create(Vpp.class),
-            Collections.singletonList(new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build()),
-            Collections.<DataObject>emptyList(),
+            new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build(),
+            null,
             ctx);
 
         final byte zero = (byte) 0;
@@ -129,26 +140,33 @@ public class VppTest {
     public void updateVppNoActualChange() throws Exception {
         rootRegistry.update(
             InstanceIdentifier.create(Vpp.class),
-            Collections.singletonList(new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build()),
-            Collections.singletonList(new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build()),
+            new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build(),
+            new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build(),
             ctx);
 
         verifyZeroInteractions(api);
     }
 
     @Test
-    public void writeBridgeDomain() throws Exception {
+    public void writeUpdate() throws Exception {
+        final BridgeDomains domainsBefore = getBridgeDomains("bdn1");
+        final BridgeDomain bdn1Before = domainsBefore.getBridgeDomain().get(0);
+
+        final BridgeDomain bdn1After = new BridgeDomainBuilder(bdn1Before).setFlood(!bdn1Before.isFlood()).build();
+        final BridgeDomains domainsAfter = new BridgeDomainsBuilder()
+            .setBridgeDomain(Collections.singletonList(bdn1After))
+            .build();
+
         rootRegistry.update(
-            InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(BridgeDomain.class),
-            getBridgeDomains("bdn1", "bdn2").getBridgeDomain(),
-            getBridgeDomains("bdn1", "bdn3").getBridgeDomain(),
+            InstanceIdentifier.create(Vpp.class),
+            new VppBuilder().setBridgeDomains(domainsBefore).build(),
+            new VppBuilder().setBridgeDomains(domainsAfter).build(),
             ctx);
 
-        // bdn1 is untouched
-        // bdn3 is added
-        verify(api).bridgeDomainAddDel(3, flood, forward, learn, uuf, arpTerm, add);
-        // bdn2 is deleted
-        verify(api).bridgeDomainAddDel(2, zero, zero, zero, zero, zero, zero);
+        final int bdn1Id = 1;
+
+        // bdn1 is created with negated flood value
+        verify(api).bridgeDomainAddDel(bdn1Id, (byte) (flood ^ 1), forward, learn, uuf, arpTerm, add);
     }
 
     // TODO test unkeyed list

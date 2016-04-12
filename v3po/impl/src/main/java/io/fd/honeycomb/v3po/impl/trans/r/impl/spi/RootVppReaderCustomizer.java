@@ -23,7 +23,10 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader SPI to customize its behavior
+ * {@link io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeRootVppReader} SPI to customize its behavior
+ *
+ * @param <C> Specific DataObject derived type, that is handled by this customizer
+ * @param <B> Specific Builder for handled type (C)
  */
 @Beta
 public interface RootVppReaderCustomizer<C extends DataObject, B extends Builder<C>> {

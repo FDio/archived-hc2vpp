@@ -32,17 +32,17 @@ public class CompositeRootVppWriter<D extends DataObject> extends AbstractCompos
     private final RootVppWriterCustomizer<D> customizer;
 
     public CompositeRootVppWriter(@Nonnull final Class<D> type,
-                                  @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childReaders,
-                                  @Nonnull final List<ChildVppWriter<? extends Augmentation<D>>> augReaders,
+                                  @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childWriters,
+                                  @Nonnull final List<ChildVppWriter<? extends Augmentation<D>>> augWriters,
                                   @Nonnull final RootVppWriterCustomizer<D> customizer) {
-        super(type, childReaders, augReaders);
+        super(type, childWriters, augWriters);
         this.customizer = customizer;
     }
 
     public CompositeRootVppWriter(@Nonnull final Class<D> type,
-                                  @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childReaders,
+                                  @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childWriters,
                                   @Nonnull final RootVppWriterCustomizer<D> customizer) {
-        this(type, childReaders, VppRWUtils.<D>emptyAugWriterList(), customizer);
+        this(type, childWriters, VppRWUtils.<D>emptyAugWriterList(), customizer);
     }
 
     public CompositeRootVppWriter(@Nonnull final Class<D> type,

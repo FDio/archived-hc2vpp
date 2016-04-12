@@ -21,19 +21,46 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * Child VPP writer allowing its parent to pass the builder object
+ *
+ * @param <C> Specific DataObject derived type, that is handled by this writer
+ */
 @Beta
 public interface ChildVppWriter<D extends DataObject> extends VppWriter<D> {
 
+    /**
+     * Extract data object managed by this writer from parent data and perform write.
+     *
+     * @param parentId Id of parent node
+     * @param parentDataAfter Parent data from modification to extract data object from
+     * @param ctx Write context for current modification
+     */
     void writeChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                     @Nonnull final DataObject parentDataAfter,
-                    @Nonnull WriteContext ctx);
+                    @Nonnull final WriteContext ctx);
 
+    /**
+     * Extract data object managed by this writer(if necessary) from parent data and perform delete.
+     *
+     * @param parentId Id of parent node
+     * @param parentDataBefore Parent data before modification to extract data object from
+     * @param ctx Write context for current modification
+     */
     void deleteChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                      @Nonnull final DataObject parentDataBefore,
-                     @Nonnull WriteContext ctx);
+                     @Nonnull final WriteContext ctx);
 
+    /**
+     * Extract data object managed by this writer(if necessary) from parent data and perform delete.
+     *
+     * @param parentId Id of parent node
+     * @param parentDataBefore Parent data before modification to extract data object from
+     * @param parentDataAfter Parent data from modification to extract data object from
+     * @param ctx Write context for current modification
+     */
     void updateChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
                      @Nonnull final DataObject parentDataBefore,
                      @Nonnull final DataObject parentDataAfter,
-                     @Nonnull WriteContext ctx);
+                     @Nonnull final WriteContext ctx);
 }

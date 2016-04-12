@@ -22,6 +22,10 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * Customizer not performing any changes on current level. Suitable for nodes that don't have any leaves and all of
+ * its child nodes are managed by dedicated writers
+ */
 public class NoopWriterCustomizer<D extends DataObject> implements RootVppWriterCustomizer<D> {
 
     @Override

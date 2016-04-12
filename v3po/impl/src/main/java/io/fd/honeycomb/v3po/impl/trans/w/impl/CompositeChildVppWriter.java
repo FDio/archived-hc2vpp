@@ -35,9 +35,9 @@ public class CompositeChildVppWriter<D extends DataObject> extends AbstractCompo
 
     public CompositeChildVppWriter(@Nonnull final Class<D> type,
                                    @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childWriters,
-                                   @Nonnull final List<ChildVppWriter<? extends Augmentation<D>>> augReaders,
+                                   @Nonnull final List<ChildVppWriter<? extends Augmentation<D>>> augWriters,
                                    @Nonnull final ChildVppWriterCustomizer<D> customizer) {
-        super(type, childWriters, augReaders);
+        super(type, childWriters, augWriters);
         this.customizer = customizer;
     }
 

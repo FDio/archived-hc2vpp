@@ -16,10 +16,12 @@
 
 package io.fd.honeycomb.v3po.impl.data;
 
+import io.fd.honeycomb.v3po.impl.trans.VppException;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import io.fd.honeycomb.v3po.impl.trans.w.ChildVppWriter;
 import io.fd.honeycomb.v3po.impl.trans.w.VppWriter;
 import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
+import io.fd.honeycomb.v3po.impl.trans.w.WriterRegistry;
 import io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeChildVppWriter;
 import io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeListVppWriter;
 import io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeRootVppWriter;
@@ -29,7 +31,9 @@ import io.fd.honeycomb.v3po.impl.trans.w.util.ReflexiveChildWriterCustomizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
@@ -40,7 +44,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.vppjapi.vppApi;
 
 // TODO use some DI framework instead of singleton
-public class VppWriterRegistry implements VppWriter<DataObject> {
+public class VppWriterRegistry implements WriterRegistry {
 
     private static VppWriterRegistry instance;
 
@@ -85,8 +89,16 @@ public class VppWriterRegistry implements VppWriter<DataObject> {
 
     @Override
     public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                       @Nonnull final List<? extends DataObject> dataBefore,
-                       @Nonnull final List<? extends DataObject> data, @Nonnull final WriteContext ctx) {
+                       @Nullable final DataObject dataBefore,
+                       @Nullable final DataObject data, @Nonnull final WriteContext ctx) throws VppException {
         writer.update(id, dataBefore, data, ctx);
+    }
+
+    @Override
+    public void update(@Nonnull final Map<InstanceIdentifier<?>, DataObject> dataBefore,
+                       @Nonnull final Map<InstanceIdentifier<?>, DataObject> dataAfter,
+                       @Nonnull final WriteContext ctx)
+        throws VppException, BulkUpdateException {
+        writer.update(dataBefore, dataAfter, ctx);
     }
 }

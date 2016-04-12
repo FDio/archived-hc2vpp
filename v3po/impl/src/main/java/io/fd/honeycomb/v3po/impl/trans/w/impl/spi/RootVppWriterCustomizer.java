@@ -22,18 +22,45 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * {@link io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeRootVppWriter} SPI to customize its behavior
+ *
+ * @param <D> Specific DataObject derived type, that is handled by this customizer
+ */
 @Beta
 public interface RootVppWriterCustomizer<D extends DataObject> {
 
+    /**
+     * Handle write operation. C from CRUD.
+     *
+     * @param id Identifier(from root) of data being written
+     * @param dataAfter New data to be written
+     * @param writeContext Write context can be used to store any useful information and then utilized by other customizers
+     */
     void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                 @Nonnull final D dataAfter,
                                 @Nonnull final Context writeContext);
 
+    /**
+     * Handle update operation. U from CRUD.
+     *
+     * @param id Identifier(from root) of data being written
+     * @param dataBefore Old data
+     * @param dataAfter New, updated data
+     * @param writeContext Write context can be used to store any useful information and then utilized by other customizers
+     */
     void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                  @Nonnull final D dataBefore,
                                  @Nonnull final D dataAfter,
                                  @Nonnull final Context writeContext);
 
+    /**
+     * Handle delete operation. D from CRUD.
+     *
+     * @param id Identifier(from root) of data being written
+     * @param dataBefore Old data being deleted
+     * @param writeContext Write context can be used to store any useful information and then utilized by other customizers
+     */
     void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                  @Nonnull final D dataBefore,
                                  @Nonnull final Context writeContext);

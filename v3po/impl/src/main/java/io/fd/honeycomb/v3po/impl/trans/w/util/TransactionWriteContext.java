@@ -20,9 +20,8 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.v3po.impl.trans.util.Context;
 import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
@@ -32,7 +31,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-public class TransactionWriteContext implements WriteContext, AutoCloseable {
+/**
+ * Transaction based WriteContext
+ */
+public final class TransactionWriteContext implements WriteContext, AutoCloseable {
 
     private final DOMDataReadOnlyTransaction beforeTx;
     private final DOMDataReadOnlyTransaction afterTx;
@@ -48,39 +50,39 @@ public class TransactionWriteContext implements WriteContext, AutoCloseable {
         this.ctx = new Context();
     }
 
+    // TODO make this asynchronous
+
     @Override
-    public List<? extends DataObject> readBefore(final InstanceIdentifier<? extends DataObject> currentId) {
+    public Optional<DataObject> readBefore(@Nonnull final InstanceIdentifier<? extends DataObject> currentId) {
         return read(currentId, beforeTx);
     }
 
-    private List<? extends DataObject> read(final InstanceIdentifier<? extends DataObject> currentId,
+    private Optional<DataObject> read(final InstanceIdentifier<? extends DataObject> currentId,
                                             final DOMDataReadOnlyTransaction tx) {
-        // FIXME how to read all for list (using wildcarded ID) ?
-
         final YangInstanceIdentifier path = serializer.toYangInstanceIdentifier(currentId);
 
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read =
                 tx.read(LogicalDatastoreType.CONFIGURATION, path);
 
         try {
+            // TODO once the APIs are asynchronous use just Futures.transform
             final Optional<NormalizedNode<?, ?>> optional = read.checkedGet();
 
             if (!optional.isPresent()) {
-                return Collections.<DataObject>emptyList();
+                return Optional.absent();
             }
 
             final NormalizedNode<?, ?> data = optional.get();
-            final Map.Entry<InstanceIdentifier<?>, DataObject> entry =
-                    serializer.fromNormalizedNode(path, data);
+            final Map.Entry<InstanceIdentifier<?>, DataObject> entry = serializer.fromNormalizedNode(path, data);
 
-            return Collections.singletonList(entry.getValue());
+            return Optional.of(entry.getValue());
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to perform read", e);
         }
     }
 
     @Override
-    public List<? extends DataObject> readAfter(final InstanceIdentifier<? extends DataObject> currentId) {
+    public Optional<DataObject> readAfter(@Nonnull final InstanceIdentifier<? extends DataObject> currentId) {
         return read(currentId, afterTx);
     }
 

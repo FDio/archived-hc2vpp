@@ -14,7 +14,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.v3po.impl.trans.util.Context;
-import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,9 +63,9 @@ public class TransactionWriteContextTest {
         final InstanceIdentifier<BridgeDomain> instanceId =
                 InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(BridgeDomain.class);
 
-        final List<? extends DataObject> dataObjects = transactionWriteContext.readBefore(instanceId);
+        final Optional<DataObject> dataObjects = transactionWriteContext.readBefore(instanceId);
         assertNotNull(dataObjects);
-        assertTrue(dataObjects.isEmpty());
+        assertFalse(dataObjects.isPresent());
 
         verify(serializer).toYangInstanceIdentifier(instanceId);
         verify(serializer, never()).fromNormalizedNode(any(YangInstanceIdentifier.class), any(NormalizedNode.class));
@@ -85,10 +84,11 @@ public class TransactionWriteContextTest {
                 BridgeDomains.QNAME).node(BridgeDomain.QNAME).build();
         when(serializer.toYangInstanceIdentifier(any(InstanceIdentifier.class))).thenReturn(yangId);
         when(serializer.fromNormalizedNode(eq(yangId), any(NormalizedNode.class))).thenReturn(entry);
+        when(entry.getValue()).thenReturn(mock(DataObject.class));
 
-        final List<? extends DataObject> dataObjects = transactionWriteContext.readBefore(instanceId);
+        final Optional<DataObject> dataObjects = transactionWriteContext.readBefore(instanceId);
         assertNotNull(dataObjects);
-        assertFalse(dataObjects.isEmpty());
+        assertTrue(dataObjects.isPresent());
 
         verify(serializer).toYangInstanceIdentifier(instanceId);
         verify(serializer).fromNormalizedNode(eq(yangId), any(NormalizedNode.class));

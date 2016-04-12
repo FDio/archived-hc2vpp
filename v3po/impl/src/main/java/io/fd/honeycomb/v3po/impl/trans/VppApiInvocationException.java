@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
  * Throws when Vpp jAPI method invocation failed.
  */
 @Beta
-public class VppApiInvocationException extends Exception {
+public class VppApiInvocationException extends VppException {
     private final String methodName;
     private final int ctxId;
     private final int errorCode;

@@ -26,7 +26,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.fd.honeycomb.v3po.impl.trans.VppApiInvocationException;
+import io.fd.honeycomb.v3po.impl.trans.VppException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
@@ -121,7 +121,7 @@ final class VppWriteTransaction implements DOMDataWriteTransaction {
         try {
             configDataTree.commit(modification);
             status = COMMITED;
-        } catch (DataValidationFailedException | VppApiInvocationException e) {
+        } catch (DataValidationFailedException | VppException e) {
             status = FAILED;
             LOG.error("Failed to commit VPP state modification", e);
             return Futures.immediateFailedCheckedFuture(

@@ -18,10 +18,9 @@ package io.fd.honeycomb.v3po.impl.trans.w.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import io.fd.honeycomb.v3po.impl.trans.VppException;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import io.fd.honeycomb.v3po.impl.trans.w.ChildVppWriter;
 import io.fd.honeycomb.v3po.impl.trans.w.VppWriter;
@@ -32,10 +31,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,25 +43,16 @@ public abstract class AbstractCompositeVppWriter<D extends DataObject> implement
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCompositeVppWriter.class);
 
-    public static final Function<DataObject, Object> INDEX_FUNCTION = new Function<DataObject, Object>() {
-        @Override
-        public Object apply(final DataObject input) {
-            return input instanceof Identifiable<?>
-                ? ((Identifiable<?>) input).getKey()
-                : input;
-        }
-    };
-
-    private final Map<Class<? extends DataObject>, ChildVppWriter<? extends ChildOf<D>>> childReaders;
-    private final Map<Class<? extends DataObject>, ChildVppWriter<? extends Augmentation<D>>> augReaders;
+    private final Map<Class<? extends DataObject>, ChildVppWriter<? extends ChildOf<D>>> childWriters;
+    private final Map<Class<? extends DataObject>, ChildVppWriter<? extends Augmentation<D>>> augWriters;
     private final InstanceIdentifier<D> instanceIdentifier;
 
     public AbstractCompositeVppWriter(final Class<D> type,
-                                      final List<ChildVppWriter<? extends ChildOf<D>>> childReaders,
-                                      final List<ChildVppWriter<? extends Augmentation<D>>> augReaders) {
+                                      final List<ChildVppWriter<? extends ChildOf<D>>> childWriters,
+                                      final List<ChildVppWriter<? extends Augmentation<D>>> augWriters) {
         this.instanceIdentifier = InstanceIdentifier.create(type);
-        this.childReaders = VppRWUtils.uniqueLinkedIndex(childReaders, VppRWUtils.MANAGER_CLASS_FUNCTION);
-        this.augReaders = VppRWUtils.uniqueLinkedIndex(augReaders, VppRWUtils.MANAGER_CLASS_AUG_FUNCTION);
+        this.childWriters = VppRWUtils.uniqueLinkedIndex(childWriters, VppRWUtils.MANAGER_CLASS_FUNCTION);
+        this.augWriters = VppRWUtils.uniqueLinkedIndex(augWriters, VppRWUtils.MANAGER_CLASS_AUG_FUNCTION);
     }
 
     protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx) {
@@ -71,12 +61,12 @@ public abstract class AbstractCompositeVppWriter<D extends DataObject> implement
         LOG.trace("{}: Writing current attributes", this);
         writeCurrentAttributes(id, data, ctx);
 
-        for (ChildVppWriter<? extends ChildOf<D>> child : childReaders.values()) {
+        for (ChildVppWriter<? extends ChildOf<D>> child : childWriters.values()) {
             LOG.debug("{}: Writing child in: {}", this, child);
             child.writeChild(id, data, ctx);
         }
 
-        for (ChildVppWriter<? extends Augmentation<D>> child : augReaders.values()) {
+        for (ChildVppWriter<? extends Augmentation<D>> child : augWriters.values()) {
             LOG.debug("{}: Writing augment in: {}", this, child);
             child.writeChild(id, data, ctx);
         }
@@ -97,12 +87,12 @@ public abstract class AbstractCompositeVppWriter<D extends DataObject> implement
         LOG.trace("{}: Updating current attributes", this);
         updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
 
-        for (ChildVppWriter<? extends ChildOf<D>> child : childReaders.values()) {
+        for (ChildVppWriter<? extends ChildOf<D>> child : childWriters.values()) {
             LOG.debug("{}: Updating child in: {}", this, child);
             child.updateChild(id, dataBefore, dataAfter, ctx);
         }
 
-        for (ChildVppWriter<? extends Augmentation<D>> child : augReaders.values()) {
+        for (ChildVppWriter<? extends Augmentation<D>> child : augWriters.values()) {
             LOG.debug("{}: Updating augment in: {}", this, child);
             child.updateChild(id, dataBefore, dataAfter, ctx);
         }
@@ -114,12 +104,12 @@ public abstract class AbstractCompositeVppWriter<D extends DataObject> implement
         LOG.debug("{}: Deleting current: {} dataBefore: {}", this, id, dataBefore);
 
         // delete in reversed order
-        for (ChildVppWriter<? extends Augmentation<D>> child : reverseCollection(augReaders.values())) {
+        for (ChildVppWriter<? extends Augmentation<D>> child : reverseCollection(augWriters.values())) {
             LOG.debug("{}: Deleting augment in: {}", this, child);
             child.deleteChild(id, dataBefore, ctx);
         }
 
-        for (ChildVppWriter<? extends ChildOf<D>> child : reverseCollection(childReaders.values())) {
+        for (ChildVppWriter<? extends ChildOf<D>> child : reverseCollection(childWriters.values())) {
             LOG.debug("{}: Deleting child in: {}", this, child);
             child.deleteChild(id, dataBefore, ctx);
         }
@@ -131,20 +121,20 @@ public abstract class AbstractCompositeVppWriter<D extends DataObject> implement
     @SuppressWarnings("unchecked")
     @Override
     public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                       @Nonnull final List<? extends DataObject> dataBefore,
-                       @Nonnull final List<? extends DataObject> dataAfter,
-                       @Nonnull final WriteContext ctx) {
+                       @Nullable final DataObject dataBefore,
+                       @Nullable final DataObject dataAfter,
+                       @Nonnull final WriteContext ctx) throws VppException {
         LOG.debug("{}: Updating : {}", this, id);
         LOG.trace("{}: Updating : {}, from: {} to: {}", this, id, dataBefore, dataAfter);
 
         if (idPointsToCurrent(id)) {
             if(isWrite(dataBefore, dataAfter)) {
-                writeAll((InstanceIdentifier<D>) id, dataAfter, ctx);
+                writeCurrent((InstanceIdentifier<D>) id, castToManaged(dataAfter), ctx);
             } else if(isDelete(dataBefore, dataAfter)) {
-                deleteAll((InstanceIdentifier<D>) id, dataBefore, ctx);
+                deleteCurrent((InstanceIdentifier<D>) id, castToManaged(dataBefore), ctx);
             } else {
-                checkArgument(!dataBefore.isEmpty() && !dataAfter.isEmpty(), "No data to process");
-                updateAll((InstanceIdentifier<D>) id, dataBefore, dataAfter, ctx);
+                checkArgument(dataBefore != null && dataAfter != null, "No data to process");
+                updateCurrent((InstanceIdentifier<D>) id, castToManaged(dataBefore), castToManaged(dataAfter), ctx);
             }
         } else {
             if (isWrite(dataBefore, dataAfter)) {
@@ -152,89 +142,47 @@ public abstract class AbstractCompositeVppWriter<D extends DataObject> implement
             } else if (isDelete(dataBefore, dataAfter)) {
                 deleteSubtree(id, dataBefore, ctx);
             } else {
-                checkArgument(!dataBefore.isEmpty() && !dataAfter.isEmpty(), "No data to process");
+                checkArgument(dataBefore != null && dataAfter != null, "No data to process");
                 updateSubtree(id, dataBefore, dataAfter, ctx);
             }
         }
     }
 
-    protected void updateAll(final @Nonnull InstanceIdentifier<D> id,
-                             final @Nonnull List<? extends DataObject> dataBefore,
-                             final @Nonnull List<? extends DataObject> dataAfter, final WriteContext ctx) {
-        LOG.trace("{}: Updating all : {}", this, id);
-
-        final Map<Object, ? extends DataObject> indexedAfter = indexData(dataAfter);
-        final Map<Object, ? extends DataObject> indexedBefore = indexData(dataBefore);
-
-        for (Map.Entry<Object, ? extends DataObject> after : indexedAfter.entrySet()) {
-            final DataObject before = indexedBefore.get(after.getKey());
-            if(before == null) {
-                writeCurrent(id, castToManaged(after.getValue()), ctx);
-            } else {
-                updateCurrent(id, castToManaged(before), castToManaged(after.getValue()), ctx);
-            }
-        }
-
-        // Delete the rest in dataBefore
-        for (Object deletedNodeKey : Sets.difference(indexedBefore.keySet(), indexedAfter.keySet())) {
-            final DataObject deleted = indexedBefore.get(deletedNodeKey);
-            deleteCurrent(id, castToManaged(deleted), ctx);
-        }
-    }
-
-    private static Map<Object, ? extends DataObject> indexData(final List<? extends DataObject> data) {
-        return Maps.uniqueIndex(data, INDEX_FUNCTION);
-    }
-
-    protected void deleteAll(final @Nonnull InstanceIdentifier<D> id,
-                             final @Nonnull List<? extends DataObject> dataBefore, final WriteContext ctx) {
-        LOG.trace("{}: Deleting all : {}", this, id);
-        for (DataObject singleValue : dataBefore) {
-            checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleValue.getClass()));
-            deleteCurrent(id, castToManaged(singleValue), ctx);
-        }
+    private void checkDataType(final @Nullable DataObject dataAfter) {
+        checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(dataAfter.getClass()));
     }
 
     private D castToManaged(final DataObject data) {
-        checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(data.getClass()));
+        checkDataType(data);
         return getManagedDataObjectType().getTargetType().cast(data);
     }
 
-    protected void writeAll(final @Nonnull InstanceIdentifier<D> id,
-                            final @Nonnull List<? extends DataObject> dataAfter, final WriteContext ctx) {
-        LOG.trace("{}: Writing all : {}", this, id);
-        for (DataObject singleValue : dataAfter) {
-            checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleValue.getClass()));
-            writeCurrent(id, castToManaged(singleValue), ctx);
-        }
+    private static boolean isWrite(final DataObject dataBefore,
+                                    final DataObject dataAfter) {
+        return dataBefore == null && dataAfter != null;
     }
 
-    private static boolean isWrite(final List<? extends DataObject> dataBefore,
-                                    final List<? extends DataObject> dataAfter) {
-        return dataBefore.isEmpty() && !dataAfter.isEmpty();
-    }
-
-    private static boolean isDelete(final List<? extends DataObject> dataBefore,
-                                    final List<? extends DataObject> dataAfter) {
-        return dataAfter.isEmpty() && !dataBefore.isEmpty();
+    private static boolean isDelete(final DataObject dataBefore,
+                                    final DataObject dataAfter) {
+        return dataAfter == null && dataBefore != null;
     }
 
     private void writeSubtree(final InstanceIdentifier<? extends DataObject> id,
-                              final List<? extends DataObject> dataAfter, final WriteContext ctx) {
+                              final DataObject dataAfter, final WriteContext ctx) throws VppException {
         LOG.debug("{}: Writing subtree: {}", this, id);
         final VppWriter<? extends ChildOf<D>> vppWriter = getNextWriter(id);
 
         if (vppWriter != null) {
             LOG.debug("{}: Writing subtree: {} in: {}", this, id, vppWriter);
-            vppWriter.update(id, Collections.<DataObject>emptyList(), dataAfter, ctx);
+            vppWriter.update(id, null, dataAfter, ctx);
         } else {
             // If there's no dedicated writer, use write current
             // But we need current data after to do so
             final InstanceIdentifier<D> currentId = VppRWUtils.cutId(id, getManagedDataObjectType());
-            List<? extends DataObject> currentDataAfter = ctx.readAfter(currentId);
+            Optional<DataObject> currentDataAfter = ctx.readAfter(currentId);
             LOG.debug("{}: Dedicated subtree writer missing for: {}. Writing current.", this,
                 VppRWUtils.getNextId(id, getManagedDataObjectType()).getType(), currentDataAfter);
-            writeAll(currentId, currentDataAfter, ctx);
+            writeCurrent(currentId, castToManaged(currentDataAfter.get()), ctx);
         }
     }
 
@@ -244,32 +192,34 @@ public abstract class AbstractCompositeVppWriter<D extends DataObject> implement
 
     @SuppressWarnings("unchecked")
     private void deleteSubtree(final InstanceIdentifier<? extends DataObject> id,
-                               final List<? extends DataObject> dataBefore, final WriteContext ctx) {
+                               final DataObject dataBefore, final WriteContext ctx) throws VppException {
         LOG.debug("{}: Deleting subtree: {}", this, id);
         final VppWriter<? extends ChildOf<D>> vppWriter = getNextWriter(id);
 
         if (vppWriter != null) {
             LOG.debug("{}: Deleting subtree: {} in: {}", this, id, vppWriter);
-            vppWriter.update(id, dataBefore, Collections.<DataObject>emptyList(), ctx);
+            vppWriter.update(id, dataBefore, null, ctx);
         } else {
             updateSubtreeFromCurrent(id, ctx);
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void updateSubtreeFromCurrent(final InstanceIdentifier<? extends DataObject> id, final WriteContext ctx) {
         final InstanceIdentifier<D> currentId = VppRWUtils.cutId(id, getManagedDataObjectType());
-        List<? extends DataObject> currentDataBefore = ctx.readBefore(currentId);
-        List<? extends DataObject> currentDataAfter = ctx.readAfter(currentId);
+        Optional<DataObject> currentDataBefore = ctx.readBefore(currentId);
+        Optional<DataObject> currentDataAfter = ctx.readAfter(currentId);
         LOG.debug("{}: Dedicated subtree writer missing for: {}. Updating current without subtree", this,
             VppRWUtils.getNextId(id, getManagedDataObjectType()).getType(), currentDataAfter);
-        updateAll((InstanceIdentifier<D>) id, currentDataBefore, currentDataAfter, ctx);
+        updateCurrent((InstanceIdentifier<D>) id, castToManaged(currentDataBefore.orNull()),
+            castToManaged(currentDataAfter.orNull()), ctx);
     }
 
     @SuppressWarnings("unchecked")
     private void updateSubtree(final InstanceIdentifier<? extends DataObject> id,
-                               final List<? extends DataObject> dataBefore,
-                               final List<? extends DataObject> dataAfter,
-                               final WriteContext ctx) {
+                               final DataObject dataBefore,
+                               final DataObject dataAfter,
+                               final WriteContext ctx) throws VppException {
         LOG.debug("{}: Updating subtree: {}", this, id);
         final VppWriter<? extends ChildOf<D>> vppWriter = getNextWriter(id);
 
@@ -283,11 +233,11 @@ public abstract class AbstractCompositeVppWriter<D extends DataObject> implement
 
     private VppWriter<? extends ChildOf<D>> getNextWriter(final InstanceIdentifier<? extends DataObject> id) {
         final Class<? extends DataObject> next = VppRWUtils.getNextId(id, getManagedDataObjectType()).getType();
-        return childReaders.get(next);
+        return childWriters.get(next);
     }
 
     private static <T> List<T> reverseCollection(final Collection<T> original) {
-        // TODO find a better reverse mechanism (probably a different collection for child readers is necessary)
+        // TODO find a better reverse mechanism (probably a different collection for child writers is necessary)
         final ArrayList<T> list = Lists.newArrayList(original);
         Collections.reverse(list);
         return list;

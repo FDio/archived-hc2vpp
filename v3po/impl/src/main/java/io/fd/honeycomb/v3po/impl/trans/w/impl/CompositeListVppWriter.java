@@ -16,11 +16,16 @@
 
 package io.fd.honeycomb.v3po.impl.trans.w.impl;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.fd.honeycomb.v3po.impl.trans.util.VppRWUtils;
 import io.fd.honeycomb.v3po.impl.trans.w.ChildVppWriter;
 import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
 import io.fd.honeycomb.v3po.impl.trans.w.impl.spi.ListVppWriterCustomizer;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
@@ -32,20 +37,30 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class CompositeListVppWriter<D extends DataObject & Identifiable<K>, K extends Identifier<D>> extends AbstractCompositeVppWriter<D>
     implements ChildVppWriter<D> {
 
+    public static final Function<DataObject, Object> INDEX_FUNCTION = new Function<DataObject, Object>() {
+        @Override
+        public Object apply(final DataObject input) {
+            return input instanceof Identifiable<?>
+                ? ((Identifiable<?>) input).getKey()
+                : input;
+        }
+    };
+
+
     private final ListVppWriterCustomizer<D, K> customizer;
 
     public CompositeListVppWriter(@Nonnull final Class<D> type,
-                                  @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childReaders,
-                                  @Nonnull final List<ChildVppWriter<? extends Augmentation<D>>> augReaders,
+                                  @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childWriters,
+                                  @Nonnull final List<ChildVppWriter<? extends Augmentation<D>>> augWriters,
                                   @Nonnull final ListVppWriterCustomizer<D, K> customizer) {
-        super(type, childReaders, augReaders);
+        super(type, childWriters, augWriters);
         this.customizer = customizer;
     }
 
     public CompositeListVppWriter(@Nonnull final Class<D> type,
-                                  @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childReaders,
+                                  @Nonnull final List<ChildVppWriter<? extends ChildOf<D>>> childWriters,
                                   @Nonnull final ListVppWriterCustomizer<D, K> customizer) {
-        this(type, childReaders, VppRWUtils.<D>emptyAugWriterList(), customizer);
+        this(type, childWriters, VppRWUtils.<D>emptyAugWriterList(), customizer);
     }
 
     public CompositeListVppWriter(@Nonnull final Class<D> type,
@@ -78,7 +93,9 @@ public class CompositeListVppWriter<D extends DataObject & Identifiable<K>, K ex
                            @Nonnull final WriteContext ctx) {
         final InstanceIdentifier<D> currentId = VppRWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final List<D> currentData = customizer.extract(currentId, parentData);
-        writeAll(currentId, currentData, ctx);
+        for (D entry : currentData) {
+            writeCurrent(currentId, entry, ctx);
+        }
     }
 
     @Override
@@ -87,7 +104,9 @@ public class CompositeListVppWriter<D extends DataObject & Identifiable<K>, K ex
                             @Nonnull final WriteContext ctx) {
         final InstanceIdentifier<D> currentId = VppRWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final List<D> dataBefore = customizer.extract(currentId, parentDataBefore);
-        deleteAll(currentId, dataBefore, ctx);
+        for (D entry : dataBefore) {
+            deleteCurrent(currentId, entry, ctx);
+        }
     }
 
     @Override
@@ -95,9 +114,26 @@ public class CompositeListVppWriter<D extends DataObject & Identifiable<K>, K ex
                             @Nonnull final DataObject parentDataBefore, @Nonnull final DataObject parentDataAfter,
                             @Nonnull final WriteContext ctx) {
         final InstanceIdentifier<D> currentId = VppRWUtils.appendTypeToId(parentId, getManagedDataObjectType());
-        final List<D> dataBefore = customizer.extract(currentId, parentDataBefore);
-        final List<D> dataAfter = customizer.extract(currentId, parentDataAfter);
-        updateAll(currentId, dataBefore, dataAfter, ctx);
+        final ImmutableMap<Object, D>
+            dataBefore = Maps.uniqueIndex(customizer.extract(currentId, parentDataBefore), INDEX_FUNCTION);
+        final ImmutableMap<Object, D>
+            dataAfter = Maps.uniqueIndex(customizer.extract(currentId, parentDataAfter), INDEX_FUNCTION);
+
+        for (Map.Entry<Object, D> after : dataAfter.entrySet()) {
+            final D before = dataBefore.get(after.getKey());
+            if(before == null) {
+                writeCurrent(currentId, after.getValue(), ctx);
+            } else {
+                updateCurrent(currentId, before, after.getValue(), ctx);
+            }
+        }
+
+        // Delete the rest in dataBefore
+        for (Object deletedNodeKey : Sets.difference(dataBefore.keySet(), dataAfter.keySet())) {
+            final D deleted = dataBefore.get(deletedNodeKey);
+            deleteCurrent(currentId, deleted, ctx);
+        }
+
     }
 
     @Override

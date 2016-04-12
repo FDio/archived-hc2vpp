@@ -17,21 +17,16 @@
 package io.fd.honeycomb.v3po.impl.data;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Collections.singletonList;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
+import io.fd.honeycomb.v3po.impl.trans.VppException;
 import io.fd.honeycomb.v3po.impl.trans.w.WriteContext;
+import io.fd.honeycomb.v3po.impl.trans.w.WriterRegistry;
 import io.fd.honeycomb.v3po.impl.trans.w.util.TransactionWriteContext;
-import io.fd.honeycomb.v3po.impl.trans.VppApiInvocationException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
@@ -90,7 +85,7 @@ public final class VppConfigDataTree implements VppDataTree {
 
     @Override
     public void commit(final DataTreeModification modification)
-            throws DataValidationFailedException, VppApiInvocationException {
+            throws DataValidationFailedException, VppException {
         dataTree.validate(modification);
 
         final DataTreeCandidate candidate = dataTree.prepare(modification);
@@ -114,24 +109,28 @@ public final class VppConfigDataTree implements VppDataTree {
         final DOMDataReadOnlyTransaction afterTx = new VppReadOnlyTransaction(EMPTY_OPERATIONAL, modificationSnapshot);
         final WriteContext ctx = new TransactionWriteContext(serializer, beforeTx, afterTx);
 
-        final ChangesProcessor processor = new ChangesProcessor(writer, nodesBefore, nodesAfter, ctx);
         try {
-            processor.applyChanges();
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Failed to apply changes", e);
+            writer.update(nodesBefore, nodesAfter, ctx);
+        } catch (WriterRegistry.BulkUpdateException e) {
+            LOG.warn("Failed to apply all changes", e);
             LOG.info("Trying to revert successful changes for current transaction");
 
             try {
-                processor.revertChanges();
+                e.revertChanges();
                 LOG.info("Changes successfully reverted");
-            } catch (VppApiInvocationException e2) {
+            } catch (VppException | RuntimeException e2) {
                 LOG.error("Failed to revert successful changes", e2);
             }
 
             // rethrow as we can't do anything more about it
+            // FIXME we need to throw a different kind of exception here to differentiate between:
+            // fail with success revert
+            // fail with failed revert (this one needs to contain IDs of changes that were not reverted)
+            throw e;
+        } catch (VppException e) {
+            LOG.error("Error while processing data change (before={}, after={})", nodesBefore, nodesAfter, e);
             throw e;
         }
-
 
         dataTree.commit(candidate);
     }
@@ -165,85 +164,6 @@ public final class VppConfigDataTree implements VppDataTree {
         @Override
         public DataTreeModification newModification() {
             return snapshot.newModification();
-        }
-    }
-
-    private static final class ChangesProcessor {
-        private final VppWriterRegistry writer;
-        private final List<InstanceIdentifier<?>> processedNodes;
-        private final Map<InstanceIdentifier<?>, DataObject> nodesBefore;
-        private final Map<InstanceIdentifier<?>, DataObject> nodesAfter;
-        private final WriteContext ctx;
-
-        ChangesProcessor(@Nonnull final VppWriterRegistry writer,
-                         final Map<InstanceIdentifier<?>, DataObject> nodesBefore,
-                         final Map<InstanceIdentifier<?>, DataObject> nodesAfter,
-                         @Nonnull final WriteContext writeContext) {
-            this.ctx = checkNotNull(writeContext, "writeContext is null!");
-            this.writer = checkNotNull(writer, "VppWriter is null!");
-            this.nodesBefore = checkNotNull(nodesBefore, "nodesBefore is null!");
-            this.nodesAfter = checkNotNull(nodesAfter, "nodesAfter is null!");
-            processedNodes = new ArrayList<>();
-        }
-
-        void applyChanges() throws VppApiInvocationException {
-            // TODO we should care about the order of modified subtrees
-            // TODO maybe WriterRegistry could provide writeAll method and it will process the updates
-            // in order in which it child writers are registered
-            final Set<InstanceIdentifier<?>> allNodes = new HashSet<>();
-            allNodes.addAll(nodesBefore.keySet());
-            allNodes.addAll(nodesAfter.keySet());
-            LOG.debug("ChangesProcessor.applyChanges() all extracted nodes: {}", allNodes);
-
-            for (InstanceIdentifier<?> node : allNodes) {
-                LOG.debug("ChangesProcessor.applyChanges() processing node={}", node);
-                final DataObject dataBefore = nodesBefore.get(node);
-                final DataObject dataAfter = nodesAfter.get(node);
-                LOG.debug("ChangesProcessor.applyChanges() processing dataBefore={}, dataAfter={}", dataBefore,
-                        dataAfter);
-
-                try {
-                    // TODO is List as input argument really necessary for writer ?
-                    final List<DataObject> dataObjectsBefore = dataBefore == null
-                            ? Collections.<DataObject>emptyList()
-                            : singletonList(dataBefore);
-                    final List<DataObject> dataObjectsAfter = dataAfter == null
-                            ? Collections.<DataObject>emptyList()
-                            : singletonList(dataAfter);
-                    LOG.debug("ChangesProcessor.applyChanges() processing dataObjectsBefore={}, dataObjectsAfter={}",
-                            dataObjectsBefore, dataObjectsAfter);
-                    writer.update(node, dataObjectsBefore, dataObjectsAfter, ctx);
-                    processedNodes.add(node);
-                } catch (RuntimeException e) {
-                    LOG.error("Error while processing data change (before={}, after={})", dataBefore, dataAfter, e);
-                    // FIXME ex handling
-                    throw new VppApiInvocationException("", 1, -1);
-                }
-            }
-        }
-
-        void revertChanges() throws VppApiInvocationException {
-            checkNotNull(writer, "VppWriter is null!");
-
-            // revert changes in reverse order they were applied
-            final ListIterator<InstanceIdentifier<?>> iterator = processedNodes.listIterator(processedNodes.size());
-
-            while (iterator.hasPrevious()) {
-                final InstanceIdentifier<?> node = iterator.previous();
-                LOG.debug("ChangesProcessor.revertChanges() processing node={}", node);
-
-                final DataObject dataBefore = nodesBefore.get(node);
-                final DataObject dataAfter = nodesAfter.get(node);
-
-                // revert a change by invoking writer with reordered arguments
-                try {
-                    // TODO is List as input argument really necessary for writer ?
-                    writer.update(node, singletonList(dataAfter), singletonList(dataBefore), ctx);
-                } catch (RuntimeException e) {
-                    // FIXME ex handling
-                    throw new VppApiInvocationException("", 1, -1);
-                }
-            }
         }
     }
 }

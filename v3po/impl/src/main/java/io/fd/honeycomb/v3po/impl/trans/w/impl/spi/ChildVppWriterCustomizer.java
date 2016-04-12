@@ -22,9 +22,20 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * {@link io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeChildVppWriter} SPI to customize its behavior
+ *
+ * @param <D> Specific DataObject derived type (Identifiable), that is handled by this customizer
+ */
 @Beta
 public interface ChildVppWriterCustomizer<D extends DataObject> extends RootVppWriterCustomizer<D> {
 
+    /**
+     * Get child of parentData identified by currentId
+     *
+     * @param currentId Identifier(from root) of data being extracted
+     * @param parentData Parent data object from which managed data object must be extracted
+     */
     @Nonnull
     Optional<D> extract(@Nonnull final InstanceIdentifier<D> currentId, @Nonnull final DataObject parentData);
 

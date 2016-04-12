@@ -26,7 +26,11 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeListVppReader SPI to customize its behavior
+ * {@link io.fd.honeycomb.v3po.impl.trans.r.impl.CompositeListVppReader} SPI to customize its behavior
+ *
+ * @param <C> Specific DataObject derived type (Identifiable), that is handled by this customizer
+ * @param <K> Specific Identifier for handled type (C)
+ * @param <B> Specific Builder for handled type (C)
  */
 @Beta
 public interface ListVppReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
@@ -39,6 +43,7 @@ public interface ListVppReaderCustomizer<C extends DataObject & Identifiable<K>,
      */
     @Nonnull
     List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id);
+    // TODO does it make sense with vpp APIs ? Should we replace it with a simple readAll ?
 
     /**
      * Merge read data into provided parent builder

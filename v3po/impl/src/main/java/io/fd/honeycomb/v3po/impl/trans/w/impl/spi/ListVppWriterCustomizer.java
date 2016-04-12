@@ -24,9 +24,21 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+/**
+ * {@link io.fd.honeycomb.v3po.impl.trans.w.impl.CompositeListVppWriter} SPI to customize its behavior
+ *
+ * @param <C> Specific DataObject derived type (Identifiable), that is handled by this customizer
+ * @param <K> Specific Identifier for handled type (C)
+ */
 @Beta
 public interface ListVppWriterCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>> extends RootVppWriterCustomizer<C> {
 
+    /**
+     * Get children of parentData identified by currentId
+     *
+     * @param currentId Identifier(from root) of data being extracted
+     * @param parentData Parent data object from which managed data object must be extracted
+     */
     @Nonnull
     List<C> extract(@Nonnull final InstanceIdentifier<C> currentId, @Nonnull final DataObject parentData);
 
