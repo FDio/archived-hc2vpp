@@ -1,0 +1,60 @@
+module v3po2vpp {
+    yang-version 1;
+    namespace "urn:honeycomb:params:xml:ns:yang:v3po2vpp";
+    prefix "v3po2vpp";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import translate-api { prefix tapi; revision-date 2016-04-06; }
+    import vpp-japi-cfg { prefix vjc; revision-date 2016-04-06; }
+
+    description
+        "This module contains reads and writers for v3po yang model";
+
+    revision "2016-04-06" {
+        description
+            "Initial revision.";
+    }
+
+    identity vpp-state-honeycomb-reader {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-reader;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case vpp-state-honeycomb-reader {
+            when "/config:modules/config:module/config:type = 'vpp-state-honeycomb-reader'";
+
+            container vpp-japi {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vjc:vpp-japi;
+                    }
+                }
+            }
+
+        }
+    }
+
+    identity vpp-honeycomb-writer {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-writer;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case vpp-honeycomb-writer {
+            when "/config:modules/config:module/config:type = 'vpp-honeycomb-writer'";
+
+            container vpp-japi-writer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vjc:vpp-japi;
+                    }
+                }
+            }
+
+        }
+    }
+
+}

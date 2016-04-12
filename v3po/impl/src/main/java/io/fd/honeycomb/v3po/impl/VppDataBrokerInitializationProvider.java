@@ -23,13 +23,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.fd.honeycomb.v3po.config.WriterRegistry;
 import io.fd.honeycomb.v3po.data.ModifiableDataTree;
 import io.fd.honeycomb.v3po.data.ReadableDataTree;
 import io.fd.honeycomb.v3po.data.impl.ConfigDataTree;
 import io.fd.honeycomb.v3po.data.impl.OperationalDataTree;
 import io.fd.honeycomb.v3po.data.impl.DataBroker;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.Collection;
 import java.util.Collections;
 import javassist.ClassPool;
@@ -136,7 +136,8 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
 
         createMountPointPlaceholder();
 
-        initialVppConfigSynchronization(broker);
+        // TODO initial sync has to go out of here
+//        initialVppConfigSynchronization(broker);
     }
 
     @Override
@@ -272,6 +273,7 @@ public final class VppDataBrokerInitializationProvider implements Provider, Auto
         final WriteTransaction rwTx = bindingBroker.newWriteOnlyTransaction();
         // does not fail if data is not present:
         rwTx.delete(LogicalDatastoreType.CONFIGURATION, mountPointPath);
+        rwTx.delete(LogicalDatastoreType.OPERATIONAL, mountPointPath);
         try {
             rwTx.submit().checkedGet();
         } catch (TransactionCommitFailedException e) {

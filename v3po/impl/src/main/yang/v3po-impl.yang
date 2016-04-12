@@ -6,6 +6,8 @@ module v3po-impl {
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
     import opendaylight-md-sal-dom {prefix dom;}
+    import vpp-japi-cfg { prefix vjc; revision-date 2016-04-06; }
+    import translate-api { prefix tapi; revision-date 2016-04-06; }
 
     description
         "Service definition for v3po project";
@@ -38,6 +40,33 @@ module v3po-impl {
                     refine type {
                         mandatory true;
                         config:required-identity dom:dom-broker-osgi-registry;
+                    }
+                }
+            }
+
+            container vpp-japi {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vjc:vpp-japi;
+                    }
+                }
+            }
+
+            container reader-registry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity tapi:honeycomb-reader-registry;
+                    }
+                }
+            }
+
+            container writer-registry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity tapi:honeycomb-writer-registry;
                     }
                 }
             }

@@ -33,7 +33,6 @@
   </prerequisites>
   <modules>
     <module>api</module>
-    <module>config</module>
     <module>data-api</module>
     <module>data-impl</module>
     <module>translate-spi</module>
@@ -41,6 +40,7 @@
     <module>translate-impl</module>
     <module>translate-utils</module>
     <module>vpp-translate-utils</module>
+    <module>vpp-japi-cfg</module>
     <module>v3po2vpp</module>
     <module>impl</module>
     <module>karaf</module>

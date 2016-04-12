@@ -71,6 +71,11 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
+        <artifactId>vpp-japi-cfg</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
         <artifactId>v3po2vpp</artifactId>
         <version>${project.version}</version>
       </dependency>

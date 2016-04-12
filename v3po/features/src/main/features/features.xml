@@ -39,14 +39,16 @@
     <bundle>mvn:io.fd.honeycomb.v3po/translate-spi/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-utils/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-translate-utils/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/config/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/data-api/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/data-impl/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-impl/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}</bundle>
     <bundle>wrap:mvn:io.fd.vpp/vppjapi/1.0.0-SNAPSHOT</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/vpp-japi-cfg/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}</bundle>
+    <configfile finalname="${configfile.directory}/vpp-japi.xml">mvn:io.fd.honeycomb.v3po/vpp-japi-cfg/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po-netconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/netconf</configfile>
+    <configfile finalname="${configfile.directory}/v3po2vpp.xml">mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}/xml/config</configfile>
   </feature>
 
   <feature name='odl-v3po-rest' version='${project.version}' description='OpenDaylight :: v3po :: REST'>

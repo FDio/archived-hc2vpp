@@ -17,6 +17,8 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210;
 
 import io.fd.honeycomb.v3po.impl.V3poProvider;
+import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.Collection;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -54,9 +56,12 @@ public class V3poModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
+        final ReaderRegistry readerRegistry = getReaderRegistryDependency();
+        final WriterRegistry writerRegistry = getWriterRegistryDependency();
+
         final Broker domBroker = getDomBrokerDependency();
         domBroker.registerProvider(new InitializationProvider());
-        final V3poProvider provider = new V3poProvider(domBroker);
+        final V3poProvider provider = new V3poProvider(domBroker, getVppJapiDependency(), readerRegistry, writerRegistry);
         getBrokerDependency().registerProvider(provider);
         return provider;
     }

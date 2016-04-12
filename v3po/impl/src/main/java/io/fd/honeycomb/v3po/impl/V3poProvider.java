@@ -20,9 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import io.fd.honeycomb.v3po.config.ReaderRegistry;
-import io.fd.honeycomb.v3po.config.WriterRegistry;
-import java.io.IOException;
+import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -72,11 +71,18 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
     private VppIetfInterfaceListener vppInterfaceListener;
     private VppBridgeDomainListener vppBridgeDomainListener;
     private vppApi api;
+    private ReaderRegistry readerRegistry;
+    private WriterRegistry writerRegistry;
     private DataBroker db;
     VppPollOperDataImpl vppPollOperData;
     private VppDataBrokerInitializationProvider vppDataBrokerInitializationProvider;
 
-    public V3poProvider(@Nonnull final Broker domBroker) {
+    public V3poProvider(@Nonnull final Broker domBroker, final vppApi vppJapiDependency,
+                        final ReaderRegistry readerRegistry,
+                        final WriterRegistry writerRegistry) {
+        api = vppJapiDependency;
+        this.readerRegistry = readerRegistry;
+        this.writerRegistry = writerRegistry;
         this.domBroker = Preconditions.checkNotNull(domBroker, "domBroker should not be null");
     }
 
@@ -98,6 +104,7 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
         transaction = db.newWriteOnlyTransaction();
 
         // FIXME this is minimal and we need to sync the entire configuration
+        // FIXME remove from here and make this specific for interface customizers
         syncInterfaces(transaction, api);
 
         future = transaction.submit();
@@ -177,15 +184,6 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
     public void onSessionInitiated(final ProviderContext session) {
         LOG.info("VPP-INFO: V3poProvider Session Initiated");
 
-        try {
-	    api = new vppApi("v3poODL");
-        } catch (IOException e) {
-            LOG.error("VPP-ERROR: VPP api client connection failed", e);
-            return;
-        }
-
-        LOG.info("VPP-INFO: VPP api client connection established");
-
         db = session.getSALService(DataBroker.class);
         initializeVppConfig();
         initVppOperational();
@@ -194,9 +192,6 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
         v3poService = session.addRpcImplementation(V3poService.class,
                                                    vppPollOperData);
         startOperationalUpdateTimer();
-
-        final ReaderRegistry readerRegistry = ReaderRegistry.getInstance(api);
-        final WriterRegistry writerRegistry = WriterRegistry.getInstance(api);
 
         // TODO make configurable:
         vppDataBrokerInitializationProvider = new VppDataBrokerInitializationProvider(db, readerRegistry, writerRegistry);
@@ -209,9 +204,6 @@ public class V3poProvider implements BindingAwareProvider, AutoCloseable, Broker
         LOG.info("VPP-INFO: V3poProvider Closed");
         if (v3poService != null) {
             v3poService.close();
-        }
-        if (api != null) {
-            api.close();
         }
         if (vppDataBrokerInitializationProvider != null) {
             vppDataBrokerInitializationProvider.close();
