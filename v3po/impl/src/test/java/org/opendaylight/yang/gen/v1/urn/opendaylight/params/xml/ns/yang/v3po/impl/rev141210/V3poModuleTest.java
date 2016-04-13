@@ -17,11 +17,10 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.im
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.v3po.impl.V3poProvider;
 import javax.management.ObjectName;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.DependencyResolver;
@@ -29,6 +28,8 @@ import org.opendaylight.controller.config.api.JmxAttribute;
 import org.opendaylight.controller.config.api.ModuleIdentifier;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
+import org.opendaylight.controller.sal.core.api.Broker;
+import org.opendaylight.controller.sal.core.api.Provider;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 
 public class V3poModuleTest {
@@ -41,7 +42,6 @@ public class V3poModuleTest {
         module.customValidation();
     }
 
-
     @Test
     public void testCreateInstance() throws Exception {
         // configure mocks
@@ -52,6 +52,7 @@ public class V3poModuleTest {
         final org.opendaylight.controller.sal.core.api.Broker domBroker = mock(org.opendaylight.controller.sal.core.api.Broker.class);
         when(dependencyResolver.resolveInstance(eq(org.opendaylight.controller.sal.core.api.Broker.class), any(ObjectName.class), any(JmxAttribute.class)))
             .thenReturn(domBroker);
+        doReturn(mock(Broker.ProviderSession.class)).when(domBroker).registerProvider(any(Provider.class));
         when(dependencyResolver.resolveInstance(eq(BindingNormalizedNodeSerializer.class), any(ObjectName.class), any(JmxAttribute.class)))
                 .thenReturn(mock(BindingNormalizedNodeSerializer.class));
         when(dependencyResolver.resolveInstance(eq(DOMDataBroker.class), any(ObjectName.class), any(JmxAttribute.class)))
@@ -62,9 +63,6 @@ public class V3poModuleTest {
 
         // getInstance calls resolveInstance to get the broker dependency and then calls createInstance
         AutoCloseable closeable = module.getInstance();
-
-        // verify that the module registered the returned provider with the broker
-        verify(broker).registerProvider((V3poProvider)closeable);
 
         // ensure no exceptions on close
         closeable.close();

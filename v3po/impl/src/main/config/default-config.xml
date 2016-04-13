@@ -168,26 +168,14 @@
         <module>
           <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:v3po</type>
           <name>v3po-default</name>
-          <broker>
-            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-broker-osgi-registry</type>
-            <name>binding-osgi-broker</name>
-          </broker>
           <dom-broker>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">prefix:dom-broker-osgi-registry</type>
             <name>dom-broker</name>
           </dom-broker>
-          <vpp-japi>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg">prefix:vpp-japi</type>
-            <name>vpp-japi</name>
-          </vpp-japi>
-          <serializer>
-            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
-            <name>runtime-mapping-singleton</name>
-          </serializer>
-          <dom-data-broker>
+          <honeycomb-dom-data-broker>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">prefix:dom-async-data-broker</type>
             <name>honeycomb-dom-data-broker</name>
-          </dom-data-broker>
+          </honeycomb-dom-data-broker>
         </module>
 
         <!-- Config initialization -->

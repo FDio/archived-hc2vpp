@@ -49,6 +49,7 @@
     <configfile finalname="${configfile.directory}/vpp-japi.xml">mvn:io.fd.honeycomb.v3po/vpp-japi-cfg/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po-netconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/netconf</configfile>
+    <configfile finalname="${configfile.directory}/v3po-restconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/restconf</configfile>
     <configfile finalname="${configfile.directory}/v3po2vpp.xml">mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}/xml/config</configfile>
   </feature>
 

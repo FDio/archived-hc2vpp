@@ -366,12 +366,4 @@ module v3po {
       "vlib version info";
     }
   }
-
-  rpc vpp-poll-oper-data {
-    output {
-      leaf status {
-        type uint32;
-      }
-    }
-  }
 }
