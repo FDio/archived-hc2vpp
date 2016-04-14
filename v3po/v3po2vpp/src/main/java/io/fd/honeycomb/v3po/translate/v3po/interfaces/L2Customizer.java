@@ -55,11 +55,11 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 dataAfter,
                                        @Nonnull final Context writeContext)
         throws WriteFailedException {
-        final Interface ifc = (Interface) writeContext.get(InterfaceCustomizer.IFC_AFTER_CTX);
 
-        final int swIfc = getSwIfc(ifc);
+        final String ifcName = id.firstKeyOf(Interface.class).getName();
+        final int swIfc = getSwIfc(ifcName);
         try {
-            setL2(id, swIfc, ifc, dataAfter);
+            setL2(id, swIfc, ifcName, dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Write of L2 failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -70,49 +70,45 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 dataBefore,
                                         @Nonnull final L2 dataAfter, @Nonnull final Context writeContext)
         throws WriteFailedException {
-        final Interface ifcBefore = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
-        final Interface ifcAfter = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
 
-        final int swIfc = getSwIfc(ifcBefore);
+        final String ifcName = id.firstKeyOf(Interface.class).getName();
+        final int swIfc = getSwIfc(ifcName);
         // TODO handle update properly (if possible)
         try {
-            setL2(id, swIfc, ifcAfter, dataAfter);
+            setL2(id, swIfc, ifcName, dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of L2 failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
     }
 
-    private int getSwIfc(final Interface ifcBefore) {
-        int swIfcIndex = getVppApi().swIfIndexFromName(ifcBefore.getName());
-        checkArgument(swIfcIndex != -1, "Interface %s does not exist", ifcBefore.getName());
+    private int getSwIfc(final String ifcName) {
+        int swIfcIndex = getVppApi().swIfIndexFromName(ifcName);
+        checkArgument(swIfcIndex != -1, "Interface %s does not exist", ifcName);
         return swIfcIndex;
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 dataBefore,
                                         @Nonnull final Context writeContext) {
-        final Interface ifcBefore = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
-
-        final int swIfc = getSwIfc(ifcBefore);
         // TODO implement delete (if possible)
     }
 
-    private void setL2(final InstanceIdentifier<L2> id, final int swIfIndex, final Interface ifc, final L2 vppL2)
+    private void setL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 vppL2)
         throws VppApiInvocationException, WriteFailedException {
-        LOG.debug("Setting L2 for interface: %s", ifc.getName());
+        LOG.debug("Setting L2 for interface: %s", ifcName);
         // Nothing besides interconnection here
-        setInterconnection(id, swIfIndex, ifc, vppL2);
+        setInterconnection(id, swIfIndex, ifcName, vppL2);
     }
 
-    private void setInterconnection(final InstanceIdentifier<L2> id, final int swIfIndex, final Interface ifc,
+    private void setInterconnection(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName,
                                     final L2 vppL2)
         throws VppApiInvocationException, WriteFailedException {
         Interconnection ic = vppL2.getInterconnection();
         if (ic instanceof XconnectBased) {
-            setXconnectBasedL2(swIfIndex, ifc, (XconnectBased) ic);
+            setXconnectBasedL2(swIfIndex, ifcName, (XconnectBased) ic);
         } else if (ic instanceof BridgeBased) {
-            setBridgeBasedL2(swIfIndex, ifc, (BridgeBased) ic);
+            setBridgeBasedL2(swIfIndex, ifcName, (BridgeBased) ic);
         } else {
             // FIXME how does choice extensibility work
             // FIXME it is not even possible to create a dedicated customizer for Interconnection, since it's not a DataObject
@@ -123,16 +119,16 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
         }
     }
 
-    private void setBridgeBasedL2(final int swIfIndex, final Interface ifc, final BridgeBased bb)
+    private void setBridgeBasedL2(final int swIfIndex, final String ifcName, final BridgeBased bb)
         throws VppApiInvocationException {
 
         LOG.debug("Setting bridge based interconnection(bridge-domain=%s) for interface: %s",
-            bb.getBridgeDomain(), ifc.getName());
+            bb.getBridgeDomain(), ifcName);
 
         String bdName = bb.getBridgeDomain();
         int bdId = getVppApi().bridgeDomainIdFromName(bdName);
         checkArgument(bdId > 0, "Unable to set Interconnection for Interface: %s, bridge domain: %s does not exist",
-            ifc.getName(), bdName);
+            ifcName, bdName);
 
         byte bvi = bb.isBridgedVirtualInterface()
             ? (byte) 1
@@ -143,36 +139,36 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
         final int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
 
         if (rv < 0) {
-            LOG.warn("Failed to update bridge based interconnection flags for: {}, interconnection: {}", ifc.getName(),
+            LOG.warn("Failed to update bridge based interconnection flags for: {}, interconnection: {}", ifcName,
                 bb);
             throw new VppApiInvocationException("swInterfaceSetL2Bridge", ctxId, rv);
         } else {
-            LOG.debug("Bridge based interconnection updated successfully for: {}, interconnection: {}", ifc.getName(),
+            LOG.debug("Bridge based interconnection updated successfully for: {}, interconnection: {}", ifcName,
                 bb);
         }
     }
 
-    private void setXconnectBasedL2(final int swIfIndex, final Interface ifc, final XconnectBased ic)
+    private void setXconnectBasedL2(final int swIfIndex, final String ifcName, final XconnectBased ic)
         throws VppApiInvocationException {
 
         String outSwIfName = ic.getXconnectOutgoingInterface();
         LOG.debug("Setting xconnect based interconnection(outgoing ifc=%s) for interface: %s", outSwIfName,
-            ifc.getName());
+            ifcName);
 
         int outSwIfIndex = getVppApi().swIfIndexFromName(outSwIfName);
         checkArgument(outSwIfIndex > 0,
             "Unable to set Interconnection for Interface: %s, outgoing interface: %s does not exist",
-            ifc.getName(), outSwIfIndex);
+            ifcName, outSwIfIndex);
 
         int ctxId = getVppApi().swInterfaceSetL2Xconnect(swIfIndex, outSwIfIndex, (byte) 1 /* enable */);
         final int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
 
         if (rv < 0) {
             LOG.warn("Failed to update xconnect based interconnection flags for: {}, interconnection: {}",
-                ifc.getName(), ic);
+                ifcName, ic);
             throw new VppApiInvocationException("swInterfaceSetL2Xconnect", ctxId, rv);
         } else {
-            LOG.debug("Xconnect based interconnection updated successfully for: {}, interconnection: {}", ifc.getName(),
+            LOG.debug("Xconnect based interconnection updated successfully for: {}, interconnection: {}", ifcName,
                 ic);
         }
     }

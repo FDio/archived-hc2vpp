@@ -18,9 +18,9 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.Context;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
@@ -54,9 +54,8 @@ public class VxlanCustomizer extends VppApiCustomizer implements ChildWriterCust
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataAfter,
                                        @Nonnull final Context writeContext)
         throws WriteFailedException.CreateFailedException {
-        final Interface ifc = (Interface) writeContext.get(InterfaceCustomizer.IFC_AFTER_CTX);
         try {
-            createVxlanTunnel(ifc.getName(), dataAfter);
+            createVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Write of Vxlan failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -67,12 +66,10 @@ public class VxlanCustomizer extends VppApiCustomizer implements ChildWriterCust
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
                                         @Nonnull final Vxlan dataAfter, @Nonnull final Context writeContext)
         throws WriteFailedException.UpdateFailedException {
-        final Interface ifcBefore = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
-        final Interface ifcAfter = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
 
         // TODO handle update in a better way
         try {
-            createVxlanTunnel(ifcAfter.getName(), dataAfter);
+            createVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of L2 failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
@@ -82,7 +79,6 @@ public class VxlanCustomizer extends VppApiCustomizer implements ChildWriterCust
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
                                         @Nonnull final Context writeContext) {
-        final Interface ifcBefore = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
 
         // TODO handle delete
     }

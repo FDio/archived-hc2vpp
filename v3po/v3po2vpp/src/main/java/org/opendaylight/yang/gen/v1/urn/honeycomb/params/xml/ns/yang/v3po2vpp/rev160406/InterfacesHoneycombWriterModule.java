@@ -8,12 +8,11 @@ import io.fd.honeycomb.v3po.translate.impl.write.CompositeRootWriter;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.util.write.CloseableWriter;
 import io.fd.honeycomb.v3po.translate.util.write.NoopWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.util.write.ReflexiveChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.util.write.ReflexiveAugmentWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.EthernetCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.L2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.RoutingCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.VppInterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.VxlanCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv6Customizer;
@@ -52,11 +51,15 @@ public class InterfacesHoneycombWriterModule extends org.opendaylight.yang.gen.v
 
         final List<ChildWriter<? extends Augmentation<Interface>>> ifcAugmentations = Lists.newArrayList();
         ifcAugmentations.add(getVppIfcAugmentationWriter());
+        ifcAugmentations.add(getInterface1AugmentationWriter());
 
         final ChildWriter<Interface> interfaceWriter = new CompositeListWriter<>(Interface.class,
             RWUtils.<Interface>emptyChildWriterList(),
             ifcAugmentations,
-            new InterfaceCustomizer(getVppJapiIfcDependency()));
+            new InterfaceCustomizer(getVppJapiIfcDependency()),
+            // It's important that this customizer is handled in a postorder way, because you first have to handle child nodes
+            // e.g. Vxlan before setting other interface or vppInterfaceAugmentation leaves
+            TraversalType.POSTORDER);
 
         final List<ChildWriter<? extends ChildOf<Interfaces>>> childWriters = new ArrayList<>();
         childWriters.add(interfaceWriter);
@@ -79,7 +82,7 @@ public class InterfacesHoneycombWriterModule extends org.opendaylight.yang.gen.v
         interface1ChildWriters.add(ipv6Writer);
 
         return new CompositeChildWriter<>(Interface1.class,
-            interface1ChildWriters, new ReflexiveChildWriterCustomizer<Interface1>());
+            interface1ChildWriters, new ReflexiveAugmentWriterCustomizer<Interface1>());
     }
 
     private ChildWriter<VppInterfaceAugmentation> getVppIfcAugmentationWriter() {
@@ -98,17 +101,14 @@ public class InterfacesHoneycombWriterModule extends org.opendaylight.yang.gen.v
 
         final List<ChildWriter<? extends ChildOf<VppInterfaceAugmentation>>> vppIfcChildWriters = Lists.newArrayList();
         // TODO what's the order here ?
-        vppIfcChildWriters.add(ethernetWriter);
         vppIfcChildWriters.add(vxlanWriter);
+        vppIfcChildWriters.add(ethernetWriter);
         vppIfcChildWriters.add(l2Writer);
         vppIfcChildWriters.add(routingWriter);
 
         return new CompositeChildWriter<>(VppInterfaceAugmentation.class,
             vppIfcChildWriters,
             RWUtils.<VppInterfaceAugmentation>emptyAugWriterList(),
-            new VppInterfaceCustomizer(getVppJapiIfcDependency()),
-            // It's important that this customizer is handled in a postorder way, because you first have to handle child nodes
-            // e.g. Vxlan before setting other interface or vppInterfaceAugmentation leaves
-            TraversalType.POSTORDER);
+            new ReflexiveAugmentWriterCustomizer<VppInterfaceAugmentation>());
     }
 }

@@ -53,10 +53,9 @@ public class RoutingCustomizer extends VppApiCustomizer implements ChildWriterCu
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> id,
                                        @Nonnull final Routing dataAfter, @Nonnull final Context writeContext)
         throws WriteFailedException.CreateFailedException {
-        final Interface ifc = (Interface) writeContext.get(InterfaceCustomizer.IFC_AFTER_CTX);
 
         try {
-            setRouting(ifc.getName(), dataAfter);
+            setRouting(id.firstKeyOf(Interface.class).getName(), dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of Routing failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -68,12 +67,10 @@ public class RoutingCustomizer extends VppApiCustomizer implements ChildWriterCu
                                         @Nonnull final Routing dataBefore, @Nonnull final Routing dataAfter,
                                         @Nonnull final Context writeContext)
         throws WriteFailedException.UpdateFailedException {
-        final Interface ifcBefore = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
-        final Interface ifcAfter = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
 
         try {
             // TODO handle updates properly
-            setRouting(ifcAfter.getName(), dataAfter);
+            setRouting(id.firstKeyOf(Interface.class).getName(), dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of Routing failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);

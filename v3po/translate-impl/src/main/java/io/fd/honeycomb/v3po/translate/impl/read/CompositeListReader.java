@@ -133,9 +133,11 @@ public final class CompositeListReader<C extends DataObject & Identifiable<K>, K
                     RWUtils.getCurrentIdItem(id, key);
             final InstanceIdentifier<C> keyedId = RWUtils.replaceLastInId(id, currentBdItem);
             final Optional<C> read = readCurrent(keyedId, ctx);
-            final DataObject singleItem = read.get();
-            checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleItem.getClass()));
-            allEntries.add(getManagedDataObjectType().getTargetType().cast(singleItem));
+            if(read.isPresent()) {
+                final DataObject singleItem = read.get();
+                checkArgument(getManagedDataObjectType().getTargetType().isAssignableFrom(singleItem.getClass()));
+                allEntries.add(getManagedDataObjectType().getTargetType().cast(singleItem));
+            }
         }
         return allEntries;
     }

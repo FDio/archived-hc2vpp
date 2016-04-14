@@ -22,7 +22,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
@@ -59,10 +58,9 @@ public class Ipv4Customizer extends VppApiCustomizer implements ChildWriterCusto
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
                                        @Nonnull final Ipv4 dataAfter, @Nonnull final Context writeContext)
         throws WriteFailedException {
-        final Interface ifc = (Interface) writeContext.get(InterfaceCustomizer.IFC_AFTER_CTX);
-
         try {
-            setIpv4(id, ifc.getName(), dataAfter);
+            final String ifcName = id.firstKeyOf(Interface.class).getName();
+            setIpv4(id, ifcName, dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Create of Ipv4 failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -74,12 +72,11 @@ public class Ipv4Customizer extends VppApiCustomizer implements ChildWriterCusto
                                         @Nonnull final Ipv4 dataBefore, @Nonnull final Ipv4 dataAfter,
                                         @Nonnull final Context writeContext)
         throws WriteFailedException {
-        final Interface ifcBefore = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
-        final Interface ifcAfter = (Interface) writeContext.get(InterfaceCustomizer.IFC_BEFORE_CTX);
+        final String ifcName = id.firstKeyOf(Interface.class).getName();
 
         // TODO handle update in a better way
         try {
-            setIpv4(id, ifcAfter.getName(), dataAfter);
+            setIpv4(id, ifcName, dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of Ipv4 failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);

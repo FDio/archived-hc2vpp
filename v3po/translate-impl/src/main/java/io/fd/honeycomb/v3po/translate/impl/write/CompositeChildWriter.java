@@ -95,12 +95,12 @@ public class CompositeChildWriter<D extends DataObject> extends AbstractComposit
 
     @Override
     public void deleteChild(@Nonnull final InstanceIdentifier<? extends DataObject> parentId,
-                            @Nonnull final DataObject parentData,
+                            @Nonnull final DataObject parentDataBefore,
                             @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
-        final Optional<D> currentData = customizer.extract(currentId, parentData);
-        if(currentData.isPresent()) {
-            deleteCurrent(currentId, currentData.get(), ctx);
+        final Optional<D> dataBefore = customizer.extract(currentId, parentDataBefore);
+        if(dataBefore.isPresent()) {
+            deleteCurrent(currentId, dataBefore.get(), ctx);
         }
     }
 
@@ -111,8 +111,15 @@ public class CompositeChildWriter<D extends DataObject> extends AbstractComposit
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
         final Optional<D> before = customizer.extract(currentId, parentDataBefore);
         final Optional<D> after = customizer.extract(currentId, parentDataAfter);
-        if(before.isPresent() && after.isPresent()) {
-            updateCurrent(currentId, before.get(), after.get(), ctx);
+
+        if(before.isPresent()) {
+            if(after.isPresent()) {
+                updateCurrent(currentId, before.get(), after.get(), ctx);
+            } else {
+                deleteCurrent(currentId, before.get(), ctx);
+            }
+        } else if (after.isPresent()){
+            writeCurrent(currentId, after.get(), ctx);
         }
     }
 }

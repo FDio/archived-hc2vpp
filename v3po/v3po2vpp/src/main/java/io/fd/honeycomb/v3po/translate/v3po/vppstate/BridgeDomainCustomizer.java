@@ -59,13 +59,16 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
                 id, builder, context);
 
         final BridgeDomainKey key = id.firstKeyOf(id.getTargetType());
-        // TODO find out if bd exists based on name and if not return
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: key={}", key);
 
         final int bdId = getVppApi().bridgeDomainIdFromName(key.getName());
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: bdId={}", bdId);
 
         final vppBridgeDomainDetails bridgeDomainDetails = getVppApi().getBridgeDomainDetails(bdId);
+        if(bridgeDomainDetails == null) {
+            LOG.debug("Bridge domain name={} does not exist", key.getName());
+            return;
+        }
         logBridgeDomainDetails(bridgeDomainDetails);
 
         builder.setName(key.getName());
