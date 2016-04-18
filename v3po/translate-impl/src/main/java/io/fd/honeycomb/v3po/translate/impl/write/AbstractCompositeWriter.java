@@ -98,7 +98,7 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
                                  final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Updating current: {} dataBefore: {}, datAfter: {}", this, id, dataBefore, dataAfter);
 
-/*   FIXME: Equals does not work: LINK */
+        /*   FIXME: Equals does not work properly with augments: https://git.opendaylight.org/gerrit/#/c/37719 */
         if (dataBefore.equals(dataAfter)) {
             LOG.debug("{}: Skipping current(no update): {}", this, id);
             // No change, ignore
