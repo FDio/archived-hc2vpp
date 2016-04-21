@@ -46,11 +46,22 @@ module v3po {
     base if:interface-type;
   }
 
+  identity vhost-user {
+    base if:interface-type;
+  }
+
   typedef vxlan-vni {
     // FIXME: should be in a vxlan-specific model
     description "VNI used in a VXLAN tunnel";
     type uint32 {
       range "0..16777215";
+    }
+  }
+
+  typedef vhost-user-role {
+    type enumeration {
+      enum "server";
+      enum "client";
     }
   }
 
@@ -108,6 +119,20 @@ module v3po {
         type uint32;
         default 0;
       }
+    }
+    container vhost-user {
+      when "../if:type = 'v3po:vhost-user'";
+      leaf socket {
+        type string {
+          length 1..255;
+        }
+      }
+      leaf role {
+        type vhost-user-role;
+        default "server";
+      }
+      description
+        "vhost-user settings";
     }
     container vxlan {
       // FIXME: this should be in an vxlan-specific extension
@@ -233,6 +258,27 @@ module v3po {
           enum "half";
           enum "full";
         }
+      }
+    }
+    container vhost-user {
+      when "../if:type = 'v3po:vhost-user'";
+      leaf socket {
+        type string;
+      }
+      leaf role {
+        type vhost-user-role;
+      }
+      leaf features {
+        type uint64;
+      }
+      leaf virtio-net-hdr-size {
+        type uint32;
+      }
+      leaf num-memory-regions {
+        type uint32;
+      }
+      leaf connect-error {
+        type string;
       }
     }
     container vxlan {
