@@ -34,7 +34,6 @@ import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
@@ -212,16 +211,13 @@ public final class OperationalDataTree implements ReadableDataTree {
 
     @SuppressWarnings("unchecked")
     private Function<DataObject, NormalizedNode<?, ?>> toNormalizedNodeFunction(final InstanceIdentifier path) {
-        return new Function<DataObject, NormalizedNode<?, ?>>() {
-            @Override
-            public NormalizedNode<?, ?> apply(@Nullable final DataObject dataObject) {
-                LOG.trace("OperationalDataTree.toNormalizedNode(), path={}, dataObject={}", path, dataObject);
-                final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> entry =
-                        serializer.toNormalizedNode(path, dataObject);
+        return dataObject -> {
+            LOG.trace("OperationalDataTree.toNormalizedNode(), path={}, dataObject={}", path, dataObject);
+            final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> entry =
+                    serializer.toNormalizedNode(path, dataObject);
 
-                LOG.trace("OperationalDataTree.toNormalizedNode(), normalizedNodeEntry={}", entry);
-                return entry.getValue();
-            }
+            LOG.trace("OperationalDataTree.toNormalizedNode(), normalizedNodeEntry={}", entry);
+            return entry.getValue();
         };
     }
 
