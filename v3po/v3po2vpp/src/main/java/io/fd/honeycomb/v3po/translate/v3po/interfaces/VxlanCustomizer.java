@@ -24,7 +24,7 @@ import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
@@ -84,16 +84,19 @@ public class VxlanCustomizer extends VppApiCustomizer implements ChildWriterCust
     }
 
     private void createVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
-        Ipv4Address srcAddress = vxlan.getSrc();
-        Ipv4Address dstAddress = vxlan.getDst();
+        Ipv4AddressNoZone srcAddress = V3poUtils.removeIpv4AddressNoZone(vxlan.getSrc());
+        Ipv4AddressNoZone dstAddress = V3poUtils.removeIpv4AddressNoZone(vxlan.getDst());
 
-        int srcAddr = V3poUtils.parseIp(srcAddress.getValue());
-        int dstAddr = V3poUtils.parseIp(dstAddress.getValue());
+        byte[] srcAddr = V3poUtils.ipv4AddressNoZoneToArray(srcAddress);
+        byte[] dstAddr = V3poUtils.ipv4AddressNoZoneToArray(dstAddress);
         int encapVrfId = vxlan.getEncapVrfId().intValue();
         int vni = vxlan.getVni().getValue().intValue();
 
         LOG.debug("Setting vxlan tunnel for interface: {}. Vxlan: {}", swIfName, vxlan);
-        int ctxId = getVppApi().vxlanAddDelTunnel((byte) 1 /* is add */, srcAddr, dstAddr, encapVrfId, -1, vni);
+        int ctxId = 0; getVppApi().vxlanAddDelTunnel(
+                (byte) 1 /* is add */,
+                (byte) 0 /* is ipv6 */,
+                srcAddr, dstAddr, encapVrfId, -1, vni);
         final int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
         if (rv < 0) {
             LOG.debug("Failed to set vxlan tunnel for interface: {}, vxlan: {}", swIfName, vxlan);

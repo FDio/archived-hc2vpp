@@ -16,11 +16,14 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.utils;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.SoftwareLoopback;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
@@ -74,5 +77,25 @@ public final class V3poUtils {
             retval[d] = (byte) (Short.parseShort(dots[3 - d]) & 0xff);
         }
         return retval;
+    }
+
+    /**
+     * Removes zone index from Ipv4Address.
+     * @param ipv4Addr ipv4 address which can contain zone index
+     * @return ipv4 address without zone index
+     */
+    @Nonnull
+    public static Ipv4AddressNoZone removeIpv4AddressNoZone(@Nonnull final Ipv4Address ipv4Addr) {
+        Preconditions.checkNotNull(ipv4Addr, "ipv4Addr should not be null");
+        if (ipv4Addr instanceof Ipv4AddressNoZone) {
+            return (Ipv4AddressNoZone)ipv4Addr;
+        } else {
+            String value = ipv4Addr.getValue();
+            final int index = value.indexOf('%');
+            if (index != -1) {
+                value = value.substring(0, index);
+            }
+            return new Ipv4AddressNoZone(value);
+        }
     }
 }
