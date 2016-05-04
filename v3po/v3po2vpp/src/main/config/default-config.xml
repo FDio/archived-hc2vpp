@@ -19,46 +19,90 @@
 
 <snapshot>
     <required-capabilities>
-        <capability>urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg?module=vpp-japi-cfg&amp;revision=2016-04-06</capability>
+        <capability>urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg?module=vpp-jvpp-cfg&amp;revision=2016-04-06</capability>
         <capability>urn:honeycomb:params:xml:ns:yang:v3po2vpp?module=v3po2vpp&amp;revision=2016-04-06</capability>
+        <capability>urn:honeycomb:params:xml:ns:yang:vpp:util?module=vpp-util&amp;revision=2016-04-06</capability>
     </required-capabilities>
     <configuration>
 
         <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
             <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
                 <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context-impl</type>
+                    <name>interface-context</name>
+                    <artificial-name-prefix>interface-</artificial-name-prefix>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context-impl</type>
+                    <name>bridge-domain-context</name>
+                    <artificial-name-prefix>bridge-domain-</artificial-name-prefix>
+                </module>
+
+                <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-state-honeycomb-reader</type>
                     <name>vpp-state-honeycomb-reader</name>
-                    <vpp-japi>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg">prefix:vpp-japi</type>
-                        <name>vpp-japi</name>
-                    </vpp-japi>
+                    <vpp-jvpp>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg">prefix:vpp-jvpp</type>
+                        <name>vpp-jvpp</name>
+                    </vpp-jvpp>
+                    <interface-context-vpp-state>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>interface-context</name>
+                    </interface-context-vpp-state>
+                    <bridge-domain-context-vpp-state>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>bridge-domain-context</name>
+                    </bridge-domain-context-vpp-state>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:interfaces-state-honeycomb-reader</type>
                     <name>interfaces-state-honeycomb-reader</name>
-                    <vpp-japi>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg">prefix:vpp-japi</type>
-                        <name>vpp-japi</name>
-                    </vpp-japi>
+                    <vpp-jvpp>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg">prefix:vpp-jvpp</type>
+                        <name>vpp-jvpp</name>
+                    </vpp-jvpp>
+                    <interface-context-ifc-state>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>interface-context</name>
+                    </interface-context-ifc-state>
+                    <bridge-domain-context-ifc-state>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>bridge-domain-context</name>
+                    </bridge-domain-context-ifc-state>
                 </module>
 
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-honeycomb-writer</type>
                     <name>vpp-honeycomb-writer</name>
-                    <vpp-japi-writer>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg">prefix:vpp-japi</type>
-                        <name>vpp-japi</name>
-                    </vpp-japi-writer>
+                    <vpp-jvpp-writer>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg">prefix:vpp-jvpp</type>
+                        <name>vpp-jvpp</name>
+                    </vpp-jvpp-writer>
+                    <interface-context-vpp>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>interface-context</name>
+                    </interface-context-vpp>
+                    <bridge-domain-context-vpp>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>bridge-domain-context</name>
+                    </bridge-domain-context-vpp>
                 </module>
 
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:interfaces-honeycomb-writer</type>
                     <name>interfaces-honeycomb-writer</name>
-                    <vpp-japi-ifc>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg">prefix:vpp-japi</type>
-                        <name>vpp-japi</name>
-                    </vpp-japi-ifc>
+                    <vpp-jvpp-ifc>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg">prefix:vpp-jvpp</type>
+                        <name>vpp-jvpp</name>
+                    </vpp-jvpp-ifc>
+                    <interface-context>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>interface-context</name>
+                    </interface-context>
+                    <bridge-domain-context>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>bridge-domain-context</name>
+                    </bridge-domain-context>
                 </module>
 
                 <module>
@@ -99,6 +143,17 @@
                     <instance>
                         <name>interfaces-state-honeycomb-reader</name>
                         <provider>/modules/module[type='interfaces-state-honeycomb-reader'][name='interfaces-state-honeycomb-reader']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                    <instance>
+                        <name>interface-context</name>
+                        <provider>/modules/module[type='naming-context-impl'][name='interface-context']</provider>
+                    </instance>
+                    <instance>
+                        <name>bridge-domain-context</name>
+                        <provider>/modules/module[type='naming-context-impl'][name='bridge-domain-context']</provider>
                     </instance>
                 </service>
                 <service>

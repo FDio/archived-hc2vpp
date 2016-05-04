@@ -19,16 +19,17 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces.ip;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.future.FutureJVpp;
 
-public class Interface1Customizer extends VppApiCustomizer implements ChildWriterCustomizer<Interface1> {
+public class Interface1Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Interface1> {
 
-    public Interface1Customizer(final org.openvpp.vppjapi.vppApi vppApi) {
+    public Interface1Customizer(final FutureJVpp vppApi) {
         super(vppApi);
     }
 

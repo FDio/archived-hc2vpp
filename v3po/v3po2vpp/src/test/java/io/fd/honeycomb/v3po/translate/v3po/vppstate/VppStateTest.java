@@ -19,27 +19,30 @@ package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.translate.impl.read.CompositeListReader;
 import io.fd.honeycomb.v3po.translate.impl.read.CompositeRootReader;
-import io.fd.honeycomb.v3po.translate.util.read.DelegatingReaderRegistry;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.Reader;
+import io.fd.honeycomb.v3po.translate.util.read.DelegatingReaderRegistry;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
@@ -53,131 +56,123 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.vppjapi.vppApi;
-import org.openvpp.vppjapi.vppBridgeDomainDetails;
-import org.openvpp.vppjapi.vppBridgeDomainInterfaceDetails;
-import org.openvpp.vppjapi.vppL2Fib;
-import org.openvpp.vppjapi.vppVersion;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.openvpp.jvpp.dto.BridgeDomainDetails;
+import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
+import org.openvpp.jvpp.dto.BridgeDomainDump;
+import org.openvpp.jvpp.dto.L2FibTableDump;
+import org.openvpp.jvpp.dto.L2FibTableEntry;
+import org.openvpp.jvpp.dto.L2FibTableEntryReplyDump;
+import org.openvpp.jvpp.dto.ShowVersion;
+import org.openvpp.jvpp.dto.ShowVersionReply;
+import org.openvpp.jvpp.future.FutureJVpp;
 
-@RunWith(PowerMockRunner.class)
-@SuppressStaticInitializationFor("org.openvpp.vppjapi.vppConn")
-@PrepareForTest(vppApi.class)
 public class VppStateTest {
 
-    public static final vppVersion VERSION = new vppVersion("test", "1", "2", "33");
+    @Mock
+    private FutureJVpp api;
+    @Mock
+    private ReadContext ctx;
 
-    private vppApi api;
+    private NamingContext bdContext;
+    private NamingContext interfaceContext;
+
     private CompositeRootReader<VppState, VppStateBuilder> vppStateReader;
     private DelegatingReaderRegistry readerRegistry;
-    private vppBridgeDomainDetails bdDetails;
-    private vppBridgeDomainDetails bdDetails2;
-    private ReadContext ctx;
 
     @Before
     public void setUp() throws Exception {
-        api = PowerMockito.mock(vppApi.class);
+        initMocks(this);
 
-        ctx = mock(ReadContext.class);
-
-        bdDetails = new vppBridgeDomainDetails();
-        setIfcs(bdDetails);
-        setBaseAttrs(bdDetails, "bdn1", 1);
-
-        bdDetails2 = new vppBridgeDomainDetails();
-        setIfcs(bdDetails2);
-        setBaseAttrs(bdDetails2, "bdn2", 2);
-
-        final vppL2Fib[] l2Fibs = getL2Fibs();
-        PowerMockito.doReturn(l2Fibs).when(api).l2FibTableDump(Matchers.anyInt());
-        PowerMockito.doAnswer(new Answer<vppBridgeDomainDetails>() {
-
-            @Override
-            public vppBridgeDomainDetails answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                final Integer idx = (Integer) invocationOnMock.getArguments()[0];
-                switch (idx) {
-                    case 1 : return bdDetails;
-                    case 2 : return bdDetails2;
-                    default: return null;
-                }
-            }
-        }).when(api).getBridgeDomainDetails(Matchers.anyInt());
-
-        PowerMockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                final String name = (String) invocationOnMock.getArguments()[0];
-                switch (name) {
-                    case "bdn1" : return 1;
-                    case "bdn2" : return 2;
-                    default: return null;
-                }
-            }
-        }).when(api).bridgeDomainIdFromName(anyString());
-        PowerMockito.doReturn(new int[] {1, 2}).when(api).bridgeDomainDump(Matchers.anyInt());
-        PowerMockito.doReturn(VERSION).when(api).getVppVersion();
-        vppStateReader = VppStateUtils.getVppStateReader(api);
+        bdContext = new NamingContext("generatedBdName");
+        interfaceContext = new NamingContext("generatedInterfaceName");
+        vppStateReader = VppStateTestUtils.getVppStateReader(api, bdContext, interfaceContext);
         readerRegistry = new DelegatingReaderRegistry(Collections.<Reader<? extends DataObject>>singletonList(vppStateReader));
     }
 
-    private vppL2Fib[] getL2Fibs() {
-        return new vppL2Fib[] {
-            new vppL2Fib(new byte[]{1,2,3,4,5,6}, true, "ifc1", true, true),
-            new vppL2Fib(new byte[]{2,2,3,4,5,6}, true, "ifc2", true, true),
-        };
+    private static Version getVersion() {
+        return new VersionBuilder()
+                .setName("test")
+                .setBuildDirectory("1")
+                .setBranch("2")
+                .setBuildDate("3")
+                .build();
     }
 
-    private void setIfcs(final vppBridgeDomainDetails bdDetails) {
-        final vppBridgeDomainInterfaceDetails ifcDetails = new vppBridgeDomainInterfaceDetails();
-        ifcDetails.interfaceName = "ifc";
-        ifcDetails.splitHorizonGroup = 2;
-        bdDetails.interfaces = new vppBridgeDomainInterfaceDetails[] {ifcDetails};
+    private void whenShowVersionThenReturn(int retval, Version version) throws ExecutionException, InterruptedException {
+        final CompletionStage<ShowVersionReply> replyCS = mock(CompletionStage.class);
+        final CompletableFuture<ShowVersionReply> replyFuture = mock(CompletableFuture.class);
+        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+        final ShowVersionReply reply = new ShowVersionReply();
+        reply.retval = 0; // success
+        reply.buildDate = version.getBuildDate().getBytes();
+        reply.program = version.getName().getBytes();
+        reply.version = version.getBranch().getBytes();
+        reply.buildDirectory = version.getBuildDirectory().getBytes();
+        when(replyFuture.get()).thenReturn(reply);
+        when(api.showVersion(any(ShowVersion.class))).thenReturn(replyCS);
     }
 
-    private void setBaseAttrs(final vppBridgeDomainDetails bdDetails, final String bdn, final int i) {
-        bdDetails.name = bdn;
-        bdDetails.arpTerm = true;
-        bdDetails.bdId = i;
-        bdDetails.bviInterfaceName = "ifc";
-        bdDetails.flood = true;
-        bdDetails.forward = true;
-        bdDetails.learn = true;
-        bdDetails.uuFlood = true;
+    private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> entryList) throws ExecutionException, InterruptedException {
+        final CompletionStage<L2FibTableEntryReplyDump> replyCS = mock(CompletionStage.class);
+        final CompletableFuture<L2FibTableEntryReplyDump> replyFuture = mock(CompletableFuture.class);
+        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+        final L2FibTableEntryReplyDump reply = new L2FibTableEntryReplyDump();
+        reply.l2FibTableEntry = entryList;
+        when(replyFuture.get()).thenReturn(reply);
+        when(api.l2FibTableDump(any(L2FibTableDump.class))).thenReturn(replyCS);
+    }
+
+    private void whenBridgeDomainDumpThenReturn(final List<BridgeDomainDetails> bdList) throws ExecutionException, InterruptedException {
+        final CompletionStage<BridgeDomainDetailsReplyDump> replyCS = mock(CompletionStage.class);
+        final CompletableFuture<BridgeDomainDetailsReplyDump> replyFuture = mock(CompletableFuture.class);
+        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+        final BridgeDomainDetailsReplyDump reply = new BridgeDomainDetailsReplyDump();
+        reply.bridgeDomainDetails = bdList;
+        when(replyFuture.get()).thenReturn(reply);
+
+        doAnswer(invocation -> {
+            BridgeDomainDump request = (BridgeDomainDump)invocation.getArguments()[0];
+            if (request.bdId == -1) {
+                reply.bridgeDomainDetails = bdList;
+            } else {
+                reply.bridgeDomainDetails = Collections.singletonList(bdList.get(request.bdId));
+            }
+            return replyCS;
+        }).when(api).bridgeDomainDump(any(BridgeDomainDump.class));
     }
 
     @Test
     public void testReadAll() throws Exception {
+        final Version version = getVersion();
+        whenShowVersionThenReturn(0, version);
+
+        final List<BridgeDomainDetails> bdList = Arrays.asList(new BridgeDomainDetails(), new BridgeDomainDetails());
+        whenBridgeDomainDumpThenReturn(bdList);
+
         final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects = readerRegistry.readAll(ctx);
         assertEquals(dataObjects.size(), 1);
-        final DataObject dataObject = Iterables.getOnlyElement(dataObjects.get(Iterables.getOnlyElement(dataObjects.keySet())));
-        assertTrue(dataObject instanceof VppState);
-        assertVersion((VppState) dataObject);
-        assertEquals(2, ((VppState) dataObject).getBridgeDomains().getBridgeDomain().size());
-    }
-
-    private void assertVersion(final VppState dataObject) {
-        assertEquals(
-            new VersionBuilder()
-                .setName("test")
-                .setBuildDirectory("1")
-                .setBranch("2")
-                .setBuildDate("33")
-                .build(),
-            dataObject.getVersion());
+        final VppState dataObject = (VppState)Iterables.getOnlyElement(dataObjects.get(Iterables.getOnlyElement(dataObjects.keySet())));
+        assertEquals(version, dataObject.getVersion());
+        assertEquals(2, dataObject.getBridgeDomains().getBridgeDomain().size());
     }
 
     @Test
     public void testReadSpecific() throws Exception {
+        final Version version = getVersion();
+        whenShowVersionThenReturn(0, version);
+        whenBridgeDomainDumpThenReturn(Collections.emptyList());
+
         final Optional<? extends DataObject> read = readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx);
         assertTrue(read.isPresent());
-        assertVersion((VppState) read.get());
+        assertEquals(version, ((VppState) read.get()).getVersion());
     }
 
     @Test
     public void testReadBridgeDomains() throws Exception {
+        final Version version = getVersion();
+        whenShowVersionThenReturn(0, version);
+        whenBridgeDomainDumpThenReturn(Collections.singletonList(new BridgeDomainDetails()));
+
         VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         Optional<? extends DataObject> read =
@@ -191,6 +186,16 @@ public class VppStateTest {
      */
     @Test
     public void testReadL2Fib() throws Exception {
+        final BridgeDomainDetails bd = new BridgeDomainDetails();
+        bd.bdId = 0;
+        final String bdName = "bdn1";
+        bdContext.addName(bd.bdId, bdName);
+        whenBridgeDomainDumpThenReturn(Collections.singletonList(bd));
+        final L2FibTableEntry l2FibEntry = new L2FibTableEntry();
+        l2FibEntry.bdId = 0;
+        l2FibEntry.mac = 0x0605040302010000L;
+        whenL2FibTableDumpThenReturn(Collections.singletonList(l2FibEntry));
+
         // Deep child without a dedicated reader with specific l2fib key
         Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
@@ -208,10 +213,14 @@ public class VppStateTest {
 
     @Test
     public void testReadBridgeDomainAll() throws Exception {
+        final Version version = getVersion();
+        whenShowVersionThenReturn(0, version);
+        whenBridgeDomainDumpThenReturn(Collections.singletonList(new BridgeDomainDetails()));
+
         VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
-            VppStateUtils.getBridgeDomainReader(api);
+            VppStateTestUtils.getBridgeDomainReader(api, bdContext, interfaceContext);
 
         final List<BridgeDomain> read =
             bridgeDomainReader.readList(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
@@ -222,24 +231,25 @@ public class VppStateTest {
 
     @Test
     public void testReadBridgeDomain() throws Exception {
+        final BridgeDomainDetails bd = new BridgeDomainDetails();
+        bd.bdId = 0;
+        final String bdName = "bdn1";
+        bdContext.addName(bd.bdId, bdName);
+        whenBridgeDomainDumpThenReturn(Collections.singletonList(bd));
+        whenShowVersionThenReturn(0, getVersion());
+
         VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         final Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("bdn1")), ctx);
+                BridgeDomain.class, new BridgeDomainKey(bdName)), ctx);
 
         assertTrue(read.isPresent());
-        assertEquals(Iterables.find(readRoot.getBridgeDomains().getBridgeDomain(), new Predicate<BridgeDomain>() {
-            @Override
-            public boolean apply(final BridgeDomain input) {
-                return input.getKey().getName().equals("bdn1");
-            }
-        }), read.get());
+        assertEquals(Iterables.find(readRoot.getBridgeDomains().getBridgeDomain(),
+                input -> input.getKey().getName().equals(bdName)), read.get());
     }
 
-    // FIXME
-    @Ignore("Bridge domain customizer does not check whether the bd exists or not and fails with NPE, add it there")
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testReadBridgeDomainNotExisting() throws Exception {
         final Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
@@ -249,6 +259,8 @@ public class VppStateTest {
 
     @Test
     public void testReadVersion() throws Exception {
+        whenShowVersionThenReturn(0, getVersion());
+        whenBridgeDomainDumpThenReturn(Collections.emptyList());
         VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         Optional<? extends DataObject> read =

@@ -1,0 +1,37 @@
+module vpp-util {
+    yang-version 1;
+    namespace "urn:honeycomb:params:xml:ns:yang:vpp:util";
+    prefix "vpp-u";
+
+    import config { prefix config; revision-date 2013-04-05; }
+
+    description
+        "This module contains utilities for vpp readers/writers";
+
+    revision "2016-04-06" {
+        description
+            "Initial revision.";
+    }
+
+    identity naming-context {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+    }
+
+    identity naming-context-impl {
+        base config:module-type;
+        config:provided-service naming-context;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case naming-context-impl {
+            when "/config:modules/config:module/config:type = 'naming-context-impl'";
+
+            leaf artificial-name-prefix {
+                type string;
+            }
+
+        }
+    }
+
+}

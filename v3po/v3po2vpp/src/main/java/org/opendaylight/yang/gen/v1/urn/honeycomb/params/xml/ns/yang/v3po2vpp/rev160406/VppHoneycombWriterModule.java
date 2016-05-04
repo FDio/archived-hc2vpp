@@ -35,20 +35,20 @@ public class VppHoneycombWriterModule extends org.opendaylight.yang.gen.v1.urn.h
     public java.lang.AutoCloseable createInstance() {
         final CompositeListWriter<BridgeDomain, BridgeDomainKey> bridgeDomainWriter = new CompositeListWriter<>(
             BridgeDomain.class,
-            new BridgeDomainCustomizer(getVppJapiWriterDependency()));
+            new BridgeDomainCustomizer(getVppJvppWriterDependency(), getBridgeDomainContextVppDependency()));
 
-        final ChildWriter<BridgeDomains> bridgeDomainsReader = new CompositeChildWriter<>(
+        final ChildWriter<BridgeDomains> bridgeDomainsWriter = new CompositeChildWriter<>(
             BridgeDomains.class,
             RWUtils.singletonChildWriterList(bridgeDomainWriter),
-            new ReflexiveChildWriterCustomizer<BridgeDomains>());
+            new ReflexiveChildWriterCustomizer<>());
 
         final List<ChildWriter<? extends ChildOf<Vpp>>> childWriters = new ArrayList<>();
-        childWriters.add(bridgeDomainsReader);
+        childWriters.add(bridgeDomainsWriter);
 
         return new CloseableWriter<>(new CompositeRootWriter<>(
             Vpp.class,
             childWriters,
-            new NoopWriterCustomizer<Vpp>()));
+            new NoopWriterCustomizer<>()));
     }
 
 }

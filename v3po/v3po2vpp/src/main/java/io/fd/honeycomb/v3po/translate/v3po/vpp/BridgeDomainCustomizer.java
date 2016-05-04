@@ -18,12 +18,15 @@ package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
-import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,19 +35,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.dto.BridgeDomainAddDel;
+import org.openvpp.jvpp.dto.BridgeDomainAddDelReply;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BridgeDomainCustomizer
-    extends VppApiCustomizer
-    implements ListWriterCustomizer<BridgeDomain, BridgeDomainKey> {
+        extends FutureJVppCustomizer
+        implements ListWriterCustomizer<BridgeDomain, BridgeDomainKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
 
     private static final byte ADD_OR_UPDATE_BD = (byte) 1;
+    private final NamingContext bdContext;
 
-    public BridgeDomainCustomizer(final org.openvpp.vppjapi.vppApi api) {
-        super(api);
+    public BridgeDomainCustomizer(@Nonnull final FutureJVpp futureJvpp, @Nonnull final NamingContext bdContext) {
+        super(futureJvpp);
+        this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
     }
 
     @Nonnull
@@ -54,76 +62,96 @@ public class BridgeDomainCustomizer
         return ((BridgeDomains) parentData).getBridgeDomain();
     }
 
-    private int addOrUpdateBridgeDomain(final int bdId, @Nonnull final BridgeDomain bd) {
-        byte flood = booleanToByte(bd.isFlood());
-        byte forward = booleanToByte(bd.isForward());
-        byte learn = booleanToByte(bd.isLearn());
-        byte uuf = booleanToByte(bd.isUnknownUnicastFlood());
-        byte arpTerm = booleanToByte(bd.isArpTermination());
+    private BridgeDomainAddDelReply addOrUpdateBridgeDomain(final int bdId, @Nonnull final BridgeDomain bd)
+            throws VppApiInvocationException {
+        final BridgeDomainAddDel request = new BridgeDomainAddDel();
+        request.bdId = bdId;
+        request.flood = booleanToByte(bd.isFlood());
+        request.forward = booleanToByte(bd.isForward());
+        request.learn = booleanToByte(bd.isLearn());
+        request.uuFlood = booleanToByte(bd.isUnknownUnicastFlood());
+        request.arpTerm = booleanToByte(bd.isArpTermination());
+        request.isAdd = ADD_OR_UPDATE_BD;
 
-        int ctxId = getVppApi().bridgeDomainAddDel(bdId, flood, forward, learn, uuf, arpTerm, ADD_OR_UPDATE_BD);
-        return V3poUtils.waitForResponse(ctxId, getVppApi());
+        final BridgeDomainAddDelReply reply =
+                V3poUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
+        if (reply.retval < 0) {
+            LOG.warn("Bridge domain {} (id={}) add/update failed", bd.getName(), bdId);
+            throw new VppApiInvocationException("bridgeDomainAddDel", reply.context, reply.retval);
+        } else {
+            LOG.debug("Bridge domain {} (id={}) add/update successful", bd.getName(), bdId);
+        }
+
+        return reply;
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
-                                       @Nonnull final BridgeDomain current,
-                                       @Nonnull final Context ctx) {
-        LOG.debug("writeCurrentAttributes: id={}, current={}, ctx={}", id, current, ctx);
-        final String bdName = current.getName();
-        int bdId = getVppApi().findOrAddBridgeDomainId(bdName);
-        checkState(bdId > 0, "Unable to find or create bridge domain. Return code: %s", bdId);
+                                       @Nonnull final BridgeDomain dataBefore,
+                                       @Nonnull final Context ctx) throws WriteFailedException.CreateFailedException {
+        LOG.debug("writeCurrentAttributes: id={}, current={}, ctx={}", id, dataBefore, ctx);
+        final String bdName = dataBefore.getName();
 
-        int rv = addOrUpdateBridgeDomain(bdId, current);
-
-        checkState(rv >= 0, "Bridge domain %s(%s) write failed. Return code: %s", bdName, bdId, rv);
-        LOG.debug("Bridge domain {} written as {} successfully", bdName, bdId);
+        try {
+            // FIXME we need the bd index to be returned by VPP or we should have a counter field (maybe in context similar to artificial name)
+            // Here we assign the next available ID from bdContext's perspective
+            int index = 1;
+            while(bdContext.containsName(index)) {
+                index++;
+            }
+            addOrUpdateBridgeDomain(index, dataBefore);
+            bdContext.addName(index, bdName);
+        } catch (VppApiInvocationException e) {
+            LOG.warn("Failed to create bridge domain", e);
+            throw new WriteFailedException.CreateFailedException(id, dataBefore, e);
+        }
     }
 
     private byte booleanToByte(@Nullable final Boolean aBoolean) {
-        return aBoolean != null && aBoolean ? (byte) 1 : (byte) 0;
+        return aBoolean != null && aBoolean
+                ? (byte) 1
+                : (byte) 0;
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore,
-                                        @Nonnull final Context ctx) {
+                                        @Nonnull final Context ctx) throws WriteFailedException.DeleteFailedException {
         LOG.debug("deleteCurrentAttributes: id={}, dataBefore={}, ctx={}", id, dataBefore, ctx);
-        String bdName = id.firstKeyOf(BridgeDomain.class).getName();
 
-        int bdId = getVppApi().bridgeDomainIdFromName(bdName);
-        checkState(bdId > 0, "Unable to delete bridge domain. Does not exist. Return code: %s", bdId);
+        final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
+        int bdId = bdContext.getIndex(bdName);
+        final BridgeDomainAddDel request = new BridgeDomainAddDel();
+        request.bdId = bdId;
 
-        int ctxId = getVppApi().bridgeDomainAddDel(bdId,
-            (byte) 0 /* flood */,
-            (byte) 0 /* forward */,
-            (byte) 0 /* learn */,
-            (byte) 0 /* uuf */,
-            (byte) 0 /* arpTerm */,
-            (byte) 0 /* isAdd */);
-
-        int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
-
-        checkState(rv >= 0, "Bridge domain delete failed. Return code: %s", rv);
-        LOG.debug("Bridge domain {} deleted as {} successfully", bdName, bdId);
+        final BridgeDomainAddDelReply reply =
+                V3poUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
+        if (reply.retval < 0) {
+            LOG.warn("Bridge domain {} (id={}) delete failed", bdName, bdId);
+            throw new WriteFailedException.DeleteFailedException(id,
+                    new VppApiInvocationException("bridgeDomainAddDel", reply.context, reply.retval));
+        } else {
+            LOG.debug("Bridge domain {} (id={}) deleted successfully", bdName, bdId);
+        }
     }
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore, @Nonnull final BridgeDomain dataAfter,
-                                        @Nonnull final Context ctx) {
-        LOG.debug("updateCurrentAttributes: id={}, dataBefore={}, dataAfter={}, ctx={}", id, dataBefore, dataAfter, ctx);
+                                        @Nonnull final Context ctx) throws WriteFailedException.UpdateFailedException {
+        LOG.debug("updateCurrentAttributes: id={}, dataBefore={}, dataAfter={}, ctx={}", id, dataBefore, dataAfter,
+                ctx);
 
         final String bdName = checkNotNull(dataAfter.getName());
-        checkArgument(bdName.equals(dataBefore.getName()), "BridgeDomain name changed. It should be deleted and then created.");
+        checkArgument(bdName.equals(dataBefore.getName()),
+                "BridgeDomain name changed. It should be deleted and then created.");
 
-        int bdId = getVppApi().bridgeDomainIdFromName(bdName);
-        checkState(bdId > 0, "Unable to find bridge domain. Return code: %s", bdId);
-
-        final int rv = addOrUpdateBridgeDomain(bdId, dataAfter);
-
-        checkState(rv >= 0, "Bridge domain %s(%s) update failed. Return code: %s", bdName, bdId, rv);
-        LOG.debug("Bridge domain {}({}) updated successfully", bdName, bdId);
+        try {
+            addOrUpdateBridgeDomain(bdContext.getIndex(bdName), dataAfter);
+        } catch (VppApiInvocationException e) {
+            LOG.warn("Failed to create bridge domain", e);
+            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
+        }
     }
 
 }

@@ -19,20 +19,21 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces.ip;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv6Customizer extends VppApiCustomizer implements ChildWriterCustomizer<Ipv6> {
+public class Ipv6Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Ipv6> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6Customizer.class);
 
-    public Ipv6Customizer(final org.openvpp.vppjapi.vppApi vppApi) {
+    public Ipv6Customizer(final FutureJVpp vppApi) {
         super(vppApi);
     }
 

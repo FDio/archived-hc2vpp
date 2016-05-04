@@ -40,7 +40,7 @@
     <module>translate-impl</module>
     <module>translate-utils</module>
     <module>vpp-translate-utils</module>
-    <module>vpp-japi-cfg</module>
+    <module>vpp-jvpp-cfg</module>
     <module>v3po2vpp</module>
     <module>vpp-cfg-init</module>
     <module>impl</module>

@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.openvpp.vppjapi.vppApi;
+import org.openvpp.jvpp.future.FutureJVpp;
 
 public class VppStateHoneycombReaderModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractVppStateHoneycombReaderModule {
     public VppStateHoneycombReaderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -39,12 +39,13 @@ public class VppStateHoneycombReaderModule extends org.opendaylight.yang.gen.v1.
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final vppApi vppApi = getVppJapiDependency();
+        final FutureJVpp vppApi = getVppJvppDependency();
 
         final ChildReader<Version> versionReader = new CompositeChildReader<>(Version.class, new VersionCustomizer(vppApi));
 
         final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
-            new CompositeListReader<>(BridgeDomain.class, new BridgeDomainCustomizer(vppApi));
+            new CompositeListReader<>(BridgeDomain.class, new BridgeDomainCustomizer(vppApi,
+                getBridgeDomainContextVppStateDependency(), getInterfaceContextVppStateDependency()));
 
         final ChildReader<BridgeDomains> bridgeDomainsReader = new CompositeChildReader<>(
             BridgeDomains.class,
@@ -58,8 +59,7 @@ public class VppStateHoneycombReaderModule extends org.opendaylight.yang.gen.v1.
         return new CloseableReader<>(new CompositeRootReader<>(
             VppState.class,
             childVppReaders,
-            RWUtils.<VppState>emptyAugReaderList(),
+            RWUtils.emptyAugReaderList(),
             new ReflexiveRootReaderCustomizer<>(VppStateBuilder.class)));
     }
-
 }

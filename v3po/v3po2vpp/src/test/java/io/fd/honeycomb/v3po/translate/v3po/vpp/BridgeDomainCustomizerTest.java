@@ -13,57 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.openvpp.vppjapi.vppApi;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.openvpp.jvpp.dto.BridgeDomainAddDel;
+import org.openvpp.jvpp.dto.BridgeDomainAddDelReply;
+import org.openvpp.jvpp.future.FutureJVpp;
 
-@RunWith(PowerMockRunner.class)
-@SuppressStaticInitializationFor("org.openvpp.vppjapi.vppConn")
-@PrepareForTest(vppApi.class)
 public class BridgeDomainCustomizerTest {
 
-    private static final int RESPONSE_NOT_READY = -77;
     private static final byte ADD_OR_UPDATE_BD = (byte) 1;
     private static final byte ZERO = 0;
-    private vppApi api;
+
+    @Mock
+    private FutureJVpp api;
 
     @Mock
     private Context ctx;
 
     private BridgeDomainCustomizer customizer;
+    private NamingContext namingContext;
 
     @Before
     public void setUp() throws Exception {
-        // TODO create base class for tests using vppApi
-        api = PowerMockito.mock(vppApi.class);
         initMocks(this);
-        customizer = new BridgeDomainCustomizer(api);
-
-        PowerMockito.doAnswer(BridgeDomainTestUtils.BD_NAME_TO_ID_ANSWER).when(api).findOrAddBridgeDomainId(anyString());
-        PowerMockito.doAnswer(BridgeDomainTestUtils.BD_NAME_TO_ID_ANSWER).when(api).bridgeDomainIdFromName(anyString());
-        PowerMockito.when(api.getRetval(anyInt(), anyInt())).thenReturn(RESPONSE_NOT_READY).thenReturn(0);
-        PowerMockito.doReturn(0).when(api).getRetval(anyInt(), anyInt());
+        // TODO create base class for tests using vppApi
+        namingContext = new NamingContext("generatedBDName");
+        customizer = new BridgeDomainCustomizer(api, namingContext);
     }
 
     private BridgeDomain generateBridgeDomain(final String bdName) {
@@ -87,127 +83,140 @@ public class BridgeDomainCustomizerTest {
                 .build();
     }
 
-    private final int verifyBridgeDomainAddOrUpdateWasInvoked(final BridgeDomain bd) {
-        final int bdn1Id = BridgeDomainTestUtils.bdNameToID(bd.getName());
+    private void verifyBridgeDomainAddOrUpdateWasInvoked(final BridgeDomain bd, final int bdId) {
         final byte arpTerm = BridgeDomainTestUtils.booleanToByte(bd.isArpTermination());
         final byte flood = BridgeDomainTestUtils.booleanToByte(bd.isFlood());
         final byte forward = BridgeDomainTestUtils.booleanToByte(bd.isForward());
         final byte learn = BridgeDomainTestUtils.booleanToByte(bd.isLearn());
         final byte uuf = BridgeDomainTestUtils.booleanToByte(bd.isUnknownUnicastFlood());
-        return verify(api).bridgeDomainAddDel(bdn1Id, flood, forward, learn, uuf, arpTerm, ADD_OR_UPDATE_BD);
+
+        // TODO adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
+        ArgumentCaptor<BridgeDomainAddDel> argumentCaptor = ArgumentCaptor.forClass(BridgeDomainAddDel.class);
+        verify(api).bridgeDomainAddDel(argumentCaptor.capture());
+        final BridgeDomainAddDel actual = argumentCaptor.getValue();
+        assertEquals(arpTerm, actual.arpTerm);
+        assertEquals(flood, actual.flood);
+        assertEquals(forward, actual.forward);
+        assertEquals(learn, actual.learn);
+        assertEquals(uuf, actual.uuFlood);
+        assertEquals(ADD_OR_UPDATE_BD, actual.isAdd);
+        assertEquals(bdId, actual.bdId);
     }
 
-    private int verifyBridgeDomainAddOrUpdateWasNotInvoked(final BridgeDomain bd) {
-        final int bdn1Id = BridgeDomainTestUtils.bdNameToID(bd.getName());
-        final byte arpTerm = BridgeDomainTestUtils.booleanToByte(bd.isArpTermination());
-        final byte flood = BridgeDomainTestUtils.booleanToByte(bd.isFlood());
-        final byte forward = BridgeDomainTestUtils.booleanToByte(bd.isForward());
-        final byte learn = BridgeDomainTestUtils.booleanToByte(bd.isLearn());
-        final byte uuf = BridgeDomainTestUtils.booleanToByte(bd.isUnknownUnicastFlood());
-        return verify(api, never()).bridgeDomainAddDel(bdn1Id, flood, forward, learn, uuf, arpTerm, ADD_OR_UPDATE_BD);
+    private void verifyBridgeDomainDeleteWasInvoked(final int bdId) {
+        ArgumentCaptor<BridgeDomainAddDel> argumentCaptor = ArgumentCaptor.forClass(BridgeDomainAddDel.class);
+        verify(api).bridgeDomainAddDel(argumentCaptor.capture());
+        final BridgeDomainAddDel actual = argumentCaptor.getValue();
+        assertEquals(bdId, actual.bdId);
+        assertEquals(ZERO, actual.arpTerm);
+        assertEquals(ZERO, actual.flood);
+        assertEquals(ZERO, actual.forward);
+        assertEquals(ZERO, actual.learn);
+        assertEquals(ZERO, actual.uuFlood);
+        assertEquals(ZERO, actual.isAdd);
     }
 
-    private int verifyBridgeDomainDeletedWasInvoked(final BridgeDomain bd) {
-        final int bdn1Id = BridgeDomainTestUtils.bdNameToID(bd.getName());
-        return verify(api).bridgeDomainAddDel(bdn1Id, ZERO, ZERO, ZERO, ZERO, ZERO, ZERO);
+    private void whenBridgeDomainAddDelThen(final int retval) throws ExecutionException, InterruptedException {
+        final CompletionStage<BridgeDomainAddDelReply> replyCS = mock(CompletionStage.class);
+        final CompletableFuture<BridgeDomainAddDelReply> replyFuture = mock(CompletableFuture.class);
+        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+        final BridgeDomainAddDelReply reply = new BridgeDomainAddDelReply();
+        reply.retval = retval;
+        when(replyFuture.get()).thenReturn(reply);
+        when(api.bridgeDomainAddDel(any(BridgeDomainAddDel.class))).thenReturn(replyCS);
     }
 
-    private int verifyBridgeDomainDeletedWasNotInvoked(final BridgeDomain bd) {
-        final int bdn1Id = BridgeDomainTestUtils.bdNameToID(bd.getName());
-        return verify(api, never()).bridgeDomainAddDel(bdn1Id, ZERO, ZERO, ZERO, ZERO, ZERO, ZERO);
+    private void whenBridgeDomainAddDelThenSuccess() throws ExecutionException, InterruptedException {
+        whenBridgeDomainAddDelThen(0);
+    }
+
+    private void whenBridgeDomainAddDelThenFailure() throws ExecutionException, InterruptedException {
+        whenBridgeDomainAddDelThen(-1);
     }
 
     @Test
-    public void testAddBridgeDomain() {
+    public void testAddBridgeDomain() throws Exception {
+        final int bdId = 1;
         final String bdName = "bd1";
-        final BridgeDomain bd = generateBridgeDomain("bd1");
+        final BridgeDomain bd = generateBridgeDomain(bdName);
+
+        whenBridgeDomainAddDelThenSuccess();
 
         customizer.writeCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
 
-        verifyBridgeDomainAddOrUpdateWasInvoked(bd);
+        verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
     }
 
     @Test
-    public void testBridgeDomainNameCreateFailed() {
-        final String bdName = "bd1";
-        final BridgeDomain bd = generateBridgeDomain("bd1");
-
-        // make vpp api fail to create id for our bd name
-        PowerMockito.doReturn(-1).when(api).findOrAddBridgeDomainId(bdName);
-
-        try {
-            customizer.writeCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
-        } catch (IllegalStateException e) {
-            verifyBridgeDomainAddOrUpdateWasNotInvoked(bd);
-            return;
-        }
-        fail("IllegalStateException was expected");
-    }
-
-    @Test
-    public void testAddBridgeDomainFailed() {
-        // make any call to vpp fail
-        PowerMockito.doReturn(-1).when(api).getRetval(anyInt(), anyInt());
-
+    public void testAddBridgeDomainFailed() throws Exception {
+        final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
 
+        whenBridgeDomainAddDelThenFailure();
+
         try {
             customizer.writeCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
-        } catch (IllegalStateException e) {
-            verifyBridgeDomainAddOrUpdateWasInvoked(bd);
+        } catch (WriteFailedException.CreateFailedException e) {
+            verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
             return;
         }
-        fail("IllegalStateException was expected");
+        fail("WriteFailedException.CreateFailedException  was expected");
     }
 
     @Test
-    public void testDeleteBridgeDomain() {
+    public void testDeleteBridgeDomain() throws Exception {
+        final int bdId = 1;
         final String bdName = "bd1";
-        final BridgeDomain bd = generateBridgeDomain("bd1");
+        final BridgeDomain bd = generateBridgeDomain(bdName);
+        namingContext.addName(bdId, bdName);
+
+        whenBridgeDomainAddDelThenSuccess();
 
         customizer.deleteCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
 
-        verifyBridgeDomainDeletedWasInvoked(bd);
+        verifyBridgeDomainDeleteWasInvoked(bdId);
     }
 
     @Test
-    public void testDeleteUnknownBridgeDomain() {
+    public void testDeleteUnknownBridgeDomain() throws Exception {
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain("bd1");
 
-        // make vpp api not find our bd
-        PowerMockito.doReturn(-1).when(api).bridgeDomainIdFromName(bdName);
-
         try {
             customizer.deleteCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
-        } catch (IllegalStateException e) {
-            verifyBridgeDomainDeletedWasNotInvoked(bd);
+        } catch (IllegalArgumentException e) {
+            verify(api, never()).bridgeDomainAddDel(any(BridgeDomainAddDel.class));
             return;
         }
-        fail("IllegalStateException was expected");
+        fail("IllegalArgumentException was expected");
     }
 
     @Test
-    public void testDeleteBridgeDomainFailed() {
-        // make any call to vpp fail
-        PowerMockito.doReturn(-1).when(api).getRetval(anyInt(), anyInt());
-
+    public void testDeleteBridgeDomainFailed() throws Exception {
+        final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
+        namingContext.addName(bdId, bdName);
+
+        whenBridgeDomainAddDelThenFailure();
 
         try {
             customizer.deleteCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
-        } catch (IllegalStateException e) {
-            verifyBridgeDomainDeletedWasInvoked(bd);
+        } catch (WriteFailedException.DeleteFailedException e) {
+            verifyBridgeDomainDeleteWasInvoked(bdId);
             return;
         }
-        fail("IllegalStateException was expected");
+
+        fail("WriteFailedException.DeleteFailedException was expected");
     }
 
     @Test
     public void testUpdateBridgeDomain() throws Exception {
+        final int bdId = 1;
         final String bdName = "bd1";
+        namingContext.addName(bdId, bdName);
+
         final byte arpTermBefore = 1;
         final byte floodBefore = 1;
         final byte forwardBefore = 0;
@@ -220,11 +229,11 @@ public class BridgeDomainCustomizerTest {
                 generateBridgeDomain(bdName, arpTermBefore ^ 1, floodBefore ^ 1, forwardBefore ^ 1, learnBefore ^ 1,
                         uufBefore ^ 1);
 
-        final KeyedInstanceIdentifier<BridgeDomain, BridgeDomainKey> id = BridgeDomainTestUtils.bdIdentifierForName(bdName);
+        whenBridgeDomainAddDelThenSuccess();
 
-        customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
+        customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), dataBefore, dataAfter, ctx);
 
-        verifyBridgeDomainAddOrUpdateWasInvoked(dataAfter);
+        verifyBridgeDomainAddOrUpdateWasInvoked(dataAfter, bdId);
     }
 
     @Test
@@ -232,30 +241,28 @@ public class BridgeDomainCustomizerTest {
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain("bd1");
 
-        // make vpp api not find our bd
-        PowerMockito.doReturn(-1).when(api).bridgeDomainIdFromName(bdName);
-
         try {
             customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, bd, ctx);
-        } catch (IllegalStateException e) {
-            verifyBridgeDomainAddOrUpdateWasNotInvoked(bd);
+        } catch (IllegalArgumentException e) {
+            verify(api, never()).bridgeDomainAddDel(any(BridgeDomainAddDel.class));
             return;
         }
-        fail("IllegalStateException was expected");
+        fail("IllegalArgumentException was expected");
     }
 
     @Test
-    public void testUpdateBridgeDomainFailed() {
-        // make any call to vpp fail
-        PowerMockito.doReturn(-1).when(api).getRetval(anyInt(), anyInt());
-
+    public void testUpdateBridgeDomainFailed() throws Exception {
+        final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
+        namingContext.addName(bdId, bdName);
+
+        whenBridgeDomainAddDelThenFailure();
 
         try {
             customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, bd, ctx);
-        } catch (IllegalStateException e) {
-            verifyBridgeDomainAddOrUpdateWasInvoked(bd);
+        } catch (WriteFailedException.UpdateFailedException  e) {
+            verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
             return;
         }
         fail("IllegalStateException was expected");

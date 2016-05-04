@@ -19,10 +19,11 @@ package io.fd.honeycomb.v3po.translate.v3po.vpp;
 import io.fd.honeycomb.v3po.translate.impl.write.CompositeChildWriter;
 import io.fd.honeycomb.v3po.translate.impl.write.CompositeListWriter;
 import io.fd.honeycomb.v3po.translate.impl.write.CompositeRootWriter;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.util.write.NoopWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.util.write.ReflexiveChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -31,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.openvpp.vppjapi.vppApi;
+import org.openvpp.jvpp.future.FutureJVpp;
 
 final class VppUtils {
 
@@ -40,11 +41,11 @@ final class VppUtils {
     /**
      * Create root Vpp writer with all its children wired
      */
-    static CompositeRootWriter<Vpp> getVppWriter(@Nonnull final vppApi vppApi) {
+    static CompositeRootWriter<Vpp> getVppWriter(@Nonnull final FutureJVpp vppApi, final NamingContext bdContext) {
 
         final CompositeListWriter<BridgeDomain, BridgeDomainKey> bridgeDomainWriter = new CompositeListWriter<>(
             BridgeDomain.class,
-            new BridgeDomainCustomizer(vppApi));
+            new BridgeDomainCustomizer(vppApi, bdContext));
 
         final ChildWriter<BridgeDomains> bridgeDomainsReader = new CompositeChildWriter<>(
             BridgeDomains.class,

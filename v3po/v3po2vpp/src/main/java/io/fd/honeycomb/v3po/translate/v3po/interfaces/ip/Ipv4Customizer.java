@@ -22,10 +22,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
@@ -36,17 +38,23 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.dto.SwInterfaceAddDelAddress;
+import org.openvpp.jvpp.dto.SwInterfaceAddDelAddressReply;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv4Customizer extends VppApiCustomizer implements ChildWriterCustomizer<Ipv4> {
+public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Ipv4> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4Customizer.class);
+    private final NamingContext interfaceContext;
 
-    public Ipv4Customizer(final org.openvpp.vppjapi.vppApi vppApi) {
+    public Ipv4Customizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
         super(vppApi);
+        this.interfaceContext = interfaceContext;
     }
 
+    // TODO replace guava's Optionals with Java8
     @Nonnull
     @Override
     public Optional<Ipv4> extract(@Nonnull final InstanceIdentifier<Ipv4> currentId,
@@ -91,7 +99,7 @@ public class Ipv4Customizer extends VppApiCustomizer implements ChildWriterCusto
 
     private void setIpv4(final InstanceIdentifier<Ipv4> id, final String name, final Ipv4 ipv4)
         throws WriteFailedException, VppApiInvocationException {
-        final int swIfc = getSwIfc(name);
+        final int swIfc = interfaceContext.getIndex(name);
 
         for (Address ipv4Addr : ipv4.getAddress()) {
             Subnet subnet = ipv4Addr.getSubnet();
@@ -127,24 +135,34 @@ public class Ipv4Customizer extends VppApiCustomizer implements ChildWriterCusto
         checkArgument(plen > 0, "Invalid length");
         checkNotNull(addr, "Null address");
 
-        final int ctxId = getVppApi().swInterfaceAddDelAddress(swIfc, (byte) 1 /* isAdd */, (byte) 0 /* isIpv6 */,
-            (byte) 0 /* delAll */, plen.byteValue(), addr);
+        final CompletionStage<SwInterfaceAddDelAddressReply> swInterfaceAddDelAddressReplyCompletionStage =
+            getFutureJVpp().swInterfaceAddDelAddress(getSwInterfaceAddDelAddressRequest(
+                swIfc, (byte) 1 /* isAdd */, (byte) 0 /* isIpv6 */, (byte) 0 /* delAll */, plen.byteValue(), addr));
 
-        final int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
-        if (rv < 0) {
+        final SwInterfaceAddDelAddressReply reply =
+            V3poUtils.getReply(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture());
+
+        if (reply.retval < 0) {
             LOG.warn("Failed to set Subnet(prefix-length) for interface: {}, {},  Subnet: {}, Ipv4: {}", name, swIfc,
                 subnet, ipv4Addr);
-            throw new VppApiInvocationException("swInterfaceAddDelAddress", ctxId, rv);
+            throw new VppApiInvocationException("swInterfaceAddDelAddress", reply.context, reply.retval);
         } else {
             LOG.debug("Subnet(prefix-length) set successfully for interface: {}, {},  Subnet: {}, Ipv4: {}", name,
                 swIfc, subnet, ipv4Addr);
         }
     }
 
-
-    private int getSwIfc(final String name) {
-        int swIfcIndex = getVppApi().swIfIndexFromName(name);
-        checkArgument(swIfcIndex != -1, "Interface %s does not exist", name);
-        return swIfcIndex;
+    private SwInterfaceAddDelAddress getSwInterfaceAddDelAddressRequest(final int swIfc, final byte isAdd, final byte ipv6,
+                                                                        final byte deleteAll,
+                                                                        final byte length, final byte[] addr) {
+        final SwInterfaceAddDelAddress swInterfaceAddDelAddress = new SwInterfaceAddDelAddress();
+        swInterfaceAddDelAddress.swIfIndex = swIfc;
+        swInterfaceAddDelAddress.isAdd = isAdd;
+        swInterfaceAddDelAddress.isIpv6 = ipv6;
+        swInterfaceAddDelAddress.delAll = deleteAll;
+        swInterfaceAddDelAddress.address = addr;
+        swInterfaceAddDelAddress.addressLength = length;
+        return swInterfaceAddDelAddress;
     }
+
 }

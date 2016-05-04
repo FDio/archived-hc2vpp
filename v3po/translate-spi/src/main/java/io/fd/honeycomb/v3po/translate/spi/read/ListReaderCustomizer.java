@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.translate.spi.read;
 
 import com.google.common.annotations.Beta;
 import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -42,9 +43,11 @@ public interface ListReaderCustomizer<C extends DataObject & Identifiable<K>, K 
      *
      * @param id Wildcarded ID pointing to list node managed by enclosing reader
      * @param context Read context
+     * @throws ReadFailedException if the list of IDs could not be read
      */
     @Nonnull
-    List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id, @Nonnull final Context context);
+    List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id, @Nonnull final Context context) throws
+            ReadFailedException;
     // TODO does it make sense with vpp APIs ? Should we replace it with a simple readAll ?
 
     /**

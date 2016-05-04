@@ -16,30 +16,35 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.dto.SwInterfaceSetTable;
+import org.openvpp.jvpp.dto.SwInterfaceSetTableReply;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RoutingCustomizer extends VppApiCustomizer implements ChildWriterCustomizer<Routing> {
+public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Routing> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingCustomizer.class);
+    private final NamingContext interfaceContext;
 
-    public RoutingCustomizer(final org.openvpp.vppjapi.vppApi vppApi) {
+    public RoutingCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
         super(vppApi);
+        this.interfaceContext = interfaceContext;
     }
 
     @Nonnull
@@ -84,7 +89,7 @@ public class RoutingCustomizer extends VppApiCustomizer implements ChildWriterCu
     }
 
     private void setRouting(final String name, final Routing rt) throws VppApiInvocationException {
-        final int swIfc = getSwIfc(name);
+        final int swIfc = interfaceContext.getIndex(name);
         LOG.debug("Setting routing for interface: {}, {}. Routing: {}", name, swIfc, rt);
 
         int vrfId = (rt != null)
@@ -92,21 +97,25 @@ public class RoutingCustomizer extends VppApiCustomizer implements ChildWriterCu
             : 0;
 
         if (vrfId != 0) {
-            final int ctxId = getVppApi().swInterfaceSetTable(swIfc, (byte) 0, /* isIpv6 */ vrfId);
-            final int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
-            if (rv < 0) {
+            final CompletionStage<SwInterfaceSetTableReply> swInterfaceSetTableReplyCompletionStage =
+                getFutureJVpp().swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, /* isIpv6 */ vrfId));
+            final SwInterfaceSetTableReply reply =
+                V3poUtils.getReply(swInterfaceSetTableReplyCompletionStage.toCompletableFuture());
+            if (reply.retval < 0) {
                 LOG.debug("Failed to set routing for interface: {}, {}, vxlan: {}", name, swIfc, rt);
-                throw new VppApiInvocationException("swInterfaceSetTable", ctxId, rv);
+                throw new VppApiInvocationException("swInterfaceSetTable", reply.context, reply.retval);
             } else {
                 LOG.debug("Routing set successfully for interface: {}, {}, routing: {}", name, swIfc, rt);
             }
         }
     }
 
-    private int getSwIfc(final String name) {
-        int swIfcIndex = getVppApi().swIfIndexFromName(name);
-        checkArgument(swIfcIndex != -1, "Interface %s does not exist", name);
-        return swIfcIndex;
+    private SwInterfaceSetTable getInterfaceSetTableRequest(final int swIfc, final byte isIpv6, final int vrfId) {
+        final SwInterfaceSetTable swInterfaceSetTable = new SwInterfaceSetTable();
+        swInterfaceSetTable.isIpv6 = isIpv6;
+        swInterfaceSetTable.swIfIndex = swIfc;
+        swInterfaceSetTable.vrfId = vrfId;
+        return swInterfaceSetTable;
     }
 
 }

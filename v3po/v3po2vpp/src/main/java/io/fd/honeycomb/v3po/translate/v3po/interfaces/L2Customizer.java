@@ -21,10 +21,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
@@ -34,15 +36,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.l2.interconnection.XconnectBased;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.dto.SwInterfaceSetL2Bridge;
+import org.openvpp.jvpp.dto.SwInterfaceSetL2BridgeReply;
+import org.openvpp.jvpp.dto.SwInterfaceSetL2Xconnect;
+import org.openvpp.jvpp.dto.SwInterfaceSetL2XconnectReply;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomizer<L2> {
+public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<L2> {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2Customizer.class);
+    private final NamingContext interfaceContext;
+    private final NamingContext bridgeDomainContext;
 
-    public L2Customizer(final org.openvpp.vppjapi.vppApi vppApi) {
+    public L2Customizer(final FutureJVpp vppApi, final NamingContext interfaceContext,
+                        final NamingContext bridgeDomainContext) {
         super(vppApi);
+        this.interfaceContext = interfaceContext;
+        this.bridgeDomainContext = bridgeDomainContext;
     }
 
     @Nonnull
@@ -57,7 +69,7 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
         throws WriteFailedException {
 
         final String ifcName = id.firstKeyOf(Interface.class).getName();
-        final int swIfc = getSwIfc(ifcName);
+        final int swIfc = interfaceContext.getIndex(ifcName);
         try {
             setL2(id, swIfc, ifcName, dataAfter);
         } catch (VppApiInvocationException e) {
@@ -72,7 +84,7 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
         throws WriteFailedException {
 
         final String ifcName = id.firstKeyOf(Interface.class).getName();
-        final int swIfc = getSwIfc(ifcName);
+        final int swIfc = interfaceContext.getIndex(ifcName);
         // TODO handle update properly (if possible)
         try {
             setL2(id, swIfc, ifcName, dataAfter);
@@ -80,12 +92,6 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
             LOG.warn("Update of L2 failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
-    }
-
-    private int getSwIfc(final String ifcName) {
-        int swIfcIndex = getVppApi().swIfIndexFromName(ifcName);
-        checkArgument(swIfcIndex != -1, "Interface %s does not exist", ifcName);
-        return swIfcIndex;
     }
 
     @Override
@@ -126,7 +132,9 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
             bb.getBridgeDomain(), ifcName);
 
         String bdName = bb.getBridgeDomain();
-        int bdId = getVppApi().bridgeDomainIdFromName(bdName);
+
+        // FIXME need BridgeDomainContext here
+        int bdId = bridgeDomainContext.getIndex(bdName);
         checkArgument(bdId > 0, "Unable to set Interconnection for Interface: %s, bridge domain: %s does not exist",
             ifcName, bdName);
 
@@ -135,17 +143,30 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
             : (byte) 0;
         byte shg = bb.getSplitHorizonGroup().byteValue();
 
-        final int ctxId = getVppApi().swInterfaceSetL2Bridge(swIfIndex, bdId, shg, bvi, (byte) 1 /* enable */);
-        final int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
+        final CompletionStage<SwInterfaceSetL2BridgeReply> swInterfaceSetL2BridgeReplyCompletionStage = getFutureJVpp()
+            .swInterfaceSetL2Bridge(getL2BridgeRequest(swIfIndex, bdId, shg, bvi, (byte) 1 /* enable */));
+        final SwInterfaceSetL2BridgeReply reply =
+            V3poUtils.getReply(swInterfaceSetL2BridgeReplyCompletionStage.toCompletableFuture());
 
-        if (rv < 0) {
+        if (reply.retval < 0) {
             LOG.warn("Failed to update bridge based interconnection flags for: {}, interconnection: {}", ifcName,
                 bb);
-            throw new VppApiInvocationException("swInterfaceSetL2Bridge", ctxId, rv);
+            throw new VppApiInvocationException("swInterfaceSetL2Bridge", reply.context, reply.retval);
         } else {
             LOG.debug("Bridge based interconnection updated successfully for: {}, interconnection: {}", ifcName,
                 bb);
         }
+    }
+
+    private SwInterfaceSetL2Bridge getL2BridgeRequest(final int swIfIndex, final int bdId, final byte shg,
+                                                      final byte bvi, final byte enabled) {
+        final SwInterfaceSetL2Bridge swInterfaceSetL2Bridge = new SwInterfaceSetL2Bridge();
+        swInterfaceSetL2Bridge.rxSwIfIndex = swIfIndex;
+        swInterfaceSetL2Bridge.bdId = bdId;
+        swInterfaceSetL2Bridge.shg = shg;
+        swInterfaceSetL2Bridge.bvi = bvi;
+        swInterfaceSetL2Bridge.enable = enabled;
+        return swInterfaceSetL2Bridge;
     }
 
     private void setXconnectBasedL2(final int swIfIndex, final String ifcName, final XconnectBased ic)
@@ -155,21 +176,34 @@ public class L2Customizer extends VppApiCustomizer implements ChildWriterCustomi
         LOG.debug("Setting xconnect based interconnection(outgoing ifc=%s) for interface: %s", outSwIfName,
             ifcName);
 
-        int outSwIfIndex = getVppApi().swIfIndexFromName(outSwIfName);
+        int outSwIfIndex = interfaceContext.getIndex(outSwIfName);
         checkArgument(outSwIfIndex > 0,
             "Unable to set Interconnection for Interface: %s, outgoing interface: %s does not exist",
             ifcName, outSwIfIndex);
 
-        int ctxId = getVppApi().swInterfaceSetL2Xconnect(swIfIndex, outSwIfIndex, (byte) 1 /* enable */);
-        final int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
+        final CompletionStage<SwInterfaceSetL2XconnectReply> swInterfaceSetL2XconnectReplyCompletionStage =
+            getFutureJVpp()
+                .swInterfaceSetL2Xconnect(getL2XConnectRequest(swIfIndex, outSwIfIndex, (byte) 1 /* enable */));
+        final SwInterfaceSetL2XconnectReply reply =
+            V3poUtils.getReply(swInterfaceSetL2XconnectReplyCompletionStage.toCompletableFuture());
 
-        if (rv < 0) {
+        if (reply.retval < 0) {
             LOG.warn("Failed to update xconnect based interconnection flags for: {}, interconnection: {}",
                 ifcName, ic);
-            throw new VppApiInvocationException("swInterfaceSetL2Xconnect", ctxId, rv);
+            throw new VppApiInvocationException("swInterfaceSetL2Xconnect", reply.context, reply.retval);
         } else {
             LOG.debug("Xconnect based interconnection updated successfully for: {}, interconnection: {}", ifcName,
                 ic);
         }
+    }
+
+    private SwInterfaceSetL2Xconnect getL2XConnectRequest(final int rxIfc, final int txIfc,
+                                                          final byte enabled) {
+
+        final SwInterfaceSetL2Xconnect swInterfaceSetL2Xconnect = new SwInterfaceSetL2Xconnect();
+        swInterfaceSetL2Xconnect.enable = enabled;
+        swInterfaceSetL2Xconnect.rxSwIfIndex = rxIfc;
+        swInterfaceSetL2Xconnect.txSwIfIndex = txIfc;
+        return swInterfaceSetL2Xconnect;
     }
 }

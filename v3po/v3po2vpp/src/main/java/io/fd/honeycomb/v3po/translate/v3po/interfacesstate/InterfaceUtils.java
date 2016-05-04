@@ -16,15 +16,18 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import java.math.BigInteger;
-
-import javax.annotation.Nonnull;
-
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
-
 import com.google.common.base.Preconditions;
-import org.openvpp.vppjapi.vppApi;
-import org.openvpp.vppjapi.vppInterfaceDetails;
+import com.google.common.collect.Iterables;
+import java.math.BigInteger;
+import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
+import org.openvpp.jvpp.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.dto.SwInterfaceDump;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +45,7 @@ public class InterfaceUtils {
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
     /**
-     * Convert VPP's link speed bitmask to Yang type. 1 = 10M, 2 = 100M, 4 = 1G,
-     * 8 = 10G, 16 = 40G, 32 = 100G
+     * Convert VPP's link speed bitmask to Yang type. 1 = 10M, 2 = 100M, 4 = 1G, 8 = 10G, 16 = 40G, 32 = 100G
      *
      * @param vppLinkSpeed Link speed in bitmask format from VPP.
      * @return Converted value from VPP link speed
@@ -74,16 +76,11 @@ public class InterfaceUtils {
     }
 
     /**
-     * Convert VPP's physical address stored byte array format to string as Yang
-     * dictates
-     * <p>
-     * Replace later with
-     * https://git.opendaylight.org/gerrit/#/c/34869/10/model/ietf/ietf-type-
-     * util/src/main/
+     * Convert VPP's physical address stored byte array format to string as Yang dictates <p> Replace later with
+     * https://git.opendaylight.org/gerrit/#/c/34869/10/model/ietf/ietf-type- util/src/main/
      * java/org/opendaylight/mdsal/model/ietf/util/AbstractIetfYangUtil.java
      *
-     * @param vppPhysAddress byte array of bytes constructing the network IF physical
-     *                       address.
+     * @param vppPhysAddress byte array of bytes constructing the network IF physical address.
      * @return String like "aa:bb:cc:dd:ee:ff"
      */
     public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress) {
@@ -102,8 +99,8 @@ public class InterfaceUtils {
     }
 
     /**
-     * VPP's interface index is counted from 0, whereas ietf-interface's
-     * if-index is from 1. This function converts from VPP's interface index to YANG's interface index.
+     * VPP's interface index is counted from 0, whereas ietf-interface's if-index is from 1. This function converts from
+     * VPP's interface index to YANG's interface index.
      *
      * @param vppIfIndex the sw interface index VPP reported.
      * @return VPP's interface index incremented by one
@@ -115,7 +112,7 @@ public class InterfaceUtils {
     /**
      * This function does the opposite of what {@link #vppIfIndexToYang(int)} does.
      *
-     * @param yangIf if-index from ietf-interfaces.
+     * @param yangIfIndex if-index from ietf-interfaces.
      * @return VPP's representation of the if-index
      */
     public static int YangIfIndexToVpp(int yangIfIndex) {
@@ -124,25 +121,31 @@ public class InterfaceUtils {
     }
 
 
-    public static vppInterfaceDetails[] getVppInterfaceDetails(final vppApi api,
-                                                             final boolean specificInterface,
-                                                             String interfaceName) {
-        if (interfaceName == null) {
-            interfaceName = new String();
-        }
-        vppInterfaceDetails[] ifaces = api.swInterfaceDump(
-                (byte) (specificInterface ? 1 : 0),
-                interfaceName.getBytes());
-        if (null == ifaces) {
-            LOG.warn("VPP returned null instead of interface by key {}", interfaceName);
+    /**
+     * Queries VPP for interface description given interface key.
+     *
+     * @param futureJvpp VPP Java Future API
+     * @param key        interface key
+     * @return SwInterfaceDetails DTO or null if interface was not found
+     * @throws ExecutionException   if exception has been thrown while executing VPP query
+     * @throws InterruptedException if the current thread was interrupted
+     */
+    @Nullable
+    public static SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVpp futureJvpp,
+                                                            @Nonnull InterfaceKey key)
+            throws ExecutionException, InterruptedException {
+        final SwInterfaceDump request = new SwInterfaceDump();
+        request.nameFilter = key.getName().getBytes();
+        request.nameFilterValid = 1;
+
+        // TODO should we use timeout?
+        SwInterfaceDetailsReplyDump ifaces = futureJvpp.swInterfaceDump(request).toCompletableFuture().get();
+        if (null == ifaces) { // TODO can we get null here?
+            LOG.warn("VPP returned null instead of interface by key {}", key.getName().getBytes());
             return null;
         }
 
-        if (1 != ifaces.length) {
-            LOG.error("Failed to extract interface {} details from VPP", interfaceName);
-        }
-
-        return ifaces;
+        return Iterables.getOnlyElement(ifaces.swInterfaceDetails);
     }
 
 

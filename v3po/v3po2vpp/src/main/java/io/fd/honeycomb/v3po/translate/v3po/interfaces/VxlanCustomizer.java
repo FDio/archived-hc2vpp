@@ -17,30 +17,36 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import com.google.common.base.Optional;
+import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.net.InetAddress;
+import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.dto.VxlanAddDelTunnel;
+import org.openvpp.jvpp.dto.VxlanAddDelTunnelReply;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VxlanCustomizer extends VppApiCustomizer implements ChildWriterCustomizer<Vxlan> {
+public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Vxlan> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VxlanCustomizer.class);
+    private final NamingContext interfaceContext;
 
-
-    public VxlanCustomizer(final org.openvpp.vppjapi.vppApi vppApi) {
+    public VxlanCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
         super(vppApi);
+        this.interfaceContext = interfaceContext;
     }
 
     @Nonnull
@@ -84,28 +90,39 @@ public class VxlanCustomizer extends VppApiCustomizer implements ChildWriterCust
     }
 
     private void createVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
-        Ipv4AddressNoZone srcAddress = V3poUtils.removeIpv4AddressNoZone(vxlan.getSrc());
-        Ipv4AddressNoZone dstAddress = V3poUtils.removeIpv4AddressNoZone(vxlan.getDst());
-
-        byte[] srcAddr = V3poUtils.ipv4AddressNoZoneToArray(srcAddress);
-        byte[] dstAddr = V3poUtils.ipv4AddressNoZoneToArray(dstAddress);
+        final InetAddress srcAddress = InetAddresses.forString(vxlan.getSrc().getValue());
+        final InetAddress dstAddress = InetAddresses.forString(vxlan.getDst().getValue());
         int encapVrfId = vxlan.getEncapVrfId().intValue();
         int vni = vxlan.getVni().getValue().intValue();
 
         LOG.debug("Setting vxlan tunnel for interface: {}. Vxlan: {}", swIfName, vxlan);
-        int ctxId = 0; getVppApi().vxlanAddDelTunnel(
-                (byte) 1 /* is add */,
-                (byte) 0 /* is ipv6 */,
-                srcAddr, dstAddr, encapVrfId, -1, vni);
-        final int rv = V3poUtils.waitForResponse(ctxId, getVppApi());
-        if (rv < 0) {
+        final CompletionStage<VxlanAddDelTunnelReply> vxlanAddDelTunnelReplyCompletionStage =
+            getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 1 /* is add */, srcAddress.getAddress(),
+                dstAddress.getAddress(), encapVrfId, -1, vni, (byte) 0 /* is IPV6 */));
+
+        final VxlanAddDelTunnelReply reply =
+            V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+        if (reply.retval < 0) {
             LOG.debug("Failed to set vxlan tunnel for interface: {}, vxlan: {}", swIfName, vxlan);
-            throw new VppApiInvocationException("vxlanAddDelTunnel", ctxId, rv);
+            throw new VppApiInvocationException("vxlanAddDelTunnel", reply.context, reply.retval);
         } else {
             LOG.debug("Vxlan tunnel set successfully for: {}, vxlan: {}", swIfName, vxlan);
-            // FIXME avoid this dump just to fill cache in vpp-japi
-            // refresh interfaces to be able to get ifIndex
-            getVppApi().swInterfaceDump((byte) 1, V3poUtils.IFC_TYPES.inverse().get(VxlanTunnel.class).getBytes());
+            // Add new interface to our interface context
+            interfaceContext.addName(reply.swIfIndex, swIfName);
         }
+    }
+
+    private VxlanAddDelTunnel getVxlanTunnelRequest(final byte isAdd, final byte[] srcAddr, final byte[] dstAddr,
+                                                    final int encapVrfId,
+                                                    final int decapNextIndex, final int vni, final byte isIpv6) {
+        final VxlanAddDelTunnel vxlanAddDelTunnel = new VxlanAddDelTunnel();
+        vxlanAddDelTunnel.isAdd = isAdd;
+        vxlanAddDelTunnel.srcAddress = srcAddr;
+        vxlanAddDelTunnel.dstAddress = dstAddr;
+        vxlanAddDelTunnel.encapVrfId = encapVrfId;
+        vxlanAddDelTunnel.vni = vni;
+        vxlanAddDelTunnel.decapNextIndex = decapNextIndex;
+        vxlanAddDelTunnel.isIpv6 = isIpv6;
+        return vxlanAddDelTunnel;
     }
 }

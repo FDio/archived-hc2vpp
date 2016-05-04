@@ -16,10 +16,15 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import com.google.common.primitives.Longs;
 import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
+import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,104 +39,150 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2Fib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.vppjapi.vppBridgeDomainDetails;
-import org.openvpp.vppjapi.vppBridgeDomainInterfaceDetails;
-import org.openvpp.vppjapi.vppL2Fib;
+import org.openvpp.jvpp.dto.BridgeDomainDetails;
+import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
+import org.openvpp.jvpp.dto.BridgeDomainDump;
+import org.openvpp.jvpp.dto.BridgeDomainSwIfDetails;
+import org.openvpp.jvpp.dto.L2FibTableDump;
+import org.openvpp.jvpp.dto.L2FibTableEntry;
+import org.openvpp.jvpp.dto.L2FibTableEntryReplyDump;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BridgeDomainCustomizer extends VppApiCustomizer
-    implements ListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
+public final class BridgeDomainCustomizer extends FutureJVppCustomizer
+        implements ListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
+    private final NamingContext bdContext;
+    private final NamingContext interfaceContext;
 
-    public BridgeDomainCustomizer(@Nonnull final org.openvpp.vppjapi.vppApi vppApi) {
-        super(vppApi);
+    public BridgeDomainCustomizer(@Nonnull final FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext,
+                                  @Nonnull final NamingContext interfaceContext) {
+        super(futureJVpp);
+        this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
+        this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");;
     }
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
-                                      @Nonnull final BridgeDomainBuilder builder, @Nonnull final Context context) {
+                                      @Nonnull final BridgeDomainBuilder builder, @Nonnull final Context context)
+            throws ReadFailedException {
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: id={}, builderbuilder={}, context={}",
                 id, builder, context);
 
         final BridgeDomainKey key = id.firstKeyOf(id.getTargetType());
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: key={}", key);
 
-        final int bdId = getVppApi().bridgeDomainIdFromName(key.getName());
+        final int bdId = bdContext.getIndex(key.getName());
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: bdId={}", bdId);
 
-        final vppBridgeDomainDetails bridgeDomainDetails = getVppApi().getBridgeDomainDetails(bdId);
-        if(bridgeDomainDetails == null) {
-            LOG.debug("Bridge domain name={} does not exist", key.getName());
+        BridgeDomainDetailsReplyDump reply;
+        BridgeDomainDetails bridgeDomainDetails;
+        final BridgeDomainDump request = new BridgeDomainDump();
+        request.bdId = bdContext.getIndex(key.getName());
+        try {
+            reply = getFutureJVpp().bridgeDomainDump(request).toCompletableFuture().get();
+            bridgeDomainDetails = Iterables.getOnlyElement(reply.bridgeDomainDetails);
+        } catch (Exception e) {
+            LOG.debug("Unable to read bridge domain: {}", key.getName(), e);
             return;
         }
+
         logBridgeDomainDetails(bridgeDomainDetails);
 
         builder.setName(key.getName());
-        // builder.setName(bridgeDomainDetails.name);
-        builder.setArpTermination(bridgeDomainDetails.arpTerm);
-        builder.setFlood(bridgeDomainDetails.flood);
-        builder.setForward(bridgeDomainDetails.forward);
-        builder.setLearn(bridgeDomainDetails.learn);
-        builder.setUnknownUnicastFlood(bridgeDomainDetails.uuFlood);
+        builder.setArpTermination(byteToBoolean(bridgeDomainDetails.arpTerm));
+        builder.setFlood(byteToBoolean(bridgeDomainDetails.flood));
+        builder.setForward(byteToBoolean(bridgeDomainDetails.forward));
+        builder.setLearn(byteToBoolean(bridgeDomainDetails.learn));
+        builder.setUnknownUnicastFlood(byteToBoolean(bridgeDomainDetails.uuFlood));
 
-        builder.setInterface(getIfcs(bridgeDomainDetails));
+        builder.setInterface(getIfcs(bridgeDomainDetails, reply.bridgeDomainSwIfDetails));
 
-        final vppL2Fib[] vppL2Fibs = getVppApi().l2FibTableDump(bdId);
+        final L2FibTableDump l2FibRequest = new L2FibTableDump();
+        l2FibRequest.bdId = bdId;
+        try {
+            final L2FibTableEntryReplyDump dump =
+                    getFutureJVpp().l2FibTableDump(l2FibRequest).toCompletableFuture().get();
+            final List<L2Fib> l2Fibs = Lists.newArrayListWithCapacity(dump.l2FibTableEntry.size());
+            for (L2FibTableEntry entry : dump.l2FibTableEntry) {
+                // entry.mac is a long value in the format 66:55:44:33:22:11:XX:XX
+                // where mac address is 11:22:33:44:55:66
+                final PhysAddress address = new PhysAddress(getMacAddress(Longs.toByteArray(entry.mac)));
+                l2Fibs.add(new L2FibBuilder()
+                        .setAction((byteToBoolean(entry.filterMac)
+                                ? L2Fib.Action.Filter
+                                : L2Fib.Action.Forward))
+                        .setBridgedVirtualInterface(byteToBoolean(entry.bviMac))
+                        .setOutgoingInterface(interfaceContext.getName(entry.swIfIndex))
+                        .setStaticConfig(byteToBoolean(entry.staticMac))
+                        .setPhysAddress(address)
+                        .setKey(new L2FibKey(address))
+                        .build());
+            }
+            builder.setL2Fib(l2Fibs);
 
-        final List<L2Fib> l2Fibs = Lists.newArrayListWithCapacity(vppL2Fibs.length);
-        for (vppL2Fib vppL2Fib : vppL2Fibs) {
-            l2Fibs.add(new L2FibBuilder()
-                .setAction((vppL2Fib.filter
-                    ? L2Fib.Action.Filter
-                    : L2Fib.Action.Forward))
-                .setBridgedVirtualInterface(vppL2Fib.bridgedVirtualInterface)
-                .setOutgoingInterface(vppL2Fib.outgoingInterface)
-                .setPhysAddress(new PhysAddress(getMacAddress(vppL2Fib.physAddress)))
-                .setStaticConfig(vppL2Fib.staticConfig)
-                .build());
+        } catch (Exception e) {
+            LOG.warn("Failed to acquire l2FibTableDump for domain id={}", bdId, e);
         }
-        builder.setL2Fib(l2Fibs);
     }
 
-    private void logBridgeDomainDetails(final vppBridgeDomainDetails bridgeDomainDetails) {
+    // TODO move to utils
+    private static Boolean byteToBoolean(final byte aByte) {
+        if (aByte == 0) {
+            return Boolean.FALSE;
+        } else if (aByte == 1) {
+            return Boolean.TRUE;
+        }
+        throw new IllegalArgumentException(String.format("0 or 1 was expected but was %d", aByte));
+    }
+
+    private void logBridgeDomainDetails(final BridgeDomainDetails bridgeDomainDetails) {
         LOG.debug("bridgeDomainDetails={}", bridgeDomainDetails);
         if (bridgeDomainDetails != null) {
             LOG.debug("bridgeDomainDetails.arpTerm={}", bridgeDomainDetails.arpTerm);
             LOG.debug("bridgeDomainDetails.bdId={}", bridgeDomainDetails.bdId);
-            LOG.debug("bridgeDomainDetails.bviInterfaceName={}", bridgeDomainDetails.bviInterfaceName);
+            LOG.debug("bridgeDomainDetails.bviSwIfIndex={}", bridgeDomainDetails.bviSwIfIndex);
             LOG.debug("bridgeDomainDetails.flood={}", bridgeDomainDetails.flood);
             LOG.debug("bridgeDomainDetails.forward={}", bridgeDomainDetails.forward);
             LOG.debug("bridgeDomainDetails.learn={}", bridgeDomainDetails.learn);
-            LOG.debug("bridgeDomainDetails.name={}", bridgeDomainDetails.name);
+            LOG.debug("bridgeDomainDetails.nSwIfs={}", bridgeDomainDetails.nSwIfs);
             LOG.debug("bridgeDomainDetails.uuFlood={}", bridgeDomainDetails.uuFlood);
         }
     }
 
-
+    // TODO move to some utility class
     private static String getMacAddress(byte[] mac) {
         StringBuilder sb = new StringBuilder(18);
-        for (byte b : mac) {
+        for (int i=5; i>=0; --i) {
             if (sb.length() > 0) {
                 sb.append(':');
             }
-            sb.append(String.format("%02x", b));
+            sb.append(String.format("%02x", mac[i]));
         }
         return sb.toString();
     }
 
-    private List<Interface> getIfcs(final vppBridgeDomainDetails bridgeDomainDetails) {
-        final List<Interface> ifcs = new ArrayList<>(bridgeDomainDetails.interfaces.length);
-        for (vppBridgeDomainInterfaceDetails anInterface : bridgeDomainDetails.interfaces) {
-            ifcs.add(new InterfaceBuilder()
-                .setBridgedVirtualInterface(bridgeDomainDetails.bviInterfaceName.equals(anInterface.interfaceName))
-                .setName(anInterface.interfaceName)
-                .setKey(new InterfaceKey(anInterface.interfaceName))
-                .build());
+    private List<Interface> getIfcs(final BridgeDomainDetails bridgeDomainDetails,
+                                    final List<BridgeDomainSwIfDetails> bridgeDomainSwIfDetails) {
+        final List<Interface> ifcs = new ArrayList<>(bridgeDomainSwIfDetails.size());
+        for (BridgeDomainSwIfDetails anInterface : bridgeDomainSwIfDetails) {
+            final String interfaceName = interfaceContext.getName(anInterface.swIfIndex);
+            if (anInterface.bdId == bridgeDomainDetails.bdId) {
+                ifcs.add(new InterfaceBuilder()
+                        .setBridgedVirtualInterface(bridgeDomainDetails.bviSwIfIndex == anInterface.swIfIndex)
+                        .setSplitHorizonGroup((short) anInterface.shg)
+                        .setName(interfaceName)
+                        .setKey(new InterfaceKey(interfaceName))
+                        .build());
+            }
+
+
         }
         return ifcs;
     }
@@ -144,25 +195,34 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
 
     @Nonnull
     @Override
-    public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id, @Nonnull final Context context) {
-        final int[] bIds = getVppApi().bridgeDomainDump(-1);
+    public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id,
+                                           @Nonnull final Context context) {
+        final BridgeDomainDump request = new BridgeDomainDump();
+        request.bdId = -1; // dump call
 
-        if(bIds == null) {
+        BridgeDomainDetailsReplyDump reply;
+        try {
+            reply = getFutureJVpp().bridgeDomainDump(request).toCompletableFuture().get();
+        } catch (Exception e) {
+            throw new IllegalStateException("Bridge domain dump failed", e); // TODO ReadFailedException?
+        }
+
+        if(reply == null || reply.bridgeDomainDetails == null) {
+            return Collections.emptyList();
+        }
+
+        final int bIdsLength = reply.bridgeDomainDetails.size();
+        LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bIds.length={}", bIdsLength);
+        if (bIdsLength == 0) {
             // No bridge domains
             return Collections.emptyList();
         }
 
-        LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bIds.length={}", bIds.length);
-        final List<BridgeDomainKey> allIds = new ArrayList<>(bIds.length);
-        for (int bId : bIds) {
-            LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bId={}", bId);
-            // FIXME this is highly inefficient having to dump all of the bridge domain details
-            // Use context to store already read information
-            // TODO Or just remove the getAllIds method and replace with a simple readAll
-            final vppBridgeDomainDetails bridgeDomainDetails = getVppApi().getBridgeDomainDetails(bId);
-            logBridgeDomainDetails(bridgeDomainDetails);
+        final List<BridgeDomainKey> allIds = new ArrayList<>(bIdsLength);
+        for (BridgeDomainDetails detail : reply.bridgeDomainDetails) {
+            logBridgeDomainDetails(detail);
 
-            final String bName = bridgeDomainDetails.name;
+            final String bName = bdContext.getName(detail.bdId);
             LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bName={}", bName);
             allIds.add(new BridgeDomainKey(bName));
         }
@@ -171,7 +231,8 @@ public final class BridgeDomainCustomizer extends VppApiCustomizer
     }
 
     @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<BridgeDomain> readData) {
+    public void merge(@Nonnull final Builder<? extends DataObject> builder,
+                      @Nonnull final List<BridgeDomain> readData) {
         ((BridgeDomainsBuilder) builder).setBridgeDomain(readData);
     }
 }

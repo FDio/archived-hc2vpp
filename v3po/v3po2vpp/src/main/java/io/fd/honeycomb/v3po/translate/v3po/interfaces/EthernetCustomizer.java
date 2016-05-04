@@ -19,20 +19,21 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EthernetCustomizer extends VppApiCustomizer implements ChildWriterCustomizer<Ethernet> {
+public class EthernetCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Ethernet> {
 
     private static final Logger LOG = LoggerFactory.getLogger(EthernetCustomizer.class);
 
-    public EthernetCustomizer(final org.openvpp.vppjapi.vppApi vppApi) {
+    public EthernetCustomizer(final FutureJVpp vppApi) {
         super(vppApi);
     }
 

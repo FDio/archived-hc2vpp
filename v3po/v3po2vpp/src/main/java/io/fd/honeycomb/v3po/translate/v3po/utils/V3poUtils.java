@@ -16,18 +16,17 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.utils;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import javax.annotation.Nonnull;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.SoftwareLoopback;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
-import org.openvpp.vppjapi.vppApi;
+import org.openvpp.jvpp.dto.JVppReply;
 
 public final class V3poUtils {
 
@@ -48,25 +47,17 @@ public final class V3poUtils {
 
     private V3poUtils() {}
 
-    public static int waitForResponse(final int ctxId, final vppApi vppApi) {
-        int rv;
-        while ((rv = vppApi.getRetval(ctxId, RELEASE)) == RESPONSE_NOT_READY) {
-            // TODO limit attempts
+    public static <REP extends JVppReply<?>> REP getReply(Future<REP> future) {
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted", e);
+        } catch (ExecutionException e) {
+            // Execution exception should not occur, since we are using return codes for errors
+            // TODO fix when using exceptions instead of return codes
+            throw new IllegalArgumentException("Future " + " should not fail with an exception", e);
         }
-        return rv;
-    }
-
-    public static int parseIp(final String address) {
-        int result = 0;
-
-        // iterate over each octet
-        for (String part : DOT_SPLITTER.split(address)) {
-            // shift the previously parsed bits over by 1 byte
-            result = result << 8;
-            // set the low order bits to the current octet
-            result |= Integer.parseInt(part);
-        }
-        return result;
     }
 
     public static byte[] ipv4AddressNoZoneToArray(final Ipv4AddressNoZone ipv4Addr) {
@@ -80,22 +71,10 @@ public final class V3poUtils {
     }
 
     /**
-     * Removes zone index from Ipv4Address.
-     * @param ipv4Addr ipv4 address which can contain zone index
-     * @return ipv4 address without zone index
+     * Return (interned) string from byte array while removing \u0000.
+     * Strings represented as fixed length byte[] from vpp contain \u0000.
      */
-    @Nonnull
-    public static Ipv4AddressNoZone removeIpv4AddressNoZone(@Nonnull final Ipv4Address ipv4Addr) {
-        Preconditions.checkNotNull(ipv4Addr, "ipv4Addr should not be null");
-        if (ipv4Addr instanceof Ipv4AddressNoZone) {
-            return (Ipv4AddressNoZone)ipv4Addr;
-        } else {
-            String value = ipv4Addr.getValue();
-            final int index = value.indexOf('%');
-            if (index != -1) {
-                value = value.substring(0, index);
-            }
-            return new Ipv4AddressNoZone(value);
-        }
+    public static String toString(final byte[] cString) {
+        return new String(cString).replaceAll("\\u0000", "").intern();
     }
 }

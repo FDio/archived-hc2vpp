@@ -5,7 +5,8 @@ module v3po2vpp {
 
     import config { prefix config; revision-date 2013-04-05; }
     import translate-api { prefix tapi; revision-date 2016-04-06; }
-    import vpp-japi-cfg { prefix vjc; revision-date 2016-04-06; }
+    import vpp-jvpp-cfg { prefix vjvppc; revision-date 2016-04-06; }
+    import vpp-util { prefix vpp-u; revision-date 2016-04-06; }
 
     description
         "This module contains reads and writers for v3po yang model";
@@ -24,15 +25,32 @@ module v3po2vpp {
         case vpp-state-honeycomb-reader {
             when "/config:modules/config:module/config:type = 'vpp-state-honeycomb-reader'";
 
-            container vpp-japi {
+            container vpp-jvpp {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity vjc:vpp-japi;
+                        config:required-identity vjvppc:vpp-jvpp;
                     }
                 }
             }
 
+            container interface-context-vpp-state {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
+
+            container bridge-domain-context-vpp-state {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
         }
     }
 
@@ -45,11 +63,29 @@ module v3po2vpp {
         case interfaces-state-honeycomb-reader {
             when "/config:modules/config:module/config:type = 'interfaces-state-honeycomb-reader'";
 
-            container vpp-japi {
+            container vpp-jvpp {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity vjc:vpp-japi;
+                        config:required-identity vjvppc:vpp-jvpp;
+                    }
+                }
+            }
+
+            container interface-context-ifc-state {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
+
+            container bridge-domain-context-ifc-state {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
                     }
                 }
             }
@@ -67,15 +103,32 @@ module v3po2vpp {
         case vpp-honeycomb-writer {
             when "/config:modules/config:module/config:type = 'vpp-honeycomb-writer'";
 
-            container vpp-japi-writer {
+            container vpp-jvpp-writer {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity vjc:vpp-japi;
+                        config:required-identity vjvppc:vpp-jvpp;
                     }
                 }
             }
 
+            container interface-context-vpp {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
+
+            container bridge-domain-context-vpp {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
         }
     }
 
@@ -88,11 +141,29 @@ module v3po2vpp {
         case interfaces-honeycomb-writer {
             when "/config:modules/config:module/config:type = 'interfaces-honeycomb-writer'";
 
-            container vpp-japi-ifc {
+            container vpp-jvpp-ifc {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity vjc:vpp-japi;
+                        config:required-identity vjvppc:vpp-jvpp;
+                    }
+                }
+            }
+
+            container interface-context {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
+
+            container bridge-domain-context {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
                     }
                 }
             }

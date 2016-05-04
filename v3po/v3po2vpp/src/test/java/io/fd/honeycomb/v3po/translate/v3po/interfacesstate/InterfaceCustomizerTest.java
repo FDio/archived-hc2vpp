@@ -16,112 +16,150 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeListReader;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeRootReader;
-import io.fd.honeycomb.v3po.translate.read.ChildReader;
-import io.fd.honeycomb.v3po.translate.read.ReadContext;
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.YangIfIndexToVpp;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.read.Reader;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
-import io.fd.honeycomb.v3po.translate.util.read.DelegatingReaderRegistry;
-import io.fd.honeycomb.v3po.translate.util.read.ReflexiveRootReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer;
-import org.junit.Before;
+import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.vppjapi.vppApi;
-import org.openvpp.vppjapi.vppInterfaceDetails;
-import org.openvpp.vppjapi.vppVersion;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.openvpp.jvpp.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.dto.SwInterfaceDump;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+public class InterfaceCustomizerTest extends
+        ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> {
 
-import static org.junit.Assert.assertTrue;
-import static org.powermock.api.mockito.PowerMockito.mock;
+    private NamingContext interfacesContext;
 
-@RunWith(PowerMockRunner.class)
-@SuppressStaticInitializationFor("org.openvpp.vppjapi.vppConn")
-@PrepareForTest(vppApi.class)
-public class InterfaceCustomizerTest {
-
-    public static final vppVersion VERSION = new vppVersion("test", "1", "2", "33");
-
-    private vppApi api;
-    private CompositeRootReader<InterfacesState, InterfacesStateBuilder> interfacesStateReader;
-    private DelegatingReaderRegistry readerRegistry;
-    private ReadContext ctx;
-
-    private CompositeRootReader<InterfacesState, InterfacesStateBuilder> getInterfacesStateReader(
-            final vppApi vppApi) {
-
-        final CompositeListReader<Interface, InterfaceKey, InterfaceBuilder> interfacesReader =
-                new CompositeListReader<>(Interface.class, new InterfaceCustomizer(vppApi));
-
-        final List<ChildReader<? extends ChildOf<InterfacesState>>> childReaders = new ArrayList<>();
-        childReaders.add(interfacesReader);
-
-        return new CompositeRootReader<>(InterfacesState.class, childReaders,
-                RWUtils.<InterfacesState>emptyAugReaderList(),
-                new ReflexiveRootReaderCustomizer<>(InterfacesStateBuilder.class));
+    public InterfaceCustomizerTest() {
+        super(Interface.class);
     }
 
-    public static vppInterfaceDetails createVppInterfaceDetails(int ifIndex, String name) {
-        return new vppInterfaceDetails(
-                ifIndex, name, 0,
-                new byte[]{ (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00},
-                (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, 0, 0,
-                (byte) 0, (byte) 0, (byte) 0, (byte) 0, 0, 0, 0, 0, 0);
+    @Override
+    public void setUpBefore() {
+        interfacesContext = new NamingContext("generatedIfaceName");
     }
 
-    @Before
-    public void setUp() throws Exception {
-        api = mock(vppApi.class);
-        // PowerMockito.doReturn(VERSION).when(api).getVppVersion();
-        ctx = mock(ReadContext.class);
-        List<vppInterfaceDetails> ifaces = new ArrayList<>();
-        ifaces.add(createVppInterfaceDetails(0, "loop0"));
-        vppInterfaceDetails[] ifArr = ifaces.toArray(new vppInterfaceDetails[ifaces.size()]);
+    @Override
+    protected RootReaderCustomizer<Interface, InterfaceBuilder> initCustomizer() {
+        return new InterfaceCustomizer(api, interfacesContext);
+    }
 
-        PowerMockito.when(api.swInterfaceDump((byte) 0, new byte[]{})).
-                thenReturn(ifArr);
-        PowerMockito.when(api.swInterfaceDump((byte) 1, ifArr[0].interfaceName.getBytes())).thenReturn(ifArr);
+    // TODO use reflexion and move to ListReaderCustomizerTest
+    @Test
+    public void testMerge() throws Exception {
+        final InterfacesStateBuilder builder = mock(InterfacesStateBuilder.class);
+        final List<Interface> value = Collections.emptyList();
+        getCustomizer().merge(builder, value);
+        verify(builder).setInterface(value);
+    }
 
-        interfacesStateReader = getInterfacesStateReader(api);
-        readerRegistry = new DelegatingReaderRegistry(
-                Collections.<Reader<? extends DataObject>>singletonList(interfacesStateReader));
+    private void verifyBridgeDomainDumpUpdateWasInvoked(final int nameFilterValid, final String ifaceName) {
+        // TODO adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
+        ArgumentCaptor<SwInterfaceDump> argumentCaptor = ArgumentCaptor.forClass(SwInterfaceDump.class);
+        verify(api).swInterfaceDump(argumentCaptor.capture());
+        final SwInterfaceDump actual = argumentCaptor.getValue();
+        assertEquals(nameFilterValid, actual.nameFilterValid);
+        assertArrayEquals(ifaceName.getBytes(), actual.nameFilter);
+    }
+
+    private static void assertIfacesAreEqual(final Interface iface, final SwInterfaceDetails details) {
+        assertEquals(iface.getName(), new String(details.interfaceName));
+        assertEquals(YangIfIndexToVpp(iface.getIfIndex().intValue()), details.swIfIndex);
+        assertEquals(iface.getPhysAddress().getValue(), InterfaceUtils.vppPhysAddrToYang(details.l2Address));
+    }
+
+    private void whenSwInterfaceDumpThenReturn(final List<SwInterfaceDetails> interfaceList)
+            throws ExecutionException, InterruptedException {
+        final CompletionStage<SwInterfaceDetailsReplyDump> replyCS = mock(CompletionStage.class);
+        final CompletableFuture<SwInterfaceDetailsReplyDump> replyFuture = mock(CompletableFuture.class);
+        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+        final SwInterfaceDetailsReplyDump reply = new SwInterfaceDetailsReplyDump();
+        reply.swInterfaceDetails = interfaceList;
+        when(replyFuture.get()).thenReturn(reply);
+        when(api.swInterfaceDump(any(SwInterfaceDump.class))).thenReturn(replyCS);
     }
 
     @Test
-    public void testReadAll() throws ReadFailedException {
-        final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects =
-                readerRegistry.readAll(ctx);
+    public void testReadCurrentAttributes() throws Exception {
+        final String ifaceName = "eth0";
+        final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class, new InterfaceKey(ifaceName));
+        final InterfaceBuilder builder = getCustomizer().getBuilder(id);
 
-        System.out.println(dataObjects.keys());
-        final DataObject obj = Iterables.getOnlyElement(
-                dataObjects.get(Iterables.getOnlyElement(dataObjects.keySet())));
-        assertTrue(obj instanceof InterfacesState);
+        final SwInterfaceDetails iface = new SwInterfaceDetails();
+        iface.interfaceName = ifaceName.getBytes();
+        iface.swIfIndex = 0;
+        iface.linkSpeed = 1;
+        iface.l2AddressLength = 6;
+        iface.l2Address = new byte[iface.l2AddressLength];
+        final List<SwInterfaceDetails> interfaceList = Collections.singletonList(iface);
+        whenSwInterfaceDumpThenReturn(interfaceList);
+
+        getCustomizer().readCurrentAttributes(id, builder, ctx);
+
+        verifyBridgeDomainDumpUpdateWasInvoked(1, ifaceName);
+        assertIfacesAreEqual(builder.build(), iface);
     }
 
     @Test
-    public void testReadId() throws ReadFailedException {
-        Optional<? extends DataObject> read =
-                readerRegistry.read(InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey("Loofdsafdsap0")), ctx);
-        System.err.println(read);
+    public void testReadCurrentAttributesFailed() throws Exception {
+        final String ifaceName = "eth0";
+        final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class, new InterfaceKey(ifaceName));
+        final InterfaceBuilder builder = getCustomizer().getBuilder(id);
+
+        whenSwInterfaceDumpThenReturn(Collections.emptyList());
+
+        try {
+            getCustomizer().readCurrentAttributes(id, builder, ctx);
+        } catch (ReadFailedException e) {
+            verifyBridgeDomainDumpUpdateWasInvoked(1, ifaceName);
+            return;
+        }
+
+        fail("ReadFailedException was expected");
+    }
+
+    @Test
+    public void testGetAllIds() throws Exception {
+        final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class);
+
+        final String swIf0Name = "eth0";
+        final SwInterfaceDetails swIf0 = new SwInterfaceDetails();
+        swIf0.interfaceName = swIf0Name.getBytes();
+        final String swIf1Name = "eth0";
+        final SwInterfaceDetails swIf1 = new SwInterfaceDetails();
+        swIf1.interfaceName = swIf1Name.getBytes();
+        whenSwInterfaceDumpThenReturn(Arrays.asList(swIf0, swIf1));
+
+        final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(swIf0Name), new InterfaceKey(swIf1Name));
+        final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);
+
+        verifyBridgeDomainDumpUpdateWasInvoked(0, "");
+
+        assertEquals(expectedIds, actualIds);
     }
 }

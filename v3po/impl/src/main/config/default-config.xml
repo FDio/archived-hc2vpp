@@ -18,7 +18,7 @@
   <required-capabilities>
       <capability>urn:opendaylight:params:xml:ns:yang:v3po:impl?module=v3po-impl&amp;revision=2014-12-10</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:translate:utils?module=translate-utils&amp;revision=2016-04-06</capability>
-      <capability>urn:honeycomb:params:xml:ns:yang:vpp:japi:cfg?module=vpp-japi-cfg&amp;revision=2016-04-06</capability>
+      <capability>urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg?module=vpp-jvpp-cfg&amp;revision=2016-04-06</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:vpp:data:init?module=vpp-cfg-init&amp;revision=2016-04-07</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:impl?module=data-impl&amp;revision=2016-04-11</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>

@@ -68,7 +68,7 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
                     builder.setFlood(input.isFlood());
                     builder.setForward(input.isForward());
                     builder.setKey(new BridgeDomainKey(input.getKey().getName()));
-                    // TODO bdBuilder.setL2Fib(bd.getL2Fib());
+                    // bdBuilder.setL2Fib(bd.getL2Fib()); // TODO we need state=>oper converter for L2Fib
                     builder.setName(input.getName());
                     return builder.build();
                 }
