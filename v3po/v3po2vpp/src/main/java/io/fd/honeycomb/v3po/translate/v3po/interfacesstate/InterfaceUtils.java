@@ -19,6 +19,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,7 +32,7 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterfaceUtils {
+public final class InterfaceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceUtils.class);
 
     private static final Gauge64 vppLinkSpeed0 = new Gauge64(BigInteger.ZERO);
@@ -43,6 +44,12 @@ public class InterfaceUtils {
     private static final Gauge64 vppLinkSpeed32 = new Gauge64(BigInteger.valueOf(100000L * 1000000));
 
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
+
+    private static final int PHYSICAL_ADDRESS_LENGTH = 6;
+
+    private InterfaceUtils() {
+        throw new UnsupportedOperationException("This utility class cannot be instantiated");
+    }
 
     /**
      * Convert VPP's link speed bitmask to Yang type. 1 = 10M, 2 = 100M, 4 = 1G, 8 = 10G, 16 = 40G, 32 = 100G
@@ -76,21 +83,24 @@ public class InterfaceUtils {
     }
 
     /**
-     * Convert VPP's physical address stored byte array format to string as Yang dictates <p> Replace later with
+     * Reads first 6 bytes of supplied byte array and converts to string as Yang dictates
+     * <p> Replace later with
      * https://git.opendaylight.org/gerrit/#/c/34869/10/model/ietf/ietf-type- util/src/main/
      * java/org/opendaylight/mdsal/model/ietf/util/AbstractIetfYangUtil.java
      *
-     * @param vppPhysAddress byte array of bytes constructing the network IF physical address.
+     * @param vppPhysAddress byte array of bytes in big endian order, constructing the network IF physical address.
      * @return String like "aa:bb:cc:dd:ee:ff"
+     * @throws NullPointerException if vppPhysAddress is null
+     * @throws IllegalArgumentException if vppPhysAddress.length < 6
      */
     public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress) {
-        Preconditions.checkNotNull(vppPhysAddress, "Empty physicall address bytes");
-        Preconditions.checkArgument(vppPhysAddress.length == 6, "Invalid physical address size %s, expected 6",
-                vppPhysAddress.length);
+        Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
+        Preconditions.checkArgument(PHYSICAL_ADDRESS_LENGTH <= vppPhysAddress.length,
+                "Invalid physical address size %s, expected >= 6", vppPhysAddress.length);
         StringBuilder physAddr = new StringBuilder();
 
         appendHexByte(physAddr, vppPhysAddress[0]);
-        for (int i = 1; i < vppPhysAddress.length; i++) {
+        for (int i=1; i < PHYSICAL_ADDRESS_LENGTH; i++) {
             physAddr.append(":");
             appendHexByte(physAddr, vppPhysAddress[i]);
         }
