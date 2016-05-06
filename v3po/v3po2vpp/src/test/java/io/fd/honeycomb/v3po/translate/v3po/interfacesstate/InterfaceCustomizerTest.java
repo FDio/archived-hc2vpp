@@ -16,16 +16,16 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.YangIfIndexToVpp;
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.yangIfIndexToVpp;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
@@ -63,6 +63,8 @@ public class InterfaceCustomizerTest extends
 
     @Override
     protected RootReaderCustomizer<Interface, InterfaceBuilder> initCustomizer() {
+        interfacesContext.addName(0, "eth0");
+        interfacesContext.addName(1, "eth1");
         return new InterfaceCustomizer(api, interfacesContext);
     }
 
@@ -75,10 +77,11 @@ public class InterfaceCustomizerTest extends
         verify(builder).setInterface(value);
     }
 
-    private void verifyBridgeDomainDumpUpdateWasInvoked(final int nameFilterValid, final String ifaceName) {
+    private void verifyBridgeDomainDumpUpdateWasInvoked(final int nameFilterValid, final String ifaceName,
+                                                        final int dumpIfcsInvocationCount) {
         // TODO adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
         ArgumentCaptor<SwInterfaceDump> argumentCaptor = ArgumentCaptor.forClass(SwInterfaceDump.class);
-        verify(api).swInterfaceDump(argumentCaptor.capture());
+        verify(api, times(dumpIfcsInvocationCount)).swInterfaceDump(argumentCaptor.capture());
         final SwInterfaceDump actual = argumentCaptor.getValue();
         assertEquals(nameFilterValid, actual.nameFilterValid);
         assertArrayEquals(ifaceName.getBytes(), actual.nameFilter);
@@ -86,7 +89,7 @@ public class InterfaceCustomizerTest extends
 
     private static void assertIfacesAreEqual(final Interface iface, final SwInterfaceDetails details) {
         assertEquals(iface.getName(), new String(details.interfaceName));
-        assertEquals(YangIfIndexToVpp(iface.getIfIndex().intValue()), details.swIfIndex);
+        assertEquals(yangIfIndexToVpp(iface.getIfIndex().intValue()), details.swIfIndex);
         assertEquals(iface.getPhysAddress().getValue(), InterfaceUtils.vppPhysAddrToYang(details.l2Address));
     }
 
@@ -119,7 +122,7 @@ public class InterfaceCustomizerTest extends
 
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 
-        verifyBridgeDomainDumpUpdateWasInvoked(1, ifaceName);
+        verifyBridgeDomainDumpUpdateWasInvoked(1, ifaceName, 1);
         assertIfacesAreEqual(builder.build(), iface);
     }
 
@@ -134,8 +137,8 @@ public class InterfaceCustomizerTest extends
 
         try {
             getCustomizer().readCurrentAttributes(id, builder, ctx);
-        } catch (ReadFailedException e) {
-            verifyBridgeDomainDumpUpdateWasInvoked(1, ifaceName);
+        } catch (IllegalArgumentException e) {
+            verifyBridgeDomainDumpUpdateWasInvoked(0, ifaceName, 2);
             return;
         }
 
@@ -149,16 +152,18 @@ public class InterfaceCustomizerTest extends
 
         final String swIf0Name = "eth0";
         final SwInterfaceDetails swIf0 = new SwInterfaceDetails();
+        swIf0.swIfIndex = 0;
         swIf0.interfaceName = swIf0Name.getBytes();
-        final String swIf1Name = "eth0";
+        final String swIf1Name = "eth1";
         final SwInterfaceDetails swIf1 = new SwInterfaceDetails();
+        swIf1.swIfIndex = 1;
         swIf1.interfaceName = swIf1Name.getBytes();
         whenSwInterfaceDumpThenReturn(Arrays.asList(swIf0, swIf1));
 
         final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(swIf0Name), new InterfaceKey(swIf1Name));
         final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);
 
-        verifyBridgeDomainDumpUpdateWasInvoked(0, "");
+        verifyBridgeDomainDumpUpdateWasInvoked(0, "", 1);
 
         assertEquals(expectedIds, actualIds);
     }

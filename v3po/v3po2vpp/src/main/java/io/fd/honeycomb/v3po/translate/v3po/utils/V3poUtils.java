@@ -16,34 +16,22 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.utils;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Splitter;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.SoftwareLoopback;
+import java.util.function.BiConsumer;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.openvpp.jvpp.dto.JVppReply;
 
 public final class V3poUtils {
 
     // TODO move to vpp-translate-utils
 
-    public static final int RESPONSE_NOT_READY = -77;
-    public static final int RELEASE = 1;
-    public static final Splitter DOT_SPLITTER = Splitter.on('.');
-    public static final BiMap<String, Class<? extends InterfaceType>> IFC_TYPES = HashBiMap.create();
-    static {
-        V3poUtils.IFC_TYPES.put("vxlan", VxlanTunnel.class);
-        V3poUtils.IFC_TYPES.put("lo", SoftwareLoopback.class);
-        V3poUtils.IFC_TYPES.put("Ether", EthernetCsmacd.class);
-        // TODO missing types below
-//        V3poUtils.IFC_TYPES.put("l2tpv3_tunnel", EthernetCsmacd.class);
-//        V3poUtils.IFC_TYPES.put("tap", EthernetCsmacd.class);
-    }
+    public static final Splitter COLON_SPLITTER = Splitter.on(':');
 
     private V3poUtils() {}
 
@@ -76,5 +64,36 @@ public final class V3poUtils {
      */
     public static String toString(final byte[] cString) {
         return new String(cString).replaceAll("\\u0000", "").intern();
+    }
+
+    /**
+     * Parse string represented mac address (using ":" as separator) into a byte array
+     */
+    @Nonnull
+    public static byte[] parseMac(@Nonnull final String macAddress) {
+        final List<String> parts = COLON_SPLITTER.splitToList(macAddress);
+        checkArgument(parts.size() == 6, "Mac address is expected to have 6 parts but was: %s", macAddress);
+        return parseMacLikeString(parts);
+    }
+
+    private static byte[] parseMacLikeString(final List<String> strings) {
+        return strings.stream().limit(6).map(V3poUtils::parseHexByte).collect(
+            () -> new byte[strings.size()],
+            new BiConsumer<byte[], Byte>() {
+
+                private int i = -1;
+
+                @Override
+                public void accept(final byte[] bytes, final Byte aByte) {
+                    bytes[++i] = aByte;
+                }
+            },
+            (bytes, bytes2) -> {
+                throw new UnsupportedOperationException("Parallel collect not supported");
+            });
+    }
+
+    private static byte parseHexByte(final String aByte) {
+        return (byte)Integer.parseInt(aByte, 16);
     }
 }

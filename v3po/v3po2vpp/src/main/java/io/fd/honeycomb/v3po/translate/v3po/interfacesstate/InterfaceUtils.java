@@ -18,13 +18,18 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
+import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
 import org.openvpp.jvpp.dto.SwInterfaceDump;
@@ -82,6 +87,7 @@ public final class InterfaceUtils {
         sb.append(HEX_CHARS[v & 15]);
     }
 
+    // TODO rename and move to V3poUtils
     /**
      * Reads first 6 bytes of supplied byte array and converts to string as Yang dictates
      * <p> Replace later with
@@ -125,7 +131,7 @@ public final class InterfaceUtils {
      * @param yangIfIndex if-index from ietf-interfaces.
      * @return VPP's representation of the if-index
      */
-    public static int YangIfIndexToVpp(int yangIfIndex) {
+    public static int yangIfIndexToVpp(int yangIfIndex) {
         Preconditions.checkArgument(yangIfIndex >= 1, "YANG if-index has invalid value %s", yangIfIndex);
         return yangIfIndex - 1;
     }
@@ -136,27 +142,60 @@ public final class InterfaceUtils {
      *
      * @param futureJvpp VPP Java Future API
      * @param key        interface key
+     * @param index      VPP index of the interface
+     * @param allInterfaces cached interfaces dump with all the interfaces. If interface not present, another dump all
+     *                      will be performed
+     *
      * @return SwInterfaceDetails DTO or null if interface was not found
-     * @throws ExecutionException   if exception has been thrown while executing VPP query
-     * @throws InterruptedException if the current thread was interrupted
+     *
+     * @throws IllegalArgumentException If interface cannot be found
      */
-    @Nullable
+    @Nonnull
     public static SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVpp futureJvpp,
-                                                            @Nonnull InterfaceKey key)
-            throws ExecutionException, InterruptedException {
+                                                            @Nonnull InterfaceKey key, final int index,
+                                                            @Nonnull final Map<Integer, SwInterfaceDetails> allInterfaces) {
         final SwInterfaceDump request = new SwInterfaceDump();
         request.nameFilter = key.getName().getBytes();
         request.nameFilterValid = 1;
 
-        // TODO should we use timeout?
-        SwInterfaceDetailsReplyDump ifaces = futureJvpp.swInterfaceDump(request).toCompletableFuture().get();
-        if (null == ifaces) { // TODO can we get null here?
-            LOG.warn("VPP returned null instead of interface by key {}", key.getName().getBytes());
-            return null;
-        }
+        CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJvpp.swInterfaceDump(request);
+        SwInterfaceDetailsReplyDump ifaces = V3poUtils.getReply(requestFuture.toCompletableFuture());
+        if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
+            LOG.warn("VPP returned null instead of interface by key {}", key.getName());
+            LOG.warn("Iterating through all the interfaces to find interface: {}", key.getName());
+            request.nameFilterValid = 0;
 
+            // Returned cached if available
+            if(allInterfaces.containsKey(index)) {
+                return allInterfaces.get(index);
+            }
+
+            // Or else just perform full dump and do inefficient filtering
+            requestFuture = futureJvpp.swInterfaceDump(request);
+            ifaces = V3poUtils.getReply(requestFuture.toCompletableFuture());
+
+            return ifaces.swInterfaceDetails.stream().filter((swIfc) -> swIfc.swIfIndex == index)
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Unable to find interface " + key.getName()));
+        }
         return Iterables.getOnlyElement(ifaces.swInterfaceDetails);
     }
 
+    /**
+     * Determine interface type based on its VPP name (relying on VPP's interface naming conventions)
+     *
+     * @param interfaceName VPP generated interface name
+     * @return Interface type
+     */
+    @Nonnull
+    public static Class<? extends InterfaceType> getInterfaceType(@Nonnull final String interfaceName) {
+        if(interfaceName.startsWith("tap")) {
+            return Tap.class;
+        }
 
+        if(interfaceName.startsWith("vxlan")) {
+            return VxlanTunnel.class;
+        }
+
+        return EthernetCsmacd.class;
+    }
 }

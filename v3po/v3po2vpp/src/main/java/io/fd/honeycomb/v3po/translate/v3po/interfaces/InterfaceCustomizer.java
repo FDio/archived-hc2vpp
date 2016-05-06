@@ -97,15 +97,12 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
 
     private void setInterface(final InstanceIdentifier<Interface> id, final Interface swIf)
         throws VppApiInvocationException, WriteFailedException {
-        LOG.info("Setting interface {}, type: {}", swIf.getName(), swIf.getType().getSimpleName());
-        LOG.debug("Setting interface {}", swIf);
-
+        LOG.debug("Setting interface: {} to: {}", id, swIf);
         setInterfaceAttributes(swIf, swIf.getName());
     }
 
     private void setInterfaceAttributes(final Interface swIf, final String swIfName)
         throws VppApiInvocationException {
-        LOG.debug("Creating {} interface {}", swIf.getType().getSimpleName(), swIf.getName());
 
         setInterfaceFlags(swIfName, interfaceContext.getIndex(swIfName),
             swIf.isEnabled() ? (byte) 1 : (byte) 0);
@@ -114,8 +111,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
     private void updateInterface(final InstanceIdentifier<Interface> id,
                                  final Interface dataBefore,
                                  final Interface dataAfter) throws VppApiInvocationException {
-        LOG.info("Updating interface {}, type: {}", dataAfter.getName(), dataAfter.getType().getSimpleName());
-        LOG.debug("Updating interface {}", dataAfter);
+        LOG.debug("Updating interface:{} to: {}", id, dataAfter);
 
         setInterfaceAttributes(dataAfter, dataAfter.getName());
     }

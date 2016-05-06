@@ -24,10 +24,10 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
@@ -44,11 +44,15 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Customizer for reading ietf-interfaces:interfaces-state/interface
+ */
 public class InterfaceCustomizer extends FutureJVppCustomizer
         implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceCustomizer.class);
+    public static final String DUMPED_IFCS_CONTEXT_KEY = InterfaceCustomizer.class.getName() + "dumpedInterfacesDuringGetAllIds";
+
     private final NamingContext interfaceContext;
 
     public InterfaceCustomizer(@Nonnull final FutureJVpp jvpp, final NamingContext interfaceContext) {
@@ -56,47 +60,53 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         this.interfaceContext = interfaceContext;
     }
 
+    @Nonnull
     @Override
-    public InterfaceBuilder getBuilder(InstanceIdentifier<Interface> id) {
+    public InterfaceBuilder getBuilder(@Nonnull InstanceIdentifier<Interface> id) {
         return new InterfaceBuilder();
     }
 
     @Override
-    public void readCurrentAttributes(InstanceIdentifier<Interface> id, InterfaceBuilder builder, Context ctx)
-            throws ReadFailedException {
+    public void readCurrentAttributes(@Nonnull InstanceIdentifier<Interface> id, @Nonnull InterfaceBuilder builder,
+                                      @Nonnull Context ctx) throws ReadFailedException {
+        LOG.debug("Reading attributes for interface: {}", id);
         final InterfaceKey key = id.firstKeyOf(id.getTargetType());
 
-        final SwInterfaceDetails iface;
-        try {
-            iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key);
-        } catch (Exception e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Map<Integer, SwInterfaceDetails> cachedDump = getCachedInterfaceDump(ctx);
 
+        // Pass cached details from getAllIds to getDetails to avoid additional dumps
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
+            interfaceContext.getIndex(key.getName()), cachedDump);
+        LOG.debug("Interface details for interface: {}, details: {}", key.getName(), iface);
 
         builder.setName(key.getName());
-        // FIXME: report interface type based on name
-        //Tunnel.class l2vlan(802.1q) bridge (transparent bridge?)
-        builder.setType(EthernetCsmacd.class);
+        builder.setType(InterfaceUtils.getInterfaceType(new String(iface.interfaceName).intern()));
         builder.setIfIndex(InterfaceUtils.vppIfIndexToYang(iface.swIfIndex));
-        builder.setAdminStatus(iface.adminUpDown == 1
-                ? AdminStatus.Up
-                : AdminStatus.Down);
-        builder.setOperStatus(1 == iface.linkUpDown
-                ? OperStatus.Up
-                : OperStatus.Down);
+        builder.setAdminStatus(1 == iface.adminUpDown ? AdminStatus.Up : AdminStatus.Down);
+        builder.setOperStatus(1 == iface.linkUpDown ? OperStatus.Up : OperStatus.Down);
         if (0 != iface.linkSpeed) {
             builder.setSpeed(InterfaceUtils.vppInterfaceSpeedToYang(iface.linkSpeed));
         }
         if (iface.l2AddressLength == 6) {
             builder.setPhysAddress(new PhysAddress(InterfaceUtils.vppPhysAddrToYang(iface.l2Address)));
         }
+        LOG.trace("Base attributes read for interface: {} as: {}", key.getName(), builder);
+    }
+
+    @Nonnull
+    @SuppressWarnings("unchecked")
+    public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(final @Nonnull Context ctx) {
+        return ctx.get(DUMPED_IFCS_CONTEXT_KEY) == null
+            ? Collections.emptyMap()
+            : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
     }
 
     @Nonnull
     @Override
     public List<InterfaceKey> getAllIds(@Nonnull final InstanceIdentifier<Interface> id,
                                         @Nonnull final Context context) throws ReadFailedException {
+        LOG.trace("Dumping all interfaces to get all IDs");
+
         final SwInterfaceDump request = new SwInterfaceDump();
         request.nameFilter = "".getBytes();
         request.nameFilterValid = 0;
@@ -105,21 +115,31 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                 getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
         final SwInterfaceDetailsReplyDump ifaces = V3poUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
 
-        // TODO can we get null here?
         if (null == ifaces || null == ifaces.swInterfaceDetails) {
+            LOG.debug("No interfaces found in VPP");
             return Collections.emptyList();
         }
 
-        return ifaces.swInterfaceDetails.stream()
-                .filter(elt -> elt != null)
-                .map((elt) -> {
-                    // Store interface name from VPP in context if not yet present
-                    if(!interfaceContext.containsName(elt.swIfIndex)){
-                        interfaceContext.addName(elt.swIfIndex, V3poUtils.toString(elt.interfaceName));
-                    }
-                    return new InterfaceKey(interfaceContext.getName(elt.swIfIndex));
-                })
-                .collect(Collectors.toList());
+        // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
+        context.put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
+            .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+
+        final List<InterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
+            .filter(elt -> elt != null)
+            .map((elt) -> {
+                // Store interface name from VPP in context if not yet present
+                if (!interfaceContext.containsName(elt.swIfIndex)) {
+                    interfaceContext.addName(elt.swIfIndex, V3poUtils.toString(elt.interfaceName));
+                }
+                LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
+                    interfaceContext.getName(elt.swIfIndex), elt.interfaceName, elt.swIfIndex);
+
+                return new InterfaceKey(interfaceContext.getName(elt.swIfIndex));
+            })
+            .collect(Collectors.toList());
+
+        LOG.debug("Interfaces found in VPP: {}", interfacesKeys);
+        return interfacesKeys;
     }
 
     @Override

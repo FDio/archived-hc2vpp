@@ -109,21 +109,27 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
         try {
             final L2FibTableEntryReplyDump dump =
                     getFutureJVpp().l2FibTableDump(l2FibRequest).toCompletableFuture().get();
-            final List<L2Fib> l2Fibs = Lists.newArrayListWithCapacity(dump.l2FibTableEntry.size());
-            for (L2FibTableEntry entry : dump.l2FibTableEntry) {
-                // entry.mac is a long value in the format 66:55:44:33:22:11:XX:XX
-                // where mac address is 11:22:33:44:55:66
-                final PhysAddress address = new PhysAddress(getMacAddress(Longs.toByteArray(entry.mac)));
-                l2Fibs.add(new L2FibBuilder()
+            final List<L2Fib> l2Fibs;
+
+            if(null == dump || null == dump.l2FibTableEntry) {
+                l2Fibs = Collections.emptyList();
+            } else {
+                l2Fibs = Lists.newArrayListWithCapacity(dump.l2FibTableEntry.size());
+                for (L2FibTableEntry entry : dump.l2FibTableEntry) {
+                    // entry.mac is a long value in the format 66:55:44:33:22:11:XX:XX
+                    // where mac address is 11:22:33:44:55:66
+                    final PhysAddress address = new PhysAddress(getMacAddress(Longs.toByteArray(entry.mac)));
+                    l2Fibs.add(new L2FibBuilder()
                         .setAction((byteToBoolean(entry.filterMac)
-                                ? L2Fib.Action.Filter
-                                : L2Fib.Action.Forward))
+                            ? L2Fib.Action.Filter
+                            : L2Fib.Action.Forward))
                         .setBridgedVirtualInterface(byteToBoolean(entry.bviMac))
                         .setOutgoingInterface(interfaceContext.getName(entry.swIfIndex))
                         .setStaticConfig(byteToBoolean(entry.staticMac))
                         .setPhysAddress(address)
                         .setKey(new L2FibKey(address))
                         .build());
+                }
             }
             builder.setL2Fib(l2Fibs);
 
