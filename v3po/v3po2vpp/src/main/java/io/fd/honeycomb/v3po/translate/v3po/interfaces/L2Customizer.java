@@ -102,7 +102,7 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
 
     private void setL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 vppL2)
         throws VppApiInvocationException, WriteFailedException {
-        LOG.debug("Setting L2 for interface: %s", ifcName);
+        LOG.debug("Setting L2 for interface: {}", ifcName);
         // Nothing besides interconnection here
         setInterconnection(id, swIfIndex, ifcName, vppL2);
     }
@@ -128,12 +128,11 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
     private void setBridgeBasedL2(final int swIfIndex, final String ifcName, final BridgeBased bb)
         throws VppApiInvocationException {
 
-        LOG.debug("Setting bridge based interconnection(bridge-domain=%s) for interface: %s",
+        LOG.debug("Setting bridge based interconnection(bridge-domain={}) for interface: {}",
             bb.getBridgeDomain(), ifcName);
 
         String bdName = bb.getBridgeDomain();
 
-        // FIXME need BridgeDomainContext here
         int bdId = bridgeDomainContext.getIndex(bdName);
         checkArgument(bdId > 0, "Unable to set Interconnection for Interface: %s, bridge domain: %s does not exist",
             ifcName, bdName);
@@ -173,7 +172,7 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
         throws VppApiInvocationException {
 
         String outSwIfName = ic.getXconnectOutgoingInterface();
-        LOG.debug("Setting xconnect based interconnection(outgoing ifc=%s) for interface: %s", outSwIfName,
+        LOG.debug("Setting xconnect based interconnection(outgoing ifc={}) for interface: {}", outSwIfName,
             ifcName);
 
         int outSwIfIndex = interfaceContext.getIndex(outSwIfName);
