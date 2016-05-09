@@ -142,6 +142,13 @@ public class BridgeDomainCustomizer
         LOG.debug("updateCurrentAttributes: id={}, dataBefore={}, dataAfter={}, ctx={}", id, dataBefore, dataAfter,
                 ctx);
 
+        // FIXME can be removed after updating mdsal-binding-dom-codec to 0.8.2-Beryllium-SR2
+        // and restoring equality check in AbstractCompositeWriter
+        if (dataBefore.equals(dataAfter)) {
+            LOG.debug("dataBefore equals dataAfter, update will not be performed");
+            return;
+        }
+
         final String bdName = checkNotNull(dataAfter.getName());
         checkArgument(bdName.equals(dataBefore.getName()),
                 "BridgeDomain name changed. It should be deleted and then created.");

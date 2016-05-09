@@ -239,10 +239,11 @@ public class BridgeDomainCustomizerTest {
     @Test
     public void testUpdateUnknownBridgeDomain() throws Exception {
         final String bdName = "bd1";
-        final BridgeDomain bd = generateBridgeDomain("bd1");
+        final BridgeDomain bdBefore = generateBridgeDomain(bdName, 0, 1, 0 ,1, 0);
+        final BridgeDomain bdAfter = generateBridgeDomain(bdName, 1, 1, 0 ,1, 0);
 
         try {
-            customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, bd, ctx);
+            customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bdBefore, bdAfter, ctx);
         } catch (IllegalArgumentException e) {
             verify(api, never()).bridgeDomainAddDel(any(BridgeDomainAddDel.class));
             return;
@@ -254,15 +255,16 @@ public class BridgeDomainCustomizerTest {
     public void testUpdateBridgeDomainFailed() throws Exception {
         final int bdId = 1;
         final String bdName = "bd1";
-        final BridgeDomain bd = generateBridgeDomain(bdName);
+        final BridgeDomain bdBefore = generateBridgeDomain(bdName, 0, 1, 0 ,1, 0);
+        final BridgeDomain bdAfter = generateBridgeDomain(bdName, 1, 1, 0 ,1, 0);
         namingContext.addName(bdId, bdName);
 
         whenBridgeDomainAddDelThenFailure();
 
         try {
-            customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, bd, ctx);
+            customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bdBefore, bdAfter, ctx);
         } catch (WriteFailedException.UpdateFailedException  e) {
-            verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
+            verifyBridgeDomainAddOrUpdateWasInvoked(bdAfter, bdId);
             return;
         }
         fail("IllegalStateException was expected");
