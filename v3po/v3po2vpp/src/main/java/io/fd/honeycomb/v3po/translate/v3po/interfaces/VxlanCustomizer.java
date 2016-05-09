@@ -59,7 +59,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataAfter,
                                        @Nonnull final Context writeContext)
-        throws WriteFailedException.CreateFailedException {
+            throws WriteFailedException.CreateFailedException {
         try {
             createVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataAfter);
         } catch (VppApiInvocationException e) {
@@ -71,22 +71,26 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
                                         @Nonnull final Vxlan dataAfter, @Nonnull final Context writeContext)
-        throws WriteFailedException.UpdateFailedException {
+            throws WriteFailedException.UpdateFailedException {
 
-        // TODO handle update in a better way
-        try {
-            createVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataAfter);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Update of L2 failed", e);
-            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
+        if (dataBefore.equals(dataAfter)) {
+            LOG.debug("dataBefore equals dataAfter, update will not be performed");
+            return;
         }
+        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
+                new UnsupportedOperationException("Vxlan tunnel update is not supported"));
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
-                                        @Nonnull final Context writeContext) {
-
-        // TODO handle delete
+                                        @Nonnull final Context writeContext)
+            throws WriteFailedException.DeleteFailedException {
+        try {
+            deleteVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataBefore);
+        } catch (VppApiInvocationException e) {
+            LOG.warn("Delete of Vxlan failed", e);
+            throw new WriteFailedException.DeleteFailedException(id, e);
+        }
     }
 
     private void createVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
@@ -97,11 +101,11 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
 
         LOG.debug("Setting vxlan tunnel for interface: {}. Vxlan: {}", swIfName, vxlan);
         final CompletionStage<VxlanAddDelTunnelReply> vxlanAddDelTunnelReplyCompletionStage =
-            getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 1 /* is add */, srcAddress.getAddress(),
-                dstAddress.getAddress(), encapVrfId, -1, vni, (byte) 0 /* is IPV6 */));
+                getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 1 /* is add */, srcAddress.getAddress(),
+                        dstAddress.getAddress(), encapVrfId, -1, vni, (byte) 0 /* is IPV6 */));
 
         final VxlanAddDelTunnelReply reply =
-            V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+                V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.debug("Failed to set vxlan tunnel for interface: {}, vxlan: {}", swIfName, vxlan);
             throw new VppApiInvocationException("vxlanAddDelTunnel", reply.context, reply.retval);
@@ -111,6 +115,30 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
             interfaceContext.addName(reply.swIfIndex, swIfName);
         }
     }
+
+    private void deleteVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
+        final InetAddress srcAddress = InetAddresses.forString(vxlan.getSrc().getValue());
+        final InetAddress dstAddress = InetAddresses.forString(vxlan.getDst().getValue());
+        int encapVrfId = vxlan.getEncapVrfId().intValue();
+        int vni = vxlan.getVni().getValue().intValue();
+
+        LOG.debug("Deleting vxlan tunnel for interface: {}. Vxlan: {}", swIfName, vxlan);
+        final CompletionStage<VxlanAddDelTunnelReply> vxlanAddDelTunnelReplyCompletionStage =
+                getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 0 /* is add */, srcAddress.getAddress(),
+                        dstAddress.getAddress(), encapVrfId, -1, vni, (byte) 0 /* is IPV6 */));
+
+        final VxlanAddDelTunnelReply reply =
+                V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+        if (reply.retval < 0) {
+            LOG.debug("Failed to delete vxlan tunnel for interface: {}, vxlan: {}", swIfName, vxlan);
+            throw new VppApiInvocationException("vxlanAddDelTunnel", reply.context, reply.retval);
+        } else {
+            LOG.debug("Vxlan tunnel deleted successfully for: {}, vxlan: {}", swIfName, vxlan);
+            // Remove interface to our interface context
+            interfaceContext.removeName(swIfName);
+        }
+    }
+
 
     private VxlanAddDelTunnel getVxlanTunnelRequest(final byte isAdd, final byte[] srcAddr, final byte[] dstAddr,
                                                     final int encapVrfId,
