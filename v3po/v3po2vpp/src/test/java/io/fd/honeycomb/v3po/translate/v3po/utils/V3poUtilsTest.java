@@ -52,4 +52,10 @@ public class V3poUtilsTest {
     public void testParseMacNumberFormatEx() throws Exception {
         V3poUtils.parseMac("00:XX:7f:15:5e:77\"");
     }
+
+   public void testBooleanToByte() {
+       assertEquals(0, V3poUtils.booleanToByte(null));
+       assertEquals(0, V3poUtils.booleanToByte(false));
+       assertEquals(1, V3poUtils.booleanToByte(true));
+   }
 }

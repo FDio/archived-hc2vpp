@@ -49,7 +49,7 @@ module v3po {
   identity vhost-user {
     base if:interface-type;
   }
-  
+
   identity tap {
     base if:interface-type;
   }
@@ -118,6 +118,37 @@ module v3po {
     }
   }
 
+  grouping vhost-user-interface-base-attributes {
+    leaf socket {
+      type string {
+        length 1..255;
+      }
+    }
+    leaf role {
+      type vhost-user-role;
+      default "server";
+    }
+  }
+
+  grouping vhost-user-interface-state-attributes {
+      leaf features {
+        type uint64;
+        config false;
+      }
+      leaf virtio-net-hdr-size {
+        type uint32;
+        config false;
+      }
+      leaf num-memory-regions {
+        type uint32;
+        config false;
+      }
+      leaf connect-error {
+        type string;
+        config false;
+      }
+  }
+
   augment /if:interfaces/if:interface {
     ext:augment-identifier "vpp-interface-augmentation";
 
@@ -125,10 +156,8 @@ module v3po {
     // 1. The link between interface type and this augmentation is unclear
     // 2. Only this augmentation with combination of ifc type is trigger to do something for vpp, what if user only configures base interface stuff ? + We need to get leaves defined by ietf-interfaces when we are processing this augment
 
-    // TODO grouping
     container tap {
       when "../if:type = 'v3po:tap'";
-
       uses tap-interface-base-attributes;
       uses tap-interface-config-attributes;
     }
@@ -154,17 +183,8 @@ module v3po {
     }
     container vhost-user {
       when "../if:type = 'v3po:vhost-user'";
-      leaf socket {
-        type string {
-          length 1..255;
-        }
-      }
-      leaf role {
-        type vhost-user-role;
-        default "server";
-      }
-      description
-        "vhost-user settings";
+      uses vhost-user-interface-base-attributes;
+      description "vhost-user settings";
     }
     container vxlan {
       // FIXME: this should be in an vxlan-specific extension
@@ -280,7 +300,11 @@ module v3po {
 
     container tap {
       when "../if:type = 'v3po:tap'";
-      uses tap-interface-base-attributes;
+      uses tap-interface-base-attributes {
+        refine tap-name {
+            config false;
+        }
+      }
     }
 
     container ethernet {
@@ -300,24 +324,15 @@ module v3po {
     }
     container vhost-user {
       when "../if:type = 'v3po:vhost-user'";
-      leaf socket {
-        type string;
+      uses vhost-user-interface-base-attributes {
+        refine socket {
+            config false;
+        }
+        refine role {
+            config false;
+        }
       }
-      leaf role {
-        type vhost-user-role;
-      }
-      leaf features {
-        type uint64;
-      }
-      leaf virtio-net-hdr-size {
-        type uint32;
-      }
-      leaf num-memory-regions {
-        type uint32;
-      }
-      leaf connect-error {
-        type string;
-      }
+      uses vhost-user-interface-state-attributes;
     }
     container vxlan {
       when "../if:type = 'v3po:vxlan-tunnel'";

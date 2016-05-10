@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.openvpp.jvpp.dto.JVppReply;
 
@@ -95,5 +96,14 @@ public final class V3poUtils {
 
     private static byte parseHexByte(final String aByte) {
         return (byte)Integer.parseInt(aByte, 16);
+    }
+
+   /**
+     * Returns 0 if argument is null or false, 1 otherwise.
+     * @param value Boolean value to be converted
+     * @return byte value equal to 0 or 1
+     */
+    public static byte booleanToByte(@Nullable final Boolean value) {
+        return value != null && value ? (byte) 1 : (byte) 0;
     }
 }

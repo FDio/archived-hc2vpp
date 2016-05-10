@@ -76,6 +76,8 @@ public class TapCustomizer extends FutureJVppCustomizer
                                       @Nonnull final Context ctx) throws ReadFailedException {
         final InterfaceKey key = id.firstKeyOf(Interface.class);
 
+        // TODO add logging
+
         @SuppressWarnings("unchecked")
         Map<Integer, SwInterfaceTapDetails> mappedTaps =
             (Map<Integer, SwInterfaceTapDetails>) ctx.get(DUMPED_TAPS_CONTEXT_KEY);

@@ -134,7 +134,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
             throw new VppApiInvocationException("vxlanAddDelTunnel", reply.context, reply.retval);
         } else {
             LOG.debug("Vxlan tunnel deleted successfully for: {}, vxlan: {}", swIfName, vxlan);
-            // Remove interface to our interface context
+            // Remove interface from our interface context
             interfaceContext.removeName(swIfName);
         }
     }

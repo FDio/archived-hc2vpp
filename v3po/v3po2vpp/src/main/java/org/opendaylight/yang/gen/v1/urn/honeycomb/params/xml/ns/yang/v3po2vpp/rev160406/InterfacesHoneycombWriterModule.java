@@ -14,6 +14,7 @@ import io.fd.honeycomb.v3po.translate.v3po.interfaces.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.L2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.RoutingCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.TapCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.VhostUserCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.VxlanCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv6Customizer;
@@ -30,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
@@ -96,7 +98,10 @@ public class InterfacesHoneycombWriterModule extends org.opendaylight.yang.gen.v
             new RoutingCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
 
         final ChildWriter<Vxlan> vxlanWriter = new CompositeChildWriter<>(Vxlan.class,
-            new VxlanCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
+                new VxlanCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
+
+        final ChildWriter<VhostUser> vhostUserWriter = new CompositeChildWriter<>(VhostUser.class,
+                new VhostUserCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
 
         final ChildWriter<Tap> tapWriter = new CompositeChildWriter<>(Tap.class,
             new TapCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
@@ -105,6 +110,7 @@ public class InterfacesHoneycombWriterModule extends org.opendaylight.yang.gen.v
             new L2Customizer(getVppJvppIfcDependency(), getInterfaceContextDependency(), getBridgeDomainContextDependency()));
 
         final List<ChildWriter<? extends ChildOf<VppInterfaceAugmentation>>> vppIfcChildWriters = Lists.newArrayList();
+        vppIfcChildWriters.add(vhostUserWriter);
         vppIfcChildWriters.add(vxlanWriter);
         vppIfcChildWriters.add(tapWriter);
         vppIfcChildWriters.add(ethernetWriter);
