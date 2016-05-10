@@ -18,6 +18,7 @@ import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.TapCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VhostUserCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VxlanCustomizer;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
@@ -29,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
 public class InterfacesStateHoneycombReaderModule extends
@@ -65,10 +67,15 @@ public class InterfacesStateHoneycombReaderModule extends
             new CompositeChildReader<>(VhostUser.class,
             new VhostUserCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
 
+        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> vxlanReader =
+            new CompositeChildReader<>(Vxlan.class,
+            new VxlanCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
+
         final List<ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>>> childReaders = Lists.newArrayList();
         childReaders.add(ethernetReader);
         childReaders.add(tapReader);
         childReaders.add(vhostUserReader);
+        childReaders.add(vxlanReader);
 
         final ChildReader<VppInterfaceStateAugmentation> vppInterfaceStateAugmentationChildReader =
             new CompositeChildReader<>(VppInterfaceStateAugmentation.class,
