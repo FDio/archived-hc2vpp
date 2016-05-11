@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
+
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
@@ -53,22 +55,19 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
     public static final String DUMPED_VHOST_USERS_CONTEXT_KEY = VhostUserCustomizer.class.getName() + "dumpedVhostUsersDuringGetAllIds";
     private NamingContext interfaceContext;
 
-    public VhostUserCustomizer(@Nonnull final FutureJVpp jvpp,
-                               final NamingContext interfaceContext) {
+    public VhostUserCustomizer(@Nonnull final FutureJVpp jvpp, @Nonnull final NamingContext interfaceContext) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
     }
 
     @Override
-    public void merge(@Nonnull Builder<? extends DataObject> parentBuilder,
-                      @Nonnull VhostUser readValue) {
+    public void merge(@Nonnull Builder<? extends DataObject> parentBuilder, @Nonnull VhostUser readValue) {
         ((VppInterfaceStateAugmentationBuilder) parentBuilder).setVhostUser(readValue);
     }
 
     @Nonnull
     @Override
-    public VhostUserBuilder getBuilder(
-            @Nonnull InstanceIdentifier<VhostUser> id) {
+    public VhostUserBuilder getBuilder(@Nonnull InstanceIdentifier<VhostUser> id) {
         return new VhostUserBuilder();
     }
 
@@ -77,6 +76,14 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
                                       @Nonnull final VhostUserBuilder builder,
                                       @Nonnull final Context ctx) throws ReadFailedException {
         final InterfaceKey key = id.firstKeyOf(Interface.class);
+        // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
+        // to fill in the context with initial ifc mapping
+        final int index = interfaceContext.getIndex(key.getName());
+        if (!isInterfaceOfType(ctx, index, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class)) {
+            return;
+        }
+
+        LOG.debug("Reading attributes for vhpost user interface: {}", key.getName());
 
         @SuppressWarnings("unchecked")
         Map<Integer, SwInterfaceVhostUserDetails> mappedVhostUsers =
@@ -103,12 +110,8 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         }
 
         // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping
-        final int index = interfaceContext.getIndex(key.getName());
         final SwInterfaceVhostUserDetails swInterfaceVhostUserDetails = mappedVhostUsers.get(index);
-        if(swInterfaceVhostUserDetails == null) {
-            // Not a VhostUser interface type
-            return;
-        }
+        LOG.trace("Vhost user interface: {} attributes returned from VPP: {}", key.getName(), swInterfaceVhostUserDetails);
 
         builder.setRole(swInterfaceVhostUserDetails.isServer == 1 ? VhostUserRole.Server : VhostUserRole.Client);
         builder.setFeatures(BigInteger.valueOf(swInterfaceVhostUserDetails.features));
@@ -116,6 +119,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         builder.setSocket(V3poUtils.toString(swInterfaceVhostUserDetails.sockFilename));
         builder.setVirtioNetHdrSize((long) swInterfaceVhostUserDetails.virtioNetHdrSz);
         builder.setConnectError(Integer.toString(swInterfaceVhostUserDetails.sockErrno));
-        // TODO add logging
+
+        LOG.debug("Vhost user interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
 }

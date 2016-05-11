@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.v3po.translate.Context;
@@ -28,6 +30,7 @@ import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
@@ -94,15 +97,17 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
     }
 
     private void createVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
-        final InetAddress srcAddress = InetAddresses.forString(vxlan.getSrc().getValue());
-        final InetAddress dstAddress = InetAddresses.forString(vxlan.getDst().getValue());
+        final byte isIpv6 = (byte) (isIpv6(vxlan) ? 1 : 0);
+        final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
+        final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
+
         int encapVrfId = vxlan.getEncapVrfId().intValue();
         int vni = vxlan.getVni().getValue().intValue();
 
         LOG.debug("Setting vxlan tunnel for interface: {}. Vxlan: {}", swIfName, vxlan);
         final CompletionStage<VxlanAddDelTunnelReply> vxlanAddDelTunnelReplyCompletionStage =
                 getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 1 /* is add */, srcAddress.getAddress(),
-                        dstAddress.getAddress(), encapVrfId, -1, vni, (byte) 0 /* is IPV6 */));
+                        dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
 
         final VxlanAddDelTunnelReply reply =
                 V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
@@ -116,16 +121,36 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
         }
     }
 
+    private boolean isIpv6(final Vxlan vxlan) {
+        if (vxlan.getSrc().getIpv4Address() == null) {
+            checkArgument(vxlan.getDst().getIpv4Address() == null, "Inconsistent ip addresses: %s, %s", vxlan.getSrc(),
+                vxlan.getDst());
+            return true;
+        } else {
+            checkArgument(vxlan.getDst().getIpv6Address() == null, "Inconsistent ip addresses: %s, %s", vxlan.getSrc(),
+                vxlan.getDst());
+            return false;
+        }
+    }
+
+    private String getAddressString(final IpAddress addr) {
+        return addr.getIpv4Address() == null
+                ? addr.getIpv6Address().getValue()
+                : addr.getIpv4Address().getValue();
+    }
+
     private void deleteVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
-        final InetAddress srcAddress = InetAddresses.forString(vxlan.getSrc().getValue());
-        final InetAddress dstAddress = InetAddresses.forString(vxlan.getDst().getValue());
+        final byte isIpv6 = (byte) (isIpv6(vxlan) ? 1 : 0);
+        final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
+        final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
+
         int encapVrfId = vxlan.getEncapVrfId().intValue();
         int vni = vxlan.getVni().getValue().intValue();
 
         LOG.debug("Deleting vxlan tunnel for interface: {}. Vxlan: {}", swIfName, vxlan);
         final CompletionStage<VxlanAddDelTunnelReply> vxlanAddDelTunnelReplyCompletionStage =
                 getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 0 /* is add */, srcAddress.getAddress(),
-                        dstAddress.getAddress(), encapVrfId, -1, vni, (byte) 0 /* is IPV6 */));
+                        dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
 
         final VxlanAddDelTunnelReply reply =
                 V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
@@ -139,8 +164,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
         }
     }
 
-
-    private VxlanAddDelTunnel getVxlanTunnelRequest(final byte isAdd, final byte[] srcAddr, final byte[] dstAddr,
+    private static VxlanAddDelTunnel getVxlanTunnelRequest(final byte isAdd, final byte[] srcAddr, final byte[] dstAddr,
                                                     final int encapVrfId,
                                                     final int decapNextIndex, final int vni, final byte isIpv6) {
         final VxlanAddDelTunnel vxlanAddDelTunnel = new VxlanAddDelTunnel();

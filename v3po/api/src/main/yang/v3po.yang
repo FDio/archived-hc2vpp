@@ -191,15 +191,15 @@ module v3po {
       when "../if:type = 'v3po:vxlan-tunnel'";
 
       leaf src {
-        /* mandatory true; */
-        type inet:ipv4-address;
+        /*mandatory true;*/
+        type inet:ip-address;
       }
       leaf dst {
-        /* mandatory true; */
-        type inet:ipv4-address;
+        /*mandatory true;*/
+        type inet:ip-address;
       }
       leaf vni {
-        /* mandatory true; */
+        /*mandatory true;*/
         type vxlan-vni;
       }
       leaf encap-vrf-id {
@@ -338,11 +338,13 @@ module v3po {
       when "../if:type = 'v3po:vxlan-tunnel'";
 
       leaf src {
-        type inet:ipv4-address;
+        type inet:ip-address;
       }
       leaf dst {
-        type inet:ipv4-address;
+        type inet:ip-address;
       }
+
+
       leaf vni {
         type uint32;
       }

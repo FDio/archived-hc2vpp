@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
+
 import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
@@ -51,22 +53,19 @@ public class TapCustomizer extends FutureJVppCustomizer
     public static final String DUMPED_TAPS_CONTEXT_KEY = TapCustomizer.class.getName() + "dumpedTapsDuringGetAllIds";
     private NamingContext interfaceContext;
 
-    public TapCustomizer(@Nonnull final FutureJVpp jvpp,
-                         final NamingContext interfaceContext) {
+    public TapCustomizer(@Nonnull final FutureJVpp jvpp, @Nonnull final NamingContext interfaceContext) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
     }
 
     @Override
-    public void merge(@Nonnull Builder<? extends DataObject> parentBuilder,
-                      @Nonnull Tap readValue) {
+    public void merge(@Nonnull Builder<? extends DataObject> parentBuilder, @Nonnull Tap readValue) {
         ((VppInterfaceStateAugmentationBuilder) parentBuilder).setTap(readValue);
     }
 
     @Nonnull
     @Override
-    public TapBuilder getBuilder(
-            @Nonnull InstanceIdentifier<Tap> id) {
+    public TapBuilder getBuilder(@Nonnull InstanceIdentifier<Tap> id) {
         return new TapBuilder();
     }
 
@@ -75,8 +74,14 @@ public class TapCustomizer extends FutureJVppCustomizer
                                       @Nonnull final TapBuilder builder,
                                       @Nonnull final Context ctx) throws ReadFailedException {
         final InterfaceKey key = id.firstKeyOf(Interface.class);
+        // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
+        // to fill in the context with initial ifc mapping
+        final int index = interfaceContext.getIndex(key.getName());
+        if (!isInterfaceOfType(ctx, index, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class)) {
+            return;
+        }
 
-        // TODO add logging
+        LOG.debug("Reading attributes for tap interface: {}", key.getName());
 
         @SuppressWarnings("unchecked")
         Map<Integer, SwInterfaceTapDetails> mappedTaps =
@@ -102,14 +107,10 @@ public class TapCustomizer extends FutureJVppCustomizer
             ctx.put(DUMPED_TAPS_CONTEXT_KEY, mappedTaps);
         }
 
-        // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping
-        final int index = interfaceContext.getIndex(key.getName());
         final SwInterfaceTapDetails swInterfaceTapDetails = mappedTaps.get(index);
-        if(swInterfaceTapDetails == null) {
-            // Not a Tap interface type
-            return;
-        }
+        LOG.trace("Tap interface: {} attributes returned from VPP: {}", key.getName(), swInterfaceTapDetails);
 
         builder.setTapName(V3poUtils.toString(swInterfaceTapDetails.devName));
+        LOG.debug("Tap interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
 }
