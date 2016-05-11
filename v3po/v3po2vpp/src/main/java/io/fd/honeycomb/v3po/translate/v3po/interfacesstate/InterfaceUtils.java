@@ -162,14 +162,15 @@ public final class InterfaceUtils {
         CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJvpp.swInterfaceDump(request);
         SwInterfaceDetailsReplyDump ifaces = V3poUtils.getReply(requestFuture.toCompletableFuture());
         if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
-            LOG.warn("VPP returned null instead of interface by key {}", key.getName());
-            LOG.warn("Iterating through all the interfaces to find interface: {}", key.getName());
             request.nameFilterValid = 0;
 
             // Returned cached if available
             if(allInterfaces.containsKey(index)) {
                 return allInterfaces.get(index);
             }
+
+            LOG.warn("VPP returned null instead of interface by key {} and its not cached", key.getName());
+            LOG.warn("Iterating through all the interfaces to find interface: {}", key.getName());
 
             // Or else just perform full dump and do inefficient filtering
             requestFuture = futureJvpp.swInterfaceDump(request);

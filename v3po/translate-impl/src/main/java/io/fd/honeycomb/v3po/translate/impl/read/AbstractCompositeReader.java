@@ -87,11 +87,13 @@ abstract class AbstractCompositeReader<D extends DataObject, B extends Builder<D
                 LOG.trace("{}: Reading current attributes", this);
                 readCurrentAttributes(id, builder, ctx);
                 readChildren(id, ctx, builder);
+                break;
             }
             case POSTORDER: {
                 readChildren(id, ctx, builder);
                 LOG.trace("{}: Reading current attributes", this);
                 readCurrentAttributes(id, builder, ctx);
+                break;
             }
         }
 
