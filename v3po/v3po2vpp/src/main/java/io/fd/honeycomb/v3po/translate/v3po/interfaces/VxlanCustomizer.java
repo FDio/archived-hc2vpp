@@ -91,12 +91,15 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
         try {
             deleteVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataBefore);
         } catch (VppApiInvocationException e) {
-            LOG.warn("Delete of Vxlan failed", e);
+            LOG.warn("Delete of Vxlan tunnel failed", e);
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
     private void createVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
+        // TODO check that the type of interface is vxlan-tunnel (it is expressed in YANG, but not validated on DataTree level)
+        // DO the same for other interface aguments/types
+
         final byte isIpv6 = (byte) (isIpv6(vxlan) ? 1 : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));

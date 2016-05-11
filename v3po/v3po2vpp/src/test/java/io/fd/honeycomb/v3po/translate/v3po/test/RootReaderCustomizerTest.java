@@ -67,7 +67,7 @@ public abstract class RootReaderCustomizerTest<D extends DataObject, B extends B
     /**
      * Optional setup for subclasses. Invoked after customizer is initialized.
      */
-    protected void setUpAfter() {
+    protected void setUpAfter() throws Exception {
 
     }
 

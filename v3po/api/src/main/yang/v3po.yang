@@ -344,7 +344,6 @@ module v3po {
         type inet:ip-address;
       }
 
-
       leaf vni {
         type uint32;
       }
