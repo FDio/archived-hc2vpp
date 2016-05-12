@@ -47,15 +47,37 @@
           </schema-service>
         </module>
 
+        <!-- DataTree adapter with persistence for config DT -->
+        <module>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:persisting-data-tree-adapter</type>
+          <name>inmemory-persisted-config-data-tree</name>
+          <delegate>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>
+            <name>inmemory-config-data-tree</name>
+          </delegate>
+          <schema-service>
+            <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+            <name>yang-schema-service</name>
+          </schema-service>
+          <persist-file-path>etc/opendaylight/honeycomb/config.json</persist-file-path>
+        </module>
+
 
         <!-- HC config data tree -->
         <module>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:honeycomb-config-data-tree</type>
           <name>config-data-tree</name>
+          <!-- Without persistence -->
+          <!--<data-tree>-->
+            <!--<type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>-->
+            <!--<name>inmemory-config-data-tree</name>-->
+          <!--</data-tree>-->
+          <!-- With persistence -->
           <data-tree>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>
-            <name>inmemory-config-data-tree</name>
+            <name>inmemory-persisted-config-data-tree</name>
           </data-tree>
+
           <serializer>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
             <name>runtime-mapping-singleton</name>
@@ -188,10 +210,19 @@
         <module>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:honeycomb-config-data-tree</type>
           <name>cfg-init-config-data-tree</name>
+
+          <!--FIXME do we need/want persistence here ? Do initializers only merge the data ? -->
+          <!-- Without persistence -->
+          <!--<data-tree>-->
+            <!--<type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>-->
+            <!--<name>inmemory-config-data-tree</name>-->
+          <!--</data-tree>-->
+          <!-- With persistence -->
           <data-tree>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>
-            <name>inmemory-config-data-tree</name>
+            <name>inmemory-persisted-config-data-tree</name>
           </data-tree>
+
           <serializer>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
             <name>runtime-mapping-singleton</name>
@@ -308,6 +339,11 @@
           <instance>
             <name>inmemory-config-data-tree</name>
             <provider>/modules/module[type='inmemory-config-data-tree'][name='inmemory-config-data-tree']
+            </provider>
+          </instance>
+          <instance>
+            <name>inmemory-persisted-config-data-tree</name>
+            <provider>/modules/module[type='persisting-data-tree-adapter'][name='inmemory-persisted-config-data-tree']
             </provider>
           </instance>
         </service>

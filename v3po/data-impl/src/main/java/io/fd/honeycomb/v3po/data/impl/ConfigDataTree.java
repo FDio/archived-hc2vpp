@@ -109,7 +109,6 @@ public final class ConfigDataTree implements ModifiableDataTree {
         final Map<InstanceIdentifier<?>, DataObject> nodesAfter = extractNetconfData(normalizedDataAfter);
         LOG.debug("ConfigDataTree.modify() extracted nodesAfter={}", nodesAfter.keySet());
 
-
         final DOMDataReadOnlyTransaction beforeTx = new ReadOnlyTransaction(EMPTY_OPERATIONAL, takeSnapshot());
         final ConfigSnapshot modificationSnapshot = new ConfigSnapshot(modification);
         final DOMDataReadOnlyTransaction afterTx = new ReadOnlyTransaction(EMPTY_OPERATIONAL, modificationSnapshot);

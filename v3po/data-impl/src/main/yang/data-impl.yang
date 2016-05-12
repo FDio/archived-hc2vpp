@@ -44,6 +44,40 @@ module data-impl {
         }
     }
 
+    identity persisting-data-tree-adapter {
+        base config:module-type;
+        config:provided-service data-tree;
+        config:java-name-prefix PersistingDataTreeAdapter;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case persisting-data-tree-adapter {
+            when "/config:modules/config:module/config:type = 'persisting-data-tree-adapter'";
+
+            container delegate {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity data-tree;
+                    }
+                }
+            }
+
+            container schema-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dom:schema-service;
+                    }
+                }
+            }
+
+            leaf persist-file-path {
+                type string;
+            }
+        }
+    }
+
     identity honeycomb-config-data-tree {
         base config:module-type;
         config:provided-service dapi:honeycomb-modifiable-data-tree;
