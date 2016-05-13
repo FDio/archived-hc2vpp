@@ -17,15 +17,15 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.Context;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
@@ -42,7 +42,7 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TapCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Tap> {
+public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TapCustomizer.class);
     private final NamingContext interfaceContext;
@@ -60,8 +60,13 @@ public class TapCustomizer extends FutureJVppCustomizer implements ChildWriterCu
     }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap dataAfter,
-                                       @Nonnull final Context writeContext)
+    protected Class<? extends InterfaceType> getExpectedInterfaceType() {
+        return org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class;
+    }
+
+    @Override
+    protected final void writeInterface(@Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap dataAfter,
+                                       @Nonnull final WriteContext writeContext)
         throws WriteFailedException.CreateFailedException {
         try {
             createTap(id.firstKeyOf(Interface.class).getName(), dataAfter);
@@ -73,7 +78,7 @@ public class TapCustomizer extends FutureJVppCustomizer implements ChildWriterCu
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap dataBefore,
-                                        @Nonnull final Tap dataAfter, @Nonnull final Context writeContext)
+                                        @Nonnull final Tap dataAfter, @Nonnull final WriteContext writeContext)
         throws WriteFailedException.UpdateFailedException {
         final String ifcName = id.firstKeyOf(Interface.class).getName();
 
@@ -94,7 +99,7 @@ public class TapCustomizer extends FutureJVppCustomizer implements ChildWriterCu
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap dataBefore,
-                                        @Nonnull final Context writeContext)
+                                        @Nonnull final WriteContext writeContext)
         throws WriteFailedException.DeleteFailedException {
         final String ifcName = id.firstKeyOf(Interface.class).getName();
 

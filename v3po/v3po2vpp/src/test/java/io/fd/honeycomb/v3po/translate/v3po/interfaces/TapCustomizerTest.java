@@ -24,8 +24,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,12 +53,17 @@ public class TapCustomizerTest {
 
     @Mock
     private FutureJVpp vppApi;
+    @Mock
+    private WriteContext writeContext;
+
     private NamingContext ctx;
     private TapCustomizer tapCustomizer;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        InterfaceTypeTestUtils.setupWriteContext(writeContext,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class);
         ctx = new NamingContext("ifcintest");
         tapCustomizer = new TapCustomizer(vppApi, ctx);
     }
@@ -80,8 +85,8 @@ public class TapCustomizerTest {
             }
         }).when(vppApi).tapConnect(any(TapConnect.class));
 
-        tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), new Context());
-        tapCustomizer.writeCurrentAttributes(getTapId("tap2"), getTapData("tap2", "ff:ff:ff:ff:ff:ff"), new Context());
+        tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
+        tapCustomizer.writeCurrentAttributes(getTapId("tap2"), getTapData("tap2", "ff:ff:ff:ff:ff:ff"), writeContext);
 
         verify(vppApi, times(2)).tapConnect(any(TapConnect.class));
         assertTrue(ctx.containsIndex("tap"));
@@ -103,8 +108,8 @@ public class TapCustomizerTest {
         replyModif.complete(tmodif);
         doReturn(replyModif).when(vppApi).tapModify(any(TapModify.class));
 
-        tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), new Context());
-        tapCustomizer.updateCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), getTapData("tap", "ff:ff:ff:ff:ff:f1"), new Context());
+        tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
+        tapCustomizer.updateCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), getTapData("tap", "ff:ff:ff:ff:ff:f1"), writeContext);
 
         verify(vppApi).tapConnect(any(TapConnect.class));
         verify(vppApi).tapModify(any(TapModify.class));
@@ -126,8 +131,8 @@ public class TapCustomizerTest {
         replyDelete.complete(tmodif);
         doReturn(replyDelete).when(vppApi).tapDelete(any(TapDelete.class));
 
-        tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), new Context());
-        tapCustomizer.deleteCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), new Context());
+        tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
+        tapCustomizer.deleteCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
 
         verify(vppApi).tapConnect(any(TapConnect.class));
         verify(vppApi).tapDelete(any(TapDelete.class));

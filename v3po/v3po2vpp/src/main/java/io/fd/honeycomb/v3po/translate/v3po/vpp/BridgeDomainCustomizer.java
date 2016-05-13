@@ -20,12 +20,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -88,7 +88,7 @@ public class BridgeDomainCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                        @Nonnull final BridgeDomain dataBefore,
-                                       @Nonnull final Context ctx) throws WriteFailedException.CreateFailedException {
+                                       @Nonnull final WriteContext ctx) throws WriteFailedException.CreateFailedException {
         LOG.debug("writeCurrentAttributes: id={}, current={}, ctx={}", id, dataBefore, ctx);
         final String bdName = dataBefore.getName();
 
@@ -116,7 +116,7 @@ public class BridgeDomainCustomizer
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore,
-                                        @Nonnull final Context ctx) throws WriteFailedException.DeleteFailedException {
+                                        @Nonnull final WriteContext ctx) throws WriteFailedException.DeleteFailedException {
         LOG.debug("deleteCurrentAttributes: id={}, dataBefore={}, ctx={}", id, dataBefore, ctx);
 
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
@@ -138,7 +138,7 @@ public class BridgeDomainCustomizer
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore, @Nonnull final BridgeDomain dataAfter,
-                                        @Nonnull final Context ctx) throws WriteFailedException.UpdateFailedException {
+                                        @Nonnull final WriteContext ctx) throws WriteFailedException.UpdateFailedException {
         LOG.debug("updateCurrentAttributes: id={}, dataBefore={}, dataAfter={}, ctx={}", id, dataBefore, dataAfter,
                 ctx);
 

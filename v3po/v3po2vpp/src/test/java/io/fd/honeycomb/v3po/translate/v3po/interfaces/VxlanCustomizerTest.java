@@ -29,9 +29,9 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.net.InetAddresses;
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -62,7 +62,7 @@ public class VxlanCustomizerTest {
     @Mock
     private FutureJVpp api;
     @Mock
-    private Context ctx;
+    private WriteContext writeContext;
 
     private VxlanCustomizer customizer;
     private NamingContext namingContext;
@@ -72,6 +72,8 @@ public class VxlanCustomizerTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        InterfaceTypeTestUtils.setupWriteContext(writeContext,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel.class);
         // TODO create base class for tests using vppApi
         namingContext = new NamingContext("generateInterfaceNAme");
         customizer = new VxlanCustomizer(api, namingContext);
@@ -140,7 +142,7 @@ public class VxlanCustomizerTest {
 
         whenVxlanAddDelTunnelThenSuccess();
 
-        customizer.writeCurrentAttributes(id, vxlan, ctx);
+        customizer.writeCurrentAttributes(id, vxlan, writeContext);
         verifyVxlanAddWasInvoked(vxlan);
         assertTrue(namingContext.containsIndex(ifaceName));
     }
@@ -152,7 +154,7 @@ public class VxlanCustomizerTest {
         whenVxlanAddDelTunnelThenFailure();
 
         try {
-            customizer.writeCurrentAttributes(id, vxlan, ctx);
+            customizer.writeCurrentAttributes(id, vxlan, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyVxlanAddWasInvoked(vxlan);
@@ -165,7 +167,7 @@ public class VxlanCustomizerTest {
     @Test
     public void testUpdateCurrentAttributes() throws Exception {
         try {
-            customizer.updateCurrentAttributes(id, generateVxlan(10), generateVxlan(11), ctx);
+            customizer.updateCurrentAttributes(id, generateVxlan(10), generateVxlan(11), writeContext);
         } catch (WriteFailedException.UpdateFailedException e) {
             assertEquals(UnsupportedOperationException.class, e.getCause().getClass());
             return;
@@ -175,7 +177,7 @@ public class VxlanCustomizerTest {
 
     @Test
     public void testUpdateCurrentAttributesNoUpdate() throws Exception {
-        customizer.updateCurrentAttributes(id, generateVxlan(), generateVxlan(), ctx);
+        customizer.updateCurrentAttributes(id, generateVxlan(), generateVxlan(), writeContext);
         verify(api, never()).vxlanAddDelTunnel(any(VxlanAddDelTunnel.class));
     }
 
@@ -186,7 +188,7 @@ public class VxlanCustomizerTest {
         whenVxlanAddDelTunnelThenSuccess();
         namingContext.addName(1, ifaceName);
 
-        customizer.deleteCurrentAttributes(id, vxlan, ctx);
+        customizer.deleteCurrentAttributes(id, vxlan, writeContext);
         verifyVxlanDeleteWasInvoked(vxlan);
         assertFalse(namingContext.containsIndex(ifaceName));
     }
@@ -199,7 +201,7 @@ public class VxlanCustomizerTest {
         namingContext.addName(1, ifaceName);
 
         try {
-            customizer.deleteCurrentAttributes(id, vxlan, ctx);
+            customizer.deleteCurrentAttributes(id, vxlan, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyVxlanDeleteWasInvoked(vxlan);

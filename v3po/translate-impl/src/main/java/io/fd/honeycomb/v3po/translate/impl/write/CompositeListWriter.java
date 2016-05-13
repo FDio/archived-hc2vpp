@@ -40,14 +40,9 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
     AbstractCompositeWriter<D>
     implements ChildWriter<D> {
 
-    public static final Function<DataObject, Object> INDEX_FUNCTION = new Function<DataObject, Object>() {
-        @Override
-        public Object apply(final DataObject input) {
-            return input instanceof Identifiable<?>
-                ? ((Identifiable<?>) input).getKey()
-                : input;
-        }
-    };
+    public static final Function<DataObject, Object> INDEX_FUNCTION = input -> input instanceof Identifiable<?>
+        ? ((Identifiable<?>) input).getKey()
+        : input;
 
 
     private final ListWriterCustomizer<D, K> customizer;
@@ -83,20 +78,20 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
     @Override
     protected void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D data,
                                           @Nonnull final WriteContext ctx) throws WriteFailedException {
-        customizer.writeCurrentAttributes(id, data, ctx.getContext());
+        customizer.writeCurrentAttributes(id, data, ctx);
     }
 
     @Override
     protected void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
                                            @Nonnull final WriteContext ctx) throws WriteFailedException {
-        customizer.deleteCurrentAttributes(id, dataBefore, ctx.getContext());
+        customizer.deleteCurrentAttributes(id, dataBefore, ctx);
     }
 
     @Override
     protected void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
                                            @Nonnull final D dataAfter, @Nonnull final WriteContext ctx)
         throws WriteFailedException {
-        customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx.getContext());
+        customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
     }
 
     @Override

@@ -16,12 +16,12 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -53,7 +53,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Interface> id,
                                        @Nonnull final Interface dataAfter,
-                                       @Nonnull final Context writeContext)
+                                       @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
 
         try {
@@ -68,7 +68,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Interface> id,
                                         @Nonnull final Interface dataBefore,
                                         @Nonnull final Interface dataAfter,
-                                        @Nonnull final Context writeContext)
+                                        @Nonnull final WriteContext writeContext)
         throws WriteFailedException.UpdateFailedException {
 
         try {
@@ -82,7 +82,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Interface> id,
                                         @Nonnull final Interface dataBefore,
-                                        @Nonnull final Context writeContext) {
+                                        @Nonnull final WriteContext writeContext) {
 
         // TODO Handle deletes
     }

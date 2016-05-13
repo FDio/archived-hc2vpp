@@ -20,12 +20,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -64,7 +64,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
-                                       @Nonnull final Ipv4 dataAfter, @Nonnull final Context writeContext)
+                                       @Nonnull final Ipv4 dataAfter, @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
         try {
             final String ifcName = id.firstKeyOf(Interface.class).getName();
@@ -78,7 +78,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
                                         @Nonnull final Ipv4 dataBefore, @Nonnull final Ipv4 dataAfter,
-                                        @Nonnull final Context writeContext)
+                                        @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
         final String ifcName = id.firstKeyOf(Interface.class).getName();
 
@@ -93,7 +93,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
-                                        @Nonnull final Ipv4 dataBefore, @Nonnull final Context writeContext) {
+                                        @Nonnull final Ipv4 dataBefore, @Nonnull final WriteContext writeContext) {
         // TODO implement delete
     }
 

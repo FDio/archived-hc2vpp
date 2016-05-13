@@ -18,15 +18,15 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.translate.Context;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUserRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Writer Customizer responsible for passing vhost user interface CRD operations to VPP
  */
-public class VhostUserCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<VhostUser> {
+public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUser> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VhostUserCustomizer.class);
     private final NamingContext interfaceContext;
@@ -64,12 +64,17 @@ public class VhostUserCustomizer extends FutureJVppCustomizer implements ChildWr
     }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<VhostUser> id,
-                                       @Nonnull final VhostUser dataAfter, @Nonnull final Context writeContext)
+    protected Class<? extends InterfaceType> getExpectedInterfaceType() {
+        return org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class;
+    }
+
+    @Override
+    protected final void writeInterface(@Nonnull final InstanceIdentifier<VhostUser> id,
+                                       @Nonnull final VhostUser dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.CreateFailedException {
         try {
             createVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataAfter);
-        } catch (VppApiInvocationException e) {
+        } catch (VppApiInvocationException | IllegalInterfaceTypeException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
@@ -105,12 +110,13 @@ public class VhostUserCustomizer extends FutureJVppCustomizer implements ChildWr
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<VhostUser> id,
                                         @Nonnull final VhostUser dataBefore, @Nonnull final VhostUser dataAfter,
-                                        @Nonnull final Context writeContext)
+                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException.UpdateFailedException {
         if (dataBefore.equals(dataAfter)) {
             LOG.debug("dataBefore equals dataAfter, update will not be performed");
             return;
         }
+
         try {
             modifyVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataAfter);
         } catch (VppApiInvocationException e) {
@@ -146,7 +152,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer implements ChildWr
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<VhostUser> id,
-                                        @Nonnull final VhostUser dataBefore, @Nonnull final Context writeContext)
+                                        @Nonnull final VhostUser dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.DeleteFailedException {
         try {
             deleteVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataBefore);

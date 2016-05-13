@@ -20,19 +20,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
-import io.fd.honeycomb.v3po.translate.Context;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -42,7 +43,8 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Vxlan> {
+// TODO extract common code from all Interface type specific writer customizers into a superclass
+public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VxlanCustomizer.class);
     private final NamingContext interfaceContext;
@@ -60,12 +62,17 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
     }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataAfter,
-                                       @Nonnull final Context writeContext)
+    protected Class<? extends InterfaceType> getExpectedInterfaceType() {
+        return VxlanTunnel.class;
+    }
+
+    @Override
+    protected final void writeInterface(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataAfter,
+                                       @Nonnull final WriteContext writeContext)
             throws WriteFailedException.CreateFailedException {
         try {
             createVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataAfter);
-        } catch (VppApiInvocationException e) {
+        } catch (VppApiInvocationException | IllegalInterfaceTypeException e) {
             LOG.warn("Write of Vxlan failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
@@ -73,9 +80,8 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
-                                        @Nonnull final Vxlan dataAfter, @Nonnull final Context writeContext)
+                                        @Nonnull final Vxlan dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.UpdateFailedException {
-
         if (dataBefore.equals(dataAfter)) {
             LOG.debug("dataBefore equals dataAfter, update will not be performed");
             return;
@@ -86,7 +92,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
-                                        @Nonnull final Context writeContext)
+                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException.DeleteFailedException {
         try {
             deleteVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataBefore);
@@ -97,9 +103,6 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
     }
 
     private void createVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
-        // TODO check that the type of interface is vxlan-tunnel (it is expressed in YANG, but not validated on DataTree level)
-        // DO the same for other interface aguments/types
-
         final byte isIpv6 = (byte) (isIpv6(vxlan) ? 1 : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
@@ -137,9 +140,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer implements ChildWriter
     }
 
     private String getAddressString(final IpAddress addr) {
-        return addr.getIpv4Address() == null
-                ? addr.getIpv6Address().getValue()
-                : addr.getIpv4Address().getValue();
+        return addr.getIpv4Address() == null ? addr.getIpv6Address().getValue() : addr.getIpv4Address().getValue();
     }
 
     private void deleteVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {

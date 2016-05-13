@@ -29,10 +29,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -62,7 +62,7 @@ public class VhostUserCustomizerTest {
     @Mock
     private FutureJVpp api;
     @Mock
-    private Context ctx;
+    private WriteContext writeContext;
 
     private NamingContext namingContext;
     private VhostUserCustomizer customizer;
@@ -75,6 +75,8 @@ public class VhostUserCustomizerTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        InterfaceTypeTestUtils.setupWriteContext(writeContext,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class);
         namingContext = new NamingContext("generatedInterfaceName");
         // TODO create base class for tests using vppApi
         customizer = new VhostUserCustomizer(api, namingContext);
@@ -182,7 +184,7 @@ public class VhostUserCustomizerTest {
 
         whenCreateVhostUserIfThenSuccess();
 
-        customizer.writeCurrentAttributes(ID, vhostUser, ctx);
+        customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
         verifyCreateVhostUserIfWasInvoked(vhostUser);
         assertTrue(namingContext.containsIndex(IFACE_NAME));
     }
@@ -194,7 +196,7 @@ public class VhostUserCustomizerTest {
         whenVxlanAddDelTunnelThenFailure();
 
         try {
-            customizer.writeCurrentAttributes(ID, vhostUser, ctx);
+            customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyCreateVhostUserIfWasInvoked(vhostUser);
@@ -212,7 +214,7 @@ public class VhostUserCustomizerTest {
 
         whenModifyVhostUserIfThenSuccess();
 
-        customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, ctx);
+        customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, writeContext);
         verifyModifyVhostUserIfWasInvoked(vhostUserAfter, IFACE_ID);
     }
 
@@ -220,7 +222,7 @@ public class VhostUserCustomizerTest {
     public void testUpdateCurrentAttributesNoUpdate() throws Exception {
         final VhostUser vhostUserBefore = generateVhostUser(VhostUserRole.Server, "socketName");
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName");
-        customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, ctx);
+        customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, writeContext);
         verify(api, never()).modifyVhostUserIf(any(ModifyVhostUserIf.class));
     }
 
@@ -233,7 +235,7 @@ public class VhostUserCustomizerTest {
         whenModifyVhostUserIfThenFailure();
 
         try {
-            customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, ctx);
+            customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, writeContext);
         } catch (WriteFailedException.UpdateFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyModifyVhostUserIfWasInvoked(vhostUserAfter, IFACE_ID);
@@ -249,7 +251,7 @@ public class VhostUserCustomizerTest {
 
         whenDeleteVhostUserIfThenSuccess();
 
-        customizer.deleteCurrentAttributes(ID, vhostUser, ctx);
+        customizer.deleteCurrentAttributes(ID, vhostUser, writeContext);
         verifyDeleteVhostUserIfWasInvoked(IFACE_ID);
         assertFalse(namingContext.containsIndex(IFACE_NAME));
     }
@@ -262,7 +264,7 @@ public class VhostUserCustomizerTest {
         whenDeleteVhostUserIfThenFailure();
 
         try {
-            customizer.deleteCurrentAttributes(ID, vhostUser, ctx);
+            customizer.deleteCurrentAttributes(ID, vhostUser, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyDeleteVhostUserIfWasInvoked(IFACE_ID);

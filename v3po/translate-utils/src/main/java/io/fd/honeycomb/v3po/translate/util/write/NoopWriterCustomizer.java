@@ -17,7 +17,7 @@
 package io.fd.honeycomb.v3po.translate.util.write;
 
 import io.fd.honeycomb.v3po.translate.spi.write.RootWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -30,20 +30,20 @@ public class NoopWriterCustomizer<D extends DataObject> implements RootWriterCus
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataAfter,
-                                       @Nonnull final Context ctx) {
+                                       @Nonnull final WriteContext ctx) {
 
     }
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
                                         @Nonnull final D dataAfter,
-                                        @Nonnull final Context ctx) {
+                                        @Nonnull final WriteContext ctx) {
 
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
-                                        @Nonnull final Context ctx) {
+                                        @Nonnull final WriteContext ctx) {
 
     }
 }

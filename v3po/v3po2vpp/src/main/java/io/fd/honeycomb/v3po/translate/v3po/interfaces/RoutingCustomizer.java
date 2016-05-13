@@ -17,12 +17,12 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -56,7 +56,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> id,
-                                       @Nonnull final Routing dataAfter, @Nonnull final Context writeContext)
+                                       @Nonnull final Routing dataAfter, @Nonnull final WriteContext writeContext)
         throws WriteFailedException.CreateFailedException {
 
         try {
@@ -70,7 +70,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> id,
                                         @Nonnull final Routing dataBefore, @Nonnull final Routing dataAfter,
-                                        @Nonnull final Context writeContext)
+                                        @Nonnull final WriteContext writeContext)
         throws WriteFailedException.UpdateFailedException {
 
         try {
@@ -84,7 +84,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> id,
-                                        @Nonnull final Routing dataBefore, @Nonnull final Context writeContext) {
+                                        @Nonnull final Routing dataBefore, @Nonnull final WriteContext writeContext) {
         // TODO implement delete
     }
 

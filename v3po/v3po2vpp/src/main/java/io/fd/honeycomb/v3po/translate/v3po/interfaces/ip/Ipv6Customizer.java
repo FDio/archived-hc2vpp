@@ -17,9 +17,9 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfaces.ip;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
@@ -46,7 +46,7 @@ public class Ipv6Customizer extends FutureJVppCustomizer implements ChildWriterC
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv6> id,
-                                       @Nonnull final Ipv6 dataAfter, @Nonnull final Context writeContext) {
+                                       @Nonnull final Ipv6 dataAfter, @Nonnull final WriteContext writeContext) {
         // TODO
         LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
     }
@@ -54,13 +54,13 @@ public class Ipv6Customizer extends FutureJVppCustomizer implements ChildWriterC
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv6> id,
                                         @Nonnull final Ipv6 dataBefore, @Nonnull final Ipv6 dataAfter,
-                                        @Nonnull final Context writeContext) {
+                                        @Nonnull final WriteContext writeContext) {
         LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv6> id,
-                                        @Nonnull final Ipv6 dataBefore, @Nonnull final Context writeContext) {
+                                        @Nonnull final Ipv6 dataBefore, @Nonnull final WriteContext writeContext) {
         LOG.warn("Unsupported, ignoring configuration delete {}", id);
         // TODO
     }

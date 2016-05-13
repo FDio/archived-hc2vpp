@@ -17,7 +17,7 @@
 package io.fd.honeycomb.v3po.translate.spi.write;
 
 import com.google.common.annotations.Beta;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -42,7 +42,7 @@ public interface RootWriterCustomizer<D extends DataObject> {
      */
     void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                 @Nonnull final D dataAfter,
-                                @Nonnull final Context writeContext) throws WriteFailedException;
+                                @Nonnull final WriteContext writeContext) throws WriteFailedException;
 
     /**
      * Handle update operation. U from CRUD.
@@ -57,7 +57,7 @@ public interface RootWriterCustomizer<D extends DataObject> {
     void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                  @Nonnull final D dataBefore,
                                  @Nonnull final D dataAfter,
-                                 @Nonnull final Context writeContext) throws WriteFailedException;
+                                 @Nonnull final WriteContext writeContext) throws WriteFailedException;
 
     /**
      * Handle delete operation. D from CRUD.
@@ -70,5 +70,5 @@ public interface RootWriterCustomizer<D extends DataObject> {
      */
     void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                  @Nonnull final D dataBefore,
-                                 @Nonnull final Context writeContext) throws WriteFailedException;
+                                 @Nonnull final WriteContext writeContext) throws WriteFailedException;
 }

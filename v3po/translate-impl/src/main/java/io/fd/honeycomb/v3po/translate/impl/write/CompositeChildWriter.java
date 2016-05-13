@@ -66,20 +66,20 @@ public class CompositeChildWriter<D extends DataObject> extends AbstractComposit
     @Override
     protected void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D data,
                                           @Nonnull final WriteContext ctx) throws WriteFailedException {
-        customizer.writeCurrentAttributes(id, data, ctx.getContext());
+        customizer.writeCurrentAttributes(id, data, ctx);
     }
 
     @Override
     protected void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
                                            @Nonnull WriteContext ctx) throws WriteFailedException {
-        customizer.deleteCurrentAttributes(id, dataBefore, ctx.getContext());
+        customizer.deleteCurrentAttributes(id, dataBefore, ctx);
     }
 
     @Override
     protected void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataBefore,
                                            @Nonnull final D dataAfter, @Nonnull WriteContext ctx)
         throws WriteFailedException {
-        customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx.getContext());
+        customizer.updateCurrentAttributes(id, dataBefore, dataAfter, ctx);
     }
 
     @Override

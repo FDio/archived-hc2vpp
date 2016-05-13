@@ -24,9 +24,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.v3po.translate.Context;
-import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -49,7 +49,7 @@ public class BridgeDomainCustomizerTest {
     private FutureJVpp api;
 
     @Mock
-    private Context ctx;
+    private WriteContext ctx;
 
     private BridgeDomainCustomizer customizer;
     private NamingContext namingContext;
