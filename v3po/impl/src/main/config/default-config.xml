@@ -39,12 +39,13 @@
 
         <!-- In-memory data tree for HC config data tree -->
         <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:inmemory-config-data-tree</type>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:inmemory-data-tree</type>
           <name>inmemory-config-data-tree</name>
           <schema-service>
             <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
             <name>yang-schema-service</name>
           </schema-service>
+          <type xmlns="urn:honeycomb:params:xml:ns:yang:data:impl">config</type>
         </module>
 
         <!-- DataTree adapter with persistence for config DT -->
@@ -338,7 +339,7 @@
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>
           <instance>
             <name>inmemory-config-data-tree</name>
-            <provider>/modules/module[type='inmemory-config-data-tree'][name='inmemory-config-data-tree']
+            <provider>/modules/module[type='inmemory-data-tree'][name='inmemory-config-data-tree']
             </provider>
           </instance>
           <instance>
