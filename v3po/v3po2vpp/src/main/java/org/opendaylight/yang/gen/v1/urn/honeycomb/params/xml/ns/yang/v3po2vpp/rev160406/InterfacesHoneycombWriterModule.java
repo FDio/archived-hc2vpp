@@ -13,13 +13,16 @@ import io.fd.honeycomb.v3po.translate.v3po.interfaces.EthernetCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.L2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.RoutingCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.TapCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.VhostUserCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.VlanTagRewriteCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.VxlanCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv6Customizer;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -30,9 +33,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.l2.VlanTagRewrite;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
@@ -104,16 +109,27 @@ public class InterfacesHoneycombWriterModule extends org.opendaylight.yang.gen.v
                 new VhostUserCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
 
         final ChildWriter<Tap> tapWriter = new CompositeChildWriter<>(Tap.class,
-            new TapCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
+                new TapCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
 
+        final ChildWriter<SubInterface> subIfWriter = new CompositeChildWriter<>(SubInterface.class,
+                new SubInterfaceCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
+
+        final ChildWriter<VlanTagRewrite> vlanTagWriter = new CompositeChildWriter<>(VlanTagRewrite.class,
+                new VlanTagRewriteCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
+
+        final List<ChildWriter<? extends ChildOf<L2>>> l2ChildWriters = Collections.singletonList(vlanTagWriter);
         final ChildWriter<L2> l2Writer = new CompositeChildWriter<>(L2.class,
-            new L2Customizer(getVppJvppIfcDependency(), getInterfaceContextDependency(), getBridgeDomainContextDependency()));
+                l2ChildWriters,
+                RWUtils.emptyAugWriterList(),
+                new L2Customizer(getVppJvppIfcDependency(), getInterfaceContextDependency(), getBridgeDomainContextDependency())
+                );
 
         final List<ChildWriter<? extends ChildOf<VppInterfaceAugmentation>>> vppIfcChildWriters = Lists.newArrayList();
         vppIfcChildWriters.add(vhostUserWriter);
         vppIfcChildWriters.add(vxlanWriter);
         vppIfcChildWriters.add(tapWriter);
         vppIfcChildWriters.add(ethernetWriter);
+        vppIfcChildWriters.add(subIfWriter);
         vppIfcChildWriters.add(l2Writer);
         vppIfcChildWriters.add(routingWriter);
 
