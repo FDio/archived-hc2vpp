@@ -1,14 +1,9 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.vpp.jvpp.cfg.rev160406;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import org.openvpp.jvpp.JVppImpl;
 import org.openvpp.jvpp.VppJNIConnection;
-import org.openvpp.jvpp.dto.JVppReply;
 import org.openvpp.jvpp.future.FutureJVppFacade;
-import org.openvpp.jvpp.future.FutureJVppFacadeCallback;
 
 public class VppJvppImplModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.vpp.jvpp.cfg.rev160406.AbstractVppJvppImplModule {
     public VppJvppImplModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -27,10 +22,9 @@ public class VppJvppImplModule extends org.opendaylight.yang.gen.v1.urn.honeycom
     @Override
     public java.lang.AutoCloseable createInstance() {
         try {
-            final Map<Integer, CompletableFuture<? extends JVppReply<?>>> map = new HashMap<>();
             final JVppImpl jVpp =
-                new JVppImpl(VppJNIConnection.create(getName(), new FutureJVppFacadeCallback(map)));
-            return new FutureJVppFacade(jVpp, map) {
+                new JVppImpl(new VppJNIConnection(getName()));
+            return new FutureJVppFacade(jVpp) {
                 @Override
                 public void close() throws Exception {
                     super.close();
