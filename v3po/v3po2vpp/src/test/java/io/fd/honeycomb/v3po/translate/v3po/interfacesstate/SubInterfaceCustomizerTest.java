@@ -89,7 +89,6 @@ public class SubInterfaceCustomizerTest extends ChildReaderCustomizerTest<SubInt
         getCustomizer().readCurrentAttributes(getSubInterfaceId(ifName), builder, ctx);
 
         verify(builder).setIdentifier((long)ifId);
-        verify(builder).setSuperInterface(interfacesContext.getArtificialName(0));
         verify(builder).setNumberOfTags((short)0);
         verify(builder).setVlanType(VlanType._802dot1ad);
         verify(builder, never()).setExactMatch(any());

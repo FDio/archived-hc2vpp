@@ -43,6 +43,11 @@
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-interfaces</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb.v3po</groupId>
+            <artifactId>data-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Testing Dependencies -->
         <dependency>

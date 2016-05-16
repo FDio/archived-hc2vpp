@@ -18,14 +18,9 @@ module data-impl {
             "Initial revision.";
     }
 
-    identity data-tree {
-        base "config:service-type";
-        config:java-class org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
-    }
-
     identity inmemory-data-tree {
         base config:module-type;
-        config:provided-service data-tree;
+        config:provided-service dapi:data-tree;
         config:java-name-prefix InMemoryDataTree;
     }
 
@@ -57,7 +52,7 @@ module data-impl {
 
     identity persisting-data-tree-adapter {
         base config:module-type;
-        config:provided-service data-tree;
+        config:provided-service dapi:data-tree;
         config:java-name-prefix PersistingDataTreeAdapter;
     }
 
@@ -69,7 +64,7 @@ module data-impl {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity data-tree;
+                        config:required-identity dapi:data-tree;
                     }
                 }
             }
@@ -103,7 +98,7 @@ module data-impl {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity data-tree;
+                        config:required-identity dapi:data-tree;
                     }
                 }
             }

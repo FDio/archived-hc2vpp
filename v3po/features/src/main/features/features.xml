@@ -47,6 +47,7 @@
     <bundle>mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-cfg-init/${project.version}</bundle>
     <configfile finalname="${configfile.directory}/vpp-jvpp.xml">mvn:io.fd.honeycomb.v3po/vpp-jvpp-cfg/${project.version}/xml/config</configfile>
+    <configfile finalname="${configfile.directory}/v3po-context.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/context</configfile>
     <configfile finalname="${configfile.directory}/v3po.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po-netconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/netconf</configfile>
     <configfile finalname="${configfile.directory}/v3po-restconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/restconf</configfile>

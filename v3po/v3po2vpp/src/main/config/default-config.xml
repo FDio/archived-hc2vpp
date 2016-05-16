@@ -21,6 +21,7 @@
     <required-capabilities>
         <capability>urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg?module=vpp-jvpp-cfg&amp;revision=2016-04-06</capability>
         <capability>urn:honeycomb:params:xml:ns:yang:v3po2vpp?module=v3po2vpp&amp;revision=2016-04-06</capability>
+        <capability>urn:honeycomb:params:xml:ns:yang:data:api?module=data-api&amp;revision=2016-04-11</capability>
         <capability>urn:honeycomb:params:xml:ns:yang:vpp:util?module=vpp-util&amp;revision=2016-04-06</capability>
     </required-capabilities>
     <configuration>
@@ -31,11 +32,19 @@
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context-impl</type>
                     <name>interface-context</name>
                     <artificial-name-prefix>interface-</artificial-name-prefix>
+                    <context-data-tree>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
+                        <name>inmemory-persisted-context-data-tree</name>
+                    </context-data-tree>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context-impl</type>
                     <name>bridge-domain-context</name>
                     <artificial-name-prefix>bridge-domain-</artificial-name-prefix>
+                    <context-data-tree>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
+                        <name>inmemory-persisted-context-data-tree</name>
+                    </context-data-tree>
                 </module>
 
                 <module>

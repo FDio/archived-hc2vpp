@@ -111,6 +111,11 @@
                   <classifier>netconf</classifier>
                 </artifact>
                 <artifact>
+                  <file>src/main/config/context-datatree-config.xml</file>
+                  <type>xml</type>
+                  <classifier>context</classifier>
+                </artifact>
+                <artifact>
                   <file>src/main/config/restconf-north-config.xml</file>
                   <type>xml</type>
                   <classifier>restconf</classifier>

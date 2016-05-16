@@ -4,6 +4,7 @@ module vpp-util {
     prefix "vpp-u";
 
     import config { prefix config; revision-date 2013-04-05; }
+    import data-api { prefix dapi; revision-date 2016-04-11; }
 
     description
         "This module contains utilities for vpp readers/writers";
@@ -31,6 +32,14 @@ module vpp-util {
                 type string;
             }
 
+            container context-data-tree {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dapi:data-tree;
+                    }
+                }
+            }
         }
     }
 

@@ -20,6 +20,7 @@
       <capability>urn:honeycomb:params:xml:ns:yang:translate:utils?module=translate-utils&amp;revision=2016-04-06</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg?module=vpp-jvpp-cfg&amp;revision=2016-04-06</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:vpp:data:init?module=vpp-cfg-init&amp;revision=2016-04-07</capability>
+      <capability>urn:honeycomb:params:xml:ns:yang:data:api?module=data-api&amp;revision=2016-04-11</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:impl?module=data-impl&amp;revision=2016-04-11</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
   </required-capabilities>
@@ -53,7 +54,7 @@
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:persisting-data-tree-adapter</type>
           <name>inmemory-persisted-config-data-tree</name>
           <delegate>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
             <name>inmemory-config-data-tree</name>
           </delegate>
           <schema-service>
@@ -75,7 +76,7 @@
           <!--</data-tree>-->
           <!-- With persistence -->
           <data-tree>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
             <name>inmemory-persisted-config-data-tree</name>
           </data-tree>
 
@@ -220,7 +221,7 @@
           <!--</data-tree>-->
           <!-- With persistence -->
           <data-tree>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
             <name>inmemory-persisted-config-data-tree</name>
           </data-tree>
 
@@ -336,7 +337,7 @@
         </service>
 
         <service>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
           <instance>
             <name>inmemory-config-data-tree</name>
             <provider>/modules/module[type='inmemory-data-tree'][name='inmemory-config-data-tree']

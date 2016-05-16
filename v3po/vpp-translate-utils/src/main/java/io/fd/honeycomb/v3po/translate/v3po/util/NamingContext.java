@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Naming context keeping a mapping between int index and string name.
  * Provides artificial names to unknown indices.
  */
-public final class NamingContext implements AutoCloseable {
+public class NamingContext implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NamingContext.class);
 
@@ -49,17 +49,14 @@ public final class NamingContext implements AutoCloseable {
         return nameMapping.inverse().get(index);
     }
 
-    @Nonnull
     public synchronized boolean containsName(final int index) {
         return nameMapping.inverse().containsKey(index);
     }
 
-    @Nonnull
     public synchronized void addName(final int index, final String name) {
         nameMapping.put(name, index);
     }
 
-    @Nonnull
     public synchronized int removeName(final String name) {
         return nameMapping.remove(name);
     }
@@ -71,19 +68,17 @@ public final class NamingContext implements AutoCloseable {
      * @return integer index value matching supplied name
      * @throws IllegalArgumentException if name was not found
      */
-    @Nonnull
     public synchronized int getIndex(String name) {
         checkArgument(nameMapping.containsKey(name), "Name %s not found. Known names: %s",
                 name, nameMapping);
         return nameMapping.get(name);
     }
 
-    @Nonnull
     public synchronized boolean containsIndex(String interfaceName) {
         return nameMapping.containsKey(interfaceName);
     }
 
-    public String getArtificialName(final int index) {
+    private String getArtificialName(final int index) {
         return artificialNamePrefix + index;
     }
 
