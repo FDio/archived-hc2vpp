@@ -23,6 +23,7 @@ import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -72,11 +73,9 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         LOG.debug("Reading attributes for interface: {}", id);
         final InterfaceKey key = id.firstKeyOf(id.getTargetType());
 
-        final Map<Integer, SwInterfaceDetails> cachedDump = getCachedInterfaceDump(ctx);
-
         // Pass cached details from getAllIds to getDetails to avoid additional dumps
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
-            interfaceContext.getIndex(key.getName()), cachedDump);
+            interfaceContext.getIndex(key.getName()), ctx);
         LOG.debug("Interface details for interface: {}, details: {}", key.getName(), iface);
 
         builder.setName(key.getName());
@@ -97,7 +96,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     @SuppressWarnings("unchecked")
     public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(final @Nonnull Context ctx) {
         return ctx.get(DUMPED_IFCS_CONTEXT_KEY) == null
-            ? Collections.emptyMap()
+            ? new HashMap<>() // allow customizers to update the cache
             : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
     }
 
