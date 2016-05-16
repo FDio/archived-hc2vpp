@@ -42,6 +42,33 @@ module v3po {
       "This type is used by to reference a bridged virtual interface";
   }
 
+  typedef vlan-type {
+    type enumeration {
+      enum 802dot1q;
+      enum 802dot1ad;
+    }
+  }
+
+  typedef tag-rewrite-operation {
+    type enumeration {
+      enum disabled;
+      enum push-1;
+      enum push-2;
+      enum pop-1;
+      enum pop-2;
+      enum translate-1-to-1;
+      enum translate-1-to-2;
+      enum translate-2-to-1;
+      enum translate-2-to-2;
+    }
+  }
+
+  typedef vlan-tag {
+    type uint16 {
+      range "1..4094";
+    }
+  }
+
   identity vxlan-tunnel {
     base if:interface-type;
   }
@@ -51,6 +78,10 @@ module v3po {
   }
 
   identity tap {
+    base if:interface-type;
+  }
+
+  identity sub-interface {
     base if:interface-type;
   }
 
@@ -95,6 +126,40 @@ module v3po {
     leaf arp-termination {
       type boolean;
       default false;
+    }
+  }
+
+  grouping sub-interface-base-attributes {
+    leaf identifier {
+      type uint32;
+    }
+    leaf vlan-type {
+      type vlan-type;
+      default '802dot1q';
+    }
+    leaf number-of-tags {
+      type uint8 {
+        range "0..2";
+      }
+      default 1;
+    }
+    leaf outer-id {
+      type vlan-tag;
+    }
+    leaf inner-id {
+      type vlan-tag;
+    }
+    leaf match-any-outer-id {
+      type empty;
+    }
+    leaf match-any-inner-id {
+      type empty;
+    }
+    leaf exact-match {
+      type empty;
+    }
+    leaf default-subif {
+      type empty;
     }
   }
 
@@ -149,12 +214,37 @@ module v3po {
       }
   }
 
+  grouping vlan-tag-rewrite-attributes {
+    leaf rewrite-operation {
+      type tag-rewrite-operation;
+      default 'disabled';
+    }
+    leaf first-pushed {
+      type vlan-type;
+      default '802dot1q';
+    }
+    leaf tag1 {
+      type vlan-tag;
+    }
+    leaf tag2 {
+      type vlan-tag;
+    }
+  }
+
   augment /if:interfaces/if:interface {
     ext:augment-identifier "vpp-interface-augmentation";
 
     // FIXME using ietf-interfaces model for vpp interfaces makes it hard to implement because:
     // 1. The link between interface type and this augmentation is unclear
     // 2. Only this augmentation with combination of ifc type is trigger to do something for vpp, what if user only configures base interface stuff ? + We need to get leaves defined by ietf-interfaces when we are processing this augment
+
+    container sub-interface {
+      when "../if:type = 'v3po:sub-interface'";
+      leaf super-interface {
+        type if:interface-ref;
+      }
+      uses sub-interface-base-attributes;
+    }
 
     container tap {
       when "../if:type = 'v3po:tap'";
@@ -251,6 +341,9 @@ module v3po {
           }
         }
       }
+      container vlan-tag-rewrite {
+        uses vlan-tag-rewrite-attributes;
+      }
     }
   }
 
@@ -296,6 +389,14 @@ module v3po {
 
     leaf description {
       type string;
+    }
+
+    container sub-interface {
+      when "../if:type = 'v3po:sub-interface'";
+      leaf super-interface {
+        type if:interface-state-ref;
+      }
+      uses sub-interface-base-attributes;
     }
 
     container tap {
@@ -369,6 +470,9 @@ module v3po {
             type boolean;
           }
         }
+      }
+      container vlan-tag-rewrite {
+        uses vlan-tag-rewrite-attributes;
       }
     }
   }
