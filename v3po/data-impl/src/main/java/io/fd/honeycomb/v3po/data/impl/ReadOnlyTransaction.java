@@ -16,14 +16,16 @@
 
 package io.fd.honeycomb.v3po.data.impl;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
-import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ReadableDataManager;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,17 +39,27 @@ import org.slf4j.LoggerFactory;
 final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReadOnlyTransaction.class);
-    private volatile ReadableDataTree operationalData;
-    private volatile DataTreeSnapshot configSnapshot;
 
-    ReadOnlyTransaction(@Nonnull final ReadableDataTree operationalData,
-                        @Nonnull final DataTreeSnapshot configSnapshot) {
-        this.operationalData = Preconditions.checkNotNull(operationalData, "operationalData should not be null");
-        this.configSnapshot = Preconditions.checkNotNull(configSnapshot, "config should not be null");
+    @Nullable
+    private volatile ReadableDataManager operationalData;
+    @Nullable
+    private volatile ReadableDataManager configSnapshot;
+
+    private volatile boolean closed = false;
+
+    /**
+     * @param configData config data tree manager. Null if config reads are not to be supported
+     * @param operationalData operational data tree manager. Null if operational reads are not to be supported
+     */
+    private ReadOnlyTransaction(@Nullable final ReadableDataManager configData,
+                                @Nullable final ReadableDataManager operationalData) {
+        this.configSnapshot = configData;
+        this.operationalData = operationalData;
     }
 
     @Override
     public void close() {
+        closed = true;
         configSnapshot = null;
         operationalData = null;
     }
@@ -57,12 +69,13 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
             final LogicalDatastoreType store,
             final YangInstanceIdentifier path) {
         LOG.debug("ReadOnlyTransaction.read(), store={}, path={}", store, path);
-
-        Preconditions.checkState(configSnapshot != null, "Transaction was closed");
+        checkState(!closed, "Transaction has been closed");
 
         if (store == LogicalDatastoreType.OPERATIONAL) {
+            checkArgument(operationalData != null, "{} reads not supported", store);
             return operationalData.read(path);
         } else {
+            checkArgument(configSnapshot != null, "{} reads not supported", store);
             return configSnapshot.read(path);
         }
     }
@@ -73,7 +86,6 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
         LOG.debug("ReadOnlyTransaction.exists() store={}, path={}", store, path);
 
         ListenableFuture<Boolean> listenableFuture = Futures.transform(read(store, path), IS_NODE_PRESENT);
-
         return Futures.makeChecked(listenableFuture, ANY_EX_TO_READ_FAILED_EXCEPTION_MAPPER);
     }
 
@@ -83,23 +95,25 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
         return this;
     }
 
+    @Nonnull
+    static ReadOnlyTransaction createOperationalOnly(@Nonnull final ReadableDataManager operationalData) {
+        return new ReadOnlyTransaction(null, requireNonNull(operationalData));
+    }
+
+    @Nonnull
+    static ReadOnlyTransaction createConfigOnly(@Nonnull final ReadableDataManager configData) {
+        return new ReadOnlyTransaction(requireNonNull(configData), null);
+    }
+
+    @Nonnull
+    static ReadOnlyTransaction create(@Nonnull final ReadableDataManager configData,
+                                      @Nonnull final ReadableDataManager operationalData) {
+        return new ReadOnlyTransaction(requireNonNull(configData), requireNonNull(operationalData));
+    }
 
     private static final Function<? super Optional<NormalizedNode<?, ?>>, ? extends Boolean> IS_NODE_PRESENT =
-            new Function<Optional<NormalizedNode<?, ?>>, Boolean>() {
-                @Nullable
-                @Override
-                public Boolean apply(@Nullable final Optional<NormalizedNode<?, ?>> input) {
-                    return input == null
-                            ? Boolean.FALSE
-                            : input.isPresent();
-                }
-            };
+        (Function<Optional<NormalizedNode<?, ?>>, Boolean>) input -> input == null ? Boolean.FALSE : input.isPresent();
 
     private static final Function<? super Exception, ReadFailedException> ANY_EX_TO_READ_FAILED_EXCEPTION_MAPPER =
-            new Function<Exception, ReadFailedException>() {
-                @Override
-                public ReadFailedException apply(@Nullable final Exception e) {
-                    return new ReadFailedException("Exists failed", e);
-                }
-            };
+        (Function<Exception, ReadFailedException>) e -> new ReadFailedException("Exists failed", e);
 }

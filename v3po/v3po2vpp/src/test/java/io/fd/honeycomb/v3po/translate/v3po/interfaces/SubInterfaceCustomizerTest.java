@@ -16,15 +16,18 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
@@ -54,6 +57,8 @@ public class SubInterfaceCustomizerTest {
     private FutureJVpp api;
     @Mock
     private WriteContext writeContext;
+    @Mock
+    private MappingContext mappingContext;
 
     private NamingContext namingContext;
     private SubInterfaceCustomizer customizer;
@@ -65,10 +70,11 @@ public class SubInterfaceCustomizerTest {
         initMocks(this);
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.SubInterface.class);
-        namingContext = new NamingContext("generatedSubInterfaceName");
+        namingContext = new NamingContext("generatedSubInterfaceName", "test-instance");
+        doReturn(mappingContext).when(writeContext).getMappingContext();
         // TODO create base class for tests using vppApi
         customizer = new SubInterfaceCustomizer(api, namingContext);
-        namingContext.addName(SUPER_IF_ID, SUPER_IF_NAME);
+        doReturn(getMapping(SUPER_IF_NAME, SUPER_IF_ID)).when(mappingContext).read(getMappingIid(SUPER_IF_NAME, "test-instance"));
     }
 
     private SubInterface generateSubInterface(final String superIfName) {
@@ -145,7 +151,7 @@ public class SubInterfaceCustomizerTest {
         customizer.writeCurrentAttributes(id, subInterface, writeContext);
 
         verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID));
-        assertTrue(namingContext.containsIndex(subIfaceName));
+        verify(mappingContext).put(eq(getMappingIid(subIfaceName, "test-instance")), eq(getMapping(subIfaceName, 0).get()));
     }
 
     @Test
@@ -161,7 +167,9 @@ public class SubInterfaceCustomizerTest {
         } catch (WriteFailedException.CreateFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID));
-            assertFalse(namingContext.containsIndex(subIfaceName));
+            verify(mappingContext, times(0)).put(
+                eq(getMappingIid(subIfaceName, "test-instance")),
+                eq(getMapping(subIfaceName, 0).get()));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");

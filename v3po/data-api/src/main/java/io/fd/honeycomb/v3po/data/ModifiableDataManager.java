@@ -17,28 +17,17 @@
 package io.fd.honeycomb.v3po.data;
 
 import com.google.common.annotations.Beta;
-import io.fd.honeycomb.v3po.translate.TranslationException;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 
 /**
  * Facade over data tree that allows tree modification.
  */
 @Beta
-public interface ModifiableDataTree {
-    /**
-     * Alters data tree using supplied modification.
-     *
-     * @param modification data tree modification
-     * @throws DataValidationFailedException if modification data is not valid
-     * @throws TranslationException if failed while updating data tree state
-     */
-    void modify(final DataTreeModification modification) throws DataValidationFailedException, TranslationException;
+public interface ModifiableDataManager extends ReadableDataManager {
 
     /**
      * Creates read-only snapshot of a ModifiableDataTree.
      *
-     * @return Data tree snapshot.
+     * @return modification
      */
-    DataTreeSnapshot takeSnapshot();
+    DataModification newModification();
 }

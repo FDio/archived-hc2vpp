@@ -26,15 +26,18 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.data.ReadableDataManager;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.util.write.TransactionMappingContext;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.NetconfState;
@@ -61,13 +64,14 @@ import org.slf4j.LoggerFactory;
 /**
  * ReadableDataTree implementation for operational data.
  */
-public final class OperationalDataTree implements ReadableDataTree {
-    private static final Logger LOG = LoggerFactory.getLogger(OperationalDataTree.class);
+public final class ReadableDataTreeDelegator implements ReadableDataManager {
+    private static final Logger LOG = LoggerFactory.getLogger(ReadableDataTreeDelegator.class);
 
     private final BindingNormalizedNodeSerializer serializer;
     private final ReaderRegistry readerRegistry;
     private final SchemaContext globalContext;
     private final DOMDataBroker netconfMonitoringDomDataBrokerDependency;
+    private final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker;
 
     /**
      * Creates operational data tree instance.
@@ -75,12 +79,16 @@ public final class OperationalDataTree implements ReadableDataTree {
      *                       representation.
      * @param globalContext  service for obtaining top level context data from all yang modules.
      * @param readerRegistry service responsible for translation between DataObjects and data provider.
-     * @param netconfMonitoringDomDataBrokerDependency
+     * @param netconfMonitoringDomDataBrokerDependency TODO remove
+     * @param contextBroker BA broker for context data
      */
-    public OperationalDataTree(@Nonnull BindingNormalizedNodeSerializer serializer,
-                               @Nonnull final SchemaContext globalContext, @Nonnull ReaderRegistry readerRegistry,
-                               final DOMDataBroker netconfMonitoringDomDataBrokerDependency) {
+    public ReadableDataTreeDelegator(@Nonnull BindingNormalizedNodeSerializer serializer,
+                                     @Nonnull final SchemaContext globalContext,
+                                     @Nonnull final ReaderRegistry readerRegistry,
+                                     @Nonnull final DOMDataBroker netconfMonitoringDomDataBrokerDependency,
+                                     @Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker) {
         this.netconfMonitoringDomDataBrokerDependency = netconfMonitoringDomDataBrokerDependency;
+        this.contextBroker = checkNotNull(contextBroker, "contextBroker should not be null");
         this.globalContext = checkNotNull(globalContext, "globalContext should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
         this.readerRegistry = checkNotNull(readerRegistry, "reader should not be null");
@@ -91,16 +99,35 @@ public final class OperationalDataTree implements ReadableDataTree {
             org.opendaylight.controller.md.sal.common.api.data.ReadFailedException> read(
             @Nonnull final YangInstanceIdentifier yangInstanceIdentifier) {
 
-        try(ReadContext ctx = new ReadContextImpl()) {
+        try(TransactionMappingContext mappingContext = new TransactionMappingContext(contextBroker.newReadWriteTransaction());
+            ReadContext ctx = new ReadContextImpl(mappingContext)) {
+
+            final Optional<NormalizedNode<?, ?>> value;
             if (checkNotNull(yangInstanceIdentifier).equals(YangInstanceIdentifier.EMPTY)) {
-                return Futures.immediateCheckedFuture(readRoot(ctx));
+                value = readRoot(ctx);
             } else {
-                return Futures.immediateCheckedFuture(readNode(yangInstanceIdentifier, ctx));
+                value = readNode(yangInstanceIdentifier, ctx);
             }
+
+            // Submit context mapping updates
+            final CheckedFuture<Void, TransactionCommitFailedException> contextUpdateResult =
+                ((TransactionMappingContext) ctx.getMappingContext()).submit();
+            // Blocking on context data update
+            contextUpdateResult.checkedGet();
+
+            return Futures.immediateCheckedFuture(value);
+
         } catch (ReadFailedException e) {
             return Futures.immediateFailedCheckedFuture(
-                    new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException(
-                            "Failed to read VPP data", e));
+                new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException(
+                    "Failed to read VPP data", e));
+        } catch (TransactionCommitFailedException e) {
+            // FIXME revert should probably occur when context is not written successfully, but can that even happen ?
+            final String msg = "Error while updating mapping context data";
+            LOG.error(msg, e);
+            return Futures.immediateFailedCheckedFuture(
+                new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException(msg, e)
+            );
         }
     }
 
@@ -108,6 +135,8 @@ public final class OperationalDataTree implements ReadableDataTree {
                                                     final ReadContext ctx) throws ReadFailedException {
 
         // FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/
+        // Just delete, dedicated reader from NetconfMonitoringReaderModule takes care of netconf state data
+        // TODO test connecting with netconf and issuing a get (netconf-state) data should be provided
         if(yangInstanceIdentifier.getPathArguments().size() > 0 &&
             yangInstanceIdentifier.getPathArguments().get(0).getNodeType().equals(NetconfState.QNAME)) {
             return readFromNetconfDs(yangInstanceIdentifier);
@@ -222,17 +251,29 @@ public final class OperationalDataTree implements ReadableDataTree {
     }
 
     private static final class ReadContextImpl implements ReadContext {
-        public final Context ctx = new Context();
+
+        public final ModificationCache ctx = new ModificationCache();
+        private final MappingContext mappingContext;
+
+        private ReadContextImpl(final MappingContext mappingContext) {
+            this.mappingContext = mappingContext;
+        }
 
         @Nonnull
         @Override
-        public Context getContext() {
+        public ModificationCache getModificationCache() {
             return ctx;
+        }
+
+        @Nonnull
+        @Override
+        public MappingContext getMappingContext() {
+            return mappingContext;
         }
 
         @Override
         public void close() {
-            // Make sure to clear the storage in case some customizer stored it  to prevent memory leaks
+            // Make sure to clear the storage in case some customizer stored a reference to it to prevent memory leaks
             ctx.close();
         }
     }

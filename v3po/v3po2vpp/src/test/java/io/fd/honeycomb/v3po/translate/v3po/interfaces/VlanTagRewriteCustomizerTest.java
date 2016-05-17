@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -24,6 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
@@ -55,6 +58,8 @@ public class VlanTagRewriteCustomizerTest {
     private FutureJVpp api;
     @Mock
     private WriteContext writeContext;
+    @Mock
+    private MappingContext mappingContext;
 
     private NamingContext namingContext;
     private VlanTagRewriteCustomizer customizer;
@@ -65,9 +70,10 @@ public class VlanTagRewriteCustomizerTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        namingContext = new NamingContext("generatedSubInterfaceName");
+        namingContext = new NamingContext("generatedSubInterfaceName", "test-instance");
+        doReturn(mappingContext).when(writeContext).getMappingContext();
         customizer = new VlanTagRewriteCustomizer(api, namingContext);
-        namingContext.addName(VLAN_IF_ID, VLAN_IF_NAME);
+        doReturn(getMapping(VLAN_IF_NAME, VLAN_IF_ID)).when(mappingContext).read(getMappingIid(VLAN_IF_NAME, "test-instance"));
     }
 
     private InstanceIdentifier<VlanTagRewrite> getVlanTagRewriteId(final String name) {

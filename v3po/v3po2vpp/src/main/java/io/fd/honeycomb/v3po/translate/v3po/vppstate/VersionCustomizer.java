@@ -16,7 +16,7 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -53,7 +53,7 @@ public final class VersionCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<Version> id, @Nonnull final VersionBuilder builder,
-                                      @Nonnull final Context context) throws ReadFailedException {
+                                      @Nonnull final ReadContext context) throws ReadFailedException {
 
         ShowVersionReply reply;
         try {

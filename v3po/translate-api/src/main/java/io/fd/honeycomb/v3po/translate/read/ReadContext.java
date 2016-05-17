@@ -16,22 +16,11 @@
 
 package io.fd.honeycomb.v3po.translate.read;
 
-import io.fd.honeycomb.v3po.translate.Context;
-import javax.annotation.Nonnull;
+import io.fd.honeycomb.v3po.translate.ModificationContext;
 
 /**
- * Read Context
+ * Context providing information about current state of DataTree to readers
  */
-public interface ReadContext extends AutoCloseable {
+public interface ReadContext extends ModificationContext {
 
-    /**
-     * Get key value storage for customizers
-     *
-     * @return Context for customizers
-     */
-    @Nonnull
-    Context getContext();
-
-    @Override
-    void close();
 }

@@ -23,12 +23,10 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.DataModification;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,54 +34,48 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 
 public class WriteTransactionTest {
 
     @Mock
-    private ModifiableDataTree configDataTree;
-    @Mock
-    private DataTreeSnapshot configSnapshot;
+    private DataModification configSnapshot;
     @Mock
     private YangInstanceIdentifier path;
     @Mock
     private NormalizedNode<?,?> data;
-    @Mock
-    private DataTreeModification dataTreeModification;
 
     private WriteTransaction writeTx;
 
     @Before
     public void setUp() {
         initMocks(this);
-        when(configSnapshot.newModification()).thenReturn(dataTreeModification);
-        writeTx = new WriteTransaction(configDataTree, configSnapshot);
+        writeTx = WriteTransaction.createConfigOnly(configSnapshot);
     }
 
     @Test
     public void testPut() {
         writeTx.put(LogicalDatastoreType.CONFIGURATION, path, data);
-        verify(dataTreeModification).write(path, data);
+        verify(configSnapshot).write(path, data);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutOperational() {
         writeTx.put(LogicalDatastoreType.OPERATIONAL, path, data);
-        verify(dataTreeModification).write(path, data);
+        verify(configSnapshot).write(path, data);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testOnFinishedTx() {
         writeTx.submit();
         writeTx.put(LogicalDatastoreType.CONFIGURATION, path, data);
-        verify(dataTreeModification).write(path, data);
+        verify(configSnapshot).write(path, data);
     }
 
     @Test
     public void testMerge() {
         writeTx.merge(LogicalDatastoreType.CONFIGURATION, path, data);
-        verify(dataTreeModification).merge(path, data);
+        verify(configSnapshot).merge(path, data);
     }
 
     @Test
@@ -100,19 +92,19 @@ public class WriteTransactionTest {
     @Test
     public void testDelete() {
         writeTx.delete(LogicalDatastoreType.CONFIGURATION, path);
-        verify(dataTreeModification).delete(path);
+        verify(configSnapshot).delete(path);
     }
 
     @Test
     public void testSubmit() throws Exception {
         writeTx.submit();
-        verify(dataTreeModification).ready();
-        verify(configDataTree).modify(dataTreeModification);
+        verify(configSnapshot).validate();
+        verify(configSnapshot).commit();
     }
 
     @Test
     public void testSubmitFailed() throws Exception {
-        doThrow(mock(DataValidationFailedException.class)).when(configDataTree).modify(dataTreeModification);
+        doThrow(mock(DataValidationFailedException.class)).when(configSnapshot).commit();
         final CheckedFuture<Void, TransactionCommitFailedException> future = writeTx.submit();
         try {
             future.get();

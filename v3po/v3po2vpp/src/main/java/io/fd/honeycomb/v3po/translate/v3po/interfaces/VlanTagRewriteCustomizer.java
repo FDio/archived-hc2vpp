@@ -70,14 +70,15 @@ public class VlanTagRewriteCustomizer extends FutureJVppCustomizer implements Ch
                                        @Nonnull final VlanTagRewrite dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.CreateFailedException {
         try {
-            setTagRewrite(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            setTagRewrite(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
 
-    private void setTagRewrite(final String ifname, final VlanTagRewrite cfg) throws VppApiInvocationException {
-        final int swIfIndex = interfaceContext.getIndex(ifname);
+    private void setTagRewrite(final String ifname, final VlanTagRewrite cfg, final WriteContext writeContext)
+        throws VppApiInvocationException {
+        final int swIfIndex = interfaceContext.getIndex(ifname, writeContext.getMappingContext());
         LOG.debug("Setting tag rewrite for interface {}(id=): {}", ifname, swIfIndex, cfg);
 
         final CompletionStage<L2InterfaceVlanTagRewriteReply> replyCompletionStage =
@@ -121,7 +122,7 @@ public class VlanTagRewriteCustomizer extends FutureJVppCustomizer implements Ch
             return;
         }
         try {
-            setTagRewrite(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            setTagRewrite(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
@@ -135,7 +136,7 @@ public class VlanTagRewriteCustomizer extends FutureJVppCustomizer implements Ch
             // disable tag rewrite
             final VlanTagRewriteBuilder builder = new VlanTagRewriteBuilder();
             builder.setRewriteOperation(TagRewriteOperation.Disabled);
-            setTagRewrite(id.firstKeyOf(Interface.class).getName(), builder.build());
+            setTagRewrite(id.firstKeyOf(Interface.class).getName(), builder.build(), writeContext);
         } catch (VppApiInvocationException e) {
             throw new WriteFailedException.DeleteFailedException(id, e);
         }

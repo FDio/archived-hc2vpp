@@ -21,7 +21,7 @@ import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCusto
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
 import java.math.BigInteger;
 import java.util.Map;
@@ -158,7 +158,7 @@ public final class InterfaceUtils {
     @Nonnull
     public static SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVpp futureJvpp,
                                                             @Nonnull InterfaceKey key, final int index,
-                                                            @Nonnull final Context ctx) {
+                                                            @Nonnull final ModificationCache ctx) {
         final SwInterfaceDump request = new SwInterfaceDump();
         request.nameFilter = key.getName().getBytes();
         request.nameFilterValid = 1;
@@ -225,7 +225,7 @@ public final class InterfaceUtils {
         return EthernetCsmacd.class;
     }
 
-    static boolean isInterfaceOfType(final Context ctx, final int index,
+    static boolean isInterfaceOfType(final ModificationCache ctx, final int index,
                                      final Class<? extends InterfaceType> ifcType) {
         final SwInterfaceDetails cachedDetails =
                 checkNotNull(getCachedInterfaceDump(ctx).get(index),

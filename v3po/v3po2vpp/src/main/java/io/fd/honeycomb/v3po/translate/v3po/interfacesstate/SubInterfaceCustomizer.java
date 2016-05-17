@@ -19,7 +19,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -70,18 +70,18 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<SubInterface> id,
-                                      @Nonnull final SubInterfaceBuilder builder, @Nonnull final Context ctx)
+                                      @Nonnull final SubInterfaceBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
         // to fill in the context with initial ifc mapping
-        final int index = interfaceContext.getIndex(key.getName());
-        if (!isInterfaceOfType(ctx, index, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.SubInterface.class)) {
+        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
+        if (!isInterfaceOfType(ctx.getModificationCache(), index, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.SubInterface.class)) {
             return;
         }
 
         LOG.debug("Reading attributes for sub interface: {}", id);
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key, index, ctx);
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key, index, ctx.getModificationCache());
         LOG.debug("VPP interface details: {}", ReflectionToStringBuilder.toString(iface));
 
         if (iface.subId == 0) {
@@ -90,7 +90,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         }
 
         builder.setIdentifier(Long.valueOf(iface.subId));
-        builder.setSuperInterface(interfaceContext.getName(iface.supSwIfIndex));
+        builder.setSuperInterface(interfaceContext.getName(iface.supSwIfIndex, ctx.getMappingContext()));
         builder.setNumberOfTags(Short.valueOf(iface.subNumberOfTags));
         builder.setVlanType(iface.subDot1Ad == 1 ? VlanType._802dot1q : VlanType._802dot1ad);
         if (iface.subExactMatch == 1) {

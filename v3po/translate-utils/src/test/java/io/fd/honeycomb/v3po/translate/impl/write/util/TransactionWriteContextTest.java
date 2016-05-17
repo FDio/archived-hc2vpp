@@ -29,7 +29,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.util.write.TransactionWriteContext;
 import java.util.Map;
 import org.junit.Before;
@@ -43,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -62,13 +62,15 @@ public class TransactionWriteContextTest {
     private Optional<org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode<?, ?>> optional;
     @Mock
     private Map.Entry entry;
+    @Mock
+    private MappingContext contextBroker;
 
     private TransactionWriteContext transactionWriteContext;
 
     @Before
     public void setUp() {
         initMocks(this);
-        transactionWriteContext = new TransactionWriteContext(serializer, beforeTx, afterTx);
+        transactionWriteContext = new TransactionWriteContext(serializer, beforeTx, afterTx, contextBroker);
     }
 
     @Test
@@ -80,7 +82,7 @@ public class TransactionWriteContextTest {
         final InstanceIdentifier<BridgeDomain> instanceId =
                 InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(BridgeDomain.class);
 
-        final Optional<DataObject> dataObjects = transactionWriteContext.readBefore(instanceId);
+        final Optional<BridgeDomain> dataObjects = transactionWriteContext.readBefore(instanceId);
         assertNotNull(dataObjects);
         assertFalse(dataObjects.isPresent());
 
@@ -101,9 +103,9 @@ public class TransactionWriteContextTest {
                 BridgeDomains.QNAME).node(BridgeDomain.QNAME).build();
         when(serializer.toYangInstanceIdentifier(any(InstanceIdentifier.class))).thenReturn(yangId);
         when(serializer.fromNormalizedNode(eq(yangId), any(NormalizedNode.class))).thenReturn(entry);
-        when(entry.getValue()).thenReturn(mock(DataObject.class));
+        when(entry.getValue()).thenReturn(mock(BridgeDomain.class));
 
-        final Optional<DataObject> dataObjects = transactionWriteContext.readBefore(instanceId);
+        final Optional<BridgeDomain> dataObjects = transactionWriteContext.readBefore(instanceId);
         assertNotNull(dataObjects);
         assertTrue(dataObjects.isPresent());
 
@@ -127,12 +129,12 @@ public class TransactionWriteContextTest {
 
     @Test
     public void testGetContext() throws Exception {
-        assertNotNull(transactionWriteContext.getContext());
+        assertNotNull(transactionWriteContext.getModificationCache());
     }
 
     @Test
     public void testClose() throws Exception {
-        final Context context = transactionWriteContext.getContext();
+        final ModificationCache context = transactionWriteContext.getModificationCache();
         transactionWriteContext.close();
         // TODO verify context was closed
     }

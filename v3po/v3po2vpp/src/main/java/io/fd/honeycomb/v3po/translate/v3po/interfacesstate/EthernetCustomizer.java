@@ -16,7 +16,9 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import io.fd.honeycomb.v3po.translate.Context;
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
+
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -64,11 +66,11 @@ public class EthernetCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
                                       @Nonnull final EthernetBuilder builder,
-                                      @Nonnull final Context ctx) throws ReadFailedException {
+                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
 
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
-                interfaceContext.getIndex(key.getName()), ctx);
+                interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
 
         builder.setMtu((int) iface.linkMtu);
         switch (iface.linkDuplex) {

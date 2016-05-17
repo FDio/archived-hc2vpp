@@ -68,7 +68,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
         throws WriteFailedException {
         try {
             final String ifcName = id.firstKeyOf(Interface.class).getName();
-            setIpv4(id, ifcName, dataAfter);
+            setIpv4(id, ifcName, dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Create of Ipv4 failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -84,7 +84,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
 
         // TODO handle update in a better way
         try {
-            setIpv4(id, ifcName, dataAfter);
+            setIpv4(id, ifcName, dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of Ipv4 failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
@@ -97,9 +97,10 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
         // TODO implement delete
     }
 
-    private void setIpv4(final InstanceIdentifier<Ipv4> id, final String name, final Ipv4 ipv4)
+    private void setIpv4(final InstanceIdentifier<Ipv4> id, final String name, final Ipv4 ipv4,
+                         final WriteContext writeContext)
         throws WriteFailedException, VppApiInvocationException {
-        final int swIfc = interfaceContext.getIndex(name);
+        final int swIfc = interfaceContext.getIndex(name, writeContext.getMappingContext());
 
         for (Address ipv4Addr : ipv4.getAddress()) {
             Subnet subnet = ipv4Addr.getSubnet();

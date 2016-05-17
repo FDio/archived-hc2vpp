@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * Utility class for various operations on DataTree.
  */
 final class DataTreeUtils {
+
     private static final Logger LOG = LoggerFactory.getLogger(DataTreeUtils.class);
 
     private DataTreeUtils() {

@@ -16,12 +16,14 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
@@ -52,7 +54,7 @@ public class VlanTagRewriteCustomizerTest extends ChildReaderCustomizerTest<Vlan
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("generatedIfaceName");
+        interfacesContext = new NamingContext("generatedIfaceName", "test-instance");
     }
 
 
@@ -76,15 +78,15 @@ public class VlanTagRewriteCustomizerTest extends ChildReaderCustomizerTest<Vlan
 
     @Test
     public void testRead() throws ReadFailedException {
-        final Context ctx = new Context();
         final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
         final int ifId = 1;
         final String ifName = "eth0.sub0";
-        interfacesContext.addName(ifId, ifName);
+        doReturn(getMapping(ifName, ifId)).when(mappingContext).read(getMappingIid(ifName, "test-instance"));
+
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = ifId;
         cachedInterfaceDump.put(ifId, ifaceDetails);
-        ctx.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
+        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
         final VlanTagRewriteBuilder builder = mock(VlanTagRewriteBuilder.class);
         getCustomizer().readCurrentAttributes(getVlanTagRewriteId(ifName), builder, ctx);

@@ -18,7 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -74,12 +74,12 @@ public class VxlanCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id,
                                       @Nonnull final VxlanBuilder builder,
-                                      @Nonnull final Context ctx) throws ReadFailedException {
+                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
         // to fill in the context with initial ifc mapping
-        final int index = interfaceContext.getIndex(key.getName());
-        if (!InterfaceUtils.isInterfaceOfType(ctx, index, VxlanTunnel.class)) {
+        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
+        if (!InterfaceUtils.isInterfaceOfType(ctx.getModificationCache(), index, VxlanTunnel.class)) {
             return;
         }
 

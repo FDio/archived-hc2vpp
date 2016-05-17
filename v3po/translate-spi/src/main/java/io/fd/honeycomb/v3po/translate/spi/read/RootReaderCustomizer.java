@@ -17,8 +17,8 @@
 package io.fd.honeycomb.v3po.translate.spi.read;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.Context;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -45,8 +45,9 @@ public interface RootReaderCustomizer<C extends DataObject, B extends Builder<C>
      *
      * @param id      id of current data object
      * @param builder builder for creating read value
+     * @param ctx
      * @throws ReadFailedException if read was unsuccessful
      */
     void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder,
-                               @Nonnull final Context ctx) throws ReadFailedException;
+                               @Nonnull final ReadContext ctx) throws ReadFailedException;
 }

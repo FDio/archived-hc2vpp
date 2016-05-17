@@ -40,8 +40,8 @@ public class BridgeDomainCustomizerTest extends ListReaderCustomizerTest<BridgeD
 
     @Override
     public void setUpBefore() {
-        bdContext = new NamingContext("generatedBdName");
-        interfacesContext = new NamingContext("generatedIfaceName");
+        bdContext = new NamingContext("generatedBdName", "bd-test-instance");
+        interfacesContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
     }
 
     @Test

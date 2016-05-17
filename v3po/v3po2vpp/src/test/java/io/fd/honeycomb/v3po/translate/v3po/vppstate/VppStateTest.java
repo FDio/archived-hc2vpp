@@ -16,18 +16,24 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.impl.read.CompositeListReader;
 import io.fd.honeycomb.v3po.translate.impl.read.CompositeRootReader;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
@@ -43,6 +49,9 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
@@ -72,6 +81,8 @@ public class VppStateTest {
     private FutureJVpp api;
     @Mock
     private ReadContext ctx;
+    @Mock
+    private MappingContext mappingContext;
 
     private NamingContext bdContext;
     private NamingContext interfaceContext;
@@ -82,9 +93,12 @@ public class VppStateTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        final ModificationCache cache = new ModificationCache();
+        doReturn(cache).when(ctx).getModificationCache();
+        doReturn(mappingContext).when(ctx).getMappingContext();
 
-        bdContext = new NamingContext("generatedBdName");
-        interfaceContext = new NamingContext("generatedInterfaceName");
+        bdContext = new NamingContext("generatedBdName", "bd-test-instance");
+        interfaceContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
         vppStateReader = VppStateTestUtils.getVppStateReader(api, bdContext, interfaceContext);
         readerRegistry = new DelegatingReaderRegistry(Collections.<Reader<? extends DataObject>>singletonList(vppStateReader));
     }
@@ -146,7 +160,14 @@ public class VppStateTest {
         final Version version = getVersion();
         whenShowVersionThenReturn(0, version);
 
-        final List<BridgeDomainDetails> bdList = Arrays.asList(new BridgeDomainDetails(), new BridgeDomainDetails());
+        final BridgeDomainDetails bridgeDomainDetails = new BridgeDomainDetails();
+        final BridgeDomainDetails bridgeDomainDetails2 = new BridgeDomainDetails();
+        bridgeDomainDetails2.bdId = 1;
+
+        final List<BridgeDomainDetails> bdList = Arrays.asList(bridgeDomainDetails, bridgeDomainDetails2);
+        mockBdMapping(bridgeDomainDetails, "bd1");
+        mockBdMapping(bridgeDomainDetails2, "bd2");
+
         whenBridgeDomainDumpThenReturn(bdList);
 
         final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects = readerRegistry.readAll(ctx);
@@ -171,8 +192,10 @@ public class VppStateTest {
     public void testReadBridgeDomains() throws Exception {
         final Version version = getVersion();
         whenShowVersionThenReturn(0, version);
-        whenBridgeDomainDumpThenReturn(Collections.singletonList(new BridgeDomainDetails()));
+        final BridgeDomainDetails details = new BridgeDomainDetails();
+        whenBridgeDomainDumpThenReturn(Collections.singletonList(details));
 
+        mockBdMapping(details, "bdn1");
         VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
         Optional<? extends DataObject> read =
@@ -189,7 +212,9 @@ public class VppStateTest {
         final BridgeDomainDetails bd = new BridgeDomainDetails();
         bd.bdId = 0;
         final String bdName = "bdn1";
-        bdContext.addName(bd.bdId, bdName);
+        mockBdMapping(bd, bdName);
+        mockMapping("eth1", 0, "ifc-test-instance");
+
         whenBridgeDomainDumpThenReturn(Collections.singletonList(bd));
         final L2FibTableEntry l2FibEntry = new L2FibTableEntry();
         l2FibEntry.bdId = 0;
@@ -204,18 +229,44 @@ public class VppStateTest {
         assertTrue(read.isPresent());
 
         // non existing l2fib
-        read =
-            readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
+        read = readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("bdn1"))
                 .child(L2Fib.class, new L2FibKey(new PhysAddress("FF:FF:FF:04:05:06"))), ctx);
         assertFalse(read.isPresent());
+    }
+
+    private void mockBdMapping(final BridgeDomainDetails bd, final String bdName) {
+        mockMapping(bdName, bd.bdId, "bd-test-instance");
+    }
+
+    private void mockMapping(final String name, final int id, final String namingContextName) {
+        final InstanceIdentifier<Mappings> mappingsIid = getMappingIid(name, namingContextName).firstIdentifierOf(Mappings.class);
+
+        final Optional<Mapping> singleMapping = getMapping(name, id);
+        final Optional<Mappings> previousMappings = mappingContext.read(mappingsIid);
+
+        final MappingsBuilder mappingsBuilder;
+        if(previousMappings != null && previousMappings.isPresent()) {
+            mappingsBuilder = new MappingsBuilder(previousMappings.get());
+        } else {
+            mappingsBuilder = new MappingsBuilder();
+            mappingsBuilder.setMapping(Lists.newArrayList());
+        }
+
+        final List<Mapping> mappingList = mappingsBuilder.getMapping();
+        mappingList.add(singleMapping.get());
+        doReturn(Optional.of(mappingsBuilder.setMapping(mappingList).build()))
+            .when(mappingContext).read(mappingsIid);
+        doReturn(singleMapping).when(mappingContext).read(getMappingIid(name, namingContextName));
     }
 
     @Test
     public void testReadBridgeDomainAll() throws Exception {
         final Version version = getVersion();
         whenShowVersionThenReturn(0, version);
-        whenBridgeDomainDumpThenReturn(Collections.singletonList(new BridgeDomainDetails()));
+        final BridgeDomainDetails details = new BridgeDomainDetails();
+        whenBridgeDomainDumpThenReturn(Collections.singletonList(details));
+        mockBdMapping(details, "bd2");
 
         VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
@@ -234,7 +285,8 @@ public class VppStateTest {
         final BridgeDomainDetails bd = new BridgeDomainDetails();
         bd.bdId = 0;
         final String bdName = "bdn1";
-        bdContext.addName(bd.bdId, bdName);
+        mockBdMapping(bd, bdName);
+
         whenBridgeDomainDumpThenReturn(Collections.singletonList(bd));
         whenShowVersionThenReturn(0, getVersion());
 
@@ -245,12 +297,15 @@ public class VppStateTest {
                 BridgeDomain.class, new BridgeDomainKey(bdName)), ctx);
 
         assertTrue(read.isPresent());
-        assertEquals(Iterables.find(readRoot.getBridgeDomains().getBridgeDomain(),
-                input -> input.getKey().getName().equals(bdName)), read.get());
+        assertEquals(readRoot.getBridgeDomains().getBridgeDomain().stream().filter(
+                input -> input.getKey().getName().equals(bdName)).findFirst().get(),
+            read.get());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testReadBridgeDomainNotExisting() throws Exception {
+        doReturn(Optional.absent()).when(mappingContext).read(getMappingIid("NOT EXISTING", "bd-test-instance"));
+        
         final Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("NOT EXISTING")), ctx);

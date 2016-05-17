@@ -15,15 +15,21 @@
  */
 package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.base.Optional;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
@@ -34,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
 import org.openvpp.jvpp.dto.BridgeDomainAddDel;
@@ -47,18 +54,22 @@ public class BridgeDomainCustomizerTest {
 
     @Mock
     private FutureJVpp api;
-
     @Mock
     private WriteContext ctx;
+    @Mock
+    private MappingContext mappingContext;
 
     private BridgeDomainCustomizer customizer;
-    private NamingContext namingContext;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         // TODO create base class for tests using vppApi
-        namingContext = new NamingContext("generatedBDName");
+        NamingContext namingContext = new NamingContext("generatedBDName", "test-instance");
+        final ModificationCache toBeReturned = new ModificationCache();
+        doReturn(toBeReturned).when(ctx).getModificationCache();
+        doReturn(mappingContext).when(ctx).getMappingContext();
+
         customizer = new BridgeDomainCustomizer(api, namingContext);
     }
 
@@ -139,12 +150,14 @@ public class BridgeDomainCustomizerTest {
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
+        doReturn(Optional.absent()).when(mappingContext).read(getMappingIid(bdName, "test-instance").firstIdentifierOf(Mappings.class));
 
         whenBridgeDomainAddDelThenSuccess();
 
         customizer.writeCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
 
         verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
+        verify(mappingContext).put(getMappingIid(bdName, "test-instance"), getMapping(bdName, bdId).get());
     }
 
     @Test
@@ -152,6 +165,9 @@ public class BridgeDomainCustomizerTest {
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
+
+        // Returning no Mappings for "test-instance" makes bdContext.containsName() return false
+        doReturn(Optional.absent()).when(mappingContext).read(getMappingIid(bdName, "test-instance").firstIdentifierOf(Mappings.class));
 
         whenBridgeDomainAddDelThenFailure();
 
@@ -169,7 +185,7 @@ public class BridgeDomainCustomizerTest {
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
-        namingContext.addName(bdId, bdName);
+        doReturn(getMapping(bdName, bdId)).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
 
         whenBridgeDomainAddDelThenSuccess();
 
@@ -182,6 +198,7 @@ public class BridgeDomainCustomizerTest {
     public void testDeleteUnknownBridgeDomain() throws Exception {
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain("bd1");
+        doReturn(Optional.absent()).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
 
         try {
             customizer.deleteCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
@@ -197,7 +214,7 @@ public class BridgeDomainCustomizerTest {
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
-        namingContext.addName(bdId, bdName);
+        doReturn(getMapping(bdName, bdId)).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
 
         whenBridgeDomainAddDelThenFailure();
 
@@ -215,7 +232,7 @@ public class BridgeDomainCustomizerTest {
     public void testUpdateBridgeDomain() throws Exception {
         final int bdId = 1;
         final String bdName = "bd1";
-        namingContext.addName(bdId, bdName);
+        doReturn(getMapping(bdName, bdId)).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
 
         final byte arpTermBefore = 1;
         final byte floodBefore = 1;
@@ -241,6 +258,7 @@ public class BridgeDomainCustomizerTest {
         final String bdName = "bd1";
         final BridgeDomain bdBefore = generateBridgeDomain(bdName, 0, 1, 0 ,1, 0);
         final BridgeDomain bdAfter = generateBridgeDomain(bdName, 1, 1, 0 ,1, 0);
+        doReturn(Optional.absent()).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
 
         try {
             customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bdBefore, bdAfter, ctx);
@@ -257,7 +275,7 @@ public class BridgeDomainCustomizerTest {
         final String bdName = "bd1";
         final BridgeDomain bdBefore = generateBridgeDomain(bdName, 0, 1, 0 ,1, 0);
         final BridgeDomain bdAfter = generateBridgeDomain(bdName, 1, 1, 0 ,1, 0);
-        namingContext.addName(bdId, bdName);
+        doReturn(getMapping(bdName, bdId)).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
 
         whenBridgeDomainAddDelThenFailure();
 

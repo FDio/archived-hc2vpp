@@ -17,9 +17,12 @@
 package io.fd.honeycomb.v3po.translate.v3po.test;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +42,11 @@ public abstract class RootReaderCustomizerTest<D extends DataObject, B extends B
 
     @Mock
     protected FutureJVpp api;
+    protected ModificationCache cache;
     @Mock
-    protected Context ctx;
+    protected ReadContext ctx;
+    @Mock
+    protected MappingContext mappingContext;
 
     protected final Class<D> dataObjectClass;
     private RootReaderCustomizer<D, B> customizer;
@@ -52,6 +58,10 @@ public abstract class RootReaderCustomizerTest<D extends DataObject, B extends B
     @Before
     public void setUpParent() throws Exception {
         initMocks(this);
+        cache = new ModificationCache();
+        doReturn(cache).when(ctx).getModificationCache();
+        doReturn(mappingContext).when(ctx).getMappingContext();
+
         setUpBefore();
         customizer = initCustomizer();
         setUpAfter();

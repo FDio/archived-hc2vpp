@@ -93,7 +93,7 @@ public final class CompositeChildReader<C extends DataObject, B extends Builder<
      */
     public CompositeChildReader(@Nonnull final Class<C> managedDataObjectType,
                                 @Nonnull final ChildReaderCustomizer<C, B> customizer) {
-        this(managedDataObjectType, RWUtils.<C>emptyChildReaderList(), RWUtils.<C>emptyAugReaderList(),
+        this(managedDataObjectType, RWUtils.emptyChildReaderList(), RWUtils.emptyAugReaderList(),
             customizer);
     }
 
@@ -112,7 +112,7 @@ public final class CompositeChildReader<C extends DataObject, B extends Builder<
     protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder,
                                          @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        customizer.readCurrentAttributes(id, builder, ctx.getContext());
+        customizer.readCurrentAttributes(id, builder, ctx);
     }
 
     @Override

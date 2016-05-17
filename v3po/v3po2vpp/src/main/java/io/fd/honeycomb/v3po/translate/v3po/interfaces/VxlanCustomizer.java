@@ -71,7 +71,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException.CreateFailedException {
         try {
-            createVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            createVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException | IllegalInterfaceTypeException e) {
             LOG.warn("Write of Vxlan failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -95,14 +95,14 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException.DeleteFailedException {
         try {
-            deleteVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataBefore);
+            deleteVxlanTunnel(id.firstKeyOf(Interface.class).getName(), dataBefore, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Delete of Vxlan tunnel failed", e);
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
-    private void createVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
+    private void createVxlanTunnel(final String swIfName, final Vxlan vxlan, final WriteContext writeContext) throws VppApiInvocationException {
         final byte isIpv6 = (byte) (isIpv6(vxlan) ? 1 : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
@@ -123,7 +123,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
         } else {
             LOG.debug("Vxlan tunnel set successfully for: {}, vxlan: {}", swIfName, vxlan);
             // Add new interface to our interface context
-            interfaceContext.addName(reply.swIfIndex, swIfName);
+            interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
         }
     }
 
@@ -143,7 +143,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
         return addr.getIpv4Address() == null ? addr.getIpv6Address().getValue() : addr.getIpv4Address().getValue();
     }
 
-    private void deleteVxlanTunnel(final String swIfName, final Vxlan vxlan) throws VppApiInvocationException {
+    private void deleteVxlanTunnel(final String swIfName, final Vxlan vxlan, final WriteContext writeContext) throws VppApiInvocationException {
         final byte isIpv6 = (byte) (isIpv6(vxlan) ? 1 : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
@@ -164,7 +164,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
         } else {
             LOG.debug("Vxlan tunnel deleted successfully for: {}, vxlan: {}", swIfName, vxlan);
             // Remove interface from our interface context
-            interfaceContext.removeName(swIfName);
+            interfaceContext.removeName(swIfName, writeContext.getMappingContext());
         }
     }
 

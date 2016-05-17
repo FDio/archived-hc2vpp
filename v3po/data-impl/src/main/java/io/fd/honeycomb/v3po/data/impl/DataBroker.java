@@ -16,10 +16,13 @@
 
 package io.fd.honeycomb.v3po.data.impl;
 
-import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import io.fd.honeycomb.v3po.data.DataModification;
+import io.fd.honeycomb.v3po.data.ModifiableDataManager;
+import io.fd.honeycomb.v3po.data.ReadableDataManager;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -42,45 +45,36 @@ import org.slf4j.LoggerFactory;
  * Data Broker which provides data transaction functionality for YANG capable data provider using {@link NormalizedNode}
  * data format.
  */
-public class DataBroker implements DOMDataBroker {
+public class DataBroker implements DOMDataBroker, Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataBroker.class);
-    private final ReadableDataTree operationalDataTree;
-    private final ModifiableDataTree configDataTree;
+    private final TransactionFactory transactionFactory;
 
     /**
      * Creates DataBroker instance.
      *
-     * @param operationalDataTree operational data
-     * @param configDataTree      configuration data
+     * @param transactionFactory transaction producing factory
      */
-    public DataBroker(@Nonnull final ReadableDataTree operationalDataTree,
-                      @Nonnull final ModifiableDataTree configDataTree) {
-        this.operationalDataTree =
-                Preconditions.checkNotNull(operationalDataTree, "operationalDataTree should not be null");
-        this.configDataTree = Preconditions.checkNotNull(configDataTree, "configDataTree should not be null");
-        LOG.trace("DataBroker({}).init() operationalDataTree={}, configDataTree={}", this, operationalDataTree, configDataTree);
+    public DataBroker(final TransactionFactory transactionFactory) {
+        this.transactionFactory = transactionFactory;
     }
 
     @Override
     public DOMDataReadOnlyTransaction newReadOnlyTransaction() {
         LOG.trace("DataBroker({}).newReadOnlyTransaction()", this);
-        return new ReadOnlyTransaction(operationalDataTree, configDataTree.takeSnapshot());
+        return transactionFactory.newReadOnlyTransaction();
     }
 
     @Override
     public DOMDataReadWriteTransaction newReadWriteTransaction() {
         LOG.trace("DataBroker({}).newReadWriteTransaction()", this);
-        final DataTreeSnapshot configSnapshot = configDataTree.takeSnapshot();
-        final DOMDataReadOnlyTransaction readOnlyTx = new ReadOnlyTransaction(operationalDataTree, configSnapshot);
-        final DOMDataWriteTransaction writeOnlyTx = new WriteTransaction(configDataTree, configSnapshot);
-        return new ReadWriteTransaction(readOnlyTx, writeOnlyTx);
+        return transactionFactory.newReadWriteTransaction();
     }
 
     @Override
     public DOMDataWriteTransaction newWriteOnlyTransaction() {
         LOG.trace("DataBroker({}).newWriteOnlyTransaction()", this);
-        return new WriteTransaction(configDataTree);
+        return transactionFactory.newWriteOnlyTransaction();
     }
 
     @Override
@@ -100,6 +94,104 @@ public class DataBroker implements DOMDataBroker {
     @Override
     public Map<Class<? extends DOMDataBrokerExtension>, DOMDataBrokerExtension> getSupportedExtensions() {
         return Collections.emptyMap();
+    }
+
+    /**
+     * Create DataBroker for a modifiable config DT, but only readable Operational
+     */
+    @Nonnull
+    public static DataBroker create(@Nonnull final ModifiableDataManager configDataTree,
+                             @Nonnull final ReadableDataManager operationalDataTree) {
+        checkNotNull(operationalDataTree, "operationalDataTree should not be null");
+        checkNotNull(configDataTree, "configDataTree should not be null");
+        return new DataBroker(new MainPipelineTxFactory(configDataTree, operationalDataTree));
+    }
+
+    /**
+     * Create DataBroker for modifiable operational DT, but no support for config
+     */
+    @Nonnull
+    public static DataBroker create(@Nonnull final ModifiableDataManager operationalDataTree) {
+        checkNotNull(operationalDataTree, "operationalDataTree should not be null");
+        return new DataBroker(new ContextPipelineTxFactory(operationalDataTree));
+    }
+
+    @Override
+    public void close() throws IOException {
+        // NOOP
+    }
+
+    /**
+     * Transaction provider factory to be used by {@link DataBroker}
+     */
+    public interface TransactionFactory {
+
+        DOMDataReadOnlyTransaction newReadOnlyTransaction();
+
+        DOMDataReadWriteTransaction newReadWriteTransaction();
+
+        DOMDataWriteTransaction newWriteOnlyTransaction();
+    }
+
+    /**
+     * Transaction factory specific for Honeycomb's main pipeline (config: read+write, operational: read-only)
+     */
+    private static class MainPipelineTxFactory implements TransactionFactory {
+        private final ReadableDataManager operationalDataTree;
+        private final ModifiableDataManager configDataTree;
+
+        MainPipelineTxFactory(@Nonnull final ModifiableDataManager configDataTree,
+                              @Nonnull final ReadableDataManager operationalDataTree) {
+            this.operationalDataTree = operationalDataTree;
+            this.configDataTree = configDataTree;
+        }
+
+        @Override
+        public DOMDataReadOnlyTransaction newReadOnlyTransaction() {
+            return ReadOnlyTransaction.create(configDataTree.newModification(), operationalDataTree);
+        }
+
+        @Override
+        public DOMDataReadWriteTransaction newReadWriteTransaction() {
+            final DataModification configModification = configDataTree.newModification();
+            return new ReadWriteTransaction(
+                ReadOnlyTransaction.create(configModification, operationalDataTree),
+                WriteTransaction.createConfigOnly(configModification));
+        }
+
+        @Override
+        public DOMDataWriteTransaction newWriteOnlyTransaction() {
+            return WriteTransaction.createConfigOnly(configDataTree.newModification());
+        }
+    }
+
+    /**
+     * Transaction factory specific for Honeycomb's context pipeline (config: none, operational: read+write)
+     */
+    private static class ContextPipelineTxFactory implements TransactionFactory {
+        private final ModifiableDataManager operationalDataTree;
+
+        ContextPipelineTxFactory(@Nonnull final ModifiableDataManager operationalDataTree) {
+            this.operationalDataTree = operationalDataTree;
+        }
+
+        @Override
+        public DOMDataReadOnlyTransaction newReadOnlyTransaction() {
+            return ReadOnlyTransaction.createOperationalOnly(operationalDataTree);
+        }
+
+        @Override
+        public DOMDataReadWriteTransaction newReadWriteTransaction() {
+            final DataModification dataModification = operationalDataTree.newModification();
+            return new ReadWriteTransaction(
+                ReadOnlyTransaction.createOperationalOnly(dataModification),
+                WriteTransaction.createOperationalOnly(dataModification));
+        }
+
+        @Override
+        public DOMDataWriteTransaction newWriteOnlyTransaction() {
+            return WriteTransaction.createOperationalOnly(operationalDataTree.newModification());
+        }
     }
 }
 

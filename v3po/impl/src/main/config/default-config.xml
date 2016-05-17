@@ -88,6 +88,10 @@
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
             <name>write-registry</name>
           </writer-registry>
+          <context-binding-broker>
+            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
+            <name>honeycomb-context-binding-data-broker</name>
+          </context-binding-broker>
         </module>
 
         <!-- FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/ Move to netconf-north-config-->
@@ -152,6 +156,10 @@
             <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
             <name>netconf-inmemory-data-broker</name>
           </netconf-monitoring-dom-data-broker>
+          <context-binding-broker>
+            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
+            <name>honeycomb-context-binding-data-broker</name>
+          </context-binding-broker>
         </module>
 
         <!-- DOM data broker which provides transaction functionality for HC using BI format-->
@@ -233,6 +241,10 @@
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
             <name>noop-writer-registry</name>
           </writer-registry>
+          <context-binding-broker>
+            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
+            <name>honeycomb-context-binding-data-broker</name>
+          </context-binding-broker>
         </module>
         <!-- DOM data broker for config initialization -->
         <module>

@@ -18,7 +18,7 @@ package io.fd.honeycomb.v3po.translate.write;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.ModificationContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -27,34 +27,24 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Context providing information about current state of DataTree to writers
  */
 @Beta
-public interface WriteContext extends AutoCloseable {
+public interface WriteContext extends ModificationContext {
 
     /**
-     * Read any data object before current modification was applied
+     * Read any config data object before current modification was applied
      *
      * @param currentId Id of an object to read
      *
      * @return Data before the modification was applied
      */
-    Optional<DataObject> readBefore(@Nonnull final InstanceIdentifier<? extends DataObject> currentId);
+    <T extends DataObject> Optional<T> readBefore(@Nonnull final InstanceIdentifier<T> currentId);
 
     /**
-     * Read any data object from current modification
+     * Read any config data object from current modification
      *
      * @param currentId Id of an object to read
      *
      * @return Data from the modification
      */
-    Optional<DataObject> readAfter(@Nonnull final InstanceIdentifier<? extends DataObject> currentId);
+    <T extends DataObject> Optional<T> readAfter(@Nonnull final InstanceIdentifier<T> currentId);
 
-    /**
-     * Get key value storage for customizers
-     *
-     * @return Context for customizers
-     */
-    @Nonnull
-    Context getContext();
-
-    @Override
-    void close();
 }

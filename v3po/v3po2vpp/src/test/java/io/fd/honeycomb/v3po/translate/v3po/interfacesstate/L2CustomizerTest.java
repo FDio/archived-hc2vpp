@@ -16,12 +16,16 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.v3po.translate.Context;
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
@@ -33,6 +37,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -43,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.l2.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.l2.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.dto.BridgeDomainDump;
 import org.openvpp.jvpp.dto.BridgeDomainSwIfDetails;
@@ -59,8 +68,8 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
 
     @Override
     public void setUpBefore() {
-        interfaceContext = new NamingContext("generatedIfaceName");
-        bridgeDomainContext = new NamingContext("generatedBDName");
+        interfaceContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
+        bridgeDomainContext = new NamingContext("generatedBDName", "bd-test-instance");
     }
 
     @Override
@@ -111,19 +120,28 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
 
     @Test
     public void testRead() throws Exception {
-        final Context ctx = new Context();
         final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
         final int ifId = 1;
         final int bdId = 1;
         final String bdName = "bd001";
         final String ifName = "eth0.sub0";
-        interfaceContext.addName(ifId, ifName);
-        bridgeDomainContext.addName(bdId, bdName);
+        final KeyedInstanceIdentifier<Mapping, MappingKey> ifcIid = getMappingIid(ifName, "ifc-test-instance");
+        doReturn(getMapping(ifName, ifId)).when(mappingContext).read(ifcIid);
+        final KeyedInstanceIdentifier<Mapping, MappingKey> bdIid = getMappingIid(bdName, "bd-test-instance");
+        doReturn(getMapping(bdName, bdId)).when(mappingContext).read(bdIid);
+
+        List<Mapping> allMappings = Lists.newArrayList(getMapping(ifName, ifId).get());
+        Mappings allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
+        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(ifcIid.firstIdentifierOf(Mappings.class));
+
+        allMappings = Lists.newArrayList(getMapping(bdName, bdId).get());
+        allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
+        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(bdIid.firstIdentifierOf(Mappings.class));
 
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = ifId;
         cachedInterfaceDump.put(ifId, ifaceDetails);
-        ctx.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
+        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
         whenBridgeDomainSwIfDumpThenReturn(Collections.singletonList(generateBdSwIfDetails(ifId, bdId)));
 

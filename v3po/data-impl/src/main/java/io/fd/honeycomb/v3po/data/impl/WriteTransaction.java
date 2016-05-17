@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.data.impl;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.controller.md.sal.common.api.TransactionStatus.CANCELED;
 import static org.opendaylight.controller.md.sal.common.api.TransactionStatus.COMMITED;
 import static org.opendaylight.controller.md.sal.common.api.TransactionStatus.FAILED;
@@ -26,10 +28,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -38,7 +40,6 @@ import org.opendaylight.controller.md.sal.dom.api.DOMDataWriteTransaction;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,30 +48,21 @@ import org.slf4j.LoggerFactory;
 final class WriteTransaction implements DOMDataWriteTransaction {
 
     private static final Logger LOG = LoggerFactory.getLogger(WriteTransaction.class);
-    private final ModifiableDataTree configDataTree;
-    private DataTreeModification modification;
-    private TransactionStatus status;
 
-    WriteTransaction(@Nonnull final ModifiableDataTree configDataTree,
-                     @Nonnull final DataTreeSnapshot configSnapshot) {
-        this.configDataTree = Preconditions.checkNotNull(configDataTree, "configDataTree should not be null");
-        Preconditions.checkNotNull(configSnapshot, "configSnapshot should not be null");
-        // initialize transaction state:
-        modification = configSnapshot.newModification();
-        status = NEW;
-    }
+    @Nullable
+    private DataModification operationalModification;
+    @Nullable
+    private DataModification configModification;
+    private TransactionStatus status = NEW;
 
-    WriteTransaction(@Nonnull final ModifiableDataTree configDataTree) {
-        this(configDataTree, configDataTree.takeSnapshot());
-    }
-
-    private static void checkConfigurationWrite(final LogicalDatastoreType store) {
-        Preconditions.checkArgument(LogicalDatastoreType.CONFIGURATION == store, "Write is not supported for operational data store");
+    private WriteTransaction(@Nullable final DataModification configModification,
+                             @Nullable final DataModification operationalModification) {
+        this.operationalModification = operationalModification;
+        this.configModification = configModification;
     }
 
     private void checkIsNew() {
         Preconditions.checkState(status == NEW, "Transaction was submitted or canceled");
-        Preconditions.checkState(modification != null, "DataTree modification should not be null");
     }
 
     @Override
@@ -78,8 +70,21 @@ final class WriteTransaction implements DOMDataWriteTransaction {
                     final NormalizedNode<?, ?> data) {
         LOG.debug("WriteTransaction.put() store={}, path={}, data={}", store, path, data);
         checkIsNew();
-        checkConfigurationWrite(store);
-        modification.write(path, data);
+        handleOperation(store, (modification) -> modification.write(path, data));
+    }
+
+    private void handleOperation(final LogicalDatastoreType store,
+                                 final java.util.function.Consumer<DataModification> r) {
+        switch (store) {
+            case CONFIGURATION:
+                checkArgument(configModification != null, "Modification of {} is not supported", store);
+                r.accept(configModification);
+                break;
+            case OPERATIONAL:
+                checkArgument(operationalModification != null, "Modification of {} is not supported", store);
+                r.accept(operationalModification);
+                break;
+        }
     }
 
     @Override
@@ -87,8 +92,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
                       final NormalizedNode<?, ?> data) {
         LOG.debug("WriteTransaction.merge() store={}, path={}, data={}", store, path, data);
         checkIsNew();
-        checkConfigurationWrite(store);
-        modification.merge(path, data);
+        handleOperation(store, (modification) -> modification.merge(path, data));
     }
 
     @Override
@@ -98,7 +102,6 @@ final class WriteTransaction implements DOMDataWriteTransaction {
             return false;
         } else {
             status = CANCELED;
-            modification = null;
             return true;
         }
     }
@@ -107,29 +110,38 @@ final class WriteTransaction implements DOMDataWriteTransaction {
     public void delete(LogicalDatastoreType store, final YangInstanceIdentifier path) {
         LOG.debug("WriteTransaction.delete() store={}, path={}", store, path);
         checkIsNew();
-        checkConfigurationWrite(store);
-        modification.delete(path);
+        handleOperation(store, (modification) -> modification.delete(path));
     }
 
     @Override
     public CheckedFuture<Void, TransactionCommitFailedException> submit() {
-        LOG.debug("WriteTransaction.submit()");
+        LOG.trace("WriteTransaction.submit()");
         checkIsNew();
 
-        // seal transaction:
-        modification.ready();
-        status = SUBMITED;
-
         try {
-            configDataTree.modify(modification);
+            status = SUBMITED;
+
+            // Validate first to catch any issues before attempting commit
+            if (configModification != null) {
+                configModification.validate();
+            }
+            if (operationalModification != null) {
+                operationalModification.validate();
+            }
+
+            if(configModification != null) {
+                configModification.commit();
+            }
+            if(operationalModification != null) {
+                operationalModification.commit();
+            }
+
             status = COMMITED;
         } catch (DataValidationFailedException | TranslationException e) {
             status = FAILED;
             LOG.error("Failed modify data tree", e);
             return Futures.immediateFailedCheckedFuture(
-                    new TransactionCommitFailedException("Failed to validate DataTreeModification", e));
-        } finally {
-            modification = null;
+                new TransactionCommitFailedException("Failed to validate DataTreeModification", e));
         }
         return Futures.immediateCheckedFuture(null);
     }
@@ -143,5 +155,22 @@ final class WriteTransaction implements DOMDataWriteTransaction {
     @Override
     public Object getIdentifier() {
         return this;
+    }
+
+
+    @Nonnull
+    static WriteTransaction createOperationalOnly(@Nonnull final DataModification operationalData) {
+        return new WriteTransaction(null, requireNonNull(operationalData));
+    }
+
+    @Nonnull
+    static WriteTransaction createConfigOnly(@Nonnull final DataModification configData) {
+        return new WriteTransaction(requireNonNull(configData), null);
+    }
+
+    @Nonnull
+    static WriteTransaction create(@Nonnull final DataModification configData,
+                            @Nonnull final DataModification operationalData) {
+        return new WriteTransaction(requireNonNull(configData), requireNonNull(operationalData));
     }
 }

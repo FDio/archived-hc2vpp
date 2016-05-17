@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -25,7 +27,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.Context;
 import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
@@ -50,7 +51,6 @@ import org.openvpp.jvpp.dto.VxlanTunnelDump;
 public class VxlanCustomizerTest extends ChildReaderCustomizerTest<Vxlan, VxlanBuilder> {
 
     private NamingContext interfacesContext;
-    private Context ctx;
     static final InstanceIdentifier<Vxlan> IID =
         InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey("ifc1"))
             .augmentation(VppInterfaceStateAugmentation.class).child(Vxlan.class);
@@ -61,15 +61,14 @@ public class VxlanCustomizerTest extends ChildReaderCustomizerTest<Vxlan, VxlanB
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("vxlan-tunnel");
-        interfacesContext.addName(0, "ifc1");
+        interfacesContext = new NamingContext("vxlan-tunnel", "test-instance");
+        doReturn(getMapping("ifc1", 0)).when(mappingContext).read(getMappingIid("ifc1", "test-instance"));
 
-        ctx = new Context();
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "vxlan-tunnel4".getBytes();
         final Map<Integer, SwInterfaceDetails> map = new HashMap<>();
         map.put(0, v);
-        ctx.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, map);
+        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, map);
     }
 
     @Override
@@ -114,7 +113,7 @@ public class VxlanCustomizerTest extends ChildReaderCustomizerTest<Vxlan, VxlanB
 
     @Test(expected = NullPointerException.class)
     public void testReadCurrentAttributesVppNameNotCached() throws Exception {
-        InterfaceCustomizer.getCachedInterfaceDump(ctx).remove(0);
+        InterfaceCustomizer.getCachedInterfaceDump(cache).remove(0);
 
         final VxlanBuilder builder = getCustomizer().getBuilder(IID);
         getCustomizer().readCurrentAttributes(IID, builder, ctx);
@@ -124,7 +123,7 @@ public class VxlanCustomizerTest extends ChildReaderCustomizerTest<Vxlan, VxlanB
     public void testReadCurrentAttributesWrongType() throws Exception {
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "tap-2".getBytes();
-        InterfaceCustomizer.getCachedInterfaceDump(ctx).put(0, v);
+        InterfaceCustomizer.getCachedInterfaceDump(cache).put(0, v);
 
         final VxlanBuilder builder = getCustomizer().getBuilder(IID);
         getCustomizer().readCurrentAttributes(IID, builder, ctx);

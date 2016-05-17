@@ -16,34 +16,29 @@
 
 package io.fd.honeycomb.v3po.translate;
 
-import com.google.common.collect.Maps;
-import java.util.HashMap;
+import javax.annotation.Nonnull;
 
 /**
- * Simple context class that provides transient storage during one or more read/write operations
+ * Common context for both writes and reads
  */
-public class Context implements AutoCloseable {
+public interface ModificationContext extends AutoCloseable {
 
-    protected final HashMap<Object, Object> map;
+    /**
+     * Get key value transient storage for customizers. Is cleared for each new transaction.
+     *
+     * @return Context for customizers
+     */
+    @Nonnull
+    ModificationCache getModificationCache();
 
-    public Context() {
-        map = Maps.newHashMap();
-    }
-
-    public Object get(final Object o) {
-        return map.get(o);
-    }
-
-    public boolean containsKey(final Object o) {
-        return map.containsKey(o);
-    }
-
-    public Object put(final Object o, final Object o2) {
-        return map.put(o, o2);
-    }
+    /**
+     * Get persistent storage for mapping context. This context survives a modification.
+     *
+     * @return Mapping context accessor
+     */
+    @Nonnull
+    MappingContext getMappingContext();
 
     @Override
-    public void close() {
-        map.clear();
-    }
+    void close();
 }

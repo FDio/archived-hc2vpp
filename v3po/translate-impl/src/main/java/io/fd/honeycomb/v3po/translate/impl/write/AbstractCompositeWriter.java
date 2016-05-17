@@ -232,7 +232,7 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
             // If there's no dedicated writer, use write current
             // But we need current data after to do so
             final InstanceIdentifier<D> currentId = RWUtils.cutId(id, getManagedDataObjectType());
-            Optional<DataObject> currentDataAfter = ctx.readAfter(currentId);
+            Optional<D> currentDataAfter = ctx.readAfter(currentId);
             LOG.debug("{}: Dedicated subtree writer missing for: {}. Writing current.", this,
                 RWUtils.getNextId(id, getManagedDataObjectType()).getType(), currentDataAfter);
             writeCurrent(currentId, castToManaged(currentDataAfter.get()), ctx);
@@ -260,8 +260,8 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
     private void updateSubtreeFromCurrent(final InstanceIdentifier<? extends DataObject> id, final WriteContext ctx)
         throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.cutId(id, getManagedDataObjectType());
-        Optional<DataObject> currentDataBefore = ctx.readBefore(currentId);
-        Optional<DataObject> currentDataAfter = ctx.readAfter(currentId);
+        Optional<D> currentDataBefore = ctx.readBefore(currentId);
+        Optional<D> currentDataAfter = ctx.readAfter(currentId);
         LOG.debug("{}: Dedicated subtree writer missing for: {}. Updating current without subtree", this,
             RWUtils.getNextId(id, getManagedDataObjectType()).getType(), currentDataAfter);
         updateCurrent((InstanceIdentifier<D>) id, castToManaged(currentDataBefore.orNull()),

@@ -2,8 +2,8 @@ package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.impl.
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
-import io.fd.honeycomb.v3po.data.impl.OperationalDataTree;
+import io.fd.honeycomb.v3po.data.ReadableDataManager;
+import io.fd.honeycomb.v3po.data.impl.ReadableDataTreeDelegator;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -37,15 +37,15 @@ public class OperationalDataTreeModule extends
     public java.lang.AutoCloseable createInstance() {
         LOG.debug("OperationalDataTreeModule.createInstance()");
         return new CloseableOperationalDataTree(
-                new OperationalDataTree(getSerializerDependency(), getSchemaServiceDependency().getGlobalContext(),
-                        getReaderRegistryDependency(), getNetconfMonitoringDomDataBrokerDependency()));
+                new ReadableDataTreeDelegator(getSerializerDependency(), getSchemaServiceDependency().getGlobalContext(),
+                        getReaderRegistryDependency(), getNetconfMonitoringDomDataBrokerDependency(), getContextBindingBrokerDependency()));
     }
 
-    private static final class CloseableOperationalDataTree implements ReadableDataTree, AutoCloseable {
+    private static final class CloseableOperationalDataTree implements ReadableDataManager, AutoCloseable {
 
-        private final OperationalDataTree delegate;
+        private final ReadableDataTreeDelegator delegate;
 
-        CloseableOperationalDataTree(final OperationalDataTree delegate) {
+        CloseableOperationalDataTree(final ReadableDataTreeDelegator delegate) {
             this.delegate = delegate;
         }
 

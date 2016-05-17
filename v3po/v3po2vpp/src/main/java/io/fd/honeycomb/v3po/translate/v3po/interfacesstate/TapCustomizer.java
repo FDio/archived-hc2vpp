@@ -18,7 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
 import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
 
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -72,12 +72,12 @@ public class TapCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Tap> id,
                                       @Nonnull final TapBuilder builder,
-                                      @Nonnull final Context ctx) throws ReadFailedException {
+                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
         // to fill in the context with initial ifc mapping
-        final int index = interfaceContext.getIndex(key.getName());
-        if (!isInterfaceOfType(ctx, index, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class)) {
+        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
+        if (!isInterfaceOfType(ctx.getModificationCache(), index, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class)) {
             return;
         }
 
@@ -85,7 +85,7 @@ public class TapCustomizer extends FutureJVppCustomizer
 
         @SuppressWarnings("unchecked")
         Map<Integer, SwInterfaceTapDetails> mappedTaps =
-            (Map<Integer, SwInterfaceTapDetails>) ctx.get(DUMPED_TAPS_CONTEXT_KEY);
+            (Map<Integer, SwInterfaceTapDetails>) ctx.getModificationCache().get(DUMPED_TAPS_CONTEXT_KEY);
 
         if(mappedTaps == null) {
             // Full Tap dump has to be performed here, no filter or anything is here to help so at least we cache it
@@ -104,7 +104,7 @@ public class TapCustomizer extends FutureJVppCustomizer
                     .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails));
             }
 
-            ctx.put(DUMPED_TAPS_CONTEXT_KEY, mappedTaps);
+            ctx.getModificationCache().put(DUMPED_TAPS_CONTEXT_KEY, mappedTaps);
         }
 
         final SwInterfaceTapDetails swInterfaceTapDetails = mappedTaps.get(index);

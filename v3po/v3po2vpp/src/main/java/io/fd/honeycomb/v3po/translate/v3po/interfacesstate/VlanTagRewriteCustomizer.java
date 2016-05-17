@@ -17,7 +17,7 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -68,13 +68,13 @@ public class VlanTagRewriteCustomizer extends FutureJVppCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<VlanTagRewrite> id,
-                                      @Nonnull final VlanTagRewriteBuilder builder, @Nonnull final Context ctx)
+                                      @Nonnull final VlanTagRewriteBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("Reading attributes for sub interface: {}", id);
         final InterfaceKey key = id.firstKeyOf(Interface.class);
 
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
-                interfaceContext.getIndex(key.getName()), ctx);
+                interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
 
         builder.setFirstPushed(iface.subDot1Ad == 1 ? VlanType._802dot1q : VlanType._802dot1ad);
         builder.setRewriteOperation(TagRewriteOperation.forValue(iface.vtrOp));

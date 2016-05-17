@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Longs;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -70,7 +70,7 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
-                                      @Nonnull final BridgeDomainBuilder builder, @Nonnull final Context context)
+                                      @Nonnull final BridgeDomainBuilder builder, @Nonnull final ReadContext context)
             throws ReadFailedException {
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: id={}, builderbuilder={}, context={}",
                 id, builder, context);
@@ -78,13 +78,13 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
         final BridgeDomainKey key = id.firstKeyOf(id.getTargetType());
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: key={}", key);
 
-        final int bdId = bdContext.getIndex(key.getName());
+        final int bdId = bdContext.getIndex(key.getName(), context.getMappingContext());
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: bdId={}", bdId);
 
         BridgeDomainDetailsReplyDump reply;
         BridgeDomainDetails bridgeDomainDetails;
         final BridgeDomainDump request = new BridgeDomainDump();
-        request.bdId = bdContext.getIndex(key.getName());
+        request.bdId = bdContext.getIndex(key.getName(), context.getMappingContext());
         try {
             reply = getFutureJVpp().bridgeDomainDump(request).toCompletableFuture().get();
             bridgeDomainDetails = Iterables.getOnlyElement(reply.bridgeDomainDetails);
@@ -102,7 +102,7 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
         builder.setLearn(byteToBoolean(bridgeDomainDetails.learn));
         builder.setUnknownUnicastFlood(byteToBoolean(bridgeDomainDetails.uuFlood));
 
-        builder.setInterface(getIfcs(bridgeDomainDetails, reply.bridgeDomainSwIfDetails));
+        builder.setInterface(getIfcs(bridgeDomainDetails, reply.bridgeDomainSwIfDetails, context));
 
         final L2FibTableDump l2FibRequest = new L2FibTableDump();
         l2FibRequest.bdId = bdId;
@@ -124,7 +124,7 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
                             ? L2Fib.Action.Filter
                             : L2Fib.Action.Forward))
                         .setBridgedVirtualInterface(byteToBoolean(entry.bviMac))
-                        .setOutgoingInterface(interfaceContext.getName(entry.swIfIndex))
+                        .setOutgoingInterface(interfaceContext.getName(entry.swIfIndex, context.getMappingContext()))
                         .setStaticConfig(byteToBoolean(entry.staticMac))
                         .setPhysAddress(address)
                         .setKey(new L2FibKey(address))
@@ -175,10 +175,11 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
     }
 
     private List<Interface> getIfcs(final BridgeDomainDetails bridgeDomainDetails,
-                                    final List<BridgeDomainSwIfDetails> bridgeDomainSwIfDetails) {
+                                    final List<BridgeDomainSwIfDetails> bridgeDomainSwIfDetails,
+                                    final ReadContext context) {
         final List<Interface> ifcs = new ArrayList<>(bridgeDomainSwIfDetails.size());
         for (BridgeDomainSwIfDetails anInterface : bridgeDomainSwIfDetails) {
-            final String interfaceName = interfaceContext.getName(anInterface.swIfIndex);
+            final String interfaceName = interfaceContext.getName(anInterface.swIfIndex, context.getMappingContext());
             if (anInterface.bdId == bridgeDomainDetails.bdId) {
                 ifcs.add(new InterfaceBuilder()
                         .setBridgedVirtualInterface(bridgeDomainDetails.bviSwIfIndex == anInterface.swIfIndex)
@@ -202,7 +203,7 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
     @Nonnull
     @Override
     public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id,
-                                           @Nonnull final Context context) {
+                                           @Nonnull final ReadContext context) {
         final BridgeDomainDump request = new BridgeDomainDump();
         request.bdId = -1; // dump call
 
@@ -228,7 +229,7 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
         for (BridgeDomainDetails detail : reply.bridgeDomainDetails) {
             logBridgeDomainDetails(detail);
 
-            final String bName = bdContext.getName(detail.bdId);
+            final String bName = bdContext.getName(detail.bdId, context.getMappingContext());
             LOG.debug("vppstate.BridgeDomainCustomizer.getAllIds: bName={}", bName);
             allIds.add(new BridgeDomainKey(bName));
         }

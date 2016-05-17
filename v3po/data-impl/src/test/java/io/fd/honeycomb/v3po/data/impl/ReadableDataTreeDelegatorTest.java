@@ -42,6 +42,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
@@ -58,14 +59,14 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.DataSchemaNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
-public class OperationalDataTreeTest {
+public class ReadableDataTreeDelegatorTest {
 
     @Mock
     private BindingNormalizedNodeSerializer serializer;
     @Mock
     private ReaderRegistry reader;
 
-    private OperationalDataTree operationalData;
+    private ReadableDataTreeDelegator operationalData;
 
     @Mock
     private InstanceIdentifier<DataObject> id;
@@ -81,16 +82,23 @@ public class OperationalDataTreeTest {
     private DOMDataBroker netconfMonitoringBroker;
     @Mock
     private DOMDataReadOnlyTransaction domDataReadOnlyTransaction;
+    @Mock
+    private DataBroker contextBroker;
 
     @Before
     public void setUp() {
         initMocks(this);
-        operationalData = new OperationalDataTree(serializer, globalContext, reader, netconfMonitoringBroker);
+        operationalData = new ReadableDataTreeDelegator(serializer, globalContext, reader, netconfMonitoringBroker, contextBroker);
         doReturn(schemaNode).when(globalContext).getDataChildByName(any(QName.class));
 
         doReturn(domDataReadOnlyTransaction).when(netconfMonitoringBroker).newReadOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(domDataReadOnlyTransaction)
             .read(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
+
+        final org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction ctxTransaction = mock(
+            org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction.class);
+        doReturn(ctxTransaction).when(contextBroker).newReadWriteTransaction();
+        doReturn(Futures.immediateCheckedFuture(null)).when(ctxTransaction).submit();
     }
 
     @Test

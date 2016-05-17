@@ -16,19 +16,25 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
@@ -63,8 +69,9 @@ public class VhostUserCustomizerTest {
     private FutureJVpp api;
     @Mock
     private WriteContext writeContext;
+    @Mock
+    private MappingContext mappingContext;
 
-    private NamingContext namingContext;
     private VhostUserCustomizer customizer;
     private static final int IFACE_ID = 1;
     private static final String IFACE_NAME = "eth0";
@@ -77,7 +84,11 @@ public class VhostUserCustomizerTest {
         initMocks(this);
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class);
-        namingContext = new NamingContext("generatedInterfaceName");
+        final NamingContext namingContext = new NamingContext("generatedInterfaceName", "test-instance");
+        final ModificationCache toBeReturned = new ModificationCache();
+        doReturn(toBeReturned).when(writeContext).getModificationCache();
+        doReturn(mappingContext).when(writeContext).getMappingContext();
+
         // TODO create base class for tests using vppApi
         customizer = new VhostUserCustomizer(api, namingContext);
     }
@@ -186,7 +197,7 @@ public class VhostUserCustomizerTest {
 
         customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
         verifyCreateVhostUserIfWasInvoked(vhostUser);
-        assertTrue(namingContext.containsIndex(IFACE_NAME));
+        verify(mappingContext).put(eq(getMappingIid(IFACE_NAME, "test-instance")), eq(getMapping(IFACE_NAME, 0).get()));
     }
 
     @Test
@@ -200,7 +211,7 @@ public class VhostUserCustomizerTest {
         } catch (WriteFailedException.CreateFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyCreateVhostUserIfWasInvoked(vhostUser);
-            assertFalse(namingContext.containsIndex(IFACE_NAME));
+            verifyZeroInteractions(mappingContext);
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -210,7 +221,7 @@ public class VhostUserCustomizerTest {
     public void testUpdateCurrentAttributes() throws Exception {
         final VhostUser vhostUserBefore = generateVhostUser(VhostUserRole.Client, "socketName0");
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName1");
-        namingContext.addName(IFACE_ID, IFACE_NAME);
+        doReturn(getMapping(IFACE_NAME, IFACE_ID)).when(mappingContext).read(getMappingIid(IFACE_NAME, "test-instance"));
 
         whenModifyVhostUserIfThenSuccess();
 
@@ -230,7 +241,7 @@ public class VhostUserCustomizerTest {
     public void testUpdateCurrentAttributesFailed() throws Exception {
         final VhostUser vhostUserBefore = generateVhostUser(VhostUserRole.Client, "socketName0");
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName1");
-        namingContext.addName(IFACE_ID, IFACE_NAME);
+        doReturn(getMapping(IFACE_NAME, IFACE_ID)).when(mappingContext).read(getMappingIid(IFACE_NAME, "test-instance"));
 
         whenModifyVhostUserIfThenFailure();
 
@@ -247,19 +258,19 @@ public class VhostUserCustomizerTest {
     @Test
     public void testDeleteCurrentAttributes() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
-        namingContext.addName(IFACE_ID, IFACE_NAME);
+        doReturn(getMapping(IFACE_NAME, IFACE_ID)).when(mappingContext).read(getMappingIid(IFACE_NAME, "test-instance"));
 
         whenDeleteVhostUserIfThenSuccess();
 
         customizer.deleteCurrentAttributes(ID, vhostUser, writeContext);
         verifyDeleteVhostUserIfWasInvoked(IFACE_ID);
-        assertFalse(namingContext.containsIndex(IFACE_NAME));
+        verify(mappingContext).delete(eq(getMappingIid(IFACE_NAME, "test-instance")));
     }
 
     @Test
     public void testDeleteCurrentAttributesFailed() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
-        namingContext.addName(IFACE_ID, IFACE_NAME);
+        doReturn(getMapping(IFACE_NAME, IFACE_ID)).when(mappingContext).read(getMappingIid(IFACE_NAME, "test-instance"));
 
         whenDeleteVhostUserIfThenFailure();
 
@@ -268,7 +279,9 @@ public class VhostUserCustomizerTest {
         } catch (WriteFailedException.DeleteFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyDeleteVhostUserIfWasInvoked(IFACE_ID);
-            assertTrue(namingContext.containsIndex(IFACE_NAME));
+            // Delete from context not invoked if delete from VPP failed
+            verify(mappingContext, times(0)).delete(eq(getMappingIid(IFACE_NAME, "test-instance")));
+            verify(mappingContext).read(eq(getMappingIid(IFACE_NAME, "test-instance")));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

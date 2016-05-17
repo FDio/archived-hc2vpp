@@ -45,17 +45,17 @@ public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
     }
 
     private void checkProperInterfaceType(@Nonnull final WriteContext writeContext,
-                                  @Nonnull final InstanceIdentifier<D> id) {
+                                          @Nonnull final InstanceIdentifier<D> id) {
         final InstanceIdentifier<Interface> ifcTypeFromIid = id.firstIdentifierOf(Interface.class);
         checkArgument(ifcTypeFromIid != null, "Instance identifier does not contain {} type", Interface.class);
         checkArgument(id.firstKeyOf(Interface.class) != null, "Instance identifier does not contain keyed {} type",
             Interface.class);
-        final Optional<DataObject> interfaceConfigOperational = writeContext.readAfter(ifcTypeFromIid);
-        checkState(interfaceConfigOperational.isPresent(),
-            "Unable to get Interface configuration for an interface being updated under ID");
+        final Optional<Interface> interfaceConfig = writeContext.readAfter(ifcTypeFromIid);
+        checkState(interfaceConfig.isPresent(),
+            "Unable to get Interface configuration for an interface: %s currently being updated", ifcTypeFromIid);
 
         IllegalInterfaceTypeException
-            .checkInterfaceType((Interface) interfaceConfigOperational.get(), getExpectedInterfaceType());
+            .checkInterfaceType(interfaceConfig.get(), getExpectedInterfaceType());
     }
 
     protected abstract Class<? extends InterfaceType> getExpectedInterfaceType();

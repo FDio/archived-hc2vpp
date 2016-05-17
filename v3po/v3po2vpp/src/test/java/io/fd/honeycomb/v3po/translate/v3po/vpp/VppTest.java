@@ -16,15 +16,21 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.impl.write.CompositeRootWriter;
 import io.fd.honeycomb.v3po.translate.util.write.DelegatingWriterRegistry;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
@@ -38,6 +44,9 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
@@ -54,17 +63,24 @@ public class VppTest {
 
     private static final byte ADD_OR_UPDATE_BD = 1;
     private static final byte ZERO = 0;
+    @Mock
     private FutureJVpp api;
+    @Mock
+    private WriteContext ctx;
+    @Mock
+    private MappingContext mappingContext;
+
     private DelegatingWriterRegistry rootRegistry;
     private CompositeRootWriter<Vpp> vppWriter;
-    private WriteContext ctx;
-    private NamingContext bdContext;
 
     @Before
     public void setUp() throws Exception {
-        api = mock(FutureJVpp.class);
-        ctx = mock(WriteContext.class);
-        bdContext = new NamingContext("generatedBdName");
+        MockitoAnnotations.initMocks(this);
+        NamingContext bdContext = new NamingContext("generatedBdName", "test-instance");
+        final ModificationCache toBeReturned = new ModificationCache();
+        doReturn(toBeReturned).when(ctx).getModificationCache();
+        doReturn(mappingContext).when(ctx).getMappingContext();
+
         vppWriter = VppUtils.getVppWriter(api, bdContext);
         rootRegistry = new DelegatingWriterRegistry(
             Collections.<Writer<? extends DataObject>>singletonList(vppWriter));
@@ -134,6 +150,8 @@ public class VppTest {
         final int bdId = 1;
         final BridgeDomains bdn1 = getBridgeDomains("bdn1");
         whenBridgeDomainAddDelThen(0);
+        doReturn(Optional
+            .absent()).when(mappingContext).read(getMappingIid("bdn1", "test-instance").firstIdentifierOf(Mappings.class));
 
         rootRegistry.update(
                 InstanceIdentifier.create(Vpp.class),
@@ -149,6 +167,8 @@ public class VppTest {
         final int bdId = 1;
         final BridgeDomains bdn1 = getBridgeDomains("bdn1");
         whenBridgeDomainAddDelThen(0);
+        doReturn(Optional
+            .absent()).when(mappingContext).read(getMappingIid("bdn1", "test-instance").firstIdentifierOf(Mappings.class));
 
         vppWriter.update(InstanceIdentifier.create(Vpp.class),
                 null,
@@ -156,6 +176,7 @@ public class VppTest {
                 ctx);
 
         verifyBridgeDomainAddDel(Iterators.getOnlyElement(bdn1.getBridgeDomain().iterator()), bdId);
+        verify(mappingContext).put(getMappingIid("bdn1", "test-instance"), getMapping("bdn1", 1).get());
     }
 
     @Test
@@ -163,9 +184,11 @@ public class VppTest {
         final BridgeDomains bdn1 = getBridgeDomains("bdn1");
         final int bdId = 1;
         final Vpp vpp = new VppBuilder().setBridgeDomains(bdn1).build();
+        doReturn(Optional
+            .absent()).when(mappingContext).read(getMappingIid("bdn1", "test-instance").firstIdentifierOf(Mappings.class));
         whenBridgeDomainAddDelThen(0);
 
-        rootRegistry.update(Collections.<InstanceIdentifier<?>, DataObject>emptyMap(),
+        rootRegistry.update(Collections.emptyMap(),
             Collections.<InstanceIdentifier<?>, DataObject>singletonMap(InstanceIdentifier.create(Vpp.class),
                 vpp), ctx);
 
@@ -178,7 +201,7 @@ public class VppTest {
         final BridgeDomains bdn1 = getBridgeDomains(bdName);
         final int bdId = 1;
         whenBridgeDomainAddDelThen(0);
-        bdContext.addName(bdId, bdName);
+        doReturn(getMapping(bdName, bdId)).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
 
         rootRegistry.update(
             InstanceIdentifier.create(Vpp.class),
@@ -204,7 +227,8 @@ public class VppTest {
     public void writeUpdate() throws Exception {
         final String bdName = "bdn1";
         final int bdn1Id = 1;
-        bdContext.addName(bdn1Id, bdName);
+        doReturn(getMapping(bdName, bdn1Id)).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
+
         final BridgeDomains domainsBefore = getBridgeDomains(bdName);
         final BridgeDomain bdn1Before = domainsBefore.getBridgeDomain().get(0);
 

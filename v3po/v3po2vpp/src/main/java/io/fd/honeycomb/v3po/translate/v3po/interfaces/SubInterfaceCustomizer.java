@@ -75,15 +75,16 @@ public class SubInterfaceCustomizer extends AbstractInterfaceTypeCustomizer<SubI
                                        @Nonnull final SubInterface dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.CreateFailedException {
         try {
-            createSubInterface(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            createSubInterface(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
 
-    private void createSubInterface(final String swIfName, final SubInterface subInterface) throws VppApiInvocationException {
+    private void createSubInterface(final String swIfName, final SubInterface subInterface,
+                                    final WriteContext writeContext) throws VppApiInvocationException {
         final String superIfName = subInterface.getSuperInterface();
-        final int swIfIndex = interfaceContext.getIndex(superIfName);
+        final int swIfIndex = interfaceContext.getIndex(superIfName, writeContext.getMappingContext());
         LOG.debug("Creating sub interface of {}(id={}): name={}, subInterface={}", superIfName, swIfIndex, swIfName, subInterface);
         final CompletionStage<CreateSubifReply> createSubifReplyCompletionStage =
                 getFutureJVpp().createSubif(getCreateSubifRequest(subInterface, swIfIndex));
@@ -96,7 +97,7 @@ public class SubInterfaceCustomizer extends AbstractInterfaceTypeCustomizer<SubI
         } else {
             LOG.debug("Sub interface created successfully for: {}, subInterface: {}", swIfName, subInterface);
             // Add new interface to our interface context
-            interfaceContext.addName(reply.swIfIndex, swIfName);
+            interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
         }
     }
 

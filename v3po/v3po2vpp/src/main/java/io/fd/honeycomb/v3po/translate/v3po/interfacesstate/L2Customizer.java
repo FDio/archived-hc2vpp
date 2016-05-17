@@ -17,7 +17,7 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -74,20 +74,20 @@ public class L2Customizer extends FutureJVppCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2Builder builder,
-                                      @Nonnull final Context ctx) throws ReadFailedException {
+                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
         LOG.debug("Reading attributes for L2: {}", id);
         final InterfaceKey key = id.firstKeyOf(Interface.class);
-        final int ifaceId = interfaceContext.getIndex(key.getName());
+        final int ifaceId = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
 
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
-                ifaceId, ctx);
+                ifaceId, ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", key.getName(), iface);
 
         final Optional<BridgeDomainSwIfDetails> bdForInterface = getBridgeDomainForInterface(ifaceId);
         if (bdForInterface.isPresent()) {
             final BridgeDomainSwIfDetails bdSwIfDetails = bdForInterface.get();
             final BridgeBasedBuilder bbBuilder = new BridgeBasedBuilder();
-            bbBuilder.setBridgeDomain(bridgeDomainContext.getName(bdSwIfDetails.bdId));
+            bbBuilder.setBridgeDomain(bridgeDomainContext.getName(bdSwIfDetails.bdId, ctx.getMappingContext()));
             // bbBuilder.setBridgedVirtualInterface // TODO where to find that value?
             if (bdSwIfDetails.shg != 0) {
                 bbBuilder.setSplitHorizonGroup((short)bdSwIfDetails.shg);

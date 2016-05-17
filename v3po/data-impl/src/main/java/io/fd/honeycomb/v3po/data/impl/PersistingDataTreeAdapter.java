@@ -127,6 +127,10 @@ public class PersistingDataTreeAdapter implements org.opendaylight.yangtools.yan
         if(currentRoot.isPresent()) {
             try {
                 LOG.trace("Persisting current data: {} into: {}", currentRoot.get(), path);
+                // Make sure the file gets overwritten
+                if(Files.exists(path)) {
+                    Files.delete(path);
+                }
                 // TODO once we are in static environment, do the writer, streamWriter and NNWriter initialization only once
                 final JsonWriter
                     jsonWriter = createJsonWriter(Files.newOutputStream(path, StandardOpenOption.CREATE), true);

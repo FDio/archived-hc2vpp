@@ -14,34 +14,27 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.v3po.interfaces;
-
-import static org.mockito.Mockito.doReturn;
+package io.fd.honeycomb.v3po.translate.v3po;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.ModificationCache;
-import io.fd.honeycomb.v3po.translate.write.WriteContext;
-import org.mockito.Matchers;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContextKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-final class InterfaceTypeTestUtils {
+public class ContextTestUtils {
 
-    private InterfaceTypeTestUtils() {}
-
-    static void setupWriteContext(final WriteContext writeContext, final Class<? extends InterfaceType> ifcType) {
-        doReturn(new ModificationCache()).when(writeContext).getModificationCache();
-        doReturn(Optional.of(new InterfaceBuilder()
-            .setType(ifcType)
-            .build())).when(writeContext).readAfter(Matchers.any(InstanceIdentifier.class));
+    public static Optional<Mapping> getMapping(final String name, final int index) {
+        return Optional.of(new MappingBuilder().setName(name).setIndex(index).build());
     }
 
+    public static KeyedInstanceIdentifier<Mapping, MappingKey> getMappingIid(final String name, final String namingContextName) {
+        return InstanceIdentifier.create(Contexts.class).child(
+                org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContext.class,
+                new NamingContextKey(namingContextName)).child(Mappings.class).child(Mapping.class, new MappingKey(name));
+    }
 }

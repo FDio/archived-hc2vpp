@@ -124,7 +124,7 @@ public final class CompositeListReader<C extends DataObject & Identifiable<K>, K
     public List<C> readList(@Nonnull final InstanceIdentifier<C> id,
                             @Nonnull final ReadContext ctx) throws ReadFailedException {
         LOG.trace("{}: Reading all list entries", this);
-        final List<K> allIds = customizer.getAllIds(id, ctx.getContext());
+        final List<K> allIds = customizer.getAllIds(id, ctx);
         LOG.debug("{}: Reading list entries for: {}", this, allIds);
 
         final ArrayList<C> allEntries = new ArrayList<>(allIds.size());
@@ -146,7 +146,7 @@ public final class CompositeListReader<C extends DataObject & Identifiable<K>, K
     protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder,
                                          @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        customizer.readCurrentAttributes(id, builder, ctx.getContext());
+        customizer.readCurrentAttributes(id, builder, ctx);
     }
 
     @Override

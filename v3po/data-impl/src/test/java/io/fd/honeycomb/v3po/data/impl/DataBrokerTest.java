@@ -22,9 +22,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ReadableDataManager;
+import io.fd.honeycomb.v3po.data.ModifiableDataManager;
+import io.fd.honeycomb.v3po.data.DataModification;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,18 +42,18 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 public class DataBrokerTest {
 
     @Mock
-    private ReadableDataTree operationalData;
+    private ReadableDataManager operationalData;
     @Mock
-    private ModifiableDataTree confiDataTree;
+    private ModifiableDataManager confiDataTree;
     @Mock
-    private DataTreeSnapshot configSnapshot;
+    private DataModification configSnapshot;
     private DataBroker broker;
 
     @Before
     public void setUp() {
         initMocks(this);
-        when(confiDataTree.takeSnapshot()).thenReturn(configSnapshot);
-        broker = new DataBroker(operationalData, confiDataTree);
+        when(confiDataTree.newModification()).thenReturn(configSnapshot);
+        broker = DataBroker.create(confiDataTree, operationalData);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class DataBrokerTest {
 
         // verify that read and write transactions use the same config snapshot
         verify(configSnapshot).read(path);
-        verify(configSnapshot).newModification();
+        verify(confiDataTree).newModification();
     }
 
     @Test
@@ -72,7 +72,7 @@ public class DataBrokerTest {
         final DOMDataWriteTransaction writeTx = broker.newWriteOnlyTransaction();
 
         // verify that write transactions use config snapshot
-        verify(configSnapshot).newModification();
+        verify(confiDataTree).newModification();
     }
 
     @Test

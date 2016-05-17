@@ -16,7 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -69,13 +70,13 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<Interface> id, @Nonnull InterfaceBuilder builder,
-                                      @Nonnull Context ctx) throws ReadFailedException {
+                                      @Nonnull ReadContext ctx) throws ReadFailedException {
         LOG.debug("Reading attributes for interface: {}", id);
         final InterfaceKey key = id.firstKeyOf(id.getTargetType());
 
         // Pass cached details from getAllIds to getDetails to avoid additional dumps
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
-            interfaceContext.getIndex(key.getName()), ctx);
+            interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", key.getName(), iface);
 
         builder.setName(key.getName());
@@ -94,7 +95,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
     @Nonnull
     @SuppressWarnings("unchecked")
-    public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(final @Nonnull Context ctx) {
+    public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(final @Nonnull ModificationCache ctx) {
         return ctx.get(DUMPED_IFCS_CONTEXT_KEY) == null
             ? new HashMap<>() // allow customizers to update the cache
             : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
@@ -103,7 +104,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     @Nonnull
     @Override
     public List<InterfaceKey> getAllIds(@Nonnull final InstanceIdentifier<Interface> id,
-                                        @Nonnull final Context context) throws ReadFailedException {
+                                        @Nonnull final ReadContext context) throws ReadFailedException {
         LOG.trace("Dumping all interfaces to get all IDs");
 
         final SwInterfaceDump request = new SwInterfaceDump();
@@ -120,20 +121,20 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         }
 
         // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-        context.put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
+        context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
             .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
 
         final List<InterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
             .filter(elt -> elt != null)
             .map((elt) -> {
                 // Store interface name from VPP in context if not yet present
-                if (!interfaceContext.containsName(elt.swIfIndex)) {
-                    interfaceContext.addName(elt.swIfIndex, V3poUtils.toString(elt.interfaceName));
+                if (!interfaceContext.containsName(elt.swIfIndex, context.getMappingContext())) {
+                    interfaceContext.addName(elt.swIfIndex, V3poUtils.toString(elt.interfaceName), context.getMappingContext());
                 }
                 LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
-                    interfaceContext.getName(elt.swIfIndex), elt.interfaceName, elt.swIfIndex);
+                    interfaceContext.getName(elt.swIfIndex, context.getMappingContext()), elt.interfaceName, elt.swIfIndex);
 
-                return new InterfaceKey(interfaceContext.getName(elt.swIfIndex));
+                return new InterfaceKey(interfaceContext.getName(elt.swIfIndex, context.getMappingContext()));
             })
             .collect(Collectors.toList());
 

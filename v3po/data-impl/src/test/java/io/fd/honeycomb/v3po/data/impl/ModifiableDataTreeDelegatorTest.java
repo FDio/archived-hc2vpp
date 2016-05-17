@@ -25,13 +25,15 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
+import com.google.common.util.concurrent.Futures;
+import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
@@ -42,6 +44,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
@@ -55,9 +58,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 
-public class ConfigDataTreeTest {
+public class ModifiableDataTreeDelegatorTest {
 
     @Mock
     private WriterRegistry writer;
@@ -66,14 +68,16 @@ public class ConfigDataTreeTest {
     @Mock
     private DataTree dataTree;
     @Mock
-    private DataTreeModification modification;
+    private org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification modification;
+    @Mock
+    private DataBroker contextBroker;
 
-    private ConfigDataTree configDataTree;
+    private ModifiableDataTreeManager configDataTree;
 
     @Before
     public void setUp() {
         initMocks(this);
-        configDataTree = new ConfigDataTree(serializer, dataTree, writer);
+        configDataTree = new ModifiableDataTreeDelegator(serializer, dataTree, writer, contextBroker);
     }
 
     @Test
@@ -81,17 +85,18 @@ public class ConfigDataTreeTest {
         final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
                 snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
         when(dataTree.takeSnapshot()).thenReturn(snapshot);
+        when(snapshot.newModification()).thenReturn(modification);
 
         final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
         final Optional node = mock(Optional.class);
-        doReturn(node).when(snapshot).readNode(path);
+        doReturn(node).when(modification).readNode(path);
 
-        final DataTreeSnapshot dataTreeSnapshot = configDataTree.takeSnapshot();
+        final DataModification dataTreeSnapshot = configDataTree.newModification();
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
                 dataTreeSnapshot.read(path);
 
-        verify(dataTree).takeSnapshot();
-        verify(snapshot).readNode(path);
+        verify(dataTree, times(2)).takeSnapshot();
+        verify(modification).readNode(path);
 
         assertTrue(future.isDone());
         assertEquals(node, future.get());
@@ -102,19 +107,29 @@ public class ConfigDataTreeTest {
         final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
                 snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
         when(dataTree.takeSnapshot()).thenReturn(snapshot);
-
         when(snapshot.newModification()).thenReturn(modification);
 
-        final DataTreeSnapshot dataTreeSnapshot = configDataTree.takeSnapshot();
-        final DataTreeModification newModification = dataTreeSnapshot.newModification();
-        verify(dataTree).takeSnapshot();
-        verify(snapshot).newModification();
-
-        assertEquals(modification, newModification);
+        final DataModification dataTreeSnapshot = configDataTree.newModification();
+        // Snapshot captured twice, so that original data could be provided to translation layer without any possible
+        // modification
+        verify(dataTree, times(2)).takeSnapshot();
+        verify(snapshot, times(2)).newModification();
     }
 
     @Test
     public void testCommitSuccessful() throws Exception {
+        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
+            snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
+        when(dataTree.takeSnapshot()).thenReturn(snapshot);
+        when(snapshot.newModification()).thenReturn(modification);
+        final DataTreeCandidate prepare = mock(DataTreeCandidate.class);
+        doReturn(prepare).when(dataTree).prepare(modification);
+
+        final org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction ctxTransaction = mock(
+            org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction.class);
+        doReturn(ctxTransaction).when(contextBroker).newReadWriteTransaction();
+        doReturn(Futures.immediateCheckedFuture(null)).when(ctxTransaction).submit();
+
         final DataObject dataBefore = mockDataObject("before", Ethernet.class);
         final DataObject dataAfter = mockDataObject("after", Ethernet.class);
 
@@ -128,7 +143,9 @@ public class ConfigDataTreeTest {
         when(rootNode.getDataAfter()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeAfter));
 
         // Run the test
-        configDataTree.modify(modification);
+        doReturn(rootNode).when(prepare).getRootNode();
+        final DataModification dataModification = configDataTree.newModification();
+        dataModification.commit();
 
         // Verify all changes were processed:
         verify(writer).update(
@@ -138,6 +155,8 @@ public class ConfigDataTreeTest {
 
         // Verify modification was validated
         verify(dataTree).validate(modification);
+        // Verify context transaction was finished
+        verify(ctxTransaction).submit();
     }
 
     private Map<InstanceIdentifier<?>, DataObject> mapOf(final DataObject dataBefore, final Class<Ethernet> type) {
@@ -154,6 +173,13 @@ public class ConfigDataTreeTest {
 
     @Test
     public void testCommitUndoSuccessful() throws Exception {
+        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
+            snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
+        when(dataTree.takeSnapshot()).thenReturn(snapshot);
+        when(snapshot.newModification()).thenReturn(modification);
+        final DataTreeCandidate prepare = mock(DataTreeCandidate.class);
+        doReturn(prepare).when(dataTree).prepare(modification);
+
         // Prepare data changes:
         final DataObject dataBefore = mockDataObject("before", Ethernet.class);
         final DataObject dataAfter = mockDataObject("after", Ethernet.class);
@@ -177,7 +203,9 @@ public class ConfigDataTreeTest {
 
         // Run the test
         try {
-            configDataTree.modify(modification);
+            doReturn(rootNode).when(prepare).getRootNode();
+            final DataModification dataModification = configDataTree.newModification();
+            dataModification.commit();
         } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException e) {
             verify(writer).update(anyMap(), anyMap(), any(WriteContext.class));
             verify(reverter).revert();
@@ -190,6 +218,13 @@ public class ConfigDataTreeTest {
 
     @Test
     public void testCommitUndoFailed() throws Exception {
+        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
+            snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
+        when(dataTree.takeSnapshot()).thenReturn(snapshot);
+        when(snapshot.newModification()).thenReturn(modification);
+        final DataTreeCandidate prepare = mock(DataTreeCandidate.class);
+        doReturn(prepare).when(dataTree).prepare(modification);
+
         // Prepare data changes:
         final DataObject dataBefore = mockDataObject("before", Ethernet.class);
         final DataObject dataAfter = mockDataObject("after", Ethernet.class);
@@ -219,7 +254,9 @@ public class ConfigDataTreeTest {
 
         // Run the test
         try {
-            configDataTree.modify(modification);
+            doReturn(rootNode).when(prepare).getRootNode();
+            final DataModification dataModification = configDataTree.newModification();
+            dataModification.commit();
         } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException e) {
             verify(writer).update(anyMap(), anyMap(), any(WriteContext.class));
             verify(reverter).revert();

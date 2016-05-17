@@ -16,16 +16,21 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.yangIfIndexToVpp;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
@@ -37,12 +42,17 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
 import org.openvpp.jvpp.dto.SwInterfaceDump;
@@ -58,13 +68,23 @@ public class InterfaceCustomizerTest extends
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("generatedIfaceName");
+        interfacesContext = new NamingContext("generatedIfaceName", "test-instance");
     }
 
     @Override
     protected RootReaderCustomizer<Interface, InterfaceBuilder> initCustomizer() {
-        interfacesContext.addName(0, "eth0");
-        interfacesContext.addName(1, "eth1");
+        final KeyedInstanceIdentifier<Mapping, MappingKey> eth0Id = getMappingIid("eth0", "test-instance");
+        final KeyedInstanceIdentifier<Mapping, MappingKey> eth1Id = getMappingIid("eth1", "test-instance");
+        final Optional<Mapping> eth0 = getMapping("eth0", 0);
+        final Optional<Mapping> eth1 = getMapping("eth1", 1);
+
+        final List<Mapping> allMappings = Lists.newArrayList(getMapping("eth0", 0).get(), getMapping("eth1", 1).get());
+        final Mappings allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
+        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(eth0Id.firstIdentifierOf(Mappings.class));
+
+        doReturn(eth0).when(mappingContext).read(eth0Id);
+        doReturn(eth1).when(mappingContext).read(eth1Id);
+
         return new InterfaceCustomizer(api, interfacesContext);
     }
 

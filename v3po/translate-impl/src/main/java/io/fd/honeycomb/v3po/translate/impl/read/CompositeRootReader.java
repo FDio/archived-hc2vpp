@@ -99,7 +99,7 @@ public final class CompositeRootReader<C extends DataObject, B extends Builder<C
     @Override
     protected void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id, @Nonnull final B builder,
                                          @Nonnull final ReadContext ctx) throws ReadFailedException {
-        customizer.readCurrentAttributes(id, builder, ctx.getContext());
+        customizer.readCurrentAttributes(id, builder, ctx);
     }
 
     @Override

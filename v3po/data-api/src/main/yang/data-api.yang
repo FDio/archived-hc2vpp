@@ -21,12 +21,12 @@ module data-api {
 
     identity honeycomb-readable-data-tree {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.data.ReadableDataTree;
+        config:java-class io.fd.honeycomb.v3po.data.ReadableDataManager;
     }
 
     identity honeycomb-modifiable-data-tree {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.data.ModifiableDataTree;
+        config:java-class io.fd.honeycomb.v3po.data.ModifiableDataManager;
     }
 
 }

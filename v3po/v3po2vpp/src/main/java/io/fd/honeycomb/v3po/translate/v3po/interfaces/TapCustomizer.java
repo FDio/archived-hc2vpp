@@ -69,7 +69,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
                                        @Nonnull final WriteContext writeContext)
         throws WriteFailedException.CreateFailedException {
         try {
-            createTap(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            createTap(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Write of Tap failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -84,7 +84,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
 
         final int index;
         try {
-            index = interfaceContext.getIndex(ifcName);
+            index = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
         } catch (IllegalArgumentException e) {
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
@@ -105,20 +105,20 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
 
         final int index;
         try {
-            index = interfaceContext.getIndex(ifcName);
+            index = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
         } catch (IllegalArgumentException e) {
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
 
         try {
-            deleteTap(ifcName, index, dataBefore);
+            deleteTap(ifcName, index, dataBefore, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Delete of Tap failed", e);
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
-    private void createTap(final String swIfName, final Tap tap) throws VppApiInvocationException {
+    private void createTap(final String swIfName, final Tap tap, final WriteContext writeContext) throws VppApiInvocationException {
         LOG.debug("Setting tap interface: {}. Tap: {}", swIfName, tap);
         final CompletionStage<TapConnectReply> tapConnectFuture =
             getFutureJVpp().tapConnect(getTapConnectRequest(tap.getTapName(), tap.getMac(), tap.getDeviceInstance()));
@@ -130,7 +130,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         } else {
             LOG.debug("Tap set successfully for: {}, tap: {}", swIfName, tap);
             // Add new interface to our interface context
-            interfaceContext.addName(reply.swIfIndex, swIfName);
+            interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
         }
     }
 
@@ -148,7 +148,8 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         }
     }
 
-    private void deleteTap(final String swIfName, final int index, final Tap dataBefore)
+    private void deleteTap(final String swIfName, final int index, final Tap dataBefore,
+                           final WriteContext writeContext)
         throws VppApiInvocationException {
         LOG.debug("Deleting tap interface: {}. Tap: {}", swIfName, dataBefore);
         final CompletionStage<TapDeleteReply> vxlanAddDelTunnelReplyCompletionStage =
@@ -161,7 +162,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         } else {
             LOG.debug("Tap deleted successfully for: {}, tap: {}", swIfName, dataBefore);
             // Remove deleted interface from interface context
-            interfaceContext.removeName(swIfName);
+            interfaceContext.removeName(swIfName, writeContext.getMappingContext());
         }
     }
 

@@ -57,7 +57,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
         throws WriteFailedException {
 
         try {
-            setInterface(id, dataAfter);
+            setInterface(id, dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of VppInterfaceAugment failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -72,7 +72,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
         throws WriteFailedException.UpdateFailedException {
 
         try {
-            updateInterface(id, dataBefore, dataAfter);
+            updateInterface(id, dataBefore, dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of VppInterfaceAugment failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
@@ -95,25 +95,25 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
     }
 
 
-    private void setInterface(final InstanceIdentifier<Interface> id, final Interface swIf)
+    private void setInterface(final InstanceIdentifier<Interface> id, final Interface swIf,
+                              final WriteContext writeContext)
         throws VppApiInvocationException, WriteFailedException {
         LOG.debug("Setting interface: {} to: {}", id, swIf);
-        setInterfaceAttributes(swIf, swIf.getName());
+        setInterfaceAttributes(swIf, swIf.getName(), writeContext);
     }
 
-    private void setInterfaceAttributes(final Interface swIf, final String swIfName)
+    private void setInterfaceAttributes(final Interface swIf, final String swIfName, final WriteContext writeContext)
         throws VppApiInvocationException {
 
-        setInterfaceFlags(swIfName, interfaceContext.getIndex(swIfName),
+        setInterfaceFlags(swIfName, interfaceContext.getIndex(swIfName, writeContext.getMappingContext()),
             swIf.isEnabled() ? (byte) 1 : (byte) 0);
     }
 
     private void updateInterface(final InstanceIdentifier<Interface> id,
                                  final Interface dataBefore,
-                                 final Interface dataAfter) throws VppApiInvocationException {
+                                 final Interface dataAfter, final WriteContext writeContext) throws VppApiInvocationException {
         LOG.debug("Updating interface:{} to: {}", id, dataAfter);
-
-        setInterfaceAttributes(dataAfter, dataAfter.getName());
+        setInterfaceAttributes(dataAfter, dataAfter.getName(), writeContext);
     }
 
     private void setInterfaceFlags(final String swIfName, final int swIfIndex, final byte enabled)

@@ -73,13 +73,13 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
                                        @Nonnull final VhostUser dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.CreateFailedException {
         try {
-            createVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            createVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException | IllegalInterfaceTypeException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
 
-    private void createVhostUserIf(final String swIfName, final VhostUser vhostUser) throws VppApiInvocationException {
+    private void createVhostUserIf(final String swIfName, final VhostUser vhostUser, final WriteContext writeContext) throws VppApiInvocationException {
         LOG.debug("Creating vhost user interface: name={}, vhostUser={}", swIfName, vhostUser);
         final CompletionStage<CreateVhostUserIfReply> createVhostUserIfReplyCompletionStage =
                 getFutureJVpp().createVhostUserIf(getCreateVhostUserIfRequest(vhostUser));
@@ -92,7 +92,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
         } else {
             LOG.debug("Vhost user interface created successfully for: {}, vhostUser: {}", swIfName, vhostUser);
             // Add new interface to our interface context
-            interfaceContext.addName(reply.swIfIndex, swIfName);
+            interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
         }
     }
 
@@ -118,17 +118,17 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
         }
 
         try {
-            modifyVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            modifyVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
     }
 
-    private void modifyVhostUserIf(final String swIfName, final VhostUser vhostUser) throws VppApiInvocationException {
+    private void modifyVhostUserIf(final String swIfName, final VhostUser vhostUser, final WriteContext writeContext) throws VppApiInvocationException {
         LOG.debug("Updating vhost user interface: name={}, vhostUser={}", swIfName, vhostUser);
         final CompletionStage<ModifyVhostUserIfReply> modifyVhostUserIfReplyCompletionStage =
                 getFutureJVpp()
-                        .modifyVhostUserIf(getModifyVhostUserIfRequest(vhostUser, interfaceContext.getIndex(swIfName)));
+                        .modifyVhostUserIf(getModifyVhostUserIfRequest(vhostUser, interfaceContext.getIndex(swIfName, writeContext.getMappingContext())));
 
         final ModifyVhostUserIfReply reply =
                 V3poUtils.getReply(modifyVhostUserIfReplyCompletionStage.toCompletableFuture());
@@ -155,16 +155,16 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
                                         @Nonnull final VhostUser dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.DeleteFailedException {
         try {
-            deleteVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataBefore);
+            deleteVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataBefore, writeContext);
         } catch (VppApiInvocationException e) {
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
-    private void deleteVhostUserIf(final String swIfName, final VhostUser vhostUser) throws VppApiInvocationException {
+    private void deleteVhostUserIf(final String swIfName, final VhostUser vhostUser, final WriteContext writeContext) throws VppApiInvocationException {
         LOG.debug("Deleting vhost user interface: name={}, vhostUser={}", swIfName, vhostUser);
         final CompletionStage<DeleteVhostUserIfReply> deleteVhostUserIfReplyCompletionStage =
-                getFutureJVpp().deleteVhostUserIf(getDeleteVhostUserIfRequest(interfaceContext.getIndex(swIfName)));
+                getFutureJVpp().deleteVhostUserIf(getDeleteVhostUserIfRequest(interfaceContext.getIndex(swIfName, writeContext.getMappingContext())));
 
         final DeleteVhostUserIfReply reply =
                 V3poUtils.getReply(deleteVhostUserIfReplyCompletionStage.toCompletableFuture());
@@ -174,7 +174,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
         } else {
             LOG.debug("Vhost user interface deleted successfully for: {}, vhostUser: {}", swIfName, vhostUser);
             // Remove interface from our interface context
-            interfaceContext.removeName(swIfName);
+            interfaceContext.removeName(swIfName, writeContext.getMappingContext());
         }
     }
 

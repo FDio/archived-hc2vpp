@@ -24,8 +24,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.data.ReadableDataTree;
-import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
+import io.fd.honeycomb.v3po.data.ReadableDataManager;
+import io.fd.honeycomb.v3po.data.DataModification;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -37,16 +37,16 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 public class ReadOnlyTransactionTest {
 
     @Mock
-    private ReadableDataTree operationalData;
+    private ReadableDataManager operationalData;
     @Mock
-    private DataTreeSnapshot configSnapshot;
+    private DataModification configSnapshot;
 
     private ReadOnlyTransaction readOnlyTx;
 
     @Before
     public void setUp() {
         initMocks(this);
-        readOnlyTx = new ReadOnlyTransaction(operationalData, configSnapshot);
+        readOnlyTx = ReadOnlyTransaction.create(configSnapshot, operationalData);
     }
 
     @Test

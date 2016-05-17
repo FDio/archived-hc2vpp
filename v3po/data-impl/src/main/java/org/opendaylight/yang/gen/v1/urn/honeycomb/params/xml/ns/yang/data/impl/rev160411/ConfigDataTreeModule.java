@@ -1,11 +1,14 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.impl.rev160411;
 
-import io.fd.honeycomb.v3po.data.DataTreeSnapshot;
-import io.fd.honeycomb.v3po.data.ModifiableDataTree;
-import io.fd.honeycomb.v3po.data.impl.ConfigDataTree;
-import io.fd.honeycomb.v3po.translate.TranslationException;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import io.fd.honeycomb.v3po.data.DataModification;
+import io.fd.honeycomb.v3po.data.ModifiableDataManager;
+import io.fd.honeycomb.v3po.data.impl.ModifiableDataTreeDelegator;
+import javax.annotation.Nonnull;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +38,15 @@ public class ConfigDataTreeModule extends
     public java.lang.AutoCloseable createInstance() {
         LOG.debug("ConfigDataTreeModule.createInstance()");
         return new CloseableConfigDataTree(
-                new ConfigDataTree(getSerializerDependency(), getDataTreeDependency(), getWriterRegistryDependency()));
+                new ModifiableDataTreeDelegator(getSerializerDependency(), getDataTreeDependency(), getWriterRegistryDependency(),
+                    getContextBindingBrokerDependency()));
     }
 
-    private static final class CloseableConfigDataTree implements ModifiableDataTree, AutoCloseable {
+    private static final class CloseableConfigDataTree implements ModifiableDataManager, AutoCloseable {
 
-        private final ConfigDataTree delegate;
+        private final ModifiableDataTreeDelegator delegate;
 
-        CloseableConfigDataTree(final ConfigDataTree delegate) {
+        CloseableConfigDataTree(final ModifiableDataTreeDelegator delegate) {
             this.delegate = delegate;
         }
 
@@ -53,16 +57,15 @@ public class ConfigDataTreeModule extends
         }
 
         @Override
-        public void modify(final DataTreeModification modification)
-                throws DataValidationFailedException, TranslationException {
-            LOG.trace("CloseableConfigDataTree.modify modification={}", modification);
-            delegate.modify(modification);
+        public DataModification newModification() {
+            LOG.trace("CloseableConfigDataTree.newModification");
+            return delegate.newModification();
         }
 
         @Override
-        public DataTreeSnapshot takeSnapshot() {
-            LOG.trace("CloseableConfigDataTree.takeSnapshot");
-            return delegate.takeSnapshot();
+        public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
+            @Nonnull final YangInstanceIdentifier path) {
+            return delegate.read(path);
         }
     }
 }

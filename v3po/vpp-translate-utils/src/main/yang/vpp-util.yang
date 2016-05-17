@@ -31,15 +31,6 @@ module vpp-util {
             leaf artificial-name-prefix {
                 type string;
             }
-
-            container context-data-tree {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity dapi:data-tree;
-                    }
-                }
-            }
         }
     }
 

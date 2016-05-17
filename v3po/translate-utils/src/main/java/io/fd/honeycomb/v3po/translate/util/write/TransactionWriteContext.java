@@ -16,9 +16,12 @@
 
 package io.fd.honeycomb.v3po.translate.util.write;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import io.fd.honeycomb.v3po.translate.Context;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -38,27 +41,37 @@ public final class TransactionWriteContext implements WriteContext {
 
     private final DOMDataReadOnlyTransaction beforeTx;
     private final DOMDataReadOnlyTransaction afterTx;
-    private final Context ctx;
+    private final ModificationCache ctx;
     private final BindingNormalizedNodeSerializer serializer;
+    private MappingContext mappingContext;
 
     public TransactionWriteContext(final BindingNormalizedNodeSerializer serializer,
                                    final DOMDataReadOnlyTransaction beforeTx,
-                                   final DOMDataReadOnlyTransaction afterTx) {
+                                   final DOMDataReadOnlyTransaction afterTx,
+                                   final MappingContext mappingContext) {
         this.serializer = serializer;
+        // TODO do we have a BA transaction adapter ? If so, use it here and don't pass serializer
         this.beforeTx = beforeTx;
         this.afterTx = afterTx;
-        this.ctx = new Context();
+        this.mappingContext = mappingContext;
+        this.ctx = new ModificationCache();
     }
 
     // TODO make this asynchronous
 
     @Override
-    public Optional<DataObject> readBefore(@Nonnull final InstanceIdentifier<? extends DataObject> currentId) {
+    public <T extends DataObject> Optional<T> readBefore(@Nonnull final InstanceIdentifier<T> currentId) {
         return read(currentId, beforeTx);
     }
 
-    private Optional<DataObject> read(final InstanceIdentifier<? extends DataObject> currentId,
-                                            final DOMDataReadOnlyTransaction tx) {
+    @Override
+    public <T extends DataObject> Optional<T> readAfter(@Nonnull final InstanceIdentifier<T> currentId) {
+        return read(currentId, afterTx);
+    }
+
+
+    private <T extends DataObject> Optional<T> read(final InstanceIdentifier<T> currentId,
+                                                    final DOMDataReadOnlyTransaction tx) {
         final YangInstanceIdentifier path = serializer.toYangInstanceIdentifier(currentId);
 
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read =
@@ -75,20 +88,25 @@ public final class TransactionWriteContext implements WriteContext {
             final NormalizedNode<?, ?> data = optional.get();
             final Map.Entry<InstanceIdentifier<?>, DataObject> entry = serializer.fromNormalizedNode(path, data);
 
-            return Optional.of(entry.getValue());
+            final Class<T> targetType = currentId.getTargetType();
+            checkState(targetType.isAssignableFrom(entry.getValue().getClass()),
+                "Unexpected data object type, should be: %s, but was: %s", targetType, entry.getValue().getClass());
+            return Optional.of(targetType.cast(entry.getValue()));
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to perform read", e);
         }
     }
 
+    @Nonnull
     @Override
-    public Optional<DataObject> readAfter(@Nonnull final InstanceIdentifier<? extends DataObject> currentId) {
-        return read(currentId, afterTx);
+    public ModificationCache getModificationCache() {
+        return ctx;
     }
 
+    @Nonnull
     @Override
-    public Context getContext() {
-        return ctx;
+    public MappingContext getMappingContext() {
+        return mappingContext;
     }
 
     /**
@@ -97,5 +115,7 @@ public final class TransactionWriteContext implements WriteContext {
     @Override
     public void close() {
         ctx.close();
+        beforeTx.close();
+        afterTx.close();
     }
 }

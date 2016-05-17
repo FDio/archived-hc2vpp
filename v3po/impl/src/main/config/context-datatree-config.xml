@@ -58,7 +58,40 @@
           </schema-service>
           <persist-file-path>etc/opendaylight/honeycomb/context.json</persist-file-path>
         </module>
+
+        <!-- DOM Data Broker for context data -->
+        <module>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:honeycomb-context-dom-data-broker</type>
+          <name>honeycomb-context-data-broker</name>
+          <!-- With persistence -->
+          <context-data-tree>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
+            <name>inmemory-persisted-context-data-tree</name>
+          </context-data-tree>
+        </module>
+
+        <!-- BA Data Broker for context data -->
+        <module>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-forwarded-data-broker</type>
+          <name>honeycomb-context-binding-data-broker</name>
+          <binding-forwarded-data-broker xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">
+            <dom-async-broker>
+              <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
+              <name>honeycomb-context-data-broker</name>
+            </dom-async-broker>
+            <schema-service>
+              <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
+              <name>yang-schema-service</name>
+            </schema-service>
+            <binding-mapping-service>
+              <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">binding:binding-dom-mapping-service</type>
+              <name>runtime-mapping-singleton</name>
+            </binding-mapping-service>
+          </binding-forwarded-data-broker>
+        </module>
       </modules>
+
+
       <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
         <service>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
@@ -71,6 +104,22 @@
             <name>inmemory-persisted-context-data-tree</name>
             <provider>/modules/module[type='persisting-data-tree-adapter'][name='inmemory-persisted-context-data-tree']
             </provider>
+          </instance>
+        </service>
+
+        <service>
+          <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
+          <instance>
+            <name>honeycomb-context-data-broker</name>
+            <provider>/modules/module[type='honeycomb-context-dom-data-broker'][name='honeycomb-context-data-broker']</provider>
+          </instance>
+        </service>
+
+        <service>
+          <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
+          <instance>
+            <name>honeycomb-context-binding-data-broker</name>
+            <provider>/modules/module[type='binding-forwarded-data-broker'][name='honeycomb-context-binding-data-broker']</provider>
           </instance>
         </service>
       </services>

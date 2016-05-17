@@ -96,11 +96,11 @@ public class BridgeDomainCustomizer
             // FIXME we need the bd index to be returned by VPP or we should have a counter field (maybe in context similar to artificial name)
             // Here we assign the next available ID from bdContext's perspective
             int index = 1;
-            while(bdContext.containsName(index)) {
+            while(bdContext.containsName(index, ctx.getMappingContext())) {
                 index++;
             }
             addOrUpdateBridgeDomain(index, dataBefore);
-            bdContext.addName(index, bdName);
+            bdContext.addName(index, bdName, ctx.getMappingContext());
         } catch (VppApiInvocationException e) {
             LOG.warn("Failed to create bridge domain", e);
             throw new WriteFailedException.CreateFailedException(id, dataBefore, e);
@@ -120,7 +120,7 @@ public class BridgeDomainCustomizer
         LOG.debug("deleteCurrentAttributes: id={}, dataBefore={}, ctx={}", id, dataBefore, ctx);
 
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
-        int bdId = bdContext.getIndex(bdName);
+        int bdId = bdContext.getIndex(bdName, ctx.getMappingContext());
         final BridgeDomainAddDel request = new BridgeDomainAddDel();
         request.bdId = bdId;
 
@@ -154,7 +154,7 @@ public class BridgeDomainCustomizer
                 "BridgeDomain name changed. It should be deleted and then created.");
 
         try {
-            addOrUpdateBridgeDomain(bdContext.getIndex(bdName), dataAfter);
+            addOrUpdateBridgeDomain(bdContext.getIndex(bdName, ctx.getMappingContext()), dataAfter);
         } catch (VppApiInvocationException e) {
             LOG.warn("Failed to create bridge domain", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);

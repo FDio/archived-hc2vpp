@@ -16,19 +16,24 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.net.InetAddresses;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
@@ -63,9 +68,10 @@ public class VxlanCustomizerTest {
     private FutureJVpp api;
     @Mock
     private WriteContext writeContext;
+    @Mock
+    private MappingContext mappingContext;
 
     private VxlanCustomizer customizer;
-    private NamingContext namingContext;
     private String ifaceName;
     private InstanceIdentifier<Vxlan> id;
 
@@ -75,7 +81,11 @@ public class VxlanCustomizerTest {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel.class);
         // TODO create base class for tests using vppApi
-        namingContext = new NamingContext("generateInterfaceNAme");
+        NamingContext namingContext = new NamingContext("generateInterfaceNAme", "test-instance");
+        final ModificationCache toBeReturned = new ModificationCache();
+        doReturn(toBeReturned).when(writeContext).getModificationCache();
+        doReturn(mappingContext).when(writeContext).getMappingContext();
+
         customizer = new VxlanCustomizer(api, namingContext);
 
         ifaceName = "eth0";
@@ -144,7 +154,7 @@ public class VxlanCustomizerTest {
 
         customizer.writeCurrentAttributes(id, vxlan, writeContext);
         verifyVxlanAddWasInvoked(vxlan);
-        assertTrue(namingContext.containsIndex(ifaceName));
+        verify(mappingContext).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
     }
 
     @Test
@@ -158,7 +168,8 @@ public class VxlanCustomizerTest {
         } catch (WriteFailedException.CreateFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyVxlanAddWasInvoked(vxlan);
-            assertFalse(namingContext.containsIndex(ifaceName));
+            // Mapping not stored due to failure
+            verify(mappingContext, times(0)).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -186,11 +197,11 @@ public class VxlanCustomizerTest {
         final Vxlan vxlan = generateVxlan();
 
         whenVxlanAddDelTunnelThenSuccess();
-        namingContext.addName(1, ifaceName);
+        doReturn(getMapping(ifaceName, 1)).when(mappingContext).read(getMappingIid(ifaceName, "test-instance"));
 
         customizer.deleteCurrentAttributes(id, vxlan, writeContext);
         verifyVxlanDeleteWasInvoked(vxlan);
-        assertFalse(namingContext.containsIndex(ifaceName));
+        verify(mappingContext).delete(eq(getMappingIid(ifaceName, "test-instance")));
     }
 
     @Test
@@ -198,14 +209,14 @@ public class VxlanCustomizerTest {
         final Vxlan vxlan = generateVxlan();
 
         whenVxlanAddDelTunnelThenFailure();
-        namingContext.addName(1, ifaceName);
+        doReturn(getMapping(ifaceName, 1)).when(mappingContext).read(getMappingIid(ifaceName, "test-instance"));
 
         try {
             customizer.deleteCurrentAttributes(id, vxlan, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             assertEquals(VppApiInvocationException.class, e.getCause().getClass());
             verifyVxlanDeleteWasInvoked(vxlan);
-            assertTrue(namingContext.containsIndex(ifaceName));
+            verify(mappingContext, times(0)).delete(eq(getMappingIid(ifaceName, "test-instance")));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

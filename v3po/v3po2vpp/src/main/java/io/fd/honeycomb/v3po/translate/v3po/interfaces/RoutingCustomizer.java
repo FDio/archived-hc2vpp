@@ -60,7 +60,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
         throws WriteFailedException.CreateFailedException {
 
         try {
-            setRouting(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            setRouting(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of Routing failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -75,7 +75,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
 
         try {
             // TODO handle updates properly
-            setRouting(id.firstKeyOf(Interface.class).getName(), dataAfter);
+            setRouting(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of Routing failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
@@ -88,8 +88,8 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
         // TODO implement delete
     }
 
-    private void setRouting(final String name, final Routing rt) throws VppApiInvocationException {
-        final int swIfc = interfaceContext.getIndex(name);
+    private void setRouting(final String name, final Routing rt, final WriteContext writeContext) throws VppApiInvocationException {
+        final int swIfc = interfaceContext.getIndex(name, writeContext.getMappingContext());
         LOG.debug("Setting routing for interface: {}, {}. Routing: {}", name, swIfc, rt);
 
         int vrfId = (rt != null)
