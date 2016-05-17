@@ -112,11 +112,6 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
                                         @Nonnull final VhostUser dataBefore, @Nonnull final VhostUser dataAfter,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException.UpdateFailedException {
-        if (dataBefore.equals(dataAfter)) {
-            LOG.debug("dataBefore equals dataAfter, update will not be performed");
-            return;
-        }
-
         try {
             modifyVhostUserIf(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {

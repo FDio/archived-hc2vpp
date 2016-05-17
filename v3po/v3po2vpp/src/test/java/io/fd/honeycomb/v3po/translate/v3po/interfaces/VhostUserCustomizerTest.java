@@ -26,7 +26,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -227,14 +226,6 @@ public class VhostUserCustomizerTest {
 
         customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, writeContext);
         verifyModifyVhostUserIfWasInvoked(vhostUserAfter, IFACE_ID);
-    }
-
-    @Test
-    public void testUpdateCurrentAttributesNoUpdate() throws Exception {
-        final VhostUser vhostUserBefore = generateVhostUser(VhostUserRole.Server, "socketName");
-        final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName");
-        customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, writeContext);
-        verify(api, never()).modifyVhostUserIf(any(ModifyVhostUserIf.class));
     }
 
     @Test

@@ -36,11 +36,7 @@ import io.fd.honeycomb.v3po.translate.util.write.TransactionMappingContext;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
-import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.NetconfState;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -70,24 +66,20 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
     private final BindingNormalizedNodeSerializer serializer;
     private final ReaderRegistry readerRegistry;
     private final SchemaContext globalContext;
-    private final DOMDataBroker netconfMonitoringDomDataBrokerDependency;
     private final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker;
 
     /**
      * Creates operational data tree instance.
-     *  @param serializer     service for serialization between Java Binding Data representation and NormalizedNode
+     * @param serializer     service for serialization between Java Binding Data representation and NormalizedNode
      *                       representation.
      * @param globalContext  service for obtaining top level context data from all yang modules.
      * @param readerRegistry service responsible for translation between DataObjects and data provider.
-     * @param netconfMonitoringDomDataBrokerDependency TODO remove
      * @param contextBroker BA broker for context data
      */
     public ReadableDataTreeDelegator(@Nonnull BindingNormalizedNodeSerializer serializer,
                                      @Nonnull final SchemaContext globalContext,
                                      @Nonnull final ReaderRegistry readerRegistry,
-                                     @Nonnull final DOMDataBroker netconfMonitoringDomDataBrokerDependency,
                                      @Nonnull final org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker) {
-        this.netconfMonitoringDomDataBrokerDependency = netconfMonitoringDomDataBrokerDependency;
         this.contextBroker = checkNotNull(contextBroker, "contextBroker should not be null");
         this.globalContext = checkNotNull(globalContext, "globalContext should not be null");
         this.serializer = checkNotNull(serializer, "serializer should not be null");
@@ -133,15 +125,6 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
 
     private Optional<NormalizedNode<?, ?>> readNode(final YangInstanceIdentifier yangInstanceIdentifier,
                                                     final ReadContext ctx) throws ReadFailedException {
-
-        // FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/
-        // Just delete, dedicated reader from NetconfMonitoringReaderModule takes care of netconf state data
-        // TODO test connecting with netconf and issuing a get (netconf-state) data should be provided
-        if(yangInstanceIdentifier.getPathArguments().size() > 0 &&
-            yangInstanceIdentifier.getPathArguments().get(0).getNodeType().equals(NetconfState.QNAME)) {
-            return readFromNetconfDs(yangInstanceIdentifier);
-        }
-
         LOG.debug("OperationalDataTree.readNode(), yangInstanceIdentifier={}", yangInstanceIdentifier);
         final InstanceIdentifier<?> path = serializer.fromYangInstanceIdentifier(yangInstanceIdentifier);
         checkNotNull(path, "Invalid instance identifier %s. Cannot create BA equivalent.", yangInstanceIdentifier);
@@ -155,19 +138,6 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
             return Optional.<NormalizedNode<?, ?>>fromNullable(value);
         } else {
             return Optional.absent();
-        }
-    }
-
-    // FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/
-    private Optional<NormalizedNode<?, ?>> readFromNetconfDs(final YangInstanceIdentifier yangInstanceIdentifier)
-        throws ReadFailedException {
-        try(final DOMDataReadOnlyTransaction domDataReadOnlyTransaction =
-            netconfMonitoringDomDataBrokerDependency.newReadOnlyTransaction()) {
-            try {
-                return domDataReadOnlyTransaction.read(LogicalDatastoreType.OPERATIONAL, yangInstanceIdentifier).checkedGet();
-            } catch (org.opendaylight.controller.md.sal.common.api.data.ReadFailedException e) {
-                throw new ReadFailedException(InstanceIdentifier.create(NetconfState.class), e);
-            }
         }
     }
 
@@ -187,14 +157,6 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
                     wrapDataObjects(rootElementId, instanceIdentifier, dataObjects.get(instanceIdentifier));
             dataNodeBuilder.withChild((DataContainerChild<?, ?>) node);
         }
-
-        // FIXME workaround for: https://git.opendaylight.org/gerrit/#/c/37499/
-        final Optional<NormalizedNode<?, ?>> normalizedNodeOptional =
-            readFromNetconfDs(YangInstanceIdentifier.builder().node(NetconfState.QNAME).build());
-        if(normalizedNodeOptional.isPresent()) {
-            dataNodeBuilder.withChild((DataContainerChild<?, ?>) normalizedNodeOptional.get());
-        }
-
         return Optional.<NormalizedNode<?, ?>>of(dataNodeBuilder.build());
     }
 
@@ -252,7 +214,7 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
 
     private static final class ReadContextImpl implements ReadContext {
 
-        public final ModificationCache ctx = new ModificationCache();
+        private final ModificationCache ctx = new ModificationCache();
         private final MappingContext mappingContext;
 
         private ReadContextImpl(final MappingContext mappingContext) {

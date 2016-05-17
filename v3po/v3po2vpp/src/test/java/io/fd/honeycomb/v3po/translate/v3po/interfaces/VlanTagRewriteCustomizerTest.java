@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -171,14 +170,6 @@ public class VlanTagRewriteCustomizerTest {
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
-    }
-
-    @Test
-    public void testUpdateNoChange() throws Exception {
-        final VlanTagRewrite before = generateVlanTagRewrite(6);
-        final VlanTagRewrite after = generateVlanTagRewrite(6);
-        customizer.updateCurrentAttributes(null, before, after, writeContext);
-        verify(api, never()).l2InterfaceVlanTagRewrite(any());
     }
 
     @Test

@@ -82,10 +82,6 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
                                         @Nonnull final Vxlan dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.UpdateFailedException {
-        if (dataBefore.equals(dataAfter)) {
-            LOG.debug("dataBefore equals dataAfter, update will not be performed");
-            return;
-        }
         throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
                 new UnsupportedOperationException("Vxlan tunnel update is not supported"));
     }

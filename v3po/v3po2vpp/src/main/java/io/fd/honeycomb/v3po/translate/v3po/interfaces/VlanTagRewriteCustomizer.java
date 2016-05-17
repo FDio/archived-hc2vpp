@@ -122,10 +122,6 @@ public class VlanTagRewriteCustomizer extends AbstractInterfaceTypeCustomizer<Vl
                                         @Nonnull final VlanTagRewrite dataBefore,
                                         @Nonnull final VlanTagRewrite dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        if (dataBefore.equals(dataAfter)) {
-            LOG.debug("dataBefore equals dataAfter, update will not be performed");
-            return;
-        }
         try {
             setTagRewrite(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {

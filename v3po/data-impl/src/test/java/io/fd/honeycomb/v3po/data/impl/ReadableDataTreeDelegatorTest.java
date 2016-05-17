@@ -88,7 +88,7 @@ public class ReadableDataTreeDelegatorTest {
     @Before
     public void setUp() {
         initMocks(this);
-        operationalData = new ReadableDataTreeDelegator(serializer, globalContext, reader, netconfMonitoringBroker, contextBroker);
+        operationalData = new ReadableDataTreeDelegator(serializer, globalContext, reader, contextBroker);
         doReturn(schemaNode).when(globalContext).getDataChildByName(any(QName.class));
 
         doReturn(domDataReadOnlyTransaction).when(netconfMonitoringBroker).newReadOnlyTransaction();

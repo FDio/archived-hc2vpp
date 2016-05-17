@@ -51,14 +51,15 @@
     <configfile finalname="${configfile.directory}/v3po-context.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/context</configfile>
     <configfile finalname="${configfile.directory}/v3po.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/config</configfile>
     <configfile finalname="${configfile.directory}/v3po-init.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/init</configfile>
-    <configfile finalname="${configfile.directory}/v3po-netconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/netconf</configfile>
-    <configfile finalname="${configfile.directory}/v3po-restconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/restconf</configfile>
     <configfile finalname="${configfile.directory}/v3po2vpp.xml">mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}/xml/config</configfile>
   </feature>
 
   <feature name='odl-v3po-rest' version='${project.version}' description='OpenDaylight :: v3po :: REST'>
     <feature version="${project.version}">odl-v3po</feature>
     <feature version="${restconf.version}">odl-restconf</feature>
+    <!-- Northbound interfaces configuration -->
+    <configfile finalname="${configfile.directory}/v3po-netconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/netconf</configfile>
+    <configfile finalname="${configfile.directory}/v3po-restconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/restconf</configfile>
   </feature>
 
   <feature name='odl-v3po-ui' version='${project.version}' description='OpenDaylight :: v3po :: UI'>
