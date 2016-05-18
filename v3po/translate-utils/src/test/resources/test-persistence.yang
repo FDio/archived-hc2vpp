@@ -13,4 +13,10 @@ module test-persistence {
         }
     }
 
+    container top-container2 {
+        leaf string {
+            type string;
+        }
+    }
+
 }

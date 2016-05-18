@@ -5,6 +5,7 @@ module vpp-cfg-init {
 
     import config { prefix config; revision-date 2013-04-05; }
     import opendaylight-md-sal-binding { prefix md-sal-binding; revision-date 2013-10-28;}
+    import opendaylight-md-sal-dom {prefix dom;}
     import translate-api { prefix tapi; revision-date 2016-04-06; }
     import data-api { prefix dapi; revision-date 2016-04-11; }
 
@@ -16,20 +17,21 @@ module vpp-cfg-init {
             "Initial revision";
     }
 
-    identity vpp-cfg-initializer {
+    identity cfg-initializer {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.vpp.data.init.InitializerRegistry;
+        config:java-class io.fd.honeycomb.v3po.vpp.data.init.DataTreeInitializer;
     }
 
-    identity vpp-cfg-initializer-impl {
+    // TODO move to v3po2vpp
+    identity vpp-cfg-initializer {
         base config:module-type;
-        config:provided-service vpp-cfg-initializer;
+        config:provided-service cfg-initializer;
         config:java-name-prefix VppConfigurationInitializer;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case vpp-cfg-initializer-impl {
-            when "/config:modules/config:module/config:type = 'vpp-cfg-initializer-impl'";
+        case vpp-cfg-initializer {
+            when "/config:modules/config:module/config:type = 'vpp-cfg-initializer'";
 
              container binding-data-broker {
                 uses config:service-ref {
@@ -39,6 +41,119 @@ module vpp-cfg-init {
                     }
                 }
              }
+        }
+    }
+
+    // TODO move to v3po2vpp
+    identity interfaces-cfg-initializer {
+        base config:module-type;
+        config:provided-service cfg-initializer;
+        config:java-name-prefix InterfacesConfigurationInitializer;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case interfaces-cfg-initializer {
+            when "/config:modules/config:module/config:type = 'interfaces-cfg-initializer'";
+
+             container binding-data-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-async-data-broker;
+                    }
+                }
+             }
+        }
+    }
+
+    identity cfg-initializer-registry {
+        base config:module-type;
+        config:provided-service cfg-initializer;
+        config:java-name-prefix ConfigurationInitializerRegistry;
+        description "Initializer registry, delegating initialization to a list of initializers";
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case cfg-initializer-registry {
+            when "/config:modules/config:module/config:type = 'cfg-initializer-registry'";
+
+             list initializers {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity cfg-initializer;
+                    }
+                }
+             }
+
+             container persisted-context-initializer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity cfg-initializer;
+                    }
+                }
+             }
+
+             container persisted-config-initializer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity cfg-initializer;
+                    }
+                }
+             }
+        }
+    }
+
+    identity persisted-file-initializer {
+        base config:module-type;
+        config:provided-service cfg-initializer;
+        description "Initializer restoring data from a persisted file";
+    }
+
+    typedef restoration-type {
+        type enumeration {
+             enum merge;
+             enum put;
+         }
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case persisted-file-initializer {
+            when "/config:modules/config:module/config:type = 'persisted-file-initializer'";
+
+            container dom-data-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dom:dom-async-data-broker;
+                    }
+                }
+            }
+
+            container schema-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity dom:schema-service;
+                    }
+                }
+            }
+
+            leaf persist-file-path {
+                type string;
+            }
+
+            leaf restoration-type {
+                type restoration-type;
+                default merge;
+            }
+
+
+            leaf datastore-type {
+                type dapi:datatree-type;
+            }
         }
     }
 

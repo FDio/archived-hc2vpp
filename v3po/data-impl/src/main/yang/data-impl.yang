@@ -24,13 +24,6 @@ module data-impl {
         config:java-name-prefix InMemoryDataTree;
     }
 
-    typedef datatree-type {
-        type enumeration {
-             enum config;
-             enum oper;
-         }
-    }
-
     augment "/config:modules/config:module/config:configuration" {
         case inmemory-data-tree {
             when "/config:modules/config:module/config:type = 'inmemory-data-tree'";
@@ -45,7 +38,7 @@ module data-impl {
             }
 
             leaf type {
-                type datatree-type;
+                type dapi:datatree-type;
             }
         }
     }

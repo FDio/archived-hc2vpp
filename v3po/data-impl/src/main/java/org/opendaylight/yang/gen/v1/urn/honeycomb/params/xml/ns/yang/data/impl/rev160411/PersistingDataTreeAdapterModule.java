@@ -1,6 +1,8 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.impl.rev160411;
 
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 
 public class PersistingDataTreeAdapterModule extends
     org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.impl.rev160411.AbstractPersistingDataTreeAdapterModule {
@@ -18,7 +20,11 @@ public class PersistingDataTreeAdapterModule extends
 
     @Override
     public void customValidation() {
-        // add custom validation form module attributes here.
+        try {
+            Paths.get(getPersistFilePath());
+        } catch (InvalidPathException e) {
+            throw new JmxAttributeValidationException("Invalid persist path", e, persistFilePathJmxAttribute);
+        }
     }
 
     @Override

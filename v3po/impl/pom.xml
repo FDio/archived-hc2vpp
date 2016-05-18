@@ -111,6 +111,11 @@
                   <classifier>netconf</classifier>
                 </artifact>
                 <artifact>
+                  <file>src/main/config/initializer-config.xml</file>
+                  <type>xml</type>
+                  <classifier>init</classifier>
+                </artifact>
+                <artifact>
                   <file>src/main/config/context-datatree-config.xml</file>
                   <type>xml</type>
                   <classifier>context</classifier>

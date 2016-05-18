@@ -77,11 +77,11 @@ final class WriteTransaction implements DOMDataWriteTransaction {
                                  final java.util.function.Consumer<DataModification> r) {
         switch (store) {
             case CONFIGURATION:
-                checkArgument(configModification != null, "Modification of {} is not supported", store);
+                checkArgument(configModification != null, "Modification of %s is not supported", store);
                 r.accept(configModification);
                 break;
             case OPERATIONAL:
-                checkArgument(operationalModification != null, "Modification of {} is not supported", store);
+                checkArgument(operationalModification != null, "Modification of %s is not supported", store);
                 r.accept(operationalModification);
                 break;
         }

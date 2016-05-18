@@ -43,6 +43,8 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
                 InstanceIdentifier.create(Interfaces.class));
     }
 
+    // TODO move to v3po2vpp
+
     @Override
     protected Interfaces convert(final InterfacesState operationalData) {
         LOG.debug("InterfacesInitializer.convert()");

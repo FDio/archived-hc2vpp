@@ -43,5 +43,9 @@ public interface DataTreeInitializer extends AutoCloseable {
         public InitializeException(final String message, final Throwable cause) {
             super(message, cause);
         }
+
+        public InitializeException(final String msg) {
+            super(msg);
+        }
     }
 }

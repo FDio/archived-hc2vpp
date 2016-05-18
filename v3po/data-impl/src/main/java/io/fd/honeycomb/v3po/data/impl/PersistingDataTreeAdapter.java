@@ -18,33 +18,22 @@ package io.fd.honeycomb.v3po.data.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
-import com.google.gson.stream.JsonWriter;
+import io.fd.honeycomb.v3po.translate.util.JsonUtils;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.sal.core.api.model.SchemaService;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
-import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeWriter;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataValidationFailedException;
-import org.opendaylight.yangtools.yang.data.codec.gson.JSONCodecFactory;
-import org.opendaylight.yangtools.yang.data.codec.gson.JSONNormalizedNodeStreamWriter;
-import org.opendaylight.yangtools.yang.data.codec.gson.JsonWriterFactory;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,17 +71,16 @@ public class PersistingDataTreeAdapter implements org.opendaylight.yangtools.yan
     private Path testPersistPath(final Path persistPath) {
         try {
             checkArgument(!Files.isDirectory(persistPath), "Path %s points to a directory", persistPath);
+            if(Files.exists(persistPath)) {
+                checkArgument(Files.isReadable(persistPath),
+                    "Provided path %s points to existing, but non-readable file", persistPath);
+                return persistPath;
+            }
             Files.createDirectories(persistPath.getParent());
             Files.write(persistPath, new byte[]{}, StandardOpenOption.CREATE);
         } catch (IOException | UnsupportedOperationException e) {
             LOG.warn("Provided path for persistence: {} is not usable", persistPath, e);
             throw new IllegalArgumentException("Path " + persistPath + " cannot be used as ");
-        } finally {
-            try {
-                Files.delete(persistPath);
-            } catch (IOException e) {
-                LOG.warn("Unable to delete file at {}", persistPath, e);
-            }
         }
 
         return persistPath;
@@ -131,37 +119,14 @@ public class PersistingDataTreeAdapter implements org.opendaylight.yangtools.yan
                 if(Files.exists(path)) {
                     Files.delete(path);
                 }
-                // TODO once we are in static environment, do the writer, streamWriter and NNWriter initialization only once
-                final JsonWriter
-                    jsonWriter = createJsonWriter(Files.newOutputStream(path, StandardOpenOption.CREATE), true);
-                final NormalizedNodeStreamWriter streamWriter = JSONNormalizedNodeStreamWriter
-                    .createNestedWriter(JSONCodecFactory.create(schemaServiceDependency.getGlobalContext()), SchemaPath.ROOT, null, jsonWriter);
-                final NormalizedNodeWriter normalizedNodeWriter =
-                    NormalizedNodeWriter.forStreamWriter(streamWriter, true);
-                jsonWriter.beginObject();
-                writeChildren(normalizedNodeWriter,(ContainerNode) currentRoot.get());
-                jsonWriter.endObject();
-                jsonWriter.flush();
+                JsonUtils.writeJsonRoot(currentRoot.get(), schemaServiceDependency.getGlobalContext(),
+                    Files.newOutputStream(path, StandardOpenOption.CREATE));
                 LOG.trace("Data persisted successfully in {}", path);
             } catch (IOException e) {
                 throw new IllegalStateException("Unable to persist current data", e);
             }
         } else {
             LOG.debug("Skipping persistence, since there's no data to persist");
-        }
-    }
-
-    private void writeChildren(final NormalizedNodeWriter nnWriter, final ContainerNode data) throws IOException {
-        for(final DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> child : data.getValue()) {
-            nnWriter.write(child);
-        }
-    }
-
-    private JsonWriter createJsonWriter(final OutputStream entityStream, boolean prettyPrint) {
-        if (prettyPrint) {
-            return JsonWriterFactory.createJsonWriter(new OutputStreamWriter(entityStream, Charsets.UTF_8), 2);
-        } else {
-            return JsonWriterFactory.createJsonWriter(new OutputStreamWriter(entityStream, Charsets.UTF_8));
         }
     }
 

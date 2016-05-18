@@ -19,7 +19,6 @@
       <capability>urn:opendaylight:params:xml:ns:yang:v3po:impl?module=v3po-impl&amp;revision=2014-12-10</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:translate:utils?module=translate-utils&amp;revision=2016-04-06</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg?module=vpp-jvpp-cfg&amp;revision=2016-04-06</capability>
-      <capability>urn:honeycomb:params:xml:ns:yang:vpp:data:init?module=vpp-cfg-init&amp;revision=2016-04-07</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:api?module=data-api&amp;revision=2016-04-11</capability>
       <capability>urn:honeycomb:params:xml:ns:yang:data:impl?module=data-impl&amp;revision=2016-04-11</capability>
       <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
@@ -209,85 +208,6 @@
             <name>honeycomb-dom-data-broker</name>
           </honeycomb-dom-data-broker>
         </module>
-
-        <!-- Config initialization -->
-        <!-- Empty registry which does not pass data to VPP  -->
-        <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:noop-writer-registry</type>
-          <name>noop-writer-registry</name>
-        </module>
-        <!-- Config data tree which does not pass data to translation layer (uses noop-write-registry)  -->
-        <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:honeycomb-config-data-tree</type>
-          <name>cfg-init-config-data-tree</name>
-
-          <!--FIXME do we need/want persistence here ? Do initializers only merge the data ? -->
-          <!-- Without persistence -->
-          <!--<data-tree>-->
-            <!--<type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:impl">prefix:data-tree</type>-->
-            <!--<name>inmemory-config-data-tree</name>-->
-          <!--</data-tree>-->
-          <!-- With persistence -->
-          <data-tree>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
-            <name>inmemory-persisted-config-data-tree</name>
-          </data-tree>
-
-          <serializer>
-            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
-            <name>runtime-mapping-singleton</name>
-          </serializer>
-          <writer-registry>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
-            <name>noop-writer-registry</name>
-          </writer-registry>
-          <context-binding-broker>
-            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
-            <name>honeycomb-context-binding-data-broker</name>
-          </context-binding-broker>
-        </module>
-        <!-- DOM data broker for config initialization -->
-        <module>
-          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:honeycomb-dom-data-broker</type>
-          <name>cfg-init-dom-data-broker</name>
-          <config-data-tree>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
-            <name>cfg-init-config-data-tree</name>
-          </config-data-tree>
-          <operational-data-tree>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-readable-data-tree</type>
-            <name>operational-data-tree</name>
-          </operational-data-tree>
-        </module>
-        <!-- Binding data broker for config initialization -->
-        <module>
-          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-forwarded-data-broker</type>
-          <name>cfg-init-binding-data-broker</name>
-          <binding-forwarded-data-broker xmlns="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">
-            <dom-async-broker>
-              <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
-              <name>cfg-init-dom-data-broker</name>
-            </dom-async-broker>
-            <schema-service>
-              <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:schema-service</type>
-              <name>yang-schema-service</name>
-            </schema-service>
-            <binding-mapping-service>
-              <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">binding:binding-dom-mapping-service</type>
-              <name>runtime-mapping-singleton</name>
-            </binding-mapping-service>
-          </binding-forwarded-data-broker>
-        </module>
-        <!-- Config initializer -->
-        <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:vpp-cfg-initializer-impl</type>
-          <name>vpp-cfg-initializer</name>
-          <binding-data-broker>
-            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-async-data-broker</type>
-            <name>cfg-init-binding-data-broker</name>
-          </binding-data-broker>
-        </module>noop-writer-registry
-        <!-- END: Config initialization -->
       </modules>
 
       <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -387,46 +307,6 @@
             <provider>/modules/module[type='v3po'][name='v3po-default']</provider>
           </instance>
         </service>
-
-        <!-- Config initialization -->
-        <service>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
-          <instance>
-            <name>noop-writer-registry</name>
-            <provider>/modules/module[type='noop-writer-registry'][name='noop-writer-registry']</provider>
-          </instance>
-        </service>
-        <service>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:honeycomb-modifiable-data-tree</type>
-          <instance>
-            <name>cfg-init-config-data-tree</name>
-            <provider>/modules/module[type='honeycomb-config-data-tree'][name='cfg-init-config-data-tree']
-            </provider>
-          </instance>
-        </service>
-        <service>
-          <type xmlns:dom="urn:opendaylight:params:xml:ns:yang:controller:md:sal:dom">dom:dom-async-data-broker</type>
-          <instance>
-            <name>cfg-init-dom-data-broker</name>
-            <provider>/modules/module[type='honeycomb-dom-data-broker'][name='cfg-init-dom-data-broker']</provider>
-          </instance>
-        </service>
-        <service>
-          <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
-          <instance>
-            <name>cfg-init-binding-data-broker</name>
-            <provider>/modules/module[type='binding-forwarded-data-broker'][name='cfg-init-binding-data-broker']</provider>
-          </instance>
-        </service>
-        <service>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:vpp-cfg-initializer</type>
-          <instance>
-            <name>vpp-cfg-initializer</name>
-            <provider>/modules/module[type='vpp-cfg-initializer-impl'][name='vpp-cfg-initializer']
-            </provider>
-          </instance>
-        </service>
-        <!-- END: Config initialization -->
 
       </services>
     </data>

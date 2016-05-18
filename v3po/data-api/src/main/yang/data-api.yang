@@ -29,4 +29,10 @@ module data-api {
         config:java-class io.fd.honeycomb.v3po.data.ModifiableDataManager;
     }
 
+    typedef datatree-type {
+        type enumeration {
+             enum config;
+             enum oper;
+         }
+    }
 }

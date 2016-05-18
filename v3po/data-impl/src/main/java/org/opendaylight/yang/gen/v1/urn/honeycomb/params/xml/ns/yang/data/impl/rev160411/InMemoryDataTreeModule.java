@@ -1,5 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.impl.rev160411;
 
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.data.api.rev160411.DatatreeType;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.*;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;

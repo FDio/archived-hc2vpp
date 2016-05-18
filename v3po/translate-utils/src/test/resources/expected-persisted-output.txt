@@ -1,5 +1,8 @@
 {
   "test-persistence:top-container": {
     "string": "testing"
+  },
+  "test-persistence:top-container2": {
+    "string": "testing"
   }
 }
