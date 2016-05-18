@@ -291,15 +291,14 @@
                         <name>netconf-binding-data-broker</name>
                     </netconf-monitoring-binding-broker>
                 </module>
-                <!--FIXME disable the reader until this patch is merged and released by ODL: TODO link -->
-                <!--<module>-->
-                    <!--<type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-reader-registry</type>-->
-                    <!--<name>read-registry</name>-->
-                    <!--<root-readers>-->
-                        <!--<type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>-->
-                        <!--<name>netconf-monitoring-reader</name>-->
-                    <!--</root-readers>-->
-                <!--</module>-->
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-reader-registry</type>
+                    <name>read-registry</name>
+                    <root-readers>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                        <name>netconf-monitoring-reader</name>
+                    </root-readers>
+                </module>
                 <!-- END: Special reader for Netconf monitoring. -->
 
             </modules>

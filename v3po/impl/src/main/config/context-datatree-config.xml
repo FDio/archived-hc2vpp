@@ -89,10 +89,36 @@
             </binding-mapping-service>
           </binding-forwarded-data-broker>
         </module>
+
+        <!-- Special reader for Context data. Providing context data to outside users over NETCONF/RESTCONF -->
+        <module>
+          <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:v3po:impl">prefix:context-reader</type>
+          <name>context-reader</name>
+          <context-binding-broker>
+            <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
+            <name>honeycomb-context-binding-data-broker</name>
+          </context-binding-broker>
+        </module>
+        <module>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-reader-registry</type>
+          <name>read-registry</name>
+          <root-readers>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+            <name>context-reader</name>
+          </root-readers>
+        </module>
+        <!-- END: Special reader for Context -->
+
       </modules>
 
-
       <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+        <service>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+          <instance>
+            <name>context-reader</name>
+            <provider>/modules/module[type='context-reader'][name='context-reader']</provider>
+          </instance>
+        </service>
         <service>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:api">prefix:data-tree</type>
           <instance>

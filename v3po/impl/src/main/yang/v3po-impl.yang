@@ -143,4 +143,26 @@ module v3po-impl {
 
         }
     }
+
+    identity context-reader {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-reader;
+        description "A reader to provide mapping context related data";
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case context-reader {
+            when "/config:modules/config:module/config:type = 'context-reader'";
+
+            container context-binding-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-async-data-broker;
+                    }
+                }
+            }
+
+        }
+    }
 }
