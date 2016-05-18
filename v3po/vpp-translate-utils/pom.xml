@@ -35,6 +35,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>v3po-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.fd.vpp</groupId>
             <artifactId>jvpp</artifactId>
             <version>16.09-SNAPSHOT</version>
