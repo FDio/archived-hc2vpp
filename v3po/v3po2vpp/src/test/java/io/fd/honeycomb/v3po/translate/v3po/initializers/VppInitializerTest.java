@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.vpp.data.init;
+package io.fd.honeycomb.v3po.translate.v3po.initializers;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;

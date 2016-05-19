@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.vpp.data.init;
+package io.fd.honeycomb.v3po.translate.v3po.initializers;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import io.fd.honeycomb.v3po.vpp.data.init.AbstractDataTreeConverter;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -42,8 +43,6 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         super(bindingDataBroker, InstanceIdentifier.create(InterfacesState.class),
                 InstanceIdentifier.create(Interfaces.class));
     }
-
-    // TODO move to v3po2vpp
 
     @Override
     protected Interfaces convert(final InterfacesState operationalData) {

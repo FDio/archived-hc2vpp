@@ -93,7 +93,7 @@
         </module>
         <!-- Config initializer for VPP subtree-->
         <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:vpp-cfg-initializer</type>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-cfg-initializer</type>
           <name>vpp-cfg-initializer</name>
           <binding-data-broker>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-async-data-broker</type>
@@ -102,7 +102,7 @@
         </module>
         <!-- Config initializer for Interfaces subtree-->
         <module>
-          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:interfaces-cfg-initializer</type>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:interfaces-cfg-initializer</type>
           <name>interfaces-cfg-initializer</name>
           <binding-data-broker>
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-async-data-broker</type>

@@ -40,8 +40,7 @@ public class ConfigurationInitializerRegistryModule extends org.opendaylight.yan
             initializer.initialize();
             LOG.info("VPP configuration initialized successfully from VPP");
             // Initialize stored configuration on top
-            // FIXME uncomment and test
-//            getPersistedConfigInitializerDependency().initialize();
+            getPersistedConfigInitializerDependency().initialize();
             LOG.info("Persisted configuration restored successfully");
         } catch (Exception e) {
             LOG.warn("Failed to initialize config", e);
