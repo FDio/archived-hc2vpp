@@ -42,7 +42,7 @@
     <bundle>mvn:io.fd.honeycomb.v3po/data-api/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/data-impl/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-impl/${project.version}</bundle>
-    <bundle>wrap:mvn:io.fd.vpp/jvpp/1.0.0-SNAPSHOT</bundle>
+    <bundle>wrap:mvn:io.fd.vpp/jvpp/16.09-SNAPSHOT</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-jvpp-cfg/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-cfg-init/${project.version}</bundle>

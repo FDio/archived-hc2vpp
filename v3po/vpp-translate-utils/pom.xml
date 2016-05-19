@@ -37,7 +37,7 @@
         <dependency>
             <groupId>io.fd.vpp</groupId>
             <artifactId>jvpp</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>16.09-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
