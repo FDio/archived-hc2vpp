@@ -18,8 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
@@ -27,7 +26,9 @@ import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.TagRewriteOperation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanType;
@@ -47,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * Sends {@code l2_interface_vlan_tag_rewrite} message to VPP.<br>
  * Equivalent of invoking {@code vppctl set interface l2 tag-rewrite} command.
  */
-public class VlanTagRewriteCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<VlanTagRewrite> {
+public class VlanTagRewriteCustomizer extends AbstractInterfaceTypeCustomizer<VlanTagRewrite> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VlanTagRewriteCustomizer.class);
     private final NamingContext interfaceContext;
@@ -66,9 +67,13 @@ public class VlanTagRewriteCustomizer extends FutureJVppCustomizer implements Ch
     }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<VlanTagRewrite> id,
-                                       @Nonnull final VlanTagRewrite dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException.CreateFailedException {
+    protected Class<? extends InterfaceType> getExpectedInterfaceType() {
+        return SubInterface.class;
+    }
+
+    @Override
+    protected void writeInterface(final InstanceIdentifier<VlanTagRewrite> id, final VlanTagRewrite dataAfter,
+                                  final WriteContext writeContext) throws WriteFailedException.CreateFailedException {
         try {
             setTagRewrite(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
         } catch (VppApiInvocationException e) {

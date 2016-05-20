@@ -16,8 +16,6 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
-
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
@@ -45,21 +43,20 @@ public class EthernetCustomizer extends FutureJVppCustomizer
     private NamingContext interfaceContext;
 
     public EthernetCustomizer(@Nonnull final FutureJVpp jvpp,
-                              final NamingContext interfaceContext) {
+                              @Nonnull final NamingContext interfaceContext) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
     }
 
     @Override
-    public void merge(@Nonnull Builder<? extends DataObject> parentBuilder,
-                      @Nonnull Ethernet readValue) {
+    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder,
+                      @Nonnull final Ethernet readValue) {
         ((VppInterfaceStateAugmentationBuilder) parentBuilder).setEthernet(readValue);
     }
 
     @Nonnull
     @Override
-    public EthernetBuilder getBuilder(
-            @Nonnull InstanceIdentifier<Ethernet> id) {
+    public EthernetBuilder getBuilder(@Nonnull InstanceIdentifier<Ethernet> id) {
         return new EthernetBuilder();
     }
 
@@ -72,7 +69,10 @@ public class EthernetCustomizer extends FutureJVppCustomizer
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
                 interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
 
-        builder.setMtu((int) iface.linkMtu);
+        if(iface.linkMtu != 0) {
+            builder.setMtu((int) iface.linkMtu);
+        }
+
         switch (iface.linkDuplex) {
             case 1:
                 builder.setDuplex(Ethernet.Duplex.Half);

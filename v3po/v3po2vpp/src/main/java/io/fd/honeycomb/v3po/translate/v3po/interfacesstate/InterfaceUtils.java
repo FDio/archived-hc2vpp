@@ -230,6 +230,11 @@ public final class InterfaceUtils {
         final SwInterfaceDetails cachedDetails =
                 checkNotNull(getCachedInterfaceDump(ctx).get(index),
                         "Interface {} cannot be found in context", index);
+        return isInterfaceOfType(ifcType, cachedDetails);
+    }
+
+    static boolean isInterfaceOfType(final Class<? extends InterfaceType> ifcType,
+                                     final SwInterfaceDetails cachedDetails) {
         return ifcType.equals(getInterfaceType(V3poUtils.toString(cachedDetails.interfaceName)));
     }
 }

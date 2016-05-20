@@ -32,6 +32,7 @@
   <feature name='odl-v3po' version='${project.version}' description='OpenDaylight :: v3po'>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${project.version}'>odl-v3po-api</feature>
+    <!-- FIXME remove netconf-connector-ssh from features, only netconf northbound is needed -->
     <feature version='${netconf.version}'>odl-netconf-connector-ssh</feature>
     <feature version='${mdsal.version}'>odl-netconf-mdsal</feature>
     <bundle>mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}</bundle>

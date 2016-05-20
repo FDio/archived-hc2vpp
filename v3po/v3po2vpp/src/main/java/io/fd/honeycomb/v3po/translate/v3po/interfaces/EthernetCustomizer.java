@@ -55,6 +55,7 @@ public class EthernetCustomizer extends AbstractInterfaceTypeCustomizer<Ethernet
                                        @Nonnull final Ethernet dataAfter, @Nonnull final WriteContext writeContext) {
         // TODO
         LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
+        // VPP API does not support setting MTU
     }
 
     @Override

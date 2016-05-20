@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
@@ -52,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.l2.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.openvpp.jvpp.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.dto.BridgeDomainDump;
 import org.openvpp.jvpp.dto.BridgeDomainSwIfDetails;
@@ -91,15 +91,16 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
                         VppInterfaceStateAugmentation.class).child(L2.class);
     }
 
-    private void whenBridgeDomainSwIfDumpThenReturn(final List<BridgeDomainSwIfDetails> bdSwIfList)
+    private void whenBridgeDomainSwIfDumpThenReturn(final List<BridgeDomainSwIfDetails> bdSwIfList,
+                                                    final List<BridgeDomainDetails> bridgeDomainDetailses)
             throws ExecutionException, InterruptedException {
-        final CompletionStage<BridgeDomainDetailsReplyDump> replyCS = mock(CompletionStage.class);
-        final CompletableFuture<BridgeDomainDetailsReplyDump> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final BridgeDomainDetailsReplyDump reply = new BridgeDomainDetailsReplyDump();
         reply.bridgeDomainSwIfDetails = bdSwIfList;
-        when(replyFuture.get()).thenReturn(reply);
-        when(api.bridgeDomainSwIfDump(any(BridgeDomainDump.class))).thenReturn(replyCS);
+        reply.bridgeDomainDetails = bridgeDomainDetailses;
+
+        final CompletableFuture<BridgeDomainDetailsReplyDump> replyFuture = new CompletableFuture<>();
+        replyFuture.complete(reply);
+        when(api.bridgeDomainSwIfDump(any(BridgeDomainDump.class))).thenReturn(replyFuture);
     }
 
 
@@ -111,10 +112,14 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
         return bdSwIfDetails;
     }
 
-    private Interconnection generateInterconnection(final int ifId, final String bdName) {
+    private Interconnection generateInterconnection(final int ifId, final String bdName, final Boolean bvi) {
         final BridgeBasedBuilder bbBuilder = new BridgeBasedBuilder();
         bbBuilder.setBridgeDomain(bdName);
         bbBuilder.setSplitHorizonGroup((short) 1);
+        // Empty type
+        if(bvi != null) {
+            bbBuilder.setBridgedVirtualInterface(bvi);
+        }
         return bbBuilder.build();
     }
 
@@ -143,11 +148,29 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
         cachedInterfaceDump.put(ifId, ifaceDetails);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
-        whenBridgeDomainSwIfDumpThenReturn(Collections.singletonList(generateBdSwIfDetails(ifId, bdId)));
+        // BVI
+        whenBridgeDomainSwIfDumpThenReturn(Collections.singletonList(generateBdSwIfDetails(ifId, bdId)),
+            Collections.singletonList(generateBdDetails(ifId, bdId)));
 
-        final L2Builder builder = mock(L2Builder.class);
+        L2Builder builder = mock(L2Builder.class);
         getCustomizer().readCurrentAttributes(getL2Id(ifName), builder, ctx);
 
-        verify(builder).setInterconnection(generateInterconnection(ifId, bdName));
+        verify(builder).setInterconnection(generateInterconnection(ifId, bdName, true));
+
+        // Not BVI
+        whenBridgeDomainSwIfDumpThenReturn(Collections.singletonList(generateBdSwIfDetails(ifId, bdId)),
+            Collections.singletonList(generateBdDetails(99 /* Different ifc is marked as BVI in bd details */, bdId)));
+
+        builder = mock(L2Builder.class);
+        getCustomizer().readCurrentAttributes(getL2Id(ifName), builder, ctx);
+
+        verify(builder).setInterconnection(generateInterconnection(ifId, bdName, null));
+    }
+
+    private BridgeDomainDetails generateBdDetails(final int ifId, final int bdId) {
+        final BridgeDomainDetails bridgeDomainDetails = new BridgeDomainDetails();
+        bridgeDomainDetails.bviSwIfIndex = ifId;
+        bridgeDomainDetails.bdId = bdId;
+        return bridgeDomainDetails;
     }
 }

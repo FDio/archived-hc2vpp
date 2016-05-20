@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
+
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
@@ -25,6 +27,7 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.TagRewriteOperation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanType;
@@ -75,6 +78,11 @@ public class VlanTagRewriteCustomizer extends FutureJVppCustomizer
 
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
                 interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
+
+        // Tag rewrite is only possible for subinterfaces
+        if (!isInterfaceOfType(SubInterface.class, iface)) {
+            return;
+        }
 
         builder.setFirstPushed(iface.subDot1Ad == 1 ? VlanType._802dot1q : VlanType._802dot1ad);
         builder.setRewriteOperation(TagRewriteOperation.forValue(iface.vtrOp));

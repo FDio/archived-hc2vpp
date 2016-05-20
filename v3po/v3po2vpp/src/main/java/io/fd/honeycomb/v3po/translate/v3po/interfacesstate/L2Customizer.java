@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
@@ -35,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.dto.BridgeDomainDump;
 import org.openvpp.jvpp.dto.BridgeDomainSwIfDetails;
@@ -83,12 +86,22 @@ public class L2Customizer extends FutureJVppCustomizer
                 ifaceId, ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", key.getName(), iface);
 
-        final Optional<BridgeDomainSwIfDetails> bdForInterface = getBridgeDomainForInterface(ifaceId);
+        final BridgeDomainDetailsReplyDump dumpReply = getDumpReply();
+        final Optional<BridgeDomainSwIfDetails> bdForInterface = getBridgeDomainForInterface(ifaceId, dumpReply);
         if (bdForInterface.isPresent()) {
             final BridgeDomainSwIfDetails bdSwIfDetails = bdForInterface.get();
             final BridgeBasedBuilder bbBuilder = new BridgeBasedBuilder();
             bbBuilder.setBridgeDomain(bridgeDomainContext.getName(bdSwIfDetails.bdId, ctx.getMappingContext()));
-            // bbBuilder.setBridgedVirtualInterface // TODO where to find that value?
+
+            // Set BVI if the bridgeDomainDetails.bviSwIfIndex == current sw if index
+            final Optional<BridgeDomainDetails> bridgeDomainForInterface =
+                getBridgeDomainForInterface(ifaceId, dumpReply, bdForInterface.get().bdId);
+            // Since we already found an interface assigned to a bridge domain, the details for BD must be present
+            checkState(bridgeDomainForInterface.isPresent());
+            if(bridgeDomainForInterface.get().bviSwIfIndex == ifaceId) {
+                bbBuilder.setBridgedVirtualInterface(true);
+            }
+
             if (bdSwIfDetails.shg != 0) {
                 bbBuilder.setSplitHorizonGroup((short)bdSwIfDetails.shg);
             }
@@ -98,7 +111,23 @@ public class L2Customizer extends FutureJVppCustomizer
         // TODO is there a way to check if interconnection is XconnectBased?
     }
 
-    private Optional<BridgeDomainSwIfDetails> getBridgeDomainForInterface(final int ifaceId) {
+    private Optional<BridgeDomainSwIfDetails> getBridgeDomainForInterface(final int ifaceId,
+                                                                          final BridgeDomainDetailsReplyDump reply) {
+        if (null == reply || null == reply.bridgeDomainSwIfDetails || reply.bridgeDomainSwIfDetails.isEmpty()) {
+            return Optional.empty();
+        }
+        // interface can be added to only one BD only
+        return reply.bridgeDomainSwIfDetails.stream().filter(a -> a.swIfIndex == ifaceId).findFirst();
+    }
+
+
+    private Optional<BridgeDomainDetails> getBridgeDomainForInterface(final int ifaceId,
+                                                                      final BridgeDomainDetailsReplyDump reply,
+                                                                      int bdId) {
+        return reply.bridgeDomainDetails.stream().filter(a -> a.bdId == bdId).findFirst();
+    }
+
+    private BridgeDomainDetailsReplyDump getDumpReply() {
         // We need to perform full bd dump, because there is no way
         // to ask VPP for BD details given interface id/name (TODO add it to vpp.api?)
         // TODO cache dump result
@@ -107,13 +136,6 @@ public class L2Customizer extends FutureJVppCustomizer
 
         final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
                 getFutureJVpp().bridgeDomainSwIfDump(request).toCompletableFuture();
-        final BridgeDomainDetailsReplyDump reply = V3poUtils.getReply(bdCompletableFuture);
-
-        if (null == reply || null == reply.bridgeDomainSwIfDetails || reply.bridgeDomainSwIfDetails.isEmpty()) {
-            return Optional.empty();
-        }
-
-        // interface can be added to only one BD only
-        return reply.bridgeDomainSwIfDetails.stream().filter(a -> a.swIfIndex == ifaceId).findFirst();
+        return V3poUtils.getReply(bdCompletableFuture);
     }
 }

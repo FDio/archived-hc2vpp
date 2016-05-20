@@ -85,6 +85,7 @@ public class VlanTagRewriteCustomizerTest extends ChildReaderCustomizerTest<Vlan
 
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = ifId;
+        ifaceDetails.interfaceName = ifName.getBytes();
         cachedInterfaceDump.put(ifId, ifaceDetails);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 

@@ -26,6 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
@@ -39,7 +40,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.TagRewriteOperation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanType;
@@ -140,6 +143,9 @@ public class VlanTagRewriteCustomizerTest {
         final InstanceIdentifier<VlanTagRewrite> id = getVlanTagRewriteId(VLAN_IF_NAME);
 
         whenL2InterfaceVlanTagRewriteThenSuccess();
+        // Vlan Tag rewrite is checking ifc type by reading its configuration from write context
+        doReturn(Optional.of(new InterfaceBuilder().setType(SubInterface.class).build()))
+            .when(writeContext).readAfter(any(InstanceIdentifier.class));
 
         customizer.writeCurrentAttributes(id, vlanTagRewrite, writeContext);
 
@@ -153,6 +159,9 @@ public class VlanTagRewriteCustomizerTest {
         final InstanceIdentifier<VlanTagRewrite> id = getVlanTagRewriteId(VLAN_IF_NAME);
 
         whenL2InterfaceVlanTagRewriteThenFailure();
+        // Vlan Tag rewrite is checking ifc type by reading its configuration from write context
+        doReturn(Optional.of(new InterfaceBuilder().setType(SubInterface.class).build()))
+            .when(writeContext).readAfter(any(InstanceIdentifier.class));
 
         try {
             customizer.writeCurrentAttributes(id, vlanTagRewrite, writeContext);
