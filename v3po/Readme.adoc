@@ -56,6 +56,12 @@ Consists of readers and writers responsible for communication with the device.
 
 Provides registry of readers and writers for the data layer.
 
+== Supported features
+
+List of supported requests for RESTCONF northbound interface can be found in
+postman_rest_collection.json within the codebase. 
+It is a POSTMAN compatible collection and can be imported into POSTMAN application.
+
 
 
 
