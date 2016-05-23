@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
@@ -54,20 +53,17 @@ public class VersionCustomizerTest extends ChildReaderCustomizerTest<Version, Ve
 
     @Test
     public void testReadCurrentAttributes() throws Exception {
-        final CompletionStage<ShowVersionReply> replyCS = mock(CompletionStage.class);
-        final CompletableFuture<ShowVersionReply> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+        final CompletableFuture<ShowVersionReply> replyFuture = new CompletableFuture<>();
         final ShowVersionReply reply = new ShowVersionReply();
         reply.retval = 0;
         reply.version = new byte[]{};
         reply.program = new byte[]{};
         reply.buildDate = new byte[]{};
         reply.buildDirectory = new byte[]{};
-        when(replyFuture.get()).thenReturn(reply);
-        when(api.showVersion(any(ShowVersion.class))).thenReturn(replyCS);
+        replyFuture.complete(reply);
 
+        when(api.showVersion(any(ShowVersion.class))).thenReturn(replyFuture);
         getCustomizer().readCurrentAttributes(InstanceIdentifier.create(Version.class), new VersionBuilder(), ctx);
-
         verify(api).showVersion(any(ShowVersion.class));
     }
 }

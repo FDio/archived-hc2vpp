@@ -50,14 +50,6 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(DelegatingWriterRegistry.class);
 
-    private static final Function<InstanceIdentifier<?>, Class<? extends DataObject>> ID_TO_CLASS =
-            new Function<InstanceIdentifier<?>, Class<? extends DataObject>>() {
-                @Override
-                public Class<? extends DataObject> apply(final InstanceIdentifier<?> input) {
-                    return input.getTargetType();
-                }
-            };
-
     private final Map<Class<? extends DataObject>, Writer<? extends DataObject>> rootWriters;
 
     /**
@@ -130,7 +122,8 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
 
     private void checkAllWritersPresent(final @Nonnull Map<InstanceIdentifier<?>, DataObject> nodesBefore) {
         final Set<Class<? extends DataObject>> nodesBeforeClasses =
-            Sets.newHashSet(Collections2.transform(nodesBefore.keySet(), ID_TO_CLASS));
+            Sets.newHashSet(Collections2.transform(nodesBefore.keySet(),
+                (Function<InstanceIdentifier<?>, Class<? extends DataObject>>) InstanceIdentifier::getTargetType));
         checkArgument(rootWriters.keySet().containsAll(nodesBeforeClasses),
                 "Unable to handle all changes. Missing dedicated writers for: %s",
                 Sets.difference(nodesBeforeClasses, rootWriters.keySet()));

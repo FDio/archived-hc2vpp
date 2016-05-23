@@ -32,6 +32,11 @@ module vpp-jvpp-cfg {
                 type string;
                 default "v3poODL";
             }
+
+            leaf description {
+                type string;
+                description "Artificial leaf just to trigger reinitialization of JVpp from HC";
+            }
         }
     }
 

@@ -22,10 +22,14 @@ import com.google.common.base.Splitter;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.dto.JVppReply;
 
 public final class TranslateUtils {
@@ -46,6 +50,25 @@ public final class TranslateUtils {
             // Execution exception should not occur, since we are using return codes for errors
             // TODO fix when using exceptions instead of return codes
             throw new IllegalArgumentException("Future " + " should not fail with an exception", e);
+        }
+    }
+
+    public static <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future,
+                                                          @Nonnull final InstanceIdentifier<?> replyType,
+                                                          @Nonnegative final int timeoutInSeconds)
+        throws ReadTimeoutException {
+        try {
+            checkArgument(timeoutInSeconds > 0, "Timeout cannot be < 0");
+            return future.get(timeoutInSeconds, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted", e);
+        } catch (ExecutionException e) {
+            // Execution exception should not occur, since we are using return codes for errors
+            // TODO fix when using exceptions instead of return codes
+            throw new IllegalArgumentException("Future " + " should not fail with an exception", e);
+        } catch (TimeoutException e) {
+            throw new ReadTimeoutException(replyType, e);
         }
     }
 

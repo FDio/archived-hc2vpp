@@ -113,17 +113,16 @@ public class VppStateTest {
     }
 
     private void whenShowVersionThenReturn(int retval, Version version) throws ExecutionException, InterruptedException {
-        final CompletionStage<ShowVersionReply> replyCS = mock(CompletionStage.class);
-        final CompletableFuture<ShowVersionReply> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+        final CompletableFuture<ShowVersionReply> replyFuture = new CompletableFuture<>();
         final ShowVersionReply reply = new ShowVersionReply();
         reply.retval = 0; // success
         reply.buildDate = version.getBuildDate().getBytes();
         reply.program = version.getName().getBytes();
         reply.version = version.getBranch().getBytes();
         reply.buildDirectory = version.getBuildDirectory().getBytes();
-        when(replyFuture.get()).thenReturn(reply);
-        when(api.showVersion(any(ShowVersion.class))).thenReturn(replyCS);
+
+        replyFuture.complete(reply);
+        when(api.showVersion(any(ShowVersion.class))).thenReturn(replyFuture);
     }
 
     private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> entryList) throws ExecutionException, InterruptedException {
@@ -305,7 +304,7 @@ public class VppStateTest {
     @Test(expected = IllegalArgumentException.class)
     public void testReadBridgeDomainNotExisting() throws Exception {
         doReturn(Optional.absent()).when(mappingContext).read(getMappingIid("NOT EXISTING", "bd-test-instance"));
-        
+
         final Optional<? extends DataObject> read =
             readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
                 BridgeDomain.class, new BridgeDomainKey("NOT EXISTING")), ctx);

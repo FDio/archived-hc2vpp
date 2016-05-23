@@ -49,6 +49,20 @@
             <artifactId>v3po-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Keepalives -->
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-util</artifactId>
+            <version>0.4.2-Beryllium-SR2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>threadpool-config-api</artifactId>
+            <version>0.4.2-Beryllium-SR2</version>
+        </dependency>
+        <!---->
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>translate-impl</artifactId>

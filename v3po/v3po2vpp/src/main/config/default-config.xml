@@ -23,6 +23,9 @@
         <capability>urn:honeycomb:params:xml:ns:yang:v3po2vpp?module=v3po2vpp&amp;revision=2016-04-06</capability>
         <capability>urn:honeycomb:params:xml:ns:yang:data:api?module=data-api&amp;revision=2016-04-11</capability>
         <capability>urn:honeycomb:params:xml:ns:yang:vpp:util?module=vpp-util&amp;revision=2016-04-06</capability>
+        <capability>
+            urn:opendaylight:params:xml:ns:yang:controller:threadpool:impl:scheduled?module=threadpool-impl-scheduled&amp;revision=2013-12-01
+        </capability>
     </required-capabilities>
     <configuration>
 
@@ -54,6 +57,13 @@
                         <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
                         <name>bridge-domain-context</name>
                     </bridge-domain-context-vpp-state>
+                    <!-- Reuse netconf's scheduled executor for keepalives -->
+                    <keepalive-executor>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:threadpool">
+                            prefix:threadpool
+                        </type>
+                        <name>global-netconf-ssh-scheduled-executor</name>
+                    </keepalive-executor>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:interfaces-state-honeycomb-reader</type>

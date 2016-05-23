@@ -21,6 +21,7 @@ import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
@@ -35,6 +36,11 @@ import org.openvpp.jvpp.future.FutureJVpp;
 public final class VersionCustomizer
     extends FutureJVppCustomizer
     implements ChildReaderCustomizer<Version, VersionBuilder> {
+
+    /**
+     * Default timeout for executing version read
+     */
+    private static final int DEFAULT_TIMEOUT_IN_SECONDS = 30;
 
     public VersionCustomizer(@Nonnull final FutureJVpp futureJVpp) {
         super(futureJVpp);
@@ -54,13 +60,11 @@ public final class VersionCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<Version> id, @Nonnull final VersionBuilder builder,
                                       @Nonnull final ReadContext context) throws ReadFailedException {
+        // Execute with timeout
+        final CompletionStage<ShowVersionReply> showVersionFuture = getFutureJVpp().showVersion(new ShowVersion());
+        final ShowVersionReply reply = TranslateUtils.getReply(showVersionFuture.toCompletableFuture(), id,
+            DEFAULT_TIMEOUT_IN_SECONDS);
 
-        ShowVersionReply reply;
-        try {
-            reply = getFutureJVpp().showVersion(new ShowVersion()).toCompletableFuture().get();
-        } catch (Exception e) {
-            throw new ReadFailedException(id, e);
-        }
         builder.setBranch(TranslateUtils.toString(reply.version));
         builder.setName(TranslateUtils.toString(reply.program));
         builder.setBuildDate(TranslateUtils.toString(reply.buildDate));
