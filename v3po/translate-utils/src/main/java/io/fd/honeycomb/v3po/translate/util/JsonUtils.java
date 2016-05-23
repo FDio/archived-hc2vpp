@@ -41,7 +41,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContaine
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 
-public class JsonUtils {
+public final class JsonUtils {
 
     private JsonUtils() {}
 
@@ -80,7 +80,7 @@ public class JsonUtils {
         final NormalizedNodeStreamWriter writer = ImmutableNormalizedNodeStreamWriter.from(builder);
 
         final JsonParserStream jsonParser = JsonParserStream.create(writer, schemaContext);
-        final JsonReader reader = new JsonReader(new InputStreamReader(stream));
+        final JsonReader reader = new JsonReader(new InputStreamReader(stream, Charsets.UTF_8));
         jsonParser.parse(reader);
 
         return builder.build();

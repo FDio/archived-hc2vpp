@@ -114,7 +114,7 @@ public final class ReadableDataTreeDelegator implements ReadableDataManager {
                 new org.opendaylight.controller.md.sal.common.api.data.ReadFailedException(
                     "Failed to read VPP data", e));
         } catch (TransactionCommitFailedException e) {
-            // FIXME revert should probably occur when context is not written successfully, but can that even happen ?
+            // FIXME revert should probably occur when context is not written successfully
             final String msg = "Error while updating mapping context data";
             LOG.error(msg, e);
             return Futures.immediateFailedCheckedFuture(

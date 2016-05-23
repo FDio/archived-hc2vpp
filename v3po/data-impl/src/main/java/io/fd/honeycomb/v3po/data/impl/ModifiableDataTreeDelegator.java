@@ -125,14 +125,14 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                 // Blocking on context data update
                 contextUpdateResult.checkedGet();
 
-            } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException e) {
+            } catch (WriterRegistry.BulkUpdateException e) {
                 LOG.warn("Failed to apply all changes", e);
                 LOG.info("Trying to revert successful changes for current transaction");
 
                 try {
                     e.revertChanges();
                     LOG.info("Changes successfully reverted");
-                } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException revertFailedException) {
+                } catch (WriterRegistry.Reverter.RevertFailedException revertFailedException) {
                     // fail with failed revert
                     LOG.error("Failed to revert successful changes", revertFailedException);
                     throw revertFailedException;
@@ -140,7 +140,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
 
                 throw e; // fail with success revert
             } catch (TransactionCommitFailedException e) {
-                // FIXME revert should probably occur when context is not written successfully, but can that even happen ?
+                // FIXME revert should probably occur when context is not written successfully
                 final String msg = "Error while updating mapping context data";
                 LOG.error(msg, e);
                 throw new TranslationException(msg, e);

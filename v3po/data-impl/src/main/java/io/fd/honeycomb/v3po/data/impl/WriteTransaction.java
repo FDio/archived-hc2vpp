@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.translate.TranslationException;
+import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -74,7 +75,7 @@ final class WriteTransaction implements DOMDataWriteTransaction {
     }
 
     private void handleOperation(final LogicalDatastoreType store,
-                                 final java.util.function.Consumer<DataModification> r) {
+                                 final Consumer<DataModification> r) {
         switch (store) {
             case CONFIGURATION:
                 checkArgument(configModification != null, "Modification of %s is not supported", store);

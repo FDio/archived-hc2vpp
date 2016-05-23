@@ -41,11 +41,11 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
     private static final Logger LOG = LoggerFactory.getLogger(ReadOnlyTransaction.class);
 
     @Nullable
-    private volatile ReadableDataManager operationalData;
+    private ReadableDataManager operationalData;
     @Nullable
-    private volatile ReadableDataManager configSnapshot;
+    private ReadableDataManager configSnapshot;
 
-    private volatile boolean closed = false;
+    private boolean closed = false;
 
     /**
      * @param configData config data tree manager. Null if config reads are not to be supported
@@ -58,14 +58,14 @@ final class ReadOnlyTransaction implements DOMDataReadOnlyTransaction {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         closed = true;
         configSnapshot = null;
         operationalData = null;
     }
 
     @Override
-    public CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
+    public synchronized CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read(
             final LogicalDatastoreType store,
             final YangInstanceIdentifier path) {
         LOG.debug("ReadOnlyTransaction.read(), store={}, path={}", store, path);

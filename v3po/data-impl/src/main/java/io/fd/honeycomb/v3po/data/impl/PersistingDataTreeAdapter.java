@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.data.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.util.JsonUtils;
@@ -41,32 +42,32 @@ import org.slf4j.LoggerFactory;
  * Adapter for a DataTree that stores current state of data in backing DataTree on each successful commit.
  * Uses JSON format.
  */
-public class PersistingDataTreeAdapter implements org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree, AutoCloseable {
+public class PersistingDataTreeAdapter implements DataTree, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistingDataTreeAdapter.class);
 
     private final DataTree delegateDependency;
-    private SchemaService schemaServiceDependency;
+    private final SchemaService schemaServiceDependency;
     private final Path path;
 
     /**
      * Create new Persisting DataTree adapter
      *
-     * @param delegateDependency backing data tree that actually handles all the operations
+     * @param delegate backing data tree that actually handles all the operations
      * @param persistPath path to a file (existing or not) to be used as storage for persistence. Full control over
      *                    a file at peristPath is expected
-     * @param schemaServiceDependency schemaContext provier
+     * @param schemaService schemaContext provier
      */
-    public PersistingDataTreeAdapter(@Nonnull final DataTree delegateDependency,
-                                     @Nonnull final SchemaService schemaServiceDependency,
+    public PersistingDataTreeAdapter(@Nonnull final DataTree delegate,
+                                     @Nonnull final SchemaService schemaService,
                                      @Nonnull final Path persistPath) {
-        this.path = testPersistPath(persistPath);
-        this.delegateDependency = delegateDependency;
-        this.schemaServiceDependency = schemaServiceDependency;
+        this.path = testPersistPath(checkNotNull(persistPath, "persistPath is null"));
+        this.delegateDependency = checkNotNull(delegate, "delegate is null");
+        this.schemaServiceDependency = checkNotNull(schemaService, "schemaService is null");
     }
 
     /**
-     * Test whether file at persistPath is a file and can be created/deleted
+     * Test whether file at persistPath exists and is readable or create it along with its parent structure
      */
     private Path testPersistPath(final Path persistPath) {
         try {
@@ -115,12 +116,8 @@ public class PersistingDataTreeAdapter implements org.opendaylight.yangtools.yan
         if(currentRoot.isPresent()) {
             try {
                 LOG.trace("Persisting current data: {} into: {}", currentRoot.get(), path);
-                // Make sure the file gets overwritten
-                if(Files.exists(path)) {
-                    Files.delete(path);
-                }
                 JsonUtils.writeJsonRoot(currentRoot.get(), schemaServiceDependency.getGlobalContext(),
-                    Files.newOutputStream(path, StandardOpenOption.CREATE));
+                    Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));
                 LOG.trace("Data persisted successfully in {}", path);
             } catch (IOException e) {
                 throw new IllegalStateException("Unable to persist current data", e);

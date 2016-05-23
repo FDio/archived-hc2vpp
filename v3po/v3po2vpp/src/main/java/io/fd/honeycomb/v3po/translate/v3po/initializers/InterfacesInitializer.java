@@ -74,7 +74,7 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         return interfacesBuilder.build();
     }
 
-    // FIXME this kind of initialization/transformation is bad
+    // FIXME https://jira.fd.io/browse/HONEYCOMB-73 this kind of initialization/transformation is bad
     // There is no relation to readers, it cannot be extended (readers can) and its hard to keep in sync with readers
 
     // TODO add IP v4/ v6 initializer

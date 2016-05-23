@@ -33,8 +33,12 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.vpp.data.in
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RestoringInitializer implements DataTreeInitializer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InitializerRegistryImpl.class);
 
     private final SchemaService schemaService;
     private final Path path;
@@ -55,15 +59,9 @@ public class RestoringInitializer implements DataTreeInitializer {
     }
 
     private Path checkStorage(final Path path) {
-        try {
-            if(Files.exists(path)) {
-                checkArgument(!Files.isDirectory(path), "File %s is a directory", path);
-                checkArgument(Files.isReadable(path), "File %s is not readable", path);
-            } else {
-                return checkStorage(Files.createFile(path));
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Cannot use " + path + " for restoring data", e);
+        if (Files.exists(path)) {
+            checkArgument(!Files.isDirectory(path), "File %s is a directory", path);
+            checkArgument(Files.isReadable(path), "File %s is not readable", path);
         }
 
         return path;
@@ -71,7 +69,9 @@ public class RestoringInitializer implements DataTreeInitializer {
 
     @Override
     public void initialize() throws InitializeException {
+        LOG.debug("Starting restoration of {} from {} using {}", dataTree, path, restorationType);
         if(!Files.exists(path)) {
+            LOG.debug("Persist file {} does not exist. Skipping restoration", path);
             return;
         }
 
@@ -83,6 +83,8 @@ public class RestoringInitializer implements DataTreeInitializer {
             for (DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> dataContainerChild : containerNode
                 .getValue()) {
                 final YangInstanceIdentifier iid = YangInstanceIdentifier.create(dataContainerChild.getIdentifier());
+                LOG.trace("Restoring {} from {}", iid, path);
+
                 switch (restorationType) {
                     case Merge:
                         domDataWriteTransaction.merge(datastoreType, iid, dataContainerChild);
@@ -98,6 +100,7 @@ public class RestoringInitializer implements DataTreeInitializer {
 
             // Block here to prevent subsequent initializers processing before context is fully restored
             domDataWriteTransaction.submit().checkedGet();
+            LOG.debug("Data from {} restored successfully", path);
 
         } catch (IOException | TransactionCommitFailedException e) {
             throw new InitializeException("Unable to restore data from " + path, e);

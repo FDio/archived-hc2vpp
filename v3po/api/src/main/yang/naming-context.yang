@@ -1,7 +1,7 @@
 module naming-context {
     yang-version 1;
     namespace "urn:honeycomb:params:xml:ns:yang:naming:context";
-    prefix "vpp-u";
+    prefix "nc";
 
     description
         "This module contains data definition for naming mapping context";
@@ -25,6 +25,7 @@ module naming-context {
                 list mapping {
 
                     key "name";
+                    unique "index";
 
                     leaf name {
                         type string;

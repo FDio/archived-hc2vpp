@@ -39,6 +39,7 @@ module data-impl {
 
             leaf type {
                 type dapi:datatree-type;
+                mandatory true;
             }
         }
     }
@@ -73,6 +74,8 @@ module data-impl {
 
             leaf persist-file-path {
                 type string;
+                mandatory true;
+                description "Path to a file to be used as data storage";
             }
         }
     }

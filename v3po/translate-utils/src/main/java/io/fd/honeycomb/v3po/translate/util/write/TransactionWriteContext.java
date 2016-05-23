@@ -43,7 +43,7 @@ public final class TransactionWriteContext implements WriteContext {
     private final DOMDataReadOnlyTransaction afterTx;
     private final ModificationCache ctx;
     private final BindingNormalizedNodeSerializer serializer;
-    private MappingContext mappingContext;
+    private final MappingContext mappingContext;
 
     public TransactionWriteContext(final BindingNormalizedNodeSerializer serializer,
                                    final DOMDataReadOnlyTransaction beforeTx,

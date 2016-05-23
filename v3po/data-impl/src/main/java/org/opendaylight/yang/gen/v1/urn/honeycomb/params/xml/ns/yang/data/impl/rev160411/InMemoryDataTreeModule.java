@@ -31,11 +31,10 @@ public class InMemoryDataTreeModule extends org.opendaylight.yang.gen.v1.urn.hon
         return new CloseableConfigDataTree(getSchemaServiceDependency().getGlobalContext(), getType());
     }
 
-    private static class CloseableConfigDataTree implements AutoCloseable,
-        org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree {
-        private final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree dataTree;
+    private static class CloseableConfigDataTree implements AutoCloseable, DataTree {
+        private final DataTree dataTree;
 
-        public CloseableConfigDataTree(final SchemaContext schemaContext, final DatatreeType type) {
+        CloseableConfigDataTree(final SchemaContext schemaContext, final DatatreeType type) {
             this.dataTree = InMemoryDataTreeFactory.getInstance().create(
                 type == DatatreeType.Config ? TreeType.CONFIGURATION : TreeType.OPERATIONAL
             );
