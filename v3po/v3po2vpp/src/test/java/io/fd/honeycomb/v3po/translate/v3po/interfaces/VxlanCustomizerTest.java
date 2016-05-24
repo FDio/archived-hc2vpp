@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
@@ -44,6 +46,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -151,9 +156,30 @@ public class VxlanCustomizerTest {
 
         whenVxlanAddDelTunnelThenSuccess();
 
+        doReturn(Optional.absent())
+            .when(mappingContext).read(getMappingIid(ifaceName, "test-instance").firstIdentifierOf(Mappings.class));
+
         customizer.writeCurrentAttributes(id, vxlan, writeContext);
         verifyVxlanAddWasInvoked(vxlan);
         verify(mappingContext).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
+    }
+
+    @Test
+    public void testWriteCurrentAttributesMappingAlreadyPresent() throws Exception {
+        final Vxlan vxlan = generateVxlan();
+
+        whenVxlanAddDelTunnelThenSuccess();
+        final Optional<Mapping> ifcMapping = getMapping(ifaceName, 0);
+
+        doReturn(Optional.of(new MappingsBuilder().setMapping(singletonList(ifcMapping.get())).build()))
+            .when(mappingContext).read(getMappingIid(ifaceName, "test-instance").firstIdentifierOf(Mappings.class));
+
+        customizer.writeCurrentAttributes(id, vxlan, writeContext);
+        verifyVxlanAddWasInvoked(vxlan);
+
+        // Remove the first mapping before putting in the new one
+        verify(mappingContext).delete(eq(getMappingIid(ifaceName, "test-instance")));
+        verify(mappingContext).put(eq(getMappingIid(ifaceName, "test-instance")), eq(ifcMapping.get()));
     }
 
     @Test

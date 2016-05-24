@@ -118,6 +118,19 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
             throw new VppApiInvocationException("vxlanAddDelTunnel", reply.context, reply.retval);
         } else {
             LOG.debug("Vxlan tunnel set successfully for: {}, vxlan: {}", swIfName, vxlan);
+            if(interfaceContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
+                // VPP keeps vxlan tunnels present even after they are delete(reserving ID for next tunnel)
+                // This may cause inconsistencies in mapping context when configuring tunnels like this:
+                // 1. Add tunnel 2. Delete tunnel 3. Read interfaces (reserved mapping e.g. vxlan_tunnel0 -> 6
+                // will get into mapping context) 4. Add tunnel (this will add another mapping with the same
+                // reserved ID and context is invalid)
+                // That's why a check has to be performed here removing mapping vxlan_tunnel0 -> 6 mapping and storing
+                // new name for that ID
+                final String formerName = interfaceContext.getName(reply.swIfIndex, writeContext.getMappingContext());
+                LOG.debug("Removing updated mapping of a vxlan tunnel, id: {}, former name: {}, new name: {}",
+                    reply.swIfIndex, formerName, swIfName);
+                interfaceContext.removeName(formerName, writeContext.getMappingContext());
+            }
             // Add new interface to our interface context
             interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
         }
