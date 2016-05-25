@@ -57,10 +57,8 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
     @Override
     public void close() throws Exception {
         LOG.debug("AbstractDataTreeConverter.close()");
-        final WriteTransaction writeTx = bindingDataBroker.newWriteOnlyTransaction();
-        writeTx.delete(LogicalDatastoreType.CONFIGURATION, idConfig);
-        writeTx.submit().checkedGet();
-        LOG.info("Config initialization data for {} successfully removed.", idConfig);
+        // Not removing initialized data, since this works in cooperation with persistence, it could remove
+        // data restored by persistence or remove user configured data when shutting down HC
     }
 
     @Override
