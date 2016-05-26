@@ -86,13 +86,14 @@ public class VlanTagRewriteCustomizerTest extends ChildReaderCustomizerTest<Vlan
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = ifId;
         ifaceDetails.interfaceName = ifName.getBytes();
+        ifaceDetails.vtrPushDot1Q = 1;
         cachedInterfaceDump.put(ifId, ifaceDetails);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
         final VlanTagRewriteBuilder builder = mock(VlanTagRewriteBuilder.class);
         getCustomizer().readCurrentAttributes(getVlanTagRewriteId(ifName), builder, ctx);
 
-        verify(builder).setFirstPushed(VlanType._802dot1ad);
+        verify(builder).setFirstPushed(VlanType._802dot1q);
         verify(builder).setRewriteOperation(TagRewriteOperation.Disabled);
         verify(builder, never()).setTag1(any());
         verify(builder, never()).setTag2(any());

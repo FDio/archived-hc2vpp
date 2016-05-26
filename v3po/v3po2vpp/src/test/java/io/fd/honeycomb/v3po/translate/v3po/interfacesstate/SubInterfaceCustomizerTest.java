@@ -101,6 +101,7 @@ public class SubInterfaceCustomizerTest extends ChildReaderCustomizerTest<SubInt
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = ifId;
         ifaceDetails.interfaceName = ifName.getBytes();
+        ifaceDetails.subDot1Ad = 1;
         cachedInterfaceDump.put(ifId, ifaceDetails);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 

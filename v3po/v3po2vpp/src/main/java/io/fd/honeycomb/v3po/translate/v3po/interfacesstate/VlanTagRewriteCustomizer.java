@@ -84,7 +84,7 @@ public class VlanTagRewriteCustomizer extends FutureJVppCustomizer
             return;
         }
 
-        builder.setFirstPushed(iface.subDot1Ad == 1 ? VlanType._802dot1q : VlanType._802dot1ad);
+        builder.setFirstPushed(iface.vtrPushDot1Q == 1 ? VlanType._802dot1q : VlanType._802dot1ad);
         builder.setRewriteOperation(TagRewriteOperation.forValue(iface.vtrOp));
         if (iface.vtrTag1 != 0) {
             builder.setTag1(new VlanTag(iface.vtrTag1));

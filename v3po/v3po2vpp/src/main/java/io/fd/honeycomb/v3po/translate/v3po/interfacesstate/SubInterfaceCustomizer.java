@@ -92,7 +92,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         builder.setIdentifier(Long.valueOf(iface.subId));
         builder.setSuperInterface(interfaceContext.getName(iface.supSwIfIndex, ctx.getMappingContext()));
         builder.setNumberOfTags(Short.valueOf(iface.subNumberOfTags));
-        builder.setVlanType(iface.subDot1Ad == 1 ? VlanType._802dot1q : VlanType._802dot1ad);
+        builder.setVlanType(iface.subDot1Ad == 1 ? VlanType._802dot1ad : VlanType._802dot1q);
         if (iface.subExactMatch == 1) {
             builder.setExactMatch(true);
         }

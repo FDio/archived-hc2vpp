@@ -79,7 +79,7 @@ public class SubInterfaceCustomizerTest {
 
     private SubInterface generateSubInterface(final String superIfName) {
         SubInterfaceBuilder builder = new SubInterfaceBuilder();
-        builder.setVlanType(VlanType._802dot1q);
+        builder.setVlanType(VlanType._802dot1ad);
         builder.setIdentifier(11L);
         builder.setNumberOfTags((short)1);
         builder.setOuterId(new VlanTag(100));

@@ -116,7 +116,7 @@ public class SubInterfaceCustomizer extends AbstractInterfaceTypeCustomizer<SubI
                 request.twoTags = 1;
                 break;
         }
-        request.dot1Ad = booleanToByte(VlanType._802dot1q.equals(subInterface.getVlanType()));
+        request.dot1Ad = booleanToByte(VlanType._802dot1ad.equals(subInterface.getVlanType()));
         request.exactMatch = booleanToByte(subInterface.isExactMatch());
         request.defaultSub = booleanToByte(subInterface.isDefaultSubif());
         request.outerVlanIdAny = booleanToByte(subInterface.isMatchAnyInnerId());
