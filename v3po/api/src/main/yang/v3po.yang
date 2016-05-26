@@ -183,6 +183,33 @@ module v3po {
     }
   }
 
+  grouping ethernet-base-attributes {
+    leaf mtu {
+      type uint16 {
+        range "64..9216";
+      }
+      units "octets";
+      default 9216;
+      description
+      "The size, in octets, of the largest packet that the
+       hardware interface will send and receive.";
+    }
+  }
+
+  grouping ethernet-state-attributes {
+    leaf manufacturer-description {
+      type string;
+      config false;
+    }
+    leaf duplex {
+      type enumeration {
+        enum "half";
+        enum "full";
+      }
+      config false;
+    }
+  }
+
   grouping vhost-user-interface-base-attributes {
     leaf socket {
       type string {
@@ -193,25 +220,45 @@ module v3po {
       type vhost-user-role;
       default "server";
     }
+    description "vhost-user settings";
   }
 
   grouping vhost-user-interface-state-attributes {
-      leaf features {
-        type uint64;
-        config false;
-      }
-      leaf virtio-net-hdr-size {
-        type uint32;
-        config false;
-      }
-      leaf num-memory-regions {
-        type uint32;
-        config false;
-      }
-      leaf connect-error {
-        type string;
-        config false;
-      }
+    leaf features {
+      type uint64;
+      config false;
+    }
+    leaf virtio-net-hdr-size {
+      type uint32;
+      config false;
+    }
+    leaf num-memory-regions {
+      type uint32;
+      config false;
+    }
+    leaf connect-error {
+      type string;
+      config false;
+    }
+  }
+
+  grouping vxlan-base-attributes {
+    // FIXME: this should be in an vxlan-specific extension
+    leaf src {
+      /*mandatory true;*/
+      type inet:ip-address;
+    }
+    leaf dst {
+      /*mandatory true;*/
+      type inet:ip-address;
+    }
+    leaf vni {
+      /*mandatory true;*/
+      type vxlan-vni;
+    }
+    leaf encap-vrf-id {
+      type uint32;
+    }
   }
 
   grouping vlan-tag-rewrite-attributes {
@@ -231,83 +278,16 @@ module v3po {
     }
   }
 
-  augment /if:interfaces/if:interface {
-    ext:augment-identifier "vpp-interface-augmentation";
-
-    // FIXME using ietf-interfaces model for vpp interfaces makes it hard to implement because:
-    // 1. The link between interface type and this augmentation is unclear
-    // 2. Only this augmentation with combination of ifc type is trigger to do something for vpp, what if user only configures base interface stuff ? + We need to get leaves defined by ietf-interfaces when we are processing this augment
-
-    container sub-interface {
-      when "../if:type = 'v3po:sub-interface'";
-      leaf super-interface {
-        type if:interface-ref;
-      }
-      uses sub-interface-base-attributes;
-    }
-
-    container tap {
-      when "../if:type = 'v3po:tap'";
-      uses tap-interface-base-attributes;
-      uses tap-interface-config-attributes;
-    }
-
-    container ethernet {
-      when "../if:type = 'ianaift:ethernetCsmacd'";
-      leaf mtu {
-        type uint16 {
-          range "64..9216";
-        }
-        units "octets";
-        default 9216;
-        description
-        "The size, in octets, of the largest packet that the
-         hardware interface will send and receive.";
-      }
-    }
-    container routing {
-      leaf vrf-id {
-        type uint32;
-        default 0;
-      }
-    }
-    container vhost-user {
-      when "../if:type = 'v3po:vhost-user'";
-      uses vhost-user-interface-base-attributes;
-      description "vhost-user settings";
-    }
-    container vxlan {
-      // FIXME: this should be in an vxlan-specific extension
-      when "../if:type = 'v3po:vxlan-tunnel'";
-
-      leaf src {
-        /*mandatory true;*/
-        type inet:ip-address;
-      }
-      leaf dst {
-        /*mandatory true;*/
-        type inet:ip-address;
-      }
-      leaf vni {
-        /*mandatory true;*/
-        type vxlan-vni;
-      }
-      leaf encap-vrf-id {
-        type uint32;
-      }
-    }
-    container l2 {
+  grouping l2-attributes {
       description
       "Parameters for configuring Layer2 features on interfaces.";
-      must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
-      "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
 
       choice interconnection {
         case xconnect-based {
           leaf xconnect-outgoing-interface {
             /* Don't allow selection of this interface */
             must "../../if:name != current()";
-            type if:interface-ref;
+            type if:interface-ref; // todo use interface-state-ref for operational data?
             description
               "L2 xconnect mode";
           }
@@ -341,9 +321,60 @@ module v3po {
           }
         }
       }
-      container vlan-tag-rewrite {
+      container vlan-tag-rewrite { // todo valid only for sub-interfaces
         uses vlan-tag-rewrite-attributes;
       }
+  }
+
+  augment /if:interfaces/if:interface {
+    ext:augment-identifier "vpp-interface-augmentation";
+
+    // FIXME using ietf-interfaces model for vpp interfaces makes it hard to implement because:
+    // 1. The link between interface type and this augmentation is unclear
+    // 2. Only this augmentation with combination of ifc type is trigger to do something for vpp, what if user only configures base interface stuff ? + We need to get leaves defined by ietf-interfaces when we are processing this augment
+    // 3. The ietf-interfaces model does not define groupings which makes types reuse difficult
+
+    container sub-interface {
+      when "../if:type = 'v3po:sub-interface'";
+      leaf super-interface {
+        type if:interface-ref;
+      }
+      uses sub-interface-base-attributes;
+    }
+
+    container tap {
+      when "../if:type = 'v3po:tap'";
+      uses tap-interface-base-attributes;
+      uses tap-interface-config-attributes;
+    }
+
+    container ethernet {
+      when "../if:type = 'ianaift:ethernetCsmacd'";
+      uses ethernet-base-attributes;
+    }
+
+    container routing {
+      leaf vrf-id { // todo no routing info for oper, is it possible to get it from the vpp?
+        type uint32;
+        default 0;
+      }
+    }
+
+    container vhost-user {
+      when "../if:type = 'v3po:vhost-user'";
+      uses vhost-user-interface-base-attributes;
+    }
+
+    container vxlan {
+      when "../if:type = 'v3po:vxlan-tunnel'";
+      uses vxlan-base-attributes;
+    }
+
+    container l2 {
+      must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
+      "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
+
+      uses l2-attributes;
     }
   }
 
@@ -401,79 +432,31 @@ module v3po {
 
     container tap {
       when "../if:type = 'v3po:tap'";
-      uses tap-interface-base-attributes {
-        refine tap-name {
-            config false;
-        }
-      }
+      uses tap-interface-base-attributes;
     }
 
     container ethernet {
       when "../if:type = 'ianaift:ethernetCsmacd'";
-      leaf mtu {
-        type uint16;
-      }
-      leaf manufacturer-description {
-        type string;
-      }
-      leaf duplex {
-        type enumeration {
-          enum "half";
-          enum "full";
-        }
-      }
+      uses ethernet-base-attributes;
+      uses ethernet-state-attributes;
     }
+
     container vhost-user {
       when "../if:type = 'v3po:vhost-user'";
-      uses vhost-user-interface-base-attributes {
-        refine socket {
-            config false;
-        }
-        refine role {
-            config false;
-        }
-      }
+      uses vhost-user-interface-base-attributes;
       uses vhost-user-interface-state-attributes;
     }
+
     container vxlan {
       when "../if:type = 'v3po:vxlan-tunnel'";
-
-      leaf src {
-        type inet:ip-address;
-      }
-      leaf dst {
-        type inet:ip-address;
-      }
-
-      leaf vni {
-        type uint32;
-      }
-      leaf encap-vrf-id {
-        type uint32;
-      }
+      uses vxlan-base-attributes;
     }
+
     container l2 {
-      choice interconnection {
-        case xconnect-based {
-          leaf xconnect-outgoing-interface {
-            type if:interface-ref;
-          }
-        }
-        case bridge-based {
-          leaf bridge-domain {
-            type bridge-domain-ref;
-          }
-          leaf split-horizon-group {
-            type uint8;
-          }
-          leaf bridged-virtual-interface {
-            type boolean;
-          }
-        }
-      }
-      container vlan-tag-rewrite {
-        uses vlan-tag-rewrite-attributes;
-      }
+      must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
+      "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
+
+      uses l2-attributes;
     }
   }
 

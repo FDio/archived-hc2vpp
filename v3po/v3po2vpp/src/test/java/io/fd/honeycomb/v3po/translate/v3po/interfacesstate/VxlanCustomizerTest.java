@@ -97,7 +97,7 @@ public class VxlanCustomizerTest extends ChildReaderCustomizerTest<Vxlan, VxlanB
         final VxlanBuilder builder = getCustomizer().getBuilder(IID);
         getCustomizer().readCurrentAttributes(IID, builder, ctx);
 
-        assertEquals(9, builder.getVni().intValue());
+        assertEquals(9, builder.getVni().getValue().intValue());
         assertEquals(55, builder.getEncapVrfId().intValue());
 
         assertNull(builder.getSrc().getIpv6Address());

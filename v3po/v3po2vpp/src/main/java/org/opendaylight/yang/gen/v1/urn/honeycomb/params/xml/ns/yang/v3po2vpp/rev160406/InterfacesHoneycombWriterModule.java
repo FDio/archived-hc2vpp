@@ -37,7 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.l2.VlanTagRewrite;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.attributes.VlanTagRewrite;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
@@ -117,7 +117,13 @@ public class InterfacesHoneycombWriterModule extends org.opendaylight.yang.gen.v
         final ChildWriter<VlanTagRewrite> vlanTagWriter = new CompositeChildWriter<>(VlanTagRewrite.class,
                 new VlanTagRewriteCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
 
-        final List<ChildWriter<? extends ChildOf<L2>>> l2ChildWriters = Collections.singletonList(vlanTagWriter);
+        // TODO VlanTagRewrite is ChildOf<L2Attributes>, but L2 extends L2Attributes
+        // If we use containers inside groupings, we need to cast and lose static type checking.
+        // Can we get rid of the cast?
+        final List<ChildWriter<? extends ChildOf<L2>>> l2ChildWriters =
+                Collections.singletonList((ChildWriter)vlanTagWriter);
+
+
         final ChildWriter<L2> l2Writer = new CompositeChildWriter<>(L2.class,
                 l2ChildWriters,
                 RWUtils.emptyAugWriterList(),
