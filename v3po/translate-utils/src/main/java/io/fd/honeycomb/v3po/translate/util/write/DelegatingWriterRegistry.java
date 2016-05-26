@@ -32,6 +32,7 @@ import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -128,9 +129,11 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
     }
 
     private void checkAllWritersPresent(final @Nonnull Map<InstanceIdentifier<?>, DataObject> nodesBefore) {
-        checkArgument(rootWriters.keySet().containsAll(Collections2.transform(nodesBefore.keySet(), ID_TO_CLASS)),
+        final Set<Class<? extends DataObject>> nodesBeforeClasses =
+            Sets.newHashSet(Collections2.transform(nodesBefore.keySet(), ID_TO_CLASS));
+        checkArgument(rootWriters.keySet().containsAll(nodesBeforeClasses),
                 "Unable to handle all changes. Missing dedicated writers for: %s",
-                Sets.difference(nodesBefore.keySet(), rootWriters.keySet()));
+                Sets.difference(nodesBeforeClasses, rootWriters.keySet()));
     }
 
     private static final class ReverterImpl implements Reverter {
