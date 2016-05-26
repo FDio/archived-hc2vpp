@@ -46,8 +46,8 @@ public class ReflexiveChildWriterCustomizer<C extends DataObject> extends NoopWr
 
         try {
             return method.isPresent()
-                ? Optional.of((C) method.get().invoke(parentData))
-                : Optional.<C>absent();
+                ? Optional.fromNullable((C) method.get().invoke(parentData))
+                : Optional.absent();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalArgumentException("Unable to get " + currentType + " from " + parentData, e);
         }
