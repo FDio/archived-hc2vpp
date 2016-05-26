@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -89,7 +89,7 @@ public class VlanTagRewriteCustomizer extends AbstractInterfaceTypeCustomizer<Vl
         final CompletionStage<L2InterfaceVlanTagRewriteReply> replyCompletionStage =
                 getFutureJVpp().l2InterfaceVlanTagRewrite(getTagRewriteRequest(swIfIndex, cfg));
 
-        final L2InterfaceVlanTagRewriteReply reply = V3poUtils.getReply(replyCompletionStage.toCompletableFuture());
+        final L2InterfaceVlanTagRewriteReply reply = TranslateUtils.getReply(replyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.debug("Failed to set tag rewrite for interface {}(id=): {}", ifname, swIfIndex, cfg);
             throw new VppApiInvocationException("l2InterfaceVlanTagRewrite", reply.context, reply.retval);

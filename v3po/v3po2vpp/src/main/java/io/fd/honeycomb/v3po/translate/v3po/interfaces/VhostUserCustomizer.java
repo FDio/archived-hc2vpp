@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -85,7 +85,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
                 getFutureJVpp().createVhostUserIf(getCreateVhostUserIfRequest(vhostUser));
 
         final CreateVhostUserIfReply reply =
-                V3poUtils.getReply(createVhostUserIfReplyCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(createVhostUserIfReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.debug("Failed to create vhost user interface: {}, vhostUser: {}", swIfName, vhostUser);
             throw new VppApiInvocationException("createVhostUserIf", reply.context, reply.retval);
@@ -98,7 +98,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
 
     private CreateVhostUserIf getCreateVhostUserIfRequest(final VhostUser vhostUser) {
         CreateVhostUserIf request = new CreateVhostUserIf();
-        request.isServer = V3poUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole()));
+        request.isServer = TranslateUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole()));
         request.sockFilename = vhostUser.getSocket().getBytes();
         request.renumber = 0; // TODO
         request.customDevInstance = 0; // TODO
@@ -126,7 +126,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
                         .modifyVhostUserIf(getModifyVhostUserIfRequest(vhostUser, interfaceContext.getIndex(swIfName, writeContext.getMappingContext())));
 
         final ModifyVhostUserIfReply reply =
-                V3poUtils.getReply(modifyVhostUserIfReplyCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(modifyVhostUserIfReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.debug("Failed to update vhost user interface: {}, vhostUser: {}", swIfName, vhostUser);
             throw new VppApiInvocationException("modifyVhostUserIf", reply.context, reply.retval);
@@ -137,7 +137,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
 
     private ModifyVhostUserIf getModifyVhostUserIfRequest(final VhostUser vhostUser, final int swIfIndex) {
         ModifyVhostUserIf request = new ModifyVhostUserIf();
-        request.isServer = V3poUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole()));
+        request.isServer = TranslateUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole()));
         request.sockFilename = vhostUser.getSocket().getBytes();
         request.renumber = 0; // TODO
         request.customDevInstance = 0; // TODO
@@ -162,7 +162,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
                 getFutureJVpp().deleteVhostUserIf(getDeleteVhostUserIfRequest(interfaceContext.getIndex(swIfName, writeContext.getMappingContext())));
 
         final DeleteVhostUserIfReply reply =
-                V3poUtils.getReply(deleteVhostUserIfReplyCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(deleteVhostUserIfReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.debug("Failed to delete vhost user interface: {}, vhostUser: {}", swIfName, vhostUser);
             throw new VppApiInvocationException("modifyVhostUserIf", reply.context, reply.retval);

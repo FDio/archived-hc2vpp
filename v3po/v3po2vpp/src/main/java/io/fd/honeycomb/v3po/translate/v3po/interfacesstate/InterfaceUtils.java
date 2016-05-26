@@ -22,7 +22,7 @@ import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCusto
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
@@ -171,7 +171,7 @@ public final class InterfaceUtils {
         }
 
         CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJvpp.swInterfaceDump(request);
-        SwInterfaceDetailsReplyDump ifaces = V3poUtils.getReply(requestFuture.toCompletableFuture());
+        SwInterfaceDetailsReplyDump ifaces = TranslateUtils.getReply(requestFuture.toCompletableFuture());
         if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
             request.nameFilterValid = 0;
 
@@ -180,7 +180,7 @@ public final class InterfaceUtils {
 
             // Or else just perform full dump and do inefficient filtering
             requestFuture = futureJvpp.swInterfaceDump(request);
-            ifaces = V3poUtils.getReply(requestFuture.toCompletableFuture());
+            ifaces = TranslateUtils.getReply(requestFuture.toCompletableFuture());
 
             // Update the cache
             allInterfaces.clear();
@@ -235,6 +235,6 @@ public final class InterfaceUtils {
 
     static boolean isInterfaceOfType(final Class<? extends InterfaceType> ifcType,
                                      final SwInterfaceDetails cachedDetails) {
-        return ifcType.equals(getInterfaceType(V3poUtils.toString(cachedDetails.interfaceName)));
+        return ifcType.equals(getInterfaceType(TranslateUtils.toString(cachedDetails.interfaceName)));
     }
 }

@@ -23,7 +23,7 @@ import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -147,7 +147,7 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
         final CompletionStage<SwInterfaceSetL2BridgeReply> swInterfaceSetL2BridgeReplyCompletionStage = getFutureJVpp()
             .swInterfaceSetL2Bridge(getL2BridgeRequest(swIfIndex, bdId, shg, bvi, (byte) 1 /* enable */));
         final SwInterfaceSetL2BridgeReply reply =
-            V3poUtils.getReply(swInterfaceSetL2BridgeReplyCompletionStage.toCompletableFuture());
+            TranslateUtils.getReply(swInterfaceSetL2BridgeReplyCompletionStage.toCompletableFuture());
 
         if (reply.retval < 0) {
             LOG.warn("Failed to update bridge based interconnection flags for: {}, interconnection: {}", ifcName,
@@ -187,7 +187,7 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
             getFutureJVpp()
                 .swInterfaceSetL2Xconnect(getL2XConnectRequest(swIfIndex, outSwIfIndex, (byte) 1 /* enable */));
         final SwInterfaceSetL2XconnectReply reply =
-            V3poUtils.getReply(swInterfaceSetL2XconnectReplyCompletionStage.toCompletableFuture());
+            TranslateUtils.getReply(swInterfaceSetL2XconnectReplyCompletionStage.toCompletableFuture());
 
         if (reply.retval < 0) {
             LOG.warn("Failed to update xconnect based interconnection flags for: {}, interconnection: {}",

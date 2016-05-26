@@ -20,7 +20,7 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -123,7 +123,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         final CompletionStage<TapConnectReply> tapConnectFuture =
             getFutureJVpp().tapConnect(getTapConnectRequest(tap.getTapName(), tap.getMac(), tap.getDeviceInstance()));
         final TapConnectReply reply =
-            V3poUtils.getReply(tapConnectFuture.toCompletableFuture());
+            TranslateUtils.getReply(tapConnectFuture.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.warn("Failed to set tap interface: {}, tap: {}", swIfName, tap);
             throw new VppApiInvocationException("tap_connect", reply.context, reply.retval);
@@ -139,7 +139,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         final CompletionStage<TapModifyReply> vxlanAddDelTunnelReplyCompletionStage =
             getFutureJVpp().tapModify(getTapModifyRequest(tap.getTapName(), index, tap.getMac(), tap.getDeviceInstance()));
         final TapModifyReply reply =
-            V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+            TranslateUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.warn("Failed to modify tap interface: {}, tap: {}", swIfName, tap);
             throw new VppApiInvocationException("tap_modify", reply.context, reply.retval);
@@ -155,7 +155,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         final CompletionStage<TapDeleteReply> vxlanAddDelTunnelReplyCompletionStage =
             getFutureJVpp().tapDelete(getTapDeleteRequest(index));
         final TapDeleteReply reply =
-            V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+            TranslateUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.warn("Failed to delete tap interface: {}, tap: {}", swIfName, dataBefore);
             throw new VppApiInvocationException("tap_modify", reply.context, reply.retval);
@@ -175,7 +175,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
             tapConnect.macAddress = new byte[6];
         } else {
             tapConnect.useRandomMac = 0;
-            tapConnect.macAddress = V3poUtils.parseMac(mac.getValue());
+            tapConnect.macAddress = TranslateUtils.parseMac(mac.getValue());
         }
 
         if(deviceInstance == null) {
@@ -198,7 +198,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
             tapConnect.macAddress = new byte[6];
         } else {
             tapConnect.useRandomMac = 0;
-            tapConnect.macAddress = V3poUtils.parseMac(mac.getValue());
+            tapConnect.macAddress = TranslateUtils.parseMac(mac.getValue());
         }
 
         if(deviceInstance == null) {

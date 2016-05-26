@@ -20,7 +20,7 @@ import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
@@ -123,7 +123,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
 
         LOG.debug("Updating interface flags for: {}, index: {}, enabled: {}", swIfName, swIfIndex, enabled);
 
-        SwInterfaceSetFlagsReply reply = V3poUtils.getReply(swInterfaceSetFlagsReplyFuture.toCompletableFuture());
+        SwInterfaceSetFlagsReply reply = TranslateUtils.getReply(swInterfaceSetFlagsReplyFuture.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.warn("Failed to update interface flags for: {}, index: {}, enabled: {}", swIfName, swIfIndex,
                 enabled);

@@ -21,7 +21,7 @@ import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -100,7 +100,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
             final CompletionStage<SwInterfaceSetTableReply> swInterfaceSetTableReplyCompletionStage =
                 getFutureJVpp().swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, /* isIpv6 */ vrfId));
             final SwInterfaceSetTableReply reply =
-                V3poUtils.getReply(swInterfaceSetTableReplyCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(swInterfaceSetTableReplyCompletionStage.toCompletableFuture());
             if (reply.retval < 0) {
                 LOG.debug("Failed to set routing for interface: {}, {}, vxlan: {}", name, swIfc, rt);
                 throw new VppApiInvocationException("swInterfaceSetTable", reply.context, reply.retval);

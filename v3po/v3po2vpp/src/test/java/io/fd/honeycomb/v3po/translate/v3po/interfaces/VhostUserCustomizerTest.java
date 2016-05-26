@@ -36,7 +36,7 @@ import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
@@ -152,7 +152,7 @@ public class VhostUserCustomizerTest {
         final CreateVhostUserIf actual = argumentCaptor.getValue();
         assertEquals(0, actual.customDevInstance);
 
-        assertEquals(V3poUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole())), actual.isServer);
+        assertEquals(TranslateUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole())), actual.isServer);
         assertEquals(0, actual.renumber);
         assertEquals(0, actual.useCustomMac);
         assertArrayEquals(vhostUser.getSocket().getBytes(), actual.sockFilename);
@@ -166,7 +166,7 @@ public class VhostUserCustomizerTest {
         final ModifyVhostUserIf actual = argumentCaptor.getValue();
         assertEquals(0, actual.customDevInstance);
 
-        assertEquals(V3poUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole())), actual.isServer);
+        assertEquals(TranslateUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole())), actual.isServer);
         assertEquals(0, actual.renumber);
         assertEquals(swIfIndex, actual.swIfIndex);
         assertArrayEquals(vhostUser.getSocket().getBytes(), actual.sockFilename);

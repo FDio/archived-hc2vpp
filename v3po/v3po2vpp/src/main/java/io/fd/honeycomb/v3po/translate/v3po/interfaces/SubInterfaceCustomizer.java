@@ -16,14 +16,14 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import static io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils.booleanToByte;
+import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -90,7 +90,7 @@ public class SubInterfaceCustomizer extends AbstractInterfaceTypeCustomizer<SubI
                 getFutureJVpp().createSubif(getCreateSubifRequest(subInterface, swIfIndex));
 
         final CreateSubifReply reply =
-                V3poUtils.getReply(createSubifReplyCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(createSubifReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.debug("Failed to create sub interface for: {}, subInterface: {}", swIfName, subInterface);
             throw new VppApiInvocationException("createSubif", reply.context, reply.retval);

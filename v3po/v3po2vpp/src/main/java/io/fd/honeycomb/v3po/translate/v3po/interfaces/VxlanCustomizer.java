@@ -23,7 +23,7 @@ import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.net.InetAddress;
@@ -112,7 +112,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
                         dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
 
         final VxlanAddDelTunnelReply reply =
-                V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.debug("Failed to set vxlan tunnel for interface: {}, vxlan: {}", swIfName, vxlan);
             throw new VppApiInvocationException("vxlanAddDelTunnel", reply.context, reply.retval);
@@ -166,7 +166,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
                         dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
 
         final VxlanAddDelTunnelReply reply =
-                V3poUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
         if (reply.retval < 0) {
             LOG.debug("Failed to delete vxlan tunnel for interface: {}, vxlan: {}", swIfName, vxlan);
             throw new VppApiInvocationException("vxlanAddDelTunnel", reply.context, reply.retval);

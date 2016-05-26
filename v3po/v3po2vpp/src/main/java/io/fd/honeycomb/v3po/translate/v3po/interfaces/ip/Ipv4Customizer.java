@@ -24,7 +24,7 @@ import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -131,7 +131,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
         LOG.debug("Setting Subnet(prefix-length) for interface: {}, {}. Subnet: {}, Ipv4: {}", name, swIfc, subnet,
             ipv4Addr);
 
-        byte[] addr = V3poUtils.ipv4AddressNoZoneToArray(ipv4Addr.getIp());
+        byte[] addr = TranslateUtils.ipv4AddressNoZoneToArray(ipv4Addr.getIp());
 
         checkArgument(plen > 0, "Invalid length");
         checkNotNull(addr, "Null address");
@@ -141,7 +141,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
                 swIfc, (byte) 1 /* isAdd */, (byte) 0 /* isIpv6 */, (byte) 0 /* delAll */, plen.byteValue(), addr));
 
         final SwInterfaceAddDelAddressReply reply =
-            V3poUtils.getReply(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture());
+            TranslateUtils.getReply(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture());
 
         if (reply.retval < 0) {
             LOG.warn("Failed to set Subnet(prefix-length) for interface: {}, {},  Subnet: {}, Ipv4: {}", name, swIfc,

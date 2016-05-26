@@ -24,7 +24,7 @@ import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
@@ -136,6 +136,6 @@ public class L2Customizer extends FutureJVppCustomizer
 
         final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
                 getFutureJVpp().bridgeDomainSwIfDump(request).toCompletableFuture();
-        return V3poUtils.getReply(bdCompletableFuture);
+        return TranslateUtils.getReply(bdCompletableFuture);
     }
 }

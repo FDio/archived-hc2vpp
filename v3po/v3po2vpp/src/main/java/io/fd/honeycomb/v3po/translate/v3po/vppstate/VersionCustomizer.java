@@ -20,7 +20,7 @@ import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
@@ -61,10 +61,10 @@ public final class VersionCustomizer
         } catch (Exception e) {
             throw new ReadFailedException(id, e);
         }
-        builder.setBranch(V3poUtils.toString(reply.version));
-        builder.setName(V3poUtils.toString(reply.program));
-        builder.setBuildDate(V3poUtils.toString(reply.buildDate));
-        builder.setBuildDirectory(V3poUtils.toString(reply.buildDirectory));
+        builder.setBranch(TranslateUtils.toString(reply.version));
+        builder.setName(TranslateUtils.toString(reply.program));
+        builder.setBuildDate(TranslateUtils.toString(reply.buildDate));
+        builder.setBuildDirectory(TranslateUtils.toString(reply.buildDirectory));
     }
 
 }

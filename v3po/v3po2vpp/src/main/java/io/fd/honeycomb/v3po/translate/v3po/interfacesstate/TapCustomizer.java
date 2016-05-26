@@ -23,7 +23,7 @@ import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +93,7 @@ public class TapCustomizer extends FutureJVppCustomizer
             final CompletionStage<SwInterfaceTapDetailsReplyDump> swInterfaceTapDetailsReplyDumpCompletionStage =
                 getFutureJVpp().swInterfaceTapDump(request);
             final SwInterfaceTapDetailsReplyDump reply =
-                V3poUtils.getReply(swInterfaceTapDetailsReplyDumpCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(swInterfaceTapDetailsReplyDumpCompletionStage.toCompletableFuture());
 
             if(null == reply || null == reply.swInterfaceTapDetails) {
                 mappedTaps = Collections.emptyMap();
@@ -110,7 +110,7 @@ public class TapCustomizer extends FutureJVppCustomizer
         final SwInterfaceTapDetails swInterfaceTapDetails = mappedTaps.get(index);
         LOG.trace("Tap interface: {} attributes returned from VPP: {}", key.getName(), swInterfaceTapDetails);
 
-        builder.setTapName(V3poUtils.toString(swInterfaceTapDetails.devName));
+        builder.setTapName(TranslateUtils.toString(swInterfaceTapDetails.devName));
         LOG.debug("Tap interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
 }

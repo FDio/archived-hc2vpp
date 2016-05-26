@@ -22,7 +22,7 @@ import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -113,7 +113,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
         final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
                 getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
-        final SwInterfaceDetailsReplyDump ifaces = V3poUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
+        final SwInterfaceDetailsReplyDump ifaces = TranslateUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
 
         if (null == ifaces || null == ifaces.swInterfaceDetails) {
             LOG.debug("No interfaces found in VPP");
@@ -129,7 +129,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
             .map((elt) -> {
                 // Store interface name from VPP in context if not yet present
                 if (!interfaceContext.containsName(elt.swIfIndex, context.getMappingContext())) {
-                    interfaceContext.addName(elt.swIfIndex, V3poUtils.toString(elt.interfaceName), context.getMappingContext());
+                    interfaceContext.addName(elt.swIfIndex, TranslateUtils.toString(elt.interfaceName), context.getMappingContext());
                 }
                 LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
                     interfaceContext.getName(elt.swIfIndex, context.getMappingContext()), elt.interfaceName, elt.swIfIndex);

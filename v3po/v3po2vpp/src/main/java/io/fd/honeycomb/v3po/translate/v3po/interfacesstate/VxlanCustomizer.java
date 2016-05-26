@@ -23,7 +23,7 @@ import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -91,7 +91,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer
         final CompletionStage<VxlanTunnelDetailsReplyDump> swInterfaceVxlanDetailsReplyDumpCompletionStage =
             getFutureJVpp().vxlanTunnelDump(request);
         final VxlanTunnelDetailsReplyDump reply =
-            V3poUtils.getReply(swInterfaceVxlanDetailsReplyDumpCompletionStage.toCompletableFuture());
+            TranslateUtils.getReply(swInterfaceVxlanDetailsReplyDumpCompletionStage.toCompletableFuture());
 
         // VPP keeps vxlan tunnel interfaces even after they were deleted (optimization)
         // However there ar no longer any vxlan tunnel specific fields assigned to it and this call

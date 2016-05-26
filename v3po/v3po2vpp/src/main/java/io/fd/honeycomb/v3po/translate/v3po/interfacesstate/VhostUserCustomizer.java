@@ -23,7 +23,7 @@ import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -95,7 +95,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
             final CompletionStage<SwInterfaceVhostUserDetailsReplyDump> swInterfaceVhostUserDetailsReplyDumpCompletionStage =
                 getFutureJVpp().swInterfaceVhostUserDump(request);
             final SwInterfaceVhostUserDetailsReplyDump reply =
-                V3poUtils.getReply(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture());
+                TranslateUtils.getReply(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture());
 
             if(null == reply || null == reply.swInterfaceVhostUserDetails) {
                 mappedVhostUsers = Collections.emptyMap();
@@ -116,7 +116,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         builder.setRole(swInterfaceVhostUserDetails.isServer == 1 ? VhostUserRole.Server : VhostUserRole.Client);
         builder.setFeatures(BigInteger.valueOf(swInterfaceVhostUserDetails.features));
         builder.setNumMemoryRegions((long) swInterfaceVhostUserDetails.numRegions);
-        builder.setSocket(V3poUtils.toString(swInterfaceVhostUserDetails.sockFilename));
+        builder.setSocket(TranslateUtils.toString(swInterfaceVhostUserDetails.sockFilename));
         builder.setVirtioNetHdrSize((long) swInterfaceVhostUserDetails.virtioNetHdrSz);
         builder.setConnectError(Integer.toString(swInterfaceVhostUserDetails.sockErrno));
 

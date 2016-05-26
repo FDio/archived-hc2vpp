@@ -24,7 +24,7 @@ import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
-import io.fd.honeycomb.v3po.translate.v3po.utils.V3poUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
@@ -74,7 +74,7 @@ public class BridgeDomainCustomizer
         request.isAdd = ADD_OR_UPDATE_BD;
 
         final BridgeDomainAddDelReply reply =
-                V3poUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
+                TranslateUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
         if (reply.retval < 0) {
             LOG.warn("Bridge domain {} (id={}) add/update failed", bd.getName(), bdId);
             throw new VppApiInvocationException("bridgeDomainAddDel", reply.context, reply.retval);
@@ -125,7 +125,7 @@ public class BridgeDomainCustomizer
         request.bdId = bdId;
 
         final BridgeDomainAddDelReply reply =
-                V3poUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
+                TranslateUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
         if (reply.retval < 0) {
             LOG.warn("Bridge domain {} (id={}) delete failed", bdName, bdId);
             throw new WriteFailedException.DeleteFailedException(id,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.v3po.utils;
+package io.fd.honeycomb.v3po.translate.v3po.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -28,13 +28,13 @@ import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.openvpp.jvpp.dto.JVppReply;
 
-public final class V3poUtils {
+public final class TranslateUtils {
 
     // TODO move to vpp-translate-utils
 
     public static final Splitter COLON_SPLITTER = Splitter.on(':');
 
-    private V3poUtils() {}
+    private TranslateUtils() {}
 
     public static <REP extends JVppReply<?>> REP getReply(Future<REP> future) {
         try {
@@ -78,7 +78,7 @@ public final class V3poUtils {
     }
 
     private static byte[] parseMacLikeString(final List<String> strings) {
-        return strings.stream().limit(6).map(V3poUtils::parseHexByte).collect(
+        return strings.stream().limit(6).map(TranslateUtils::parseHexByte).collect(
             () -> new byte[strings.size()],
             new BiConsumer<byte[], Byte>() {
 
