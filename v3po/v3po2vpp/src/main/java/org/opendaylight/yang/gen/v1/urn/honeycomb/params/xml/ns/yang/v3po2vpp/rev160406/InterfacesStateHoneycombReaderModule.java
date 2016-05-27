@@ -40,7 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.attributes.VlanTagRewrite;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.l2.VlanTagRewrite;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
 public class InterfacesStateHoneycombReaderModule extends
@@ -95,7 +95,7 @@ public class InterfacesStateHoneycombReaderModule extends
 
 
         final List<ChildReader<? extends ChildOf<L2>>> l2ChildReaders =
-                Collections.singletonList((ChildReader)vlanTagReader); // TODO can we get rid of the cast?
+                Collections.singletonList(vlanTagReader);
         final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> l2Reader =
                 new CompositeChildReader<>(L2.class,
                         l2ChildReaders,

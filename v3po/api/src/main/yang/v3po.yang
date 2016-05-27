@@ -49,6 +49,7 @@ module v3po {
     }
   }
 
+  // todo remove from v3po
   typedef tag-rewrite-operation {
     type enumeration {
       enum disabled;
@@ -149,6 +150,7 @@ module v3po {
     }
   }
 
+  // todo remove from v3po
   grouping sub-interface-base-attributes {
     leaf identifier {
       type uint32;
@@ -322,7 +324,7 @@ module v3po {
     }
   }
 
-  grouping l2-attributes {
+  grouping l2-base-attributes {
       description
       "Parameters for configuring Layer2 features on interfaces.";
 
@@ -364,9 +366,6 @@ module v3po {
                associated with the BVI.";
           }
         }
-      }
-      container vlan-tag-rewrite { // todo valid only for sub-interfaces
-        uses vlan-tag-rewrite-attributes;
       }
   }
 
@@ -418,7 +417,11 @@ module v3po {
       must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
       "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
 
-      uses l2-attributes;
+      uses l2-base-attributes;
+
+      container vlan-tag-rewrite {
+        uses vlan-tag-rewrite-attributes;
+      }
     }
 
     container vxlan-gpe {
@@ -511,7 +514,11 @@ module v3po {
       must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
       "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
 
-      uses l2-attributes;
+      uses l2-base-attributes;
+
+      container vlan-tag-rewrite {
+        uses vlan-tag-rewrite-attributes;
+      }
     }
   }
 
