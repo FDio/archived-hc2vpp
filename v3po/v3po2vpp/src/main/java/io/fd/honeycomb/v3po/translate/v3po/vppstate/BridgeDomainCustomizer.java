@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.byteToBoolean;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -136,16 +138,6 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
         } catch (Exception e) {
             LOG.warn("Failed to acquire l2FibTableDump for domain id={}", bdId, e);
         }
-    }
-
-    // TODO move to utils
-    private static Boolean byteToBoolean(final byte aByte) {
-        if (aByte == 0) {
-            return Boolean.FALSE;
-        } else if (aByte == 1) {
-            return Boolean.TRUE;
-        }
-        throw new IllegalArgumentException(String.format("0 or 1 was expected but was %d", aByte));
     }
 
     private void logBridgeDomainDetails(final BridgeDomainDetails bridgeDomainDetails) {

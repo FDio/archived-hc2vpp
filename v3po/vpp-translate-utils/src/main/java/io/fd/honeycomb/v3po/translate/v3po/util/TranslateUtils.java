@@ -129,4 +129,20 @@ public final class TranslateUtils {
     public static byte booleanToByte(@Nullable final Boolean value) {
         return value != null && value ? (byte) 1 : (byte) 0;
     }
+
+    /**
+     * Returns Boolean.TRUE if argument is 0, Boolean.FALSE otherwise.
+     * @param value byte value to be converted
+     * @return Boolean value
+     * @throws IllegalArgumentException if argument is neither 0 nor 1
+     */
+    @Nonnull
+    public static Boolean byteToBoolean(final byte value) {
+        if (value == 0) {
+            return Boolean.FALSE;
+        } else if (value == 1) {
+            return Boolean.TRUE;
+        }
+        throw new IllegalArgumentException(String.format("0 or 1 was expected but was %d", value));
+    }
 }
