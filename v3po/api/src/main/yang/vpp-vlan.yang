@@ -59,32 +59,7 @@ module vpp-vlan {
 
       case vlan-tagged {
         container vlan-tagged {
-          description "Matches VLAN tagged frames";
-          list tag {
-            key "index";
-            min-elements 1;
-            max-elements 2;
-            description "The tags to match, with the outermost tag to
-                         match assigned index 0";
-            leaf index {
-              type uint8 {
-                range "0..1";
-              }
-
-              must "index = 0 or
-                    count(../../tag[index = 0]/index) > 0" {
-                error-message "An inner tag can only be matched on
-                               when also matching on an outer tag";
-                description "Only allow matching on an inner tag, if
-                             also matching on the outer tags at the
-                             same time";
-              }
-              description
-                "The index into the tag stack, outermost tag first";
-            }
-
-            uses dot1q:dot1q-tag-or-any;
-          }
+          description "Matches VLAN tagged frames. Vlan tags need to be specified to use this match type";
 
           leaf match-exact-tags {
             type boolean;
@@ -129,7 +104,7 @@ module vpp-vlan {
           description "The index into the tag stack";
         }
 
-        uses dot1q:dot1q-tag;
+        uses dot1q:dot1q-tag-or-any;
 
       }
     }
