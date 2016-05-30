@@ -32,6 +32,35 @@ module vpp-vlan {
     }
   }
 
+  // todo add 802dot1ad support to dot1q-types.yang
+  /*
+   * Defines the supported IEEE 802.1Q types that can be used for
+   * VLAN tag matching.
+   */
+  identity vlan-type {
+    description "Base identity from which all VLAN types
+                 are derived from";
+  }
+
+  identity 802dot1q {
+    base vlan-type;
+    description
+      "An 802.1Q VLAN type";
+  }
+
+  identity 802dot1ad {
+    base vlan-type;
+    description
+      "An 802.1ad VLAN type";
+  }
+
+  typedef vlan-type {
+    type identityref {
+      base "vlan-type";
+    }
+    description "Identifies a specific VLAN type";
+  }
+
   grouping match-attributes {
     choice match-type {
       mandatory true;
@@ -78,6 +107,11 @@ module vpp-vlan {
 
   // TODO VPP does not allow to change subinterface nor delete it (except for tag-rewrite operation)
   grouping sub-interface-base-attributes {
+    leaf vlan-type {
+      type vlan-type;
+      default 802dot1q;
+    }
+
     container tags {
       list tag {
         key "index";
@@ -164,6 +198,12 @@ module vpp-vlan {
    */
   grouping tag-rewrite {
     description "Flexible rewrite";
+
+    leaf vlan-type { // todo rename to push_dot1q, mandatory(?) with default true
+      type vlan-type;
+      default 802dot1q;
+    }
+
     leaf pop-tags {
       type uint8 {
         range 1..2;

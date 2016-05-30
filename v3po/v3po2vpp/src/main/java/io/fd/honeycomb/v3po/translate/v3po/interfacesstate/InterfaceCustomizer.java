@@ -75,7 +75,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         final InterfaceKey key = id.firstKeyOf(id.getTargetType());
 
         // Pass cached details from getAllIds to getDetails to avoid additional dumps
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key,
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key.getName(),
             interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", key.getName(), iface);
 

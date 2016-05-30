@@ -1,4 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any;
+
+import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qVlanId;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag.VlanId;
 
 
@@ -13,8 +15,14 @@ import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev1
  */
 public class Dot1qTagVlanIdBuilder {
 
+    private final static String ANY = "any";
+
     public static VlanId getDefaultInstance(java.lang.String defaultValue) {
-        throw new java.lang.UnsupportedOperationException("Not yet implemented");
+        if (ANY.equals(defaultValue)) {
+            return new VlanId(VlanId.Enumeration.Any);
+        } else {
+            return new VlanId(new Dot1qVlanId(Integer.valueOf(defaultValue)));
+        }
     }
 
 }

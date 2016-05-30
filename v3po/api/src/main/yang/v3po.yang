@@ -42,15 +42,16 @@ module v3po {
       "This type is used by to reference a bridged virtual interface";
   }
 
-  typedef vlan-type {
+  // todo remove from v3po
+  /*typedef vlan-type {
     type enumeration {
       enum 802dot1q;
       enum 802dot1ad;
     }
-  }
+  }*/
 
   // todo remove from v3po
-  typedef tag-rewrite-operation {
+  /*typedef tag-rewrite-operation {
     type enumeration {
       enum disabled;
       enum push-1;
@@ -62,13 +63,14 @@ module v3po {
       enum translate-2-to-1;
       enum translate-2-to-2;
     }
-  }
+  }*/
 
-  typedef vlan-tag {
-    type uint16 {
-      range "1..4094";
-    }
-  }
+  // todo remove from v3po
+  //typedef vlan-tag {
+  //  type uint16 {
+  //    range "1..4094";
+  //  }
+  //}
 
   identity vxlan-tunnel {
     base if:interface-type;
@@ -151,7 +153,7 @@ module v3po {
   }
 
   // todo remove from v3po
-  grouping sub-interface-base-attributes {
+  /*grouping sub-interface-base-attributes {
     leaf identifier {
       type uint32;
     }
@@ -183,7 +185,7 @@ module v3po {
     leaf default-subif {
       type empty;
     }
-  }
+  }*/
 
   grouping tap-interface-base-attributes {
     leaf tap-name {
@@ -307,7 +309,8 @@ module v3po {
     }
   }
 
-  grouping vlan-tag-rewrite-attributes {
+  // todo remove from v3po
+  /* grouping vlan-tag-rewrite-attributes {
     leaf rewrite-operation {
       type tag-rewrite-operation;
       default 'disabled';
@@ -322,7 +325,7 @@ module v3po {
     leaf tag2 {
       type vlan-tag;
     }
-  }
+  }*/
 
   grouping l2-base-attributes {
       description
@@ -377,13 +380,14 @@ module v3po {
     // 2. Only this augmentation with combination of ifc type is trigger to do something for vpp, what if user only configures base interface stuff ? + We need to get leaves defined by ietf-interfaces when we are processing this augment
     // 3. The ietf-interfaces model does not define groupings which makes types reuse difficult
 
+    /*
     container sub-interface {
       when "../if:type = 'v3po:sub-interface'";
       leaf super-interface {
         type if:interface-ref;
       }
       uses sub-interface-base-attributes;
-    }
+    }*/
 
     container tap {
       when "../if:type = 'v3po:tap'";
@@ -419,9 +423,9 @@ module v3po {
 
       uses l2-base-attributes;
 
-      container vlan-tag-rewrite {
+      /*container vlan-tag-rewrite {
         uses vlan-tag-rewrite-attributes;
-      }
+      }*/
     }
 
     container vxlan-gpe {
@@ -475,13 +479,14 @@ module v3po {
       type string;
     }
 
+    /*
     container sub-interface {
       when "../if:type = 'v3po:sub-interface'";
       leaf super-interface {
         type if:interface-state-ref;
       }
       uses sub-interface-base-attributes;
-    }
+    }*/
 
     container tap {
       when "../if:type = 'v3po:tap'";
@@ -516,9 +521,9 @@ module v3po {
 
       uses l2-base-attributes;
 
-      container vlan-tag-rewrite {
+      /* container vlan-tag-rewrite {
         uses vlan-tag-rewrite-attributes;
-      }
+      }*/
     }
   }
 

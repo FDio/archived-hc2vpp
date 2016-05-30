@@ -16,27 +16,55 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY;
+import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.byteToBoolean;
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.CVlan;
+import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qTagVlanType;
+import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qVlanId;
+import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.SVlan;
+import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
+import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTagBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanTag;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.SubInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubInterfaceStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.SubInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.DefaultBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.UntaggedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.vlan.tagged.VlanTaggedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Match;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.TagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.Tag;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.TagBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.TagKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.dto.SwInterfaceDump;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +73,11 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading sub interfaces form the VPP.
  */
 public class SubInterfaceCustomizer extends FutureJVppCustomizer
-        implements ChildReaderCustomizer<SubInterface, SubInterfaceBuilder> {
+        implements ListReaderCustomizer<SubInterface, SubInterfaceKey, SubInterfaceBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceCustomizer.class);
     private NamingContext interfaceContext;
+    private static final Dot1qTag.VlanId ANY_VLAN_ID = new Dot1qTag.VlanId(Dot1qTag.VlanId.Enumeration.Any);
 
     public SubInterfaceCustomizer(@Nonnull final FutureJVpp jvpp,
                                   @Nonnull final NamingContext interfaceContext) {
@@ -56,10 +85,53 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
 
+    @Nonnull
     @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder,
-                      @Nonnull final SubInterface readValue) {
-        ((VppInterfaceStateAugmentationBuilder) parentBuilder).setSubInterface(readValue);
+    public List<SubInterfaceKey> getAllIds(@Nonnull final InstanceIdentifier<SubInterface> id,
+                                           @Nonnull final ReadContext context) throws ReadFailedException {
+        // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
+        // to fill in the context with initial ifc mapping
+        final InterfaceKey key = id.firstKeyOf(Interface.class);
+        final String ifaceName = key.getName();
+        final int ifaceId = interfaceContext.getIndex(ifaceName, context.getMappingContext());
+
+        // TODO if we know that full dump was already performed we could use cache
+        // (checking if getCachedInterfaceDump() returns non empty map is not enough, because
+        // we could be part of particular iface state read
+        final SwInterfaceDump request = new SwInterfaceDump();
+        request.nameFilter = "".getBytes();
+        request.nameFilterValid = 0;
+
+        final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
+                getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
+        final SwInterfaceDetailsReplyDump ifaces =
+                TranslateUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
+
+        if (null == ifaces || null == ifaces.swInterfaceDetails) {
+            LOG.warn("Looking for sub-interfaces, but no interfaces found in VPP");
+            return Collections.emptyList();
+        }
+
+        // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
+        context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
+                .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+
+        final List<SubInterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
+                .filter(elt -> elt != null)
+                // accept only sub-interfaces for current iface:
+                .filter(elt -> elt.subId != 0 && elt.supSwIfIndex == ifaceId)
+                .map(details -> new SubInterfaceKey(new Long(details.subId)))
+                .collect(Collectors.toList());
+
+        LOG.debug("Sub-interfaces of {} found in VPP: {}", ifaceName, interfacesKeys);
+
+        return interfacesKeys;
+    }
+
+    @Override
+    public void merge(@Nonnull final Builder<? extends DataObject> builder,
+                      @Nonnull final List<SubInterface> readData) {
+        ((SubInterfacesBuilder) builder).setSubInterface(readData);
     }
 
     @Nonnull
@@ -72,44 +144,94 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<SubInterface> id,
                                       @Nonnull final SubInterfaceBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        final InterfaceKey key = id.firstKeyOf(Interface.class);
-        // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
-        // to fill in the context with initial ifc mapping
-        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        if (!isInterfaceOfType(ctx.getModificationCache(), index, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.SubInterface.class)) {
-            return;
-        }
+        final String subInterfaceName = getSubInterfaceName(id);
+        LOG.debug("Reading attributes for sub interface: {}", subInterfaceName);
 
-        LOG.debug("Reading attributes for sub interface: {}", id);
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key, index, ctx.getModificationCache());
-        LOG.debug("VPP interface details: {}", ReflectionToStringBuilder.toString(iface));
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), subInterfaceName,
+                interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache());
+        LOG.debug("VPP sub-interface details: {}", ReflectionToStringBuilder.toString(iface));
 
-        if (iface.subId == 0) {
-            // Not a sub interface type
-            return;
-        }
+        checkState(iface.subId != 0, "Interface returned by the VPP is not a sub-interface");
 
         builder.setIdentifier(Long.valueOf(iface.subId));
-        builder.setSuperInterface(interfaceContext.getName(iface.supSwIfIndex, ctx.getMappingContext()));
-        builder.setNumberOfTags(Short.valueOf(iface.subNumberOfTags));
-        builder.setVlanType(iface.subDot1Ad == 1 ? VlanType._802dot1ad : VlanType._802dot1q);
-        if (iface.subExactMatch == 1) {
-            builder.setExactMatch(true);
+        builder.setKey(new SubInterfaceKey(builder.getIdentifier()));
+
+        // sub-interface-base-attributes:
+        builder.setTags(readTags(iface));
+        builder.setMatch(readMatch(iface));
+
+        // sub-interface-operational-attributes:
+        builder.setAdminStatus(1 == iface.adminUpDown
+                ? SubInterfaceStatus.Up
+                : SubInterfaceStatus.Down);
+        builder.setOperStatus(1 == iface.linkUpDown
+                ? SubInterfaceStatus.Up
+                : SubInterfaceStatus.Down);
+        builder.setIfIndex(InterfaceUtils.vppIfIndexToYang(iface.swIfIndex));
+        if (iface.l2AddressLength == 6) {
+            builder.setPhysAddress(new PhysAddress(InterfaceUtils.vppPhysAddrToYang(iface.l2Address)));
         }
+        if (0 != iface.linkSpeed) {
+            builder.setSpeed(InterfaceUtils.vppInterfaceSpeedToYang(iface.linkSpeed));
+        }
+    }
+
+    private static String getSubInterfaceName(final InstanceIdentifier<SubInterface> id) {
+        return SubInterfaceUtils.getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
+                Math.toIntExact(id.firstKeyOf(id.getTargetType()).getIdentifier()));
+    }
+
+    private Tags readTags(final SwInterfaceDetails iface) {
+        final TagsBuilder tags = new TagsBuilder();
+        final List<Tag> list = new ArrayList<>();
+        if (iface.subNumberOfTags > 0) {
+            if (iface.subOuterVlanIdAny == 1) {
+                list.add(buildTag((short) 0, SVlan.class, ANY_VLAN_ID));
+            } else {
+                list.add(buildTag((short) 0, SVlan.class, buildVlanId(iface.subOuterVlanId)));
+            }
+            // inner tag (customer tag):
+            if (iface.subNumberOfTags == 2) {
+                if (iface.subInnerVlanIdAny == 1) {
+                    list.add(buildTag((short) 1, CVlan.class, ANY_VLAN_ID));
+                } else {
+                    list.add(buildTag((short) 1, CVlan.class, buildVlanId(iface.subInnerVlanId)));
+                }
+            }
+        }
+        tags.setTag(list);
+        return tags.build();
+    }
+
+    private static Tag buildTag(final short index, final Class<? extends Dot1qTagVlanType> tagType,
+                                final Dot1qTag.VlanId vlanId) {
+        TagBuilder tag = new TagBuilder();
+        tag.setIndex(index);
+        tag.setKey(new TagKey(index));
+        final Dot1qTagBuilder dtag = new Dot1qTagBuilder();
+        dtag.setTagType(tagType);
+        dtag.setVlanId(vlanId);
+        tag.setDot1qTag(dtag.build());
+        return tag.build();
+    }
+
+    private static Dot1qTag.VlanId buildVlanId(final char vlanId) {
+        return new Dot1qTag.VlanId(new Dot1qVlanId((int) vlanId));
+    }
+
+    private Match readMatch(final SwInterfaceDetails iface) {
+        final MatchBuilder match = new MatchBuilder();
         if (iface.subDefault == 1) {
-            builder.setDefaultSubif(true);
+            match.setMatchType(new DefaultBuilder().build());
+        } else if (iface.subNumberOfTags == 0) {
+            match.setMatchType(new UntaggedBuilder().build());
+        } else {
+            final VlanTaggedBuilder tagged = new VlanTaggedBuilder();
+            tagged.setMatchExactTags(byteToBoolean(iface.subExactMatch));
+            match.setMatchType(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.VlanTaggedBuilder()
+                            .setVlanTagged(tagged.build()).build());
         }
-        if (iface.subOuterVlanIdAny == 1) {
-            builder.setMatchAnyOuterId(true);
-        }
-        if (iface.subOuterVlanIdAny == 1) {
-            builder.setMatchAnyInnerId(true);
-        }
-        if (iface.subOuterVlanId != 0) { // optional
-            builder.setOuterId(new VlanTag(Integer.valueOf(iface.subOuterVlanId)));
-        }
-        if (iface.subInnerVlanId != 0) { // optional
-            builder.setInnerId(new VlanTag(Integer.valueOf(iface.subInnerVlanId)));
-        }
+        return match.build();
     }
 }

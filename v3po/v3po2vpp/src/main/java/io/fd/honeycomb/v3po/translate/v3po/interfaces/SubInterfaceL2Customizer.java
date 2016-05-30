@@ -20,63 +20,75 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<L2> {
+/**
+ * Customizer for writing vlan sub interface l2 configuration
+ */
+public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<L2> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(L2Customizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceL2Customizer.class);
     private final NamingContext interfaceContext;
-    private final InterconnectionWriteUtils icWriteUtils;
+    private final InterconnectionWriteUtils icWriterUtils;
 
-    public L2Customizer(final FutureJVpp vppApi, final NamingContext interfaceContext,
-                        final NamingContext bridgeDomainContext) {
+    public SubInterfaceL2Customizer(final FutureJVpp vppApi, final NamingContext interfaceContext,
+                                    final NamingContext bridgeDomainContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
-        this.icWriteUtils = new InterconnectionWriteUtils(vppApi, interfaceContext, bridgeDomainContext);
+        this.icWriterUtils = new InterconnectionWriteUtils(vppApi, interfaceContext, bridgeDomainContext);
     }
 
     @Nonnull
     @Override
     public Optional<L2> extract(@Nonnull final InstanceIdentifier<L2> currentId, @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((VppInterfaceAugmentation) parentData).getL2());
+        return Optional.fromNullable(((SubInterface) parentData).getL2());
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 dataAfter,
                                        @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
-
-        final String ifcName = id.firstKeyOf(Interface.class).getName();
-        final int swIfc = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
+            throws WriteFailedException {
+        final String subInterfaceName = getSubInterfaceName(id);
+        final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
         try {
-            setL2(id, swIfc, ifcName, dataAfter, writeContext);
+            setL2(id, subInterfaceIndex, subInterfaceName, dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Write of L2 failed", e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
 
+    private String getSubInterfaceName(@Nonnull final InstanceIdentifier<L2> id) {
+        final InterfaceKey parentInterfacekey = id.firstKeyOf(Interface.class);
+        final SubInterfaceKey subInterfacekey = id.firstKeyOf(SubInterface.class);
+        return SubInterfaceUtils
+                .getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
+    }
+
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 dataBefore,
                                         @Nonnull final L2 dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
 
-        final String ifcName = id.firstKeyOf(Interface.class).getName();
-        final int swIfc = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
+        final String subInterfaceName = getSubInterfaceName(id);
+        final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
         // TODO handle update properly (if possible)
         try {
-            setL2(id, swIfc, ifcName, dataAfter, writeContext);
+            setL2(id, subInterfaceIndex, subInterfaceName, dataAfter, writeContext);
         } catch (VppApiInvocationException e) {
             LOG.warn("Update of L2 failed", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
@@ -91,9 +103,8 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
 
     private void setL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 l2,
                        final WriteContext writeContext)
-        throws VppApiInvocationException, WriteFailedException {
-        LOG.debug("Setting L2 for interface: {}", ifcName);
-        // Nothing besides interconnection here
-        icWriteUtils.setInterconnection(id, swIfIndex, ifcName, l2.getInterconnection(), writeContext);
+            throws VppApiInvocationException, WriteFailedException {
+        LOG.debug("Setting L2 for sub-interface: {}", ifcName);
+        icWriterUtils.setInterconnection(id, swIfIndex, ifcName, l2.getInterconnection(), writeContext);
     }
 }

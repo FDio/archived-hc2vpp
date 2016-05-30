@@ -34,8 +34,6 @@ import org.openvpp.jvpp.dto.JVppReply;
 
 public final class TranslateUtils {
 
-    // TODO move to vpp-translate-utils
-
     public static final Splitter COLON_SPLITTER = Splitter.on(':');
 
     private TranslateUtils() {}
