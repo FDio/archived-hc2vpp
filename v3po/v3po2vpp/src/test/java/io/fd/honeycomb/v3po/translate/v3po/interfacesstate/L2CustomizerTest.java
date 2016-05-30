@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.dto.BridgeDomainDump;
@@ -93,7 +94,7 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
 
     private void whenBridgeDomainSwIfDumpThenReturn(final List<BridgeDomainSwIfDetails> bdSwIfList,
                                                     final List<BridgeDomainDetails> bridgeDomainDetailses)
-            throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException, VppInvocationException {
         final BridgeDomainDetailsReplyDump reply = new BridgeDomainDetailsReplyDump();
         reply.bridgeDomainSwIfDetails = bdSwIfList;
         reply.bridgeDomainDetails = bridgeDomainDetailses;

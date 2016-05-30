@@ -16,33 +16,38 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
+import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
-import java.math.BigInteger;
-import java.util.Map;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
 import org.openvpp.jvpp.dto.SwInterfaceDump;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.math.BigInteger;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
+import static java.util.Objects.requireNonNull;
 
 public final class InterfaceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceUtils.class);
@@ -110,7 +115,7 @@ public final class InterfaceUtils {
      * @throws IllegalArgumentException if vppPhysAddress.length < 6
      */
     public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress) {
-        requireNonNull(vppPhysAddress, "Empty physical address bytes");
+        Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
         Preconditions.checkArgument(PHYSICAL_ADDRESS_LENGTH <= vppPhysAddress.length,
                 "Invalid physical address size %s, expected >= 6", vppPhysAddress.length);
         StringBuilder physAddr = new StringBuilder();
@@ -151,17 +156,21 @@ public final class InterfaceUtils {
      * Queries VPP for interface description given interface key.
      *
      * @param futureJvpp VPP Java Future API
+     * @param id            InstanceIdentifier, which is passed in ReadFailedException
      * @param name       interface name
      * @param index      VPP index of the interface
      * @param ctx        per-tx scope context containing cached dump with all the interfaces. If the cache is not
      *                   available or outdated, another dump will be performed.
      * @return SwInterfaceDetails DTO or null if interface was not found
      * @throws IllegalArgumentException If interface cannot be found
+     * @throws ReadFailedException If read operation had failed
      */
     @Nonnull
     public static SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVpp futureJvpp,
+                                                            @Nonnull final InstanceIdentifier<?> id,
                                                             @Nonnull final String name, final int index,
-                                                            @Nonnull final ModificationCache ctx) {
+                                                            @Nonnull final ModificationCache ctx)
+            throws ReadFailedException {
         requireNonNull(futureJvpp, "futureJvpp should not be null");
         requireNonNull(name, "name should not be null");
         requireNonNull(ctx, "ctx should not be null");
@@ -177,27 +186,33 @@ public final class InterfaceUtils {
             return allInterfaces.get(index);
         }
 
-        CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJvpp.swInterfaceDump(request);
-        SwInterfaceDetailsReplyDump ifaces = TranslateUtils.getReply(requestFuture.toCompletableFuture());
-        if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
-            request.nameFilterValid = 0;
-
-            LOG.warn("VPP returned null instead of interface by key {} and its not cached", name);
-            LOG.warn("Iterating through all the interfaces to find interface: {}", name);
-
-            // Or else just perform full dump and do inefficient filtering
-            requestFuture = futureJvpp.swInterfaceDump(request);
+        SwInterfaceDetailsReplyDump ifaces = null;
+        try {
+            CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJvpp.swInterfaceDump(request);
             ifaces = TranslateUtils.getReply(requestFuture.toCompletableFuture());
+            if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
+                request.nameFilterValid = 0;
 
-            // Update the cache
-            allInterfaces.clear();
-            allInterfaces
-                    .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
+                LOG.warn("VPP returned null instead of interface by key {} and its not cached", name);
+                LOG.warn("Iterating through all the interfaces to find interface: {}", name);
 
-            if (allInterfaces.containsKey(index)) {
-                return allInterfaces.get(index);
+                // Or else just perform full dump and do inefficient filtering
+                requestFuture = futureJvpp.swInterfaceDump(request);
+                ifaces = TranslateUtils.getReply(requestFuture.toCompletableFuture());
+
+                // Update the cache
+                allInterfaces.clear();
+                allInterfaces
+                        .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
+
+                if (allInterfaces.containsKey(index)) {
+                    return allInterfaces.get(index);
+                }
+                throw new IllegalArgumentException("Unable to find interface " + name);
             }
-            throw new IllegalArgumentException("Unable to find interface " + name);
+        } catch (VppBaseCallException e) {
+            LOG.warn("getVppInterfaceDetails exception :", e);
+            throw new ReadFailedException(id);
         }
 
         // SwInterfaceDump's name filter does prefix match, so we need additional filtering:

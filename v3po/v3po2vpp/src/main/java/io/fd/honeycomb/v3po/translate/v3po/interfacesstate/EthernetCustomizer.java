@@ -66,7 +66,7 @@ public class EthernetCustomizer extends FutureJVppCustomizer
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
 
         final InterfaceKey key = id.firstKeyOf(Interface.class);
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key.getName(),
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
                 interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
 
         if(iface.linkMtu != 0) {

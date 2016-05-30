@@ -21,7 +21,6 @@ import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
@@ -32,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,12 +64,7 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Ch
             throws WriteFailedException {
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
-        try {
-            setL2(id, subInterfaceIndex, subInterfaceName, dataAfter, writeContext);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Write of L2 failed", e);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        setL2(id, subInterfaceIndex, subInterfaceName, dataAfter, writeContext);
     }
 
     private String getSubInterfaceName(@Nonnull final InstanceIdentifier<L2> id) {
@@ -87,12 +82,7 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Ch
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
         // TODO handle update properly (if possible)
-        try {
-            setL2(id, subInterfaceIndex, subInterfaceName, dataAfter, writeContext);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Update of L2 failed", e);
-            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
-        }
+        setL2(id, subInterfaceIndex, subInterfaceName, dataAfter, writeContext);
     }
 
     @Override
@@ -103,7 +93,7 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Ch
 
     private void setL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 l2,
                        final WriteContext writeContext)
-            throws VppApiInvocationException, WriteFailedException {
+            throws WriteFailedException {
         LOG.debug("Setting L2 for sub-interface: {}", ifcName);
         icWriterUtils.setInterconnection(id, swIfIndex, ifcName, l2.getInterconnection(), writeContext);
     }

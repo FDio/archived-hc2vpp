@@ -21,7 +21,6 @@ import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
@@ -33,6 +32,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Customizer for reading ietf-interfaces:interfaces-state/interface/iface_name/v3po:l2
@@ -63,10 +68,10 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildReaderCus
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2Builder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
+
         LOG.debug("Reading attributes for L2: {}", id);
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final String ifaceName = key.getName();
-
-        builder.setInterconnection(icReadUtils.readInterconnection(ifaceName, ctx));
+        builder.setInterconnection(icReadUtils.readInterconnection(id, ifaceName, ctx));
     }
 }

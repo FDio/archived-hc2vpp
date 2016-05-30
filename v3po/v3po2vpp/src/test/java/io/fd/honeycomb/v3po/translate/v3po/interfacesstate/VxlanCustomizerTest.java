@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.dto.VxlanTunnelDetails;
 import org.openvpp.jvpp.dto.VxlanTunnelDetailsReplyDump;
@@ -72,7 +73,7 @@ public class VxlanCustomizerTest extends ChildReaderCustomizerTest<Vxlan, VxlanB
     }
 
     @Override
-    protected void setUpAfter() throws UnknownHostException {
+    protected void setUpAfter() throws UnknownHostException, VppInvocationException {
         final CompletableFuture<VxlanTunnelDetailsReplyDump> vxlanTunnelDetailsReplyDumpCompletionStage =
             new CompletableFuture<>();
 

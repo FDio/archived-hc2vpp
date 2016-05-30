@@ -23,13 +23,6 @@ import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
@@ -39,12 +32,21 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
 import org.openvpp.jvpp.dto.SwInterfaceDump;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Customizer for reading ietf-interfaces:interfaces-state/interface
@@ -75,7 +77,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         final InterfaceKey key = id.firstKeyOf(id.getTargetType());
 
         // Pass cached details from getAllIds to getDetails to avoid additional dumps
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), key.getName(),
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
             interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", key.getName(), iface);
 
@@ -105,41 +107,47 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     @Override
     public List<InterfaceKey> getAllIds(@Nonnull final InstanceIdentifier<Interface> id,
                                         @Nonnull final ReadContext context) throws ReadFailedException {
-        LOG.trace("Dumping all interfaces to get all IDs");
+        try {
+            final List<InterfaceKey> interfacesKeys;
+            LOG.trace("Dumping all interfaces to get all IDs");
 
-        final SwInterfaceDump request = new SwInterfaceDump();
-        request.nameFilter = "".getBytes();
-        request.nameFilterValid = 0;
+            final SwInterfaceDump request = new SwInterfaceDump();
+            request.nameFilter = "".getBytes();
+            request.nameFilterValid = 0;
 
-        final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
-                getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
-        final SwInterfaceDetailsReplyDump ifaces = TranslateUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
+            final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
+                    getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
+            final SwInterfaceDetailsReplyDump ifaces = TranslateUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
 
-        if (null == ifaces || null == ifaces.swInterfaceDetails) {
-            LOG.debug("No interfaces found in VPP");
-            return Collections.emptyList();
+            if (null == ifaces || null == ifaces.swInterfaceDetails) {
+                LOG.debug("No interfaces found in VPP");
+                return Collections.emptyList();
+            }
+
+            // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
+            context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
+                .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+
+            interfacesKeys = ifaces.swInterfaceDetails.stream()
+                .filter(elt -> elt != null)
+                .map((elt) -> {
+                    // Store interface name from VPP in context if not yet present
+                    if (!interfaceContext.containsName(elt.swIfIndex, context.getMappingContext())) {
+                        interfaceContext.addName(elt.swIfIndex, TranslateUtils.toString(elt.interfaceName), context.getMappingContext());
+                    }
+                    LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
+                        interfaceContext.getName(elt.swIfIndex, context.getMappingContext()), elt.interfaceName, elt.swIfIndex);
+
+                    return new InterfaceKey(interfaceContext.getName(elt.swIfIndex, context.getMappingContext()));
+                })
+                .collect(Collectors.toList());
+
+            LOG.debug("Interfaces found in VPP: {}", interfacesKeys);
+            return interfacesKeys;
+        } catch (VppBaseCallException e) {
+            LOG.warn("getAllIds exception :" + e.toString());
+            throw new ReadFailedException( id, e);
         }
-
-        // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-        context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-            .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
-
-        final List<InterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
-            .filter(elt -> elt != null)
-            .map((elt) -> {
-                // Store interface name from VPP in context if not yet present
-                if (!interfaceContext.containsName(elt.swIfIndex, context.getMappingContext())) {
-                    interfaceContext.addName(elt.swIfIndex, TranslateUtils.toString(elt.interfaceName), context.getMappingContext());
-                }
-                LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
-                    interfaceContext.getName(elt.swIfIndex, context.getMappingContext()), elt.interfaceName, elt.swIfIndex);
-
-                return new InterfaceKey(interfaceContext.getName(elt.swIfIndex, context.getMappingContext()));
-            })
-            .collect(Collectors.toList());
-
-        LOG.debug("Interfaces found in VPP: {}", interfacesKeys);
-        return interfacesKeys;
     }
 
     @Override

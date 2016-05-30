@@ -18,14 +18,6 @@ package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -36,11 +28,6 @@ import io.fd.honeycomb.v3po.translate.util.write.DelegatingWriterRegistry;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.Writer;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,9 +42,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.BridgeDomainAddDel;
 import org.openvpp.jvpp.dto.BridgeDomainAddDelReply;
 import org.openvpp.jvpp.future.FutureJVpp;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class VppTest {
 
@@ -102,17 +100,16 @@ public class VppTest {
                 .build();
     }
 
-    private void whenBridgeDomainAddDelThen(final int retval) throws ExecutionException, InterruptedException {
+    private void whenBridgeDomainAddDelThen(final int retval) throws ExecutionException, VppInvocationException, InterruptedException {
         final CompletionStage<BridgeDomainAddDelReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<BridgeDomainAddDelReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final BridgeDomainAddDelReply reply = new BridgeDomainAddDelReply();
-        reply.retval = retval;
         when(replyFuture.get()).thenReturn(reply);
         when(api.bridgeDomainAddDel(any(BridgeDomainAddDel.class))).thenReturn(replyCS);
     }
 
-    private void verifyBridgeDomainAddDel(final BridgeDomain bd, final int bdId) {
+    private void verifyBridgeDomainAddDel(final BridgeDomain bd, final int bdId) throws VppInvocationException {
         final byte arpTerm = BridgeDomainTestUtils.booleanToByte(bd.isArpTermination());
         final byte flood = BridgeDomainTestUtils.booleanToByte(bd.isFlood());
         final byte forward = BridgeDomainTestUtils.booleanToByte(bd.isForward());
@@ -132,7 +129,7 @@ public class VppTest {
         assertEquals(bdId, actual.bdId);
     }
 
-    private void verifyBridgeDomainDeleteWasInvoked(final int bdId) {
+    private void verifyBridgeDomainDeleteWasInvoked(final int bdId) throws VppInvocationException {
         ArgumentCaptor<BridgeDomainAddDel> argumentCaptor = ArgumentCaptor.forClass(BridgeDomainAddDel.class);
         verify(api).bridgeDomainAddDel(argumentCaptor.capture());
         final BridgeDomainAddDel actual = argumentCaptor.getValue();

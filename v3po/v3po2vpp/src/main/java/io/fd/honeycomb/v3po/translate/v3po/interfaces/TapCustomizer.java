@@ -19,12 +19,9 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.concurrent.CompletionStage;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -32,15 +29,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.dto.TapConnect;
-import org.openvpp.jvpp.dto.TapConnectReply;
-import org.openvpp.jvpp.dto.TapDelete;
-import org.openvpp.jvpp.dto.TapDeleteReply;
-import org.openvpp.jvpp.dto.TapModify;
-import org.openvpp.jvpp.dto.TapModifyReply;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.dto.*;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.concurrent.CompletionStage;
 
 public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
 
@@ -68,10 +64,11 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
     protected final void writeInterface(@Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap dataAfter,
                                        @Nonnull final WriteContext writeContext)
         throws WriteFailedException.CreateFailedException {
+        final String ifcName = id.firstKeyOf(Interface.class).getName();
         try {
-            createTap(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Write of Tap failed", e);
+            createTap(ifcName, dataAfter, writeContext);
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to set tap interface: {}, tap: {}", ifcName, dataAfter, e);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
@@ -91,8 +88,8 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
 
         try {
             modifyTap(ifcName, index, dataAfter);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Write of Tap failed", e);
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to set tap interface: {}, tap: {}", ifcName, dataAfter, e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
     }
@@ -112,58 +109,43 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
 
         try {
             deleteTap(ifcName, index, dataBefore, writeContext);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Delete of Tap failed", e);
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to delete tap interface: {}, tap: {}", ifcName, e);
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
-    private void createTap(final String swIfName, final Tap tap, final WriteContext writeContext) throws VppApiInvocationException {
+    private void createTap(final String swIfName, final Tap tap, final WriteContext writeContext) throws VppBaseCallException {
         LOG.debug("Setting tap interface: {}. Tap: {}", swIfName, tap);
         final CompletionStage<TapConnectReply> tapConnectFuture =
             getFutureJVpp().tapConnect(getTapConnectRequest(tap.getTapName(), tap.getMac(), tap.getDeviceInstance()));
         final TapConnectReply reply =
             TranslateUtils.getReply(tapConnectFuture.toCompletableFuture());
-        if (reply.retval < 0) {
-            LOG.warn("Failed to set tap interface: {}, tap: {}", swIfName, tap);
-            throw new VppApiInvocationException("tap_connect", reply.context, reply.retval);
-        } else {
-            LOG.debug("Tap set successfully for: {}, tap: {}", swIfName, tap);
-            // Add new interface to our interface context
-            interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
-        }
+        LOG.debug("Tap set successfully for: {}, tap: {}", swIfName, tap);
+        // Add new interface to our interface context
+        interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
     }
 
-    private void modifyTap(final String swIfName, final int index, final Tap tap) throws VppApiInvocationException {
+    private void modifyTap(final String swIfName, final int index, final Tap tap) throws VppBaseCallException {
         LOG.debug("Modifying tap interface: {}. Tap: {}", swIfName, tap);
         final CompletionStage<TapModifyReply> vxlanAddDelTunnelReplyCompletionStage =
             getFutureJVpp().tapModify(getTapModifyRequest(tap.getTapName(), index, tap.getMac(), tap.getDeviceInstance()));
         final TapModifyReply reply =
             TranslateUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
-        if (reply.retval < 0) {
-            LOG.warn("Failed to modify tap interface: {}, tap: {}", swIfName, tap);
-            throw new VppApiInvocationException("tap_modify", reply.context, reply.retval);
-        } else {
-            LOG.debug("Tap modified successfully for: {}, tap: {}", swIfName, tap);
-        }
+        LOG.debug("Tap modified successfully for: {}, tap: {}", swIfName, tap);
     }
 
     private void deleteTap(final String swIfName, final int index, final Tap dataBefore,
                            final WriteContext writeContext)
-        throws VppApiInvocationException {
+        throws VppBaseCallException {
         LOG.debug("Deleting tap interface: {}. Tap: {}", swIfName, dataBefore);
         final CompletionStage<TapDeleteReply> vxlanAddDelTunnelReplyCompletionStage =
             getFutureJVpp().tapDelete(getTapDeleteRequest(index));
         final TapDeleteReply reply =
             TranslateUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
-        if (reply.retval < 0) {
-            LOG.warn("Failed to delete tap interface: {}, tap: {}", swIfName, dataBefore);
-            throw new VppApiInvocationException("tap_modify", reply.context, reply.retval);
-        } else {
-            LOG.debug("Tap deleted successfully for: {}, tap: {}", swIfName, dataBefore);
-            // Remove deleted interface from interface context
-            interfaceContext.removeName(swIfName, writeContext.getMappingContext());
-        }
+        LOG.debug("Tap deleted successfully for: {}, tap: {}", swIfName, dataBefore);
+        // Remove deleted interface from interface context
+        interfaceContext.removeName(swIfName, writeContext.getMappingContext());
     }
 
     private TapConnect getTapConnectRequest(final String tapName, final PhysAddress mac, final Long deviceInstance) {

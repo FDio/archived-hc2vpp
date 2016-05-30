@@ -20,22 +20,23 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.concurrent.CompletionStage;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.SwInterfaceSetTable;
 import org.openvpp.jvpp.dto.SwInterfaceSetTableReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.concurrent.CompletionStage;
 
 public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Routing> {
 
@@ -59,10 +60,11 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
                                        @Nonnull final Routing dataAfter, @Nonnull final WriteContext writeContext)
         throws WriteFailedException.CreateFailedException {
 
+        final String ifName = id.firstKeyOf(Interface.class).getName();
         try {
-            setRouting(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Update of Routing failed", e);
+            setRouting(ifName, dataAfter, writeContext);
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to set routing for interface: {}, {}, vxlan: {}", ifName, writeContext, dataAfter);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
@@ -73,11 +75,12 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
                                         @Nonnull final WriteContext writeContext)
         throws WriteFailedException.UpdateFailedException {
 
+        final String ifName = id.firstKeyOf(Interface.class).getName();
         try {
             // TODO handle updates properly
-            setRouting(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Update of Routing failed", e);
+            setRouting(ifName, dataAfter, writeContext);
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to update routing for interface: {}, {}, vxlan: {}", ifName, writeContext, dataAfter);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
     }
@@ -88,7 +91,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
         // TODO implement delete
     }
 
-    private void setRouting(final String name, final Routing rt, final WriteContext writeContext) throws VppApiInvocationException {
+    private void setRouting(final String name, final Routing rt, final WriteContext writeContext) throws VppBaseCallException {
         final int swIfc = interfaceContext.getIndex(name, writeContext.getMappingContext());
         LOG.debug("Setting routing for interface: {}, {}. Routing: {}", name, swIfc, rt);
 
@@ -101,12 +104,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
                 getFutureJVpp().swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, /* isIpv6 */ vrfId));
             final SwInterfaceSetTableReply reply =
                 TranslateUtils.getReply(swInterfaceSetTableReplyCompletionStage.toCompletableFuture());
-            if (reply.retval < 0) {
-                LOG.debug("Failed to set routing for interface: {}, {}, vxlan: {}", name, swIfc, rt);
-                throw new VppApiInvocationException("swInterfaceSetTable", reply.context, reply.retval);
-            } else {
-                LOG.debug("Routing set successfully for interface: {}, {}, routing: {}", name, swIfc, rt);
-            }
+            LOG.debug("Routing set successfully for interface: {}, {}, routing: {}", name, swIfc, rt);
         }
     }
 
@@ -117,5 +115,4 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
         swInterfaceSetTable.vrfId = vrfId;
         return swInterfaceSetTable;
     }
-
 }

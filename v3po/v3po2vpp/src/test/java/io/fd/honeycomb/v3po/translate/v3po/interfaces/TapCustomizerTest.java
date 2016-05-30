@@ -87,7 +87,6 @@ public class TapCustomizerTest {
                 final CompletableFuture<Object> reply = new CompletableFuture<>();
                 final TapConnectReply t = new TapConnectReply();
                 t.swIfIndex = idx++;
-                t.retval = 0;
                 reply.complete(t);
                 return reply;
             }
@@ -112,7 +111,6 @@ public class TapCustomizerTest {
         final CompletableFuture<TapModifyReply> replyModif = new CompletableFuture<>();
         final TapModifyReply tmodif = new TapModifyReply();
         tmodif.swIfIndex = 0;
-        tmodif.retval = 0;
         replyModif.complete(tmodif);
         doReturn(replyModif).when(vppApi).tapModify(any(TapModify.class));
 
@@ -136,7 +134,6 @@ public class TapCustomizerTest {
 
         final CompletableFuture<TapDeleteReply> replyDelete = new CompletableFuture<>();
         final TapDeleteReply tmodif = new TapDeleteReply();
-        tmodif.retval = 0;
         replyDelete.complete(tmodif);
         doReturn(replyDelete).when(vppApi).tapDelete(any(TapDelete.class));
 

@@ -18,8 +18,9 @@ package io.fd.honeycomb.v3po.translate.v3po.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
-import javax.annotation.Nonnull;
 import org.openvpp.jvpp.future.FutureJVpp;
+
+import javax.annotation.Nonnull;
 
 /**
  * Abstract utility to hold the vppApi reference.

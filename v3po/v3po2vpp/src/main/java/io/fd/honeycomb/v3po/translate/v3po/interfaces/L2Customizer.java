@@ -20,18 +20,22 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.concurrent.CompletionStage;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<L2> {
 
@@ -59,12 +63,7 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
 
         final String ifcName = id.firstKeyOf(Interface.class).getName();
         final int swIfc = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
-        try {
-            setL2(id, swIfc, ifcName, dataAfter, writeContext);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Write of L2 failed", e);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        setL2(id, swIfc, ifcName, dataAfter, writeContext);
     }
 
     @Override
@@ -75,12 +74,7 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
         final String ifcName = id.firstKeyOf(Interface.class).getName();
         final int swIfc = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
         // TODO handle update properly (if possible)
-        try {
-            setL2(id, swIfc, ifcName, dataAfter, writeContext);
-        } catch (VppApiInvocationException e) {
-            LOG.warn("Update of L2 failed", e);
-            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
-        }
+        setL2(id, swIfc, ifcName, dataAfter, writeContext);
     }
 
     @Override
@@ -91,7 +85,7 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
 
     private void setL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 l2,
                        final WriteContext writeContext)
-        throws VppApiInvocationException, WriteFailedException {
+        throws WriteFailedException {
         LOG.debug("Setting L2 for interface: {}", ifcName);
         // Nothing besides interconnection here
         icWriteUtils.setInterconnection(id, swIfIndex, ifcName, l2.getInterconnection(), writeContext);

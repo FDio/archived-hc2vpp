@@ -16,24 +16,14 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
-import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletionStage;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.CVlan;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qVlanId;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.SVlan;
@@ -50,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.Tag;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.CreateSubif;
 import org.openvpp.jvpp.dto.CreateSubifReply;
 import org.openvpp.jvpp.dto.SwInterfaceSetFlags;
@@ -57,6 +48,16 @@ import org.openvpp.jvpp.dto.SwInterfaceSetFlagsReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletionStage;
+
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
+import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
 /**
  * Writer Customizer responsible for sub interface creation.<br> Sends {@code create_subif} message to VPP.<br>
@@ -87,31 +88,27 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             throws WriteFailedException.CreateFailedException {
         try {
             createSubInterface(id.firstKeyOf(Interface.class).getName(), dataAfter, writeContext);
-        } catch (VppApiInvocationException e) {
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to create sub interface for: {}, subInterface: {}", id.firstKeyOf(Interface.class).getName(), dataAfter);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
 
     private void createSubInterface(@Nonnull final String superIfName,
-                                    @Nonnull final SubInterface subInterface, final WriteContext writeContext)
-            throws VppApiInvocationException {
+                                    @Nonnull final SubInterface subInterface,
+                                    final WriteContext writeContext) throws VppBaseCallException {
         final int superIfIndex = interfaceContext.getIndex(superIfName, writeContext.getMappingContext());
-        LOG.debug("Creating sub interface of {}(id={}): subInterface={}", superIfName, superIfIndex, subInterface);
         final CompletionStage<CreateSubifReply> createSubifReplyCompletionStage =
-                getFutureJVpp().createSubif(getCreateSubifRequest(subInterface, superIfIndex));
+            getFutureJVpp().createSubif(getCreateSubifRequest(subInterface, superIfIndex));
 
         final CreateSubifReply reply =
-                TranslateUtils.getReply(createSubifReplyCompletionStage.toCompletableFuture());
-        if (reply.retval < 0) {
-            LOG.debug("Failed to create sub interface for: {}, subInterface: {}", superIfName, subInterface);
-            throw new VppApiInvocationException("createSubif", reply.context, reply.retval);
-        } else {
-            setInterfaceState(reply.swIfIndex, booleanToByte(subInterface.isEnabled()));
-            interfaceContext.addName(reply.swIfIndex,
-                    getSubInterfaceName(superIfName, Math.toIntExact(subInterface.getIdentifier())),
-                    writeContext.getMappingContext());
-            LOG.debug("Sub interface created successfully for: {}, subInterface: {}", superIfName, subInterface);
-        }
+            TranslateUtils.getReply(createSubifReplyCompletionStage.toCompletableFuture());
+
+        setInterfaceState(reply.swIfIndex, booleanToByte(subInterface.isEnabled()));
+        interfaceContext.addName(reply.swIfIndex,
+            getSubInterfaceName(superIfName, Math.toIntExact(subInterface.getIdentifier())),
+            writeContext.getMappingContext());
+        LOG.debug("Sub interface created successfully for: {}, subInterface: {}", superIfName, subInterface);
     }
 
     private CreateSubif getCreateSubifRequest(@Nonnull final SubInterface subInterface, final int swIfIndex) {
@@ -196,17 +193,19 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             LOG.debug("No state update will be performed. Ignoring config");
             return; // TODO shouldn't we throw exception here (if there will be dedicated L2 customizer)?
         }
+        final String subIfaceName = getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
+                Math.toIntExact(dataAfter.getIdentifier()));
         try {
-            final String subIfaceName = getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
-                    Math.toIntExact(dataAfter.getIdentifier()));
             setInterfaceState(interfaceContext.getIndex(subIfaceName, writeContext.getMappingContext()),
                     booleanToByte(dataAfter.isEnabled()));
-        } catch (VppApiInvocationException e) {
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to update interface state for: interface if={}, enabled: {}",
+                    subIfaceName, booleanToByte(dataAfter.isEnabled()));
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
     }
 
-    private void setInterfaceState(final int swIfIndex, final byte enabled) throws VppApiInvocationException {
+    private void setInterfaceState(final int swIfIndex, final byte enabled) throws VppBaseCallException {
         final SwInterfaceSetFlags swInterfaceSetFlags = new SwInterfaceSetFlags();
         swInterfaceSetFlags.swIfIndex = swIfIndex;
         swInterfaceSetFlags.adminUpDown = enabled;
@@ -217,13 +216,8 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         LOG.debug("Updating interface state for: interface if={}, enabled: {}", swIfIndex, enabled);
 
         SwInterfaceSetFlagsReply reply = TranslateUtils.getReply(swInterfaceSetFlagsReplyFuture.toCompletableFuture());
-        if (reply.retval < 0) {
-            LOG.warn("Failed to update interface state for: interface if={}, enabled: {}", swIfIndex, enabled);
-            throw new VppApiInvocationException("swInterfaceSetFlags", reply.context, reply.retval);
-        } else {
-            LOG.debug("Interface state updated successfully for: {}, index: {}, enabled: {}, ctxId: {}",
-                    swIfIndex, enabled, reply.context);
-        }
+        LOG.debug("Interface state updated successfully for: {}, index: {}, enabled: {}, ctxId: {}",
+                swIfIndex, enabled, reply.context);
     }
 
     @Override

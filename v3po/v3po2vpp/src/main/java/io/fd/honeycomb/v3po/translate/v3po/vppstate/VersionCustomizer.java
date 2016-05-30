@@ -29,6 +29,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.VppCallbackException;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.ShowVersion;
 import org.openvpp.jvpp.dto.ShowVersionReply;
 import org.openvpp.jvpp.future.FutureJVpp;
@@ -60,15 +63,19 @@ public final class VersionCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<Version> id, @Nonnull final VersionBuilder builder,
                                       @Nonnull final ReadContext context) throws ReadFailedException {
-        // Execute with timeout
-        final CompletionStage<ShowVersionReply> showVersionFuture = getFutureJVpp().showVersion(new ShowVersion());
-        final ShowVersionReply reply = TranslateUtils.getReply(showVersionFuture.toCompletableFuture(), id,
-            DEFAULT_TIMEOUT_IN_SECONDS);
+        try {
+            // Execute with timeout
+            final CompletionStage<ShowVersionReply> showVersionFuture = getFutureJVpp().showVersion(new ShowVersion());
+            final ShowVersionReply reply = TranslateUtils.getReply(showVersionFuture.toCompletableFuture(), id,
+                DEFAULT_TIMEOUT_IN_SECONDS);
 
-        builder.setBranch(TranslateUtils.toString(reply.version));
-        builder.setName(TranslateUtils.toString(reply.program));
-        builder.setBuildDate(TranslateUtils.toString(reply.buildDate));
-        builder.setBuildDirectory(TranslateUtils.toString(reply.buildDirectory));
+            builder.setBranch(TranslateUtils.toString(reply.version));
+            builder.setName(TranslateUtils.toString(reply.program));
+            builder.setBuildDate(TranslateUtils.toString(reply.buildDate));
+            builder.setBuildDirectory(TranslateUtils.toString(reply.buildDirectory));
+        } catch (VppBaseCallException e) {
+            throw new ReadFailedException(id);
+        }
     }
 
 }

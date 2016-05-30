@@ -72,6 +72,6 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Ch
         final SubInterfaceKey subInterfacekey = id.firstKeyOf(SubInterface.class);
         final String subInterfaceName = getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
 
-        builder.setInterconnection(icReadUtils.readInterconnection(subInterfaceName, ctx));
+        builder.setInterconnection(icReadUtils.readInterconnection(id, subInterfaceName, ctx));
     }
 }

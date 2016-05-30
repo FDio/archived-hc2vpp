@@ -16,21 +16,23 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.util;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import com.google.common.base.Splitter;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.dto.JVppReply;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.dto.JVppReply;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public final class TranslateUtils {
 
@@ -38,23 +40,26 @@ public final class TranslateUtils {
 
     private TranslateUtils() {}
 
-    public static <REP extends JVppReply<?>> REP getReply(Future<REP> future) {
+    public static <REP extends JVppReply<?>> REP getReply(Future<REP> future) throws VppBaseCallException {
         try {
             return future.get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted", e);
         } catch (ExecutionException e) {
-            // Execution exception should not occur, since we are using return codes for errors
-            // TODO fix when using exceptions instead of return codes
-            throw new IllegalArgumentException("Future " + " should not fail with an exception", e);
+            // Execution exception could generally contains any exception
+            // when using exceptions instead of return codes just rethrow it for processing on corresponding place
+            if (e instanceof ExecutionException && ( e.getCause() instanceof VppBaseCallException)) {
+                throw (VppBaseCallException) (e.getCause());
+            }
+            throw new IllegalStateException(e);
         }
     }
 
     public static <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future,
                                                           @Nonnull final InstanceIdentifier<?> replyType,
                                                           @Nonnegative final int timeoutInSeconds)
-        throws ReadTimeoutException {
+        throws ReadTimeoutException, VppBaseCallException {
         try {
             checkArgument(timeoutInSeconds > 0, "Timeout cannot be < 0");
             return future.get(timeoutInSeconds, TimeUnit.SECONDS);
@@ -62,9 +67,11 @@ public final class TranslateUtils {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted", e);
         } catch (ExecutionException e) {
-            // Execution exception should not occur, since we are using return codes for errors
-            // TODO fix when using exceptions instead of return codes
-            throw new IllegalArgumentException("Future " + " should not fail with an exception", e);
+            // Execution exception could generally contains any exception
+            // when using exceptions instead of return codes just rethrow it for processing on corresponding place
+            if ( e.getCause() instanceof VppBaseCallException)
+                throw (VppBaseCallException)(e.getCause());
+            throw new IllegalStateException(e);
         } catch (TimeoutException e) {
             throw new ReadTimeoutException(replyType, e);
         }

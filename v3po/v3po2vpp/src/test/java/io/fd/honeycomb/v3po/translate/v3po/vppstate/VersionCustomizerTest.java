@@ -55,7 +55,6 @@ public class VersionCustomizerTest extends ChildReaderCustomizerTest<Version, Ve
     public void testReadCurrentAttributes() throws Exception {
         final CompletableFuture<ShowVersionReply> replyFuture = new CompletableFuture<>();
         final ShowVersionReply reply = new ShowVersionReply();
-        reply.retval = 0;
         reply.version = new byte[]{};
         reply.program = new byte[]{};
         reply.buildDate = new byte[]{};

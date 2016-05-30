@@ -87,7 +87,7 @@ public class RewriteCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         LOG.debug("Reading attributes for sub interface: {}", subInterfaceName);
 
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), subInterfaceName,
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, subInterfaceName,
                 interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache());
         LOG.debug("VPP sub-interface details: {}", ReflectionToStringBuilder.toString(iface));
 

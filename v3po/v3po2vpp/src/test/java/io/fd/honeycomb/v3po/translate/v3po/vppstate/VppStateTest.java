@@ -65,6 +65,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.dto.BridgeDomainDump;
@@ -112,10 +113,9 @@ public class VppStateTest {
                 .build();
     }
 
-    private void whenShowVersionThenReturn(int retval, Version version) throws ExecutionException, InterruptedException {
+    private void whenShowVersionThenReturn(int retval, Version version) throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletableFuture<ShowVersionReply> replyFuture = new CompletableFuture<>();
         final ShowVersionReply reply = new ShowVersionReply();
-        reply.retval = 0; // success
         reply.buildDate = version.getBuildDate().getBytes();
         reply.program = version.getName().getBytes();
         reply.version = version.getBranch().getBytes();
@@ -125,7 +125,7 @@ public class VppStateTest {
         when(api.showVersion(any(ShowVersion.class))).thenReturn(replyFuture);
     }
 
-    private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> entryList) throws ExecutionException, InterruptedException {
+    private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> entryList) throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<L2FibTableEntryReplyDump> replyCS = mock(CompletionStage.class);
         final CompletableFuture<L2FibTableEntryReplyDump> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
@@ -135,7 +135,7 @@ public class VppStateTest {
         when(api.l2FibTableDump(any(L2FibTableDump.class))).thenReturn(replyCS);
     }
 
-    private void whenBridgeDomainDumpThenReturn(final List<BridgeDomainDetails> bdList) throws ExecutionException, InterruptedException {
+    private void whenBridgeDomainDumpThenReturn(final List<BridgeDomainDetails> bdList) throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<BridgeDomainDetailsReplyDump> replyCS = mock(CompletionStage.class);
         final CompletableFuture<BridgeDomainDetailsReplyDump> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);

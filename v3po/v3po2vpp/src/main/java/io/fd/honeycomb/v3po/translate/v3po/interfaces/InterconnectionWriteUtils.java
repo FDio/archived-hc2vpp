@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -31,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.XconnectBased;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.SwInterfaceSetL2Bridge;
 import org.openvpp.jvpp.dto.SwInterfaceSetL2BridgeReply;
 import org.openvpp.jvpp.dto.SwInterfaceSetL2Xconnect;
@@ -61,27 +61,31 @@ final class InterconnectionWriteUtils {
     void setInterconnection(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                             final String ifcName,
                             final Interconnection ic, final WriteContext writeContext)
-            throws VppApiInvocationException, WriteFailedException {
-        if (ic == null) { // TODO in case of update we should delete interconnection
-            LOG.trace("Interconnection is not set. Skipping");
-        } else if (ic instanceof XconnectBased) {
-            setXconnectBasedL2(swIfIndex, ifcName, (XconnectBased) ic, writeContext);
-        } else if (ic instanceof BridgeBased) {
-            setBridgeBasedL2(swIfIndex, ifcName, (BridgeBased) ic, writeContext);
-        } else {
-            // FIXME how does choice extensibility work
-            // FIXME it is not even possible to create a dedicated customizer for Interconnection, since it's not a DataObject
-            // FIXME we might need a choice customizer
-            // THis choice is already from augment, so its probably not possible to augment augmented choice
-            LOG.error("Unable to handle Interconnection of type {}", ic.getClass());
-            throw new WriteFailedException(id, "Unable to handle Interconnection of type " + ic.getClass());
+            throws WriteFailedException {
+        try {
+            if (ic == null) { // TODO in case of update we should delete interconnection
+                LOG.trace("Interconnection is not set. Skipping");
+            } else if (ic instanceof XconnectBased) {
+                setXconnectBasedL2(swIfIndex, ifcName, (XconnectBased) ic, writeContext);
+            } else if (ic instanceof BridgeBased) {
+                setBridgeBasedL2(swIfIndex, ifcName, (BridgeBased) ic, writeContext);
+            } else {
+                // FIXME how does choice extensibility work
+                // FIXME it is not even possible to create a dedicated customizer for Interconnection, since it's not a DataObject
+                // FIXME we might need a choice customizer
+                // THis choice is already from augment, so its probably not possible to augment augmented choice
+                LOG.error("Unable to handle Interconnection of type {}", ic.getClass());
+                throw new WriteFailedException(id, "Unable to handle Interconnection of type " + ic.getClass());
+            }
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to update bridge/xconnect based interconnection flags for: {}, interconnection: {}", ifcName, ic);
+            throw new WriteFailedException(id, "Unable to handle Interconnection of type " + ic.getClass(), e);
         }
     }
 
     private void setBridgeBasedL2(final int swIfIndex, final String ifcName, final BridgeBased bb,
                                   final WriteContext writeContext)
-            throws VppApiInvocationException {
-
+            throws VppBaseCallException {
         LOG.debug("Setting bridge based interconnection(bridge-domain={}) for interface: {}", bb.getBridgeDomain(),
                 ifcName);
 
@@ -101,12 +105,7 @@ final class InterconnectionWriteUtils {
         final SwInterfaceSetL2BridgeReply reply =
                 TranslateUtils.getReply(swInterfaceSetL2BridgeReplyCompletionStage.toCompletableFuture());
 
-        if (reply.retval < 0) {
-            LOG.warn("Failed to update bridge based interconnection flags for: {}, interconnection: {}", ifcName, bb);
-            throw new VppApiInvocationException("swInterfaceSetL2Bridge", reply.context, reply.retval);
-        } else {
-            LOG.debug("Bridge based interconnection updated successfully for: {}, interconnection: {}", ifcName, bb);
-        }
+        LOG.debug("Bridge based interconnection updated successfully for: {}, interconnection: {}", ifcName, bb);
     }
 
     private SwInterfaceSetL2Bridge getL2BridgeRequest(final int swIfIndex, final int bdId, final byte shg,
@@ -122,7 +121,7 @@ final class InterconnectionWriteUtils {
 
     private void setXconnectBasedL2(final int swIfIndex, final String ifcName, final XconnectBased ic,
                                     final WriteContext writeContext)
-            throws VppApiInvocationException {
+            throws VppBaseCallException {
         String outSwIfName = ic.getXconnectOutgoingInterface();
         LOG.debug("Setting xconnect based interconnection(outgoing ifc={}) for interface: {}", outSwIfName, ifcName);
 
@@ -136,13 +135,7 @@ final class InterconnectionWriteUtils {
                         .swInterfaceSetL2Xconnect(getL2XConnectRequest(swIfIndex, outSwIfIndex, (byte) 1 /* enable */));
         final SwInterfaceSetL2XconnectReply reply =
                 TranslateUtils.getReply(swInterfaceSetL2XconnectReplyCompletionStage.toCompletableFuture());
-
-        if (reply.retval < 0) {
-            LOG.warn("Failed to update xconnect based interconnection flags for: {}, interconnection: {}", ifcName, ic);
-            throw new VppApiInvocationException("swInterfaceSetL2Xconnect", reply.context, reply.retval);
-        } else {
-            LOG.debug("Xconnect based interconnection updated successfully for: {}, interconnection: {}", ifcName, ic);
-        }
+        LOG.debug("Xconnect based interconnection updated successfully for: {}, interconnection: {}", ifcName, ic);
     }
 
     private SwInterfaceSetL2Xconnect getL2XConnectRequest(final int rxIfc, final int txIfc,

@@ -16,32 +16,14 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
-import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
+import io.fd.honeycomb.v3po.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -59,9 +41,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.VxlanAddDelTunnel;
 import org.openvpp.jvpp.dto.VxlanAddDelTunnelReply;
 import org.openvpp.jvpp.future.FutureJVpp;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+
+import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
+import static java.util.Collections.singletonList;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class VxlanCustomizerTest {
 
@@ -97,25 +94,31 @@ public class VxlanCustomizerTest {
                         .augmentation(VppInterfaceAugmentation.class).child(Vxlan.class);
     }
 
-    private void whenVxlanAddDelTunnelThen(final int retval) throws ExecutionException, InterruptedException {
+    private void whenVxlanAddDelTunnelThen() throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<VxlanAddDelTunnelReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<VxlanAddDelTunnelReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final VxlanAddDelTunnelReply reply = new VxlanAddDelTunnelReply();
-        reply.retval = retval;
         when(replyFuture.get()).thenReturn(reply);
         when(api.vxlanAddDelTunnel(any(VxlanAddDelTunnel.class))).thenReturn(replyCS);
     }
 
-    private void whenVxlanAddDelTunnelThenSuccess() throws ExecutionException, InterruptedException {
-        whenVxlanAddDelTunnelThen(0);
+    /**
+     * Failure response send
+     */
+    private void whenVxlanAddDelTunnelFailedThen(final int retval) throws ExecutionException, InterruptedException, VppInvocationException {
+        doReturn(TestHelperUtils.<VxlanAddDelTunnelReply>createFutureException(retval)).when(api).vxlanAddDelTunnel(any(VxlanAddDelTunnel.class));
     }
 
-    private void whenVxlanAddDelTunnelThenFailure() throws ExecutionException, InterruptedException {
-        whenVxlanAddDelTunnelThen(-1);
+    private void whenVxlanAddDelTunnelThenSuccess() throws ExecutionException, InterruptedException, VppInvocationException {
+        whenVxlanAddDelTunnelThen();
     }
 
-    private VxlanAddDelTunnel verifyVxlanAddDelTunnelWasInvoked(final Vxlan vxlan) {
+    private void whenVxlanAddDelTunnelThenFailure() throws ExecutionException, InterruptedException, VppInvocationException {
+        whenVxlanAddDelTunnelFailedThen(-1);
+    }
+
+    private VxlanAddDelTunnel verifyVxlanAddDelTunnelWasInvoked(final Vxlan vxlan) throws VppInvocationException {
         ArgumentCaptor<VxlanAddDelTunnel> argumentCaptor = ArgumentCaptor.forClass(VxlanAddDelTunnel.class);
         verify(api).vxlanAddDelTunnel(argumentCaptor.capture());
         final VxlanAddDelTunnel actual = argumentCaptor.getValue();
@@ -127,12 +130,12 @@ public class VxlanCustomizerTest {
         assertEquals(vxlan.getVni().getValue().intValue(), actual.vni);
         return actual;
     }
-    private void verifyVxlanAddWasInvoked(final Vxlan vxlan) {
+    private void verifyVxlanAddWasInvoked(final Vxlan vxlan) throws VppInvocationException {
         final VxlanAddDelTunnel actual = verifyVxlanAddDelTunnelWasInvoked(vxlan);
         assertEquals(ADD_VXLAN, actual.isAdd);
     }
 
-    private void verifyVxlanDeleteWasInvoked(final Vxlan vxlan) {
+    private void verifyVxlanDeleteWasInvoked(final Vxlan vxlan) throws VppInvocationException {
         final VxlanAddDelTunnel actual = verifyVxlanAddDelTunnelWasInvoked(vxlan);
         assertEquals(DEL_VXLAN, actual.isAdd);
     }
@@ -191,7 +194,7 @@ public class VxlanCustomizerTest {
         try {
             customizer.writeCurrentAttributes(id, vxlan, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
-            assertEquals(VppApiInvocationException.class, e.getCause().getClass());
+            assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyVxlanAddWasInvoked(vxlan);
             // Mapping not stored due to failure
             verify(mappingContext, times(0)).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
@@ -233,7 +236,7 @@ public class VxlanCustomizerTest {
         try {
             customizer.deleteCurrentAttributes(id, vxlan, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
-            assertEquals(VppApiInvocationException.class, e.getCause().getClass());
+            assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyVxlanDeleteWasInvoked(vxlan);
             verify(mappingContext, times(0)).delete(eq(getMappingIid(ifaceName, "test-instance")));
             return;

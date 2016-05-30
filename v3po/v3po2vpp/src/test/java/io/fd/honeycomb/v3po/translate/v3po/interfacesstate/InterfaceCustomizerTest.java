@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.dto.SwInterfaceDump;
 
@@ -93,7 +94,7 @@ public class InterfaceCustomizerTest extends
     }
 
     private void verifyBridgeDomainDumpUpdateWasInvoked(final int nameFilterValid, final String ifaceName,
-                                                        final int dumpIfcsInvocationCount) {
+                                                        final int dumpIfcsInvocationCount) throws VppInvocationException {
         // TODO adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
         ArgumentCaptor<SwInterfaceDump> argumentCaptor = ArgumentCaptor.forClass(SwInterfaceDump.class);
         verify(api, times(dumpIfcsInvocationCount)).swInterfaceDump(argumentCaptor.capture());

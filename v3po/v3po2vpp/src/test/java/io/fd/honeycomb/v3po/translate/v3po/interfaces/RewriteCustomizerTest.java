@@ -16,23 +16,14 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TagRewriteOperation;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527._802dot1q;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.SubInterfaces;
@@ -50,9 +42,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.RewriteBuilder;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewrite;
 import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewriteReply;
 import org.openvpp.jvpp.future.FutureJVpp;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class RewriteCustomizerTest {
 
@@ -106,23 +112,32 @@ public class RewriteCustomizerTest {
         return request;
     }
 
-    private void whenL2InterfaceVlanTagRewriteThen(final int retval) throws ExecutionException, InterruptedException {
+    /**
+     * Positive response
+     */
+    private void whenL2InterfaceVlanTagRewriteThen() throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletableFuture<L2InterfaceVlanTagRewriteReply> replyFuture = new CompletableFuture<>();
         final L2InterfaceVlanTagRewriteReply reply = new L2InterfaceVlanTagRewriteReply();
-        reply.retval = retval;
         replyFuture.complete(reply);
         doReturn(replyFuture).when(api).l2InterfaceVlanTagRewrite(any(L2InterfaceVlanTagRewrite.class));
     }
 
-    private void whenL2InterfaceVlanTagRewriteThenSuccess() throws ExecutionException, InterruptedException {
-        whenL2InterfaceVlanTagRewriteThen(0);
+    /**
+     * Failure response send
+     */
+    private void whenL2InterfaceVlanTagRewriteFailedThen(final int retval) throws ExecutionException, InterruptedException, VppInvocationException {
+        doReturn(TestHelperUtils.<L2InterfaceVlanTagRewriteReply>createFutureException(retval)).when(api).l2InterfaceVlanTagRewrite(any(L2InterfaceVlanTagRewrite.class));
     }
 
-    private void whenL2InterfaceVlanTagRewriteThenFailure() throws ExecutionException, InterruptedException {
-        whenL2InterfaceVlanTagRewriteThen(-1);
+    private void whenL2InterfaceVlanTagRewriteThenSuccess() throws ExecutionException, InterruptedException, VppInvocationException {
+        whenL2InterfaceVlanTagRewriteThen();
     }
 
-    private void verifyL2InterfaceVlanTagRewriteWasInvoked(final L2InterfaceVlanTagRewrite expected) {
+    private void whenL2InterfaceVlanTagRewriteThenFailure() throws ExecutionException, InterruptedException, VppInvocationException {
+        whenL2InterfaceVlanTagRewriteFailedThen(-1);
+    }
+
+    private void verifyL2InterfaceVlanTagRewriteWasInvoked(final L2InterfaceVlanTagRewrite expected) throws VppInvocationException {
         ArgumentCaptor<L2InterfaceVlanTagRewrite> argumentCaptor = ArgumentCaptor.forClass(L2InterfaceVlanTagRewrite.class);
         verify(api).l2InterfaceVlanTagRewrite(argumentCaptor.capture());
         final L2InterfaceVlanTagRewrite actual = argumentCaptor.getValue();
@@ -133,7 +148,7 @@ public class RewriteCustomizerTest {
         assertEquals(expected.tag2, actual.tag2);
     }
 
-    private void verifyL2InterfaceVlanTagRewriteDeleteWasInvoked() {
+    private void verifyL2InterfaceVlanTagRewriteDeleteWasInvoked() throws VppInvocationException {
         final L2InterfaceVlanTagRewrite request = new L2InterfaceVlanTagRewrite();
         request.swIfIndex = VLAN_IF_INDEX;
         verifyL2InterfaceVlanTagRewriteWasInvoked(request);
@@ -165,7 +180,7 @@ public class RewriteCustomizerTest {
         try {
             customizer.writeCurrentAttributes(id, vlanTagRewrite, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
-            assertEquals(VppApiInvocationException.class, e.getCause().getClass());
+            assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2InterfaceVlanTagRewriteWasInvoked(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, op));
             return;
         }
@@ -196,7 +211,7 @@ public class RewriteCustomizerTest {
         try {
             customizer.updateCurrentAttributes(id, before, after, writeContext);
         } catch (WriteFailedException.UpdateFailedException e) {
-            assertEquals(VppApiInvocationException.class, e.getCause().getClass());
+            assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2InterfaceVlanTagRewriteWasInvoked(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, TagRewriteOperation.pop_1));
             return;
         }
@@ -223,7 +238,7 @@ public class RewriteCustomizerTest {
         try {
             customizer.deleteCurrentAttributes(id, null, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
-            assertEquals(VppApiInvocationException.class, e.getCause().getClass());
+            Assert.assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2InterfaceVlanTagRewriteDeleteWasInvoked();
             return;
         }

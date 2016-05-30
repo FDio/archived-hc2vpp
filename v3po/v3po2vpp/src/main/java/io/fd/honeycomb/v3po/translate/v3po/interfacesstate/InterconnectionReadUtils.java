@@ -29,6 +29,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.dto.BridgeDomainDump;
@@ -59,15 +61,15 @@ final class InterconnectionReadUtils {
     }
 
     @Nullable
-    Interconnection readInterconnection(@Nonnull final String ifaceName, @Nonnull final ReadContext ctx)
+    Interconnection readInterconnection(@Nonnull final InstanceIdentifier<?> id, @Nonnull final String ifaceName, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         final int ifaceId = interfaceContext.getIndex(ifaceName, ctx.getMappingContext());
 
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(futureJvpp, ifaceName,
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(futureJvpp, id, ifaceName,
                 ifaceId, ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
-        final BridgeDomainDetailsReplyDump dumpReply = getDumpReply();
+        final BridgeDomainDetailsReplyDump dumpReply = getDumpReply(id);
         final Optional<BridgeDomainSwIfDetails> bdForInterface = getBridgeDomainForInterface(ifaceId, dumpReply);
         if (bdForInterface.isPresent()) {
             final BridgeDomainSwIfDetails bdSwIfDetails = bdForInterface.get();
@@ -107,15 +109,19 @@ final class InterconnectionReadUtils {
         return reply.bridgeDomainDetails.stream().filter(a -> a.bdId == bdId).findFirst();
     }
 
-    private BridgeDomainDetailsReplyDump getDumpReply() {
-        // We need to perform full bd dump, because there is no way
-        // to ask VPP for BD details given interface id/name (TODO add it to vpp.api?)
-        // TODO cache dump result
-        final BridgeDomainDump request = new BridgeDomainDump();
-        request.bdId = -1;
+    private BridgeDomainDetailsReplyDump getDumpReply(@Nonnull final InstanceIdentifier<?> id) throws ReadFailedException {
+        try {
+            // We need to perform full bd dump, because there is no way
+            // to ask VPP for BD details given interface id/name (TODO add it to vpp.api?)
+            // TODO cache dump result
+            final BridgeDomainDump request = new BridgeDomainDump();
+            request.bdId = -1;
 
-        final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
-                futureJvpp.bridgeDomainSwIfDump(request).toCompletableFuture();
-        return TranslateUtils.getReply(bdCompletableFuture);
+            final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
+                    futureJvpp.bridgeDomainSwIfDump(request).toCompletableFuture();
+            return TranslateUtils.getReply(bdCompletableFuture);
+        } catch (VppBaseCallException e) {
+            throw new ReadFailedException(id,e);
+        }
     }
 }

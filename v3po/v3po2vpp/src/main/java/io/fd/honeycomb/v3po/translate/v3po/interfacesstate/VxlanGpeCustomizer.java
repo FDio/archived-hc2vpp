@@ -43,6 +43,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.VppCallbackException;
+import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.VxlanGpeTunnelDetails;
 import org.openvpp.jvpp.dto.VxlanGpeTunnelDetailsReplyDump;
 import org.openvpp.jvpp.dto.VxlanGpeTunnelDump;
@@ -77,59 +80,64 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanGpe> id,
                                       @Nonnull final VxlanGpeBuilder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        final InterfaceKey key = id.firstKeyOf(Interface.class);
-        // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
-        // to fill in the context with initial ifc mapping
-        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        if (!InterfaceUtils.isInterfaceOfType(ctx.getModificationCache(), index, VxlanGpeTunnel.class)) {
-            return;
-        }
+        try {
+            final InterfaceKey key = id.firstKeyOf(Interface.class);
+            // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
+            // to fill in the context with initial ifc mapping
+            final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
+            if (!InterfaceUtils.isInterfaceOfType(ctx.getModificationCache(), index, VxlanGpeTunnel.class)) {
+                return;
+            }
 
-        LOG.debug("Reading attributes for VxlanGpe tunnel: {}", key.getName());
-        // Dump just a single
-        final VxlanGpeTunnelDump request = new VxlanGpeTunnelDump();
-        request.swIfIndex = index;
+            LOG.debug("Reading attributes for VxlanGpe tunnel: {}", key.getName());
+            // Dump just a single
+            final VxlanGpeTunnelDump request = new VxlanGpeTunnelDump();
+            request.swIfIndex = index;
 
-        final CompletionStage<VxlanGpeTunnelDetailsReplyDump> swInterfaceVxlanGpeDetailsReplyDumpCompletionStage =
-            getFutureJVpp().vxlanGpeTunnelDump(request);
-        final VxlanGpeTunnelDetailsReplyDump reply =
-            TranslateUtils.getReply(swInterfaceVxlanGpeDetailsReplyDumpCompletionStage.toCompletableFuture());
+            final CompletionStage<VxlanGpeTunnelDetailsReplyDump> swInterfaceVxlanGpeDetailsReplyDumpCompletionStage =
+                getFutureJVpp().vxlanGpeTunnelDump(request);
+            final VxlanGpeTunnelDetailsReplyDump reply =
+                TranslateUtils.getReply(swInterfaceVxlanGpeDetailsReplyDumpCompletionStage.toCompletableFuture());
 
-        // VPP keeps VxlanGpe tunnel interfaces even after they were deleted (optimization)
-        // However there are no longer any VxlanGpe tunnel specific fields assigned to it and this call
-        // returns nothing
-        if (reply == null || reply.vxlanGpeTunnelDetails == null || reply.vxlanGpeTunnelDetails.isEmpty()) {
-            LOG.debug(
-                "VxlanGpe tunnel {}, id {} has no attributes assigned in VPP. Probably is a leftover interface placeholder" +
-                    "after delete", key.getName(), index);
-            return;
-        }
+            // VPP keeps VxlanGpe tunnel interfaces even after they were deleted (optimization)
+            // However there are no longer any VxlanGpe tunnel specific fields assigned to it and this call
+            // returns nothing
+            if (reply == null || reply.vxlanGpeTunnelDetails == null || reply.vxlanGpeTunnelDetails.isEmpty()) {
+                LOG.debug(
+                    "VxlanGpe tunnel {}, id {} has no attributes assigned in VPP. Probably is a leftover interface placeholder" +
+                        "after delete", key.getName(), index);
+                return;
+            }
 
-        checkState(reply.vxlanGpeTunnelDetails.size() == 1,
-            "Unexpected number of returned VxlanGpe tunnels: {} for tunnel: {}", reply.vxlanGpeTunnelDetails, key.getName());
-        LOG.trace("VxlanGpe tunnel: {} attributes returned from VPP: {}", key.getName(), reply);
+            checkState(reply.vxlanGpeTunnelDetails.size() == 1,
+                "Unexpected number of returned VxlanGpe tunnels: {} for tunnel: {}", reply.vxlanGpeTunnelDetails, key.getName());
+            LOG.trace("VxlanGpe tunnel: {} attributes returned from VPP: {}", key.getName(), reply);
 
-        final VxlanGpeTunnelDetails swInterfaceVxlanGpeDetails = reply.vxlanGpeTunnelDetails.get(0);
-        if (swInterfaceVxlanGpeDetails.isIpv6 == 1) {
-            final Ipv6Address remote6 =
-                new Ipv6Address(parseAddress(swInterfaceVxlanGpeDetails.remote).getHostAddress());
-            builder.setRemote(new IpAddress(remote6));
-            final Ipv6Address local6 =
-                new Ipv6Address(parseAddress(swInterfaceVxlanGpeDetails.local).getHostAddress());
-            builder.setLocal(new IpAddress(local6));
-        } else {
-            final byte[] dstBytes = Arrays.copyOfRange(swInterfaceVxlanGpeDetails.remote, 0, 4);
-            final Ipv4Address remote4 = new Ipv4Address(parseAddress(dstBytes).getHostAddress());
-            builder.setRemote(new IpAddress(remote4));
-            final byte[] srcBytes = Arrays.copyOfRange(swInterfaceVxlanGpeDetails.local, 0, 4);
-            final Ipv4Address local4 = new Ipv4Address(parseAddress(srcBytes).getHostAddress());
-            builder.setLocal(new IpAddress(local4));
-        }
-        builder.setVni(new VxlanGpeVni((long) swInterfaceVxlanGpeDetails.vni));
+            final VxlanGpeTunnelDetails swInterfaceVxlanGpeDetails = reply.vxlanGpeTunnelDetails.get(0);
+            if (swInterfaceVxlanGpeDetails.isIpv6 == 1) {
+                final Ipv6Address remote6 =
+                    new Ipv6Address(parseAddress(swInterfaceVxlanGpeDetails.remote).getHostAddress());
+                builder.setRemote(new IpAddress(remote6));
+                final Ipv6Address local6 =
+                    new Ipv6Address(parseAddress(swInterfaceVxlanGpeDetails.local).getHostAddress());
+                builder.setLocal(new IpAddress(local6));
+            } else {
+                final byte[] dstBytes = Arrays.copyOfRange(swInterfaceVxlanGpeDetails.remote, 0, 4);
+                final Ipv4Address remote4 = new Ipv4Address(parseAddress(dstBytes).getHostAddress());
+                builder.setRemote(new IpAddress(remote4));
+                final byte[] srcBytes = Arrays.copyOfRange(swInterfaceVxlanGpeDetails.local, 0, 4);
+                final Ipv4Address local4 = new Ipv4Address(parseAddress(srcBytes).getHostAddress());
+                builder.setLocal(new IpAddress(local4));
+            }
+            builder.setVni(new VxlanGpeVni((long) swInterfaceVxlanGpeDetails.vni));
         builder.setNextProtocol(VxlanGpeNextProtocol.forValue(swInterfaceVxlanGpeDetails.protocol));
-        builder.setEncapVrfId((long) swInterfaceVxlanGpeDetails.encapVrfId);
-        builder.setDecapVrfId((long) swInterfaceVxlanGpeDetails.decapVrfId);
-        LOG.debug("VxlanGpe tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);
+            builder.setEncapVrfId((long) swInterfaceVxlanGpeDetails.encapVrfId);
+            builder.setDecapVrfId((long) swInterfaceVxlanGpeDetails.decapVrfId);
+            LOG.debug("VxlanGpe tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to readCurrentAttributes for: {}", id);
+            throw new ReadFailedException( id, e );
+        }
     }
 
     @Nonnull

@@ -19,9 +19,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -35,8 +33,8 @@ import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
+import io.fd.honeycomb.v3po.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
@@ -60,6 +58,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.VppInvocationException;
+import org.openvpp.jvpp.dto.VxlanAddDelTunnel;
+import org.openvpp.jvpp.dto.VxlanAddDelTunnelReply;
 import org.openvpp.jvpp.dto.VxlanGpeAddDelTunnel;
 import org.openvpp.jvpp.dto.VxlanGpeAddDelTunnelReply;
 import org.openvpp.jvpp.future.FutureJVpp;
@@ -98,25 +100,31 @@ public class VxlanGpeCustomizerTest {
                         .augmentation(VppInterfaceAugmentation.class).child(VxlanGpe.class);
     }
 
-    private void whenVxlanGpeAddDelTunnelThen(final int retval) throws ExecutionException, InterruptedException {
+    private void whenVxlanGpeAddDelTunnelThen() throws ExecutionException, InterruptedException, VppBaseCallException {
         final CompletionStage<VxlanGpeAddDelTunnelReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<VxlanGpeAddDelTunnelReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final VxlanGpeAddDelTunnelReply reply = new VxlanGpeAddDelTunnelReply();
-        reply.retval = retval;
         when(replyFuture.get()).thenReturn(reply);
         when(api.vxlanGpeAddDelTunnel(any(VxlanGpeAddDelTunnel.class))).thenReturn(replyCS);
     }
 
-    private void whenVxlanGpeAddDelTunnelThenSuccess() throws ExecutionException, InterruptedException {
-        whenVxlanGpeAddDelTunnelThen(0);
+    private void whenVxlanGpeAddDelTunnelThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
+        whenVxlanGpeAddDelTunnelThen();
     }
 
-    private void whenVxlanGpeAddDelTunnelThenFailure() throws ExecutionException, InterruptedException {
-        whenVxlanGpeAddDelTunnelThen(-1);
+    private void whenVxlanGpeAddDelTunnelThenFailure() throws ExecutionException, InterruptedException, VppBaseCallException {
+        whenVxlanGpeAddDelTunnelFailedThen(-1);
     }
 
-    private VxlanGpeAddDelTunnel verifyVxlanGpeAddDelTunnelWasInvoked(final VxlanGpe vxlanGpe) {
+    /**
+     * Failure response send
+     */
+    private void whenVxlanGpeAddDelTunnelFailedThen(final int retval) throws ExecutionException, InterruptedException, VppBaseCallException {
+        doReturn(TestHelperUtils.<VxlanAddDelTunnelReply>createFutureException(retval)).when(api).vxlanGpeAddDelTunnel(any(VxlanGpeAddDelTunnel.class));
+    }
+
+    private VxlanGpeAddDelTunnel verifyVxlanGpeAddDelTunnelWasInvoked(final VxlanGpe vxlanGpe) throws VppBaseCallException{
         ArgumentCaptor<VxlanGpeAddDelTunnel> argumentCaptor = ArgumentCaptor.forClass(VxlanGpeAddDelTunnel.class);
         verify(api).vxlanGpeAddDelTunnel(argumentCaptor.capture());
         final VxlanGpeAddDelTunnel actual = argumentCaptor.getValue();
@@ -129,12 +137,12 @@ public class VxlanGpeCustomizerTest {
         assertEquals(vxlanGpe.getDecapVrfId().intValue(), actual.decapVrfId);       
         return actual;
     }
-    private void verifyVxlanGpeAddWasInvoked(final VxlanGpe vxlanGpe) {
+    private void verifyVxlanGpeAddWasInvoked(final VxlanGpe vxlanGpe) throws VppBaseCallException{
         final VxlanGpeAddDelTunnel actual = verifyVxlanGpeAddDelTunnelWasInvoked(vxlanGpe);
         assertEquals(ADD_VXLAN_GPE, actual.isAdd);
     }
 
-    private void verifyVxlanGpeDeleteWasInvoked(final VxlanGpe vxlanGpe) {
+    private void verifyVxlanGpeDeleteWasInvoked(final VxlanGpe vxlanGpe) throws VppBaseCallException{
         final VxlanGpeAddDelTunnel actual = verifyVxlanGpeAddDelTunnelWasInvoked(vxlanGpe);
         assertEquals(DEL_VXLAN_GPE, actual.isAdd);
     }
@@ -195,7 +203,7 @@ public class VxlanGpeCustomizerTest {
         try {
             customizer.writeCurrentAttributes(id, vxlanGpe, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
-            assertEquals(VppApiInvocationException.class, e.getCause().getClass());
+            assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyVxlanGpeAddWasInvoked(vxlanGpe);
             // Mapping not stored due to failure
             verify(mappingContext, times(0)).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
@@ -237,7 +245,7 @@ public class VxlanGpeCustomizerTest {
         try {
             customizer.deleteCurrentAttributes(id, vxlanGpe, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
-            assertEquals(VppApiInvocationException.class, e.getCause().getClass());
+            assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyVxlanGpeDeleteWasInvoked(vxlanGpe);
             verify(mappingContext, times(0)).delete(eq(getMappingIid(ifaceName, "test-instance")));
             return;
