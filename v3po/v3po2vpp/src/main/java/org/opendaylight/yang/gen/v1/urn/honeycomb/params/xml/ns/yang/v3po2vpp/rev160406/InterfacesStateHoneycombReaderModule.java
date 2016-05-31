@@ -23,6 +23,7 @@ import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.TapCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VlanTagRewriteCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VxlanCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VxlanGpeCustomizer;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.attributes.VlanTagRewrite;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
@@ -79,6 +81,10 @@ public class InterfacesStateHoneycombReaderModule extends
                 new CompositeChildReader<>(Vxlan.class,
                         new VxlanCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
 
+        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> vxlanGpeReader =
+                new CompositeChildReader<>(VxlanGpe.class,
+                        new VxlanGpeCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
+
         final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> subInterfaceReader =
                 new CompositeChildReader<>(SubInterface.class,
                         new SubInterfaceCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
@@ -101,6 +107,7 @@ public class InterfacesStateHoneycombReaderModule extends
         childReaders.add(tapReader);
         childReaders.add(vhostUserReader);
         childReaders.add(vxlanReader);
+        childReaders.add(vxlanGpeReader);
         childReaders.add(subInterfaceReader);
         childReaders.add(l2Reader);
 

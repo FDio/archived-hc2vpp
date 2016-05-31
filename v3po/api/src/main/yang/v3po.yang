@@ -100,6 +100,26 @@ module v3po {
     }
   }
 
+  identity vxlan-gpe-tunnel {
+    base if:interface-type;
+  }
+
+  typedef vxlan-gpe-vni {
+    description "VNI used in a VXLAN-GPE tunnel";
+    type uint32 {
+      range "0..16777215";
+    }
+  }
+
+  typedef vxlan-gpe-next-protocol {
+    type enumeration {
+      enum ipv4;
+      enum ipv6;
+      enum ethernet;
+      enum nsh;
+    }
+  }
+
   grouping bridge-domain-attributes {
     leaf flood {
       type boolean;
@@ -261,6 +281,30 @@ module v3po {
     }
   }
 
+  grouping vxlan-gpe-base-attributes {
+    leaf local {
+      /*mandatory true;*/
+      type inet:ip-address;
+    }
+    leaf remote {
+      /*mandatory true;*/
+      type inet:ip-address;
+    }
+    leaf vni {
+      /*mandatory true;*/
+      type vxlan-gpe-vni;
+    }
+    leaf next-protocol {
+      type vxlan-gpe-next-protocol;
+    }
+    leaf encap-vrf-id {
+      type uint32;
+    }
+    leaf decap-vrf-id {
+      type uint32;
+    }
+  }
+
   grouping vlan-tag-rewrite-attributes {
     leaf rewrite-operation {
       type tag-rewrite-operation;
@@ -376,6 +420,12 @@ module v3po {
 
       uses l2-attributes;
     }
+
+    container vxlan-gpe {
+      when "../if:type = 'v3po:vxlan-gpe-tunnel'";
+
+      uses vxlan-gpe-base-attributes;
+    }
   }
 
   container vpp {
@@ -450,6 +500,11 @@ module v3po {
     container vxlan {
       when "../if:type = 'v3po:vxlan-tunnel'";
       uses vxlan-base-attributes;
+    }
+    container vxlan-gpe {
+      when "../if:type = 'v3po:vxlan-gpe-tunnel'";
+
+      uses vxlan-gpe-base-attributes;
     }
 
     container l2 {

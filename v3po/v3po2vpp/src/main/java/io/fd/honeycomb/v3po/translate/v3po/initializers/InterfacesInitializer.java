@@ -31,18 +31,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanVni;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.EthernetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.SubInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.TapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUserBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.attributes.VlanTagRewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.attributes.VlanTagRewriteBuilder;
@@ -97,6 +100,11 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
             final Vxlan vxlan = vppIfcAugmentation.getVxlan();
             if(vxlan != null) {
                 setVxlan(augmentBuilder, vxlan);
+            }
+
+            final VxlanGpe vxlanGpe = vppIfcAugmentation.getVxlanGpe();
+            if(vxlanGpe != null) {
+                setVxlanGpe(augmentBuilder, vxlanGpe);
             }
 
             final Tap tap = vppIfcAugmentation.getTap();
@@ -223,5 +231,16 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         vxlanBuilder.setEncapVrfId(vxlan.getEncapVrfId());
         vxlanBuilder.setVni(new VxlanVni(vxlan.getVni()));
         augmentBuilder.setVxlan(vxlanBuilder.build());
+    }
+
+    private static void setVxlanGpe(final VppInterfaceAugmentationBuilder augmentBuilder, final VxlanGpe vxlanGpe) {
+        final VxlanGpeBuilder vxlanGpeBuilder = new VxlanGpeBuilder();
+        vxlanGpeBuilder.setLocal(vxlanGpe.getLocal());
+        vxlanGpeBuilder.setRemote(vxlanGpe.getRemote());
+        vxlanGpeBuilder.setVni(new VxlanGpeVni(vxlanGpe.getVni()));
+        vxlanGpeBuilder.setNextProtocol(vxlanGpe.getNextProtocol());
+        vxlanGpeBuilder.setEncapVrfId(vxlanGpe.getEncapVrfId());
+        vxlanGpeBuilder.setDecapVrfId(vxlanGpe.getDecapVrfId());
+        augmentBuilder.setVxlanGpe(vxlanGpeBuilder.build());
     }
 }
