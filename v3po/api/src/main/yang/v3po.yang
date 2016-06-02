@@ -54,10 +54,6 @@ module v3po {
     base if:interface-type;
   }
 
-  identity sub-interface {
-    base if:interface-type;
-  }
-
   typedef vxlan-vni {
     // FIXME: should be in a vxlan-specific model
     description "VNI used in a VXLAN tunnel";

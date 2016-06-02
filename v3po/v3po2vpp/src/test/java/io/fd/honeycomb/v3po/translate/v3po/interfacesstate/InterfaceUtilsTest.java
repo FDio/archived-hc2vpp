@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
@@ -50,7 +49,7 @@ public class InterfaceUtilsTest {
         assertEquals(VxlanTunnel.class, InterfaceUtils.getInterfaceType("vxlan0"));
         assertEquals(VxlanGpeTunnel.class, InterfaceUtils.getInterfaceType("vxlanGpe0"));
         assertEquals(VhostUser.class, InterfaceUtils.getInterfaceType("VirtualEthernet0/0/0"));
-        assertEquals(SubInterface.class, InterfaceUtils.getInterfaceType("eth0.0"));
+        assertEquals(EthernetCsmacd.class, InterfaceUtils.getInterfaceType("eth0.0"));
         assertEquals(EthernetCsmacd.class, InterfaceUtils.getInterfaceType("local0"));
     }
 }
