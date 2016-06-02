@@ -16,8 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
-import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
+import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

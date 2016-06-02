@@ -16,8 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
-import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
+import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;

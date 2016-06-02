@@ -1,123 +1,145 @@
-// FIXME new vlan model
-///*
-// * Copyright (c) 2016 Cisco and/or its affiliates.
-// *
-// * Licensed under the Apache License, Version 2.0 (the "License");
-// * you may not use this file except in compliance with the License.
-// * You may obtain a copy of the License at:
-// *
-// *     http://www.apache.org/licenses/LICENSE-2.0
-// *
-// * Unless required by applicable law or agreed to in writing, software
-// * distributed under the License is distributed on an "AS IS" BASIS,
-// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// * See the License for the specific language governing permissions and
-// * limitations under the License.
-// */
-//
-//package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
-//
-//import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMapping;
-//import static io.fd.honeycomb.v3po.translate.v3po.ContextTestUtils.getMappingIid;
-//import static org.mockito.Matchers.any;
-//import static org.mockito.Matchers.anyString;
-//import static org.mockito.Mockito.doReturn;
-//import static org.mockito.Mockito.mock;
-//import static org.mockito.Mockito.never;
-//import static org.mockito.Mockito.verify;
-//
-//import com.google.common.base.Optional;
-//import com.google.common.collect.Lists;
-//import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-//import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
-//import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
-//import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.Map;
-//import org.junit.Test;
-//import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
-//import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
-//import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
-//import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
-//import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-//import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-//import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VlanType;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.SubInterface;
-//import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.SubInterfaceBuilder;
-//import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-//import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-//import org.openvpp.jvpp.dto.SwInterfaceDetails;
-//
-//public class SubInterfaceCustomizerTest extends ChildReaderCustomizerTest<SubInterface, SubInterfaceBuilder> {
-//
-//    private NamingContext interfacesContext;
-//
-//    public SubInterfaceCustomizerTest() {
-//        super(SubInterface.class);
-//    }
-//
-//    @Override
-//    protected ChildReaderCustomizer<SubInterface, SubInterfaceBuilder> initCustomizer() {
-//        return new SubInterfaceCustomizer(api, interfacesContext);
-//    }
-//
-//    @Override
-//    public void setUpBefore() {
-//        interfacesContext = new NamingContext("generatedIfaceName", "test-instance");
-//    }
-//
-//    private InstanceIdentifier<SubInterface> getSubInterfaceId(final String name) {
-//        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name)).augmentation(
-//                VppInterfaceStateAugmentation.class).child(
-//                SubInterface.class);
-//    }
-//
-//    @Test
-//    public void testMerge() {
-//        final VppInterfaceStateAugmentationBuilder builder = mock(VppInterfaceStateAugmentationBuilder.class);
-//        final SubInterface value = mock(SubInterface.class);
-//        getCustomizer().merge(builder, value);
-//        verify(builder).setSubInterface(value);
-//    }
-//
-//    @Test
-//    public void testRead() throws ReadFailedException {
-//        final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
-//        final int ifId = 1;
-//        final String ifName = "eth0.sub0";
-//
-//        final KeyedInstanceIdentifier<Mapping, MappingKey> ifcIid = getMappingIid(ifName, "test-instance");
-//        doReturn(getMapping(ifName, ifId)).when(mappingContext).read(ifcIid);
-//        final KeyedInstanceIdentifier<Mapping, MappingKey> superIfcIid = getMappingIid("super", "test-instance");
-//        doReturn(getMapping("super", 0)).when(mappingContext).read(superIfcIid);
-//
-//        final List<Mapping> allMappings = Lists.newArrayList(getMapping(ifName, ifId).get(), getMapping("super", 0).get());
-//        final Mappings allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
-//        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(ifcIid.firstIdentifierOf(Mappings.class));
-//
-//        final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
-//        ifaceDetails.subId = ifId;
-//        ifaceDetails.interfaceName = ifName.getBytes();
-//        ifaceDetails.subDot1Ad = 1;
-//        cachedInterfaceDump.put(ifId, ifaceDetails);
-//        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
-//
-//        final SubInterfaceBuilder builder = mock(SubInterfaceBuilder.class);
-//        getCustomizer().readCurrentAttributes(getSubInterfaceId(ifName), builder, ctx);
-//
-//        verify(builder).setIdentifier((long)ifId);
-//        verify(builder).setSuperInterface(anyString());
-//        verify(builder).setNumberOfTags((short)0);
-//        verify(builder).setVlanType(VlanType._802dot1ad);
-//        verify(builder, never()).setExactMatch(any());
-//        verify(builder, never()).setDefaultSubif(any());
-//        verify(builder, never()).setMatchAnyOuterId(any());
-//        verify(builder, never()).setMatchAnyInnerId(any());
-//        verify(builder, never()).setInnerId(any());
-//        verify(builder, never()).setOuterId(any());
-//    }
-//}
+/*
+ * Copyright (c) 2016 Cisco and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
+
+import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
+import static io.fd.honeycomb.v3po.translate.v3po.test.InterfaceTestUtils.whenSwInterfaceDumpThenReturn;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import com.google.common.base.Optional;
+import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
+import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceStateAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.SubInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.SubInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.VlanTagged;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Match;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.dto.SwInterfaceDetails;
+
+public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInterface, SubInterfaceKey, SubInterfaceBuilder> {
+
+    public static final String SUPER_IF_NAME = "local0";
+    public static final int SUPER_IF_INDEX = 1;
+    public static final String VLAN_IF_NAME = "local0.1";
+    public static final int VLAN_IF_ID = 1;
+    public static final int VLAN_IF_INDEX = 11;
+
+    private NamingContext interfacesContext;
+
+    public SubInterfaceCustomizerTest() {
+        super(SubInterface.class);
+    }
+
+    @Override
+    public void setUpBefore() {
+        interfacesContext = new NamingContext("generatedIfaceName", "test-instance");
+    }
+
+    @Override
+    protected RootReaderCustomizer<SubInterface, SubInterfaceBuilder> initCustomizer() {
+        return new SubInterfaceCustomizer(api, interfacesContext);
+    }
+
+    private InstanceIdentifier<SubInterface> getSubInterfaceId(final String name, final long id) {
+        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name)).augmentation(
+                SubinterfaceStateAugmentation.class).child(
+                SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(id));
+    }
+
+    @Test
+    public void testMerge() {
+        final SubInterfacesBuilder builder = mock(SubInterfacesBuilder.class);
+        final  List<SubInterface> value = mock(List.class);
+        getCustomizer().merge(builder, value);
+        verify(builder).setSubInterface(value);
+    }
+
+    @Test
+    public void testRead() throws ReadFailedException {
+        final Optional<Mapping> ifcMapping = getMapping(VLAN_IF_NAME, VLAN_IF_INDEX);
+        doReturn(ifcMapping).when(mappingContext).read(any());
+
+        final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
+
+        final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
+        ifaceDetails.subId = VLAN_IF_ID;
+        ifaceDetails.interfaceName = VLAN_IF_NAME.getBytes();
+        ifaceDetails.subDot1Ad = 1;
+        ifaceDetails.subNumberOfTags = 2;
+        ifaceDetails.subOuterVlanIdAny = 1;
+        ifaceDetails.subInnerVlanIdAny = 1;
+        ifaceDetails.subExactMatch = 1;
+        cachedInterfaceDump.put(VLAN_IF_INDEX, ifaceDetails);
+        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
+
+        final SubInterfaceBuilder builder = mock(SubInterfaceBuilder.class);
+        getCustomizer().readCurrentAttributes(getSubInterfaceId(VLAN_IF_NAME, VLAN_IF_ID), builder, ctx);
+
+        verify(builder).setIdentifier((long) VLAN_IF_ID);
+
+        ArgumentCaptor<Tags> tagCaptor = ArgumentCaptor.forClass(Tags.class);
+        verify(builder).setTags(tagCaptor.capture());
+        assertEquals(ifaceDetails.subNumberOfTags, tagCaptor.getValue().getTag().size());
+
+        ArgumentCaptor<Match> matchCaptor = ArgumentCaptor.forClass(Match.class);
+        verify(builder).setMatch(matchCaptor.capture());
+        final VlanTagged matchType = (VlanTagged)matchCaptor.getValue().getMatchType();
+        assertTrue(matchType.getVlanTagged().isMatchExactTags());
+    }
+
+    @Test
+    public void testGetAllIds() throws Exception {
+        final Optional<Mapping> ifcMapping = getMapping(SUPER_IF_NAME, SUPER_IF_INDEX);
+        doReturn(ifcMapping).when(mappingContext).read(any());
+
+        final SwInterfaceDetails iface = new SwInterfaceDetails();
+        iface.interfaceName = VLAN_IF_NAME.getBytes();
+        iface.swIfIndex = VLAN_IF_INDEX;
+        iface.subId = VLAN_IF_ID;
+        iface.supSwIfIndex = SUPER_IF_INDEX;
+        final List<SwInterfaceDetails> ifaces = Collections.singletonList(iface);
+        whenSwInterfaceDumpThenReturn(api, ifaces);
+
+        final List<SubInterfaceKey> allIds =
+                getCustomizer().getAllIds(getSubInterfaceId(VLAN_IF_NAME, VLAN_IF_ID), ctx);
+
+        assertEquals(ifaces.size(), allIds.size());
+
+    }
+}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.v3po;
+package io.fd.honeycomb.v3po.translate.v3po.test;
 
 import com.google.common.base.Optional;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
