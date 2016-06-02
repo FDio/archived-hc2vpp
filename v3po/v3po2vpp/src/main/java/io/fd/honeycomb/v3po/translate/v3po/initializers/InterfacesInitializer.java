@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.initializers;
 
+import static io.fd.honeycomb.v3po.translate.v3po.initializers.SubInterfaceInitializationUtils.initializeSubinterfaceStateAugmentation;
+
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.vpp.data.init.AbstractDataTreeConverter;
 import javax.annotation.Nonnull;
@@ -34,20 +36,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.EthernetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2Builder;
-// import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.SubInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.TapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUserBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
-// import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.l2.VlanTagRewriteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.L2;
-// import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
-// import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.l2.VlanTagRewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
@@ -89,10 +87,19 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         builder.setName(input.getName());
         builder.setType(input.getType());
         builder.setEnabled(AdminStatus.Up.equals(input.getAdminStatus()));
-        // builder.setLinkUpDownTrapEnable(); not present in interfaces-state
+        // builder.setLinkUpDownTrapEnable(); TODO not present in interfaces-state
 
+        initializeVppInterfaceStateAugmentation(input, builder);
+        initializeSubinterfaceStateAugmentation(input, builder);
+
+        return builder.build();
+    }
+
+    private static void initializeVppInterfaceStateAugmentation(
+            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface input,
+            final InterfaceBuilder builder) {
         final VppInterfaceStateAugmentation vppIfcAugmentation =
-            input.getAugmentation(VppInterfaceStateAugmentation.class);
+                input.getAugmentation(VppInterfaceStateAugmentation.class);
         if(vppIfcAugmentation != null) {
             final VppInterfaceAugmentationBuilder augmentBuilder = new VppInterfaceAugmentationBuilder();
             builder.setDescription(vppIfcAugmentation.getDescription());
@@ -122,12 +129,6 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
                 setL2(augmentBuilder, l2);
             }
 
-            // FIXME new vlan model
-//            final SubInterface subInterface = vppIfcAugmentation.getSubInterface();
-//            if(subInterface != null) {
-//                setSubinterface(augmentBuilder, subInterface);
-//            }
-
             final Ethernet ethernet = vppIfcAugmentation.getEthernet();
             if(ethernet != null) {
                 setEthernet(augmentBuilder, ethernet);
@@ -137,37 +138,7 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
 
             builder.addAugmentation(VppInterfaceAugmentation.class, augmentBuilder.build());
         }
-
-        return builder.build();
     }
-
-    // FIXME vlan new modele
-//    private static void setSubinterface(final VppInterfaceAugmentationBuilder augmentBuilder,
-//                                        final SubInterface subInterface) {
-//        final SubInterfaceBuilder subIfcBuilder = new SubInterfaceBuilder();
-//
-//        if(subInterface.isDefaultSubif() != null) {
-//            subIfcBuilder.setDefaultSubif(subInterface.isDefaultSubif());
-//        }
-//        if(subInterface.isExactMatch() != null) {
-//            subIfcBuilder.setExactMatch(subInterface.isExactMatch());
-//        }
-//        if(subInterface.isMatchAnyInnerId() != null) {
-//            subIfcBuilder.setMatchAnyInnerId(subInterface.isMatchAnyInnerId());
-//        }
-//        if(subInterface.isMatchAnyOuterId() != null) {
-//            subIfcBuilder.setMatchAnyOuterId(subInterface.isMatchAnyOuterId());
-//        }
-//
-//        subIfcBuilder.setIdentifier(subInterface.getIdentifier());
-//        subIfcBuilder.setInnerId(subInterface.getInnerId());
-//        subIfcBuilder.setNumberOfTags(subInterface.getNumberOfTags());
-//        subIfcBuilder.setOuterId(subInterface.getOuterId());
-//        subIfcBuilder.setSuperInterface(subInterface.getSuperInterface());
-//        subIfcBuilder.setVlanType(subInterface.getVlanType());
-//
-//        augmentBuilder.setSubInterface(subIfcBuilder.build());
-//    }
 
     private static void setEthernet(final VppInterfaceAugmentationBuilder augmentBuilder, final Ethernet ethernet) {
         final EthernetBuilder ethernetBuilder = new EthernetBuilder();
@@ -194,17 +165,6 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
                 l2Builder.setInterconnection(bridgeBasedBuilder.build());
             }
         }
-
-        // FIXME new vlan model
-//        final VlanTagRewrite vlanTagRewrite = l2.getVlanTagRewrite();
-//        if(vlanTagRewrite != null) {
-//            final VlanTagRewriteBuilder vlanTagRewriteBuilder = new VlanTagRewriteBuilder();
-//            vlanTagRewriteBuilder.setFirstPushed(vlanTagRewrite.getFirstPushed());
-//            vlanTagRewriteBuilder.setRewriteOperation(vlanTagRewrite.getRewriteOperation());
-//            vlanTagRewriteBuilder.setTag1(vlanTagRewrite.getTag1());
-//            vlanTagRewriteBuilder.setTag2(vlanTagRewrite.getTag2());
-//            l2Builder.setVlanTagRewrite(vlanTagRewriteBuilder.build());
-//        }
 
         augmentBuilder.setL2(l2Builder.build());
     }

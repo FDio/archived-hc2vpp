@@ -21,13 +21,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import io.fd.honeycomb.v3po.translate.SubtreeManager;
 import io.fd.honeycomb.v3po.translate.read.ChildReader;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
-import io.fd.honeycomb.v3po.translate.SubtreeManager;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
@@ -39,6 +41,21 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class RWUtils {
 
     private RWUtils() {}
+
+    /**
+     * Collector expecting only a single resulting item from a stream
+     */
+    public static<T> Collector<T,?,T> singleItemCollector() {
+        return Collectors.collectingAndThen(
+                Collectors.toList(),
+                list -> {
+                    if (list.size() != 1) {
+                        throw new IllegalStateException("Unexpected size of list: " + list + ". Single item expected");
+                    }
+                    return list.get(0);
+                }
+        );
+    }
 
     /**
      * Find next item in ID after provided type

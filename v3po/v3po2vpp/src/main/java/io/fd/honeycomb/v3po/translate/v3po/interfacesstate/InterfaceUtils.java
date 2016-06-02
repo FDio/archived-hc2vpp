@@ -19,14 +19,15 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
@@ -58,6 +59,9 @@ public final class InterfaceUtils {
     private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
     private static final int PHYSICAL_ADDRESS_LENGTH = 6;
+
+    private static final Collector<SwInterfaceDetails, ?, SwInterfaceDetails> SINGLE_ITEM_COLLECTOR =
+            RWUtils.singleItemCollector();
 
     private InterfaceUtils() {
         throw new UnsupportedOperationException("This utility class cannot be instantiated");
@@ -147,11 +151,11 @@ public final class InterfaceUtils {
     /**
      * Queries VPP for interface description given interface key.
      *
-     * @param futureJvpp    VPP Java Future API
-     * @param name          interface name
-     * @param index         VPP index of the interface
-     * @param ctx           per-tx scope context containing cached dump with all the interfaces. If the cache is not
-     *                      available or outdated, another dump will be performed.
+     * @param futureJvpp VPP Java Future API
+     * @param name       interface name
+     * @param index      VPP index of the interface
+     * @param ctx        per-tx scope context containing cached dump with all the interfaces. If the cache is not
+     *                   available or outdated, another dump will be performed.
      * @return SwInterfaceDetails DTO or null if interface was not found
      * @throws IllegalArgumentException If interface cannot be found
      */
@@ -198,13 +202,8 @@ public final class InterfaceUtils {
         }
 
         // SwInterfaceDump's name filter does prefix match, so we need additional filtering:
-        final SwInterfaceDetails iface = ifaces.swInterfaceDetails.stream().filter(d -> d.swIfIndex == index).collect(
-                Collectors.collectingAndThen(toList(), l -> {
-                    if (l.size() == 1) {
-                        return l.get(0);
-                    }
-                    throw new RuntimeException();
-                }));
+        final SwInterfaceDetails iface =
+                ifaces.swInterfaceDetails.stream().filter(d -> d.swIfIndex == index).collect(SINGLE_ITEM_COLLECTOR);
         allInterfaces.put(index, iface); // update the cache
         return iface;
     }

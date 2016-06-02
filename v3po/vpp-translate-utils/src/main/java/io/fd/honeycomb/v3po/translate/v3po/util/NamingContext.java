@@ -21,8 +21,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.MappingContext;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContextKey;
@@ -47,17 +47,7 @@ public final class NamingContext implements AutoCloseable {
     private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContext, NamingContextKey>
         namingContextIid;
 
-    /**
-     * Collector expecting only a single resulting item from a stream
-     */
-    private static final Collector<Mapping, ?, Mapping> SINGLE_ITEM_COLLECTOR = Collectors.collectingAndThen(
-        Collectors.toList(),
-        list -> {
-            if (list.size() != 1) {
-                throw new IllegalStateException("Unexpected size of list: " + list + ". Single item expected");
-            }
-            return list.get(0);
-        });
+    private static final Collector<Mapping, ?, Mapping> SINGLE_ITEM_COLLECTOR = RWUtils.singleItemCollector();
 
     /**
      * Create new naming context
