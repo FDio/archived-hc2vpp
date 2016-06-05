@@ -63,7 +63,7 @@ module vpp-classifier {
       "Defines classify session attributes that are mapped to classify_add_del_session
        and classify_session_details messages parameters.";
 
-    leaf hit_next_index {
+    leaf hit_next {
       type vpp-node;
       mandatory true;
       description
@@ -110,7 +110,7 @@ module vpp-classifier {
       description
         "Reference to the next classify table. Required when multiple table chaining is used.";
     }
-    leaf miss_next_index {
+    leaf miss_next {
       mandatory true;
       type vpp-node;
       description
@@ -124,7 +124,6 @@ module vpp-classifier {
     }
     leaf active_sessions {
       type uint32;
-      mandatory true;
       config false;
       description
         "Number of sessions defined for the classify table.";

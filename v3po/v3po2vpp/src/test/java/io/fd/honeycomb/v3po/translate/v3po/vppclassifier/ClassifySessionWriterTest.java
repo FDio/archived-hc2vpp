@@ -86,7 +86,7 @@ public class ClassifySessionWriterTest {
     private static ClassifySession generateClassifySession(final long opaqueIndex, final String match) {
         final ClassifySessionBuilder builder = new ClassifySessionBuilder();
         builder.setOpaqueIndex(new OpaqueIndex(opaqueIndex));
-        builder.setHitNextIndex(new VppNode(PacketHandlingAction.Deny));
+        builder.setHitNext(new VppNode(PacketHandlingAction.Deny));
         builder.setAdvance(123);
         builder.setMatch(new HexString(match));
         return builder.build();

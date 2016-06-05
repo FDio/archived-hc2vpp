@@ -102,7 +102,7 @@ public class ClassifySessionReader extends FutureJVppCustomizer
 
         if (classifySession.isPresent()) {
             final ClassifySessionDetails detail = classifySession.get();
-            builder.setHitNextIndex(readVppNode(detail.hitNextIndex, LOG));
+            builder.setHitNext(readVppNode(detail.hitNextIndex, LOG));
             if (detail.opaqueIndex != ~0) {
                 // value is specified:
                 builder.setOpaqueIndex(readOpaqueIndex(detail.opaqueIndex));

@@ -25,6 +25,7 @@ import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.util.read.ReflexiveAugmentReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.util.read.ReflexiveChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.RewriteCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.SubInterfaceL2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip.SubInterfaceIpv4AddressCustomizer;
@@ -39,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.Ipv4;
@@ -76,15 +78,25 @@ final class SubinterfaceStateAugmentationReaderFactory {
 
     }
 
+    private static ChildReader<Acl> getAclReader(@Nonnull final FutureJVpp futureJvpp,
+                                                 @Nonnull final NamingContext interfaceContext,
+                                                 @Nonnull final NamingContext classifyTableContext) {
+        return new CompositeChildReader<>(Acl.class,
+            new SubInterfaceAclCustomizer(futureJvpp, interfaceContext, classifyTableContext));
+
+    }
+
     static ChildReader<SubinterfaceStateAugmentation> createInstance(
         @Nonnull final FutureJVpp futureJvpp, @Nonnull final NamingContext interfaceContext,
-        @Nonnull final NamingContext bridgeDomainContext) {
+        @Nonnull final NamingContext bridgeDomainContext,
+        @Nonnull final NamingContext classifyTableContext) {
 
         List<ChildReader<? extends ChildOf<SubInterface>>> childReaders = new ArrayList<>();
 
         // TODO can get rid of that cast?
         childReaders.add((ChildReader) getL2Reader(futureJvpp, interfaceContext, bridgeDomainContext));
         childReaders.add((ChildReader) getIpv4Reader(futureJvpp, interfaceContext));
+        childReaders.add((ChildReader) getAclReader(futureJvpp, interfaceContext, classifyTableContext));
 
         final CompositeListReader<SubInterface, SubInterfaceKey, SubInterfaceBuilder> subInterfaceReader =
             new CompositeListReader<>(SubInterface.class, childReaders, new SubInterfaceCustomizer(futureJvpp,

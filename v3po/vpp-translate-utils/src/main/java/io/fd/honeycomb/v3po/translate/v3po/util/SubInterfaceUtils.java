@@ -21,35 +21,6 @@ public final class SubInterfaceUtils {
     private SubInterfaceUtils() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated.");
     }
-//
-//    @Nullable
-//    private static String getCfgIfaceName(@Nonnull final InstanceIdentifier<?> id) {
-//        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey key = id.firstKeyOf(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class);
-//        if (key == null) {
-//            return null;
-//        } else {
-//            return key.getName();
-//        }
-//    }
-//
-//    @Nullable
-//    private static String getOperIfaceName(@Nonnull final InstanceIdentifier<?> id) {
-//        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey key = id.firstKeyOf(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class);
-//        if (key == null) {
-//            return null;
-//        } else {
-//            return key.getName();
-//        }
-//    }
-//
-//    @Nullable
-//    public static String getSubInterfaceName(@Nonnull final InstanceIdentifier<?> id) {
-//        String ifaceName = getCfgIfaceName(id);
-//        if (ifaceName == null) {
-//            ifaceName = getOperIfaceName(id);
-//        }
-//        if (i)
-//    }
 
     public static String getSubInterfaceName(final String superIfName, final int subIfaceId) {
         return String.format("%s.%d", superIfName, subIfaceId);

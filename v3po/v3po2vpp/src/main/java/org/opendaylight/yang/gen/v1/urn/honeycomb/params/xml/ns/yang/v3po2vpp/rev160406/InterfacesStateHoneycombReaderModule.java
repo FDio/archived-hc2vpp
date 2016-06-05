@@ -14,6 +14,7 @@ import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.util.read.CloseableReader;
 import io.fd.honeycomb.v3po.translate.util.read.ReflexiveAugmentReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.util.read.ReflexiveRootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.AclCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.L2Customizer;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
@@ -74,7 +76,9 @@ public class InterfacesStateHoneycombReaderModule extends
                 interfaceAugReaders = new ArrayList<>();
         interfaceAugReaders.add(getVppInterfaceStateAugmentationReader());
         interfaceAugReaders.add(getInterface1AugmentationReader());
-        interfaceAugReaders.add(SubinterfaceStateAugmentationReaderFactory.createInstance(getVppJvppDependency(), getInterfaceContextIfcStateDependency(), getBridgeDomainContextIfcStateDependency()));
+        interfaceAugReaders.add(SubinterfaceStateAugmentationReaderFactory.createInstance(getVppJvppDependency(),
+            getInterfaceContextIfcStateDependency(), getBridgeDomainContextIfcStateDependency(),
+            getClassifyTableContextDependency()));
 
         final CompositeListReader<Interface, InterfaceKey, InterfaceBuilder> interfaceReader =
                 new CompositeListReader<>(Interface.class,
@@ -134,6 +138,10 @@ public class InterfacesStateHoneycombReaderModule extends
                 new CompositeChildReader<>(VxlanGpe.class,
                         new VxlanGpeCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
 
+        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> aclReader =
+                new CompositeChildReader<>(Acl.class,
+                        new AclCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency(), getClassifyTableContextDependency()));
+
         final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> l2Reader =
                 new CompositeChildReader<>(L2.class,
                         new L2Customizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency(), getBridgeDomainContextIfcStateDependency()));
@@ -145,6 +153,7 @@ public class InterfacesStateHoneycombReaderModule extends
         childReaders.add(vxlanReader);
         childReaders.add(vxlanGpeReader);
         childReaders.add(l2Reader);
+        childReaders.add(aclReader);
 
         final ChildReader<VppInterfaceStateAugmentation> vppInterfaceStateAugmentationChildReader =
                 new CompositeChildReader<>(VppInterfaceStateAugmentation.class,

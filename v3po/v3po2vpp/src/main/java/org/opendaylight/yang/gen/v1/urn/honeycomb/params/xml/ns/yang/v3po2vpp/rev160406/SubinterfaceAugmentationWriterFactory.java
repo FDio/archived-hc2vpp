@@ -16,10 +16,14 @@
 
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
+import static org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppClassifierHoneycombWriterModule.CLASSIFY_SESSION_ID;
+import static org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppClassifierHoneycombWriterModule.CLASSIFY_TABLE_ID;
+
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.v3po.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.RewriteCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceL2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
@@ -27,10 +31,14 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterFactory;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip6Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.vlan.tagged.VlanTagged;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
@@ -47,18 +55,22 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
     private final FutureJVpp jvpp;
     private final NamingContext ifcContext;
     private final NamingContext bdContext;
+    private final NamingContext classifyTableContext;
+
     public static final InstanceIdentifier<SubinterfaceAugmentation> SUB_IFC_AUG_ID =
             InterfacesHoneycombWriterModule.IFC_ID.augmentation(SubinterfaceAugmentation.class);
     public static final InstanceIdentifier<SubInterface> SUB_IFC_ID =
             SUB_IFC_AUG_ID.child(SubInterfaces.class).child(SubInterface.class);
     public static final InstanceIdentifier<L2> L2_ID = SUB_IFC_ID.child(
             L2.class);
+    public static final InstanceIdentifier<Acl> SUBIF_ACL_ID = SUB_IFC_ID.child(Acl.class);
 
     public SubinterfaceAugmentationWriterFactory(final FutureJVpp jvpp,
-            final NamingContext ifcContext, final NamingContext bdContext) {
+            final NamingContext ifcContext, final NamingContext bdContext, final NamingContext classifyTableContext) {
         this.jvpp = jvpp;
         this.ifcContext = ifcContext;
         this.bdContext = bdContext;
+        this.classifyTableContext = classifyTableContext;
     }
 
     @Override
@@ -93,6 +105,16 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
         registry.addWriterAfter(new GenericListWriter<>(ipv4SubifcAddressId,
                 new SubInterfaceIpv4AddressCustomizer(jvpp, ifcContext)),
                 rewriteId);
+
+        // ACL (execute after classify table and session writers)
+        // also handles L2Acl, Ip4Acl and Ip6Acl:
+        final InstanceIdentifier<Acl> aclId = InstanceIdentifier.create(Acl.class);
+        registry
+            .addSubtreeWriterAfter(
+                Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
+                new GenericWriter<>(SUBIF_ACL_ID, new SubInterfaceAclCustomizer(jvpp, ifcContext, classifyTableContext)),
+                Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID)
+            );
 
     }
 }

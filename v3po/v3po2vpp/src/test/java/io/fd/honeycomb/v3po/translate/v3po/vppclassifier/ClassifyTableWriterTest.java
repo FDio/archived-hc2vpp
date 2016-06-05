@@ -27,7 +27,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
@@ -87,7 +86,7 @@ public class ClassifyTableWriterTest {
         builder.setSkipNVectors(0L);
         builder.setNbuckets(2L);
         builder.setMemorySize(2L << 20);
-        builder.setMissNextIndex(new VppNode(PacketHandlingAction.Permit));
+        builder.setMissNext(new VppNode(PacketHandlingAction.Permit));
         builder.setMask(new HexString("00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00"));
         return builder.build();
     }
@@ -220,12 +219,10 @@ public class ClassifyTableWriterTest {
         customizer.deleteCurrentAttributes(id, classifyTable, writeContext);
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws Exception {
         final ClassifyTable classifyTableBefore = generateClassifyTable(TABLE_NAME);
         final InstanceIdentifier<ClassifyTable> id = getClassifyTableId(TABLE_NAME);
         customizer.updateCurrentAttributes(id, classifyTableBefore, new ClassifyTableBuilder().build(), writeContext);
-
-        verifyZeroInteractions(api);
     }
 }

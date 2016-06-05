@@ -1,5 +1,7 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
+import static org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.InterfacesHoneycombWriterModule.ACL_ID;
+
 import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.vppclassifier.ClassifySessionWriter;
@@ -66,8 +68,9 @@ public class VppClassifierHoneycombWriterModule extends
         @Override
         public void init(final ModifiableWriterRegistry registry) {
 
-            registry.addWriter(
-                new GenericListWriter<>(CLASSIFY_TABLE_ID, new ClassifyTableWriter(jvpp, classifyTableContext)));
+            registry.addWriterBefore(
+                new GenericListWriter<>(CLASSIFY_TABLE_ID, new ClassifyTableWriter(jvpp, classifyTableContext)),
+                ACL_ID);
 
             registry.addWriterAfter(
                 new GenericListWriter<>(CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext)),

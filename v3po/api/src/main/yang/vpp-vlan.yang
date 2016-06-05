@@ -158,6 +158,10 @@ module vpp-vlan {
         uses tag-rewrite;
       }
     }
+
+    container acl {
+      uses v3po:acl-base-attributes;
+    }
   }
 
   grouping sub-interface-config-attributes {

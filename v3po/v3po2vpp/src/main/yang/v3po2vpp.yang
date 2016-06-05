@@ -143,6 +143,15 @@ module v3po2vpp {
                 }
             }
 
+            container classify-table-context {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
+
         }
     }
 
@@ -242,6 +251,15 @@ module v3po2vpp {
             }
 
             container bridge-domain-context {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
+
+            container classify-table-context {
                 uses config:service-ref {
                     refine type {
                         mandatory true;

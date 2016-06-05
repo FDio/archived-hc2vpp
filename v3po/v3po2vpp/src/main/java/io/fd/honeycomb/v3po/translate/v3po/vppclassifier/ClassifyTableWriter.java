@@ -90,8 +90,7 @@ public class ClassifyTableWriter extends FutureJVppCustomizer
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<ClassifyTable> id,
                                         @Nonnull final ClassifyTable dataBefore, @Nonnull final ClassifyTable dataAfter,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        LOG.warn("ClassifyTable update is not supported, ignoring configuration {}", dataAfter);
-        // TODO if only leaves were updated (but not child/aug nodes), we should throw exception to deny config change
+        throw new UnsupportedOperationException("Classify table update is not supported");
     }
 
     @Override
@@ -141,10 +140,10 @@ public class ClassifyTableWriter extends FutureJVppCustomizer
 
         // mandatory
         // TODO implement node name to index conversion after https://jira.fd.io/browse/VPP-203 is fixed
-        request.missNextIndex = table.getMissNextIndex().getPacketHandlingAction().getIntValue();
+        request.missNextIndex = table.getMissNext().getPacketHandlingAction().getIntValue();
 
         final String nextTable = table.getNextTable();
-        if (nextTable != null) {
+        if (isAdd && nextTable != null) {
             request.nextTableIndex = classifyTableContext.getIndex(nextTable, ctx);
         } else {
             request.nextTableIndex = ~0; // value not specified

@@ -115,6 +115,10 @@
                         <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
                         <name>bridge-domain-context</name>
                     </bridge-domain-context-ifc-state>
+                    <classify-table-context>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>classify-table-context</name>
+                    </classify-table-context>
                 </module>
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-classifier-honeycomb-reader</type>
@@ -161,6 +165,10 @@
                         <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
                         <name>bridge-domain-context</name>
                     </bridge-domain-context>
+                    <classify-table-context>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>classify-table-context</name>
+                    </classify-table-context>
                 </module>
 
                 <module>

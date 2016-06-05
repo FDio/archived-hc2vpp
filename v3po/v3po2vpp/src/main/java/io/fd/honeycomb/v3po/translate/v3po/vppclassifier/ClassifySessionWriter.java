@@ -131,7 +131,7 @@ public class ClassifySessionWriter extends FutureJVppCustomizer
 
         // mandatory:
         // TODO implement node name to index conversion after https://jira.fd.io/browse/VPP-203 is fixed
-        request.hitNextIndex = classifySession.getHitNextIndex().getPacketHandlingAction().getIntValue();
+        request.hitNextIndex = classifySession.getHitNext().getPacketHandlingAction().getIntValue();
 
         if (classifySession.getOpaqueIndex() != null) {
             request.opaqueIndex = getOpaqueIndexValue(classifySession.getOpaqueIndex());

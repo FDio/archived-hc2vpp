@@ -111,7 +111,7 @@ public class ClassifyTableReaderTest extends
         verify(builder).setName(TABLE_NAME_1);
         verify(builder).setNbuckets(2L);
         verify(builder, times(0)).setNextTable(anyString());
-        verify(builder).setMissNextIndex(new VppNode(PacketHandlingAction.Permit));
+        verify(builder).setMissNext(new VppNode(PacketHandlingAction.Permit));
         verify(builder).setMask(new HexString("00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00"));
         verify(builder).setActiveSessions(0L);
     }

@@ -106,7 +106,7 @@ public class ClassifyTableReader extends FutureJVppCustomizer
             builder.setSkipNVectors(UnsignedInts.toLong(reply.skipNVectors));
 
 
-            builder.setMissNextIndex(readVppNode(reply.missNextIndex, LOG));
+            builder.setMissNext(readVppNode(reply.missNextIndex, LOG));
             builder.setMask(new HexString(printHexBinary(reply.mask)));
             builder.setActiveSessions(UnsignedInts.toLong(reply.activeSessions));
 
