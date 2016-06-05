@@ -19,12 +19,13 @@ package io.fd.honeycomb.v3po.translate.v3po.vpp;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.VppApiInvocationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
@@ -57,9 +58,9 @@ public class BridgeDomainCustomizer
 
     @Nonnull
     @Override
-    public List<BridgeDomain> extract(@Nonnull final InstanceIdentifier<BridgeDomain> currentId,
+    public Optional<List<BridgeDomain>> extract(@Nonnull final InstanceIdentifier<BridgeDomain> currentId,
                                       @Nonnull final DataObject parentData) {
-        return ((BridgeDomains) parentData).getBridgeDomain();
+        return Optional.fromNullable(((BridgeDomains) parentData).getBridgeDomain());
     }
 
     private BridgeDomainAddDelReply addOrUpdateBridgeDomain(final int bdId, @Nonnull final BridgeDomain bd)

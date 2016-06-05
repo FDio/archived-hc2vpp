@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
 import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -74,9 +75,9 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
 
     @Nonnull
     @Override
-    public List<SubInterface> extract(@Nonnull final InstanceIdentifier<SubInterface> currentId,
+    public Optional<List<SubInterface>> extract(@Nonnull final InstanceIdentifier<SubInterface> currentId,
                                       @Nonnull final DataObject parentData) {
-        return ((SubInterfaces) parentData).getSubInterface();
+        return Optional.fromNullable(((SubInterfaces) parentData).getSubInterface());
     }
 
 

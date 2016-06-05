@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.translate.spi.write;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Optional;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -41,6 +42,7 @@ public interface ListWriterCustomizer<C extends DataObject & Identifiable<K>, K 
      * @param parentData Parent data object from which managed data object must be extracted
      */
     @Nonnull
-    List<C> extract(@Nonnull final InstanceIdentifier<C> currentId, @Nonnull final DataObject parentData);
+    Optional<List<C>> extract(@Nonnull final InstanceIdentifier<C> currentId, @Nonnull final DataObject parentData);
+    // TODO consider removing Optional and make extract return @Nullable (applies also to ChildWriterCustomizer)
 
 }

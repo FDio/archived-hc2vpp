@@ -17,15 +17,16 @@
 package io.fd.honeycomb.v3po.translate.impl.write;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.v3po.translate.impl.TraversalType;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -40,7 +41,7 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
     AbstractCompositeWriter<D>
     implements ChildWriter<D> {
 
-    public static final Function<DataObject, Object> INDEX_FUNCTION = input -> input instanceof Identifiable<?>
+    private static final Function<DataObject, Object> INDEX_FUNCTION = input -> input instanceof Identifiable<?>
         ? ((Identifiable<?>) input).getKey()
         : input;
 
@@ -99,9 +100,11 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
                            @Nonnull final DataObject parentData,
                            @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
-        final List<D> currentData = customizer.extract(currentId, parentData);
-        for (D entry : currentData) {
-            writeCurrent(currentId, entry, ctx);
+        final Optional<List<D>> currentData = customizer.extract(currentId, parentData);
+        if (currentData.isPresent()) {
+            for (D entry : currentData.get()) {
+                writeCurrent(currentId, entry, ctx);
+            }
         }
     }
 
@@ -110,10 +113,21 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
                             @Nonnull final DataObject parentDataBefore,
                             @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
-        final List<D> dataBefore = customizer.extract(currentId, parentDataBefore);
-        for (D entry : dataBefore) {
-            deleteCurrent(currentId, entry, ctx);
+        final Optional<List<D>> dataBefore = customizer.extract(currentId, parentDataBefore);
+        if (dataBefore.isPresent()) {
+            for (D entry : dataBefore.get()) {
+                deleteCurrent(currentId, entry, ctx);
+            }
         }
+    }
+
+    private Map<Object, D> listOfIdentifiableToMap(Optional<List<D>> list) {
+        if (list.isPresent()) {
+            return Maps.uniqueIndex(list.get(), INDEX_FUNCTION);
+        } else {
+            return Collections.emptyMap();
+        }
+
     }
 
     @Override
@@ -121,10 +135,8 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
                             @Nonnull final DataObject parentDataBefore, @Nonnull final DataObject parentDataAfter,
                             @Nonnull final WriteContext ctx) throws WriteFailedException {
         final InstanceIdentifier<D> currentId = RWUtils.appendTypeToId(parentId, getManagedDataObjectType());
-        final ImmutableMap<Object, D>
-            dataBefore = Maps.uniqueIndex(customizer.extract(currentId, parentDataBefore), INDEX_FUNCTION);
-        final ImmutableMap<Object, D>
-            dataAfter = Maps.uniqueIndex(customizer.extract(currentId, parentDataAfter), INDEX_FUNCTION);
+        final Map<Object, D> dataBefore = listOfIdentifiableToMap(customizer.extract(currentId, parentDataBefore));
+        final Map<Object, D> dataAfter = listOfIdentifiableToMap(customizer.extract(currentId, parentDataAfter));
 
         for (Map.Entry<Object, D> after : dataAfter.entrySet()) {
             final D before = dataBefore.get(after.getKey());

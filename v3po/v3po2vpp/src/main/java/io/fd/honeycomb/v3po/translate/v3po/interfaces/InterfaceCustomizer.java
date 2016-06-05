@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -89,9 +90,9 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
 
     @Nonnull
     @Override
-    public List<Interface> extract(@Nonnull final InstanceIdentifier<Interface> currentId,
+    public Optional<List<Interface>> extract(@Nonnull final InstanceIdentifier<Interface> currentId,
                                    @Nonnull final DataObject parentData) {
-        return ((Interfaces) parentData).getInterface();
+        return Optional.fromNullable(((Interfaces) parentData).getInterface());
     }
 
 
