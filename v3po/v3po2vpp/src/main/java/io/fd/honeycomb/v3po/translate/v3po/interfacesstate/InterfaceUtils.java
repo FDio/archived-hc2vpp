@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
 import org.openvpp.jvpp.dto.SwInterfaceDump;
@@ -208,6 +209,10 @@ public final class InterfaceUtils {
     public static Class<? extends InterfaceType> getInterfaceType(@Nonnull final String interfaceName) {
         if (interfaceName.startsWith("tap")) {
             return Tap.class;
+        }
+
+        if (interfaceName.startsWith("vxlanGpe")) {
+            return VxlanGpeTunnel.class;
         }
 
         if (interfaceName.startsWith("vxlan")) {

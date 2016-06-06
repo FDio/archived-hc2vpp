@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeVni;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeNextProtocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -125,6 +126,7 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
             builder.setLocal(new IpAddress(local4));
         }
         builder.setVni(new VxlanGpeVni((long) swInterfaceVxlanGpeDetails.vni));
+        builder.setNextProtocol(VxlanGpeNextProtocol.forValue(swInterfaceVxlanGpeDetails.protocol));
         builder.setEncapVrfId((long) swInterfaceVxlanGpeDetails.encapVrfId);
         builder.setDecapVrfId((long) swInterfaceVxlanGpeDetails.decapVrfId);
         LOG.debug("VxlanGpe tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);

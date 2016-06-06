@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 
 public class InterfaceUtilsTest {
 
@@ -47,6 +48,7 @@ public class InterfaceUtilsTest {
     public void testGetInterfaceType() {
         assertEquals(Tap.class, InterfaceUtils.getInterfaceType("tap0"));
         assertEquals(VxlanTunnel.class, InterfaceUtils.getInterfaceType("vxlan0"));
+        assertEquals(VxlanGpeTunnel.class, InterfaceUtils.getInterfaceType("vxlanGpe0"));
         assertEquals(VhostUser.class, InterfaceUtils.getInterfaceType("VirtualEthernet0/0/0"));
         assertEquals(SubInterface.class, InterfaceUtils.getInterfaceType("eth0.0"));
         assertEquals(EthernetCsmacd.class, InterfaceUtils.getInterfaceType("local0"));
