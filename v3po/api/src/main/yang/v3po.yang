@@ -342,8 +342,6 @@ module v3po {
     container bridge-domains {
       list bridge-domain {
         key "name";
-        // TODO: where does this come from?
-        max-elements 1024;
 
         leaf name {
           type string;
