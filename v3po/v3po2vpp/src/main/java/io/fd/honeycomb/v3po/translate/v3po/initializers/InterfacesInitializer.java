@@ -18,8 +18,11 @@ package io.fd.honeycomb.v3po.translate.v3po.initializers;
 
 import static io.fd.honeycomb.v3po.translate.v3po.initializers.SubInterfaceInitializationUtils.initializeSubinterfaceStateAugmentation;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.vpp.data.init.AbstractDataTreeConverter;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -29,11 +32,19 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.Subnet;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeVni;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.EthernetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.TapBuilder;
@@ -91,6 +102,7 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
 
         initializeVppInterfaceStateAugmentation(input, builder);
         initializeSubinterfaceStateAugmentation(input, builder);
+        initializeIetfIpAugmentation(input, builder);
 
         return builder.build();
     }
@@ -138,6 +150,44 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
 
             builder.addAugmentation(VppInterfaceAugmentation.class, augmentBuilder.build());
         }
+    }
+
+    private static void initializeIetfIpAugmentation(
+            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface input,
+            final InterfaceBuilder builder) {
+        final Interface2 ietfIpAugmentation = input.getAugmentation(Interface2.class);
+        if(ietfIpAugmentation != null) {
+            final Interface1Builder augmentBuilder = new Interface1Builder();
+
+            final Ipv4 ipv4 = ietfIpAugmentation.getIpv4();
+            if(ipv4 != null) {
+                final List<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address> collect =
+                    ipv4.getAddress().stream()
+                        .map(address -> new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressBuilder()
+                            .setIp(address.getIp())
+                            .setSubnet(getSubnet(address))
+                            .build())
+                        .collect(Collectors.toList());
+                augmentBuilder.setIpv4(new Ipv4Builder().setAddress(collect).build());
+            }
+
+            // TODO ipv6
+
+            builder.addAugmentation(Interface1.class, augmentBuilder.build());
+        }
+    }
+
+    private static Subnet getSubnet(final Address address) {
+        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.Subnet
+            subnet = address.getSubnet();
+
+        // TODO only prefix length supported
+        Preconditions.checkArgument(
+            subnet instanceof org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength);
+
+        return new PrefixLengthBuilder().setPrefixLength(
+            ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength) subnet)
+                .getPrefixLength()).build();
     }
 
     private static void setEthernet(final VppInterfaceAugmentationBuilder augmentBuilder, final Ethernet ethernet) {

@@ -141,10 +141,14 @@ abstract class AbstractCompositeReader<D extends DataObject, B extends Builder<D
         LOG.debug("{}: Reading subtree: {}", this, id);
         final Class<? extends DataObject> next = RWUtils.getNextId(id, getManagedDataObjectType()).getType();
         final ChildReader<? extends ChildOf<D>> reader = childReaders.get(next);
+        final ChildReader<? extends Augmentation<D>> augReader = augReaders.get(next);
 
         if (reader != null) {
             LOG.debug("{}: Reading subtree: {} from: {}", this, id, reader);
             return reader.read(id, ctx);
+        }if (augReader != null) {
+            LOG.debug("{}: Reading subtree: {} from: {}", this, id, augReader);
+            return augReader.read(id, ctx);
         } else {
             LOG.debug("{}: Dedicated subtree reader missing for: {}. Reading current and filtering", this, next);
             // If there's no dedicated reader, use read current

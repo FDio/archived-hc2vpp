@@ -16,12 +16,20 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
+
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -42,14 +50,6 @@ import org.openvpp.jvpp.dto.VxlanTunnelDump;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.concurrent.CompletionStage;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public class VxlanCustomizer extends FutureJVppCustomizer
         implements ChildReaderCustomizer<Vxlan, VxlanBuilder> {
@@ -80,10 +80,8 @@ public class VxlanCustomizer extends FutureJVppCustomizer
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         try {
             final InterfaceKey key = id.firstKeyOf(Interface.class);
-            // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
-            // to fill in the context with initial ifc mapping
             final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-            if (!InterfaceUtils.isInterfaceOfType(ctx.getModificationCache(), index, VxlanTunnel.class)) {
+            if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index, VxlanTunnel.class)) {
                 return;
             }
 

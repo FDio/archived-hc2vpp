@@ -16,6 +16,9 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces.ip;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -23,6 +26,8 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
@@ -38,12 +43,6 @@ import org.openvpp.jvpp.dto.SwInterfaceAddDelAddressReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.util.concurrent.CompletionStage;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Ipv4> {
 
@@ -93,6 +92,11 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
         throws WriteFailedException {
         final int swIfc = interfaceContext.getIndex(name, writeContext.getMappingContext());
 
+        // TODO what about other children ?
+        // TODO consider dedicated customizer for complex child nodes like address list
+
+        // TODO this is not behaving correctly, this always adds IP even if the entire address list was overwritten
+        // Using child customizers according to YANG structure should help
         for (Address ipv4Addr : ipv4.getAddress()) {
             Subnet subnet = ipv4Addr.getSubnet();
 

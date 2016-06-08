@@ -18,13 +18,15 @@ import io.fd.honeycomb.v3po.translate.util.read.ReflexiveRootReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.L2Customizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.SubInterfaceL2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.RewriteCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.SubInterfaceCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.SubInterfaceL2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.TapCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VxlanCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VxlanGpeCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip.Ipv4Customizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip.Ipv6Customizer;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -32,6 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
@@ -75,6 +81,7 @@ public class InterfacesStateHoneycombReaderModule extends
         final List<ChildReader<? extends Augmentation<Interface>>>
                 interfaceAugReaders = new ArrayList<>();
         interfaceAugReaders.add(getVppInterfaceStateAugmentationReader());
+        interfaceAugReaders.add(getInterface1AugmentationReader());
         interfaceAugReaders.add(getSubinterfaceStateAugmentationReader());
 
         final CompositeListReader<Interface, InterfaceKey, InterfaceBuilder> interfaceReader =
@@ -90,6 +97,19 @@ public class InterfacesStateHoneycombReaderModule extends
                 new ReflexiveRootReaderCustomizer<>(InterfacesStateBuilder.class)));
     }
 
+    private ChildReader<? extends Augmentation<Interface>> getInterface1AugmentationReader() {
+        final List<ChildReader<? extends ChildOf<Interface2>>> interface1ChildWriters = Lists.newArrayList();
+
+        final ChildReader<? extends ChildOf<Interface2>> ipv4Reader = new CompositeChildReader<>(Ipv4.class,
+            new Ipv4Customizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
+        final ChildReader<? extends ChildOf<Interface2>> ipv6Reader = new CompositeChildReader<>(Ipv6.class,
+            new Ipv6Customizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
+        interface1ChildWriters.add(ipv4Reader);
+        interface1ChildWriters.add(ipv6Reader);
+
+        return new CompositeChildReader<>(Interface2.class,
+            interface1ChildWriters, new ReflexiveAugmentReaderCustomizer<>(Interface2Builder.class, Interface2.class));
+    }
 
 
     private ChildReader<? extends Augmentation<Interface>> getVppInterfaceStateAugmentationReader() {

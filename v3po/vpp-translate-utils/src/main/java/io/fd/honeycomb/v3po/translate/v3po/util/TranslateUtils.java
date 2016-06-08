@@ -16,23 +16,25 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.util;
 
-import com.google.common.base.Splitter;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.JVppReply;
+import static com.google.common.base.Preconditions.checkArgument;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.common.base.Splitter;
+import com.google.common.net.InetAddresses;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
-
-import static com.google.common.base.Preconditions.checkArgument;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.dto.JVppReply;
 
 public final class TranslateUtils {
 
@@ -77,14 +79,41 @@ public final class TranslateUtils {
         }
     }
 
+    /**
+     * Transform Ipv4 address to a byte array acceptable by VPP. VPP expects incoming byte array to be
+     * in the same order as the address.
+     *
+     * @return byte array with address bytes
+     */
     public static byte[] ipv4AddressNoZoneToArray(final Ipv4AddressNoZone ipv4Addr) {
         byte[] retval = new byte[4];
         String[] dots = ipv4Addr.getValue().split("\\.");
 
-        for (int d = 3; d >= 0; d--) {
-            retval[d] = (byte) (Short.parseShort(dots[3 - d]) & 0xff);
+        for (int d = 0; d < 4; d++) {
+            retval[d] = (byte) (Short.parseShort(dots[d]) & 0xff);
         }
         return retval;
+    }
+
+    /**
+     * Parse byte array returned by VPP representing an Ipv4 address. Vpp returns IP byte arrays in reversed order.
+     *
+     * @return Ipv4AddressNoZone containing string representation of IPv4 address constructed from submitted bytes. No
+     * change in order.
+     */
+    @Nonnull
+    public static Ipv4AddressNoZone arrayToIpv4AddressNoZone(@Nonnull byte[] ip) {
+        // VPP sends ipv4 in a 16 byte array
+        if(ip.length == 16) {
+            ip = Arrays.copyOfRange(ip, 0, 4);
+        }
+        try {
+            // Not reversing the byte array here!! because the IP coming from VPP is in reversed byte order
+            // compared to byte order it was submitted
+            return new Ipv4AddressNoZone(InetAddresses.toAddrString(InetAddresses.fromLittleEndianByteArray(ip)));
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("Unable to parse ipv4", e);
+        }
     }
 
     /**

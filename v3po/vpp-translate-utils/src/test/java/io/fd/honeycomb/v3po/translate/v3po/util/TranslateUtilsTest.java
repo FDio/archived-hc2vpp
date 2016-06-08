@@ -4,8 +4,30 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 
 public class TranslateUtilsTest {
+
+    @Test
+    public void testIpv4NoZone() throws Exception {
+        final Ipv4AddressNoZone ipv4Addr = new Ipv4AddressNoZone("192.168.1.1");
+        byte[] bytes = TranslateUtils.ipv4AddressNoZoneToArray(ipv4Addr);
+        assertEquals((byte)192, bytes[0]);
+        // Simulating the magic of VPP
+        bytes = reverseBytes(bytes);
+        final Ipv4AddressNoZone ipv4AddressNoZone = TranslateUtils.arrayToIpv4AddressNoZone(bytes);
+        assertEquals(ipv4Addr, ipv4AddressNoZone);
+    }
+
+    private byte[] reverseBytes(final byte[] bytes) {
+        final byte[] reversed = new byte[bytes.length];
+        int i = 1;
+        for (byte aByte : bytes) {
+            reversed[bytes.length - i++] = aByte;
+        }
+
+        return reversed;
+    }
 
     @Test
     public void testToString() {

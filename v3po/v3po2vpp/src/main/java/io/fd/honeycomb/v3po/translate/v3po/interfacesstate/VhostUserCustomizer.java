@@ -16,12 +16,21 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
+
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUserRole;
@@ -38,16 +47,6 @@ import org.openvpp.jvpp.dto.SwInterfaceVhostUserDump;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
-
-import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
 
 
 public class VhostUserCustomizer extends FutureJVppCustomizer
@@ -79,10 +78,9 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         try {
             final InterfaceKey key = id.firstKeyOf(Interface.class);
-            // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
-            // to fill in the context with initial ifc mapping
             final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-            if (!isInterfaceOfType(ctx.getModificationCache(), index, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class)) {
+            if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index,
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class)) {
                 return;
             }
 

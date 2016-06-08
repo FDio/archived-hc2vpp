@@ -16,7 +16,6 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
 import static java.util.Objects.requireNonNull;
 
@@ -34,6 +33,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser;
@@ -248,12 +248,21 @@ public final class InterfaceUtils {
         return EthernetCsmacd.class;
     }
 
-    static boolean isInterfaceOfType(final ModificationCache ctx, final int index,
-                                     final Class<? extends InterfaceType> ifcType) {
-        final SwInterfaceDetails cachedDetails =
-                checkNotNull(getCachedInterfaceDump(ctx).get(index),
-                        "Interface {} cannot be found in context", index);
-        return isInterfaceOfType(ifcType, cachedDetails);
+    /**
+     * Check interface type. Uses interface details from VPP to determine.
+     * Uses {@link #getVppInterfaceDetails(FutureJVpp, InstanceIdentifier, String, int, ModificationCache)} internally
+     * so tries to utilize cache before asking VPP.
+     */
+    static boolean isInterfaceOfType(@Nonnull final FutureJVpp jvpp,
+                                     @Nonnull final ModificationCache cache,
+                                     @Nonnull final InstanceIdentifier<?> id,
+                                     final int index,
+                                     @Nonnull final Class<? extends InterfaceType> ifcType) throws ReadFailedException {
+        final String name = id.firstKeyOf(Interface.class).getName();
+        final SwInterfaceDetails vppInterfaceDetails =
+            getVppInterfaceDetails(jvpp, id, name, index, cache);
+
+        return isInterfaceOfType(ifcType, vppInterfaceDetails);
     }
 
     static boolean isInterfaceOfType(final Class<? extends InterfaceType> ifcType,

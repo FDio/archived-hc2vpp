@@ -17,6 +17,7 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
@@ -35,17 +36,15 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeNextProtocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeVni;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeNextProtocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.VppCallbackException;
-import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.VxlanGpeTunnelDetails;
 import org.openvpp.jvpp.dto.VxlanGpeTunnelDetailsReplyDump;
 import org.openvpp.jvpp.dto.VxlanGpeTunnelDump;
@@ -82,10 +81,8 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         try {
             final InterfaceKey key = id.firstKeyOf(Interface.class);
-            // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
-            // to fill in the context with initial ifc mapping
             final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-            if (!InterfaceUtils.isInterfaceOfType(ctx.getModificationCache(), index, VxlanGpeTunnel.class)) {
+            if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index, VxlanGpeTunnel.class)) {
                 return;
             }
 
