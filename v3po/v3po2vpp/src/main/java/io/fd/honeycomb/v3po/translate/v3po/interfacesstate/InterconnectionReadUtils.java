@@ -83,6 +83,8 @@ final class InterconnectionReadUtils {
             checkState(bridgeDomainForInterface.isPresent());
             if (bridgeDomainForInterface.get().bviSwIfIndex == ifaceId) {
                 bbBuilder.setBridgedVirtualInterface(true);
+            } else {
+                bbBuilder.setBridgedVirtualInterface(false);
             }
 
             if (bdSwIfDetails.shg != 0) {

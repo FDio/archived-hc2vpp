@@ -98,7 +98,10 @@ final class InterconnectionWriteUtils {
         byte bvi = bb.isBridgedVirtualInterface()
                 ? (byte) 1
                 : (byte) 0;
-        byte shg = bb.getSplitHorizonGroup().byteValue();
+        byte shg = 0;
+        if (bb.getSplitHorizonGroup() != null) {
+            shg = bb.getSplitHorizonGroup().byteValue();
+        }
 
         final CompletionStage<SwInterfaceSetL2BridgeReply> swInterfaceSetL2BridgeReplyCompletionStage = futureJvpp
                 .swInterfaceSetL2Bridge(getL2BridgeRequest(swIfIndex, bdId, shg, bvi, (byte) 1 /* enable */));

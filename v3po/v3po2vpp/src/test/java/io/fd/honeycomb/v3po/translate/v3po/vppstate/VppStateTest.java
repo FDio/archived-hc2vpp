@@ -55,14 +55,15 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.VersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2Fib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
@@ -207,6 +208,7 @@ public class VppStateTest {
      * L2fib does not have a dedicated reader, relying on auto filtering
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testReadL2Fib() throws Exception {
         final BridgeDomainDetails bd = new BridgeDomainDetails();
         bd.bdId = 0;
@@ -221,16 +223,16 @@ public class VppStateTest {
         whenL2FibTableDumpThenReturn(Collections.singletonList(l2FibEntry));
 
         // Deep child without a dedicated reader with specific l2fib key
+        final InstanceIdentifier<? extends DataObject> idExisting = InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
+                BridgeDomain.class, new BridgeDomainKey("bdn1")).child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(new PhysAddress("01:02:03:04:05:06")));
         Optional<? extends DataObject> read =
-            readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("bdn1"))
-                .child(L2Fib.class, new L2FibKey(new PhysAddress("01:02:03:04:05:06"))), ctx);
+            readerRegistry.read(idExisting, ctx);
         assertTrue(read.isPresent());
 
         // non existing l2fib
-        read = readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("bdn1"))
-                .child(L2Fib.class, new L2FibKey(new PhysAddress("FF:FF:FF:04:05:06"))), ctx);
+        final InstanceIdentifier<? extends DataObject> idNonExisting = InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
+                BridgeDomain.class, new BridgeDomainKey("bdn1")).child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(new PhysAddress("FF:FF:FF:04:05:06")));
+        read = readerRegistry.read(idNonExisting, ctx);
         assertFalse(read.isPresent());
     }
 

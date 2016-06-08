@@ -117,9 +117,10 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
         final BridgeBasedBuilder bbBuilder = new BridgeBasedBuilder();
         bbBuilder.setBridgeDomain(bdName);
         bbBuilder.setSplitHorizonGroup((short) 1);
-        // Empty type
         if(bvi != null) {
             bbBuilder.setBridgedVirtualInterface(bvi);
+        } else {
+            bbBuilder.setBridgedVirtualInterface(false); // false is default
         }
         return bbBuilder.build();
     }

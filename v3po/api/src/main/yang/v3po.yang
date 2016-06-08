@@ -54,6 +54,29 @@ module v3po {
     base if:interface-type;
   }
 
+  identity l2-fib-action {
+    description "Base identity for l2-fib actions";
+  }
+
+  identity l2-fib-forward {
+    base l2-fib-action;
+    description
+      "Forwards packet with configured mac address";
+  }
+
+  identity l2-fib-filter {
+    base l2-fib-action;
+    description
+      "Drops packet with configured mac address";
+  }
+
+  typedef l2-fib-action {
+    type identityref {
+      base "l2-fib-action";
+    }
+    description "Identifies a specific L2 FIB action";
+  }
+
   typedef vxlan-vni {
     // FIXME: should be in a vxlan-specific model
     description "VNI used in a VXLAN tunnel";
@@ -123,6 +146,40 @@ module v3po {
     leaf arp-termination {
       type boolean;
       default false;
+    }
+  }
+
+  grouping l2-fib-attributes {
+    container l2-fib-table {
+      list l2-fib-entry {
+        key "phys-address";
+
+        leaf phys-address {
+          type yang:phys-address;
+        }
+
+        leaf outgoing-interface {
+          type string;
+          mandatory true;
+          description
+            "One of interfaces assigned to the FIB table's bridge-domain";
+        }
+        leaf static-config {
+          type boolean;
+          default false;
+          description
+            "Static entries cannot be overridden by mac learning";
+        }
+        leaf action {
+          type l2-fib-action;
+          mandatory true;
+        }
+        leaf bridged-virtual-interface {
+          when "../v3po:action = 'forward'";
+          type boolean;
+          config false; // FIXME setting bvi is currently not supported by VPP's binary api
+        }
+      }
     }
   }
 
@@ -265,6 +322,7 @@ module v3po {
         case bridge-based {
           leaf bridge-domain {
             type bridge-domain-ref;
+            mandatory true;
             description
               "Interfaces in a bridge-domain forward packets to other
                interfaces in the same bridge-domain based on
@@ -273,9 +331,8 @@ module v3po {
           leaf split-horizon-group {
             when "../bridge-domain";
             type uint8 {
-              range "0..255";
+              range "1..255"; // TODO update postman collection
             }
-            default 0;
             description
               "Interface's split-horizon group. Interfaces in the same
                bridge-domain and split-horizon group can not forward
@@ -356,24 +413,10 @@ module v3po {
         }
 
         uses bridge-domain-attributes;
+        uses l2-fib-attributes;
 
-        list l2-fib {
-          key "phys-address";
-
-          leaf phys-address {
-            type yang:phys-address;
-          }
-          leaf action {
-            type enumeration {
-              enum "forward";
-              enum "filter";
-            }
-            mandatory true;
-          }
-          leaf outgoing-interface {
-            type if:interface-ref;
-          }
-        }
+        description
+          "bridge-domain configuration";
       }
     }
   }
@@ -449,32 +492,8 @@ module v3po {
         }
 
         uses bridge-domain-attributes;
+        uses l2-fib-attributes;
 
-        list l2-fib {
-          key "phys-address";
-
-          leaf phys-address {
-            type yang:phys-address;
-          }
-          leaf static-config {
-            type boolean;
-          }
-          leaf outgoing-interface {
-            when "../v3po:action = 'forward'";
-            type if:interface-state-ref;
-          }
-          leaf action {
-            type enumeration {
-              enum "forward";
-              enum "filter";
-            }
-            mandatory true;
-          }
-          leaf bridged-virtual-interface {
-            when "../v3po:action = 'forward'";
-            type boolean;
-          }
-        }
         description
           "bridge-domain operational data";
       }
