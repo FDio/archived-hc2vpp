@@ -185,29 +185,41 @@ abstract class AbstractCompositeReader<D extends DataObject, B extends Builder<D
     // TODO move filtering out of here into a dedicated Filter ifc
     @Nonnull
     private static Optional<? extends DataObject> filterSubtree(@Nonnull final DataObject parent,
-                                                            @Nonnull final InstanceIdentifier<? extends DataObject> absolutPath,
-                                                            @Nonnull final Class<?> managedType) {
-        // TODO is there a better way than reflection ? e.g. convert into NN and filter out with a utility
-        // FIXME this needs to be recursive. right now it expects only 1 additional element in ID + test
-
+                                                                @Nonnull final InstanceIdentifier<? extends DataObject> absolutPath,
+                                                                @Nonnull final Class<?> managedType) {
         final InstanceIdentifier.PathArgument nextId =
-            RWUtils.getNextId(absolutPath, InstanceIdentifier.create(parent.getClass()));
+                RWUtils.getNextId(absolutPath, InstanceIdentifier.create(parent.getClass()));
 
+        final Optional<? extends DataObject> nextParent = findNextParent(parent, nextId, managedType);
+
+        if (Iterables.getLast(absolutPath.getPathArguments()).equals(nextId)) {
+            return nextParent; // we found the dataObject identified by absolutePath
+        } else if (nextParent.isPresent()) {
+            return filterSubtree(nextParent.get(), absolutPath, nextId.getType());
+        } else {
+            return nextParent; // we can't go further, return Optional.absent()
+        }
+    }
+
+    private static Optional<? extends DataObject> findNextParent(@Nonnull final DataObject parent,
+                                                                 @Nonnull final InstanceIdentifier.PathArgument nextId,
+                                                                 @Nonnull final Class<?> managedType) {
+        // TODO is there a better way than reflection ? e.g. convert into NN and filter out with a utility
         Optional<Method> method = ReflectionUtils.findMethodReflex(managedType, "get",
-            Collections.<Class<?>>emptyList(), nextId.getType());
+                Collections.<Class<?>>emptyList(), nextId.getType());
 
         if (method.isPresent()) {
             return Optional.fromNullable(filterSingle(parent, nextId, method.get()));
         } else {
             // List child nodes
             method = ReflectionUtils.findMethodReflex(managedType,
-                "get" + nextId.getType().getSimpleName(), Collections.<Class<?>>emptyList(), List.class);
+                    "get" + nextId.getType().getSimpleName(), Collections.<Class<?>>emptyList(), List.class);
 
             if (method.isPresent()) {
                 return filterList(parent, nextId, method.get());
             } else {
                 throw new IllegalStateException(
-                    "Unable to filter " + nextId + " from " + parent + " getters not found using reflexion");
+                        "Unable to filter " + nextId + " from " + parent + " getters not found using reflexion");
             }
         }
     }
