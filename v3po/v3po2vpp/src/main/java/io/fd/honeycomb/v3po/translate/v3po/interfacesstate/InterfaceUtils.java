@@ -16,11 +16,22 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import java.math.BigInteger;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
@@ -37,25 +48,13 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.math.BigInteger;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
-import static java.util.Objects.requireNonNull;
-
 public final class InterfaceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceUtils.class);
 
     private static final Gauge64 vppLinkSpeed0 = new Gauge64(BigInteger.ZERO);
-    private static final Gauge64 vppLinkSpeed1 = new Gauge64(BigInteger.valueOf(10 * 1000000));
-    private static final Gauge64 vppLinkSpeed2 = new Gauge64(BigInteger.valueOf(100 * 1000000));
-    private static final Gauge64 vppLinkSpeed4 = new Gauge64(BigInteger.valueOf(1000 * 1000000));
+    private static final Gauge64 vppLinkSpeed1 = new Gauge64(BigInteger.valueOf(10L * 1000000));
+    private static final Gauge64 vppLinkSpeed2 = new Gauge64(BigInteger.valueOf(100L * 1000000));
+    private static final Gauge64 vppLinkSpeed4 = new Gauge64(BigInteger.valueOf(1000L * 1000000));
     private static final Gauge64 vppLinkSpeed8 = new Gauge64(BigInteger.valueOf(10000L * 1000000));
     private static final Gauge64 vppLinkSpeed16 = new Gauge64(BigInteger.valueOf(40000L * 1000000));
     private static final Gauge64 vppLinkSpeed32 = new Gauge64(BigInteger.valueOf(100000L * 1000000));
