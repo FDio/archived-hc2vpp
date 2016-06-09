@@ -2,7 +2,7 @@ package io.fd.honeycomb.v3po.translate.v3po.initializers;
 
 import com.google.common.collect.Lists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubInterfaceStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceStateAugmentation;
@@ -52,7 +52,7 @@ final class SubInterfaceInitializationUtils {
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceBuilder subInterfaceCfgBuilder =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceBuilder();
 
-        subInterfaceCfgBuilder.setEnabled(Interface.AdminStatus.Up.equals(operationalData.getAdminStatus()));
+        subInterfaceCfgBuilder.setEnabled(SubInterfaceStatus.Up.equals(operationalData.getAdminStatus()));
         subInterfaceCfgBuilder.setIdentifier(operationalData.getIdentifier());
         subInterfaceCfgBuilder.setKey(new SubInterfaceKey(operationalData.getIdentifier()));
         subInterfaceCfgBuilder.setL2(operationalData.getL2());
