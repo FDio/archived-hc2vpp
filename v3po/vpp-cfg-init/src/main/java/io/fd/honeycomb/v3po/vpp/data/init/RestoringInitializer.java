@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class RestoringInitializer implements DataTreeInitializer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InitializerRegistryImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RestoringInitializer.class);
 
     private final SchemaService schemaService;
     private final Path path;

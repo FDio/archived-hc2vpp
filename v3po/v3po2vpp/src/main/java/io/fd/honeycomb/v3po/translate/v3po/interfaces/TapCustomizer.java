@@ -110,7 +110,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         try {
             deleteTap(ifcName, index, dataBefore, writeContext);
         } catch (VppBaseCallException e) {
-            LOG.warn("Failed to delete tap interface: {}, tap: {}", ifcName, e);
+            LOG.warn("Failed to delete tap interface: {}, tap: {}", ifcName, dataBefore.getTapName(), e);
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }

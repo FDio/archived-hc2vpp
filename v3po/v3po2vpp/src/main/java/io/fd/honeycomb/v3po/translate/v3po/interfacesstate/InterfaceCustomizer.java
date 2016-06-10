@@ -145,7 +145,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
             LOG.debug("Interfaces found in VPP: {}", interfacesKeys);
             return interfacesKeys;
         } catch (VppBaseCallException e) {
-            LOG.warn("getAllIds exception :" + e.toString());
+            LOG.warn("Unable to get all interface IDs", e);
             throw new ReadFailedException( id, e);
         }
     }

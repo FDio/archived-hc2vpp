@@ -19,6 +19,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -67,23 +68,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.TagKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.CreateSubif;
 import org.openvpp.jvpp.dto.CreateSubifReply;
 import org.openvpp.jvpp.dto.SwInterfaceSetFlags;
 import org.openvpp.jvpp.dto.SwInterfaceSetFlagsReply;
 import org.openvpp.jvpp.future.FutureJVpp;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SubInterfaceCustomizerTest {
 
@@ -186,7 +175,7 @@ public class SubInterfaceCustomizerTest {
     private void whenCreateSubifFailedThen(final int retval) throws ExecutionException, InterruptedException, VppBaseCallException {
         doReturn(TestHelperUtils.<CreateSubifReply>createFutureException(retval)).when(api).createSubif(any(CreateSubif.class));
     }
-    
+
     private void whenSwInterfaceSetFlagsThen(final int retval) throws ExecutionException, InterruptedException, VppBaseCallException {
         final CompletableFuture<SwInterfaceSetFlagsReply> replyFuture = new CompletableFuture<>();
         final SwInterfaceSetFlagsReply reply = new SwInterfaceSetFlagsReply();
@@ -201,7 +190,7 @@ public class SubInterfaceCustomizerTest {
     private void whenCreateSubifThenFailure() throws ExecutionException, InterruptedException, VppBaseCallException {
         whenCreateSubifFailedThen(-1);
     }
-    
+
     private void whenSwInterfaceSetFlagsThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
         whenSwInterfaceSetFlagsThen(0);
     }

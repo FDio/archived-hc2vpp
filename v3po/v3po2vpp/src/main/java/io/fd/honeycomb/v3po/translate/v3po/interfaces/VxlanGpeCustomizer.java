@@ -167,7 +167,7 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
     }
 
     private static VxlanGpeAddDelTunnel getVxlanGpeTunnelRequest(final byte isAdd, final byte[] local, final byte[] remote,
-                                        final int vni, final byte protocol, final int encapVrfId, final int decapVrfId, 
+                                        final int vni, final byte protocol, final int encapVrfId, final int decapVrfId,
                                         final byte isIpv6) {
         final VxlanGpeAddDelTunnel VxlanGpeAddDelTunnel = new VxlanGpeAddDelTunnel();
         VxlanGpeAddDelTunnel.isAdd = isAdd;

@@ -19,7 +19,10 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -53,14 +56,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeNextProtocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.VxlanAddDelTunnel;
 import org.openvpp.jvpp.dto.VxlanAddDelTunnelReply;
 import org.openvpp.jvpp.dto.VxlanGpeAddDelTunnel;
 import org.openvpp.jvpp.dto.VxlanGpeAddDelTunnelReply;
@@ -134,7 +135,7 @@ public class VxlanGpeCustomizerTest {
         assertEquals(vxlanGpe.getVni().getValue().intValue(), actual.vni);
         assertEquals(vxlanGpe.getNextProtocol().getIntValue(), actual.protocol);
         assertEquals(vxlanGpe.getEncapVrfId().intValue(), actual.encapVrfId);
-        assertEquals(vxlanGpe.getDecapVrfId().intValue(), actual.decapVrfId);       
+        assertEquals(vxlanGpe.getDecapVrfId().intValue(), actual.decapVrfId);
         return actual;
     }
     private void verifyVxlanGpeAddWasInvoked(final VxlanGpe vxlanGpe) throws VppBaseCallException{
@@ -154,7 +155,7 @@ public class VxlanGpeCustomizerTest {
         builder.setVni(new VxlanGpeVni(Long.valueOf(vni)));
         builder.setNextProtocol(VxlanGpeNextProtocol.forValue(1));
         builder.setEncapVrfId(Long.valueOf(123));
-        builder.setDecapVrfId(Long.valueOf(456));   
+        builder.setDecapVrfId(Long.valueOf(456));
         return builder.build();
     }
 

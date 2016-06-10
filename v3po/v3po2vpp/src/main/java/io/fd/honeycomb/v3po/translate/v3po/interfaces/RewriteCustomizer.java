@@ -16,12 +16,21 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.*;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.TagRewriteOperation;
+import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.List;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527._802dot1q;
@@ -39,20 +48,13 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.concurrent.CompletionStage;
-
-import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
-
 /**
  * Writer Customizer responsible for vlan tag rewrite.<br> Sends {@code l2_interface_vlan_tag_rewrite} message to
  * VPP.<br> Equivalent of invoking {@code vppctl set interface l2 tag-rewrite} command.
  */
 public class RewriteCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Rewrite> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(
-            io.fd.honeycomb.v3po.translate.v3po.interfacesstate.RewriteCustomizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
     private final NamingContext interfaceContext;
 
     public RewriteCustomizer(@Nonnull final FutureJVpp futureJvpp,

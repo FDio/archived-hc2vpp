@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 public class RewriteCustomizer extends FutureJVppCustomizer
         implements ChildReaderCustomizer<Rewrite, RewriteBuilder> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceCustomizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
     private final NamingContext interfaceContext;
 
     public RewriteCustomizer(@Nonnull final FutureJVpp futureJvpp,

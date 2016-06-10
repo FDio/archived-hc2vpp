@@ -16,6 +16,10 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
+import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
@@ -24,6 +28,11 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.CVlan;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qVlanId;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.SVlan;
@@ -48,16 +57,6 @@ import org.openvpp.jvpp.dto.SwInterfaceSetFlagsReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletionStage;
-
-import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
-import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
 /**
  * Writer Customizer responsible for sub interface creation.<br> Sends {@code create_subif} message to VPP.<br>
@@ -213,11 +212,11 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         final CompletionStage<SwInterfaceSetFlagsReply> swInterfaceSetFlagsReplyFuture =
                 getFutureJVpp().swInterfaceSetFlags(swInterfaceSetFlags);
 
-        LOG.debug("Updating interface state for: interface if={}, enabled: {}", swIfIndex, enabled);
+        LOG.debug("Updating interface state for interface if={}, enabled: {}", swIfIndex, enabled);
 
         SwInterfaceSetFlagsReply reply = TranslateUtils.getReply(swInterfaceSetFlagsReplyFuture.toCompletableFuture());
-        LOG.debug("Interface state updated successfully for: {}, index: {}, enabled: {}, ctxId: {}",
-                swIfIndex, enabled, reply.context);
+        LOG.debug("Interface state updated successfully for interface index: {}, enabled: {}, ctxId: {}",
+            swIfIndex, enabled, reply.context);
     }
 
     @Override
