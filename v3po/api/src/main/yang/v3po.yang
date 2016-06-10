@@ -442,22 +442,6 @@ module v3po {
 
         uses bridge-domain-attributes;
 
-        list interface {
-          key "name";
-
-          leaf name {
-            type if:interface-state-ref;
-          }
-
-          leaf split-horizon-group {
-            type uint8;
-          }
-
-          leaf bridged-virtual-interface {
-            type boolean;
-          }
-        }
-
         list l2-fib {
           key "phys-address";
 

@@ -36,9 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.InterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2Fib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.bridge.domain.L2FibKey;
@@ -48,7 +45,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.dto.BridgeDomainDump;
-import org.openvpp.jvpp.dto.BridgeDomainSwIfDetails;
 import org.openvpp.jvpp.dto.L2FibTableDump;
 import org.openvpp.jvpp.dto.L2FibTableEntry;
 import org.openvpp.jvpp.dto.L2FibTableEntryReplyDump;
@@ -103,8 +99,6 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
         builder.setForward(byteToBoolean(bridgeDomainDetails.forward));
         builder.setLearn(byteToBoolean(bridgeDomainDetails.learn));
         builder.setUnknownUnicastFlood(byteToBoolean(bridgeDomainDetails.uuFlood));
-
-        builder.setInterface(getIfcs(bridgeDomainDetails, reply.bridgeDomainSwIfDetails, context));
 
         final L2FibTableDump l2FibRequest = new L2FibTableDump();
         l2FibRequest.bdId = bdId;
@@ -164,26 +158,6 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
             sb.append(String.format("%02x", mac[i]));
         }
         return sb.toString();
-    }
-
-    private List<Interface> getIfcs(final BridgeDomainDetails bridgeDomainDetails,
-                                    final List<BridgeDomainSwIfDetails> bridgeDomainSwIfDetails,
-                                    final ReadContext context) {
-        final List<Interface> ifcs = new ArrayList<>(bridgeDomainSwIfDetails.size());
-        for (BridgeDomainSwIfDetails anInterface : bridgeDomainSwIfDetails) {
-            final String interfaceName = interfaceContext.getName(anInterface.swIfIndex, context.getMappingContext());
-            if (anInterface.bdId == bridgeDomainDetails.bdId) {
-                ifcs.add(new InterfaceBuilder()
-                        .setBridgedVirtualInterface(bridgeDomainDetails.bviSwIfIndex == anInterface.swIfIndex)
-                        .setSplitHorizonGroup((short) anInterface.shg)
-                        .setName(interfaceName)
-                        .setKey(new InterfaceKey(interfaceName))
-                        .build());
-            }
-
-
-        }
-        return ifcs;
     }
 
     @Nonnull
