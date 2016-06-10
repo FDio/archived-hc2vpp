@@ -47,14 +47,13 @@ final class VppStateTestUtils {
      * Create root VppState reader with all its children wired
      */
     static CompositeRootReader<VppState, VppStateBuilder> getVppStateReader(@Nonnull final FutureJVpp futureJVpp,
-                                                                            @Nonnull final NamingContext bdContext,
-                                                                            @Nonnull final NamingContext interfaceContext) {
+                                                                            @Nonnull final NamingContext bdContext) {
 
         final ChildReader<Version> versionReader = new CompositeChildReader<>(
                 Version.class, new VersionCustomizer(futureJVpp));
 
         final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
-                getBridgeDomainReader(futureJVpp, bdContext, interfaceContext);
+                getBridgeDomainReader(futureJVpp, bdContext);
 
         final ChildReader<BridgeDomains> bridgeDomainsReader = new CompositeChildReader<>(
                 BridgeDomains.class,
@@ -73,10 +72,9 @@ final class VppStateTestUtils {
     }
 
     static CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> getBridgeDomainReader(
-            final @Nonnull FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext,
-            @Nonnull final NamingContext interfaceContext) {
+            final @Nonnull FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext) {
         return new CompositeListReader<>(
                 BridgeDomain.class,
-                new BridgeDomainCustomizer(futureJVpp, bdContext, interfaceContext));
+                new BridgeDomainCustomizer(futureJVpp, bdContext));
     }
 }

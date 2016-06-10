@@ -16,10 +16,16 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.test;
 
+import static org.mockito.Mockito.doReturn;
+
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import io.fd.honeycomb.v3po.translate.MappingContext;
+import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContextKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
@@ -36,5 +42,26 @@ public class ContextTestUtils {
         return InstanceIdentifier.create(Contexts.class).child(
                 org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContext.class,
                 new NamingContextKey(namingContextName)).child(Mappings.class).child(Mapping.class, new MappingKey(name));
+    }
+
+    public static void mockMapping(final MappingContext mappingContext, final String name, final int id, final String namingContextName) {
+        final InstanceIdentifier<Mappings> mappingsIid = getMappingIid(name, namingContextName).firstIdentifierOf(Mappings.class);
+
+        final Optional<Mapping> singleMapping = getMapping(name, id);
+        final Optional<Mappings> previousMappings = mappingContext.read(mappingsIid);
+
+        final MappingsBuilder mappingsBuilder;
+        if(previousMappings != null && previousMappings.isPresent()) {
+            mappingsBuilder = new MappingsBuilder(previousMappings.get());
+        } else {
+            mappingsBuilder = new MappingsBuilder();
+            mappingsBuilder.setMapping(Lists.newArrayList());
+        }
+
+        final List<Mapping> mappingList = mappingsBuilder.getMapping();
+        mappingList.add(singleMapping.get());
+        doReturn(Optional.of(mappingsBuilder.setMapping(mappingList).build()))
+                .when(mappingContext).read(mappingsIid);
+        doReturn(singleMapping).when(mappingContext).read(getMappingIid(name, namingContextName));
     }
 }

@@ -54,6 +54,6 @@ public class BridgeDomainCustomizerTest extends ListReaderCustomizerTest<BridgeD
 
     @Override
     protected RootReaderCustomizer<BridgeDomain, BridgeDomainBuilder> initCustomizer() {
-        return new BridgeDomainCustomizer(api, bdContext, interfacesContext);
+        return new BridgeDomainCustomizer(api, bdContext);
     }
 }

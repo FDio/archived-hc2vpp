@@ -11,6 +11,7 @@ import io.fd.honeycomb.v3po.translate.util.read.ReflexiveChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.util.read.ReflexiveRootReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.ReadTimeoutException;
 import io.fd.honeycomb.v3po.translate.v3po.vppstate.BridgeDomainCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.vppstate.L2FibEntryCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.vppstate.VersionCustomizer;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -26,6 +27,11 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.vpp.jvpp.cf
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.vpp.jvpp.cfg.rev160406.VppJvppImplModuleFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomainsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
@@ -66,9 +72,20 @@ public class VppStateHoneycombReaderModule extends org.opendaylight.yang.gen.v1.
         versionReader = new KeepaliveReaderWrapper<>(versionReader, getKeepaliveExecutorDependency().getExecutor(),
             ReadTimeoutException.class, 30, () -> reinitializeJVpp(reinitializationCounter));
 
+        final CompositeListReader<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> l2FibEntryReader = new CompositeListReader<>(L2FibEntry.class,
+                new L2FibEntryCustomizer(vppApi,
+                        getBridgeDomainContextVppStateDependency(), getInterfaceContextVppStateDependency()));
+
+        final ChildReader<L2FibTable> l2FibTableReader = new CompositeChildReader<>(
+                L2FibTable.class,
+                RWUtils.singletonChildReaderList(l2FibEntryReader),
+                new ReflexiveChildReaderCustomizer<>(L2FibTableBuilder.class));
+
         final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
-            new CompositeListReader<>(BridgeDomain.class, new BridgeDomainCustomizer(vppApi,
-                getBridgeDomainContextVppStateDependency(), getInterfaceContextVppStateDependency()));
+            new CompositeListReader<>(BridgeDomain.class,
+                    RWUtils.singletonChildReaderList((ChildReader)l2FibTableReader),
+                    new BridgeDomainCustomizer(vppApi,
+                getBridgeDomainContextVppStateDependency()));
 
         final ChildReader<BridgeDomains> bridgeDomainsReader = new CompositeChildReader<>(
             BridgeDomains.class,

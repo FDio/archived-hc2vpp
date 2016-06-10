@@ -20,8 +20,6 @@ import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.byteToBool
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Longs;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
@@ -31,13 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.L2FibFilter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.L2FibForward;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomainsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
@@ -48,9 +39,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.dto.BridgeDomainDump;
-import org.openvpp.jvpp.dto.L2FibTableDump;
-import org.openvpp.jvpp.dto.L2FibTableEntry;
-import org.openvpp.jvpp.dto.L2FibTableEntryReplyDump;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,13 +48,10 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
     private final NamingContext bdContext;
-    private final NamingContext interfaceContext;
 
-    public BridgeDomainCustomizer(@Nonnull final FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext,
-                                  @Nonnull final NamingContext interfaceContext) {
+    public BridgeDomainCustomizer(@Nonnull final FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext) {
         super(futureJVpp);
         this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
-        this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");;
     }
 
     @Override
@@ -102,39 +87,6 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
         builder.setForward(byteToBoolean(bridgeDomainDetails.forward));
         builder.setLearn(byteToBoolean(bridgeDomainDetails.learn));
         builder.setUnknownUnicastFlood(byteToBoolean(bridgeDomainDetails.uuFlood));
-
-        final L2FibTableDump l2FibRequest = new L2FibTableDump();
-        l2FibRequest.bdId = bdId;
-        try {
-            final L2FibTableEntryReplyDump dump =
-                    getFutureJVpp().l2FibTableDump(l2FibRequest).toCompletableFuture().get();
-            final List<L2FibEntry> l2Fibs;
-
-            if(null == dump || null == dump.l2FibTableEntry) {
-                l2Fibs = Collections.emptyList();
-            } else {
-                l2Fibs = Lists.newArrayListWithCapacity(dump.l2FibTableEntry.size());
-                for (L2FibTableEntry entry : dump.l2FibTableEntry) {
-                    // entry.mac is a long value in the format 66:55:44:33:22:11:XX:XX
-                    // where mac address is 11:22:33:44:55:66
-                    final PhysAddress address = new PhysAddress(getMacAddress(Longs.toByteArray(entry.mac)));
-                    l2Fibs.add(new L2FibEntryBuilder()
-                        .setAction(byteToBoolean(entry.filterMac)
-                                ? L2FibFilter.class
-                                : L2FibForward.class)
-                        .setBridgedVirtualInterface(byteToBoolean(entry.bviMac))
-                        .setOutgoingInterface(interfaceContext.getName(entry.swIfIndex, context.getMappingContext()))
-                        .setStaticConfig(byteToBoolean(entry.staticMac))
-                        .setPhysAddress(address)
-                        .setKey(new L2FibEntryKey(address))
-                        .build());
-                }
-            }
-            builder.setL2FibTable(new L2FibTableBuilder().setL2FibEntry(l2Fibs).build());
-
-        } catch (Exception e) {
-            LOG.warn("Failed to acquire l2FibTableDump for domain id={}", bdId, e);
-        }
     }
 
     private void logBridgeDomainDetails(final BridgeDomainDetails bridgeDomainDetails) {
@@ -149,18 +101,6 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
             LOG.debug("bridgeDomainDetails.nSwIfs={}", bridgeDomainDetails.nSwIfs);
             LOG.debug("bridgeDomainDetails.uuFlood={}", bridgeDomainDetails.uuFlood);
         }
-    }
-
-    // TODO move to some utility class
-    private static String getMacAddress(byte[] mac) {
-        StringBuilder sb = new StringBuilder(18);
-        for (int i=5; i>=0; --i) {
-            if (sb.length() > 0) {
-                sb.append(':');
-            }
-            sb.append(String.format("%02x", mac[i]));
-        }
-        return sb.toString();
     }
 
     @Nonnull
