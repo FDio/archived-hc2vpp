@@ -16,6 +16,9 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
@@ -24,6 +27,9 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
@@ -35,13 +41,6 @@ import org.openvpp.jvpp.dto.BridgeDomainAddDelReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class BridgeDomainCustomizer
         extends FutureJVppCustomizer
@@ -84,12 +83,14 @@ public class BridgeDomainCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                        @Nonnull final BridgeDomain dataBefore,
-                                       @Nonnull final WriteContext ctx) throws WriteFailedException.CreateFailedException {
+                                       @Nonnull final WriteContext ctx)
+            throws WriteFailedException.CreateFailedException {
         LOG.debug("writeCurrentAttributes: id={}, current={}, ctx={}", id, dataBefore, ctx);
         final String bdName = dataBefore.getName();
 
         try {
-            // FIXME we need the bd index to be returned by VPP or we should have a counter field (maybe in context similar to artificial name)
+            // FIXME we need the bd index to be returned by VPP or we should have a counter field
+            // (maybe in context similar to artificial name)
             // Here we assign the next available ID from bdContext's perspective
             int index = 1;
             while(bdContext.containsName(index, ctx.getMappingContext())) {

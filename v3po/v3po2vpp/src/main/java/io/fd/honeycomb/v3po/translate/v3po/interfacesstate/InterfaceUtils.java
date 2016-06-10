@@ -210,8 +210,8 @@ public final class InterfaceUtils {
                 throw new IllegalArgumentException("Unable to find interface " + name);
             }
         } catch (VppBaseCallException e) {
-            LOG.warn("getVppInterfaceDetails exception :", e);
-            throw new ReadFailedException(id);
+            LOG.warn("getVppInterfaceDetails for id :{} and name :{} failed with exception :", id, name, e);
+            throw new ReadFailedException(id, e);
         }
 
         // SwInterfaceDump's name filter does prefix match, so we need additional filtering:

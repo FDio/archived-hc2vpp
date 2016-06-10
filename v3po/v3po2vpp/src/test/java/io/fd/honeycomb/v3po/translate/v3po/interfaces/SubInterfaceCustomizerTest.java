@@ -162,7 +162,7 @@ public class SubInterfaceCustomizerTest {
                 SubinterfaceAugmentation.class).child(SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(index));
     }
 
-    private void whenCreateSubifThen() throws ExecutionException, InterruptedException, VppBaseCallException {
+    private void whenCreateSubifThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
         final CompletableFuture<CreateSubifReply> replyFuture = new CompletableFuture<>();
         final CreateSubifReply reply = new CreateSubifReply();
         replyFuture.complete(reply);
@@ -172,27 +172,15 @@ public class SubInterfaceCustomizerTest {
     /**
      * Failure response send
      */
-    private void whenCreateSubifFailedThen(final int retval) throws ExecutionException, InterruptedException, VppBaseCallException {
-        doReturn(TestHelperUtils.<CreateSubifReply>createFutureException(retval)).when(api).createSubif(any(CreateSubif.class));
+    private void whenCreateSubifThenFailure() throws ExecutionException, InterruptedException, VppBaseCallException {
+        doReturn(TestHelperUtils.<CreateSubifReply>createFutureException()).when(api).createSubif(any(CreateSubif.class));
     }
 
-    private void whenSwInterfaceSetFlagsThen(final int retval) throws ExecutionException, InterruptedException, VppBaseCallException {
+    private void whenSwInterfaceSetFlagsThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
         final CompletableFuture<SwInterfaceSetFlagsReply> replyFuture = new CompletableFuture<>();
         final SwInterfaceSetFlagsReply reply = new SwInterfaceSetFlagsReply();
         replyFuture.complete(reply);
         doReturn(replyFuture).when(api).swInterfaceSetFlags(any(SwInterfaceSetFlags.class));
-    }
-
-    private void whenCreateSubifThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
-        whenCreateSubifThen();
-    }
-
-    private void whenCreateSubifThenFailure() throws ExecutionException, InterruptedException, VppBaseCallException {
-        whenCreateSubifFailedThen(-1);
-    }
-
-    private void whenSwInterfaceSetFlagsThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
-        whenSwInterfaceSetFlagsThen(0);
     }
 
     private CreateSubif verifyCreateSubifWasInvoked(final CreateSubif expected) throws VppBaseCallException {

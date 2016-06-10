@@ -18,6 +18,21 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.v3po.test.TestHelperUtils;
@@ -25,6 +40,9 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -39,18 +57,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.*;
+import org.openvpp.jvpp.dto.CreateVhostUserIf;
+import org.openvpp.jvpp.dto.CreateVhostUserIfReply;
+import org.openvpp.jvpp.dto.DeleteVhostUserIf;
+import org.openvpp.jvpp.dto.DeleteVhostUserIfReply;
+import org.openvpp.jvpp.dto.ModifyVhostUserIf;
+import org.openvpp.jvpp.dto.ModifyVhostUserIfReply;
 import org.openvpp.jvpp.future.FutureJVpp;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class VhostUserCustomizerTest {
 
@@ -82,7 +95,8 @@ public class VhostUserCustomizerTest {
         customizer = new VhostUserCustomizer(api, namingContext);
     }
 
-    private void whenCreateVhostUserIfThen() throws ExecutionException, InterruptedException, VppInvocationException {
+    private void whenCreateVhostUserIfThenSuccess()
+            throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<CreateVhostUserIfReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<CreateVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
@@ -94,19 +108,14 @@ public class VhostUserCustomizerTest {
     /**
      * Failure response send
      */
-    private void whenCreateVhostUserIfFailedThen(final int retval) throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<CreateVhostUserIfReply>createFutureException(retval)).when(api).createVhostUserIf(any(CreateVhostUserIf.class));
+    private void whenCreateVhostUserIfThenFailure()
+            throws ExecutionException, InterruptedException, VppInvocationException {
+        doReturn(TestHelperUtils.<CreateVhostUserIfReply>createFutureException()).when(api)
+                .createVhostUserIf(any(CreateVhostUserIf.class));
     }
 
-    private void whenCreateVhostUserIfThenSuccess() throws ExecutionException, InterruptedException, VppInvocationException {
-        whenCreateVhostUserIfThen();
-    }
-
-    private void whenVxlanAddDelTunnelThenFailure() throws ExecutionException, InterruptedException, VppInvocationException {
-        whenCreateVhostUserIfFailedThen(-1);
-    }
-
-    private void whenModifyVhostUserIfThen() throws ExecutionException, InterruptedException, VppInvocationException {
+    private void whenModifyVhostUserIfThenSuccess()
+            throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<ModifyVhostUserIfReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<ModifyVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
@@ -118,19 +127,14 @@ public class VhostUserCustomizerTest {
     /**
      * Failure response send
      */
-    private void whenModifyVhostUserIfFailedThen(final int retval) throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<ModifyVhostUserIfReply>createFutureException(retval)).when(api).modifyVhostUserIf(any(ModifyVhostUserIf.class));
+    private void whenModifyVhostUserIfThenFailure()
+            throws ExecutionException, InterruptedException, VppInvocationException {
+        doReturn(TestHelperUtils.<ModifyVhostUserIfReply>createFutureException()).when(api)
+                .modifyVhostUserIf(any(ModifyVhostUserIf.class));
     }
 
-    private void whenModifyVhostUserIfThenSuccess() throws ExecutionException, InterruptedException, VppInvocationException {
-        whenModifyVhostUserIfThen();
-    }
-
-    private void whenModifyVhostUserIfThenFailure() throws ExecutionException, InterruptedException, VppInvocationException {
-        whenModifyVhostUserIfFailedThen(-1);
-    }
-
-    private void whenDeleteVhostUserIfThen() throws ExecutionException, InterruptedException, VppInvocationException {
+    private void whenDeleteVhostUserIfThenSuccess()
+            throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<DeleteVhostUserIfReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<DeleteVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
@@ -142,16 +146,10 @@ public class VhostUserCustomizerTest {
     /**
      * Failure response send
      */
-    private void whenDeleteVhostUserIfFailedThen(final int retval) throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<DeleteVhostUserIfReply>createFutureException(retval)).when(api).deleteVhostUserIf(any(DeleteVhostUserIf.class));
-    }
-
-    private void whenDeleteVhostUserIfThenSuccess() throws ExecutionException, InterruptedException, VppInvocationException {
-        whenDeleteVhostUserIfThen();
-    }
-
-    private void whenDeleteVhostUserIfThenFailure() throws ExecutionException, InterruptedException, VppInvocationException {
-        whenDeleteVhostUserIfFailedThen(-1);
+    private void whenDeleteVhostUserIfThenFailure()
+            throws ExecutionException, InterruptedException, VppInvocationException {
+        doReturn(TestHelperUtils.<DeleteVhostUserIfReply>createFutureException()).when(api)
+                .deleteVhostUserIf(any(DeleteVhostUserIf.class));
     }
 
     private CreateVhostUserIf verifyCreateVhostUserIfWasInvoked(final VhostUser vhostUser) throws VppInvocationException {
@@ -168,7 +166,8 @@ public class VhostUserCustomizerTest {
         return actual;
     }
 
-    private ModifyVhostUserIf verifyModifyVhostUserIfWasInvoked(final VhostUser vhostUser, final int swIfIndex) throws VppInvocationException {
+    private ModifyVhostUserIf verifyModifyVhostUserIfWasInvoked(final VhostUser vhostUser, final int swIfIndex)
+            throws VppInvocationException {
         ArgumentCaptor<ModifyVhostUserIf> argumentCaptor = ArgumentCaptor.forClass(ModifyVhostUserIf.class);
         verify(api).modifyVhostUserIf(argumentCaptor.capture());
         final ModifyVhostUserIf actual = argumentCaptor.getValue();
@@ -211,7 +210,7 @@ public class VhostUserCustomizerTest {
     public void testWriteCurrentAttributesFailed() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
 
-        whenVxlanAddDelTunnelThenFailure();
+        whenCreateVhostUserIfThenFailure();
 
         try {
             customizer.writeCurrentAttributes(ID, vhostUser, writeContext);

@@ -101,7 +101,8 @@ public class VxlanGpeCustomizerTest {
                         .augmentation(VppInterfaceAugmentation.class).child(VxlanGpe.class);
     }
 
-    private void whenVxlanGpeAddDelTunnelThen() throws ExecutionException, InterruptedException, VppBaseCallException {
+    private void whenVxlanGpeAddDelTunnelThenSuccess()
+            throws ExecutionException, InterruptedException, VppBaseCallException {
         final CompletionStage<VxlanGpeAddDelTunnelReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<VxlanGpeAddDelTunnelReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
@@ -110,35 +111,33 @@ public class VxlanGpeCustomizerTest {
         when(api.vxlanGpeAddDelTunnel(any(VxlanGpeAddDelTunnel.class))).thenReturn(replyCS);
     }
 
-    private void whenVxlanGpeAddDelTunnelThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
-        whenVxlanGpeAddDelTunnelThen();
-    }
-
-    private void whenVxlanGpeAddDelTunnelThenFailure() throws ExecutionException, InterruptedException, VppBaseCallException {
-        whenVxlanGpeAddDelTunnelFailedThen(-1);
-    }
-
     /**
      * Failure response send
      */
-    private void whenVxlanGpeAddDelTunnelFailedThen(final int retval) throws ExecutionException, InterruptedException, VppBaseCallException {
-        doReturn(TestHelperUtils.<VxlanAddDelTunnelReply>createFutureException(retval)).when(api).vxlanGpeAddDelTunnel(any(VxlanGpeAddDelTunnel.class));
+    private void whenVxlanGpeAddDelTunnelThenFailure()
+            throws ExecutionException, InterruptedException, VppBaseCallException {
+        doReturn(TestHelperUtils.<VxlanAddDelTunnelReply>createFutureException()).when(api)
+                .vxlanGpeAddDelTunnel(any(VxlanGpeAddDelTunnel.class));
     }
 
-    private VxlanGpeAddDelTunnel verifyVxlanGpeAddDelTunnelWasInvoked(final VxlanGpe vxlanGpe) throws VppBaseCallException{
+    private VxlanGpeAddDelTunnel verifyVxlanGpeAddDelTunnelWasInvoked(final VxlanGpe vxlanGpe)
+            throws VppBaseCallException {
         ArgumentCaptor<VxlanGpeAddDelTunnel> argumentCaptor = ArgumentCaptor.forClass(VxlanGpeAddDelTunnel.class);
         verify(api).vxlanGpeAddDelTunnel(argumentCaptor.capture());
         final VxlanGpeAddDelTunnel actual = argumentCaptor.getValue();
         assertEquals(0, actual.isIpv6);
-        assertArrayEquals(InetAddresses.forString(vxlanGpe.getLocal().getIpv4Address().getValue()).getAddress(), actual.local);
-        assertArrayEquals(InetAddresses.forString(vxlanGpe.getRemote().getIpv4Address().getValue()).getAddress(), actual.remote);
+        assertArrayEquals(InetAddresses.forString(vxlanGpe.getLocal().getIpv4Address().getValue()).getAddress(),
+                actual.local);
+        assertArrayEquals(InetAddresses.forString(vxlanGpe.getRemote().getIpv4Address().getValue()).getAddress(),
+                actual.remote);
         assertEquals(vxlanGpe.getVni().getValue().intValue(), actual.vni);
         assertEquals(vxlanGpe.getNextProtocol().getIntValue(), actual.protocol);
         assertEquals(vxlanGpe.getEncapVrfId().intValue(), actual.encapVrfId);
         assertEquals(vxlanGpe.getDecapVrfId().intValue(), actual.decapVrfId);
         return actual;
     }
-    private void verifyVxlanGpeAddWasInvoked(final VxlanGpe vxlanGpe) throws VppBaseCallException{
+
+    private void verifyVxlanGpeAddWasInvoked(final VxlanGpe vxlanGpe) throws VppBaseCallException {
         final VxlanGpeAddDelTunnel actual = verifyVxlanGpeAddDelTunnelWasInvoked(vxlanGpe);
         assertEquals(ADD_VXLAN_GPE, actual.isAdd);
     }
@@ -207,7 +206,8 @@ public class VxlanGpeCustomizerTest {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyVxlanGpeAddWasInvoked(vxlanGpe);
             // Mapping not stored due to failure
-            verify(mappingContext, times(0)).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
+            verify(mappingContext, times(0))
+                    .put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");

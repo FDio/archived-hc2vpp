@@ -17,6 +17,16 @@ package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
@@ -24,6 +34,9 @@ import io.fd.honeycomb.v3po.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,16 +48,6 @@ import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.BridgeDomainAddDel;
 import org.openvpp.jvpp.dto.BridgeDomainAddDelReply;
 import org.openvpp.jvpp.future.FutureJVpp;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BridgeDomainCustomizerTest {
 
@@ -93,7 +96,8 @@ public class BridgeDomainCustomizerTest {
                 .build();
     }
 
-    private void verifyBridgeDomainAddOrUpdateWasInvoked(final BridgeDomain bd, final int bdId) throws VppInvocationException {
+    private void verifyBridgeDomainAddOrUpdateWasInvoked(final BridgeDomain bd, final int bdId)
+            throws VppInvocationException {
         final byte arpTerm = BridgeDomainTestUtils.booleanToByte(bd.isArpTermination());
         final byte flood = BridgeDomainTestUtils.booleanToByte(bd.isFlood());
         final byte forward = BridgeDomainTestUtils.booleanToByte(bd.isForward());
@@ -126,7 +130,8 @@ public class BridgeDomainCustomizerTest {
         assertEquals(ZERO, actual.isAdd);
     }
 
-    private void whenBridgeDomainAddDelThen() throws ExecutionException, InterruptedException, VppInvocationException {
+    private void whenBridgeDomainAddDelThenSuccess()
+            throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<BridgeDomainAddDelReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<BridgeDomainAddDelReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
@@ -135,16 +140,10 @@ public class BridgeDomainCustomizerTest {
         when(api.bridgeDomainAddDel(any(BridgeDomainAddDel.class))).thenReturn(replyCS);
     }
 
-    private void whenBridgeDomainAddDelFailedThen(final int retval) throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<BridgeDomainAddDelReply>createFutureException(retval)).when(api).bridgeDomainAddDel(any(BridgeDomainAddDel.class));
-    }
-
-    private void whenBridgeDomainAddDelThenSuccess() throws ExecutionException, InterruptedException, VppInvocationException {
-        whenBridgeDomainAddDelThen();
-    }
-
-    private void whenBridgeDomainAddDelThenFailure() throws ExecutionException, InterruptedException, VppInvocationException {
-        whenBridgeDomainAddDelFailedThen(-1);
+    private void whenBridgeDomainAddDelThenFailure()
+            throws ExecutionException, InterruptedException, VppInvocationException {
+        doReturn(TestHelperUtils.<BridgeDomainAddDelReply>createFutureException()).when(api)
+                .bridgeDomainAddDel(any(BridgeDomainAddDel.class));
     }
 
     @Test
@@ -152,7 +151,8 @@ public class BridgeDomainCustomizerTest {
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
-        doReturn(Optional.absent()).when(mappingContext).read(getMappingIid(bdName, "test-instance").firstIdentifierOf(Mappings.class));
+        doReturn(Optional.absent()).when(mappingContext)
+                .read(getMappingIid(bdName, "test-instance").firstIdentifierOf(Mappings.class));
 
         whenBridgeDomainAddDelThenSuccess();
 
@@ -169,7 +169,8 @@ public class BridgeDomainCustomizerTest {
         final BridgeDomain bd = generateBridgeDomain(bdName);
 
         // Returning no Mappings for "test-instance" makes bdContext.containsName() return false
-        doReturn(Optional.absent()).when(mappingContext).read(getMappingIid(bdName, "test-instance").firstIdentifierOf(Mappings.class));
+        doReturn(Optional.absent()).when(mappingContext)
+                .read(getMappingIid(bdName, "test-instance").firstIdentifierOf(Mappings.class));
 
         whenBridgeDomainAddDelThenFailure();
 
@@ -250,7 +251,8 @@ public class BridgeDomainCustomizerTest {
 
         whenBridgeDomainAddDelThenSuccess();
 
-        customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), dataBefore, dataAfter, ctx);
+        customizer
+                .updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), dataBefore, dataAfter, ctx);
 
         verifyBridgeDomainAddOrUpdateWasInvoked(dataAfter, bdId);
     }
@@ -258,12 +260,13 @@ public class BridgeDomainCustomizerTest {
     @Test
     public void testUpdateUnknownBridgeDomain() throws Exception {
         final String bdName = "bd1";
-        final BridgeDomain bdBefore = generateBridgeDomain(bdName, 0, 1, 0 ,1, 0);
-        final BridgeDomain bdAfter = generateBridgeDomain(bdName, 1, 1, 0 ,1, 0);
+        final BridgeDomain bdBefore = generateBridgeDomain(bdName, 0, 1, 0, 1, 0);
+        final BridgeDomain bdAfter = generateBridgeDomain(bdName, 1, 1, 0, 1, 0);
         doReturn(Optional.absent()).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
 
         try {
-            customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bdBefore, bdAfter, ctx);
+            customizer
+                    .updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bdBefore, bdAfter, ctx);
         } catch (IllegalArgumentException e) {
             verify(api, never()).bridgeDomainAddDel(any(BridgeDomainAddDel.class));
             return;
@@ -282,7 +285,8 @@ public class BridgeDomainCustomizerTest {
         whenBridgeDomainAddDelThenFailure();
 
         try {
-            customizer.updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bdBefore, bdAfter, ctx);
+            customizer
+                    .updateCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bdBefore, bdAfter, ctx);
         } catch (WriteFailedException.UpdateFailedException  e) {
             verifyBridgeDomainAddOrUpdateWasInvoked(bdAfter, bdId);
             return;

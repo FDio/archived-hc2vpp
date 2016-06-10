@@ -114,8 +114,8 @@ public class TapCustomizer extends FutureJVppCustomizer
             builder.setTapName(TranslateUtils.toString(swInterfaceTapDetails.devName));
             LOG.debug("Tap interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
         } catch (VppBaseCallException e) {
-            LOG.warn("Failed to readCurrentAttributes for: {}", id);
-            throw new ReadFailedException(id);
+            LOG.warn("Failed to readCurrentAttributes for: {}", id, e);
+            throw new ReadFailedException(id, e);
         }
     }
 }

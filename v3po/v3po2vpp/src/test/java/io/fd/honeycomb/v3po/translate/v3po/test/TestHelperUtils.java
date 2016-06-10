@@ -22,14 +22,16 @@ import org.openvpp.jvpp.dto.JVppReply;
 import java.util.concurrent.CompletableFuture;
 
 public class TestHelperUtils {
+    private final static int ERROR_RETVAL = -1;
+
     /**
      * Static helper method for creation of Exception failure state in CompletableFuture object
-     * @param retval result of the operation in exception
+     * with retval = -1
      * @return CompletableFuture with VppCallbackException as a cause
      */
-    public static CompletableFuture<? extends JVppReply>  createFutureException(final int retval) {
+    public static CompletableFuture<? extends JVppReply>  createFutureException() {
         final CompletableFuture<? extends JVppReply> replyFuture = new CompletableFuture<>();
-        replyFuture.completeExceptionally(new VppCallbackException("test-call", 1, retval));
+        replyFuture.completeExceptionally(new VppCallbackException("test-call", 1, ERROR_RETVAL));
         return replyFuture;
     }
 }

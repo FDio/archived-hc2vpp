@@ -49,13 +49,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
- * Customizer for reading ietf-interfaces:interfaces-state/interface
+ * Customizer for reading ietf-interfaces:interfaces-state/interface.
  */
 public class InterfaceCustomizer extends FutureJVppCustomizer
         implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceCustomizer.class);
-    public static final String DUMPED_IFCS_CONTEXT_KEY = InterfaceCustomizer.class.getName() + "dumpedInterfacesDuringGetAllIds";
+    public static final String DUMPED_IFCS_CONTEXT_KEY =
+            InterfaceCustomizer.class.getName() + "dumpedInterfacesDuringGetAllIds";
 
     private final NamingContext interfaceContext;
 
@@ -78,14 +79,18 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
         // Pass cached details from getAllIds to getDetails to avoid additional dumps
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
-            interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
+                interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", key.getName(), iface);
 
         builder.setName(key.getName());
         builder.setType(InterfaceUtils.getInterfaceType(new String(iface.interfaceName).intern()));
         builder.setIfIndex(InterfaceUtils.vppIfIndexToYang(iface.swIfIndex));
-        builder.setAdminStatus(1 == iface.adminUpDown ? AdminStatus.Up : AdminStatus.Down);
-        builder.setOperStatus(1 == iface.linkUpDown ? OperStatus.Up : OperStatus.Down);
+        builder.setAdminStatus(1 == iface.adminUpDown
+                ? AdminStatus.Up
+                : AdminStatus.Down);
+        builder.setOperStatus(1 == iface.linkUpDown
+                ? OperStatus.Up
+                : OperStatus.Down);
         if (0 != iface.linkSpeed) {
             builder.setSpeed(InterfaceUtils.vppInterfaceSpeedToYang(iface.linkSpeed));
         }
@@ -97,10 +102,11 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
     @Nonnull
     @SuppressWarnings("unchecked")
-    public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(final @Nonnull ModificationCache ctx) {
+    public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(@Nonnull final ModificationCache ctx) {
         return ctx.get(DUMPED_IFCS_CONTEXT_KEY) == null
-            ? new HashMap<>() // allow customizers to update the cache
-            : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
+                ? new HashMap<>()
+                // allow customizers to update the cache
+                : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
     }
 
     @Nonnull
@@ -117,42 +123,45 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
             final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
                     getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
-            final SwInterfaceDetailsReplyDump ifaces = TranslateUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
+            final SwInterfaceDetailsReplyDump ifaces =
+                    TranslateUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
 
             if (null == ifaces || null == ifaces.swInterfaceDetails) {
-                LOG.debug("No interfaces found in VPP");
+                LOG.debug("No interfaces for :{} found in VPP", id);
                 return Collections.emptyList();
             }
 
             // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
             context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-                .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+                    .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
 
             interfacesKeys = ifaces.swInterfaceDetails.stream()
-                .filter(elt -> elt != null)
-                .map((elt) -> {
-                    // Store interface name from VPP in context if not yet present
-                    if (!interfaceContext.containsName(elt.swIfIndex, context.getMappingContext())) {
-                        interfaceContext.addName(elt.swIfIndex, TranslateUtils.toString(elt.interfaceName), context.getMappingContext());
-                    }
-                    LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
-                        interfaceContext.getName(elt.swIfIndex, context.getMappingContext()), elt.interfaceName, elt.swIfIndex);
+                    .filter(elt -> elt != null)
+                    .map((elt) -> {
+                        // Store interface name from VPP in context if not yet present
+                        if (!interfaceContext.containsName(elt.swIfIndex, context.getMappingContext())) {
+                            interfaceContext.addName(elt.swIfIndex, TranslateUtils.toString(elt.interfaceName),
+                                    context.getMappingContext());
+                        }
+                        LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
+                                interfaceContext.getName(elt.swIfIndex, context.getMappingContext()), elt.interfaceName,
+                                elt.swIfIndex);
 
-                    return new InterfaceKey(interfaceContext.getName(elt.swIfIndex, context.getMappingContext()));
-                })
-                .collect(Collectors.toList());
+                        return new InterfaceKey(interfaceContext.getName(elt.swIfIndex, context.getMappingContext()));
+                    })
+                    .collect(Collectors.toList());
 
             LOG.debug("Interfaces found in VPP: {}", interfacesKeys);
             return interfacesKeys;
         } catch (VppBaseCallException e) {
-            LOG.warn("Unable to get all interface IDs", e);
-            throw new ReadFailedException( id, e);
+            LOG.warn("getAllIds for id :{} failed with exception ", id, e);
+            throw new ReadFailedException(id, e);
         }
     }
 
     @Override
     public void merge(@Nonnull final org.opendaylight.yangtools.concepts.Builder<? extends DataObject> builder,
-                      @Nonnull final  List<Interface> readData) {
+                      @Nonnull final List<Interface> readData) {
         ((InterfacesStateBuilder) builder).setInterface(readData);
     }
 
