@@ -233,7 +233,7 @@ public final class InterfaceUtils {
             return Tap.class;
         }
 
-        if (interfaceName.startsWith("vxlanGpe")) {
+        if (interfaceName.startsWith("vxlan_gpe")) {
             return VxlanGpeTunnel.class;
         }
 

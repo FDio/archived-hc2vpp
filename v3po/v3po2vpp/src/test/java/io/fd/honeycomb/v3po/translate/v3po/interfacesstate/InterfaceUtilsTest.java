@@ -47,7 +47,7 @@ public class InterfaceUtilsTest {
     public void testGetInterfaceType() {
         assertEquals(Tap.class, InterfaceUtils.getInterfaceType("tap0"));
         assertEquals(VxlanTunnel.class, InterfaceUtils.getInterfaceType("vxlan0"));
-        assertEquals(VxlanGpeTunnel.class, InterfaceUtils.getInterfaceType("vxlanGpe0"));
+        assertEquals(VxlanGpeTunnel.class, InterfaceUtils.getInterfaceType("vxlan_gpe0"));
         assertEquals(VhostUser.class, InterfaceUtils.getInterfaceType("VirtualEthernet0/0/0"));
         assertEquals(EthernetCsmacd.class, InterfaceUtils.getInterfaceType("eth0.0"));
         assertEquals(EthernetCsmacd.class, InterfaceUtils.getInterfaceType("local0"));

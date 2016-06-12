@@ -62,11 +62,11 @@ public class VxlanGpeCustomizerTest extends ChildReaderCustomizerTest<VxlanGpe, 
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("vxlanGpe-tunnel", "test-instance");
+        interfacesContext = new NamingContext("vxlan_gpe_inf", "test-instance");
         doReturn(getMapping("ifc2", 0)).when(mappingContext).read(getMappingIid("ifc2", "test-instance"));
 
         final SwInterfaceDetails v = new SwInterfaceDetails();
-        v.interfaceName = "vxlanGpe-tunnel2".getBytes();
+        v.interfaceName = "vxlan_gpe_inf2".getBytes();
         final Map<Integer, SwInterfaceDetails> map = new HashMap<>();
         map.put(0, v);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, map);
