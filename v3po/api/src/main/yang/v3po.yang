@@ -82,10 +82,18 @@ module v3po {
 
   typedef vxlan-gpe-next-protocol {
     type enumeration {
-      enum ipv4;
-      enum ipv6;
-      enum ethernet;
-      enum nsh;
+      enum "ipv4" {
+        value 1;
+      }
+      enum "ipv6" {
+        value 2;
+      }
+      enum "ethernet" {
+        value 3;
+      }
+      enum "nsh" {
+        value 4;
+      }
     }
   }
 
