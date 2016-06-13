@@ -55,12 +55,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class L2FibEntryCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> {
+    implements ListReaderCustomizer<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2FibEntryCustomizer.class);
 
-    Collector<L2FibTableEntry, ?, L2FibTableEntry> SINGLE_ITEM_COLLECTOR =
-            RWUtils.singleItemCollector();
+    private static final Collector<L2FibTableEntry, ?, L2FibTableEntry> SINGLE_ITEM_COLLECTOR =
+        RWUtils.singleItemCollector();
 
     private final NamingContext bdContext;
     private final NamingContext interfaceContext;
@@ -75,7 +75,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                       @Nonnull final L2FibEntryBuilder builder, @Nonnull final ReadContext ctx)
-            throws ReadFailedException {
+        throws ReadFailedException {
 
         final L2FibEntryKey key = id.firstKeyOf(id.getTargetType());
         final BridgeDomainKey bridgeDomainKey = id.firstKeyOf(BridgeDomain.class);
@@ -85,12 +85,12 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
         try {
             // TODO use cached l2FibTable
             final L2FibTableEntry entry = dumpL2Fibs(bdId).stream().filter(e -> key.getPhysAddress()
-                    .equals(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(e.mac), 2))))
-                    .collect(SINGLE_ITEM_COLLECTOR);
+                .equals(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(e.mac), 2))))
+                .collect(SINGLE_ITEM_COLLECTOR);
 
             builder.setAction(byteToBoolean(entry.filterMac)
-                    ? L2FibFilter.class
-                    : L2FibForward.class);
+                ? L2FibFilter.class
+                : L2FibForward.class);
             builder.setBridgedVirtualInterface(byteToBoolean(entry.bviMac));
 
             if (entry.swIfIndex != -1) {
@@ -110,7 +110,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
         l2FibRequest.bdId = bdId;
 
         final CompletableFuture<L2FibTableEntryReplyDump> l2FibTableDumpCompletableFuture =
-                getFutureJVpp().l2FibTableDump(l2FibRequest).toCompletableFuture();
+            getFutureJVpp().l2FibTableDump(l2FibRequest).toCompletableFuture();
 
         final L2FibTableEntryReplyDump dump = TranslateUtils.getReply(l2FibTableDumpCompletableFuture);
 
@@ -131,8 +131,8 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
         LOG.debug("Reading L2 FIB for bridge domain {} (bdId={})", bridgeDomainKey, bdId);
         try {
             return dumpL2Fibs(bdId).stream()
-                    .map(entry -> new L2FibEntryKey(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(entry.mac), 2)))
-                    ).collect(Collectors.toList());
+                .map(entry -> new L2FibEntryKey(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(entry.mac), 2)))
+                ).collect(Collectors.toList());
         } catch (VppBaseCallException e) {
             throw new ReadFailedException(id, e);
         }

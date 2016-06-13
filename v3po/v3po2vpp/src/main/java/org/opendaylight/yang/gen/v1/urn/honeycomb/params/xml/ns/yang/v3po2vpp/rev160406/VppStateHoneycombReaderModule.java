@@ -43,15 +43,20 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VppStateHoneycombReaderModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractVppStateHoneycombReaderModule {
+public class VppStateHoneycombReaderModule extends
+    org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractVppStateHoneycombReaderModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppStateHoneycombReaderModule.class);
 
-    public VppStateHoneycombReaderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+    public VppStateHoneycombReaderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+                                         org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public VppStateHoneycombReaderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppStateHoneycombReaderModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public VppStateHoneycombReaderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+                                         org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+                                         org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppStateHoneycombReaderModule oldModule,
+                                         java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -72,20 +77,21 @@ public class VppStateHoneycombReaderModule extends org.opendaylight.yang.gen.v1.
         versionReader = new KeepaliveReaderWrapper<>(versionReader, getKeepaliveExecutorDependency().getExecutor(),
             ReadTimeoutException.class, 30, () -> reinitializeJVpp(reinitializationCounter));
 
-        final CompositeListReader<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> l2FibEntryReader = new CompositeListReader<>(L2FibEntry.class,
+        final CompositeListReader<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> l2FibEntryReader =
+            new CompositeListReader<>(L2FibEntry.class,
                 new L2FibEntryCustomizer(vppApi,
-                        getBridgeDomainContextVppStateDependency(), getInterfaceContextVppStateDependency()));
+                    getBridgeDomainContextVppStateDependency(), getInterfaceContextVppStateDependency()));
 
         final ChildReader<L2FibTable> l2FibTableReader = new CompositeChildReader<>(
-                L2FibTable.class,
-                RWUtils.singletonChildReaderList(l2FibEntryReader),
-                new ReflexiveChildReaderCustomizer<>(L2FibTableBuilder.class));
+            L2FibTable.class,
+            RWUtils.singletonChildReaderList(l2FibEntryReader),
+            new ReflexiveChildReaderCustomizer<>(L2FibTableBuilder.class));
 
         final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
             new CompositeListReader<>(BridgeDomain.class,
-                    RWUtils.singletonChildReaderList((ChildReader)l2FibTableReader),
-                    new BridgeDomainCustomizer(vppApi,
-                getBridgeDomainContextVppStateDependency()));
+                RWUtils.singletonChildReaderList((ChildReader) l2FibTableReader),
+                new BridgeDomainCustomizer(vppApi,
+                    getBridgeDomainContextVppStateDependency()));
 
         final ChildReader<BridgeDomains> bridgeDomainsReader = new CompositeChildReader<>(
             BridgeDomains.class,

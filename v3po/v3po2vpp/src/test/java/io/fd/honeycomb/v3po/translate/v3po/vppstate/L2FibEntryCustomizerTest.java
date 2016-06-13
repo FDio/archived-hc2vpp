@@ -83,11 +83,11 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
 
     private static InstanceIdentifier<L2FibEntry> getL2FibEntryId(final String bdName, final PhysAddress address) {
         return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(bdName))
-                .child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(address));
+            .child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(address));
     }
 
     private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> l2FibTableEntryList)
-            throws ExecutionException, InterruptedException, VppInvocationException {
+        throws ExecutionException, InterruptedException, VppInvocationException {
         final L2FibTableEntryReplyDump reply = new L2FibTableEntryReplyDump();
         reply.l2FibTableEntry = l2FibTableEntryList;
 

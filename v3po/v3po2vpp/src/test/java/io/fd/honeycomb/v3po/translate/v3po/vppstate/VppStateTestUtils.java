@@ -50,31 +50,31 @@ final class VppStateTestUtils {
                                                                             @Nonnull final NamingContext bdContext) {
 
         final ChildReader<Version> versionReader = new CompositeChildReader<>(
-                Version.class, new VersionCustomizer(futureJVpp));
+            Version.class, new VersionCustomizer(futureJVpp));
 
         final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
-                getBridgeDomainReader(futureJVpp, bdContext);
+            getBridgeDomainReader(futureJVpp, bdContext);
 
         final ChildReader<BridgeDomains> bridgeDomainsReader = new CompositeChildReader<>(
-                BridgeDomains.class,
-                RWUtils.singletonChildReaderList(bridgeDomainReader),
-                new ReflexiveChildReaderCustomizer<>(BridgeDomainsBuilder.class));
+            BridgeDomains.class,
+            RWUtils.singletonChildReaderList(bridgeDomainReader),
+            new ReflexiveChildReaderCustomizer<>(BridgeDomainsBuilder.class));
 
         final List<ChildReader<? extends ChildOf<VppState>>> childVppReaders = new ArrayList<>();
         childVppReaders.add(versionReader);
         childVppReaders.add(bridgeDomainsReader);
 
         return new CompositeRootReader<>(
-                VppState.class,
-                childVppReaders,
-                RWUtils.<VppState>emptyAugReaderList(),
-                new ReflexiveRootReaderCustomizer<>(VppStateBuilder.class));
+            VppState.class,
+            childVppReaders,
+            RWUtils.<VppState>emptyAugReaderList(),
+            new ReflexiveRootReaderCustomizer<>(VppStateBuilder.class));
     }
 
     static CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> getBridgeDomainReader(
-            final @Nonnull FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext) {
+        final @Nonnull FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext) {
         return new CompositeListReader<>(
-                BridgeDomain.class,
-                new BridgeDomainCustomizer(futureJVpp, bdContext));
+            BridgeDomain.class,
+            new BridgeDomainCustomizer(futureJVpp, bdContext));
     }
 }

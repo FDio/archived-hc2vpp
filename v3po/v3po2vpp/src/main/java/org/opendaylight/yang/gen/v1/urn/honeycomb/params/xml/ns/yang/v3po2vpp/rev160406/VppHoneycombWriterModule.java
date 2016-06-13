@@ -21,12 +21,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
-public class VppHoneycombWriterModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractVppHoneycombWriterModule {
-    public VppHoneycombWriterModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+public class VppHoneycombWriterModule extends
+    org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractVppHoneycombWriterModule {
+    public VppHoneycombWriterModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+                                    org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public VppHoneycombWriterModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppHoneycombWriterModule oldModule, java.lang.AutoCloseable oldInstance) {
+    public VppHoneycombWriterModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+                                    org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+                                    org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppHoneycombWriterModule oldModule,
+                                    java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -39,7 +44,7 @@ public class VppHoneycombWriterModule extends org.opendaylight.yang.gen.v1.urn.h
     public java.lang.AutoCloseable createInstance() {
         final CompositeListWriter<BridgeDomain, BridgeDomainKey> bridgeDomainWriter = new CompositeListWriter<>(
             BridgeDomain.class,
-                RWUtils.singletonChildWriterList(l2FibTableWriter()),
+            RWUtils.singletonChildWriterList(l2FibTableWriter()),
             new BridgeDomainCustomizer(getVppJvppWriterDependency(), getBridgeDomainContextVppDependency()));
 
         final ChildWriter<BridgeDomains> bridgeDomainsWriter = new CompositeChildWriter<>(
@@ -57,18 +62,18 @@ public class VppHoneycombWriterModule extends org.opendaylight.yang.gen.v1.urn.h
     }
 
     private ChildWriter l2FibTableWriter() {
-        final CompositeListWriter<L2FibEntry, L2FibEntryKey> l2FibEntryWriter = new CompositeListWriter<>(L2FibEntry.class,
+        final CompositeListWriter<L2FibEntry, L2FibEntryKey> l2FibEntryWriter =
+            new CompositeListWriter<>(L2FibEntry.class,
                 new L2FibEntryCustomizer(getVppJvppWriterDependency(),
-                        getBridgeDomainContextVppDependency(), getInterfaceContextVppDependency()));
+                    getBridgeDomainContextVppDependency(), getInterfaceContextVppDependency()));
 
         final ChildWriter<L2FibTable> l2FibTableWriter = new CompositeChildWriter<>(
-                L2FibTable.class,
-                RWUtils.singletonChildWriterList(l2FibEntryWriter),
-                new ReflexiveChildWriterCustomizer<>());
+            L2FibTable.class,
+            RWUtils.singletonChildWriterList(l2FibEntryWriter),
+            new ReflexiveChildWriterCustomizer<>());
 
         return l2FibTableWriter;
     }
-
 
 
 }

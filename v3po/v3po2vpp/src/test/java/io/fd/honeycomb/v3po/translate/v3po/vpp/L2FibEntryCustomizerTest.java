@@ -86,7 +86,7 @@ public class L2FibEntryCustomizerTest {
 
     private static InstanceIdentifier<L2FibEntry> getL2FibEntryId(final PhysAddress address) {
         return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(BD_NAME))
-                .child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(address));
+            .child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(address));
     }
 
     private void whenL2FibAddDelThenSuccess() {
@@ -98,7 +98,7 @@ public class L2FibEntryCustomizerTest {
 
     private void whenL2FibAddDelThenFailure() {
         doReturn(TestHelperUtils.<L2InterfaceVlanTagRewriteReply>createFutureException()).when(api)
-                .l2FibAddDel(any(L2FibAddDel.class));
+            .l2FibAddDel(any(L2FibAddDel.class));
     }
 
     private L2FibAddDel generateL2FibAddDelRequest(final long mac, final byte isAdd) {
@@ -126,7 +126,7 @@ public class L2FibEntryCustomizerTest {
     }
 
     private void verifyL2FibAddDelWasInvoked(final L2FibAddDel expected) throws
-            VppInvocationException {
+        VppInvocationException {
         ArgumentCaptor<L2FibAddDel> argumentCaptor = ArgumentCaptor.forClass(L2FibAddDel.class);
         verify(api).l2FibAddDel(argumentCaptor.capture());
         final L2FibAddDel actual = argumentCaptor.getValue();
@@ -180,7 +180,7 @@ public class L2FibEntryCustomizerTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws Exception {
         customizer.updateCurrentAttributes(InstanceIdentifier.create(L2FibEntry.class), mock(L2FibEntry.class),
-                mock(L2FibEntry.class), writeContext);
+            mock(L2FibEntry.class), writeContext);
     }
 
     @Test

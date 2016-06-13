@@ -99,19 +99,21 @@ public class VppStateTest {
         bdContext = new NamingContext("generatedBdName", "bd-test-instance");
         interfaceContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
         vppStateReader = VppStateTestUtils.getVppStateReader(api, bdContext);
-        readerRegistry = new DelegatingReaderRegistry(Collections.<Reader<? extends DataObject>>singletonList(vppStateReader));
+        readerRegistry =
+            new DelegatingReaderRegistry(Collections.<Reader<? extends DataObject>>singletonList(vppStateReader));
     }
 
     private static Version getVersion() {
         return new VersionBuilder()
-                .setName("test")
-                .setBuildDirectory("1")
-                .setBranch("2")
-                .setBuildDate("3")
-                .build();
+            .setName("test")
+            .setBuildDirectory("1")
+            .setBranch("2")
+            .setBuildDate("3")
+            .build();
     }
 
-    private void whenShowVersionThenReturn(int retval, Version version) throws ExecutionException, InterruptedException, VppInvocationException {
+    private void whenShowVersionThenReturn(int retval, Version version)
+        throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletableFuture<ShowVersionReply> replyFuture = new CompletableFuture<>();
         final ShowVersionReply reply = new ShowVersionReply();
         reply.buildDate = version.getBuildDate().getBytes();
@@ -123,7 +125,8 @@ public class VppStateTest {
         when(api.showVersion(any(ShowVersion.class))).thenReturn(replyFuture);
     }
 
-    private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> entryList) throws ExecutionException, InterruptedException, VppInvocationException {
+    private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> entryList)
+        throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<L2FibTableEntryReplyDump> replyCS = mock(CompletionStage.class);
         final CompletableFuture<L2FibTableEntryReplyDump> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
@@ -133,7 +136,8 @@ public class VppStateTest {
         when(api.l2FibTableDump(any(L2FibTableDump.class))).thenReturn(replyCS);
     }
 
-    private void whenBridgeDomainDumpThenReturn(final List<BridgeDomainDetails> bdList) throws ExecutionException, InterruptedException, VppInvocationException {
+    private void whenBridgeDomainDumpThenReturn(final List<BridgeDomainDetails> bdList)
+        throws ExecutionException, InterruptedException, VppInvocationException {
         final CompletionStage<BridgeDomainDetailsReplyDump> replyCS = mock(CompletionStage.class);
         final CompletableFuture<BridgeDomainDetailsReplyDump> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
@@ -142,7 +146,7 @@ public class VppStateTest {
         when(replyFuture.get()).thenReturn(reply);
 
         doAnswer(invocation -> {
-            BridgeDomainDump request = (BridgeDomainDump)invocation.getArguments()[0];
+            BridgeDomainDump request = (BridgeDomainDump) invocation.getArguments()[0];
             if (request.bdId == -1) {
                 reply.bridgeDomainDetails = bdList;
             } else {
@@ -167,9 +171,11 @@ public class VppStateTest {
 
         whenBridgeDomainDumpThenReturn(bdList);
 
-        final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects = readerRegistry.readAll(ctx);
+        final Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> dataObjects =
+            readerRegistry.readAll(ctx);
         assertEquals(dataObjects.size(), 1);
-        final VppState dataObject = (VppState)Iterables.getOnlyElement(dataObjects.get(Iterables.getOnlyElement(dataObjects.keySet())));
+        final VppState dataObject =
+            (VppState) Iterables.getOnlyElement(dataObjects.get(Iterables.getOnlyElement(dataObjects.keySet())));
         assertEquals(version, dataObject.getVersion());
         assertEquals(2, dataObject.getBridgeDomains().getBridgeDomain().size());
     }
@@ -221,15 +227,19 @@ public class VppStateTest {
         whenL2FibTableDumpThenReturn(Collections.singletonList(l2FibEntry));
 
         // Deep child without a dedicated reader with specific l2fib key
-        final InstanceIdentifier<? extends DataObject> idExisting = InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("bdn1")).child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(new PhysAddress("01:02:03:04:05:06")));
+        final InstanceIdentifier<? extends DataObject> idExisting =
+            InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
+                BridgeDomain.class, new BridgeDomainKey("bdn1")).child(L2FibTable.class)
+                .child(L2FibEntry.class, new L2FibEntryKey(new PhysAddress("01:02:03:04:05:06")));
         Optional<? extends DataObject> read =
             readerRegistry.read(idExisting, ctx);
         assertTrue(read.isPresent());
 
         // non existing l2fib
-        final InstanceIdentifier<? extends DataObject> idNonExisting = InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("bdn1")).child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(new PhysAddress("FF:FF:FF:04:05:06")));
+        final InstanceIdentifier<? extends DataObject> idNonExisting =
+            InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
+                BridgeDomain.class, new BridgeDomainKey("bdn1")).child(L2FibTable.class)
+                .child(L2FibEntry.class, new L2FibEntryKey(new PhysAddress("FF:FF:FF:04:05:06")));
         read = readerRegistry.read(idNonExisting, ctx);
         assertFalse(read.isPresent());
     }
@@ -276,7 +286,7 @@ public class VppStateTest {
 
         assertTrue(read.isPresent());
         assertEquals(readRoot.getBridgeDomains().getBridgeDomain().stream().filter(
-                input -> input.getKey().getName().equals(bdName)).findFirst().get(),
+            input -> input.getKey().getName().equals(bdName)).findFirst().get(),
             read.get());
     }
 

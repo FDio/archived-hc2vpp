@@ -25,6 +25,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomainsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
@@ -58,22 +61,39 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
     }
 
     private static final Function<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain, BridgeDomain>
-            CONVERT_BD =
-            new Function<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain, BridgeDomain>() {
-                @Nullable
-                @Override
-                public BridgeDomain apply(
-                        @Nullable final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain input) {
-                    final BridgeDomainBuilder builder = new BridgeDomainBuilder();
-                    builder.setLearn(input.isLearn());
-                    builder.setUnknownUnicastFlood(input.isUnknownUnicastFlood());
-                    builder.setArpTermination(input.isArpTermination());
-                    builder.setFlood(input.isFlood());
-                    builder.setForward(input.isForward());
-                    builder.setKey(new BridgeDomainKey(input.getKey().getName()));
-                    // bdBuilder.setL2Fib(bd.getL2Fib()); // TODO we need state=>oper converter for L2Fib
-                    builder.setName(input.getName());
-                    return builder.build();
-                }
-            };
+        CONVERT_BD =
+        new Function<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain, BridgeDomain>() {
+            @Nullable
+            @Override
+            public BridgeDomain apply(
+                @Nullable final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain input) {
+                final BridgeDomainBuilder builder = new BridgeDomainBuilder();
+                builder.setLearn(input.isLearn());
+                builder.setUnknownUnicastFlood(input.isUnknownUnicastFlood());
+                builder.setArpTermination(input.isArpTermination());
+                builder.setFlood(input.isFlood());
+                builder.setForward(input.isForward());
+                builder.setKey(new BridgeDomainKey(input.getKey().getName()));
+                builder.setName(input.getName());
+                setL2FibTable(builder, input.getL2FibTable());
+                return builder.build();
+            }
+        };
+
+    private static void setL2FibTable(@Nonnull final BridgeDomainBuilder builder,
+                                      @Nullable final L2FibTable l2FibTable) {
+        if (l2FibTable == null) {
+            return;
+        }
+        final L2FibTableBuilder tableBuilder = new L2FibTableBuilder();
+        tableBuilder.setL2FibEntry(
+            Lists.transform(l2FibTable.getL2FibEntry(),
+                oper -> {
+                    final L2FibEntryBuilder config = new L2FibEntryBuilder(oper);
+                    config.setBridgedVirtualInterface(null);
+                    return config.build();
+                }));
+        builder.setL2FibTable(tableBuilder.build());
+    }
+
 }

@@ -64,7 +64,7 @@ public final class InterfaceUtils {
     private static final int PHYSICAL_ADDRESS_LENGTH = 6;
 
     private static final Collector<SwInterfaceDetails, ?, SwInterfaceDetails> SINGLE_ITEM_COLLECTOR =
-            RWUtils.singleItemCollector();
+        RWUtils.singleItemCollector();
 
     private InterfaceUtils() {
         throw new UnsupportedOperationException("This utility class cannot be instantiated");
@@ -102,6 +102,7 @@ public final class InterfaceUtils {
     }
 
     // TODO rename and move to V3poUtils
+
     /**
      * Reads first 6 bytes of supplied byte array and converts to string as Yang dictates <p> Replace later with
      * https://git.opendaylight.org/gerrit/#/c/34869/10/model/ietf/ietf-type- util/src/main/
@@ -118,13 +119,14 @@ public final class InterfaceUtils {
 
     public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress, int startIndex) {
         Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
-        final int endIndex = startIndex+PHYSICAL_ADDRESS_LENGTH;
+        final int endIndex = startIndex + PHYSICAL_ADDRESS_LENGTH;
         Preconditions.checkArgument(endIndex <= vppPhysAddress.length,
-                "Invalid physical address size (%s) for given startIndex (%d), expected >= %d", vppPhysAddress.length, startIndex, endIndex);
+            "Invalid physical address size (%s) for given startIndex (%d), expected >= %d", vppPhysAddress.length,
+            startIndex, endIndex);
         StringBuilder physAddr = new StringBuilder();
 
         appendHexByte(physAddr, vppPhysAddress[startIndex]);
-        for (int i = startIndex+1; i < endIndex; i++) {
+        for (int i = startIndex + 1; i < endIndex; i++) {
             physAddr.append(":");
             appendHexByte(physAddr, vppPhysAddress[i]);
         }
@@ -159,21 +161,21 @@ public final class InterfaceUtils {
      * Queries VPP for interface description given interface key.
      *
      * @param futureJvpp VPP Java Future API
-     * @param id            InstanceIdentifier, which is passed in ReadFailedException
+     * @param id         InstanceIdentifier, which is passed in ReadFailedException
      * @param name       interface name
      * @param index      VPP index of the interface
      * @param ctx        per-tx scope context containing cached dump with all the interfaces. If the cache is not
      *                   available or outdated, another dump will be performed.
      * @return SwInterfaceDetails DTO or null if interface was not found
      * @throws IllegalArgumentException If interface cannot be found
-     * @throws ReadFailedException If read operation had failed
+     * @throws ReadFailedException      If read operation had failed
      */
     @Nonnull
     public static SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVpp futureJvpp,
                                                             @Nonnull final InstanceIdentifier<?> id,
                                                             @Nonnull final String name, final int index,
                                                             @Nonnull final ModificationCache ctx)
-            throws ReadFailedException {
+        throws ReadFailedException {
         requireNonNull(futureJvpp, "futureJvpp should not be null");
         requireNonNull(name, "name should not be null");
         requireNonNull(ctx, "ctx should not be null");
@@ -206,7 +208,7 @@ public final class InterfaceUtils {
                 // Update the cache
                 allInterfaces.clear();
                 allInterfaces
-                        .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
+                    .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
 
                 if (allInterfaces.containsKey(index)) {
                     return allInterfaces.get(index);
@@ -220,7 +222,7 @@ public final class InterfaceUtils {
 
         // SwInterfaceDump's name filter does prefix match, so we need additional filtering:
         final SwInterfaceDetails iface =
-                ifaces.swInterfaceDetails.stream().filter(d -> d.swIfIndex == index).collect(SINGLE_ITEM_COLLECTOR);
+            ifaces.swInterfaceDetails.stream().filter(d -> d.swIfIndex == index).collect(SINGLE_ITEM_COLLECTOR);
         allInterfaces.put(index, iface); // update the cache
         return iface;
     }
@@ -253,9 +255,9 @@ public final class InterfaceUtils {
     }
 
     /**
-     * Check interface type. Uses interface details from VPP to determine.
-     * Uses {@link #getVppInterfaceDetails(FutureJVpp, InstanceIdentifier, String, int, ModificationCache)} internally
-     * so tries to utilize cache before asking VPP.
+     * Check interface type. Uses interface details from VPP to determine. Uses {@link
+     * #getVppInterfaceDetails(FutureJVpp, InstanceIdentifier, String, int, ModificationCache)} internally so tries to
+     * utilize cache before asking VPP.
      */
     static boolean isInterfaceOfType(@Nonnull final FutureJVpp jvpp,
                                      @Nonnull final ModificationCache cache,

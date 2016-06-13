@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * VPP.<br> Equivalent of invoking {@code vppctl l2fib add/del} command.
  */
 public class L2FibEntryCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<L2FibEntry, L2FibEntryKey> {
+    implements ListWriterCustomizer<L2FibEntry, L2FibEntryKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2FibEntryCustomizer.class);
 
@@ -75,7 +75,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                        @Nonnull final L2FibEntry dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException.CreateFailedException {
+        throws WriteFailedException.CreateFailedException {
         try {
             LOG.debug("Creating L2 FIB entry: {} {}", id, dataAfter);
             l2FibAddDel(id, dataAfter, writeContext, true);
@@ -91,13 +91,13 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
                                         @Nonnull final L2FibEntry dataBefore, @Nonnull final L2FibEntry dataAfter,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         throw new UnsupportedOperationException(
-                "L2 FIB entry update is not supported. It has to be deleted and then created.");
+            "L2 FIB entry update is not supported. It has to be deleted and then created.");
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                         @Nonnull final L2FibEntry dataBefore, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException.DeleteFailedException {
+        throws WriteFailedException.DeleteFailedException {
         try {
             LOG.debug("Deleting L2 FIB entry: {} {}", id, dataBefore);
             l2FibAddDel(id, dataBefore, writeContext, false);
@@ -122,7 +122,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
         final L2FibAddDel l2FibRequest = createL2FibRequest(entry, bdId, swIfIndex, isAdd);
         LOG.debug("Sending l2FibAddDel request: {}", ReflectionToStringBuilder.toString(l2FibRequest));
         final CompletionStage<L2FibAddDelReply> l2FibAddDelReplyCompletionStage =
-                getFutureJVpp().l2FibAddDel(l2FibRequest);
+            getFutureJVpp().l2FibAddDel(l2FibRequest);
 
         TranslateUtils.getReply(l2FibAddDelReplyCompletionStage.toCompletableFuture());
     }
@@ -145,6 +145,6 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     private static long macToLong(final String macAddress) {
         final byte[] mac = parseMac(macAddress);
         return Longs.fromBytes(mac[0], mac[1], mac[2], mac[3],
-                mac[4], mac[5], (byte) 0, (byte) 0);
+            mac[4], mac[5], (byte) 0, (byte) 0);
     }
 }

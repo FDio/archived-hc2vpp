@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 
 import static org.mockito.Mockito.mock;
@@ -29,7 +30,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
 
-public class BridgeDomainCustomizerTest extends ListReaderCustomizerTest<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
+public class BridgeDomainCustomizerTest
+    extends ListReaderCustomizerTest<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
 
     private NamingContext bdContext;
     private NamingContext interfacesContext;

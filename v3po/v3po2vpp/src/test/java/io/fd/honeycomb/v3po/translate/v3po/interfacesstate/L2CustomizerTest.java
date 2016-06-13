@@ -88,13 +88,13 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
 
     private InstanceIdentifier<L2> getL2Id(final String name) {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name))
-                .augmentation(
-                        VppInterfaceStateAugmentation.class).child(L2.class);
+            .augmentation(
+                VppInterfaceStateAugmentation.class).child(L2.class);
     }
 
     private void whenBridgeDomainSwIfDumpThenReturn(final List<BridgeDomainSwIfDetails> bdSwIfList,
                                                     final List<BridgeDomainDetails> bridgeDomainDetailses)
-            throws ExecutionException, InterruptedException, VppInvocationException {
+        throws ExecutionException, InterruptedException, VppInvocationException {
         final BridgeDomainDetailsReplyDump reply = new BridgeDomainDetailsReplyDump();
         reply.bridgeDomainSwIfDetails = bdSwIfList;
         reply.bridgeDomainDetails = bridgeDomainDetailses;
@@ -117,7 +117,7 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
         final BridgeBasedBuilder bbBuilder = new BridgeBasedBuilder();
         bbBuilder.setBridgeDomain(bdName);
         bbBuilder.setSplitHorizonGroup((short) 1);
-        if(bvi != null) {
+        if (bvi != null) {
             bbBuilder.setBridgedVirtualInterface(bvi);
         } else {
             bbBuilder.setBridgedVirtualInterface(false); // false is default

@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BridgeDomainCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
+    implements ListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
     private final NamingContext bdContext;
@@ -57,9 +57,9 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                       @Nonnull final BridgeDomainBuilder builder, @Nonnull final ReadContext context)
-            throws ReadFailedException {
+        throws ReadFailedException {
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: id={}, builderbuilder={}, context={}",
-                id, builder, context);
+            id, builder, context);
 
         final BridgeDomainKey key = id.firstKeyOf(id.getTargetType());
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: key={}", key);
@@ -123,7 +123,7 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
             throw new IllegalStateException("Bridge domain dump failed", e); // TODO ReadFailedException?
         }
 
-        if(reply == null || reply.bridgeDomainDetails == null) {
+        if (reply == null || reply.bridgeDomainDetails == null) {
             return Collections.emptyList();
         }
 

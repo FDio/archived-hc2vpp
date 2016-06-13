@@ -43,8 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BridgeDomainCustomizer
-        extends FutureJVppCustomizer
-        implements ListWriterCustomizer<BridgeDomain, BridgeDomainKey> {
+    extends FutureJVppCustomizer
+    implements ListWriterCustomizer<BridgeDomain, BridgeDomainKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
 
@@ -59,12 +59,12 @@ public class BridgeDomainCustomizer
     @Nonnull
     @Override
     public Optional<List<BridgeDomain>> extract(@Nonnull final InstanceIdentifier<BridgeDomain> currentId,
-                                      @Nonnull final DataObject parentData) {
+                                                @Nonnull final DataObject parentData) {
         return Optional.fromNullable(((BridgeDomains) parentData).getBridgeDomain());
     }
 
     private BridgeDomainAddDelReply addOrUpdateBridgeDomain(final int bdId, @Nonnull final BridgeDomain bd)
-                throws VppBaseCallException {
+        throws VppBaseCallException {
         final BridgeDomainAddDelReply reply;
         final BridgeDomainAddDel request = new BridgeDomainAddDel();
         request.bdId = bdId;
@@ -84,7 +84,7 @@ public class BridgeDomainCustomizer
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                        @Nonnull final BridgeDomain dataBefore,
                                        @Nonnull final WriteContext ctx)
-            throws WriteFailedException.CreateFailedException {
+        throws WriteFailedException.CreateFailedException {
         LOG.debug("writeCurrentAttributes: id={}, current={}, ctx={}", id, dataBefore, ctx);
         final String bdName = dataBefore.getName();
 
@@ -93,7 +93,7 @@ public class BridgeDomainCustomizer
             // (maybe in context similar to artificial name)
             // Here we assign the next available ID from bdContext's perspective
             int index = 1;
-            while(bdContext.containsName(index, ctx.getMappingContext())) {
+            while (bdContext.containsName(index, ctx.getMappingContext())) {
                 index++;
             }
             addOrUpdateBridgeDomain(index, dataBefore);
@@ -106,41 +106,42 @@ public class BridgeDomainCustomizer
 
     private byte booleanToByte(@Nullable final Boolean aBoolean) {
         return aBoolean != null && aBoolean
-                ? (byte) 1
-                : (byte) 0;
+            ? (byte) 1
+            : (byte) 0;
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore,
-                                        @Nonnull final WriteContext ctx) throws WriteFailedException.DeleteFailedException {
+                                        @Nonnull final WriteContext ctx)
+        throws WriteFailedException.DeleteFailedException {
         LOG.debug("deleteCurrentAttributes: id={}, dataBefore={}, ctx={}", id, dataBefore, ctx);
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
-        int bdId = bdId = bdContext.getIndex(bdName, ctx.getMappingContext());
+        int bdId = bdContext.getIndex(bdName, ctx.getMappingContext());
         try {
 
             final BridgeDomainAddDel request = new BridgeDomainAddDel();
             request.bdId = bdId;
 
-            final BridgeDomainAddDelReply reply =
-                    TranslateUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
+            TranslateUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
             LOG.debug("Bridge domain {} (id={}) deleted successfully", bdName, bdId);
         } catch (VppBaseCallException e) {
             LOG.warn("Bridge domain {} (id={}) delete failed", bdName, bdId);
-            throw new WriteFailedException.DeleteFailedException(id,e);
+            throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore, @Nonnull final BridgeDomain dataAfter,
-                                        @Nonnull final WriteContext ctx) throws WriteFailedException.UpdateFailedException {
+                                        @Nonnull final WriteContext ctx)
+        throws WriteFailedException.UpdateFailedException {
         LOG.debug("updateCurrentAttributes: id={}, dataBefore={}, dataAfter={}, ctx={}", id, dataBefore, dataAfter,
-                ctx);
+            ctx);
 
         final String bdName = checkNotNull(dataAfter.getName());
         checkArgument(bdName.equals(dataBefore.getName()),
-                "BridgeDomain name changed. It should be deleted and then created.");
+            "BridgeDomain name changed. It should be deleted and then created.");
 
         try {
             addOrUpdateBridgeDomain(bdContext.getIndex(bdName, ctx.getMappingContext()), dataAfter);

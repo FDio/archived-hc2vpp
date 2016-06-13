@@ -40,7 +40,8 @@ public final class TranslateUtils {
 
     public static final Splitter COLON_SPLITTER = Splitter.on(':');
 
-    private TranslateUtils() {}
+    private TranslateUtils() {
+    }
 
     public static <REP extends JVppReply<?>> REP getReply(Future<REP> future) throws VppBaseCallException {
         try {
@@ -51,7 +52,7 @@ public final class TranslateUtils {
         } catch (ExecutionException e) {
             // Execution exception could generally contains any exception
             // when using exceptions instead of return codes just rethrow it for processing on corresponding place
-            if (e instanceof ExecutionException && ( e.getCause() instanceof VppBaseCallException)) {
+            if (e instanceof ExecutionException && (e.getCause() instanceof VppBaseCallException)) {
                 throw (VppBaseCallException) (e.getCause());
             }
             throw new IllegalStateException(e);
@@ -71,8 +72,9 @@ public final class TranslateUtils {
         } catch (ExecutionException e) {
             // Execution exception could generally contains any exception
             // when using exceptions instead of return codes just rethrow it for processing on corresponding place
-            if ( e.getCause() instanceof VppBaseCallException)
-                throw (VppBaseCallException)(e.getCause());
+            if (e.getCause() instanceof VppBaseCallException) {
+                throw (VppBaseCallException) (e.getCause());
+            }
             throw new IllegalStateException(e);
         } catch (TimeoutException e) {
             throw new ReadTimeoutException(replyType, e);
@@ -80,8 +82,8 @@ public final class TranslateUtils {
     }
 
     /**
-     * Transform Ipv4 address to a byte array acceptable by VPP. VPP expects incoming byte array to be
-     * in the same order as the address.
+     * Transform Ipv4 address to a byte array acceptable by VPP. VPP expects incoming byte array to be in the same order
+     * as the address.
      *
      * @return byte array with address bytes
      */
@@ -104,7 +106,7 @@ public final class TranslateUtils {
     @Nonnull
     public static Ipv4AddressNoZone arrayToIpv4AddressNoZone(@Nonnull byte[] ip) {
         // VPP sends ipv4 in a 16 byte array
-        if(ip.length == 16) {
+        if (ip.length == 16) {
             ip = Arrays.copyOfRange(ip, 0, 4);
         }
         try {
@@ -117,8 +119,8 @@ public final class TranslateUtils {
     }
 
     /**
-     * Return (interned) string from byte array while removing \u0000.
-     * Strings represented as fixed length byte[] from vpp contain \u0000.
+     * Return (interned) string from byte array while removing \u0000. Strings represented as fixed length byte[] from
+     * vpp contain \u0000.
      */
     public static String toString(final byte[] cString) {
         return new String(cString).replaceAll("\\u0000", "").intern();
@@ -152,20 +154,24 @@ public final class TranslateUtils {
     }
 
     public static byte parseHexByte(final String aByte) {
-        return (byte)Integer.parseInt(aByte, 16);
+        return (byte) Integer.parseInt(aByte, 16);
     }
 
-   /**
+    /**
      * Returns 0 if argument is null or false, 1 otherwise.
+     *
      * @param value Boolean value to be converted
      * @return byte value equal to 0 or 1
      */
     public static byte booleanToByte(@Nullable final Boolean value) {
-        return value != null && value ? (byte) 1 : (byte) 0;
+        return value != null && value
+            ? (byte) 1
+            : (byte) 0;
     }
 
     /**
      * Returns Boolean.TRUE if argument is 0, Boolean.FALSE otherwise.
+     *
      * @param value byte value to be converted
      * @return Boolean value
      * @throws IllegalArgumentException if argument is neither 0 nor 1
