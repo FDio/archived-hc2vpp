@@ -338,7 +338,7 @@ module v3po {
           leaf split-horizon-group {
             when "../bridge-domain";
             type uint8 {
-              range "1..255"; // TODO update postman collection
+              range "1..255";
             }
             description
               "Interface's split-horizon group. Interfaces in the same
