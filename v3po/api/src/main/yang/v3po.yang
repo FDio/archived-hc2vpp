@@ -149,6 +149,7 @@ module v3po {
     }
   }
 
+  // TODO express constraints for L2 FIB entries in YANG if possible
   grouping l2-fib-attributes {
     container l2-fib-table {
       list l2-fib-entry {
@@ -160,19 +161,25 @@ module v3po {
 
         leaf outgoing-interface {
           type string;
-          mandatory true;
+          // mandatory true;
+          // mandatory for forward action
+          // FIXME VPP's CLI does not require to set iface id for filter action
+          // VPP's binary api in constrast to CLI does some checks on the iface id value,
+          // so currently it has to be set for all actions
           description
-            "One of interfaces assigned to the FIB table's bridge-domain";
+            "One of interfaces assigned to the FIB table's bridge-domain.";
         }
         leaf static-config {
           type boolean;
           default false;
           description
-            "Static entries cannot be overridden by mac learning";
+            "Static entries cannot be overridden by mac learning.";
         }
         leaf action {
           type l2-fib-action;
           mandatory true;
+          description
+            "L2 FIB action. For filter action, entry must be configured as static.";
         }
         leaf bridged-virtual-interface {
           when "../v3po:action = 'forward'";

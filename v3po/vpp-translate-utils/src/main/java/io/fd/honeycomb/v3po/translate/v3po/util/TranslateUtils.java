@@ -151,7 +151,7 @@ public final class TranslateUtils {
             });
     }
 
-    private static byte parseHexByte(final String aByte) {
+    public static byte parseHexByte(final String aByte) {
         return (byte)Integer.parseInt(aByte, 16);
     }
 
