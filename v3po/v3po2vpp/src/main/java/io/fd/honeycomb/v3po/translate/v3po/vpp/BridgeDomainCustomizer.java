@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -29,7 +30,6 @@ import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
@@ -89,12 +89,17 @@ public class BridgeDomainCustomizer
         final String bdName = dataBefore.getName();
 
         try {
-            // FIXME we need the bd index to be returned by VPP or we should have a counter field
-            // (maybe in context similar to artificial name)
-            // Here we assign the next available ID from bdContext's perspective
-            int index = 1;
-            while (bdContext.containsName(index, ctx.getMappingContext())) {
-                index++;
+            int index;
+            if (bdContext.containsIndex(bdName, ctx.getMappingContext())) {
+                index = bdContext.getIndex(bdName, ctx.getMappingContext());
+            } else {
+                // FIXME we need the bd index to be returned by VPP or we should have a counter field
+                // (maybe in context similar to artificial name)
+                // Here we assign the next available ID from bdContext's perspective
+                index = 1;
+                while (bdContext.containsName(index, ctx.getMappingContext())) {
+                    index++;
+                }
             }
             addOrUpdateBridgeDomain(index, dataBefore);
             bdContext.addName(index, bdName, ctx.getMappingContext());
@@ -102,12 +107,6 @@ public class BridgeDomainCustomizer
             LOG.warn("Failed to create bridge domain", e);
             throw new WriteFailedException.CreateFailedException(id, dataBefore, e);
         }
-    }
-
-    private byte booleanToByte(@Nullable final Boolean aBoolean) {
-        return aBoolean != null && aBoolean
-            ? (byte) 1
-            : (byte) 0;
     }
 
     @Override

@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
 import org.openvpp.jvpp.VppInvocationException;
@@ -152,8 +153,29 @@ public class BridgeDomainCustomizerTest {
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
+        // Make bdContext.containsName() return false
         doReturn(Optional.absent()).when(mappingContext)
             .read(getMappingIid(bdName, "test-instance").firstIdentifierOf(Mappings.class));
+        // Make bdContext.containsIndex() return false
+        doReturn(Optional.absent()).when(mappingContext)
+            .read(getMappingIid(bdName, "test-instance"));
+
+        whenBridgeDomainAddDelThenSuccess();
+
+        customizer.writeCurrentAttributes(BridgeDomainTestUtils.bdIdentifierForName(bdName), bd, ctx);
+
+        verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
+        verify(mappingContext).put(getMappingIid(bdName, "test-instance"), getMapping(bdName, bdId).get());
+    }
+
+    @Test
+    public void testAddBridgeDomainPresentInBdContext() throws Exception {
+        final int bdId = 1;
+        final String bdName = "bd1";
+        final BridgeDomain bd = generateBridgeDomain(bdName);
+        // Make bdContext.containsIndex() return true
+        doReturn(Optional.of(new MappingBuilder().setIndex(bdId).build())).when(mappingContext)
+            .read(getMappingIid(bdName, "test-instance"));
 
         whenBridgeDomainAddDelThenSuccess();
 
@@ -172,6 +194,9 @@ public class BridgeDomainCustomizerTest {
         // Returning no Mappings for "test-instance" makes bdContext.containsName() return false
         doReturn(Optional.absent()).when(mappingContext)
             .read(getMappingIid(bdName, "test-instance").firstIdentifierOf(Mappings.class));
+        // Make bdContext.containsIndex() return false
+        doReturn(Optional.absent()).when(mappingContext)
+            .read(getMappingIid(bdName, "test-instance"));
 
         whenBridgeDomainAddDelThenFailure();
 

@@ -18,6 +18,14 @@ package io.fd.honeycomb.v3po.translate.v3po.vpp;
 
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.v3po.translate.v3po.test.ContextTestUtils.getMappingIid;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -28,6 +36,11 @@ import io.fd.honeycomb.v3po.translate.util.write.DelegatingWriterRegistry;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.Writer;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -47,20 +60,13 @@ import org.openvpp.jvpp.dto.BridgeDomainAddDel;
 import org.openvpp.jvpp.dto.BridgeDomainAddDelReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
 public class VppTest {
 
     private static final byte ADD_OR_UPDATE_BD = 1;
     private static final byte ZERO = 0;
+    private static final String BD_NAME = "bdn1";
+    private static final String BD_CONTEXT_NAME = "test-instance";
+
     @Mock
     private FutureJVpp api;
     @Mock
@@ -74,7 +80,7 @@ public class VppTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        NamingContext bdContext = new NamingContext("generatedBdName", "test-instance");
+        NamingContext bdContext = new NamingContext("generatedBdName", BD_CONTEXT_NAME);
         final ModificationCache toBeReturned = new ModificationCache();
         doReturn(toBeReturned).when(ctx).getModificationCache();
         doReturn(mappingContext).when(ctx).getMappingContext();
@@ -88,25 +94,26 @@ public class VppTest {
         final List<BridgeDomain> bdmns = Lists.newArrayList();
         for (String s : name) {
             bdmns.add(new BridgeDomainBuilder()
-                    .setName(s)
-                    .setArpTermination(false)
-                    .setFlood(true)
-                    .setForward(false)
-                    .setLearn(true)
-                    .build());
+                .setName(s)
+                .setArpTermination(false)
+                .setFlood(true)
+                .setForward(false)
+                .setLearn(true)
+                .build());
         }
         return new BridgeDomainsBuilder()
-                .setBridgeDomain(bdmns)
-                .build();
+            .setBridgeDomain(bdmns)
+            .build();
     }
 
-    private void whenBridgeDomainAddDelThen(final int retval) throws ExecutionException, VppInvocationException, InterruptedException {
-        final CompletionStage<BridgeDomainAddDelReply> replyCS = mock(CompletionStage.class);
+    private void whenBridgeDomainAddDelThenSuccess()
+        throws ExecutionException, VppInvocationException, InterruptedException {
+        final CompletionStage<BridgeDomainAddDelReply> replyCs = mock(CompletionStage.class);
         final CompletableFuture<BridgeDomainAddDelReply> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+        when(replyCs.toCompletableFuture()).thenReturn(replyFuture);
         final BridgeDomainAddDelReply reply = new BridgeDomainAddDelReply();
         when(replyFuture.get()).thenReturn(reply);
-        when(api.bridgeDomainAddDel(any(BridgeDomainAddDel.class))).thenReturn(replyCS);
+        when(api.bridgeDomainAddDel(any(BridgeDomainAddDel.class))).thenReturn(replyCs);
     }
 
     private void verifyBridgeDomainAddDel(final BridgeDomain bd, final int bdId) throws VppInvocationException {
@@ -145,16 +152,21 @@ public class VppTest {
     @Test
     public void writeVppUsingRootRegistry() throws Exception {
         final int bdId = 1;
-        final BridgeDomains bdn1 = getBridgeDomains("bdn1");
-        whenBridgeDomainAddDelThen(0);
-        doReturn(Optional
-            .absent()).when(mappingContext).read(getMappingIid("bdn1", "test-instance").firstIdentifierOf(Mappings.class));
+        final BridgeDomains bdn1 = getBridgeDomains(BD_NAME);
+        whenBridgeDomainAddDelThenSuccess();
+
+        // Returning no Mappings for "test-instance" makes bdContext.containsName() return false
+        doReturn(Optional.absent()).when(mappingContext)
+            .read(getMappingIid(BD_NAME, BD_CONTEXT_NAME).firstIdentifierOf(Mappings.class));
+        // Make bdContext.containsIndex() return false
+        doReturn(Optional.absent()).when(mappingContext)
+            .read(getMappingIid(BD_NAME, BD_CONTEXT_NAME));
 
         rootRegistry.update(
-                InstanceIdentifier.create(Vpp.class),
-                null,
-                new VppBuilder().setBridgeDomains(bdn1).build(),
-                ctx);
+            InstanceIdentifier.create(Vpp.class),
+            null,
+            new VppBuilder().setBridgeDomains(bdn1).build(),
+            ctx);
 
         verifyBridgeDomainAddDel(Iterators.getOnlyElement(bdn1.getBridgeDomain().iterator()), bdId);
     }
@@ -162,28 +174,38 @@ public class VppTest {
     @Test
     public void writeVppUsingVppWriter() throws Exception {
         final int bdId = 1;
-        final BridgeDomains bdn1 = getBridgeDomains("bdn1");
-        whenBridgeDomainAddDelThen(0);
-        doReturn(Optional
-            .absent()).when(mappingContext).read(getMappingIid("bdn1", "test-instance").firstIdentifierOf(Mappings.class));
+        final BridgeDomains bdn1 = getBridgeDomains(BD_NAME);
+        whenBridgeDomainAddDelThenSuccess();
+
+        // Returning no Mappings for "test-instance" makes bdContext.containsName() return false
+        doReturn(Optional.absent()).when(mappingContext)
+            .read(getMappingIid(BD_NAME, BD_CONTEXT_NAME).firstIdentifierOf(Mappings.class));
+        // Make bdContext.containsIndex() return false
+        doReturn(Optional.absent()).when(mappingContext)
+            .read(getMappingIid(BD_NAME, BD_CONTEXT_NAME));
 
         vppWriter.update(InstanceIdentifier.create(Vpp.class),
-                null,
-                new VppBuilder().setBridgeDomains(bdn1).build(),
-                ctx);
+            null,
+            new VppBuilder().setBridgeDomains(bdn1).build(),
+            ctx);
 
         verifyBridgeDomainAddDel(Iterators.getOnlyElement(bdn1.getBridgeDomain().iterator()), bdId);
-        verify(mappingContext).put(getMappingIid("bdn1", "test-instance"), getMapping("bdn1", 1).get());
+        verify(mappingContext).put(getMappingIid(BD_NAME, BD_CONTEXT_NAME), getMapping(BD_NAME, 1).get());
     }
 
     @Test
     public void writeVppFromRoot() throws Exception {
-        final BridgeDomains bdn1 = getBridgeDomains("bdn1");
+        final BridgeDomains bdn1 = getBridgeDomains(BD_NAME);
         final int bdId = 1;
         final Vpp vpp = new VppBuilder().setBridgeDomains(bdn1).build();
-        doReturn(Optional
-            .absent()).when(mappingContext).read(getMappingIid("bdn1", "test-instance").firstIdentifierOf(Mappings.class));
-        whenBridgeDomainAddDelThen(0);
+        whenBridgeDomainAddDelThenSuccess();
+
+        // Returning no Mappings for "test-instance" makes bdContext.containsName() return false
+        doReturn(Optional.absent()).when(mappingContext)
+            .read(getMappingIid(BD_NAME, BD_CONTEXT_NAME).firstIdentifierOf(Mappings.class));
+        // Make bdContext.containsIndex() return false
+        doReturn(Optional.absent()).when(mappingContext)
+            .read(getMappingIid(BD_NAME, BD_CONTEXT_NAME));
 
         rootRegistry.update(Collections.emptyMap(),
             Collections.<InstanceIdentifier<?>, DataObject>singletonMap(InstanceIdentifier.create(Vpp.class),
@@ -194,11 +216,10 @@ public class VppTest {
 
     @Test
     public void deleteVpp() throws Exception {
-        final String bdName = "bdn1";
-        final BridgeDomains bdn1 = getBridgeDomains(bdName);
+        final BridgeDomains bdn1 = getBridgeDomains(BD_NAME);
         final int bdId = 1;
-        whenBridgeDomainAddDelThen(0);
-        doReturn(getMapping(bdName, bdId)).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
+        whenBridgeDomainAddDelThenSuccess();
+        doReturn(getMapping(BD_NAME, bdId)).when(mappingContext).read(getMappingIid(BD_NAME, BD_CONTEXT_NAME));
 
         rootRegistry.update(
             InstanceIdentifier.create(Vpp.class),
@@ -213,8 +234,8 @@ public class VppTest {
     public void updateVppNoActualChange() throws Exception {
         rootRegistry.update(
             InstanceIdentifier.create(Vpp.class),
-            new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build(),
-            new VppBuilder().setBridgeDomains(getBridgeDomains("bdn1")).build(),
+            new VppBuilder().setBridgeDomains(getBridgeDomains(BD_NAME)).build(),
+            new VppBuilder().setBridgeDomains(getBridgeDomains(BD_NAME)).build(),
             ctx);
 
         verifyZeroInteractions(api);
@@ -222,11 +243,10 @@ public class VppTest {
 
     @Test
     public void writeUpdate() throws Exception {
-        final String bdName = "bdn1";
         final int bdn1Id = 1;
-        doReturn(getMapping(bdName, bdn1Id)).when(mappingContext).read(getMappingIid(bdName, "test-instance"));
+        doReturn(getMapping(BD_NAME, bdn1Id)).when(mappingContext).read(getMappingIid(BD_NAME, BD_CONTEXT_NAME));
 
-        final BridgeDomains domainsBefore = getBridgeDomains(bdName);
+        final BridgeDomains domainsBefore = getBridgeDomains(BD_NAME);
         final BridgeDomain bdn1Before = domainsBefore.getBridgeDomain().get(0);
 
         final BridgeDomain bdn1After = new BridgeDomainBuilder(bdn1Before).setFlood(!bdn1Before.isFlood()).build();
@@ -234,7 +254,7 @@ public class VppTest {
             .setBridgeDomain(Collections.singletonList(bdn1After))
             .build();
 
-        whenBridgeDomainAddDelThen(0);
+        whenBridgeDomainAddDelThenSuccess();
 
         rootRegistry.update(
             InstanceIdentifier.create(Vpp.class),
