@@ -97,7 +97,10 @@ public abstract class AbstractDataTreeConverter<O extends DataObject, C extends 
 
     private void writeData(final C configData) throws TransactionCommitFailedException {
         final WriteTransaction writeTx = bindingDataBroker.newWriteOnlyTransaction();
-        writeTx.put(LogicalDatastoreType.CONFIGURATION, idConfig, configData);
+        // Merge(instead of put) has to be used due to dynamic start, this might be executed multiple times
+        // and might overwrite config restored from persisted file with the same incomplete config.
+        // Making the entire configuration trigger VPP twice (on second persis ... and VPP does not like that
+        writeTx.merge(LogicalDatastoreType.CONFIGURATION, idConfig, configData);
         writeTx.submit().checkedGet();
     }
 

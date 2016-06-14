@@ -19,11 +19,10 @@ package io.fd.honeycomb.v3po.translate.util.write;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
@@ -32,7 +31,6 @@ import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -88,8 +86,15 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
     public void update(@Nonnull final Map<InstanceIdentifier<?>, DataObject> nodesBefore,
                        @Nonnull final Map<InstanceIdentifier<?>, DataObject> nodesAfter,
                        @Nonnull final WriteContext ctx) throws WriteFailedException {
-        checkAllWritersPresent(nodesBefore);
-        checkAllWritersPresent(nodesAfter);
+
+        Multimap<InstanceIdentifier<?>, InstanceIdentifier<?>> rootIdToNestedIds = HashMultimap.create();
+        try {
+            checkAllWritersPresent(nodesBefore, rootIdToNestedIds);
+            checkAllWritersPresent(nodesAfter, rootIdToNestedIds);
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Unable to process update", e);
+            throw e;
+        }
 
         final List<InstanceIdentifier<?>> processedNodes = Lists.newArrayList();
 
@@ -97,36 +102,41 @@ public final class DelegatingWriterRegistry implements WriterRegistry {
                 .entrySet()) {
 
             final InstanceIdentifier<? extends DataObject> id = rootWriterEntry.getValue().getManagedDataObjectType();
+            // FIXME !! this is not ideal, we are not handling nested updates in expected order
+            // Root writers are invoked in order they were registered, but nested updates are not, since they are
+            // iterated here.
+            //
+            for (InstanceIdentifier<?> specificInstanceIdentifier : rootIdToNestedIds.get(id)) {
+                final DataObject dataBefore = nodesBefore.get(specificInstanceIdentifier);
+                final DataObject dataAfter = nodesAfter.get(specificInstanceIdentifier);
 
-            final DataObject dataBefore = nodesBefore.get(id);
-            final DataObject dataAfter = nodesAfter.get(id);
+                // No change to current writer
+                if (dataBefore == null && dataAfter == null) {
+                    continue;
+                }
 
-            // No change to current writer
-            if (dataBefore == null && dataAfter == null) {
-                continue;
-            }
-
-            LOG.debug("ChangesProcessor.applyChanges() processing dataBefore={}, dataAfter={}", dataBefore, dataAfter);
-
-            try {
-                update(id, dataBefore, dataAfter, ctx);
-                processedNodes.add(id);
-            } catch (Exception e) {
-                LOG.error("Error while processing data change of: {} (before={}, after={})",
-                        id, dataBefore, dataAfter, e);
-                throw new BulkUpdateException(
-                        id, new ReverterImpl(this, processedNodes, nodesBefore, nodesAfter, ctx), e);
+                try {
+                    LOG.debug("ChangesProcessor.applyChanges() processing dataBefore={}, dataAfter={}", dataBefore, dataAfter);
+                    update(specificInstanceIdentifier, dataBefore, dataAfter, ctx);
+                    processedNodes.add(id);
+                } catch (Exception e) {
+                    LOG.error("Error while processing data change of: {} (before={}, after={})", id, dataBefore, dataAfter, e);
+                    throw new BulkUpdateException(id, new ReverterImpl(this, processedNodes, nodesBefore, nodesAfter, ctx), e);
+                }
             }
         }
     }
 
-    private void checkAllWritersPresent(final @Nonnull Map<InstanceIdentifier<?>, DataObject> nodesBefore) {
-        final Set<Class<? extends DataObject>> nodesBeforeClasses =
-            Sets.newHashSet(Collections2.transform(nodesBefore.keySet(),
-                (Function<InstanceIdentifier<?>, Class<? extends DataObject>>) InstanceIdentifier::getTargetType));
-        checkArgument(rootWriters.keySet().containsAll(nodesBeforeClasses),
-                "Unable to handle all changes. Missing dedicated writers for: %s",
-                Sets.difference(nodesBeforeClasses, rootWriters.keySet()));
+    private void checkAllWritersPresent(final @Nonnull Map<InstanceIdentifier<?>, DataObject> nodesBefore,
+                                        final @Nonnull Multimap<InstanceIdentifier<?>, InstanceIdentifier<?>> rootIdToNestedIds) {
+        for (final InstanceIdentifier<?> changeId : nodesBefore.keySet()) {
+            final InstanceIdentifier.PathArgument first = Iterables.getFirst(changeId.getPathArguments(), null);
+            checkNotNull(first, "Empty identifier detected");
+            final InstanceIdentifier<? extends DataObject> rootId = InstanceIdentifier.create(first.getType());
+            checkArgument(rootWriters.keySet().contains(first.getType()),
+                    "Unable to handle change. Missing dedicated writer for: %s", first.getType());
+            rootIdToNestedIds.put(rootId, changeId);
+        }
     }
 
     private static final class ReverterImpl implements Reverter {

@@ -220,11 +220,16 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
     private void writeSubtree(final InstanceIdentifier<? extends DataObject> id,
                               final DataObject dataAfter, final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Writing subtree: {}", this, id);
-        final Writer<? extends ChildOf<D>> writer = getNextWriter(id);
+
+        final Writer<? extends ChildOf<D>> writer = getNextChildWriter(id);
+        final Writer<? extends Augmentation<D>> augWriter = getNextAgumentationWriter(id);
 
         if (writer != null) {
             LOG.debug("{}: Writing subtree: {} in: {}", this, id, writer);
             writer.update(id, null, dataAfter, ctx);
+        } else if (augWriter != null) {
+            LOG.debug("{}: Updating augmented subtree: {} in: {}", this, id, augWriter);
+            augWriter.update(id, null, dataAfter, ctx);
         } else {
             // If there's no dedicated writer, use write current
             // But we need current data after to do so
@@ -243,12 +248,17 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
     private void deleteSubtree(final InstanceIdentifier<? extends DataObject> id,
                                final DataObject dataBefore, final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Deleting subtree: {}", this, id);
-        final Writer<? extends ChildOf<D>> writer = getNextWriter(id);
+
+        final Writer<? extends ChildOf<D>> writer = getNextChildWriter(id);
+        final Writer<? extends Augmentation<D>> augWriter = getNextAgumentationWriter(id);
 
         if (writer != null) {
             LOG.debug("{}: Deleting subtree: {} in: {}", this, id, writer);
             writer.update(id, dataBefore, null, ctx);
-        } else {
+        } else if (augWriter != null) {
+            LOG.debug("{}: Updating augmented subtree: {} in: {}", this, id, augWriter);
+            augWriter.update(id, dataBefore, null, ctx);
+        }  else {
             updateSubtreeFromCurrent(id, ctx);
         }
     }
@@ -270,19 +280,28 @@ public abstract class AbstractCompositeWriter<D extends DataObject> implements W
                                final DataObject dataAfter,
                                final WriteContext ctx) throws WriteFailedException {
         LOG.debug("{}: Updating subtree: {}", this, id);
-        final Writer<? extends ChildOf<D>> writer = getNextWriter(id);
+        final Writer<? extends ChildOf<D>> writer = getNextChildWriter(id);
+        final Writer<? extends Augmentation<D>> augWriter = getNextAgumentationWriter(id);
 
         if (writer != null) {
             LOG.debug("{}: Updating subtree: {} in: {}", this, id, writer);
             writer.update(id, dataBefore, dataAfter, ctx);
+        } else if (augWriter != null) {
+            LOG.debug("{}: Updating augmented subtree: {} in: {}", this, id, augWriter);
+            augWriter.update(id, dataBefore, dataAfter, ctx);
         } else {
             updateSubtreeFromCurrent(id, ctx);
         }
     }
 
-    private Writer<? extends ChildOf<D>> getNextWriter(final InstanceIdentifier<? extends DataObject> id) {
+    private Writer<? extends ChildOf<D>> getNextChildWriter(final InstanceIdentifier<? extends DataObject> id) {
         final Class<? extends DataObject> next = RWUtils.getNextId(id, getManagedDataObjectType()).getType();
         return childWriters.get(next);
+    }
+
+    private Writer<? extends Augmentation<D>> getNextAgumentationWriter(final InstanceIdentifier<? extends DataObject> id) {
+        final Class<? extends DataObject> next = RWUtils.getNextId(id, getManagedDataObjectType()).getType();
+        return augWriters.get(next);
     }
 
     private static <T> List<T> reverseCollection(final Collection<T> original) {

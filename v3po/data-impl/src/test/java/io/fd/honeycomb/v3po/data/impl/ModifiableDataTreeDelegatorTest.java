@@ -37,9 +37,8 @@ import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +57,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 
 public class ModifiableDataTreeDelegatorTest {
 
@@ -109,7 +109,7 @@ public class ModifiableDataTreeDelegatorTest {
         when(dataTree.takeSnapshot()).thenReturn(snapshot);
         when(snapshot.newModification()).thenReturn(modification);
 
-        final DataModification dataTreeSnapshot = configDataTree.newModification();
+        configDataTree.newModification();
         // Snapshot captured twice, so that original data could be provided to translation layer without any possible
         // modification
         verify(dataTree, times(2)).takeSnapshot();
@@ -135,12 +135,19 @@ public class ModifiableDataTreeDelegatorTest {
 
         // Prepare modification:
         final DataTreeCandidateNode rootNode = mockRootNode();
+        doReturn(ModificationType.SUBTREE_MODIFIED).when(rootNode).getModificationType();
+        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(rootNode).getIdentifier();
+        final DataTreeCandidateNode childNode = mock(DataTreeCandidateNode.class);
+        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(childNode).getIdentifier();
+        doReturn(Collections.singleton(childNode)).when(rootNode).getChildNodes();
+        doReturn(ModificationType.WRITE).when(childNode).getModificationType();
+
         // data before:
         final ContainerNode nodeBefore = mockContainerNode(dataBefore);
-        when(rootNode.getDataBefore()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeBefore));
+        when(childNode.getDataBefore()).thenReturn(Optional.fromNullable(nodeBefore));
         // data after:
         final ContainerNode nodeAfter = mockContainerNode(dataAfter);
-        when(rootNode.getDataAfter()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeAfter));
+        when(childNode.getDataAfter()).thenReturn(Optional.fromNullable(nodeAfter));
 
         // Run the test
         doReturn(rootNode).when(prepare).getRootNode();
@@ -160,9 +167,7 @@ public class ModifiableDataTreeDelegatorTest {
     }
 
     private Map<InstanceIdentifier<?>, DataObject> mapOf(final DataObject dataBefore, final Class<Ethernet> type) {
-        return eq(
-                Collections.<InstanceIdentifier<?>, DataObject>singletonMap(InstanceIdentifier.create(type),
-                        dataBefore));
+        return eq(Collections.singletonMap(InstanceIdentifier.create(type),dataBefore));
     }
 
     private DataObject mockDataObject(final String name, final Class<? extends DataObject> classToMock) {
@@ -194,12 +199,19 @@ public class ModifiableDataTreeDelegatorTest {
 
         // Prepare modification:
         final DataTreeCandidateNode rootNode = mockRootNode();
+        doReturn(ModificationType.SUBTREE_MODIFIED).when(rootNode).getModificationType();
+        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(rootNode).getIdentifier();
+        final DataTreeCandidateNode childNode = mock(DataTreeCandidateNode.class);
+        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(childNode).getIdentifier();
+        doReturn(Collections.singleton(childNode)).when(rootNode).getChildNodes();
+        doReturn(ModificationType.WRITE).when(childNode).getModificationType();
+
         // data before:
         final ContainerNode nodeBefore = mockContainerNode(dataBefore);
-        when(rootNode.getDataBefore()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeBefore));
+        when(childNode.getDataBefore()).thenReturn(Optional.fromNullable(nodeBefore));
         // data after:
         final ContainerNode nodeAfter = mockContainerNode(dataAfter);
-        when(rootNode.getDataAfter()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeAfter));
+        when(childNode.getDataAfter()).thenReturn(Optional.fromNullable(nodeAfter));
 
         // Run the test
         try {
@@ -245,12 +257,19 @@ public class ModifiableDataTreeDelegatorTest {
 
         // Prepare modification:
         final DataTreeCandidateNode rootNode = mockRootNode();
+        doReturn(ModificationType.SUBTREE_MODIFIED).when(rootNode).getModificationType();
+        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(rootNode).getIdentifier();
+        final DataTreeCandidateNode childNode = mock(DataTreeCandidateNode.class);
+        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(childNode).getIdentifier();
+        doReturn(Collections.singleton(childNode)).when(rootNode).getChildNodes();
+        doReturn(ModificationType.WRITE).when(childNode).getModificationType();
+
         // data before:
         final ContainerNode nodeBefore = mockContainerNode(dataBefore);
-        when(rootNode.getDataBefore()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeBefore));
+        when(childNode.getDataBefore()).thenReturn(Optional.fromNullable(nodeBefore));
         // data after:
         final ContainerNode nodeAfter = mockContainerNode(dataAfter);
-        when(rootNode.getDataAfter()).thenReturn(Optional.<NormalizedNode<?, ?>>fromNullable(nodeAfter));
+        when(childNode.getDataAfter()).thenReturn(Optional.fromNullable(nodeAfter));
 
         // Run the test
         try {
@@ -267,6 +286,37 @@ public class ModifiableDataTreeDelegatorTest {
         fail("RevertFailedException was expected");
     }
 
+    @Test
+    public void testChildrenFromNormalized() throws Exception {
+        final BindingNormalizedNodeSerializer serializer = mock(BindingNormalizedNodeSerializer.class);
+
+        final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> map = new HashMap<>();
+
+        // init child1 (will not be serialized)
+        final DataContainerChild child1 = mock(DataContainerChild.class);
+        when(child1.getIdentifier()).thenReturn(mock(YangInstanceIdentifier.PathArgument.class));
+        when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), eq(child1))).thenReturn(null);
+        map.put(mock(YangInstanceIdentifier.class), child1);
+
+        // init child 2 (will be serialized)
+        final DataContainerChild child2 = mock(DataContainerChild.class);
+        when(child2.getIdentifier()).thenReturn(mock(YangInstanceIdentifier.PathArgument.class));
+
+        final Map.Entry entry = mock(Map.Entry.class);
+        final InstanceIdentifier<?> id = mock(InstanceIdentifier.class);
+        doReturn(id).when(entry).getKey();
+        final DataObject data = mock(DataObject.class);
+        doReturn(data).when(entry).getValue();
+        when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), eq(child2))).thenReturn(entry);
+        map.put(mock(YangInstanceIdentifier.class), child2);
+
+        // run tested method
+        final Map<InstanceIdentifier<?>, DataObject> baMap =
+                ModifiableDataTreeDelegator.toBindingAware(map, serializer);
+        assertEquals(1, baMap.size());
+        assertEquals(data, baMap.get(id));
+    }
+
     private DataTreeCandidateNode mockRootNode() {
         final DataTreeCandidate candidate = mock(DataTreeCandidate.class);
         when(dataTree.prepare(modification)).thenReturn(candidate);
@@ -277,32 +327,22 @@ public class ModifiableDataTreeDelegatorTest {
         return rootNode;
     }
 
-    private ContainerNode mockContainerNode(DataObject... modifications) {
-        final int numberOfChildren = modifications.length;
-
+    private ContainerNode mockContainerNode(DataObject modification) {
         final YangInstanceIdentifier.NodeIdentifier identifier =
                 YangInstanceIdentifier.NodeIdentifier.create(QName.create("/"));
 
         final ContainerNode node = mock(ContainerNode.class);
         when(node.getIdentifier()).thenReturn(identifier);
 
-        final List<DataContainerChild> list = new ArrayList<>(numberOfChildren);
-        doReturn(list).when(node).getValue();
+        final Map.Entry entry = mock(Map.Entry.class);
+        final Class<? extends DataObject> implementedInterface =
+                (Class<? extends DataObject>) modification.getImplementedInterface();
+        final InstanceIdentifier<?> id = InstanceIdentifier.create(implementedInterface);
 
-        for (DataObject modification : modifications) {
-            final DataContainerChild child = mock(DataContainerChild.class);
-            when(child.getIdentifier()).thenReturn(mock(YangInstanceIdentifier.PathArgument.class));
-            list.add(child);
+        doReturn(id).when(entry).getKey();
+        doReturn(modification).when(entry).getValue();
+        doReturn(entry).when(serializer).fromNormalizedNode(any(YangInstanceIdentifier.class), eq(node));
 
-            final Map.Entry entry = mock(Map.Entry.class);
-            final Class<? extends DataObject> implementedInterface =
-                    (Class<? extends DataObject>) modification.getImplementedInterface();
-            final InstanceIdentifier<?> id = InstanceIdentifier.create(implementedInterface);
-
-            doReturn(id).when(entry).getKey();
-            doReturn(modification).when(entry).getValue();
-            doReturn(entry).when(serializer).fromNormalizedNode(any(YangInstanceIdentifier.class), eq(child));
-        }
         return node;
     }
 }

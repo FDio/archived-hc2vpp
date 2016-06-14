@@ -1,0 +1,37 @@
+module test-diff {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:test:diff";
+    prefix "td";
+
+    revision "2015-01-05" {
+        description "Initial revision";
+    }
+
+    container top-container {
+        leaf string {
+            type string;
+        }
+
+        list nested-list {
+            key "name";
+
+            leaf name {
+                type string;
+            }
+
+            leaf text {
+                type string;
+            }
+
+            list deep-list {
+                key "name";
+
+                leaf name {
+                    type string;
+                }
+
+            }
+        }
+    }
+
+}
