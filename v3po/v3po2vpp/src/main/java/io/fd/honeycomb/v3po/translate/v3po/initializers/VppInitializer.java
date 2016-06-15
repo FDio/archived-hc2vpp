@@ -19,6 +19,7 @@ package io.fd.honeycomb.v3po.translate.v3po.initializers;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.vpp.data.init.AbstractDataTreeConverter;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -37,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Initializes vpp node in config data tree based on operational state
+ * Initializes vpp node in config data tree based on operational state.
  */
 public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
     private static final Logger LOG = LoggerFactory.getLogger(VppInitializer.class);
@@ -85,14 +86,12 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
         if (l2FibTable == null) {
             return;
         }
-        final L2FibTableBuilder tableBuilder = new L2FibTableBuilder();
-        tableBuilder.setL2FibEntry(
-            Lists.transform(l2FibTable.getL2FibEntry(),
-                oper -> {
-                    final L2FibEntryBuilder config = new L2FibEntryBuilder(oper);
-                    config.setBridgedVirtualInterface(null);
-                    return config.build();
-                }));
+        final L2FibTableBuilder tableBuilder = new L2FibTableBuilder()
+                .setL2FibEntry(
+                        l2FibTable.getL2FibEntry().stream()
+                                // Convert operational object to config. VPP does not support setting BVI (see v3po.yang)
+                                .map(oper -> new L2FibEntryBuilder().setBridgedVirtualInterface(null).build())
+                                .collect(Collectors.toList()));
         builder.setL2FibTable(tableBuilder.build());
     }
 

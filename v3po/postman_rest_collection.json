@@ -39,7 +39,8 @@
 				"99674f70-ec54-99f2-9300-545a031d5bab",
 				"f624bc96-502b-685c-1596-672ad5fcf6a9",
 				"0a1d6c0d-fe5e-1e1d-2471-96d7a4683e2f",
-				"d752fed9-127a-9289-71f3-90ba2b459d77"
+				"d752fed9-127a-9289-71f3-90ba2b459d77",
+				"5c800144-cf89-7b77-1dd2-f488101ca441"
 			],
 			"owner": "45557",
 			"collectionId": "e9ba4e80-fb4d-1eae-07e7-97b323164130"
@@ -476,6 +477,26 @@
 			"collectionId": "7c35192d-9085-20f6-9fcd-3f8570aaefd7",
 			"responses": [],
 			"rawModeData": "{\n    \"l2-fib-entry\": [\n        {\n            \"phys-address\": \"00:01:02:03:04:05\",\n            \"outgoing-interface\": \"local0\",\n            \"static-config\": \"true\",\n            \"action\": \"l2-fib-filter\"\n        }\n    ]\n}"
+		},
+		{
+			"id": "5c800144-cf89-7b77-1dd2-f488101ca441",
+			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"url": "http://localhost:8181/restconf/config/ietf-interfaces:interfaces/interface/local0/v3po:l2",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1465984375972,
+			"name": "Remove local0 from bridge domain",
+			"description": "Removes l2 interconnection of bridge-based type from local0 interface.\nCorresponds to the following VAT command:\n\nvat# sw_interface_set_l2_bridge sw_if_index 0 bd_id 1 disable\n\nVerification in VAT:\n\nvat# bridge_domain_dump",
+			"collectionId": "7c35192d-9085-20f6-9fcd-3f8570aaefd7",
+			"responses": [],
+			"rawModeData": ""
 		},
 		{
 			"id": "3f9588e4-885f-3792-bdf4-d0f10704ae4d",

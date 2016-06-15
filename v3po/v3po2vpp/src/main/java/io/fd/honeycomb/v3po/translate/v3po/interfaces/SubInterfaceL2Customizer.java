@@ -31,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +86,10 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Ch
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 dataBefore,
-                                        @Nonnull final WriteContext writeContext) {
-        // TODO implement delete (if possible)
+                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        final String subInterfaceName = getSubInterfaceName(id);
+        final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
+        deleteL2(id, subInterfaceIndex, subInterfaceName, dataBefore, writeContext);
     }
 
     private void setL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 l2,
@@ -96,5 +97,12 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Ch
             throws WriteFailedException {
         LOG.debug("Setting L2 for sub-interface: {}", ifcName);
         icWriterUtils.setInterconnection(id, swIfIndex, ifcName, l2.getInterconnection(), writeContext);
+    }
+
+    private void deleteL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 l2Before,
+                       final WriteContext writeContext)
+            throws WriteFailedException {
+        LOG.debug("Deleting L2 for sub-interface: {}", ifcName);
+        icWriterUtils.deleteInterconnection(id, swIfIndex, ifcName, l2Before.getInterconnection(), writeContext);
     }
 }

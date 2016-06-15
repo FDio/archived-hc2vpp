@@ -22,20 +22,15 @@ import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.util.concurrent.CompletionStage;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<L2> {
 
@@ -79,8 +74,10 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<L2> id, @Nonnull final L2 dataBefore,
-                                        @Nonnull final WriteContext writeContext) {
-        // TODO implement delete (if possible)
+                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        final String ifcName = id.firstKeyOf(Interface.class).getName();
+        final int swIfc = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
+        deleteL2(id, swIfc, ifcName, dataBefore, writeContext);
     }
 
     private void setL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 l2,
@@ -89,5 +86,13 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
         LOG.debug("Setting L2 for interface: {}", ifcName);
         // Nothing besides interconnection here
         icWriteUtils.setInterconnection(id, swIfIndex, ifcName, l2.getInterconnection(), writeContext);
+    }
+
+    private void deleteL2(final InstanceIdentifier<L2> id, final int swIfIndex, final String ifcName, final L2 l2Before,
+                       final WriteContext writeContext)
+        throws WriteFailedException {
+        LOG.debug("Deleting L2 for interface: {}", ifcName);
+        // Nothing besides interconnection here
+        icWriteUtils.deleteInterconnection(id, swIfIndex, ifcName, l2Before.getInterconnection(), writeContext);
     }
 }
