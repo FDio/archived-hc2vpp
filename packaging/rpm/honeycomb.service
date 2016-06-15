@@ -1,0 +1,13 @@
+[Unit]
+Description=fd.io Honeycomb
+Wants=vpp.service
+After=vpp.service
+
+[Service]
+Type=forking
+ExecStart=/opt/honeycomb/bin/start
+User=honeycomb
+Group=honeycomb
+
+[Install]
+WantedBy=multi-user.target
