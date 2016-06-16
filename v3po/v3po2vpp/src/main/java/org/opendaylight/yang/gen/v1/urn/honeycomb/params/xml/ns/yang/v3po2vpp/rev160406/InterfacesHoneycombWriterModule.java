@@ -15,14 +15,15 @@ import io.fd.honeycomb.v3po.translate.util.write.ReflexiveChildWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.EthernetCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.L2Customizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceL2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.RewriteCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.RoutingCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceL2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.TapCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.VhostUserCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.VxlanCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.VxlanGpeCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.AddressCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv6Customizer;
 import io.fd.honeycomb.v3po.translate.write.ChildWriter;
@@ -33,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
@@ -95,8 +97,13 @@ public class InterfacesHoneycombWriterModule extends
     }
 
     private ChildWriter<? extends Augmentation<Interface>> getInterface1AugmentationWriter() {
+
+        final ChildWriter<Address> addressWriter = new CompositeListWriter<>(Address.class,
+                new AddressCustomizer(getVppJvppIfcDependency(),getInterfaceContextDependency()));
+
         final ChildWriter<Ipv4> ipv4Writer = new CompositeChildWriter<>(Ipv4.class,
-                new Ipv4Customizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
+                RWUtils.singletonChildWriterList(addressWriter),
+                new Ipv4Customizer(getVppJvppIfcDependency(),getInterfaceContextDependency()));
         final ChildWriter<Ipv6> ipv6Writer = new CompositeChildWriter<>(Ipv6.class,
                 new Ipv6Customizer(getVppJvppIfcDependency()));
 
