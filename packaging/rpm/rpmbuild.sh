@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -xe
 DIR=$(dirname $0)
 DIR=$(readlink -f $DIR)
 ZIPDIR=${DIR}/../../v3po/karaf/target/
