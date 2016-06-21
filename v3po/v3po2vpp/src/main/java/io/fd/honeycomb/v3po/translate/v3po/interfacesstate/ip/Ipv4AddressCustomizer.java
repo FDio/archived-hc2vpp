@@ -17,18 +17,20 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip;
 
 import com.google.common.base.Optional;
+import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Address;
@@ -50,17 +52,21 @@ import org.slf4j.LoggerFactory;
  * Customizer for read operations for {@link Address} of {@link Ipv4}
  */
 public class Ipv4AddressCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<Address, AddressKey, AddressBuilder> {
+    implements ListReaderCustomizer<Address, AddressKey, AddressBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
 
     private static final String CACHE_KEY = Ipv4AddressCustomizer.class.getName();
 
-    public Ipv4AddressCustomizer(FutureJVpp futureJvpp) {
+    private final NamingContext interfaceContext;
+
+    public Ipv4AddressCustomizer(@Nonnull final FutureJVpp futureJvpp, @Nonnull final NamingContext interfaceContext) {
         super(futureJvpp);
+        this.interfaceContext = interfaceContext;
     }
 
     @Override
+    @Nonnull
     public AddressBuilder getBuilder(@Nonnull InstanceIdentifier<Address> id) {
         return new AddressBuilder();
     }
@@ -68,7 +74,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<Address> id, @Nonnull AddressBuilder builder,
                                       @Nonnull ReadContext ctx)
-            throws ReadFailedException {
+        throws ReadFailedException {
         LOG.debug("Reading attributes...");
 
         Optional<IpAddressDetailsReplyDump> dumpOptional = dumpAddresses(id, ctx);
@@ -77,15 +83,14 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
             List<IpAddressDetails> details = dumpOptional.get().ipAddressDetails;
 
             AddressKey key = id.firstKeyOf(Address.class);
-            byte[] identifingIpBytes = TranslateUtils.ipv4AddressNoZoneToArray(key.getIp());
 
             IpAddressDetails detail = details.stream()
-                    .filter(singleDetail -> Arrays.equals(identifingIpBytes, singleDetail.ip))
-                    .collect(RWUtils.singleItemCollector());
+                .filter(singleDetail -> key.getIp().equals(TranslateUtils.arrayToIpv4AddressNoZone(singleDetail.ip)))
+                .collect(RWUtils.singleItemCollector());
 
             builder.setIp(TranslateUtils.arrayToIpv4AddressNoZone(detail.ip))
-                    .setSubnet(new PrefixLengthBuilder()
-                            .setPrefixLength(Short.valueOf(detail.prefixLength)).build());
+                .setSubnet(new PrefixLengthBuilder()
+                    .setPrefixLength(Short.valueOf(detail.prefixLength)).build());
             LOG.info("Address read successfull");
 
         } else {
@@ -95,7 +100,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
     @Override
     public List<AddressKey> getAllIds(@Nonnull InstanceIdentifier<Address> id, @Nonnull ReadContext context)
-            throws ReadFailedException {
+        throws ReadFailedException {
         LOG.debug("Extracting keys..");
 
         Optional<IpAddressDetailsReplyDump> dumpOptional = dumpAddresses(id, context);
@@ -105,8 +110,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
             List<IpAddressDetails> details = dumpOptional.get().ipAddressDetails;
 
             return details.stream()
-                    .map(detail -> new AddressKey(TranslateUtils.arrayToIpv4AddressNoZone(detail.ip)))
-                    .collect(Collectors.toList());
+                .map(detail -> new AddressKey(TranslateUtils.arrayToIpv4AddressNoZone(detail.ip)))
+                .collect(Collectors.toList());
         } else {
             LOG.warn("No dump present");
             return Collections.emptyList();
@@ -121,7 +126,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     // TODO refactor after there is an more generic implementation of cache
     // operations
     private Optional<IpAddressDetailsReplyDump> dumpAddresses(InstanceIdentifier<Address> id, ReadContext ctx)
-            throws ReadFailedException {
+        throws ReadFailedException {
         Optional<IpAddressDetailsReplyDump> dumpFromCache = dumpAddressFromCache(ctx.getModificationCache());
 
         if (dumpFromCache.isPresent()) {
@@ -130,7 +135,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         Optional<IpAddressDetailsReplyDump> dumpFromOperational;
         try {
-            dumpFromOperational = dumpAddressFromOperationalData();
+            dumpFromOperational = dumpAddressFromOperationalData(id, ctx.getMappingContext());
         } catch (VppBaseCallException e) {
             throw new ReadFailedException(id, e);
         }
@@ -147,10 +152,15 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         return Optional.fromNullable((IpAddressDetailsReplyDump) cache.get(CACHE_KEY));
     }
 
-    private Optional<IpAddressDetailsReplyDump> dumpAddressFromOperationalData() throws VppBaseCallException {
+    private Optional<IpAddressDetailsReplyDump> dumpAddressFromOperationalData(final InstanceIdentifier<Address> id,
+                                                                               final MappingContext mappingContext)
+        throws VppBaseCallException {
         LOG.debug("Dumping from operational data...");
+        final IpAddressDump dumpRequest = new IpAddressDump();
+        dumpRequest.isIpv6 = 0;
+        dumpRequest.swIfIndex = interfaceContext.getIndex(id.firstKeyOf(Interface.class).getName(), mappingContext);
         return Optional.fromNullable(
-                TranslateUtils.getReply(getFutureJVpp().ipAddressDump(new IpAddressDump()).toCompletableFuture()));
+            TranslateUtils.getReply(getFutureJVpp().ipAddressDump(dumpRequest).toCompletableFuture()));
     }
 
 }

@@ -20,7 +20,6 @@ import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
@@ -36,12 +35,8 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildReaderC
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4Customizer.class);
 
-    //do not remove,it will be needed in future implementation
-    private final NamingContext interfaceContext;
-
-    public Ipv4Customizer(@Nonnull final FutureJVpp futureJvpp, final NamingContext interfaceContext) {
+    public Ipv4Customizer(@Nonnull final FutureJVpp futureJvpp) {
         super(futureJvpp);
-        this.interfaceContext = interfaceContext;
     }
 
     @Override

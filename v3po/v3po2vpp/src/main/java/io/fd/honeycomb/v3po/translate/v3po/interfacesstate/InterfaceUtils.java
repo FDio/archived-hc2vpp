@@ -16,10 +16,10 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer.getCachedInterfaceDump;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
@@ -120,7 +120,7 @@ public final class InterfaceUtils {
     public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress, int startIndex) {
         Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
         final int endIndex = startIndex + PHYSICAL_ADDRESS_LENGTH;
-        Preconditions.checkArgument(endIndex <= vppPhysAddress.length,
+        checkArgument(endIndex <= vppPhysAddress.length,
             "Invalid physical address size (%s) for given startIndex (%d), expected >= %d", vppPhysAddress.length,
             startIndex, endIndex);
         StringBuilder physAddr = new StringBuilder();
@@ -152,7 +152,7 @@ public final class InterfaceUtils {
      * @return VPP's representation of the if-index
      */
     public static int yangIfIndexToVpp(int yangIfIndex) {
-        Preconditions.checkArgument(yangIfIndex >= 1, "YANG if-index has invalid value %s", yangIfIndex);
+        checkArgument(yangIfIndex >= 1, "YANG if-index has invalid value %s", yangIfIndex);
         return yangIfIndex - 1;
     }
 

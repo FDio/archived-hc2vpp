@@ -101,11 +101,11 @@ public class InterfacesStateHoneycombReaderModule extends
     private ChildReader<? extends Augmentation<Interface>> getInterface1AugmentationReader() {
 
         final ChildReader<Address> addressReader = new CompositeListReader<>(Address.class,
-                new Ipv4AddressCustomizer(getVppJvppDependency()));
+                new Ipv4AddressCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
 
         final ChildReader<? extends ChildOf<Interface2>> ipv4Reader = new CompositeChildReader<>(Ipv4.class,
                 RWUtils.singletonChildReaderList(addressReader),
-                new Ipv4Customizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
+                new Ipv4Customizer(getVppJvppDependency()));
         final ChildReader<? extends ChildOf<Interface2>> ipv6Reader = new CompositeChildReader<>(Ipv6.class,
                 new Ipv6Customizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
 

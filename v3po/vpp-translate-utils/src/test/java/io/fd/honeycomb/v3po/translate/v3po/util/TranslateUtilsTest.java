@@ -1,5 +1,6 @@
 package io.fd.honeycomb.v3po.translate.v3po.util;
 
+import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.reverseBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -17,16 +18,6 @@ public class TranslateUtilsTest {
         bytes = reverseBytes(bytes);
         final Ipv4AddressNoZone ipv4AddressNoZone = TranslateUtils.arrayToIpv4AddressNoZone(bytes);
         assertEquals(ipv4Addr, ipv4AddressNoZone);
-    }
-
-    private byte[] reverseBytes(final byte[] bytes) {
-        final byte[] reversed = new byte[bytes.length];
-        int i = 1;
-        for (byte aByte : bytes) {
-            reversed[bytes.length - i++] = aByte;
-        }
-
-        return reversed;
     }
 
     @Test

@@ -185,4 +185,19 @@ public final class TranslateUtils {
         }
         throw new IllegalArgumentException(String.format("0 or 1 was expected but was %d", value));
     }
+
+    /**
+     * Reverses bytes in the byte array
+     * @param bytes input array
+     * @return reversed array
+     */
+    public static byte[] reverseBytes(final byte[] bytes) {
+        final byte[] reversed = new byte[bytes.length];
+        int i = 1;
+        for (byte aByte : bytes) {
+            reversed[bytes.length - i++] = aByte;
+        }
+
+        return reversed;
+    }
 }
