@@ -138,6 +138,16 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
         final Map<Object, D> dataBefore = listOfIdentifiableToMap(customizer.extract(currentId, parentDataBefore));
         final Map<Object, D> dataAfter = listOfIdentifiableToMap(customizer.extract(currentId, parentDataAfter));
 
+        // The order of delete/write/update operations can have side-effects for devices like VPP
+        // TODO make it configurable
+
+        // First perform delete:
+        for (Object deletedNodeKey : Sets.difference(dataBefore.keySet(), dataAfter.keySet())) {
+            final D deleted = dataBefore.get(deletedNodeKey);
+            deleteCurrent(currentId, deleted, ctx);
+        }
+
+        // Then write/update:
         for (Map.Entry<Object, D> after : dataAfter.entrySet()) {
             final D before = dataBefore.get(after.getKey());
             if(before == null) {
@@ -145,12 +155,6 @@ public class CompositeListWriter<D extends DataObject & Identifiable<K>, K exten
             } else {
                 updateCurrent(currentId, before, after.getValue(), ctx);
             }
-        }
-
-        // Delete the rest in dataBefore
-        for (Object deletedNodeKey : Sets.difference(dataBefore.keySet(), dataAfter.keySet())) {
-            final D deleted = dataBefore.get(deletedNodeKey);
-            deleteCurrent(currentId, deleted, ctx);
         }
 
     }
