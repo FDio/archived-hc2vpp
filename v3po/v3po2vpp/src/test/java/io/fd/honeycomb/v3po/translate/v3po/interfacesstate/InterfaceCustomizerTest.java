@@ -27,6 +27,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -54,7 +55,7 @@ import org.openvpp.jvpp.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.dto.SwInterfaceDump;
 
 public class InterfaceCustomizerTest extends
-        ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> {
+    ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> {
 
     private NamingContext interfacesContext;
 
@@ -71,15 +72,19 @@ public class InterfaceCustomizerTest extends
     protected RootReaderCustomizer<Interface, InterfaceBuilder> initCustomizer() {
         final KeyedInstanceIdentifier<Mapping, MappingKey> eth0Id = getMappingIid("eth0", "test-instance");
         final KeyedInstanceIdentifier<Mapping, MappingKey> eth1Id = getMappingIid("eth1", "test-instance");
+        final KeyedInstanceIdentifier<Mapping, MappingKey> subEth1Id = getMappingIid("eth1.1", "test-instance");
         final Optional<Mapping> eth0 = getMapping("eth0", 0);
         final Optional<Mapping> eth1 = getMapping("eth1", 1);
+        final Optional<Mapping> subEth1 = getMapping("eth1.1", 2);
 
-        final List<Mapping> allMappings = Lists.newArrayList(getMapping("eth0", 0).get(), getMapping("eth1", 1).get());
+        final List<Mapping> allMappings =
+            Lists.newArrayList(getMapping("eth0", 0).get(), getMapping("eth1", 1).get(), getMapping("eth1.1", 2).get());
         final Mappings allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
         doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(eth0Id.firstIdentifierOf(Mappings.class));
 
         doReturn(eth0).when(mappingContext).read(eth0Id);
         doReturn(eth1).when(mappingContext).read(eth1Id);
+        doReturn(subEth1).when(mappingContext).read(subEth1Id);
 
         return new InterfaceCustomizer(api, interfacesContext);
     }
@@ -93,8 +98,9 @@ public class InterfaceCustomizerTest extends
         verify(builder).setInterface(value);
     }
 
-    private void verifyBridgeDomainDumpUpdateWasInvoked(final int nameFilterValid, final String ifaceName,
-                                                        final int dumpIfcsInvocationCount) throws VppInvocationException {
+    private void verifySwInterfaceDumpWasInvoked(final int nameFilterValid, final String ifaceName,
+                                                 final int dumpIfcsInvocationCount)
+        throws VppInvocationException {
         // TODO adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
         ArgumentCaptor<SwInterfaceDump> argumentCaptor = ArgumentCaptor.forClass(SwInterfaceDump.class);
         verify(api, times(dumpIfcsInvocationCount)).swInterfaceDump(argumentCaptor.capture());
@@ -109,13 +115,11 @@ public class InterfaceCustomizerTest extends
         assertEquals(iface.getPhysAddress().getValue(), InterfaceUtils.vppPhysAddrToYang(details.l2Address));
     }
 
-
-
     @Test
     public void testReadCurrentAttributes() throws Exception {
         final String ifaceName = "eth0";
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-                .child(Interface.class, new InterfaceKey(ifaceName));
+            .child(Interface.class, new InterfaceKey(ifaceName));
         final InterfaceBuilder builder = getCustomizer().getBuilder(id);
 
         final SwInterfaceDetails iface = new SwInterfaceDetails();
@@ -129,7 +133,7 @@ public class InterfaceCustomizerTest extends
 
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 
-        verifyBridgeDomainDumpUpdateWasInvoked(1, ifaceName, 1);
+        verifySwInterfaceDumpWasInvoked(1, ifaceName, 1);
         assertIfacesAreEqual(builder.build(), iface);
     }
 
@@ -137,7 +141,7 @@ public class InterfaceCustomizerTest extends
     public void testReadCurrentAttributesFailed() throws Exception {
         final String ifaceName = "eth0";
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-                .child(Interface.class, new InterfaceKey(ifaceName));
+            .child(Interface.class, new InterfaceKey(ifaceName));
         final InterfaceBuilder builder = getCustomizer().getBuilder(id);
 
         whenSwInterfaceDumpThenReturn(api, Collections.emptyList());
@@ -145,7 +149,7 @@ public class InterfaceCustomizerTest extends
         try {
             getCustomizer().readCurrentAttributes(id, builder, ctx);
         } catch (IllegalArgumentException e) {
-            verifyBridgeDomainDumpUpdateWasInvoked(0, ifaceName, 2);
+            verifySwInterfaceDumpWasInvoked(0, ifaceName, 2);
             return;
         }
 
@@ -153,9 +157,30 @@ public class InterfaceCustomizerTest extends
     }
 
     @Test
+    public void testReadSubInterface() throws Exception {
+        final String ifaceName = "eth1.1";
+        final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
+            .child(Interface.class, new InterfaceKey(ifaceName));
+        final InterfaceBuilder builder = mock(InterfaceBuilder.class);
+
+        final SwInterfaceDetails iface = new SwInterfaceDetails();
+        iface.interfaceName = ifaceName.getBytes();
+        iface.swIfIndex = 2;
+        iface.supSwIfIndex = 1;
+        iface.subId = 1;
+        final List<SwInterfaceDetails> interfaceList = Collections.singletonList(iface);
+        whenSwInterfaceDumpThenReturn(api, interfaceList);
+
+        getCustomizer().readCurrentAttributes(id, builder, ctx);
+
+        verifySwInterfaceDumpWasInvoked(1, ifaceName, 1);
+        verifyZeroInteractions(builder);
+    }
+
+    @Test
     public void testGetAllIds() throws Exception {
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-                .child(Interface.class);
+            .child(Interface.class);
 
         final String swIf0Name = "eth0";
         final SwInterfaceDetails swIf0 = new SwInterfaceDetails();
@@ -165,13 +190,20 @@ public class InterfaceCustomizerTest extends
         final SwInterfaceDetails swIf1 = new SwInterfaceDetails();
         swIf1.swIfIndex = 1;
         swIf1.interfaceName = swIf1Name.getBytes();
-        whenSwInterfaceDumpThenReturn(api, Arrays.asList(swIf0, swIf1));
+        final String swSubIf1Name = "eth1.1";
+        final SwInterfaceDetails swSubIf1 = new SwInterfaceDetails();
+        swSubIf1.swIfIndex = 2;
+        swSubIf1.subId = 1;
+        swSubIf1.supSwIfIndex = 1;
+        swSubIf1.interfaceName = swSubIf1Name.getBytes();
+        whenSwInterfaceDumpThenReturn(api, Arrays.asList(swIf0, swIf1, swSubIf1));
 
         final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(swIf0Name), new InterfaceKey(swIf1Name));
         final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);
 
-        verifyBridgeDomainDumpUpdateWasInvoked(0, "", 1);
+        verifySwInterfaceDumpWasInvoked(0, "", 1);
 
+        // sub-interface should not be on the list
         assertEquals(expectedIds, actualIds);
     }
 }
