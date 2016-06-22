@@ -28,33 +28,56 @@ import org.opendaylight.yangtools.yang.parser.stmt.rfc6020.YangStatementSourceIm
 
 public class ModificationDiffTest {
 
-    private static final QName TOP_CONTAINER_QNAME = QName.create("urn:opendaylight:params:xml:ns:yang:test:diff", "2015-01-05", "top-container");
+    private static final QName TOP_CONTAINER_QNAME =
+            QName.create("urn:opendaylight:params:xml:ns:yang:test:diff", "2015-01-05", "top-container");
     private static final QName STRING_LEAF_QNAME = QName.create(TOP_CONTAINER_QNAME, "string");
     private static final QName NAME_LEAF_QNAME = QName.create(TOP_CONTAINER_QNAME, "name");
     private static final QName TEXT_LEAF_QNAME = QName.create(TOP_CONTAINER_QNAME, "text");
     private static final QName NESTED_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "nested-list");
     private static final QName DEEP_LIST_QNAME = QName.create(TOP_CONTAINER_QNAME, "deep-list");
 
-    private YangInstanceIdentifier topContainerId = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);;
+    private static final YangInstanceIdentifier TOP_CONTAINER_ID = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);
 
     @Test
     public void testInitialWrite() throws Exception {
         final TipProducingDataTree dataTree = getDataTree();
-        final DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
-        final DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
+        final DataTreeModification dataTreeModification = getModification(dataTree);
         final NormalizedNode<?, ?> topContainer = getTopContainer("string1");
-        final YangInstanceIdentifier topContainerId = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);
-        dataTreeModification.write(topContainerId, topContainer);
-        dataTreeModification.ready();
-        dataTree.validate(dataTreeModification);
-        final DataTreeCandidateTip prepare = dataTree.prepare(dataTreeModification);
+        final YangInstanceIdentifier TOP_CONTAINER_ID = YangInstanceIdentifier.of(TOP_CONTAINER_QNAME);
+        dataTreeModification.write(TOP_CONTAINER_ID, topContainer);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff =
-                ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff = getModificationDiff(prepare);
 
         assertTrue(modificationDiff.getModificationsBefore().isEmpty());
-        assertAfter(topContainer, topContainerId, modificationDiff);
+        assertAfter(topContainer, TOP_CONTAINER_ID, modificationDiff);
+    }
+
+    private DataTreeModification getModification(final TipProducingDataTree dataTree) {
+        final DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
+        return dataTreeSnapshot.newModification();
+    }
+
+    @Test
+    public void testWriteNonPresenceEmptyContainer() throws Exception {
+        final TipProducingDataTree dataTree = getDataTree();
+        final DataTreeModification dataTreeModification = getModification(dataTree);
+        final NormalizedNode<?, ?> topContainer = ImmutableNodes.containerNode(TOP_CONTAINER_QNAME);
+        dataTreeModification.write(TOP_CONTAINER_ID, topContainer);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
+
+        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff = getModificationDiff(prepare);
+
+        assertTrue(modificationDiff.getModificationsBefore().isEmpty());
+        assertTrue(modificationDiff.getModificationsAfter().isEmpty());
+    }
+
+    private DataTreeCandidateTip prepareModification(final TipProducingDataTree dataTree,
+                                                     final DataTreeModification dataTreeModification)
+            throws DataValidationFailedException {
+        dataTreeModification.ready();
+        dataTree.validate(dataTreeModification);
+        return dataTree.prepare(dataTreeModification);
     }
 
     @Test
@@ -62,20 +85,20 @@ public class ModificationDiffTest {
         final TipProducingDataTree dataTree = getDataTree();
         final NormalizedNode<?, ?> topContainerBefore = addTopContainer(dataTree);
 
-        final DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
-        final DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
+        final DataTreeModification dataTreeModification = getModification(dataTree);
         final NormalizedNode<?, ?> topContainerAfter = getTopContainer("string2");
-        dataTreeModification.write(topContainerId, topContainerAfter);
-        dataTreeModification.ready();
-        dataTree.validate(dataTreeModification);
-        final DataTreeCandidateTip prepare = dataTree.prepare(dataTreeModification);
+        dataTreeModification.write(TOP_CONTAINER_ID, topContainerAfter);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff =
-                ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff = getModificationDiff(prepare);
 
-        assertBefore(topContainerBefore, topContainerId, modificationDiff);
-        assertAfter(topContainerAfter, topContainerId, modificationDiff);
+        assertBefore(topContainerBefore, TOP_CONTAINER_ID, modificationDiff);
+        assertAfter(topContainerAfter, TOP_CONTAINER_ID, modificationDiff);
+    }
+
+    private ModifiableDataTreeDelegator.ModificationDiff getModificationDiff(final DataTreeCandidateTip prepare) {
+        return ModifiableDataTreeDelegator.ModificationDiff
+                .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
     }
 
     @Test
@@ -83,20 +106,16 @@ public class ModificationDiffTest {
         final TipProducingDataTree dataTree = getDataTree();
         final NormalizedNode<?, ?> topContainerBefore = addTopContainer(dataTree);
 
-        final DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
-        final DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
+        final DataTreeModification dataTreeModification = getModification(dataTree);
         final NormalizedNode<?, ?> topContainerAfter = getTopContainer("string2");
-        dataTreeModification.merge(topContainerId, topContainerAfter);
-        dataTreeModification.ready();
-        dataTree.validate(dataTreeModification);
-        final DataTreeCandidateTip prepare = dataTree.prepare(dataTreeModification);
+        dataTreeModification.merge(TOP_CONTAINER_ID, topContainerAfter);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
         final ModifiableDataTreeDelegator.ModificationDiff modificationDiff =
-                ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+                getModificationDiff(prepare);
 
-        assertBefore(topContainerBefore, topContainerId, modificationDiff);
-        assertAfter(topContainerAfter, topContainerId, modificationDiff);
+        assertBefore(topContainerBefore, TOP_CONTAINER_ID, modificationDiff);
+        assertAfter(topContainerAfter, TOP_CONTAINER_ID, modificationDiff);
     }
 
     @Test
@@ -104,18 +123,13 @@ public class ModificationDiffTest {
         final TipProducingDataTree dataTree = getDataTree();
         final NormalizedNode<?, ?> topContainerBefore = addTopContainer(dataTree);
 
-        final DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
-        final DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
-        dataTreeModification.delete(topContainerId);
-        dataTreeModification.ready();
-        dataTree.validate(dataTreeModification);
-        final DataTreeCandidateTip prepare = dataTree.prepare(dataTreeModification);
+        final DataTreeModification dataTreeModification = getModification(dataTree);
+        dataTreeModification.delete(TOP_CONTAINER_ID);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff =
-                ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff = getModificationDiff(prepare);
 
-        assertBefore(topContainerBefore, topContainerId, modificationDiff);
+        assertBefore(topContainerBefore, TOP_CONTAINER_ID, modificationDiff);
         assertTrue(modificationDiff.getModificationsAfter().isEmpty());
     }
 
@@ -137,9 +151,7 @@ public class ModificationDiffTest {
         dataTree.validate(dataTreeModification);
         DataTreeCandidateTip prepare = dataTree.prepare(dataTreeModification);
 
-        ModifiableDataTreeDelegator.ModificationDiff modificationDiff =
-                ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+        ModifiableDataTreeDelegator.ModificationDiff modificationDiff = getModificationDiff(prepare);
 
         assertTrue(modificationDiff.getModificationsBefore().isEmpty());
         assertAfter(mapNode, listId, modificationDiff);
@@ -159,10 +171,7 @@ public class ModificationDiffTest {
         dataTree.validate(dataTreeModification);
         prepare = dataTree.prepare(dataTreeModification);
 
-        modificationDiff =
-                ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
-
+        modificationDiff = getModificationDiff(prepare);
         assertBefore(mapNode.getValue().iterator().next(), listItemId, modificationDiff);
         assertAfter(mapEntryNode, listItemId, modificationDiff);
     }
@@ -175,7 +184,7 @@ public class ModificationDiffTest {
         DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
 
         final ContainerNode topContainer = getTopContainer("string1");
-        dataTreeModification.write(topContainerId, topContainer);
+        dataTreeModification.write(TOP_CONTAINER_ID, topContainer);
 
         final YangInstanceIdentifier listId =
                 YangInstanceIdentifier.create(
@@ -185,13 +194,9 @@ public class ModificationDiffTest {
         final MapNode mapNode = getNestedList("name1", "text");
         dataTreeModification.write(listId, mapNode);
 
-        dataTreeModification.ready();
-        dataTree.validate(dataTreeModification);
-        final DataTreeCandidateTip prepare = dataTree.prepare(dataTreeModification);
+        final DataTreeCandidateTip prepare = prepareModification(dataTree, dataTreeModification);
 
-        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff =
-                ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff = getModificationDiff(prepare);
 
         assertTrue(modificationDiff.getModificationsBefore().isEmpty());
 
@@ -199,7 +204,7 @@ public class ModificationDiffTest {
         assertAfter(Builders.containerBuilder(topContainer)
                         .withChild(mapNode)
                         .build(),
-                topContainerId, modificationDiff);
+                TOP_CONTAINER_ID, modificationDiff);
     }
 
     @Test
@@ -229,21 +234,24 @@ public class ModificationDiffTest {
         final YangInstanceIdentifier.NodeIdentifierWithPredicates nestedListNodeId =
                 new YangInstanceIdentifier.NodeIdentifierWithPredicates(NESTED_LIST_QNAME, NAME_LEAF_QNAME, "name1");
         listId = YangInstanceIdentifier.create(
-                        new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME),
-                        new YangInstanceIdentifier.NodeIdentifier(NESTED_LIST_QNAME),
-                        nestedListNodeId);
-        final YangInstanceIdentifier deepListId = listId.node(new YangInstanceIdentifier.NodeIdentifier(DEEP_LIST_QNAME));
+                new YangInstanceIdentifier.NodeIdentifier(TOP_CONTAINER_QNAME),
+                new YangInstanceIdentifier.NodeIdentifier(NESTED_LIST_QNAME),
+                nestedListNodeId);
+        final YangInstanceIdentifier deepListId =
+                listId.node(new YangInstanceIdentifier.NodeIdentifier(DEEP_LIST_QNAME));
         final YangInstanceIdentifier deepListEntryId = deepListId.node(
-                new YangInstanceIdentifier.NodeIdentifierWithPredicates(DEEP_LIST_QNAME, NAME_LEAF_QNAME,"name1"));
+                new YangInstanceIdentifier.NodeIdentifierWithPredicates(DEEP_LIST_QNAME, NAME_LEAF_QNAME, "name1"));
 
         final MapEntryNode deepListEntry = getDeepList("name1").getValue().iterator().next();
         // Merge parent list, just to see no modifications on it
         dataTreeModification.merge(
                 listId,
-                Builders.mapEntryBuilder().withNodeIdentifier(nestedListNodeId).withChild(ImmutableNodes.leafNode(NAME_LEAF_QNAME, "name1")).build());
+                Builders.mapEntryBuilder().withNodeIdentifier(nestedListNodeId)
+                        .withChild(ImmutableNodes.leafNode(NAME_LEAF_QNAME, "name1")).build());
         dataTreeModification.merge(
                 deepListId,
-                Builders.mapBuilder().withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(DEEP_LIST_QNAME)).build());
+                Builders.mapBuilder().withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(DEEP_LIST_QNAME))
+                        .build());
         dataTreeModification.merge(
                 deepListEntryId,
                 deepListEntry);
@@ -253,8 +261,7 @@ public class ModificationDiffTest {
         prepare = dataTree.prepare(dataTreeModification);
         dataTree.commit(prepare);
 
-        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff = ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff = getModificationDiff(prepare);
 
         assertTrue(modificationDiff.getModificationsBefore().isEmpty());
         assertAfter(getDeepList("name1"), deepListId, modificationDiff);
@@ -291,19 +298,18 @@ public class ModificationDiffTest {
         dataTree.validate(dataTreeModification);
         prepare = dataTree.prepare(dataTreeModification);
 
-        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff =
-                ModifiableDataTreeDelegator.ModificationDiff
-                        .recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, prepare.getRootNode());
+        final ModifiableDataTreeDelegator.ModificationDiff modificationDiff = getModificationDiff(prepare);
 
         assertBefore(mapNode.getValue().iterator().next(), listItemId, modificationDiff);
         assertTrue(modificationDiff.getModificationsAfter().isEmpty());
     }
 
-    private NormalizedNode<?, ?> addTopContainer(final TipProducingDataTree dataTree) throws DataValidationFailedException {
+    private NormalizedNode<?, ?> addTopContainer(final TipProducingDataTree dataTree)
+            throws DataValidationFailedException {
         DataTreeSnapshot dataTreeSnapshot = dataTree.takeSnapshot();
         DataTreeModification dataTreeModification = dataTreeSnapshot.newModification();
         final NormalizedNode<?, ?> topContainerBefore = getTopContainer("string1");
-        dataTreeModification.write(topContainerId, topContainerBefore);
+        dataTreeModification.write(TOP_CONTAINER_ID, topContainerBefore);
         dataTreeModification.ready();
         dataTree.validate(dataTreeModification);
         DataTreeCandidateTip prepare = dataTree.prepare(dataTreeModification);
@@ -311,23 +317,23 @@ public class ModificationDiffTest {
         return topContainerBefore;
     }
 
-    private void assertAfter(final NormalizedNode<?, ?> topContainer, final YangInstanceIdentifier topContainerId,
+    private void assertAfter(final NormalizedNode<?, ?> topContainer, final YangInstanceIdentifier TOP_CONTAINER_ID,
                              final ModifiableDataTreeDelegator.ModificationDiff modificationDiff) {
-        assertModification(topContainer, topContainerId, modificationDiff.getModificationsAfter());
+        assertModification(topContainer, TOP_CONTAINER_ID, modificationDiff.getModificationsAfter());
     }
 
     private void assertModification(final NormalizedNode<?, ?> topContainer,
-                                    final YangInstanceIdentifier topContainerId,
+                                    final YangInstanceIdentifier TOP_CONTAINER_ID,
                                     final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> modificationMap) {
         assertEquals(1, modificationMap.keySet().size());
-        assertEquals(topContainerId, modificationMap.keySet().iterator().next());
+        assertEquals(TOP_CONTAINER_ID, modificationMap.keySet().iterator().next());
         assertEquals(topContainer, modificationMap.values().iterator().next());
     }
 
     private void assertBefore(final NormalizedNode<?, ?> topContainerBefore,
-                              final YangInstanceIdentifier topContainerId,
+                              final YangInstanceIdentifier TOP_CONTAINER_ID,
                               final ModifiableDataTreeDelegator.ModificationDiff modificationDiff) {
-        assertModification(topContainerBefore, topContainerId, modificationDiff.getModificationsBefore());
+        assertModification(topContainerBefore, TOP_CONTAINER_ID, modificationDiff.getModificationsBefore());
     }
 
     private TipProducingDataTree getDataTree() throws ReactorException {
@@ -347,11 +353,13 @@ public class ModificationDiffTest {
         return Builders.mapBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(NESTED_LIST_QNAME))
                 .withChild(
-                    Builders.mapEntryBuilder()
-                        .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifierWithPredicates(NESTED_LIST_QNAME, NAME_LEAF_QNAME, listItemName))
-                        .withChild(ImmutableNodes.leafNode(NAME_LEAF_QNAME, listItemName))
-                        .withChild(ImmutableNodes.leafNode(TEXT_LEAF_QNAME, text))
-                        .build()
+                        Builders.mapEntryBuilder()
+                                .withNodeIdentifier(
+                                        new YangInstanceIdentifier.NodeIdentifierWithPredicates(NESTED_LIST_QNAME,
+                                                NAME_LEAF_QNAME, listItemName))
+                                .withChild(ImmutableNodes.leafNode(NAME_LEAF_QNAME, listItemName))
+                                .withChild(ImmutableNodes.leafNode(TEXT_LEAF_QNAME, text))
+                                .build()
                 )
                 .build();
     }
@@ -360,10 +368,12 @@ public class ModificationDiffTest {
         return Builders.mapBuilder()
                 .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifier(DEEP_LIST_QNAME))
                 .withChild(
-                    Builders.mapEntryBuilder()
-                        .withNodeIdentifier(new YangInstanceIdentifier.NodeIdentifierWithPredicates(DEEP_LIST_QNAME, NAME_LEAF_QNAME, listItemName))
-                        .withChild(ImmutableNodes.leafNode(NAME_LEAF_QNAME, listItemName))
-                        .build()
+                        Builders.mapEntryBuilder()
+                                .withNodeIdentifier(
+                                        new YangInstanceIdentifier.NodeIdentifierWithPredicates(DEEP_LIST_QNAME,
+                                                NAME_LEAF_QNAME, listItemName))
+                                .withChild(ImmutableNodes.leafNode(NAME_LEAF_QNAME, listItemName))
+                                .build()
                 )
                 .build();
     }

@@ -178,7 +178,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
         final HashMap<InstanceIdentifier<?>, DataObject> transformed = new HashMap<>(biNodes.size());
         for (Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> biEntry : biNodes.entrySet()) {
             final Map.Entry<InstanceIdentifier<?>, DataObject> baEntry = serializer.fromNormalizedNode(biEntry.getKey(), biEntry.getValue());
-            if(baEntry != null) {
+            if (baEntry != null) {
                 transformed.put(baEntry.getKey(), baEntry.getValue());
             }
         }
@@ -253,7 +253,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
         }
 
         /**
-         * Produce a diff from a candidate node recursively
+         * Produce a diff from a candidate node recursively.
          */
         @Nonnull
         static ModificationDiff recursivelyFromCandidate(@Nonnull final YangInstanceIdentifier yangIid,
@@ -266,9 +266,9 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                     return ModificationDiff.EMPTY_DIFF;
                 }
                 case WRITE: {
-                    return currentCandidate.getDataBefore().isPresent() ?
-                            ModificationDiff.create(yangIid, currentCandidate) :
-                            ModificationDiff.createFromAfter(yangIid, currentCandidate);
+                    return currentCandidate.getDataBefore().isPresent()
+                            ? ModificationDiff.create(yangIid, currentCandidate)
+                            : ModificationDiff.createFromAfter(yangIid, currentCandidate);
                     // TODO HONEYCOMB-94 process children recursively to get modifications for child nodes
                 }
                 case DELETE:
@@ -282,10 +282,9 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                             // and that messes up our modifications collection here, so we need to skip
                             .filter(ModificationDiff::isModification)
                             .map(child -> LEAF_MODIFICATIONS.contains(child.getModificationType()))
-                            .reduce((aBoolean, aBoolean2) -> aBoolean || aBoolean2);
+                            .reduce((boolOne, boolTwo) -> boolOne || boolTwo);
 
-                    //
-                    if(leavesModified.isPresent() && leavesModified.get()) {
+                    if (leavesModified.isPresent() && leavesModified.get()) {
                         return ModificationDiff.create(yangIid, currentCandidate);
                         // TODO HONEYCOMB-94 process children recursively to get modifications for child nodes even if current
                         // was modified
@@ -309,33 +308,34 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
          * Check whether candidate.before and candidate.after is different. If not
          * return false.
          */
-        private static boolean isModification(final DataTreeCandidateNode a) {
-            if(a.getDataBefore().isPresent()) {
-                if(a.getDataAfter().isPresent()) {
-                    return !a.getDataAfter().get().equals(a.getDataBefore().get());
+        private static boolean isModification(final DataTreeCandidateNode candidateNode) {
+            if (candidateNode.getDataBefore().isPresent()) {
+                if (candidateNode.getDataAfter().isPresent()) {
+                    return !candidateNode.getDataAfter().get().equals(candidateNode.getDataBefore().get());
                 } else {
                     return true;
                 }
             }
 
-            return true;
+            // considering not a modification if data after is also null
+            return candidateNode.getDataAfter().isPresent();
         }
 
         /**
-         * Check whether candidate node is for a leaf type node
+         * Check whether candidate node is for a leaf type node.
          */
-        private static boolean isLeaf(final DataTreeCandidateNode a) {
-            return a.getDataAfter().isPresent()
-                    ? (a.getDataAfter().get() instanceof LeafNode<?>)
-                    : (a.getDataBefore().get() instanceof LeafNode<?>);
+        private static boolean isLeaf(final DataTreeCandidateNode candidateNode) {
+            // orNull intentional, some candidate nodes have both data after and data before null
+            return candidateNode.getDataAfter().orNull() instanceof LeafNode<?>
+                    || candidateNode.getDataBefore().orNull() instanceof LeafNode<?>;
         }
 
         @Override
         public String toString() {
-            return "ModificationDiff{" +
-                    "modificationsBefore=" + modificationsBefore +
-                    ", modificationsAfter=" + modificationsAfter +
-                    '}';
+            return "ModificationDiff{"
+                    + "modificationsBefore=" + modificationsBefore
+                    + ", modificationsAfter=" + modificationsAfter
+                    + '}';
         }
     }
 }
