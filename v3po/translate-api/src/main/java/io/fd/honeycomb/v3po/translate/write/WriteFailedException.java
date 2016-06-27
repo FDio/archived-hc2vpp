@@ -31,11 +31,11 @@ public class WriteFailedException extends TranslationException {
     private final InstanceIdentifier<?> failedId;
 
     /**
-     * Constructs an WriteFailedException given data id and exception cause.
+     * Constructs an WriteFailedException given data id, exception detail message and exception cause.
      *
      * @param failedId instance identifier of the data object that could not be read
      * @param cause    the cause of read failure
-     * @param message
+     * @param message  the exception detail message
      */
     public WriteFailedException(@Nonnull final InstanceIdentifier<?> failedId,
                                 @Nonnull final String message,
@@ -52,6 +52,18 @@ public class WriteFailedException extends TranslationException {
     public WriteFailedException(@Nonnull final InstanceIdentifier<?> failedId,
                                 @Nonnull final String message) {
         super(message);
+        this.failedId = checkNotNull(failedId, "failedId should not be null");
+    }
+
+    /**
+     * Constructs an WriteFailedException given data id and exception cause.
+     *
+     * @param failedId instance identifier of the data object that could not be read
+     * @param cause    the cause of read failure
+     */
+    public WriteFailedException(@Nonnull final InstanceIdentifier<?> failedId,
+                                @Nonnull final Throwable cause) {
+        super(cause);
         this.failedId = checkNotNull(failedId, "failedId should not be null");
     }
 

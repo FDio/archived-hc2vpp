@@ -107,7 +107,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
                     getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
             final SwInterfaceDetailsReplyDump ifaces =
-                    TranslateUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
+                    TranslateUtils.getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
 
             if (null == ifaces || null == ifaces.swInterfaceDetails) {
                 LOG.warn("Looking for sub-interfaces, but no interfaces found in VPP");

@@ -21,6 +21,7 @@ import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
@@ -70,7 +71,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
                                         @Nonnull final Interface dataBefore,
                                         @Nonnull final Interface dataAfter,
                                         @Nonnull final WriteContext writeContext)
-        throws WriteFailedException.UpdateFailedException {
+        throws WriteFailedException {
 
         try {
             updateInterface(id, dataBefore, dataAfter, writeContext);
@@ -98,35 +99,38 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
 
     private void setInterface(final InstanceIdentifier<Interface> id, final Interface swIf,
                               final WriteContext writeContext)
-        throws VppBaseCallException {
+        throws VppBaseCallException, WriteTimeoutException {
         LOG.debug("Setting interface: {} to: {}", id, swIf);
-        setInterfaceAttributes(swIf, swIf.getName(), writeContext);
+        setInterfaceAttributes(id, swIf, swIf.getName(), writeContext);
     }
 
-    private void setInterfaceAttributes(final Interface swIf, final String swIfName, final WriteContext writeContext)
-        throws VppBaseCallException {
+    private void setInterfaceAttributes(final InstanceIdentifier<Interface> id, final Interface swIf,
+                                        final String swIfName, final WriteContext writeContext)
+        throws VppBaseCallException, WriteTimeoutException {
 
-        setInterfaceFlags(swIfName, interfaceContext.getIndex(swIfName, writeContext.getMappingContext()),
+        setInterfaceFlags(id, swIfName, interfaceContext.getIndex(swIfName, writeContext.getMappingContext()),
             swIf.isEnabled() ? (byte) 1 : (byte) 0);
     }
 
     private void updateInterface(final InstanceIdentifier<Interface> id,
                                  final Interface dataBefore,
-                                 final Interface dataAfter, final WriteContext writeContext) throws VppBaseCallException {
+                                 final Interface dataAfter, final WriteContext writeContext)
+        throws VppBaseCallException, WriteTimeoutException {
         LOG.debug("Updating interface:{} to: {}", id, dataAfter);
-        setInterfaceAttributes(dataAfter, dataAfter.getName(), writeContext);
+        setInterfaceAttributes(id, dataAfter, dataAfter.getName(), writeContext);
     }
 
-    private void setInterfaceFlags(final String swIfName, final int swIfIndex, final byte enabled)
-        throws VppBaseCallException {
+    private void setInterfaceFlags(final InstanceIdentifier<Interface> id, final String swIfName, final int swIfIndex,
+                                   final byte enabled)
+        throws VppBaseCallException, WriteTimeoutException {
         final CompletionStage<SwInterfaceSetFlagsReply> swInterfaceSetFlagsReplyFuture = getFutureJVpp().swInterfaceSetFlags(
             getSwInterfaceSetFlagsInput(swIfIndex, enabled, (byte) 0 /* deleted */));
 
         LOG.debug("Updating interface flags for: {}, index: {}, enabled: {}", swIfName, swIfIndex, enabled);
 
-        SwInterfaceSetFlagsReply reply = TranslateUtils.getReply(swInterfaceSetFlagsReplyFuture.toCompletableFuture());
-        LOG.debug("Interface flags updated successfully for: {}, index: {}, enabled: {}, ctxId: {}",
-                swIfName, swIfIndex, enabled, reply.context);
+        TranslateUtils.getReplyForWrite(swInterfaceSetFlagsReplyFuture.toCompletableFuture(), id);
+        LOG.debug("Interface flags updated successfully for: {}, index: {}, enabled: {}",
+                swIfName, swIfIndex, enabled);
     }
 
     private SwInterfaceSetFlags getSwInterfaceSetFlagsInput(final int swIfIndex, final byte enabled, final byte deleted) {

@@ -25,6 +25,7 @@ import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.v3po.util.ReadTimeoutException;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.util.Collections;
 import java.util.List;
@@ -154,13 +155,13 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
     private Optional<IpAddressDetailsReplyDump> dumpAddressFromOperationalData(final InstanceIdentifier<Address> id,
                                                                                final MappingContext mappingContext)
-        throws VppBaseCallException {
+        throws VppBaseCallException, ReadTimeoutException {
         LOG.debug("Dumping from operational data...");
         final IpAddressDump dumpRequest = new IpAddressDump();
         dumpRequest.isIpv6 = 0;
         dumpRequest.swIfIndex = interfaceContext.getIndex(id.firstKeyOf(Interface.class).getName(), mappingContext);
         return Optional.fromNullable(
-            TranslateUtils.getReply(getFutureJVpp().ipAddressDump(dumpRequest).toCompletableFuture()));
+            TranslateUtils.getReplyForRead(getFutureJVpp().ipAddressDump(dumpRequest).toCompletableFuture(), id));
     }
 
 }

@@ -39,13 +39,56 @@ import org.openvpp.jvpp.dto.JVppReply;
 public final class TranslateUtils {
 
     public static final Splitter COLON_SPLITTER = Splitter.on(':');
+    public static final int DEFAULT_TIMEOUT_IN_SECONDS = 5;
 
     private TranslateUtils() {
     }
 
-    public static <REP extends JVppReply<?>> REP getReply(Future<REP> future) throws VppBaseCallException {
+    public static <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
+                                                                  @Nonnull final InstanceIdentifier<?> replyType)
+        throws VppBaseCallException, WriteTimeoutException {
+        return getReplyForWrite(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
+    }
+
+    public static <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
+                                                                  @Nonnull final InstanceIdentifier<?> replyType,
+                                                                  @Nonnegative final int timeoutInSeconds)
+        throws VppBaseCallException, WriteTimeoutException {
         try {
-            return future.get();
+            return getReply(future, timeoutInSeconds);
+        } catch (TimeoutException e) {
+            throw new WriteTimeoutException(replyType, e);
+        }
+    }
+
+    public static <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
+                                                                 @Nonnull final InstanceIdentifier<?> replyType)
+        throws VppBaseCallException, ReadTimeoutException {
+        return getReplyForRead(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
+    }
+
+    public static <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
+                                                                 @Nonnull final InstanceIdentifier<?> replyType,
+                                                                 @Nonnegative final int timeoutInSeconds)
+        throws VppBaseCallException, ReadTimeoutException {
+        try {
+            return getReply(future, timeoutInSeconds);
+        } catch (TimeoutException e) {
+            throw new ReadTimeoutException(replyType, e);
+        }
+    }
+
+    public static <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future)
+        throws TimeoutException, VppBaseCallException {
+        return getReply(future, DEFAULT_TIMEOUT_IN_SECONDS);
+    }
+
+    public static <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future,
+                                                          @Nonnegative final int timeoutInSeconds)
+        throws TimeoutException, VppBaseCallException {
+        try {
+            checkArgument(timeoutInSeconds > 0, "Timeout cannot be < 0");
+            return future.get(timeoutInSeconds, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted", e);
@@ -56,28 +99,6 @@ public final class TranslateUtils {
                 throw (VppBaseCallException) (e.getCause());
             }
             throw new IllegalStateException(e);
-        }
-    }
-
-    public static <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future,
-                                                          @Nonnull final InstanceIdentifier<?> replyType,
-                                                          @Nonnegative final int timeoutInSeconds)
-        throws ReadTimeoutException, VppBaseCallException {
-        try {
-            checkArgument(timeoutInSeconds > 0, "Timeout cannot be < 0");
-            return future.get(timeoutInSeconds, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted", e);
-        } catch (ExecutionException e) {
-            // Execution exception could generally contains any exception
-            // when using exceptions instead of return codes just rethrow it for processing on corresponding place
-            if (e.getCause() instanceof VppBaseCallException) {
-                throw (VppBaseCallException) (e.getCause());
-            }
-            throw new IllegalStateException(e);
-        } catch (TimeoutException e) {
-            throw new ReadTimeoutException(replyType, e);
         }
     }
 
@@ -188,6 +209,7 @@ public final class TranslateUtils {
 
     /**
      * Reverses bytes in the byte array
+     *
      * @param bytes input array
      * @return reversed array
      */

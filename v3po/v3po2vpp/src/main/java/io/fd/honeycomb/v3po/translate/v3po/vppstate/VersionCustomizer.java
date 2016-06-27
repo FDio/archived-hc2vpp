@@ -64,7 +64,7 @@ public final class VersionCustomizer
         try {
             // Execute with timeout
             final CompletionStage<ShowVersionReply> showVersionFuture = getFutureJVpp().showVersion(new ShowVersion());
-            final ShowVersionReply reply = TranslateUtils.getReply(showVersionFuture.toCompletableFuture(), id,
+            final ShowVersionReply reply = TranslateUtils.getReplyForRead(showVersionFuture.toCompletableFuture(), id,
                 DEFAULT_TIMEOUT_IN_SECONDS);
 
             builder.setBranch(TranslateUtils.toString(reply.version));

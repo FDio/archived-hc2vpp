@@ -191,10 +191,10 @@ public final class InterfaceUtils {
             return allInterfaces.get(index);
         }
 
-        SwInterfaceDetailsReplyDump ifaces = null;
+        SwInterfaceDetailsReplyDump ifaces;
         try {
             CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJvpp.swInterfaceDump(request);
-            ifaces = TranslateUtils.getReply(requestFuture.toCompletableFuture());
+            ifaces = TranslateUtils.getReplyForRead(requestFuture.toCompletableFuture(), id);
             if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
                 request.nameFilterValid = 0;
 
@@ -203,7 +203,7 @@ public final class InterfaceUtils {
 
                 // Or else just perform full dump and do inefficient filtering
                 requestFuture = futureJvpp.swInterfaceDump(request);
-                ifaces = TranslateUtils.getReply(requestFuture.toCompletableFuture());
+                ifaces = TranslateUtils.getReplyForRead(requestFuture.toCompletableFuture(), id);
 
                 // Update the cache
                 allInterfaces.clear();

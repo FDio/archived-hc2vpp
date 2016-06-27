@@ -16,20 +16,23 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.test;
 
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
-import org.openvpp.jvpp.dto.SwInterfaceDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.dto.SwInterfaceDump;
+import org.openvpp.jvpp.future.FutureJVpp;
 
 public final class InterfaceTestUtils {
     private InterfaceTestUtils() {
@@ -37,13 +40,13 @@ public final class InterfaceTestUtils {
     }
 
     public static void whenSwInterfaceDumpThenReturn(final FutureJVpp api, final List<SwInterfaceDetails> interfaceList)
-            throws ExecutionException, InterruptedException, VppBaseCallException {
+        throws ExecutionException, InterruptedException, VppBaseCallException, TimeoutException {
         final CompletionStage<SwInterfaceDetailsReplyDump> replyCS = mock(CompletionStage.class);
         final CompletableFuture<SwInterfaceDetailsReplyDump> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final SwInterfaceDetailsReplyDump reply = new SwInterfaceDetailsReplyDump();
         reply.swInterfaceDetails = interfaceList;
-        when(replyFuture.get()).thenReturn(reply);
+        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
         when(api.swInterfaceDump(any(SwInterfaceDump.class))).thenReturn(replyCS);
     }
 }

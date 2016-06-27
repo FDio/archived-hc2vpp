@@ -16,13 +16,19 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.net.InetAddress;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -37,12 +43,6 @@ import org.openvpp.jvpp.dto.VxlanAddDelTunnelReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.net.InetAddress;
-import java.util.concurrent.CompletionStage;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 // TODO extract common code from all Interface type specific writer customizers into a superclass
 public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
@@ -70,10 +70,10 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
     @Override
     protected final void writeInterface(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataAfter,
                                        @Nonnull final WriteContext writeContext)
-            throws WriteFailedException.CreateFailedException {
+            throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         try {
-            createVxlanTunnel(swIfName, dataAfter, writeContext);
+            createVxlanTunnel(id, swIfName, dataAfter, writeContext);
         } catch (VppBaseCallException | IllegalInterfaceTypeException e) {
             LOG.debug("Failed to set vxlan tunnel for interface: {}, vxlan: {}", swIfName, dataAfter);
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -91,17 +91,18 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
                                         @Nonnull final WriteContext writeContext)
-            throws WriteFailedException.DeleteFailedException {
+            throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         try {
-            deleteVxlanTunnel(swIfName, dataBefore, writeContext);
+            deleteVxlanTunnel(id, swIfName, dataBefore, writeContext);
         } catch (VppBaseCallException e) {
             LOG.debug("Failed to delete vxlan tunnel for interface: {}, vxlan: {}", swIfName, dataBefore);
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
-    private void createVxlanTunnel(final String swIfName, final Vxlan vxlan, final WriteContext writeContext) throws VppBaseCallException {
+    private void createVxlanTunnel(final InstanceIdentifier<Vxlan> id, final String swIfName, final Vxlan vxlan,
+                                   final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
         final byte isIpv6 = (byte) (isIpv6(vxlan) ? 1 : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
@@ -115,7 +116,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
                         dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
 
         final VxlanAddDelTunnelReply reply =
-                TranslateUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+                TranslateUtils.getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Vxlan tunnel set successfully for: {}, vxlan: {}", swIfName, vxlan);
         if(interfaceContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
             // VPP keeps vxlan tunnels present even after they are delete(reserving ID for next tunnel)
@@ -150,7 +151,8 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
         return addr.getIpv4Address() == null ? addr.getIpv6Address().getValue() : addr.getIpv4Address().getValue();
     }
 
-    private void deleteVxlanTunnel(final String swIfName, final Vxlan vxlan, final WriteContext writeContext) throws VppBaseCallException {
+    private void deleteVxlanTunnel(final InstanceIdentifier<Vxlan> id, final String swIfName, final Vxlan vxlan,
+                                   final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
         final byte isIpv6 = (byte) (isIpv6(vxlan) ? 1 : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
@@ -163,8 +165,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
                 getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 0 /* is add */, srcAddress.getAddress(),
                         dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
 
-        final VxlanAddDelTunnelReply reply =
-                TranslateUtils.getReply(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture());
+        TranslateUtils.getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Vxlan tunnel deleted successfully for: {}, vxlan: {}", swIfName, vxlan);
         // Remove interface from our interface context
         interfaceContext.removeName(swIfName, writeContext.getMappingContext());

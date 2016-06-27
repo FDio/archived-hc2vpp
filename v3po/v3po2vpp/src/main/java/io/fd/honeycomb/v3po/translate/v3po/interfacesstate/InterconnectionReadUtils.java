@@ -123,7 +123,7 @@ final class InterconnectionReadUtils {
 
             final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
                 futureJvpp.bridgeDomainSwIfDump(request).toCompletableFuture();
-            return TranslateUtils.getReply(bdCompletableFuture);
+            return TranslateUtils.getReplyForRead(bdCompletableFuture, id);
         } catch (VppBaseCallException e) {
             throw new ReadFailedException(id, e);
         }

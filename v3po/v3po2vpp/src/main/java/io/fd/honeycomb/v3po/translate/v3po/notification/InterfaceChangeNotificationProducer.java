@@ -24,6 +24,7 @@ import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -35,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceStatus;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.dto.SwInterfaceSetFlagsNotification;
 import org.openvpp.jvpp.dto.WantInterfaceEvents;
 import org.openvpp.jvpp.dto.WantInterfaceEventsReply;
@@ -126,7 +126,7 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
         try {
             wantInterfaceEventsReplyCompletionStage = jvpp.wantInterfaceEvents(wantInterfaceEvents);
             TranslateUtils.getReply(wantInterfaceEventsReplyCompletionStage.toCompletableFuture());
-        } catch (VppBaseCallException e) {
+        } catch (VppBaseCallException | TimeoutException e) {
             LOG.warn("Unable to {} interface notifications", enableDisable == 1 ? "enable" : "disable",  e);
             throw new IllegalStateException("Unable to control interface notifications", e);
         }

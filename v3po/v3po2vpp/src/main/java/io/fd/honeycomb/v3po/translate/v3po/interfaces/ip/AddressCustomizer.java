@@ -182,7 +182,7 @@ public class AddressCustomizer extends FutureJVppCustomizer implements ListWrite
                         getSwInterfaceAddDelAddressRequest(swIfc, TranslateUtils.booleanToByte(add) /* isAdd */,
                             (byte) 0 /* isIpv6 */, (byte) 0 /* delAll */, plen.byteValue(), addr));
 
-            TranslateUtils.getReply(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture());
+            TranslateUtils.getReplyForWrite(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture(), id);
 
             LOG.debug("Subnet(prefix-length) set successfully for interface: {}, {},  Subnet: {}, Address: {}", name,
                 swIfc, subnet, address);

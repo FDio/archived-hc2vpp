@@ -26,6 +26,7 @@ import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
@@ -63,8 +64,9 @@ public class BridgeDomainCustomizer
         return Optional.fromNullable(((BridgeDomains) parentData).getBridgeDomain());
     }
 
-    private BridgeDomainAddDelReply addOrUpdateBridgeDomain(final int bdId, @Nonnull final BridgeDomain bd)
-        throws VppBaseCallException {
+    private BridgeDomainAddDelReply addOrUpdateBridgeDomain(@Nonnull final InstanceIdentifier<BridgeDomain> id,
+                                                            final int bdId, @Nonnull final BridgeDomain bd)
+        throws VppBaseCallException, WriteTimeoutException {
         final BridgeDomainAddDelReply reply;
         final BridgeDomainAddDel request = new BridgeDomainAddDel();
         request.bdId = bdId;
@@ -75,7 +77,7 @@ public class BridgeDomainCustomizer
         request.arpTerm = booleanToByte(bd.isArpTermination());
         request.isAdd = ADD_OR_UPDATE_BD;
 
-        reply = TranslateUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
+        reply = TranslateUtils.getReplyForWrite(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture(), id);
         LOG.debug("Bridge domain {} (id={}) add/update successful", bd.getName(), bdId);
         return reply;
     }
@@ -84,7 +86,7 @@ public class BridgeDomainCustomizer
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                        @Nonnull final BridgeDomain dataBefore,
                                        @Nonnull final WriteContext ctx)
-        throws WriteFailedException.CreateFailedException {
+        throws WriteFailedException {
         LOG.debug("writeCurrentAttributes: id={}, current={}, ctx={}", id, dataBefore, ctx);
         final String bdName = dataBefore.getName();
 
@@ -101,7 +103,7 @@ public class BridgeDomainCustomizer
                     index++;
                 }
             }
-            addOrUpdateBridgeDomain(index, dataBefore);
+            addOrUpdateBridgeDomain(id, index, dataBefore);
             bdContext.addName(index, bdName, ctx.getMappingContext());
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to create bridge domain", e);
@@ -113,7 +115,7 @@ public class BridgeDomainCustomizer
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore,
                                         @Nonnull final WriteContext ctx)
-        throws WriteFailedException.DeleteFailedException {
+        throws WriteFailedException {
         LOG.debug("deleteCurrentAttributes: id={}, dataBefore={}, ctx={}", id, dataBefore, ctx);
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
         int bdId = bdContext.getIndex(bdName, ctx.getMappingContext());
@@ -122,7 +124,7 @@ public class BridgeDomainCustomizer
             final BridgeDomainAddDel request = new BridgeDomainAddDel();
             request.bdId = bdId;
 
-            TranslateUtils.getReply(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture());
+            TranslateUtils.getReplyForWrite(getFutureJVpp().bridgeDomainAddDel(request).toCompletableFuture(), id);
             LOG.debug("Bridge domain {} (id={}) deleted successfully", bdName, bdId);
         } catch (VppBaseCallException e) {
             LOG.warn("Bridge domain {} (id={}) delete failed", bdName, bdId);
@@ -134,7 +136,7 @@ public class BridgeDomainCustomizer
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                         @Nonnull final BridgeDomain dataBefore, @Nonnull final BridgeDomain dataAfter,
                                         @Nonnull final WriteContext ctx)
-        throws WriteFailedException.UpdateFailedException {
+        throws WriteFailedException {
         LOG.debug("updateCurrentAttributes: id={}, dataBefore={}, dataAfter={}, ctx={}", id, dataBefore, dataAfter,
             ctx);
 
@@ -143,7 +145,7 @@ public class BridgeDomainCustomizer
             "BridgeDomain name changed. It should be deleted and then created.");
 
         try {
-            addOrUpdateBridgeDomain(bdContext.getIndex(bdName, ctx.getMappingContext()), dataAfter);
+            addOrUpdateBridgeDomain(id, bdContext.getIndex(bdName, ctx.getMappingContext()), dataAfter);
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to create bridge domain", e);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);

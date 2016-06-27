@@ -96,7 +96,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
                 final CompletionStage<SwInterfaceVhostUserDetailsReplyDump> swInterfaceVhostUserDetailsReplyDumpCompletionStage =
                     getFutureJVpp().swInterfaceVhostUserDump(request);
                 final SwInterfaceVhostUserDetailsReplyDump reply =
-                    TranslateUtils.getReply(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture());
+                    TranslateUtils.getReplyForRead(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
 
                 if(null == reply || null == reply.swInterfaceVhostUserDetails) {
                     mappedVhostUsers = Collections.emptyMap();

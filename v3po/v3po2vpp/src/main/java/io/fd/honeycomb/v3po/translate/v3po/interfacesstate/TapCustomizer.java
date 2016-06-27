@@ -94,7 +94,7 @@ public class TapCustomizer extends FutureJVppCustomizer
                 final CompletionStage<SwInterfaceTapDetailsReplyDump> swInterfaceTapDetailsReplyDumpCompletionStage =
                     getFutureJVpp().swInterfaceTapDump(request);
                 final SwInterfaceTapDetailsReplyDump reply =
-                    TranslateUtils.getReply(swInterfaceTapDetailsReplyDumpCompletionStage.toCompletableFuture());
+                    TranslateUtils.getReplyForRead(swInterfaceTapDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
 
                 if(null == reply || null == reply.swInterfaceTapDetails) {
                     mappedTaps = Collections.emptyMap();

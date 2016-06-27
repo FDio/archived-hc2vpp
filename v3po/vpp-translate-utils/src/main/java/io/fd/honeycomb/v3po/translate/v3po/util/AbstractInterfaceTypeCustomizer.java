@@ -65,14 +65,14 @@ public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
      */
     @Override
     public final void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataAfter,
-                                       @Nonnull final WriteContext writeContext) throws WriteFailedException.CreateFailedException {
+                                       @Nonnull final WriteContext writeContext) throws WriteFailedException {
         checkProperInterfaceType(writeContext, id);
         writeInterface(id, dataAfter, writeContext);
     }
 
     protected abstract void writeInterface(final InstanceIdentifier<D> id, final D dataAfter,
                                            final WriteContext writeContext)
-        throws WriteFailedException.CreateFailedException;
+        throws WriteFailedException;
 
     // Validation for update and delete is not necessary
 

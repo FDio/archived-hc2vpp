@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -43,6 +44,8 @@ import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -96,12 +99,12 @@ public class VhostUserCustomizerTest {
     }
 
     private void whenCreateVhostUserIfThenSuccess()
-            throws ExecutionException, InterruptedException, VppInvocationException {
+        throws ExecutionException, InterruptedException, VppInvocationException, TimeoutException {
         final CompletionStage<CreateVhostUserIfReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<CreateVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final CreateVhostUserIfReply reply = new CreateVhostUserIfReply();
-        when(replyFuture.get()).thenReturn(reply);
+        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
         when(api.createVhostUserIf(any(CreateVhostUserIf.class))).thenReturn(replyCS);
     }
 
@@ -115,12 +118,12 @@ public class VhostUserCustomizerTest {
     }
 
     private void whenModifyVhostUserIfThenSuccess()
-            throws ExecutionException, InterruptedException, VppInvocationException {
+        throws ExecutionException, InterruptedException, VppInvocationException, TimeoutException {
         final CompletionStage<ModifyVhostUserIfReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<ModifyVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final ModifyVhostUserIfReply reply = new ModifyVhostUserIfReply();
-        when(replyFuture.get()).thenReturn(reply);
+        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
         when(api.modifyVhostUserIf(any(ModifyVhostUserIf.class))).thenReturn(replyCS);
     }
 
@@ -134,12 +137,12 @@ public class VhostUserCustomizerTest {
     }
 
     private void whenDeleteVhostUserIfThenSuccess()
-            throws ExecutionException, InterruptedException, VppInvocationException {
+        throws ExecutionException, InterruptedException, VppInvocationException, TimeoutException {
         final CompletionStage<DeleteVhostUserIfReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<DeleteVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final DeleteVhostUserIfReply reply = new DeleteVhostUserIfReply();
-        when(replyFuture.get()).thenReturn(reply);
+        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
         when(api.deleteVhostUserIf(any(DeleteVhostUserIf.class))).thenReturn(replyCS);
     }
 

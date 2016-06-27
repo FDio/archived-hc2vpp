@@ -93,7 +93,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer
             final CompletionStage<VxlanTunnelDetailsReplyDump> swInterfaceVxlanDetailsReplyDumpCompletionStage =
                 getFutureJVpp().vxlanTunnelDump(request);
             final VxlanTunnelDetailsReplyDump reply =
-                TranslateUtils.getReply(swInterfaceVxlanDetailsReplyDumpCompletionStage.toCompletableFuture());
+                TranslateUtils.getReplyForRead(swInterfaceVxlanDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
 
             // VPP keeps vxlan tunnel interfaces even after they were deleted (optimization)
             // However there ar no longer any vxlan tunnel specific fields assigned to it and this call

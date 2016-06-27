@@ -94,7 +94,7 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
             final CompletionStage<VxlanGpeTunnelDetailsReplyDump> swInterfaceVxlanGpeDetailsReplyDumpCompletionStage =
                 getFutureJVpp().vxlanGpeTunnelDump(request);
             final VxlanGpeTunnelDetailsReplyDump reply =
-                TranslateUtils.getReply(swInterfaceVxlanGpeDetailsReplyDumpCompletionStage.toCompletableFuture());
+                TranslateUtils.getReplyForRead(swInterfaceVxlanGpeDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
 
             // VPP keeps VxlanGpe tunnel interfaces even after they were deleted (optimization)
             // However there are no longer any VxlanGpe tunnel specific fields assigned to it and this call

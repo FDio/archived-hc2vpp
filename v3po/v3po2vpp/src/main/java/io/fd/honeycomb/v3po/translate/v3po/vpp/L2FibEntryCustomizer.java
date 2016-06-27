@@ -26,6 +26,7 @@ import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.List;
@@ -75,7 +76,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                        @Nonnull final L2FibEntry dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException.CreateFailedException {
+        throws WriteFailedException {
         try {
             LOG.debug("Creating L2 FIB entry: {} {}", id, dataAfter);
             l2FibAddDel(id, dataAfter, writeContext, true);
@@ -97,7 +98,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                         @Nonnull final L2FibEntry dataBefore, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException.DeleteFailedException {
+        throws WriteFailedException {
         try {
             LOG.debug("Deleting L2 FIB entry: {} {}", id, dataBefore);
             l2FibAddDel(id, dataBefore, writeContext, false);
@@ -109,7 +110,8 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     }
 
     private void l2FibAddDel(@Nonnull final InstanceIdentifier<L2FibEntry> id, @Nonnull final L2FibEntry entry,
-                             final WriteContext writeContext, boolean isAdd) throws VppBaseCallException {
+                             final WriteContext writeContext, boolean isAdd)
+        throws VppBaseCallException, WriteTimeoutException {
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
         final int bdId = bdContext.getIndex(bdName, writeContext.getMappingContext());
 
@@ -124,7 +126,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
         final CompletionStage<L2FibAddDelReply> l2FibAddDelReplyCompletionStage =
             getFutureJVpp().l2FibAddDel(l2FibRequest);
 
-        TranslateUtils.getReply(l2FibAddDelReplyCompletionStage.toCompletableFuture());
+        TranslateUtils.getReplyForWrite(l2FibAddDelReplyCompletionStage.toCompletableFuture(), id);
     }
 
     private L2FibAddDel createL2FibRequest(final L2FibEntry entry, final int bdId, final int swIfIndex, boolean isAdd) {

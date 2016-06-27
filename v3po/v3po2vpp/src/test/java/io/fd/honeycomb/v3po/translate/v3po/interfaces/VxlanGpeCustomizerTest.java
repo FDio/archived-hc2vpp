@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -43,6 +44,8 @@ import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -102,12 +105,12 @@ public class VxlanGpeCustomizerTest {
     }
 
     private void whenVxlanGpeAddDelTunnelThenSuccess()
-            throws ExecutionException, InterruptedException, VppBaseCallException {
+        throws ExecutionException, InterruptedException, VppBaseCallException, TimeoutException {
         final CompletionStage<VxlanGpeAddDelTunnelReply> replyCS = mock(CompletionStage.class);
         final CompletableFuture<VxlanGpeAddDelTunnelReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final VxlanGpeAddDelTunnelReply reply = new VxlanGpeAddDelTunnelReply();
-        when(replyFuture.get()).thenReturn(reply);
+        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
         when(api.vxlanGpeAddDelTunnel(any(VxlanGpeAddDelTunnel.class))).thenReturn(replyCS);
     }
 

@@ -128,7 +128,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
             final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
                 getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
             final SwInterfaceDetailsReplyDump ifaces =
-                TranslateUtils.getReply(swInterfaceDetailsReplyDumpCompletableFuture);
+                TranslateUtils.getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
 
             if (null == ifaces || null == ifaces.swInterfaceDetails) {
                 LOG.debug("No interfaces for :{} found in VPP", id);
