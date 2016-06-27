@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Customizer for read operations for {@link Address} of {@link Ipv4}
+ * Customizer for read operations for {@link Address} of {@link Ipv4}.
  */
 public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     implements ListReaderCustomizer<Address, AddressKey, AddressBuilder> {
@@ -92,8 +92,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
             builder.setIp(TranslateUtils.arrayToIpv4AddressNoZone(detail.ip))
                 .setSubnet(new PrefixLengthBuilder()
                     .setPrefixLength(Short.valueOf(detail.prefixLength)).build());
-            LOG.info("Address read successfull");
-
+            LOG.info("Address read successful");
         } else {
             LOG.warn("No address dump present");
         }
@@ -102,18 +101,22 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     @Override
     public List<AddressKey> getAllIds(@Nonnull InstanceIdentifier<Address> id, @Nonnull ReadContext context)
         throws ReadFailedException {
+        // FIXME: this kind of logs provide very little information. At least the ID should be included so we know
+        // from the logs what exact data is being processed
+        // + Logs should be consistent in using punctuation
         LOG.debug("Extracting keys..");
 
         Optional<IpAddressDetailsReplyDump> dumpOptional = dumpAddresses(id, context);
 
         if (dumpOptional.isPresent() && dumpOptional.get().ipAddressDetails != null) {
 
-            List<IpAddressDetails> details = dumpOptional.get().ipAddressDetails;
-
-            return details.stream()
+            return dumpOptional.get().ipAddressDetails.stream()
                 .map(detail -> new AddressKey(TranslateUtils.arrayToIpv4AddressNoZone(detail.ip)))
                 .collect(Collectors.toList());
         } else {
+            // FIXME if this is expected then WARN should not be emitted
+            // FIXME if this is not expected, throw an exception instead
+            // Same in readCurrentAttributes()
             LOG.warn("No dump present");
             return Collections.emptyList();
         }
@@ -124,11 +127,14 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         ((Ipv4Builder) builder).setAddress(readData);
     }
 
+    // TODO refactor after there is a more generic implementation of cache operations
+    // FIXME update TODO with what exactly should be refactored and how
     // TODO refactor after there is an more generic implementation of cache
     // operations
     private Optional<IpAddressDetailsReplyDump> dumpAddresses(InstanceIdentifier<Address> id, ReadContext ctx)
-        throws ReadFailedException {
-        Optional<IpAddressDetailsReplyDump> dumpFromCache = dumpAddressFromCache(ctx.getModificationCache());
+            throws ReadFailedException {
+        final String cacheKey = CACHE_KEY + id.firstKeyOf(Interface.class).getName();
+        Optional<IpAddressDetailsReplyDump> dumpFromCache = dumpAddressFromCache(cacheKey, ctx.getModificationCache());
 
         if (dumpFromCache.isPresent()) {
             return dumpFromCache;
@@ -142,15 +148,16 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         }
 
         if (dumpFromOperational.isPresent()) {
-            ctx.getModificationCache().put(CACHE_KEY, dumpFromOperational.get());
+            ctx.getModificationCache().put(cacheKey, dumpFromOperational.get());
         }
 
         return dumpFromOperational;
     }
 
-    private Optional<IpAddressDetailsReplyDump> dumpAddressFromCache(ModificationCache cache) {
+    private Optional<IpAddressDetailsReplyDump> dumpAddressFromCache(final String cacheKey,
+                                                                     ModificationCache cache) {
         LOG.debug("Dumping from cache...");
-        return Optional.fromNullable((IpAddressDetailsReplyDump) cache.get(CACHE_KEY));
+        return Optional.fromNullable((IpAddressDetailsReplyDump) cache.get(cacheKey));
     }
 
     private Optional<IpAddressDetailsReplyDump> dumpAddressFromOperationalData(final InstanceIdentifier<Address> id,
