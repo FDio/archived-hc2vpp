@@ -12,6 +12,9 @@ module vpp-vlan {
   import ietf-interfaces {
     prefix "if";
   }
+  import ietf-inet-types {
+    prefix inet;
+  }
   import ietf-yang-types {
     prefix "yang";
   }
@@ -242,6 +245,133 @@ module vpp-vlan {
     }
   }
 
+  grouping sub-interface-ip4-attributes {
+    container ipv4 {
+      // TODO: add currently unsupported:
+      // enabled, forwarding, mtu, address/origin(config false), neighbor/origin(config false)
+
+      // TODO: reuse groupings once ietf-ip provides them
+
+      description
+        "Parameters for the IPv4 address family (based on ietf-ip rev. 2014-06-16)";
+
+      list address {
+        key "ip";
+        description
+          "The list of configured IPv4 addresses on the interface.";
+        leaf ip {
+          type inet:ipv4-address-no-zone;
+          description
+            "The IPv4 address on the interface.";
+        }
+
+        choice subnet {
+          mandatory true;
+          description
+            "The subnet can be specified as a prefix-length, or,
+             if the server supports non-contiguous netmasks, as
+             a netmask.";
+          leaf prefix-length {
+            type uint8 {
+              range "0..32";
+            }
+            description
+              "The length of the subnet prefix.";
+          }
+          leaf netmask {
+            type yang:dotted-quad;
+            description
+              "The subnet specified as a netmask (contiguous)";
+          }
+        }  // choice subnet
+      }  // list address
+
+      list neighbor {
+        key "ip";
+        description
+          "A list of mappings from IPv4 addresses to
+          link-layer addresses.
+
+          Entries in this list are used as static entries in the
+          ARP Cache.";
+        reference
+          "RFC 826: An Ethernet Address Resolution Protocol";
+
+        leaf ip {
+          type inet:ipv4-address-no-zone;
+          description
+            "The IPv4 address of the neighbor node.";
+        }
+
+        leaf link-layer-address {
+          type yang:phys-address;
+          mandatory true;
+          description
+            "The link-layer address of the neighbor node.";
+        }
+      }  // list neighbor
+    }
+  }
+
+  grouping sub-interface-ip6-attributes {
+    container ipv6 {
+      // TODO: add currently unsupported:
+      // enabled, forwarding, mtu, neighbor, dup-addr-detect-transmits, autoconf,
+      // address(config false): origin, status
+      // neighbor(config false): origin, is-router, state
+
+      // TODO: reuse groupings once ietf-ip provides them
+
+      description
+        "Parameters for the IPv6 address family (based on ietf-ip rev. 2014-06-16)";
+
+      list address {
+        key "ip";
+        description
+          "The list of configured IPv6 addresses on the interface.";
+        leaf ip {
+          type inet:ipv6-address-no-zone;
+          description
+            "The IPv6 address on the interface.";
+        }
+
+        leaf prefix-length {
+          type uint8 {
+            range "0..128";
+          }
+          mandatory true;
+          description
+            "The length of the subnet prefix.";
+        }
+      }  // list address
+
+      list neighbor {
+        key "ip";
+        description
+          "A list of mappings from IPv6 addresses to
+        link-layer addresses.
+
+        Entries in this list are used as static entries in the
+        Neighbor Cache.";
+        reference
+          "RFC 4861: Neighbor Discovery for IP version 6 (IPv6)";
+
+        leaf ip {
+          type inet:ipv6-address-no-zone;
+          description
+            "The IPv6 address of the neighbor node.";
+        }
+
+        leaf link-layer-address {
+          type yang:phys-address;
+          mandatory true;
+          description
+            "The link-layer address of the neighbor node.";
+        }
+      }  // list neighbor
+    }
+  }
+
   augment /if:interfaces/if:interface {
     ext:augment-identifier "subinterface-augmentation";
 
@@ -257,6 +387,8 @@ module vpp-vlan {
 
         uses sub-interface-base-attributes;
         uses sub-interface-config-attributes;
+        uses sub-interface-ip4-attributes;
+        uses sub-interface-ip6-attributes;
       }
     }
   }
@@ -275,6 +407,8 @@ module vpp-vlan {
 
         uses sub-interface-base-attributes;
         uses sub-interface-operational-attributes;
+        uses sub-interface-ip4-attributes;
+        uses sub-interface-ip6-attributes;
       }
     }
   }

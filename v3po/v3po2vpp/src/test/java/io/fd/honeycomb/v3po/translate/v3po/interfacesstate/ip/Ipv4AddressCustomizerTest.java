@@ -126,7 +126,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         IpAddressDetailsReplyDump reply = new IpAddressDetailsReplyDump();
         reply.ipAddressDetails = ImmutableList.of(detail1, detail2, detail3);
 
-        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_NAME, reply);
+        cache.put(Ipv4ReadUtils.CACHE_KEY + IFACE_NAME, reply);
         when(ctx.getModificationCache()).thenReturn(cache);
 
         final AddressBuilder builder = new AddressBuilder();
@@ -231,7 +231,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         IpAddressDetailsReplyDump reply = new IpAddressDetailsReplyDump();
         reply.ipAddressDetails = ImmutableList.of(detail1, detail2, detail3);
 
-        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_NAME, reply);
+        cache.put(Ipv4ReadUtils.CACHE_KEY + IFACE_NAME, reply);
         when(ctx.getModificationCache()).thenReturn(cache);
 
         final InstanceIdentifier<Address> id = getId("192.168.2.1", IFACE_NAME);

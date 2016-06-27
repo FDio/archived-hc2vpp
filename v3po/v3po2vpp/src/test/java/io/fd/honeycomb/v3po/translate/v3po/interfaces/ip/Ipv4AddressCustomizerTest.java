@@ -61,7 +61,7 @@ import org.openvpp.jvpp.dto.SwInterfaceAddDelAddress;
 import org.openvpp.jvpp.dto.SwInterfaceAddDelAddressReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 
-public class AddressCustomizerTest {
+public class Ipv4AddressCustomizerTest {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "eth0";
@@ -75,7 +75,7 @@ public class AddressCustomizerTest {
     private FutureJVpp api;
 
     private NamingContext interfaceContext;
-    private AddressCustomizer customizer;
+    private Ipv4AddressCustomizer customizer;
 
     @Before
     public void setUp() throws Exception {
@@ -83,7 +83,7 @@ public class AddressCustomizerTest {
         doReturn(mappingContext).when(writeContext).getMappingContext();
         interfaceContext = new NamingContext("generatedlIfaceName", IFC_CTX_NAME);
 
-        customizer = new AddressCustomizer(api, interfaceContext);
+        customizer = new Ipv4AddressCustomizer(api, interfaceContext);
     }
 
     private static InstanceIdentifier<Address> getAddressId(final String ifaceName) {

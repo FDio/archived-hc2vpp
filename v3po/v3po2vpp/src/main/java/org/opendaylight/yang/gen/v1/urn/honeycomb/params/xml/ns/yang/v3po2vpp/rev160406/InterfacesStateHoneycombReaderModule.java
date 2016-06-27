@@ -12,14 +12,10 @@ import io.fd.honeycomb.v3po.translate.read.ChildReader;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.util.read.CloseableReader;
 import io.fd.honeycomb.v3po.translate.util.read.ReflexiveAugmentReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.util.read.ReflexiveChildReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.util.read.ReflexiveRootReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.L2Customizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.RewriteCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.SubInterfaceCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.SubInterfaceL2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.TapCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.VxlanCustomizer;
@@ -47,14 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.SubInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.SubInterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.Rewrite;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 
@@ -83,7 +71,7 @@ public class InterfacesStateHoneycombReaderModule extends
                 interfaceAugReaders = new ArrayList<>();
         interfaceAugReaders.add(getVppInterfaceStateAugmentationReader());
         interfaceAugReaders.add(getInterface1AugmentationReader());
-        interfaceAugReaders.add(getSubinterfaceStateAugmentationReader());
+        interfaceAugReaders.add(SubinterfaceStateAugmentationReaderFactory.createInstance(getVppJvppDependency(), getInterfaceContextIfcStateDependency(), getBridgeDomainContextIfcStateDependency()));
 
         final CompositeListReader<Interface, InterfaceKey, InterfaceBuilder> interfaceReader =
                 new CompositeListReader<>(Interface.class,
@@ -158,36 +146,5 @@ public class InterfacesStateHoneycombReaderModule extends
                         new ReflexiveAugmentReaderCustomizer<>(VppInterfaceStateAugmentationBuilder.class,
                                 VppInterfaceStateAugmentation.class));
         return vppInterfaceStateAugmentationChildReader;
-    }
-
-    private ChildReader<SubinterfaceStateAugmentation> getSubinterfaceStateAugmentationReader() {
-
-        final ChildReader<Rewrite> rewriteReader =
-        new CompositeChildReader<>(Rewrite.class,
-                new RewriteCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
-
-        final ChildReader<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2> l2Reader =
-                new CompositeChildReader<>(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2.class,
-                        singletonChildReaderList(rewriteReader),
-                        new SubInterfaceL2Customizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency(), getBridgeDomainContextIfcStateDependency()));
-
-        List<ChildReader<? extends ChildOf<SubInterface>>> childReaders = new ArrayList<>();
-        childReaders.add((ChildReader) l2Reader); // TODO can get rid of that cast?
-
-        final CompositeListReader<SubInterface, SubInterfaceKey, SubInterfaceBuilder> subInterfaceReader =
-                new CompositeListReader<>(SubInterface.class, childReaders, new SubInterfaceCustomizer(getVppJvppDependency(),
-                        getInterfaceContextIfcStateDependency()));
-
-        final ChildReader<SubInterfaces> subInterfacesReader = new CompositeChildReader<>(
-                SubInterfaces.class,
-                RWUtils.singletonChildReaderList(subInterfaceReader),
-                new ReflexiveChildReaderCustomizer<>(SubInterfacesBuilder.class));
-
-        final ChildReader<SubinterfaceStateAugmentation> subinterfaceStateAugmentationReader =
-                new CompositeChildReader<>(SubinterfaceStateAugmentation.class,
-                        singletonChildReaderList(subInterfacesReader),
-                        new ReflexiveAugmentReaderCustomizer<>(SubinterfaceStateAugmentationBuilder.class,
-                                SubinterfaceStateAugmentation.class));
-        return subinterfaceStateAugmentationReader;
     }
 }

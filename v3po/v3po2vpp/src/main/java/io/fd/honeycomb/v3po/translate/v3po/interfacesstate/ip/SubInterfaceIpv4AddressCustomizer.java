@@ -27,15 +27,17 @@ import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import io.fd.honeycomb.v3po.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLengthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.AddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.AddressKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLengthBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -46,16 +48,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Read customizer for interface Ipv4 addresses.
+ * Read customizer for sub-interface Ipv4 addresses.
  */
-public class Ipv4AddressCustomizer extends FutureJVppCustomizer
+public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
     implements ListReaderCustomizer<Address, AddressKey, AddressBuilder> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv4AddressCustomizer.class);
 
     private final NamingContext interfaceContext;
 
-    public Ipv4AddressCustomizer(@Nonnull final FutureJVpp futureJvpp, @Nonnull final NamingContext interfaceContext) {
+    public SubInterfaceIpv4AddressCustomizer(@Nonnull final FutureJVpp futureJvpp,
+                                             @Nonnull final NamingContext interfaceContext) {
         super(futureJvpp);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
@@ -70,12 +73,12 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<Address> id, @Nonnull AddressBuilder builder,
                                       @Nonnull ReadContext ctx)
         throws ReadFailedException {
-        LOG.debug("Reading attributes for interface address: {}", id);
+        LOG.debug("Reading attributes for sub-interface address: {}", id);
 
-        final String interfaceName = id.firstKeyOf(Interface.class).getName();
-        final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
+        final String subInterfaceName = getSubInterfaceName(id);
+        final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
         final Optional<IpAddressDetailsReplyDump> dumpOptional =
-            dumpAddresses(getFutureJVpp(), id, interfaceName, interfaceIndex, ctx);
+            dumpAddresses(getFutureJVpp(), id, subInterfaceName, subInterfaceIndex, ctx);
 
         final Optional<IpAddressDetails> ipAddressDetails =
             findIpAddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
@@ -86,8 +89,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                 .setSubnet(new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Attributes for {} interface (id={}) address {} successfully read: {}",
-                    interfaceName, interfaceIndex, id, builder.build());
+                LOG.debug("Attributes for {} sub-interface (id={}) address {} successfully read: {}",
+                    subInterfaceName, subInterfaceIndex, id, builder.build());
             }
         }
     }
@@ -95,12 +98,12 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     @Override
     public List<AddressKey> getAllIds(@Nonnull InstanceIdentifier<Address> id, @Nonnull ReadContext ctx)
         throws ReadFailedException {
-        LOG.debug("Reading list of keys for interface addresses: {}", id);
+        LOG.debug("Reading list of keys for sub-interface addresses: {}", id);
 
-        final String interfaceName = id.firstKeyOf(Interface.class).getName();
-        final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
+        final String subInterfaceName = getSubInterfaceName(id);
+        final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
         final Optional<IpAddressDetailsReplyDump> dumpOptional =
-            dumpAddresses(getFutureJVpp(), id, interfaceName, interfaceIndex, ctx);
+            dumpAddresses(getFutureJVpp(), id, subInterfaceName, subInterfaceIndex, ctx);
 
         return getAllIpv4AddressIds(dumpOptional, AddressKey::new);
     }
@@ -110,4 +113,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         ((Ipv4Builder) builder).setAddress(readData);
     }
 
+    private static String getSubInterfaceName(@Nonnull final InstanceIdentifier<Address> id) {
+        return SubInterfaceUtils.getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
+            Math.toIntExact(id.firstKeyOf(SubInterface.class).getIdentifier()));
+    }
 }

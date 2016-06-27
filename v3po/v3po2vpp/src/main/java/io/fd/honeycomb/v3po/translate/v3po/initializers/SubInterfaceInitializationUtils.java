@@ -74,7 +74,8 @@ final class SubInterfaceInitializationUtils {
         subInterfaceCfgBuilder.setMatch(operationalData.getMatch());
         subInterfaceCfgBuilder.setTags(operationalData.getTags());
         subInterfaceCfgBuilder.setVlanType(operationalData.getVlanType());
-
+        subInterfaceCfgBuilder.setIpv4(operationalData.getIpv4());
+        subInterfaceCfgBuilder.setIpv6(operationalData.getIpv6());
         return subInterfaceCfgBuilder.build();
     }
 
