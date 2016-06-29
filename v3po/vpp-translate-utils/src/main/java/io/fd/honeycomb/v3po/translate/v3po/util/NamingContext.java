@@ -76,6 +76,9 @@ public final class NamingContext implements AutoCloseable {
         if (!containsName(index, mappingContext)) {
             final String artificialName = getArtificialName(index);
             LOG.info("Assigning artificial name: {} for index: {}", artificialName, index);
+            for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {
+                LOG.error("{}", stackTraceElement.toString());
+            }
             addName(index, artificialName, mappingContext);
         }
 
@@ -85,6 +88,27 @@ public final class NamingContext implements AutoCloseable {
         return read.get().getMapping().stream()
             .filter(mapping -> mapping.getIndex().equals(index))
             .collect(SINGLE_ITEM_COLLECTOR).getName();
+    }
+
+    /**
+     * Retrieve name for mapping stored provided mappingContext instance. if present
+     *
+     * @param index index of a mapped item
+     * @param mappingContext mapping context providing context data for current transaction
+     *
+     * @return name mapped to provided index
+     */
+    @Nonnull
+    public synchronized Optional<String> getNameIfPresent(final int index,
+                                                          @Nonnull final MappingContext mappingContext) {
+        final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
+
+        return read.isPresent()
+                ? Optional.of(read.get().getMapping().stream()
+                    .filter(mapping -> mapping.getIndex().equals(index))
+                    .collect(SINGLE_ITEM_COLLECTOR)
+                    .getName())
+                : Optional.absent();
     }
 
     /**

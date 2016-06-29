@@ -15,6 +15,7 @@
  */
 package io.fd.honeycomb.v3po.translate.v3po.notification;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.v3po.notification.NotificationCollector;
@@ -74,13 +75,14 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
         notificationListenerReg = jvpp.getNotificationRegistry().registerSwInterfaceSetFlagsNotificationCallback(
             swInterfaceSetFlagsNotification -> {
                 LOG.trace("Interface notification received: {}", swInterfaceSetFlagsNotification);
+                // TODO this should be lazy
                 collector.onNotification(transformNotification(swInterfaceSetFlagsNotification));
             }
         );
     }
 
     private Notification transformNotification(final SwInterfaceSetFlagsNotification swInterfaceSetFlagsNotification) {
-        if(swInterfaceSetFlagsNotification.deleted == 1) {
+        if (swInterfaceSetFlagsNotification.deleted == 1) {
             return new InterfaceDeletedBuilder().setName(getIfcName(swInterfaceSetFlagsNotification)).build();
         } else {
             return new InterfaceStateChangeBuilder()
@@ -95,12 +97,14 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
      * Get mapped name for the interface. Best effort only! The mapping might not yet be stored in context
      * data tree (write transaction is still in progress and context changes have not been committed yet, or
      * VPP sends the notification before it returns create request(that would store mapping)).
-     *
+     * <p/>
      * In case mapping is not available, index is used as name. TODO inconsistent behavior, maybe just use indices ?
      */
     private InterfaceNameOrIndex getIfcName(final SwInterfaceSetFlagsNotification swInterfaceSetFlagsNotification) {
-        return interfaceContext.containsName(swInterfaceSetFlagsNotification.swIfIndex, mappingContext)
-            ? new InterfaceNameOrIndex(interfaceContext.getName(swInterfaceSetFlagsNotification.swIfIndex, mappingContext))
+        final Optional<String> optionalName =
+                interfaceContext.getNameIfPresent(swInterfaceSetFlagsNotification.swIfIndex, mappingContext);
+        return optionalName.isPresent()
+            ? new InterfaceNameOrIndex(optionalName.get())
             : new InterfaceNameOrIndex((long) swInterfaceSetFlagsNotification.swIfIndex);
     }
 
@@ -130,9 +134,9 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
             LOG.warn("Unable to {} interface notifications", enableDisable == 1 ? "enable" : "disable",  e);
             throw new IllegalStateException("Unable to control interface notifications", e);
         }
-
     }
 
+    @Nonnull
     @Override
     public Collection<Class<? extends Notification>> getNotificationTypes() {
         final ArrayList<Class<? extends Notification>> classes = Lists.newArrayList();
