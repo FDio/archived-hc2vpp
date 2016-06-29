@@ -83,10 +83,10 @@
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
             <name>runtime-mapping-singleton</name>
           </serializer>
-          <writer-registry>
-            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
-            <name>write-registry</name>
-          </writer-registry>
+          <writer-registry-builder>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry-builder</type>
+            <name>write-registry-builder</name>
+          </writer-registry-builder>
           <context-binding-broker>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
             <name>honeycomb-context-binding-data-broker</name>
@@ -197,6 +197,13 @@
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry</type>
           <instance>
             <name>write-registry</name>
+            <provider>/modules/module[type='delegating-writer-registry'][name='write-registry']</provider>
+          </instance>
+        </service>
+        <service>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-registry-builder</type>
+          <instance>
+            <name>write-registry-builder</name>
             <provider>/modules/module[type='delegating-writer-registry'][name='write-registry']</provider>
           </instance>
         </service>

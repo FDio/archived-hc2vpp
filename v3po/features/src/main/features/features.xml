@@ -38,6 +38,7 @@
     <bundle>mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-api/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-spi/${project.version}</bundle>
+    <bundle>mvn:org.jgrapht/jgrapht-core/{{VERSION}}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/translate-utils/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/vpp-translate-utils/${project.version}</bundle>
     <bundle>mvn:io.fd.honeycomb.v3po/data-api/${project.version}</bundle>

@@ -8,6 +8,13 @@
 * Do not modify this file unless it is present under src/main directory
 */
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.translate.utils.rev160406;
+
+import org.opendaylight.controller.config.api.DynamicMBeanWithInstance;
+
 public class DelegatingReaderRegistryModuleFactory extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.translate.utils.rev160406.AbstractDelegatingReaderRegistryModuleFactory {
 
+    @Override
+    public DelegatingReaderRegistryModule handleChangedClass(final DynamicMBeanWithInstance old) throws Exception {
+        return super.handleChangedClass(old);
+    }
 }

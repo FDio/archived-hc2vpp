@@ -20,7 +20,6 @@ import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -32,17 +31,9 @@ import org.slf4j.LoggerFactory;
  * Empty registry that does not perform any changes. Can be used in data layer, if we want to disable passing data to
  * translation layer.
  */
-public class NoopWriterRegistry implements WriterRegistry {
+public class NoopWriterRegistry implements WriterRegistry, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NoopWriterRegistry.class);
-
-    @Override
-    public void update(@Nonnull final Map<InstanceIdentifier<?>, DataObject> dataBefore,
-                       @Nonnull final Map<InstanceIdentifier<?>, DataObject> dataAfter, @Nonnull final WriteContext ctx)
-            throws TranslationException {
-        LOG.trace("NoopWriterRegistry.update dataBefore{}, dataAfter={], ctx={}", dataBefore, dataAfter, ctx);
-        // NOOP
-    }
 
     @Override
     public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
@@ -53,9 +44,20 @@ public class NoopWriterRegistry implements WriterRegistry {
         // NOOP
     }
 
+    @Override
+    public void update(@Nonnull final DataObjectUpdates updates,
+                       @Nonnull final WriteContext ctx) throws TranslationException {
+        // NOOP
+    }
+
     @Nonnull
     @Override
     public InstanceIdentifier<DataObject> getManagedDataObjectType() {
-        throw new UnsupportedOperationException("Root registry has no type");
+        throw new UnsupportedOperationException("Noop registry has no type");
+    }
+
+    @Override
+    public void close() throws Exception {
+        // NOOP
     }
 }

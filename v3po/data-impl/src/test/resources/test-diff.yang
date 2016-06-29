@@ -34,4 +34,21 @@ module test-diff {
         }
     }
 
+    container with-choice {
+
+        choice choice {
+            case case1 {
+                leaf in-case1 {
+                    type string;
+                }
+            }
+
+            case case2 {
+                leaf in-case2 {
+                    type string;
+                }
+            }
+        }
+    }
+
 }

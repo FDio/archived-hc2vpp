@@ -38,8 +38,8 @@ public class ConfigDataTreeModule extends
     public java.lang.AutoCloseable createInstance() {
         LOG.debug("ConfigDataTreeModule.createInstance()");
         return new CloseableConfigDataTree(
-                new ModifiableDataTreeDelegator(getSerializerDependency(), getDataTreeDependency(), getWriterRegistryDependency(),
-                    getContextBindingBrokerDependency()));
+                new ModifiableDataTreeDelegator(getSerializerDependency(), getDataTreeDependency(),
+                        getWriterRegistryBuilderDependency().build(), getContextBindingBrokerDependency()));
     }
 
     private static final class CloseableConfigDataTree implements ModifiableDataManager, AutoCloseable {

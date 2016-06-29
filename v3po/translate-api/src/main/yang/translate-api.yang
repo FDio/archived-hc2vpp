@@ -24,14 +24,19 @@ module translate-api {
         config:java-class io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
     }
 
-    identity honeycomb-writer {
+    identity honeycomb-writer-factory {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.Writer;
+        config:java-class io.fd.honeycomb.v3po.translate.write.WriterFactory;
     }
 
     identity honeycomb-writer-registry {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+        config:java-class io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
+    }
+
+    identity honeycomb-writer-registry-builder {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.translate.write.WriterRegistryBuilder;
     }
 
     identity honeycomb-mapping-context {

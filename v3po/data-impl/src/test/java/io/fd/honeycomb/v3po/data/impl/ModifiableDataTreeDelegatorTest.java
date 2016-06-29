@@ -16,27 +16,34 @@
 
 package io.fd.honeycomb.v3po.data.impl;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.translate.TranslationException;
+import io.fd.honeycomb.v3po.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,18 +53,14 @@ import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
+import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 
 public class ModifiableDataTreeDelegatorTest {
 
@@ -65,112 +68,66 @@ public class ModifiableDataTreeDelegatorTest {
     private WriterRegistry writer;
     @Mock
     private BindingNormalizedNodeSerializer serializer;
-    @Mock
     private DataTree dataTree;
     @Mock
     private org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeModification modification;
     @Mock
     private DataBroker contextBroker;
+    @Mock
+    private org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction tx;
 
     private ModifiableDataTreeManager configDataTree;
 
+    static final InstanceIdentifier<?> DEFAULT_ID = InstanceIdentifier.create(DataObject.class);
+    static DataObject DEFAULT_DATA_OBJECT = mockDataObject("serialized", DataObject.class);
+
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         initMocks(this);
+        dataTree = ModificationDiffTest.getDataTree();
+        when(contextBroker.newReadWriteTransaction()).thenReturn(tx);
+        when(tx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
+
+        when(serializer.fromYangInstanceIdentifier(any(YangInstanceIdentifier.class))).thenReturn(((InstanceIdentifier) DEFAULT_ID));
+        final Map.Entry<InstanceIdentifier<?>, DataObject> parsed = new AbstractMap.SimpleEntry<>(DEFAULT_ID, DEFAULT_DATA_OBJECT);
+        when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), any(NormalizedNode.class))).thenReturn(parsed);
+
         configDataTree = new ModifiableDataTreeDelegator(serializer, dataTree, writer, contextBroker);
     }
 
     @Test
     public void testRead() throws Exception {
-        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
-                snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
-        when(dataTree.takeSnapshot()).thenReturn(snapshot);
-        when(snapshot.newModification()).thenReturn(modification);
+        final ContainerNode topContainer = ModificationDiffTest.getTopContainer("topContainer");
+        ModificationDiffTest.addNodeToTree(dataTree, topContainer, ModificationDiffTest.TOP_CONTAINER_ID);
+        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read =
+                configDataTree.read(ModificationDiffTest.TOP_CONTAINER_ID);
+        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> read2 =
+                configDataTree.newModification().read(ModificationDiffTest.TOP_CONTAINER_ID);
+        final Optional<NormalizedNode<?, ?>> normalizedNodeOptional = read.get();
+        final Optional<NormalizedNode<?, ?>> normalizedNodeOptional2 = read2.get();
 
-        final YangInstanceIdentifier path = mock(YangInstanceIdentifier.class);
-        final Optional node = mock(Optional.class);
-        doReturn(node).when(modification).readNode(path);
-
-        final DataModification dataTreeSnapshot = configDataTree.newModification();
-        final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =
-                dataTreeSnapshot.read(path);
-
-        verify(dataTree, times(2)).takeSnapshot();
-        verify(modification).readNode(path);
-
-        assertTrue(future.isDone());
-        assertEquals(node, future.get());
-    }
-
-    @Test
-    public void testNewModification() throws Exception {
-        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
-                snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
-        when(dataTree.takeSnapshot()).thenReturn(snapshot);
-        when(snapshot.newModification()).thenReturn(modification);
-
-        configDataTree.newModification();
-        // Snapshot captured twice, so that original data could be provided to translation layer without any possible
-        // modification
-        verify(dataTree, times(2)).takeSnapshot();
-        verify(snapshot, times(2)).newModification();
+        assertEquals(normalizedNodeOptional, normalizedNodeOptional2);
+        assertTrue(normalizedNodeOptional.isPresent());
+        assertEquals(topContainer, normalizedNodeOptional.get());
+        assertEquals(dataTree.takeSnapshot().readNode(ModificationDiffTest.TOP_CONTAINER_ID), normalizedNodeOptional);
     }
 
     @Test
     public void testCommitSuccessful() throws Exception {
-        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
-            snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
-        when(dataTree.takeSnapshot()).thenReturn(snapshot);
-        when(snapshot.newModification()).thenReturn(modification);
-        final DataTreeCandidate prepare = mock(DataTreeCandidate.class);
-        doReturn(prepare).when(dataTree).prepare(modification);
+        final MapNode nestedList = ModificationDiffTest.getNestedList("listEntry", "listValue");
 
-        final org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction ctxTransaction = mock(
-            org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction.class);
-        doReturn(ctxTransaction).when(contextBroker).newReadWriteTransaction();
-        doReturn(Futures.immediateCheckedFuture(null)).when(ctxTransaction).submit();
-
-        final DataObject dataBefore = mockDataObject("before", Ethernet.class);
-        final DataObject dataAfter = mockDataObject("after", Ethernet.class);
-
-        // Prepare modification:
-        final DataTreeCandidateNode rootNode = mockRootNode();
-        doReturn(ModificationType.SUBTREE_MODIFIED).when(rootNode).getModificationType();
-        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(rootNode).getIdentifier();
-        final DataTreeCandidateNode childNode = mock(DataTreeCandidateNode.class);
-        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(childNode).getIdentifier();
-        doReturn(Collections.singleton(childNode)).when(rootNode).getChildNodes();
-        doReturn(ModificationType.WRITE).when(childNode).getModificationType();
-
-        // data before:
-        final ContainerNode nodeBefore = mockContainerNode(dataBefore);
-        when(childNode.getDataBefore()).thenReturn(Optional.fromNullable(nodeBefore));
-        // data after:
-        final ContainerNode nodeAfter = mockContainerNode(dataAfter);
-        when(childNode.getDataAfter()).thenReturn(Optional.fromNullable(nodeAfter));
-
-        // Run the test
-        doReturn(rootNode).when(prepare).getRootNode();
         final DataModification dataModification = configDataTree.newModification();
+        dataModification.write(ModificationDiffTest.NESTED_LIST_ID, nestedList);
+        dataModification.validate();
         dataModification.commit();
 
-        // Verify all changes were processed:
-        verify(writer).update(
-                mapOf(dataBefore, Ethernet.class),
-                mapOf(dataAfter, Ethernet.class),
-                any(WriteContext.class));
-
-        // Verify modification was validated
-        verify(dataTree).validate(modification);
-        // Verify context transaction was finished
-        verify(ctxTransaction).submit();
+        final Multimap<InstanceIdentifier<?>, DataObjectUpdate> map = HashMultimap.create();
+        map.put(DEFAULT_ID, DataObjectUpdate.create(DEFAULT_ID, DEFAULT_DATA_OBJECT, DEFAULT_DATA_OBJECT));
+        verify(writer).update(eq(new WriterRegistry.DataObjectUpdates(map, ImmutableMultimap.of())), any(WriteContext.class));
+        assertEquals(nestedList, dataTree.takeSnapshot().readNode(ModificationDiffTest.NESTED_LIST_ID).get());
     }
 
-    private Map<InstanceIdentifier<?>, DataObject> mapOf(final DataObject dataBefore, final Class<Ethernet> type) {
-        return eq(Collections.singletonMap(InstanceIdentifier.create(type),dataBefore));
-    }
-
-    private DataObject mockDataObject(final String name, final Class<? extends DataObject> classToMock) {
+    private static DataObject mockDataObject(final String name, final Class<? extends DataObject> classToMock) {
         final DataObject dataBefore = mock(classToMock, name);
         doReturn(classToMock).when(dataBefore).getImplementedInterface();
         return dataBefore;
@@ -178,171 +135,135 @@ public class ModifiableDataTreeDelegatorTest {
 
     @Test
     public void testCommitUndoSuccessful() throws Exception {
-        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
-            snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
-        when(dataTree.takeSnapshot()).thenReturn(snapshot);
-        when(snapshot.newModification()).thenReturn(modification);
-        final DataTreeCandidate prepare = mock(DataTreeCandidate.class);
-        doReturn(prepare).when(dataTree).prepare(modification);
-
-        // Prepare data changes:
-        final DataObject dataBefore = mockDataObject("before", Ethernet.class);
-        final DataObject dataAfter = mockDataObject("after", Ethernet.class);
-
-        final io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter reverter = mock(
-            io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.class);
+        final MapNode nestedList = ModificationDiffTest.getNestedList("listEntry", "listValue");
 
         // Fail on update:
+        final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
         final TranslationException failedOnUpdateException = new TranslationException("update failed");
-        doThrow(new io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
-                failedOnUpdateException)).when(writer).update(anyMap(), anyMap(), any(WriteContext.class));
+        doThrow(new WriterRegistry.BulkUpdateException(Collections.singleton(DEFAULT_ID), reverter, failedOnUpdateException))
+                .when(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
 
-        // Prepare modification:
-        final DataTreeCandidateNode rootNode = mockRootNode();
-        doReturn(ModificationType.SUBTREE_MODIFIED).when(rootNode).getModificationType();
-        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(rootNode).getIdentifier();
-        final DataTreeCandidateNode childNode = mock(DataTreeCandidateNode.class);
-        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(childNode).getIdentifier();
-        doReturn(Collections.singleton(childNode)).when(rootNode).getChildNodes();
-        doReturn(ModificationType.WRITE).when(childNode).getModificationType();
-
-        // data before:
-        final ContainerNode nodeBefore = mockContainerNode(dataBefore);
-        when(childNode.getDataBefore()).thenReturn(Optional.fromNullable(nodeBefore));
-        // data after:
-        final ContainerNode nodeAfter = mockContainerNode(dataAfter);
-        when(childNode.getDataAfter()).thenReturn(Optional.fromNullable(nodeAfter));
-
-        // Run the test
         try {
-            doReturn(rootNode).when(prepare).getRootNode();
+            // Run the test
             final DataModification dataModification = configDataTree.newModification();
+            dataModification.write(ModificationDiffTest.NESTED_LIST_ID, nestedList);
+            dataModification.validate();
             dataModification.commit();
-        } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException e) {
-            verify(writer).update(anyMap(), anyMap(), any(WriteContext.class));
+            fail("WriterRegistry.BulkUpdateException was expected");
+        } catch (WriterRegistry.BulkUpdateException e) {
+            verify(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
+            assertThat(e.getFailedIds(), hasItem(DEFAULT_ID));
             verify(reverter).revert();
             assertEquals(failedOnUpdateException, e.getCause());
-            return;
         }
-
-        fail("WriterRegistry.BulkUpdateException was expected");
     }
 
     @Test
     public void testCommitUndoFailed() throws Exception {
-        final org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot
-            snapshot = mock(org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeSnapshot.class);
-        when(dataTree.takeSnapshot()).thenReturn(snapshot);
-        when(snapshot.newModification()).thenReturn(modification);
-        final DataTreeCandidate prepare = mock(DataTreeCandidate.class);
-        doReturn(prepare).when(dataTree).prepare(modification);
-
-        // Prepare data changes:
-        final DataObject dataBefore = mockDataObject("before", Ethernet.class);
-        final DataObject dataAfter = mockDataObject("after", Ethernet.class);
-
-        final io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter reverter = mock(
-            io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.class);
+        final MapNode nestedList = ModificationDiffTest.getNestedList("listEntry", "listValue");
 
         // Fail on update:
-        doThrow(new io.fd.honeycomb.v3po.translate.write.WriterRegistry.BulkUpdateException(InstanceIdentifier.create(Ethernet.class), reverter,
-                new TranslationException("update failed"))).when(writer).update(anyMap(), anyMap(), any(WriteContext.class));
+        final WriterRegistry.Reverter reverter = mock(WriterRegistry.Reverter.class);
+        final TranslationException failedOnUpdateException = new TranslationException("update failed");
+        doThrow(new WriterRegistry.BulkUpdateException(Collections.singleton(DEFAULT_ID), reverter, failedOnUpdateException))
+                .when(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
 
         // Fail on revert:
-        final TranslationException failedOnRevertException = new TranslationException("update failed");
-        final io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException revertFailedException =
-                new io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException(Collections.<InstanceIdentifier<?>>emptyList(),
-                        failedOnRevertException);
-        doThrow(revertFailedException).when(reverter).revert();
+        final TranslationException failedOnRevertException = new TranslationException("revert failed");
+        doThrow(new WriterRegistry.Reverter.RevertFailedException(Collections.emptySet(), failedOnRevertException))
+                .when(reverter).revert();
 
-        // Prepare modification:
-        final DataTreeCandidateNode rootNode = mockRootNode();
-        doReturn(ModificationType.SUBTREE_MODIFIED).when(rootNode).getModificationType();
-        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(rootNode).getIdentifier();
-        final DataTreeCandidateNode childNode = mock(DataTreeCandidateNode.class);
-        doReturn(mock(YangInstanceIdentifier.PathArgument.class)).when(childNode).getIdentifier();
-        doReturn(Collections.singleton(childNode)).when(rootNode).getChildNodes();
-        doReturn(ModificationType.WRITE).when(childNode).getModificationType();
-
-        // data before:
-        final ContainerNode nodeBefore = mockContainerNode(dataBefore);
-        when(childNode.getDataBefore()).thenReturn(Optional.fromNullable(nodeBefore));
-        // data after:
-        final ContainerNode nodeAfter = mockContainerNode(dataAfter);
-        when(childNode.getDataAfter()).thenReturn(Optional.fromNullable(nodeAfter));
-
-        // Run the test
         try {
-            doReturn(rootNode).when(prepare).getRootNode();
+            // Run the test
             final DataModification dataModification = configDataTree.newModification();
+            dataModification.write(ModificationDiffTest.NESTED_LIST_ID, nestedList);
+            dataModification.validate();
             dataModification.commit();
-        } catch (io.fd.honeycomb.v3po.translate.write.WriterRegistry.Reverter.RevertFailedException e) {
-            verify(writer).update(anyMap(), anyMap(), any(WriteContext.class));
+            fail("WriterRegistry.Reverter.RevertFailedException was expected");
+        } catch (WriterRegistry.Reverter.RevertFailedException e) {
+            verify(writer).update(any(WriterRegistry.DataObjectUpdates.class), any(WriteContext.class));
             verify(reverter).revert();
             assertEquals(failedOnRevertException, e.getCause());
-            return;
         }
-
-        fail("RevertFailedException was expected");
     }
+
+    private abstract static class DataObject1 implements DataObject {}
+    private abstract static class DataObject2 implements DataObject {}
+    private abstract static class DataObject3 implements DataObject {}
 
     @Test
-    public void testChildrenFromNormalized() throws Exception {
-        final BindingNormalizedNodeSerializer serializer = mock(BindingNormalizedNodeSerializer.class);
+    public void testToBindingAware() throws Exception {
+        when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), eq(null))).thenReturn(null);
 
-        final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> map = new HashMap<>();
+        final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> biNodes = new HashMap<>();
+        // delete
+        final QName nn1 = QName.create("namespace", "nn1");
+        final YangInstanceIdentifier yid1 = mockYid(nn1);
+        final InstanceIdentifier iid1 = mockIid(yid1, DataObject1.class);
+        final NormalizedNode nn1B = mockNormalizedNode(nn1);
+        final DataObject1 do1B = mockDataObject(yid1, iid1, nn1B, DataObject1.class);
+        biNodes.put(yid1, ModificationDiff.NormalizedNodeUpdate.create(yid1, nn1B, null));
 
-        // init child1 (will not be serialized)
-        final DataContainerChild child1 = mock(DataContainerChild.class);
-        when(child1.getIdentifier()).thenReturn(mock(YangInstanceIdentifier.PathArgument.class));
-        when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), eq(child1))).thenReturn(null);
-        map.put(mock(YangInstanceIdentifier.class), child1);
+        // create
+        final QName nn2 = QName.create("namespace", "nn1");
+        final YangInstanceIdentifier yid2 = mockYid(nn2);
+        final InstanceIdentifier iid2 = mockIid(yid2, DataObject2.class);;
+        final NormalizedNode nn2A = mockNormalizedNode(nn2);
+        final DataObject2 do2A = mockDataObject(yid2, iid2, nn2A, DataObject2.class);
+        biNodes.put(yid2, ModificationDiff.NormalizedNodeUpdate.create(yid2, null, nn2A));
 
-        // init child 2 (will be serialized)
-        final DataContainerChild child2 = mock(DataContainerChild.class);
-        when(child2.getIdentifier()).thenReturn(mock(YangInstanceIdentifier.PathArgument.class));
+        // update
+        final QName nn3 = QName.create("namespace", "nn1");
+        final YangInstanceIdentifier yid3 = mockYid(nn3);
+        final InstanceIdentifier iid3 = mockIid(yid3, DataObject3.class);
+        final NormalizedNode nn3B = mockNormalizedNode(nn3);
+        final DataObject3 do3B = mockDataObject(yid3, iid3, nn3B, DataObject3.class);
+        final NormalizedNode nn3A = mockNormalizedNode(nn3);
+        final DataObject3 do3A = mockDataObject(yid3, iid3, nn3A, DataObject3.class);;
+        biNodes.put(yid3, ModificationDiff.NormalizedNodeUpdate.create(yid3, nn3B, nn3A));
 
-        final Map.Entry entry = mock(Map.Entry.class);
-        final InstanceIdentifier<?> id = mock(InstanceIdentifier.class);
-        doReturn(id).when(entry).getKey();
-        final DataObject data = mock(DataObject.class);
-        doReturn(data).when(entry).getValue();
-        when(serializer.fromNormalizedNode(any(YangInstanceIdentifier.class), eq(child2))).thenReturn(entry);
-        map.put(mock(YangInstanceIdentifier.class), child2);
+        final WriterRegistry.DataObjectUpdates dataObjectUpdates =
+                ModifiableDataTreeDelegator.toBindingAware(biNodes, serializer);
 
-        // run tested method
-        final Map<InstanceIdentifier<?>, DataObject> baMap =
-                ModifiableDataTreeDelegator.toBindingAware(map, serializer);
-        assertEquals(1, baMap.size());
-        assertEquals(data, baMap.get(id));
+        assertThat(dataObjectUpdates.getDeletes().size(), is(1));
+        assertThat(dataObjectUpdates.getDeletes().keySet(), hasItem(((InstanceIdentifier<?>) iid1)));
+        assertThat(dataObjectUpdates.getDeletes().values(), hasItem(
+                ((DataObjectUpdate.DataObjectDelete) DataObjectUpdate.create(iid1, do1B, null))));
+
+        assertThat(dataObjectUpdates.getUpdates().size(), is(2));
+        assertThat(dataObjectUpdates.getUpdates().keySet(), hasItems((InstanceIdentifier<?>) iid2, (InstanceIdentifier<?>) iid3));
+        assertThat(dataObjectUpdates.getUpdates().values(), hasItems(
+                DataObjectUpdate.create(iid2, null, do2A),
+                DataObjectUpdate.create(iid3, do3B, do3A)));
+
+        assertThat(dataObjectUpdates.getTypeIntersection().size(), is(3));
     }
 
-    private DataTreeCandidateNode mockRootNode() {
-        final DataTreeCandidate candidate = mock(DataTreeCandidate.class);
-        when(dataTree.prepare(modification)).thenReturn(candidate);
-
-        final DataTreeCandidateNode rootNode = mock(DataTreeCandidateNode.class);
-        when(candidate.getRootNode()).thenReturn(rootNode);
-
-        return rootNode;
+    private <D extends DataObject> D mockDataObject(final YangInstanceIdentifier yid1,
+                                       final InstanceIdentifier iid1,
+                                       final NormalizedNode nn1B,
+                                       final Class<D> type) {
+        final D do1B = mock(type);
+        when(serializer.fromNormalizedNode(yid1, nn1B)).thenReturn(new AbstractMap.SimpleEntry<>(iid1, do1B));
+        return do1B;
     }
 
-    private ContainerNode mockContainerNode(DataObject modification) {
-        final YangInstanceIdentifier.NodeIdentifier identifier =
-                YangInstanceIdentifier.NodeIdentifier.create(QName.create("/"));
+    private NormalizedNode mockNormalizedNode(final QName nn1) {
+        final NormalizedNode nn1B = mock(NormalizedNode.class);
+        when(nn1B.getNodeType()).thenReturn(nn1);
+        return nn1B;
+    }
 
-        final ContainerNode node = mock(ContainerNode.class);
-        when(node.getIdentifier()).thenReturn(identifier);
+    private InstanceIdentifier mockIid(final YangInstanceIdentifier yid1,
+                                       final Class<? extends DataObject> type) {
+        final InstanceIdentifier iid1 = InstanceIdentifier.create(type);
+        when(serializer.fromYangInstanceIdentifier(yid1)).thenReturn(iid1);
+        return iid1;
+    }
 
-        final Map.Entry entry = mock(Map.Entry.class);
-        final Class<? extends DataObject> implementedInterface =
-                (Class<? extends DataObject>) modification.getImplementedInterface();
-        final InstanceIdentifier<?> id = InstanceIdentifier.create(implementedInterface);
-
-        doReturn(id).when(entry).getKey();
-        doReturn(modification).when(entry).getValue();
-        doReturn(entry).when(serializer).fromNormalizedNode(any(YangInstanceIdentifier.class), eq(node));
-
-        return node;
+    private YangInstanceIdentifier mockYid(final QName nn1) {
+        final YangInstanceIdentifier yid1 = mock(YangInstanceIdentifier.class);
+        when(yid1.getLastPathArgument()).thenReturn(new YangInstanceIdentifier.NodeIdentifier(nn1));
+        return yid1;
     }
 }

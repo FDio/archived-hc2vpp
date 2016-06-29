@@ -19,7 +19,7 @@
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>impl-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../../common/api-parent</relativePath>
+        <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

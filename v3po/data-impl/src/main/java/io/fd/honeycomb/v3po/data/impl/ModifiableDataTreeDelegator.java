@@ -16,38 +16,36 @@
 
 package io.fd.honeycomb.v3po.data.impl;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.util.concurrent.Futures.immediateCheckedFuture;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import com.google.common.collect.Sets;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.data.ReadableDataManager;
 import io.fd.honeycomb.v3po.translate.TranslationException;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.util.write.TransactionMappingContext;
 import io.fd.honeycomb.v3po.translate.util.write.TransactionWriteContext;
+import io.fd.honeycomb.v3po.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.md.sal.dom.api.DOMDataReadOnlyTransaction;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +108,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
         @Override
         protected void processCandidate(final DataTreeCandidate candidate)
             throws TranslationException {
+
             final DataTreeCandidateNode rootNode = candidate.getRootNode();
             final YangInstanceIdentifier rootPath = candidate.getRootPath();
             LOG.trace("ConfigDataTree.modify() rootPath={}, rootNode={}, dataBefore={}, dataAfter={}",
@@ -119,13 +118,12 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                     ModificationDiff.recursivelyFromCandidate(YangInstanceIdentifier.EMPTY, rootNode);
             LOG.debug("ConfigDataTree.modify() diff: {}", modificationDiff);
 
-            final Map<InstanceIdentifier<?>, DataObject> nodesBefore = toBindingAware(modificationDiff.getModificationsBefore());
-            LOG.debug("ConfigDataTree.modify() extracted nodesBefore={}", nodesBefore.keySet());
-            final Map<InstanceIdentifier<?>, DataObject> nodesAfter = toBindingAware(modificationDiff.getModificationsAfter());
-            LOG.debug("ConfigDataTree.modify() extracted nodesAfter={}", nodesAfter.keySet());
+            // Distinguish between updates (create + update) and deletes
+            final WriterRegistry.DataObjectUpdates baUpdates = toBindingAware(modificationDiff.getUpdates());
+            LOG.debug("ConfigDataTree.modify() extracted updates={}", baUpdates);
 
             try (final WriteContext ctx = getTransactionWriteContext()) {
-                writerRegistry.update(nodesBefore, nodesAfter, ctx);
+                writerRegistry.update(baUpdates, ctx);
 
                 final CheckedFuture<Void, TransactionCommitFailedException> contextUpdateResult =
                     ((TransactionMappingContext) ctx.getMappingContext()).submit();
@@ -152,7 +150,7 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
                 LOG.error(msg, e);
                 throw new TranslationException(msg, e);
             } catch (TranslationException e) {
-                LOG.error("Error while processing data change (before={}, after={})", nodesBefore, nodesAfter, e);
+                LOG.error("Error while processing data change (updates={})", baUpdates, e);
                 throw e;
             }
         }
@@ -167,177 +165,71 @@ public final class ModifiableDataTreeDelegator extends ModifiableDataTreeManager
             return new TransactionWriteContext(serializer, beforeTx, afterTx, mappingContext);
         }
 
-        private Map<InstanceIdentifier<?>, DataObject> toBindingAware(final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> biNodes) {
+        private WriterRegistry.DataObjectUpdates toBindingAware(
+                final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> biNodes) {
             return ModifiableDataTreeDelegator.toBindingAware(biNodes, serializer);
         }
     }
 
     @VisibleForTesting
-    static Map<InstanceIdentifier<?>, DataObject> toBindingAware(final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> biNodes,
-                                                                 final BindingNormalizedNodeSerializer serializer) {
-        final HashMap<InstanceIdentifier<?>, DataObject> transformed = new HashMap<>(biNodes.size());
-        for (Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> biEntry : biNodes.entrySet()) {
-            final Map.Entry<InstanceIdentifier<?>, DataObject> baEntry = serializer.fromNormalizedNode(biEntry.getKey(), biEntry.getValue());
-            if (baEntry != null) {
-                transformed.put(baEntry.getKey(), baEntry.getValue());
-            }
-        }
-        return transformed;
-    }
+    static WriterRegistry.DataObjectUpdates toBindingAware(
+            final Map<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> biNodes,
+            final BindingNormalizedNodeSerializer serializer) {
 
-    @VisibleForTesting
-    static final class ModificationDiff {
+        final Multimap<InstanceIdentifier<?>, DataObjectUpdate> dataObjectUpdates = HashMultimap.create();
+        final Multimap<InstanceIdentifier<?>, DataObjectUpdate.DataObjectDelete> dataObjectDeletes =
+                HashMultimap.create();
 
-        private static final ModificationDiff EMPTY_DIFF = new ModificationDiff(Collections.emptyMap(), Collections.emptyMap());
-        private static final EnumSet LEAF_MODIFICATIONS = EnumSet.of(ModificationType.WRITE, ModificationType.DELETE);
+        for (Map.Entry<YangInstanceIdentifier, ModificationDiff.NormalizedNodeUpdate> biEntry : biNodes.entrySet()) {
+            final InstanceIdentifier<?> unkeyedIid =
+                    RWUtils.makeIidWildcarded(serializer.fromYangInstanceIdentifier(biEntry.getKey()));
 
-        private final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> modificationsBefore;
-        private final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> modificationsAfter;
-
-        private ModificationDiff(@Nonnull final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> modificationsBefore,
-                                 @Nonnull final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> modificationsAfter) {
-            this.modificationsBefore = modificationsBefore;
-            this.modificationsAfter = modificationsAfter;
-        }
-
-        Map<YangInstanceIdentifier, NormalizedNode<?, ?>> getModificationsBefore() {
-            return modificationsBefore;
-        }
-
-        Map<YangInstanceIdentifier, NormalizedNode<?, ?>> getModificationsAfter() {
-            return modificationsAfter;
-        }
-
-        private ModificationDiff merge(final ModificationDiff other) {
-            if (this == EMPTY_DIFF) {
-                return other;
-            }
-
-            if (other == EMPTY_DIFF) {
-                return this;
-            }
-
-            return new ModificationDiff(join(modificationsBefore, other.modificationsBefore),
-                    join(modificationsAfter, other.modificationsAfter));
-        }
-
-        private static Map<YangInstanceIdentifier, NormalizedNode<?, ?>> join(
-                final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> mapOne,
-                final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> mapTwo) {
-            // Check unique modifications
-            // TODO Probably not necessary to check
-            final Sets.SetView<YangInstanceIdentifier> duplicates = Sets.intersection(mapOne.keySet(), mapTwo.keySet());
-            checkArgument(duplicates.size() == 0, "Duplicates detected: %s. In maps: %s and %s", duplicates, mapOne, mapTwo);
-            final HashMap<YangInstanceIdentifier, NormalizedNode<?, ?>> joined = new HashMap<>();
-            joined.putAll(mapOne);
-            joined.putAll(mapTwo);
-            return joined;
-        }
-
-        private static ModificationDiff createFromBefore(YangInstanceIdentifier idBefore, DataTreeCandidateNode candidate) {
-            return new ModificationDiff(
-                    Collections.singletonMap(idBefore, candidate.getDataBefore().get()),
-                    Collections.emptyMap());
-        }
-
-        private static ModificationDiff create(YangInstanceIdentifier id, DataTreeCandidateNode candidate) {
-            return new ModificationDiff(
-                    Collections.singletonMap(id, candidate.getDataBefore().get()),
-                    Collections.singletonMap(id, candidate.getDataAfter().get()));
-        }
-
-        private static ModificationDiff createFromAfter(YangInstanceIdentifier idAfter, DataTreeCandidateNode candidate) {
-            return new ModificationDiff(
-                    Collections.emptyMap(),
-                    Collections.singletonMap(idAfter, candidate.getDataAfter().get()));
-        }
-
-        /**
-         * Produce a diff from a candidate node recursively.
-         */
-        @Nonnull
-        static ModificationDiff recursivelyFromCandidate(@Nonnull final YangInstanceIdentifier yangIid,
-                                                         @Nonnull final DataTreeCandidateNode currentCandidate) {
-            switch (currentCandidate.getModificationType()) {
-                case APPEARED:
-                case DISAPPEARED:
-                case UNMODIFIED: {
-                    // (dis)appeared nodes are not important, no real data to process
-                    return ModificationDiff.EMPTY_DIFF;
-                }
-                case WRITE: {
-                    return currentCandidate.getDataBefore().isPresent()
-                            ? ModificationDiff.create(yangIid, currentCandidate)
-                            : ModificationDiff.createFromAfter(yangIid, currentCandidate);
-                    // TODO HONEYCOMB-94 process children recursively to get modifications for child nodes
-                }
-                case DELETE:
-                    return ModificationDiff.createFromBefore(yangIid, currentCandidate);
-                case SUBTREE_MODIFIED: {
-                    // Modifications here are presented also for leaves. However that kind of granularity is not required
-                    // So if there's a modified leaf, mark current complex node also as modification
-                    java.util.Optional<Boolean> leavesModified = currentCandidate.getChildNodes().stream()
-                            .filter(ModificationDiff::isLeaf)
-                            // For some reason, we get modifications on unmodified list keys TODO debug and report ODL bug
-                            // and that messes up our modifications collection here, so we need to skip
-                            .filter(ModificationDiff::isModification)
-                            .map(child -> LEAF_MODIFICATIONS.contains(child.getModificationType()))
-                            .reduce((boolOne, boolTwo) -> boolOne || boolTwo);
-
-                    if (leavesModified.isPresent() && leavesModified.get()) {
-                        return ModificationDiff.create(yangIid, currentCandidate);
-                        // TODO HONEYCOMB-94 process children recursively to get modifications for child nodes even if current
-                        // was modified
-                    } else {
-                        // SUBTREE MODIFIED, no modification on current, but process children recursively
-                        return currentCandidate.getChildNodes().stream()
-                                // not interested in modifications to leaves
-                                .filter(child -> !isLeaf(child))
-                                .map(candidate -> recursivelyFromCandidate(yangIid.node(candidate.getIdentifier()), candidate))
-                                .reduce(ModificationDiff::merge)
-                                .orElse(EMPTY_DIFF);
-                    }
-                }
-                default:
-                    throw new IllegalStateException("Unknown modification type: "
-                            + currentCandidate.getModificationType() + ". Unsupported");
-            }
-        }
-
-        /**
-         * Check whether candidate.before and candidate.after is different. If not
-         * return false.
-         */
-        private static boolean isModification(final DataTreeCandidateNode candidateNode) {
-            if (candidateNode.getDataBefore().isPresent()) {
-                if (candidateNode.getDataAfter().isPresent()) {
-                    return !candidateNode.getDataAfter().get().equals(candidateNode.getDataBefore().get());
+            ModificationDiff.NormalizedNodeUpdate normalizedNodeUpdate = biEntry.getValue();
+            final DataObjectUpdate dataObjectUpdate = toDataObjectUpdate(normalizedNodeUpdate, serializer);
+            if (dataObjectUpdate != null) {
+                if (dataObjectUpdate instanceof DataObjectUpdate.DataObjectDelete) {
+                    dataObjectDeletes.put(unkeyedIid, ((DataObjectUpdate.DataObjectDelete) dataObjectUpdate));
                 } else {
-                    return true;
+                    dataObjectUpdates.put(unkeyedIid, dataObjectUpdate);
                 }
             }
-
-            // considering not a modification if data after is also null
-            return candidateNode.getDataAfter().isPresent();
         }
-
-        /**
-         * Check whether candidate node is for a leaf type node.
-         */
-        private static boolean isLeaf(final DataTreeCandidateNode candidateNode) {
-            // orNull intentional, some candidate nodes have both data after and data before null
-            return candidateNode.getDataAfter().orNull() instanceof LeafNode<?>
-                    || candidateNode.getDataBefore().orNull() instanceof LeafNode<?>;
-        }
-
-        @Override
-        public String toString() {
-            return "ModificationDiff{"
-                    + "modificationsBefore=" + modificationsBefore
-                    + ", modificationsAfter=" + modificationsAfter
-                    + '}';
-        }
+        return new WriterRegistry.DataObjectUpdates(dataObjectUpdates, dataObjectDeletes);
     }
+
+    @Nullable
+    private static DataObjectUpdate toDataObjectUpdate(
+            final ModificationDiff.NormalizedNodeUpdate normalizedNodeUpdate,
+            final BindingNormalizedNodeSerializer serializer) {
+
+        InstanceIdentifier<?> baId = serializer.fromYangInstanceIdentifier(normalizedNodeUpdate.getId());
+        checkNotNull(baId, "Unable to transform instance identifier: %s into BA", normalizedNodeUpdate.getId());
+
+        DataObject dataObjectBefore = getDataObject(serializer,
+                normalizedNodeUpdate.getDataBefore(), normalizedNodeUpdate.getId());
+        DataObject dataObjectAfter =
+                getDataObject(serializer, normalizedNodeUpdate.getDataAfter(), normalizedNodeUpdate.getId());
+
+        return dataObjectBefore == null && dataObjectAfter == null
+                ? null
+                : DataObjectUpdate.create(baId, dataObjectBefore, dataObjectAfter);
+    }
+
+    @Nullable
+    private static DataObject getDataObject(@Nonnull final BindingNormalizedNodeSerializer serializer,
+                                            @Nullable final NormalizedNode<?, ?> data,
+                                            @Nonnull final YangInstanceIdentifier id) {
+        DataObject dataObject = null;
+        if (data != null) {
+            final Map.Entry<InstanceIdentifier<?>, DataObject> dataObjectEntry =
+                    serializer.fromNormalizedNode(id, data);
+            if (dataObjectEntry != null) {
+                dataObject = dataObjectEntry.getValue();
+            }
+        }
+        return dataObject;
+    }
+
 }
 
 

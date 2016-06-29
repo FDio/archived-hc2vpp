@@ -75,10 +75,6 @@ public final class NamingContext implements AutoCloseable {
     public synchronized String getName(final int index, @Nonnull final MappingContext mappingContext) {
         if (!containsName(index, mappingContext)) {
             final String artificialName = getArtificialName(index);
-            LOG.info("Assigning artificial name: {} for index: {}", artificialName, index);
-            for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {
-                LOG.error("{}", stackTraceElement.toString());
-            }
             addName(index, artificialName, mappingContext);
         }
 

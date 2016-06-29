@@ -23,13 +23,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import io.fd.honeycomb.v3po.translate.SubtreeManager;
 import io.fd.honeycomb.v3po.translate.read.ChildReader;
-import io.fd.honeycomb.v3po.translate.write.ChildWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
@@ -79,15 +79,7 @@ public final class RWUtils {
         return Collections.emptyList();
     }
 
-    public static <T> List<ChildWriter<? extends ChildOf<T>>> emptyChildWriterList() {
-        return Collections.emptyList();
-    }
-
     public static <T> List<ChildReader<? extends Augmentation<T>>> emptyAugReaderList() {
-        return Collections.emptyList();
-    }
-
-    public static <T> List<ChildWriter<? extends Augmentation<T>>> emptyAugWriterList() {
         return Collections.emptyList();
     }
 
@@ -99,16 +91,6 @@ public final class RWUtils {
     public static <T> List<ChildReader<? extends ChildOf<T>>> singletonChildReaderList(
         ChildReader<? extends ChildOf<T>> item) {
         return Collections.<ChildReader<? extends ChildOf<T>>>singletonList(item);
-    }
-
-    public static <T> List<ChildWriter<? extends ChildOf<T>>> singletonChildWriterList(
-        ChildWriter<? extends ChildOf<T>> item) {
-        return Collections.<ChildWriter<? extends ChildOf<T>>>singletonList(item);
-    }
-
-    public static <T> List<ChildWriter<? extends Augmentation<T>>> singletonAugWriterList(
-        ChildWriter<? extends Augmentation<T>> item) {
-        return Collections.<ChildWriter<? extends Augmentation<T>>>singletonList(item);
     }
 
     /**
@@ -196,5 +178,22 @@ public final class RWUtils {
         final InstanceIdentifier.PathArgument t = Iterables.getOnlyElement(type.getPathArguments());
         return (InstanceIdentifier<D>) InstanceIdentifier.create(Iterables.concat(
             parentId.getPathArguments(), Collections.singleton(t)));
+    }
+
+    /**
+     * Transform a keyed instance identifier into a wildcarded one.
+     */
+    public static InstanceIdentifier<?> makeIidWildcarded(final InstanceIdentifier<?> id) {
+        final List<InstanceIdentifier.PathArgument> transformedPathArguments =
+                StreamSupport.stream(id.getPathArguments().spliterator(), false)
+                        .map(RWUtils::cleanPathArgumentFromKeys)
+                        .collect(Collectors.toList());
+        return InstanceIdentifier.create(transformedPathArguments);
+    }
+
+    private static InstanceIdentifier.PathArgument cleanPathArgumentFromKeys(final InstanceIdentifier.PathArgument pathArgument) {
+        return pathArgument instanceof InstanceIdentifier.IdentifiableItem<?, ?>
+                ? new InstanceIdentifier.Item<>(pathArgument.getType())
+                : pathArgument;
     }
 }

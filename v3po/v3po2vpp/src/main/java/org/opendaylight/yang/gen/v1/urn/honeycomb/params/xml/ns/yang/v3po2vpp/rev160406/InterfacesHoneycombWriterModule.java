@@ -1,21 +1,24 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.impl.TraversalType;
-import io.fd.honeycomb.v3po.translate.impl.write.CompositeChildWriter;
-import io.fd.honeycomb.v3po.translate.impl.write.CompositeListWriter;
-import io.fd.honeycomb.v3po.translate.impl.write.CompositeRootWriter;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
-import io.fd.honeycomb.v3po.translate.util.write.CloseableWriter;
-import io.fd.honeycomb.v3po.translate.util.write.NoopWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.util.write.ReflexiveAugmentWriterCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.*;
+import com.google.common.collect.Sets;
+import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
+import io.fd.honeycomb.v3po.translate.impl.write.GenericWriter;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.EthernetCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.InterfaceCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.L2Customizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.RoutingCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.TapCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.VhostUserCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.VxlanCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.interfaces.VxlanGpeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4AddressCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv6Customizer;
-import io.fd.honeycomb.v3po.translate.write.ChildWriter;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.WriterFactory;
+import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
@@ -24,15 +27,18 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.*;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpe;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.future.FutureJVpp;
 
 public class InterfacesHoneycombWriterModule extends
-    org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractInterfacesHoneycombWriterModule {
+        org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractInterfacesHoneycombWriterModule {
     public InterfacesHoneycombWriterModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
                                            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -52,91 +58,98 @@ public class InterfacesHoneycombWriterModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-
-        final List<ChildWriter<? extends Augmentation<Interface>>> ifcAugmentations = Lists.newArrayList();
-        ifcAugmentations.add(getVppIfcAugmentationWriter());
-        ifcAugmentations.add(getInterface1AugmentationWriter());
-        ifcAugmentations.add(
-            SubinterfaceAugmentationWriterFactory.createInstance(getVppJvppIfcDependency(), getInterfaceContextDependency(),
-                getBridgeDomainContextDependency()));
-
-        final ChildWriter<Interface> interfaceWriter = new CompositeListWriter<>(Interface.class,
-            RWUtils.emptyChildWriterList(),
-            ifcAugmentations,
-            new InterfaceCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()),
-            // It's important that this customizer is handled in a postorder way, because you first have to handle child nodes
-            // e.g. Vxlan before setting other interface or vppInterfaceAugmentation leaves
-            TraversalType.POSTORDER);
-
-        final List<ChildWriter<? extends ChildOf<Interfaces>>> childWriters = new ArrayList<>();
-        childWriters.add(interfaceWriter);
-
-        // FIXME if we just return the root writer and cfg subsystem takes care to set it into reader registry,
-        // we loose the ordering information for root writers
-        // Or can we rely to the order in which readers are configured ?
-        return new CloseableWriter<>(new CompositeRootWriter<>(Interfaces.class,
-            childWriters, new NoopWriterCustomizer<>()));
+        return new InterfacesWriterFactory(getVppJvppIfcDependency(),
+                                           getBridgeDomainContextDependency(),
+                                           getInterfaceContextDependency());
     }
 
-    private ChildWriter<? extends Augmentation<Interface>> getInterface1AugmentationWriter() {
 
-        final ChildWriter<Neighbor> neighborWriter = new CompositeListWriter<>(Neighbor.class,
-                new Ipv4NeighbourCustomizer(getVppJvppIfcDependency(),getInterfaceContextDependency()));
+    private static class InterfacesWriterFactory implements WriterFactory, AutoCloseable {
 
-        final ChildWriter<Address> addressWriter = new CompositeListWriter<>(Address.class,
-            new Ipv4AddressCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
+        private final FutureJVpp jvpp;
+        private final NamingContext bdContext;
+        private final NamingContext ifcContext;
 
-        final ChildWriter<Ipv4> ipv4Writer = new CompositeChildWriter<>(Ipv4.class,
-                ImmutableList.of(neighborWriter,addressWriter),
-                new Ipv4Customizer(getVppJvppIfcDependency(),getInterfaceContextDependency()));
-        final ChildWriter<Ipv6> ipv6Writer = new CompositeChildWriter<>(Ipv6.class,
-            new Ipv6Customizer(getVppJvppIfcDependency()));
+        InterfacesWriterFactory(final FutureJVpp vppJvppIfcDependency,
+                                       final NamingContext bridgeDomainContextDependency,
+                                       final NamingContext interfaceContextDependency) {
+            this.jvpp = vppJvppIfcDependency;
+            this.bdContext = bridgeDomainContextDependency;
+            this.ifcContext = interfaceContextDependency;
+        }
 
-        final List<ChildWriter<? extends ChildOf<Interface1>>> interface1ChildWriters = Lists.newArrayList();
-        interface1ChildWriters.add(ipv4Writer);
-        interface1ChildWriters.add(ipv6Writer);
+        @Override
+        public void close() throws Exception {
+            // unregister is not supported in ModifiableWriterRegistry (not really needed though)
+        }
 
-        return new CompositeChildWriter<>(Interface1.class,
-            interface1ChildWriters, new ReflexiveAugmentWriterCustomizer<>());
+        @Override
+        public void init(final ModifiableWriterRegistry registry) {
+            // Interfaces
+            //  Interface =
+            final InstanceIdentifier<Interface> ifcId = InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+            registry.addWriter(new GenericListWriter<>(ifcId, new InterfaceCustomizer(jvpp, ifcContext)));
+            //   VppInterfaceAugmentation
+            addVppInterfaceAgmentationWriters(ifcId, registry);
+            //   Interface1 (ietf-ip augmentation)
+            addInterface1AugmentationWriters(ifcId, registry);
+            //   SubinterfaceAugmentation TODO make dedicated module for subIfc writer factory
+            new SubinterfaceAugmentationWriterFactory(ifcId, jvpp, ifcContext, bdContext).init(registry);
+        }
+
+        private void addInterface1AugmentationWriters(final InstanceIdentifier<Interface> ifcId,
+                                                      final ModifiableWriterRegistry registry) {
+            final InstanceIdentifier<Interface1> ifc1AugId = ifcId.augmentation(Interface1.class);
+            // Ipv6(after interface) TODO unfinished customizer =
+            registry.addWriterAfter(new GenericWriter<>(ifc1AugId.child(Ipv6.class), new Ipv6Customizer(jvpp)),
+                    ifcId);
+            // Ipv4(after interface)
+            final InstanceIdentifier<Ipv4> ipv4Id = ifc1AugId.child(Ipv4.class);
+            registry.addWriterAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp, ifcContext)),
+                    ifcId);
+            //  Address(after Ipv4) =
+            final InstanceIdentifier<Address> ipv4AddressId = ipv4Id.child(Address.class);
+            registry.addWriterAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcContext)),
+                    ipv4Id);
+            //  Neighbor(after ipv4Address)
+            registry.addWriterAfter(new GenericListWriter<>(ipv4Id.child(Neighbor.class), new Ipv4NeighbourCustomizer(jvpp, ifcContext)),
+                    ipv4AddressId);
+        }
+
+        private void addVppInterfaceAgmentationWriters(final InstanceIdentifier<Interface> ifcId,
+                                                       final ModifiableWriterRegistry registry) {
+            final InstanceIdentifier<VppInterfaceAugmentation> vppIfcAugId = ifcId.augmentation(VppInterfaceAugmentation.class);
+            // VhostUser(Needs to be executed before Interface customizer) =
+            final InstanceIdentifier<VhostUser> vhostId = vppIfcAugId.child(VhostUser.class);
+            registry.addWriterBefore(new GenericWriter<>(vhostId, new VhostUserCustomizer(jvpp, ifcContext)),
+                    ifcId);
+            // Vxlan(Needs to be executed before Interface customizer) =
+            final InstanceIdentifier<Vxlan> vxlanId = vppIfcAugId.child(Vxlan.class);
+            registry.addWriterBefore(new GenericWriter<>(vxlanId, new VxlanCustomizer(jvpp, ifcContext)),
+                    ifcId);
+            // VxlanGpe(Needs to be executed before Interface customizer) =
+            final InstanceIdentifier<VxlanGpe> vxlanGpeId = vppIfcAugId.child(VxlanGpe.class);
+            registry.addWriterBefore(new GenericWriter<>(vxlanGpeId, new VxlanGpeCustomizer(jvpp, ifcContext)),
+                    ifcId);
+            // Tap(Needs to be executed before Interface customizer) =
+            final InstanceIdentifier<Tap> tapId = vppIfcAugId.child(Tap.class);
+            registry.addWriterBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcContext)),
+                    ifcId);
+
+            final Set<InstanceIdentifier<?>> specificIfcTypes = Sets.newHashSet(vhostId, vxlanGpeId, vxlanGpeId, tapId);
+
+            // Ethernet(No dependency, customizer not finished TODO) =
+            registry.addWriter(new GenericWriter<>(vppIfcAugId.child(Ethernet.class), new EthernetCustomizer(jvpp)));
+            // Routing(Execute only after specific interface customizers) =
+            registry.addWriterAfter(
+                    new GenericWriter<>(vppIfcAugId.child(Routing.class), new RoutingCustomizer(jvpp, ifcContext)),
+                    specificIfcTypes);
+            // Routing(Execute only after specific interface customizers) =
+            registry.addWriterAfter(
+                    new GenericWriter<>(vppIfcAugId.child(L2.class), new L2Customizer(jvpp, ifcContext, bdContext)),
+                    specificIfcTypes);
+        }
+
     }
 
-    private ChildWriter<VppInterfaceAugmentation> getVppIfcAugmentationWriter() {
-
-        final ChildWriter<Ethernet> ethernetWriter = new CompositeChildWriter<>(Ethernet.class,
-            new EthernetCustomizer(getVppJvppIfcDependency()));
-
-        final ChildWriter<Routing> routingWriter = new CompositeChildWriter<>(Routing.class,
-            new RoutingCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
-
-        final ChildWriter<Vxlan> vxlanWriter = new CompositeChildWriter<>(Vxlan.class,
-            new VxlanCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
-
-        final ChildWriter<VxlanGpe> vxlanGpeWriter = new CompositeChildWriter<>(VxlanGpe.class,
-            new VxlanGpeCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
-
-        final ChildWriter<VhostUser> vhostUserWriter = new CompositeChildWriter<>(VhostUser.class,
-            new VhostUserCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
-
-        final ChildWriter<Tap> tapWriter = new CompositeChildWriter<>(Tap.class,
-            new TapCustomizer(getVppJvppIfcDependency(), getInterfaceContextDependency()));
-
-        final ChildWriter<L2> l2Writer = new CompositeChildWriter<>(L2.class,
-            new L2Customizer(getVppJvppIfcDependency(), getInterfaceContextDependency(),
-                getBridgeDomainContextDependency())
-        );
-
-        final List<ChildWriter<? extends ChildOf<VppInterfaceAugmentation>>> vppIfcChildWriters = Lists.newArrayList();
-        vppIfcChildWriters.add(vhostUserWriter);
-        vppIfcChildWriters.add(vxlanWriter);
-        vppIfcChildWriters.add(vxlanGpeWriter);
-        vppIfcChildWriters.add(tapWriter);
-        vppIfcChildWriters.add(ethernetWriter);
-        vppIfcChildWriters.add(l2Writer);
-        vppIfcChildWriters.add(routingWriter);
-
-        return new CompositeChildWriter<>(VppInterfaceAugmentation.class,
-            vppIfcChildWriters,
-            RWUtils.emptyAugWriterList(),
-            new ReflexiveAugmentWriterCustomizer<>());
-    }
 }

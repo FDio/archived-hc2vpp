@@ -40,6 +40,7 @@ module translate-utils {
     identity delegating-writer-registry {
         base config:module-type;
         config:provided-service tapi:honeycomb-writer-registry;
+        config:provided-service tapi:honeycomb-writer-registry-builder;
         config:java-name-prefix DelegatingWriterRegistry;
     }
 
@@ -47,11 +48,11 @@ module translate-utils {
         case delegating-writer-registry {
             when "/config:modules/config:module/config:type = 'delegating-writer-registry'";
 
-                list root-writers {
+                list writer-factory {
                     uses config:service-ref {
                         refine type {
                             mandatory true;
-                            config:required-identity tapi:honeycomb-writer;
+                            config:required-identity tapi:honeycomb-writer-factory;
                         }
                     }
                 }
@@ -59,15 +60,15 @@ module translate-utils {
         }
     }
 
-    identity noop-writer-registry {
+    identity noop-writer-registry-builder {
         base config:module-type;
-        config:provided-service tapi:honeycomb-writer-registry;
+        config:provided-service tapi:honeycomb-writer-registry-builder;
         config:java-name-prefix NoopWriterRegistry;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case noop-writer-registry {
-            when "/config:modules/config:module/config:type = 'noop-writer-registry'";
+        case noop-writer-registry-builder {
+            when "/config:modules/config:module/config:type = 'noop-writer-registry-builder'";
         }
     }
 

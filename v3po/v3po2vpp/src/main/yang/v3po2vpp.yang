@@ -149,7 +149,7 @@ module v3po2vpp {
 
     identity vpp-honeycomb-writer {
         base config:module-type;
-        config:provided-service tapi:honeycomb-writer;
+        config:provided-service tapi:honeycomb-writer-factory;
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -187,7 +187,7 @@ module v3po2vpp {
 
     identity interfaces-honeycomb-writer {
         base config:module-type;
-        config:provided-service tapi:honeycomb-writer;
+        config:provided-service tapi:honeycomb-writer-factory;
     }
 
     augment "/config:modules/config:module/config:configuration" {

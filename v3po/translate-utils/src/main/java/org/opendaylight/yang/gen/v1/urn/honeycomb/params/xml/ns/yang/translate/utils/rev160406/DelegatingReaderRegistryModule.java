@@ -42,6 +42,8 @@ public class DelegatingReaderRegistryModule extends org.opendaylight.yang.gen.v1
         return new CloseableReaderRegistry(new DelegatingReaderRegistry(rootReadersDependency));
     }
 
+
+
     // TODO move to translate-utils
     private static final class CloseableReaderRegistry implements ReaderRegistry, AutoCloseable {
         private final DelegatingReaderRegistry delegatingReaderRegistry;

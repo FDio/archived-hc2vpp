@@ -108,11 +108,11 @@ module data-impl {
                 }
             }
 
-            container writer-registry {
+            container writer-registry-builder {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity tapi:honeycomb-writer-registry;
+                        config:required-identity tapi:honeycomb-writer-registry-builder;
                     }
                 }
             }
