@@ -272,7 +272,7 @@ public class FlatWriterRegistryTest {
         updates.put(iid, DataObjectUpdate.create(iid, mock(type), mock(type)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testSingleUpdateMissingWriter() throws Exception {
         final FlatWriterRegistry flatWriterRegistry =
                 new FlatWriterRegistry(ImmutableMap.of());

@@ -1,0 +1,113 @@
+module hc-test {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:hc:test";
+  prefix "hct";
+
+  revision "2015-01-05" {
+    description "Testing HC model with bindings";
+  }
+
+  import yang-ext {
+    prefix "ext";
+  }
+
+  // ORDER 3
+  container simple-container {
+    leaf simple-container-name {
+      type string;
+    }
+  }
+
+  grouping some-attributes {
+    leaf leaf-from-grouping {
+        type string;
+    }
+
+    // ORDER 5
+    container container-from-grouping {
+        leaf leaf-in-container-from-grouping {
+            type int32;
+        }
+    }
+  }
+
+  // ORDER 9 (no real attributes though)
+  container container-with-list {
+    // ORDER 7
+    list list-in-container {
+        key "id";
+
+        leaf id {
+            type uint32;
+        }
+
+        // ORDER 8
+        container container-in-list {
+            leaf name {
+                type string;
+            }
+
+            // ORDER 6
+            list nested-list {
+                key "nested-id";
+
+                leaf nested-id {
+                    type string;
+                }
+
+                leaf nested-name {
+                    type string;
+                }
+            }
+        }
+    }
+  }
+
+  // ORDER 4
+  container container-with-choice {
+    leaf name {
+        type string;
+    }
+
+    uses some-attributes;
+
+    choice choice {
+        leaf c1 {
+            type string;
+        }
+
+        leaf c2 {
+            type string;
+        }
+
+        // ORDER: 2
+        container c3 {
+            leaf name {
+                type string;
+            }
+        }
+    }
+  }
+
+  // ORDER: 2
+  augment "/hct:simple-container" {
+    ext:augment-identifier "simple-augment";
+
+    leaf simple-augment-leaf {
+        type string;
+    }
+  }
+
+  // UNORDERED
+  augment "/hct:simple-container" {
+    ext:augment-identifier "complex-augment";
+
+    // ORDER: 1
+    container complex-augment-container {
+        leaf some-leaf {
+            type string;
+        }
+    }
+  }
+
+}

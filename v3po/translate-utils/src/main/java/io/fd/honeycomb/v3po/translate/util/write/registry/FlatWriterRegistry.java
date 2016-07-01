@@ -17,7 +17,6 @@
 package io.fd.honeycomb.v3po.translate.util.write.registry;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
@@ -261,11 +260,9 @@ final class FlatWriterRegistry implements WriterRegistry {
         return !Sets.intersection(writer.getHandledChildTypes(), updates.keySet()).isEmpty();
     }
 
+    @Nullable
     private Writer<?> getWriter(@Nonnull final InstanceIdentifier<?> singleType) {
-        final Writer<?> writer = writers.get(singleType);
-        checkNotNull(writer,
-                "Unable to write %s. Missing writer. Current writers for: %s", singleType, writers.keySet());
-        return writer;
+        return writers.get(singleType);
     }
 
     @Nonnull
