@@ -27,11 +27,11 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterFactory;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.vlan.tagged.VlanTagged;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.Rewrite;
@@ -44,15 +44,18 @@ import org.openvpp.jvpp.future.FutureJVpp;
 
 final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
 
-    private final InstanceIdentifier<Interface> ifcId;
     private final FutureJVpp jvpp;
     private final NamingContext ifcContext;
     private final NamingContext bdContext;
+    public static final InstanceIdentifier<SubinterfaceAugmentation> SUB_IFC_AUG_ID =
+            InterfacesHoneycombWriterModule.IFC_ID.augmentation(SubinterfaceAugmentation.class);
+    public static final InstanceIdentifier<SubInterface> SUB_IFC_ID =
+            SUB_IFC_AUG_ID.child(SubInterfaces.class).child(SubInterface.class);
+    public static final InstanceIdentifier<L2> L2_ID = SUB_IFC_ID.child(
+            L2.class);
 
-    public SubinterfaceAugmentationWriterFactory(
-            final InstanceIdentifier<Interface> ifcId, final FutureJVpp jvpp,
+    public SubinterfaceAugmentationWriterFactory(final FutureJVpp jvpp,
             final NamingContext ifcContext, final NamingContext bdContext) {
-        this.ifcId = ifcId;
         this.jvpp = jvpp;
         this.ifcContext = ifcContext;
         this.bdContext = bdContext;
@@ -60,11 +63,8 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
 
     @Override
     public void init(final ModifiableWriterRegistry registry) {
-        final InstanceIdentifier<SubinterfaceAugmentation> subIfcAugId =
-                ifcId.augmentation(SubinterfaceAugmentation.class);
         // Subinterfaces
         //  Subinterface(Handle only after all interface related stuff gets processed) =
-        final InstanceIdentifier<SubInterface> subIfcId = subIfcAugId.child(SubInterfaces.class).child(SubInterface.class);
         registry.addSubtreeWriterAfter(
                 // TODO this customizer covers quite a lot of complex child nodes (maybe refactor ?)
                 Sets.newHashSet(
@@ -74,25 +74,22 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
                                 Dot1qTag.class),
                         InstanceIdentifier.create(SubInterface.class).child(Match.class),
                         InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
-                new GenericListWriter<>(subIfcId, new SubInterfaceCustomizer(jvpp, ifcContext)),
-                ifcId);
+                new GenericListWriter<>(SUB_IFC_ID, new SubInterfaceCustomizer(jvpp, ifcContext)),
+                InterfacesHoneycombWriterModule.IFC_ID);
         //   L2 =
-        final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2>
-                l2Id = subIfcId.child(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2.class);
-        registry.addWriterAfter(new GenericWriter<>(l2Id, new SubInterfaceL2Customizer(jvpp, ifcContext, bdContext)),
-                subIfcId);
+        registry.addWriterAfter(new GenericWriter<>(L2_ID, new SubInterfaceL2Customizer(jvpp, ifcContext, bdContext)),
+                SUB_IFC_ID);
         //    Rewrite(also handles pushTags + pushTags/dot1qtag) =
-        final InstanceIdentifier<Rewrite> rewriteId = l2Id.child(Rewrite.class);
+        final InstanceIdentifier<Rewrite> rewriteId = L2_ID.child(Rewrite.class);
         registry.addSubtreeWriterAfter(
                 Sets.newHashSet(
                         InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
                         InstanceIdentifier.create(Rewrite.class).child(PushTags.class)
                                 .child(org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
                 new GenericWriter<>(rewriteId, new RewriteCustomizer(jvpp, ifcContext)),
-                l2Id);
+                L2_ID);
         //   Ipv4(handled after L2 and L2/rewrite is done) =
-        final InstanceIdentifier<Address> ipv4SubifcAddressId = subIfcId.child(Ipv4.class).child(Address.class);
+        final InstanceIdentifier<Address> ipv4SubifcAddressId = SUB_IFC_ID.child(Ipv4.class).child(Address.class);
         registry.addWriterAfter(new GenericListWriter<>(ipv4SubifcAddressId,
                 new SubInterfaceIpv4AddressCustomizer(jvpp, ifcContext)),
                 rewriteId);

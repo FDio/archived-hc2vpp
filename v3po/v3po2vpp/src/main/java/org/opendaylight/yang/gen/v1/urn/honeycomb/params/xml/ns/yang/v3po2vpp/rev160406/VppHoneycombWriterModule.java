@@ -1,5 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
+import com.google.common.collect.Sets;
 import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.vpp.BridgeDomainCustomizer;
@@ -69,11 +70,14 @@ public class VppHoneycombWriterModule extends
                     InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(BridgeDomain.class);
             registry.addWriter(new GenericListWriter<>(bdId, new BridgeDomainCustomizer(jvpp, bdContext)));
             //    L2FibTable has no handlers
-            //     L2FibEntry(handled after BridgeDomain) =
+            //     L2FibEntry(handled after BridgeDomain and L2 of ifc and subifc) =
             final InstanceIdentifier<L2FibEntry> l2FibEntryId = bdId.child(L2FibTable.class).child(L2FibEntry.class);
             registry.addWriterAfter(
                     new GenericListWriter<>(l2FibEntryId, new L2FibEntryCustomizer(jvpp, bdContext, ifcContext)),
-                    bdId);
+                    Sets.newHashSet(
+                            bdId,
+                            InterfacesHoneycombWriterModule.L2_ID,
+                            SubinterfaceAugmentationWriterFactory.L2_ID));
         }
     }
 }

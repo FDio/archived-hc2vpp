@@ -39,6 +39,15 @@ import org.openvpp.jvpp.future.FutureJVpp;
 
 public class InterfacesHoneycombWriterModule extends
         org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractInterfacesHoneycombWriterModule {
+
+    // TODO split configuration and translation code into 2 or more bundles
+
+    public static final InstanceIdentifier<Interface> IFC_ID =
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+    public static final InstanceIdentifier<VppInterfaceAugmentation> VPP_IFC_AUG_ID =
+            IFC_ID.augmentation(VppInterfaceAugmentation.class);
+    public static final InstanceIdentifier<L2> L2_ID = VPP_IFC_AUG_ID.child(L2.class);
+
     public InterfacesHoneycombWriterModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
                                            org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -87,14 +96,13 @@ public class InterfacesHoneycombWriterModule extends
         public void init(final ModifiableWriterRegistry registry) {
             // Interfaces
             //  Interface =
-            final InstanceIdentifier<Interface> ifcId = InstanceIdentifier.create(Interfaces.class).child(Interface.class);
-            registry.addWriter(new GenericListWriter<>(ifcId, new InterfaceCustomizer(jvpp, ifcContext)));
+            registry.addWriter(new GenericListWriter<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcContext)));
             //   VppInterfaceAugmentation
-            addVppInterfaceAgmentationWriters(ifcId, registry);
+            addVppInterfaceAgmentationWriters(IFC_ID, registry);
             //   Interface1 (ietf-ip augmentation)
-            addInterface1AugmentationWriters(ifcId, registry);
+            addInterface1AugmentationWriters(IFC_ID, registry);
             //   SubinterfaceAugmentation TODO make dedicated module for subIfc writer factory
-            new SubinterfaceAugmentationWriterFactory(ifcId, jvpp, ifcContext, bdContext).init(registry);
+            new SubinterfaceAugmentationWriterFactory(jvpp, ifcContext, bdContext).init(registry);
         }
 
         private void addInterface1AugmentationWriters(final InstanceIdentifier<Interface> ifcId,
@@ -118,35 +126,33 @@ public class InterfacesHoneycombWriterModule extends
 
         private void addVppInterfaceAgmentationWriters(final InstanceIdentifier<Interface> ifcId,
                                                        final ModifiableWriterRegistry registry) {
-            final InstanceIdentifier<VppInterfaceAugmentation> vppIfcAugId = ifcId.augmentation(VppInterfaceAugmentation.class);
             // VhostUser(Needs to be executed before Interface customizer) =
-            final InstanceIdentifier<VhostUser> vhostId = vppIfcAugId.child(VhostUser.class);
+            final InstanceIdentifier<VhostUser> vhostId = VPP_IFC_AUG_ID.child(VhostUser.class);
             registry.addWriterBefore(new GenericWriter<>(vhostId, new VhostUserCustomizer(jvpp, ifcContext)),
                     ifcId);
             // Vxlan(Needs to be executed before Interface customizer) =
-            final InstanceIdentifier<Vxlan> vxlanId = vppIfcAugId.child(Vxlan.class);
+            final InstanceIdentifier<Vxlan> vxlanId = VPP_IFC_AUG_ID.child(Vxlan.class);
             registry.addWriterBefore(new GenericWriter<>(vxlanId, new VxlanCustomizer(jvpp, ifcContext)),
                     ifcId);
             // VxlanGpe(Needs to be executed before Interface customizer) =
-            final InstanceIdentifier<VxlanGpe> vxlanGpeId = vppIfcAugId.child(VxlanGpe.class);
+            final InstanceIdentifier<VxlanGpe> vxlanGpeId = VPP_IFC_AUG_ID.child(VxlanGpe.class);
             registry.addWriterBefore(new GenericWriter<>(vxlanGpeId, new VxlanGpeCustomizer(jvpp, ifcContext)),
                     ifcId);
             // Tap(Needs to be executed before Interface customizer) =
-            final InstanceIdentifier<Tap> tapId = vppIfcAugId.child(Tap.class);
+            final InstanceIdentifier<Tap> tapId = VPP_IFC_AUG_ID.child(Tap.class);
             registry.addWriterBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcContext)),
                     ifcId);
 
             final Set<InstanceIdentifier<?>> specificIfcTypes = Sets.newHashSet(vhostId, vxlanGpeId, vxlanGpeId, tapId);
 
             // Ethernet(No dependency, customizer not finished TODO) =
-            registry.addWriter(new GenericWriter<>(vppIfcAugId.child(Ethernet.class), new EthernetCustomizer(jvpp)));
+            registry.addWriter(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class), new EthernetCustomizer(jvpp)));
             // Routing(Execute only after specific interface customizers) =
             registry.addWriterAfter(
-                    new GenericWriter<>(vppIfcAugId.child(Routing.class), new RoutingCustomizer(jvpp, ifcContext)),
+                    new GenericWriter<>(VPP_IFC_AUG_ID.child(Routing.class), new RoutingCustomizer(jvpp, ifcContext)),
                     specificIfcTypes);
             // Routing(Execute only after specific interface customizers) =
-            registry.addWriterAfter(
-                    new GenericWriter<>(vppIfcAugId.child(L2.class), new L2Customizer(jvpp, ifcContext, bdContext)),
+            registry.addWriterAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcContext, bdContext)),
                     specificIfcTypes);
         }
 

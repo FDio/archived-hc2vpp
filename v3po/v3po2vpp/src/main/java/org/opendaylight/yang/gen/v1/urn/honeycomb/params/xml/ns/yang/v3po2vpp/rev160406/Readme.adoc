@@ -1,0 +1,30 @@
+= V3po2vpp
+V3po2vpp contains v3po-api's handlers (writer/reader) registration into HC infrastructure
+
+== Writers
+Current order of v3po-api writers is:
+
+. BridgeDomain
+. VhostUser
+. VxlanGpe
+. Tap
+. Vxlan
+. Interface
+. L2
+. SubInterface
+. L2
+. Ethernet
+. Routing
+. Ipv6
+. Ipv4
+. Address
+. Neighbor
+. L2FibEntry
+. Rewrite
+. Address
+
+To find out current order in runtime, turn on logging for writer registry:
+
+  log:set TRACE io.fd.honeycomb.v3po.translate.util.write.registry
+
+== Readers

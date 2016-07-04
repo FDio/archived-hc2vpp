@@ -133,8 +133,9 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
         LOG.debug("Reading L2 FIB for bridge domain {} (bdId={})", bridgeDomainKey, bdId);
         try {
             return dumpL2Fibs(id, bdId).stream()
-                .map(entry -> new L2FibEntryKey(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(entry.mac), 2)))
-                ).collect(Collectors.toList());
+                    .map(entry -> new L2FibEntryKey(
+                            new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(entry.mac), 2))))
+                    .collect(Collectors.toList());
         } catch (VppBaseCallException e) {
             throw new ReadFailedException(id, e);
         }
