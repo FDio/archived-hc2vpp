@@ -90,7 +90,7 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
                 .setL2FibEntry(
                         l2FibTable.getL2FibEntry().stream()
                                 // Convert operational object to config. VPP does not support setting BVI (see v3po.yang)
-                                .map(oper -> new L2FibEntryBuilder().setBridgedVirtualInterface(null).build())
+                                .map(oper -> new L2FibEntryBuilder(oper).setBridgedVirtualInterface(null).build())
                                 .collect(Collectors.toList()));
         builder.setL2FibTable(tableBuilder.build());
     }
