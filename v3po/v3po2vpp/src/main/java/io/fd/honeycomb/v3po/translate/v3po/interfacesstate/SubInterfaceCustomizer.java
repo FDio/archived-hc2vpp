@@ -219,7 +219,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         return tag.build();
     }
 
-    private static Dot1qTag.VlanId buildVlanId(final char vlanId) {
+    private static Dot1qTag.VlanId buildVlanId(final short vlanId) {
         return new Dot1qTag.VlanId(new Dot1qVlanId((int) vlanId));
     }
 

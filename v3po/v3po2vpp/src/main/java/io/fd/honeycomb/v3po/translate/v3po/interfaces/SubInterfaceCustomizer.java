@@ -154,7 +154,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         checkState(SVlan.class == outerTag.getDot1qTag().getTagType(), "Service Tag expected at index 0");
         final Dot1qTag.VlanId vlanId = outerTag.getDot1qTag().getVlanId();
 
-        request.outerVlanId = dot1qVlanIdToChar(vlanId.getDot1qVlanId());
+        request.outerVlanId = vlanId.getDot1qVlanId().getValue().shortValue();
         request.outerVlanIdAny = booleanToByte(Dot1qTag.VlanId.Enumeration.Any.equals(vlanId.getEnumeration()));
     }
 
@@ -162,7 +162,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         checkState(CVlan.class == innerTag.getDot1qTag().getTagType(), "Customer Tag expected at index 1");
         final Dot1qTag.VlanId vlanId = innerTag.getDot1qTag().getVlanId();
 
-        request.innerVlanId = dot1qVlanIdToChar(vlanId.getDot1qVlanId());
+        request.innerVlanId = vlanId.getDot1qVlanId().getValue().shortValue();
         request.innerVlanIdAny = booleanToByte(Dot1qTag.VlanId.Enumeration.Any.equals(vlanId.getEnumeration()));
     }
 
