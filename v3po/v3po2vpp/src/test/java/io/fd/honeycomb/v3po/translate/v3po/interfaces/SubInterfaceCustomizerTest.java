@@ -35,7 +35,7 @@ import io.fd.honeycomb.v3po.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -85,8 +85,25 @@ public class SubInterfaceCustomizerTest {
 
     private NamingContext namingContext;
     private SubInterfaceCustomizer customizer;
+
     public static final String SUPER_IF_NAME = "local0";
     public static final int SUPER_IF_ID = 1;
+    private static final String SUB_IFACE_NAME = "local0.11";
+    private static final int SUBIF_INDEX = 11;
+
+    private static final short STAG_ID = 100;
+    private static final short CTAG_ID = 200;
+    private static final short CTAG_ANY_ID = 0; // only the *IdAny flag is set
+
+    private final Tag STAG_100;
+    private final Tag CTAG_200;
+    private final Tag CTAG_ANY;
+
+    public SubInterfaceCustomizerTest() {
+        STAG_100 = generateTag((short) 0, SVlan.class, new Dot1qTag.VlanId(new Dot1qVlanId((int) STAG_ID)));
+        CTAG_200 = generateTag((short) 1, CVlan.class, new Dot1qTag.VlanId(new Dot1qVlanId(200)));
+        CTAG_ANY = generateTag((short) 1, CVlan.class, new Dot1qTag.VlanId(Dot1qTag.VlanId.Enumeration.Any));
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -96,19 +113,16 @@ public class SubInterfaceCustomizerTest {
         // TODO create base class for tests using vppApi
         customizer = new SubInterfaceCustomizer(api, namingContext);
         doReturn(getMapping(SUPER_IF_NAME, SUPER_IF_ID)).when(mappingContext)
-                .read(getMappingIid(SUPER_IF_NAME, "test-instance"));
+            .read(getMappingIid(SUPER_IF_NAME, "test-instance"));
     }
 
-    private SubInterface generateSubInterface(final String superIfName, final boolean enabled) {
+    private SubInterface generateSubInterface(final boolean enabled, final List<Tag> tagList) {
         SubInterfaceBuilder builder = new SubInterfaceBuilder();
         builder.setVlanType(_802dot1ad.class);
         builder.setIdentifier(11L);
         final TagsBuilder tags = new TagsBuilder();
-        final List<Tag> list = new ArrayList<>();
-        list.add(generateTag((short) 0, SVlan.class,  new Dot1qTag.VlanId(new Dot1qVlanId(100))));
-        list.add(generateTag((short) 1, CVlan.class,  new Dot1qTag.VlanId(new Dot1qVlanId(200))));
 
-        tags.setTag(list);
+        tags.setTag(tagList);
 
         builder.setTags(tags.build());
 
@@ -134,19 +148,23 @@ public class SubInterfaceCustomizerTest {
         final VlanTaggedBuilder tagged = new VlanTaggedBuilder();
         tagged.setMatchExactTags(true);
         match.setMatchType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.VlanTaggedBuilder()
-                        .setVlanTagged(tagged.build()).build());
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.VlanTaggedBuilder()
+                .setVlanTagged(tagged.build()).build());
         return match.build();
     }
 
-    private CreateSubif generateSubInterfaceRequest(final int superIfId) {
+    private CreateSubif generateSubInterfaceRequest(final int superIfId, final short innerVlanId,
+                                                    final boolean isInnerAny) {
         CreateSubif request = new CreateSubif();
         request.subId = 11;
         request.swIfIndex = superIfId;
         request.twoTags = 1;
+        request.innerVlanId = innerVlanId;
+        request.innerVlanIdAny = (byte) (isInnerAny
+            ? 1
+            : 0);
         request.dot1Ad = 1;
-        request.outerVlanId = 100;
-        request.innerVlanId = 200;
+        request.outerVlanId = STAG_ID;
         return request;
     }
 
@@ -159,7 +177,8 @@ public class SubInterfaceCustomizerTest {
 
     private InstanceIdentifier<SubInterface> getSubInterfaceId(final String name, final long index) {
         return InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(name)).augmentation(
-                SubinterfaceAugmentation.class).child(SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(index));
+            SubinterfaceAugmentation.class).child(SubInterfaces.class)
+            .child(SubInterface.class, new SubInterfaceKey(index));
     }
 
     private void whenCreateSubifThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
@@ -173,10 +192,12 @@ public class SubInterfaceCustomizerTest {
      * Failure response send
      */
     private void whenCreateSubifThenFailure() throws ExecutionException, InterruptedException, VppBaseCallException {
-        doReturn(TestHelperUtils.<CreateSubifReply>createFutureException()).when(api).createSubif(any(CreateSubif.class));
+        doReturn(TestHelperUtils.<CreateSubifReply>createFutureException()).when(api)
+            .createSubif(any(CreateSubif.class));
     }
 
-    private void whenSwInterfaceSetFlagsThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
+    private void whenSwInterfaceSetFlagsThenSuccess()
+        throws ExecutionException, InterruptedException, VppBaseCallException {
         final CompletableFuture<SwInterfaceSetFlagsReply> replyFuture = new CompletableFuture<>();
         final SwInterfaceSetFlagsReply reply = new SwInterfaceSetFlagsReply();
         replyFuture.complete(reply);
@@ -203,7 +224,8 @@ public class SubInterfaceCustomizerTest {
         return actual;
     }
 
-    private SwInterfaceSetFlags verifySwInterfaceSetFlagsWasInvoked(final SwInterfaceSetFlags expected) throws VppBaseCallException{
+    private SwInterfaceSetFlags verifySwInterfaceSetFlagsWasInvoked(final SwInterfaceSetFlags expected)
+        throws VppBaseCallException {
         ArgumentCaptor<SwInterfaceSetFlags> argumentCaptor = ArgumentCaptor.forClass(SwInterfaceSetFlags.class);
         verify(api).swInterfaceSetFlags(argumentCaptor.capture());
         final SwInterfaceSetFlags actual = argumentCaptor.getValue();
@@ -214,41 +236,50 @@ public class SubInterfaceCustomizerTest {
     }
 
     @Test
-    public void testCreate() throws Exception {
-        final SubInterface subInterface = generateSubInterface(SUPER_IF_NAME, false);
-        final String superIfName = "local0";
-        final String subIfaceName = "local0.11";
-        final long subifIndex = 11;
-        final InstanceIdentifier<SubInterface> id = getSubInterfaceId(superIfName, subifIndex);
+    public void testCreateTwoTags() throws Exception {
+        final SubInterface subInterface = generateSubInterface(false, Arrays.asList(STAG_100, CTAG_200));
+        final InstanceIdentifier<SubInterface> id = getSubInterfaceId(SUPER_IF_NAME, SUBIF_INDEX);
 
         whenCreateSubifThenSuccess();
         whenSwInterfaceSetFlagsThenSuccess();
 
         customizer.writeCurrentAttributes(id, subInterface, writeContext);
 
-        verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID));
+        verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
         verify(mappingContext)
-                .put(eq(getMappingIid(subIfaceName, "test-instance")), eq(getMapping(subIfaceName, 0).get()));
+            .put(eq(getMappingIid(SUB_IFACE_NAME, "test-instance")), eq(getMapping(SUB_IFACE_NAME, 0).get()));
+    }
+
+    @Test
+    public void testCreateDot1qAnyTag() throws Exception {
+        final SubInterface subInterface = generateSubInterface(false, Arrays.asList(STAG_100, CTAG_ANY));
+        final InstanceIdentifier<SubInterface> id = getSubInterfaceId(SUPER_IF_NAME, SUBIF_INDEX);
+
+        whenCreateSubifThenSuccess();
+        whenSwInterfaceSetFlagsThenSuccess();
+
+        customizer.writeCurrentAttributes(id, subInterface, writeContext);
+
+        verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ANY_ID, true));
+        verify(mappingContext)
+            .put(eq(getMappingIid(SUB_IFACE_NAME, "test-instance")), eq(getMapping(SUB_IFACE_NAME, 0).get()));
     }
 
     @Test
     public void testCreateFailed() throws Exception {
-        final SubInterface subInterface = generateSubInterface(SUPER_IF_NAME, false);
-        final String superIfName = "local0";
-        final String subIfaceName = "local0.11";
-        final long subifIndex = 11;
-        final InstanceIdentifier<SubInterface> id = getSubInterfaceId(superIfName, subifIndex);
+        final SubInterface subInterface = generateSubInterface(false, Arrays.asList(STAG_100, CTAG_200));
+        final InstanceIdentifier<SubInterface> id = getSubInterfaceId(SUPER_IF_NAME, SUBIF_INDEX);
 
         whenCreateSubifThenFailure();
 
         try {
             customizer.writeCurrentAttributes(id, subInterface, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
-            assertTrue(e.getCause() instanceof VppBaseCallException );
-            verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID));
+            assertTrue(e.getCause() instanceof VppBaseCallException);
+            verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
             verify(mappingContext, times(0)).put(
-                    eq(getMappingIid(subIfaceName, "test-instance")),
-                    eq(getMapping(subIfaceName, 0).get()));
+                eq(getMappingIid(SUPER_IF_NAME, "test-instance")),
+                eq(getMapping(SUPER_IF_NAME, 0).get()));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -256,26 +287,25 @@ public class SubInterfaceCustomizerTest {
 
     @Test
     public void testUpdate() throws Exception {
-        final SubInterface before = generateSubInterface("eth0", false);
-        final SubInterface after = generateSubInterface("eth1", true);
-        final String superIfName = "local0";
-        final String subIfaceName = "local0.11";
-        final int subifIndex = 11;
-        final InstanceIdentifier<SubInterface> id = getSubInterfaceId(superIfName, subifIndex);
+        final List<Tag> tags = Arrays.asList(STAG_100, CTAG_200);
+        final SubInterface before = generateSubInterface(false, tags);
+        final SubInterface after = generateSubInterface(true, tags);
+        final InstanceIdentifier<SubInterface> id = getSubInterfaceId(SUPER_IF_NAME, SUBIF_INDEX);
 
         whenSwInterfaceSetFlagsThenSuccess();
-        final Optional<Mapping> ifcMapping = getMapping(subIfaceName, subifIndex);
+        final Optional<Mapping> ifcMapping = getMapping(SUPER_IF_NAME, SUBIF_INDEX);
         doReturn(ifcMapping).when(mappingContext).read(any());
 
         customizer.updateCurrentAttributes(id, before, after, writeContext);
 
-        verifySwInterfaceSetFlagsWasInvoked(generateSwInterfaceEnableRequest(subifIndex));
+        verifySwInterfaceSetFlagsWasInvoked(generateSwInterfaceEnableRequest(SUBIF_INDEX));
     }
 
     @Test
     public void testUpdateNoStateChange() throws Exception {
-        final SubInterface before = generateSubInterface(SUPER_IF_NAME, false);
-        final SubInterface after = generateSubInterface(SUPER_IF_NAME, false);
+        final List<Tag> tags = Arrays.asList(STAG_100, CTAG_200);
+        final SubInterface before = generateSubInterface(false, tags);
+        final SubInterface after = generateSubInterface(false, tags);
         customizer.updateCurrentAttributes(null, before, after, writeContext);
 
         verify(api, never()).swInterfaceSetFlags(any());
@@ -283,7 +313,7 @@ public class SubInterfaceCustomizerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testDelete() throws Exception {
-        final SubInterface subInterface = generateSubInterface("eth0", false);
+        final SubInterface subInterface = generateSubInterface(false, Arrays.asList(STAG_100, CTAG_200));
         customizer.deleteCurrentAttributes(null, subInterface, writeContext);
     }
 }

@@ -220,7 +220,8 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     }
 
     private static Dot1qTag.VlanId buildVlanId(final short vlanId) {
-        return new Dot1qTag.VlanId(new Dot1qVlanId((int) vlanId));
+        // treat vlanId as unsigned value:
+        return new Dot1qTag.VlanId(new Dot1qVlanId(0xffff & vlanId));
     }
 
     private Match readMatch(final SwInterfaceDetails iface) {
