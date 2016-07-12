@@ -16,18 +16,18 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
+import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EthernetCustomizer extends AbstractInterfaceTypeCustomizer<Ethernet> {
+public class EthernetCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Ethernet> {
 
     private static final Logger LOG = LoggerFactory.getLogger(EthernetCustomizer.class);
 
@@ -36,13 +36,9 @@ public class EthernetCustomizer extends AbstractInterfaceTypeCustomizer<Ethernet
     }
 
     @Override
-    protected Class<? extends InterfaceType> getExpectedInterfaceType() {
-        return EthernetCsmacd.class;
-    }
-
-    @Override
-    protected final void writeInterface(@Nonnull final InstanceIdentifier<Ethernet> id,
-                                       @Nonnull final Ethernet dataAfter, @Nonnull final WriteContext writeContext) {
+    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
+                                       @Nonnull final Ethernet dataAfter, @Nonnull final WriteContext writeContext)
+            throws WriteFailedException {
         // TODO
         LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
         // VPP API does not support setting MTU
