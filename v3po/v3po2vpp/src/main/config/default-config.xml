@@ -42,6 +42,11 @@
                     <name>bridge-domain-context</name>
                     <artificial-name-prefix>bridge-domain-</artificial-name-prefix>
                 </module>
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context-impl</type>
+                    <name>classify-table-context</name>
+                    <artificial-name-prefix>classify-table-</artificial-name-prefix>
+                </module>
 
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-state-honeycomb-reader</type>
@@ -111,6 +116,18 @@
                         <name>bridge-domain-context</name>
                     </bridge-domain-context-ifc-state>
                 </module>
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-classifier-honeycomb-reader</type>
+                    <name>vpp-classifier-honeycomb-reader</name>
+                    <vpp-jvpp>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg">prefix:vpp-jvpp</type>
+                        <name>vpp-jvpp</name>
+                    </vpp-jvpp>
+                    <classify-table-context>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>classify-table-context</name>
+                    </classify-table-context>
+                </module>
 
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-honeycomb-writer</type>
@@ -147,6 +164,19 @@
                 </module>
 
                 <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-classifier-honeycomb-writer</type>
+                    <name>vpp-classifier-honeycomb-writer</name>
+                    <vpp-jvpp>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:jvpp:cfg">prefix:vpp-jvpp</type>
+                        <name>vpp-jvpp</name>
+                    </vpp-jvpp>
+                    <classify-table-context>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:util">prefix:naming-context</type>
+                        <name>classify-table-context</name>
+                    </classify-table-context>
+                </module>
+
+                <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-reader-registry</type>
                     <name>read-registry</name>
                     <root-readers>
@@ -156,6 +186,10 @@
                     <root-readers>
                         <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
                         <name>interfaces-state-honeycomb-reader</name>
+                    </root-readers>
+                    <root-readers>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                        <name>vpp-classifier-honeycomb-reader</name>
                     </root-readers>
                 </module>
 
@@ -169,6 +203,10 @@
                     <writer-factory>
                         <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-factory</type>
                         <name>interfaces-honeycomb-writer</name>
+                    </writer-factory>
+                    <writer-factory>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-factory</type>
+                        <name>vpp-classifier-honeycomb-writer</name>
                     </writer-factory>
                 </module>
             </modules>
@@ -184,6 +222,10 @@
                     <instance>
                         <name>interfaces-state-honeycomb-reader</name>
                         <provider>/modules/module[type='interfaces-state-honeycomb-reader'][name='interfaces-state-honeycomb-reader']</provider>
+                    </instance>
+                    <instance>
+                        <name>vpp-classifier-honeycomb-reader</name>
+                        <provider>/modules/module[type='vpp-classifier-honeycomb-reader'][name='vpp-classifier-honeycomb-reader']</provider>
                     </instance>
                 </service>
                 <service>
@@ -203,6 +245,10 @@
                         <name>bridge-domain-context</name>
                         <provider>/modules/module[type='naming-context-impl'][name='bridge-domain-context']</provider>
                     </instance>
+                    <instance>
+                        <name>classify-table-context</name>
+                        <provider>/modules/module[type='naming-context-impl'][name='classify-table-context']</provider>
+                    </instance>
                 </service>
                 <service>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-writer-factory</type>
@@ -214,6 +260,11 @@
                     <instance>
                         <name>interfaces-honeycomb-writer</name>
                         <provider>/modules/module[type='interfaces-honeycomb-writer'][name='interfaces-honeycomb-writer']
+                        </provider>
+                    </instance>
+                    <instance>
+                        <name>vpp-classifier-honeycomb-writer</name>
+                        <provider>/modules/module[type='vpp-classifier-honeycomb-writer'][name='vpp-classifier-honeycomb-writer']
                         </provider>
                     </instance>
                 </service>

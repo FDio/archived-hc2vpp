@@ -117,21 +117,30 @@ public final class InterfaceUtils {
         return vppPhysAddrToYang(vppPhysAddress, 0);
     }
 
-    public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress, int startIndex) {
+    public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress, final int startIndex) {
         Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
         final int endIndex = startIndex + PHYSICAL_ADDRESS_LENGTH;
         checkArgument(endIndex <= vppPhysAddress.length,
             "Invalid physical address size (%s) for given startIndex (%s), expected >= %s", vppPhysAddress.length,
             startIndex, endIndex);
-        StringBuilder physAddr = new StringBuilder();
+        return printHexBinary(vppPhysAddress, startIndex, endIndex);
+    }
 
-        appendHexByte(physAddr, vppPhysAddress[startIndex]);
+    public static String printHexBinary(@Nonnull final byte[] bytes) {
+        Objects.requireNonNull(bytes, "bytes array should not be null");
+        return printHexBinary(bytes, 0, bytes.length);
+    }
+
+    private static String printHexBinary(@Nonnull final byte[] bytes, final int startIndex, final int endIndex) {
+        StringBuilder str = new StringBuilder();
+
+        appendHexByte(str, bytes[startIndex]);
         for (int i = startIndex + 1; i < endIndex; i++) {
-            physAddr.append(":");
-            appendHexByte(physAddr, vppPhysAddress[i]);
+            str.append(":");
+            appendHexByte(str, bytes[i]);
         }
 
-        return physAddr.toString();
+        return str.toString();
     }
 
     /**

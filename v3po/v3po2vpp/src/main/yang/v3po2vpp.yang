@@ -146,6 +146,35 @@ module v3po2vpp {
         }
     }
 
+    identity vpp-classifier-honeycomb-reader {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-reader;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case vpp-classifier-honeycomb-reader {
+            when "/config:modules/config:module/config:type = 'vpp-classifier-honeycomb-reader'";
+
+            container vpp-jvpp {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vjvppc:vpp-jvpp;
+                    }
+                }
+            }
+
+            container classify-table-context {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
+        }
+    }
+
 
     identity vpp-honeycomb-writer {
         base config:module-type;
@@ -221,6 +250,35 @@ module v3po2vpp {
                 }
             }
 
+        }
+    }
+
+    identity vpp-classifier-honeycomb-writer {
+        base config:module-type;
+        config:provided-service tapi:honeycomb-writer-factory;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case vpp-classifier-honeycomb-writer {
+            when "/config:modules/config:module/config:type = 'vpp-classifier-honeycomb-writer'";
+
+            container vpp-jvpp {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vjvppc:vpp-jvpp;
+                    }
+                }
+            }
+
+            container classify-table-context {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity vpp-u:naming-context;
+                    }
+                }
+            }
         }
     }
 
