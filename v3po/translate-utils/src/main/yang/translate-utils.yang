@@ -18,6 +18,7 @@ module translate-utils {
     identity delegating-reader-registry {
         base config:module-type;
         config:provided-service tapi:honeycomb-reader-registry;
+        config:provided-service tapi:honeycomb-reader-registry-builder;
         config:java-name-prefix DelegatingReaderRegistry;
     }
 
@@ -25,11 +26,11 @@ module translate-utils {
         case delegating-reader-registry {
             when "/config:modules/config:module/config:type = 'delegating-reader-registry'";
 
-                list root-readers {
+                list reader-factory {
                     uses config:service-ref {
                         refine type {
                             mandatory true;
-                            config:required-identity tapi:honeycomb-reader;
+                            config:required-identity tapi:honeycomb-reader-factory;
                         }
                     }
                 }

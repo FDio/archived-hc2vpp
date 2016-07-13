@@ -16,8 +16,7 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
@@ -29,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
@@ -38,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Customizer for writing vlan sub interface l2 configuration
  */
-public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<L2> {
+public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements WriterCustomizer<L2> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceL2Customizer.class);
     private final NamingContext interfaceContext;
@@ -49,12 +47,6 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Ch
         super(vppApi);
         this.interfaceContext = interfaceContext;
         this.icWriterUtils = new InterconnectionWriteUtils(vppApi, interfaceContext, bridgeDomainContext);
-    }
-
-    @Nonnull
-    @Override
-    public Optional<L2> extract(@Nonnull final InstanceIdentifier<L2> currentId, @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((SubInterface) parentData).getL2());
     }
 
     @Override

@@ -26,14 +26,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.Netmask;
@@ -216,20 +212,6 @@ public class Ipv4AddressCustomizerTest {
             return;
         }
         fail("WriteFailedException was expec16ted");
-    }
-
-    @Test
-    public void testExtract() {
-        final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
-
-        Address address = new AddressBuilder().build();
-        Ipv4 parentData = new Ipv4Builder().setAddress(Arrays.asList(address)).build();
-
-        Optional<List<Address>> addressesOptional = customizer.extract(id, parentData);
-
-        assertEquals(true, addressesOptional.isPresent());
-        assertEquals(1, addressesOptional.get().size());
-        assertEquals(true, addressesOptional.get().contains(address));
     }
 
     private void testSingleNetmask(final int expectedPrefixLength, final String stringMask) throws Exception {

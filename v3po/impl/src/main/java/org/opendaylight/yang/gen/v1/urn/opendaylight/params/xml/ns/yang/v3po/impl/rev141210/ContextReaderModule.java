@@ -1,9 +1,12 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.impl.rev141210;
 
+import io.fd.honeycomb.v3po.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.v3po.translate.util.read.BindingBrokerReader;
-import io.fd.honeycomb.v3po.translate.util.read.CloseableReader;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.ContextsBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
 * A reader to provide mapping context related data
@@ -24,8 +27,27 @@ public class ContextReaderModule extends org.opendaylight.yang.gen.v1.urn.openda
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new CloseableReader<>(new BindingBrokerReader<>(Contexts.class, getContextBindingBrokerDependency(),
-            LogicalDatastoreType.OPERATIONAL));
+        return new ReaderFactory(getContextBindingBrokerDependency());
     }
 
+    private static final class ReaderFactory implements AutoCloseable, io.fd.honeycomb.v3po.translate.read.ReaderFactory {
+
+        private final DataBroker contextBindingBrokerDependency;
+
+        public ReaderFactory(final DataBroker contextBindingBrokerDependency) {
+            this.contextBindingBrokerDependency = contextBindingBrokerDependency;
+        }
+
+        @Override
+        public void init(final ModifiableReaderRegistryBuilder registry) {
+            registry.add(new BindingBrokerReader<>(InstanceIdentifier.create(Contexts.class),
+                    contextBindingBrokerDependency,
+                    LogicalDatastoreType.OPERATIONAL, ContextsBuilder.class));
+        }
+
+        @Override
+        public void close() throws Exception {
+            // TODO no unregister
+        }
+    }
 }

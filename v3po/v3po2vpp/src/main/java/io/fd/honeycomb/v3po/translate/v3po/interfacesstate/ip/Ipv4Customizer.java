@@ -18,7 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip;
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
@@ -31,7 +31,7 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv4Customizer extends FutureJVppCustomizer implements ChildReaderCustomizer<Ipv4, Ipv4Builder> {
+public class Ipv4Customizer extends FutureJVppCustomizer implements ReaderCustomizer<Ipv4, Ipv4Builder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4Customizer.class);
 

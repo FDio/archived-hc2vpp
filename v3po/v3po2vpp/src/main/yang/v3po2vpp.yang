@@ -22,7 +22,7 @@ module v3po2vpp {
 
     identity vpp-state-honeycomb-reader {
         base config:module-type;
-        config:provided-service tapi:honeycomb-reader;
+        config:provided-service tapi:honeycomb-reader-factory;
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -109,7 +109,7 @@ module v3po2vpp {
 
     identity interfaces-state-honeycomb-reader {
         base config:module-type;
-        config:provided-service tapi:honeycomb-reader;
+        config:provided-service tapi:honeycomb-reader-factory;
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -157,7 +157,7 @@ module v3po2vpp {
 
     identity vpp-classifier-state-honeycomb-reader {
         base config:module-type;
-        config:provided-service tapi:honeycomb-reader;
+        config:provided-service tapi:honeycomb-reader-factory;
     }
 
     augment "/config:modules/config:module/config:configuration" {

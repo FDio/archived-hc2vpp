@@ -38,7 +38,7 @@ public class OperationalDataTreeModule extends
         LOG.debug("OperationalDataTreeModule.createInstance()");
         return new CloseableOperationalDataTree(
                 new ReadableDataTreeDelegator(getSerializerDependency(), getSchemaServiceDependency().getGlobalContext(),
-                        getReaderRegistryDependency(), getContextBindingBrokerDependency()));
+                        getReaderRegistryBuilderDependency().build(), getContextBindingBrokerDependency()));
     }
 
     private static final class CloseableOperationalDataTree implements ReadableDataManager, AutoCloseable {

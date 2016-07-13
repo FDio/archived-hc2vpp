@@ -55,7 +55,6 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
 
         VppBuilder vppBuilder = new VppBuilder();
         BridgeDomainsBuilder bdsBuilder = new BridgeDomainsBuilder();
-
         bdsBuilder.setBridgeDomain(Lists.transform(operationalData.getBridgeDomains().getBridgeDomain(), CONVERT_BD));
         vppBuilder.setBridgeDomains(bdsBuilder.build());
         return vppBuilder.build();

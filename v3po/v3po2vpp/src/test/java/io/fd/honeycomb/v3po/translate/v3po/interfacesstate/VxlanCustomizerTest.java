@@ -27,8 +27,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -49,7 +49,7 @@ import org.openvpp.jvpp.dto.VxlanTunnelDetails;
 import org.openvpp.jvpp.dto.VxlanTunnelDetailsReplyDump;
 import org.openvpp.jvpp.dto.VxlanTunnelDump;
 
-public class VxlanCustomizerTest extends ChildReaderCustomizerTest<Vxlan, VxlanBuilder> {
+public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilder> {
 
     private NamingContext interfacesContext;
     static final InstanceIdentifier<Vxlan> IID =
@@ -134,7 +134,7 @@ public class VxlanCustomizerTest extends ChildReaderCustomizerTest<Vxlan, VxlanB
     }
 
     @Override
-    protected RootReaderCustomizer<Vxlan, VxlanBuilder> initCustomizer() {
+    protected ReaderCustomizer<Vxlan, VxlanBuilder> initCustomizer() {
         return new VxlanCustomizer(api, interfacesContext);
     }
 }

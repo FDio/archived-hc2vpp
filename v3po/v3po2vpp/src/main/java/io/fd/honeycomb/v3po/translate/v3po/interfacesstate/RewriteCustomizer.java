@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading vlan tag-rewrite configuration state form the VPP.
  */
 public class RewriteCustomizer extends FutureJVppCustomizer
-        implements ChildReaderCustomizer<Rewrite, RewriteBuilder> {
+        implements ReaderCustomizer<Rewrite, RewriteBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
     private final NamingContext interfaceContext;

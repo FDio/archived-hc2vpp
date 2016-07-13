@@ -16,23 +16,20 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces.ip;
 
-import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Ipv4> {
+public class Ipv4Customizer extends FutureJVppCustomizer implements WriterCustomizer<Ipv4> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4Customizer.class);
     private final NamingContext interfaceContext;
@@ -40,14 +37,6 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ChildWriterC
     public Ipv4Customizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
-    }
-
-    // TODO replace guava's Optionals with Java8
-    @Nonnull
-    @Override
-    public Optional<Ipv4> extract(@Nonnull final InstanceIdentifier<Ipv4> currentId,
-                                  @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((Interface1) parentData).getIpv4());
     }
 
     @Override

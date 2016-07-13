@@ -31,13 +31,13 @@ public class FlatWriterRegistryBuilderTest {
             1   ->  2   ->  3
                         ->  4
          */
-        flatWriterRegistryBuilder.addWriter(mockWriter(DataObject3.class));
-        flatWriterRegistryBuilder.addWriter(mockWriter(DataObject4.class));
-        flatWriterRegistryBuilder.addWriterBefore(mockWriter(DataObject2.class),
+        flatWriterRegistryBuilder.add(mockWriter(DataObject3.class));
+        flatWriterRegistryBuilder.add(mockWriter(DataObject4.class));
+        flatWriterRegistryBuilder.addBefore(mockWriter(DataObject2.class),
                 Lists.newArrayList(DataObject3.IID, DataObject4.IID));
-        flatWriterRegistryBuilder.addWriterBefore(mockWriter(DataObject1.class), DataObject2.IID);
+        flatWriterRegistryBuilder.addBefore(mockWriter(DataObject1.class), DataObject2.IID);
         final ImmutableMap<InstanceIdentifier<?>, Writer<?>> mappedWriters =
-                flatWriterRegistryBuilder.getMappedWriters();
+                flatWriterRegistryBuilder.getMappedHandlers();
 
         final ArrayList<InstanceIdentifier<?>> typesInList = Lists.newArrayList(mappedWriters.keySet());
         assertEquals(DataObject1.IID, typesInList.get(0));
@@ -53,12 +53,12 @@ public class FlatWriterRegistryBuilderTest {
             1   ->  2   ->  3
                         ->  4
          */
-        flatWriterRegistryBuilder.addWriter(mockWriter(DataObject1.class));
-        flatWriterRegistryBuilder.addWriterAfter(mockWriter(DataObject2.class), DataObject1.IID);
-        flatWriterRegistryBuilder.addWriterAfter(mockWriter(DataObject3.class), DataObject2.IID);
-        flatWriterRegistryBuilder.addWriterAfter(mockWriter(DataObject4.class), DataObject2.IID);
+        flatWriterRegistryBuilder.add(mockWriter(DataObject1.class));
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject2.class), DataObject1.IID);
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject3.class), DataObject2.IID);
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject4.class), DataObject2.IID);
         final ImmutableMap<InstanceIdentifier<?>, Writer<?>> mappedWriters =
-                flatWriterRegistryBuilder.getMappedWriters();
+                flatWriterRegistryBuilder.getMappedHandlers();
 
         final List<InstanceIdentifier<?>> typesInList = Lists.newArrayList(mappedWriters.keySet());
         assertEquals(DataObject1.IID, typesInList.get(0));
@@ -73,27 +73,27 @@ public class FlatWriterRegistryBuilderTest {
         /*
             1   ->  2   ->  1
          */
-        flatWriterRegistryBuilder.addWriter(mockWriter(DataObject1.class));
-        flatWriterRegistryBuilder.addWriterAfter(mockWriter(DataObject2.class), DataObject1.IID);
-        flatWriterRegistryBuilder.addWriterAfter(mockWriter(DataObject1.class), DataObject2.IID);
+        flatWriterRegistryBuilder.add(mockWriter(DataObject1.class));
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject2.class), DataObject1.IID);
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject1.class), DataObject2.IID);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAddWriterTwice() throws Exception {
         final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
-        flatWriterRegistryBuilder.addWriter(mockWriter(DataObject1.class));
-        flatWriterRegistryBuilder.addWriter(mockWriter(DataObject1.class));
+        flatWriterRegistryBuilder.add(mockWriter(DataObject1.class));
+        flatWriterRegistryBuilder.add(mockWriter(DataObject1.class));
     }
 
     @Test
     public void testAddSubtreeWriter() throws Exception {
         final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
-        flatWriterRegistryBuilder.addSubtreeWriter(
+        flatWriterRegistryBuilder.subtreeAdd(
                 Sets.newHashSet(DataObject4.DataObject5.IID,
                                 DataObject4.DataObject5.IID),
                 mockWriter(DataObject4.class));
         final ImmutableMap<InstanceIdentifier<?>, Writer<?>> mappedWriters =
-                flatWriterRegistryBuilder.getMappedWriters();
+                flatWriterRegistryBuilder.getMappedHandlers();
         final ArrayList<InstanceIdentifier<?>> typesInList = Lists.newArrayList(mappedWriters.keySet());
 
         assertEquals(DataObject4.IID, typesInList.get(0));

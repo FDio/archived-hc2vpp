@@ -28,7 +28,7 @@ import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceL2Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.honeycomb.v3po.translate.write.WriterFactory;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;
@@ -74,10 +74,10 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
     }
 
     @Override
-    public void init(final ModifiableWriterRegistry registry) {
+    public void init(final ModifiableWriterRegistryBuilder registry) {
         // Subinterfaces
         //  Subinterface(Handle only after all interface related stuff gets processed) =
-        registry.addSubtreeWriterAfter(
+        registry.subtreeAddAfter(
                 // TODO this customizer covers quite a lot of complex child nodes (maybe refactor ?)
                 Sets.newHashSet(
                         InstanceIdentifier.create(SubInterface.class).child(Tags.class),
@@ -89,11 +89,11 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
                 new GenericListWriter<>(SUB_IFC_ID, new SubInterfaceCustomizer(jvpp, ifcContext)),
                 InterfacesHoneycombWriterModule.IFC_ID);
         //   L2 =
-        registry.addWriterAfter(new GenericWriter<>(L2_ID, new SubInterfaceL2Customizer(jvpp, ifcContext, bdContext)),
+        registry.addAfter(new GenericWriter<>(L2_ID, new SubInterfaceL2Customizer(jvpp, ifcContext, bdContext)),
                 SUB_IFC_ID);
         //    Rewrite(also handles pushTags + pushTags/dot1qtag) =
         final InstanceIdentifier<Rewrite> rewriteId = L2_ID.child(Rewrite.class);
-        registry.addSubtreeWriterAfter(
+        registry.subtreeAddAfter(
                 Sets.newHashSet(
                         InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
                         InstanceIdentifier.create(Rewrite.class).child(PushTags.class)
@@ -102,7 +102,7 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
                 L2_ID);
         //   Ipv4(handled after L2 and L2/rewrite is done) =
         final InstanceIdentifier<Address> ipv4SubifcAddressId = SUB_IFC_ID.child(Ipv4.class).child(Address.class);
-        registry.addWriterAfter(new GenericListWriter<>(ipv4SubifcAddressId,
+        registry.addAfter(new GenericListWriter<>(ipv4SubifcAddressId,
                 new SubInterfaceIpv4AddressCustomizer(jvpp, ifcContext)),
                 rewriteId);
 
@@ -110,11 +110,10 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
         // also handles L2Acl, Ip4Acl and Ip6Acl:
         final InstanceIdentifier<Acl> aclId = InstanceIdentifier.create(Acl.class);
         registry
-            .addSubtreeWriterAfter(
+            .subtreeAddAfter(
                 Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
                 new GenericWriter<>(SUBIF_ACL_ID, new SubInterfaceAclCustomizer(jvpp, ifcContext, classifyTableContext)),
-                Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID)
-            );
+                Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
 
     }
 }

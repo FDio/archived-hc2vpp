@@ -16,28 +16,29 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.*;
+import org.openvpp.jvpp.dto.TapConnect;
+import org.openvpp.jvpp.dto.TapConnectReply;
+import org.openvpp.jvpp.dto.TapDelete;
+import org.openvpp.jvpp.dto.TapDeleteReply;
+import org.openvpp.jvpp.dto.TapModify;
+import org.openvpp.jvpp.dto.TapModifyReply;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.util.concurrent.CompletionStage;
 
 public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
 
@@ -47,13 +48,6 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
     public TapCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
-    }
-
-    @Nonnull
-    @Override
-    public Optional<Tap> extract(@Nonnull final InstanceIdentifier<Tap> currentId,
-                                   @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((VppInterfaceAugmentation) parentData).getTap());
     }
 
     @Override

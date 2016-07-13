@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.util.Arrays;
@@ -69,7 +69,7 @@ public class InterfaceCustomizerTest extends
     }
 
     @Override
-    protected RootReaderCustomizer<Interface, InterfaceBuilder> initCustomizer() {
+    protected ReaderCustomizer<Interface, InterfaceBuilder> initCustomizer() {
         final KeyedInstanceIdentifier<Mapping, MappingKey> eth0Id = getMappingIid("eth0", "test-instance");
         final KeyedInstanceIdentifier<Mapping, MappingKey> eth1Id = getMappingIid("eth1", "test-instance");
         final KeyedInstanceIdentifier<Mapping, MappingKey> subEth1Id = getMappingIid("eth1.1", "test-instance");

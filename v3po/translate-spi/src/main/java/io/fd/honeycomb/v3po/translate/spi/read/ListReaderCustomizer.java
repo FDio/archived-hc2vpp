@@ -19,6 +19,7 @@ package io.fd.honeycomb.v3po.translate.spi.read;
 import com.google.common.annotations.Beta;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -28,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * CompositeListReader SPI to customize its behavior
+ * CompositeListReader SPI to customize its behavior.
  *
  * @param <C> Specific DataObject derived type (Identifiable), that is handled by this customizer
  * @param <K> Specific Identifier for handled type (C)
@@ -36,7 +37,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 @Beta
 public interface ListReaderCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>, B extends Builder<C>>
-    extends RootReaderCustomizer<C, B> {
+    extends ReaderCustomizer<C, B> {
 
     /**
      * Return list with IDs of all list nodes to be read.
@@ -51,7 +52,12 @@ public interface ListReaderCustomizer<C extends DataObject & Identifiable<K>, K 
     // TODO does it make sense with vpp APIs ? Should we replace it with a simple readAll ?
 
     /**
-     * Merge read data into provided parent builder
+     * Merge read data into provided parent builder.
      */
     void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<C> readData);
+
+    @Override
+    default void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final C readValue) {
+        merge(parentBuilder, Collections.singletonList(readValue));
+    }
 }

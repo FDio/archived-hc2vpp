@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.util.Collections;
@@ -69,7 +69,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
     }
 
     @Override
-    protected RootReaderCustomizer<L2FibEntry, L2FibEntryBuilder> initCustomizer() {
+    protected ReaderCustomizer<L2FibEntry, L2FibEntryBuilder> initCustomizer() {
         return new L2FibEntryCustomizer(api, bdContext, interfacesContext);
     }
 

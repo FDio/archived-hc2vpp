@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.util.read;
+package io.fd.honeycomb.v3po.translate.util.read.registry;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -25,13 +25,14 @@ import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.translate.read.ListReader;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.read.Reader;
+import io.fd.honeycomb.v3po.translate.read.registry.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -40,21 +41,21 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple reader registry able to perform and aggregated read (ROOT read) on top of all provided readers. Also able to
  * delegate a specific read to one of the delegate readers.
- *
+ * <p/>
  * This could serve as a utility to hold & hide all available readers in upper layers.
  */
-public final class DelegatingReaderRegistry implements ReaderRegistry {
+public final class CompositeReaderRegistry implements ReaderRegistry {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DelegatingReaderRegistry.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CompositeReaderRegistry.class);
 
-    private final Map<Class<? extends DataObject>, Reader<? extends DataObject>> rootReaders;
+    private final Map<Class<? extends DataObject>, Reader<? extends DataObject, ? extends Builder<?>>> rootReaders;
 
     /**
-     * Create new {@link DelegatingReaderRegistry}
+     * Create new {@link CompositeReaderRegistry}.
      *
      * @param rootReaders List of delegate readers
      */
-    public DelegatingReaderRegistry(@Nonnull final List<Reader<? extends DataObject>> rootReaders) {
+    public CompositeReaderRegistry(@Nonnull final List<Reader<? extends DataObject, ? extends Builder<?>>> rootReaders) {
         this.rootReaders = RWUtils.uniqueLinkedIndex(checkNotNull(rootReaders), RWUtils.MANAGER_CLASS_FUNCTION);
     }
 
@@ -67,7 +68,7 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
         LOG.trace("Reading from all delegates: {}", rootReaders.values());
 
         final Multimap<InstanceIdentifier<? extends DataObject>, DataObject> objects = LinkedListMultimap.create();
-        for (Reader<? extends DataObject> rootReader : rootReaders.values()) {
+        for (Reader<? extends DataObject, ? extends Builder<?>> rootReader : rootReaders.values()) {
             LOG.debug("Reading from delegate: {}", rootReader);
 
             if (rootReader instanceof ListReader) {
@@ -94,20 +95,10 @@ public final class DelegatingReaderRegistry implements ReaderRegistry {
             throws ReadFailedException {
         final InstanceIdentifier.PathArgument first = checkNotNull(
                 Iterables.getFirst(id.getPathArguments(), null), "Empty id");
-        final Reader<? extends DataObject> reader = rootReaders.get(first.getType());
+        final Reader<? extends DataObject, ? extends Builder<?>> reader = rootReaders.get(first.getType());
         checkNotNull(reader,
                 "Unable to read %s. Missing reader. Current readers for: %s", id, rootReaders.keySet());
         LOG.debug("Reading from delegate: {}", reader);
         return reader.read(id, ctx);
-    }
-
-    /**
-     * @throws UnsupportedOperationException This getter is not supported for reader registry since it does not manage a
-     *                                       specific node type
-     */
-    @Nonnull
-    @Override
-    public InstanceIdentifier<DataObject> getManagedDataObjectType() {
-        throw new UnsupportedOperationException("Root registry has no type");
     }
 }

@@ -19,7 +19,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
@@ -40,10 +40,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Customizer for enabling/disabling ACLs on given sub-interface
+ * Customizer for enabling/disabling ACLs on given sub-interface.
  */
 public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
-    implements ChildWriterCustomizer<Acl>, AclWriter {
+    implements WriterCustomizer<Acl>, AclWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceAclCustomizer.class);
     private final NamingContext interfaceContext;
@@ -54,13 +54,6 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
         super(vppApi);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
-    }
-
-    @Nonnull
-    @Override
-    public Optional<Acl> extract(@Nonnull final InstanceIdentifier<Acl> currentId,
-                                 @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((SubInterface) parentData).getAcl());
     }
 
     @Override

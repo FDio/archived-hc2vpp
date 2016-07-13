@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,7 +58,7 @@ import org.openvpp.jvpp.dto.BridgeDomainDump;
 import org.openvpp.jvpp.dto.BridgeDomainSwIfDetails;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 
-public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
+public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 
     private NamingContext interfaceContext;
     private NamingContext bridgeDomainContext;
@@ -74,7 +74,7 @@ public class L2CustomizerTest extends ChildReaderCustomizerTest<L2, L2Builder> {
     }
 
     @Override
-    protected RootReaderCustomizer<L2, L2Builder> initCustomizer() {
+    protected ReaderCustomizer<L2, L2Builder> initCustomizer() {
         return new L2Customizer(api, interfaceContext, bridgeDomainContext);
     }
 

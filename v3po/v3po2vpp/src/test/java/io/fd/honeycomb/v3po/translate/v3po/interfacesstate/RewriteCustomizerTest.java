@@ -25,8 +25,8 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TagRewriteOperation;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
 
-public class RewriteCustomizerTest extends ChildReaderCustomizerTest<Rewrite, RewriteBuilder> {
+public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, RewriteBuilder> {
 
     public static final String VLAN_IF_NAME = "local0.1";
     public static final int VLAN_IF_ID = 1;
@@ -76,7 +76,7 @@ public class RewriteCustomizerTest extends ChildReaderCustomizerTest<Rewrite, Re
     }
 
     @Override
-    protected RootReaderCustomizer<Rewrite, RewriteBuilder> initCustomizer() {
+    protected ReaderCustomizer<Rewrite, RewriteBuilder> initCustomizer() {
         return new RewriteCustomizer(api, interfacesContext);
     }
 

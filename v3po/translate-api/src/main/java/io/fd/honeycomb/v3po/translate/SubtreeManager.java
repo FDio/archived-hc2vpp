@@ -30,9 +30,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public interface SubtreeManager<D extends DataObject> {
 
     /**
-     * Gets the type of node managed by this reader
+     * Gets the type of node managed by this reader.
      *
-     * @return Class object for node managed by this reader
+     * @return Absolute instance identifier for managed type
      */
     @Nonnull
     InstanceIdentifier<D> getManagedDataObjectType();

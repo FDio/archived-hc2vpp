@@ -16,23 +16,20 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<L2> {
+public class L2Customizer extends FutureJVppCustomizer implements WriterCustomizer<L2> {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2Customizer.class);
     private final NamingContext interfaceContext;
@@ -43,12 +40,6 @@ public class L2Customizer extends FutureJVppCustomizer implements ChildWriterCus
         super(vppApi);
         this.interfaceContext = interfaceContext;
         this.icWriteUtils = new InterconnectionWriteUtils(vppApi, interfaceContext, bridgeDomainContext);
-    }
-
-    @Nonnull
-    @Override
-    public Optional<L2> extract(@Nonnull final InstanceIdentifier<L2> currentId, @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((VppInterfaceAugmentation) parentData).getL2());
     }
 
     @Override

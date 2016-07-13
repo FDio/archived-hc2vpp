@@ -156,11 +156,11 @@ module data-impl {
                 }
             }
 
-            container reader-registry {
+            container reader-registry-builder {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity tapi:honeycomb-reader-registry;
+                        config:required-identity tapi:honeycomb-reader-registry-builder;
                     }
                 }
             }

@@ -18,9 +18,8 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils;
@@ -36,11 +35,9 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527._802dot1q;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.RewriteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.tag.rewrite.PushTags;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewrite;
@@ -53,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * Writer Customizer responsible for vlan tag rewrite.<br> Sends {@code l2_interface_vlan_tag_rewrite} message to
  * VPP.<br> Equivalent of invoking {@code vppctl set interface l2 tag-rewrite} command.
  */
-public class RewriteCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Rewrite> {
+public class RewriteCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Rewrite> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
     private final NamingContext interfaceContext;
@@ -62,13 +59,6 @@ public class RewriteCustomizer extends FutureJVppCustomizer implements ChildWrit
                              @Nonnull final NamingContext interfaceContext) {
         super(futureJvpp);
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
-    }
-
-    @Nonnull
-    @Override
-    public Optional<Rewrite> extract(@Nonnull final InstanceIdentifier<Rewrite> currentId,
-                                     @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((L2) parentData).getRewrite());
     }
 
     @Override

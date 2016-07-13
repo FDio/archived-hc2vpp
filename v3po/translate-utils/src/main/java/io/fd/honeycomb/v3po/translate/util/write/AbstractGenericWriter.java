@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.impl.write;
+package io.fd.honeycomb.v3po.translate.util.write;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import io.fd.honeycomb.v3po.translate.write.Writer;
@@ -28,14 +29,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractCompositeWriter<D extends DataObject> implements Writer<D> {
+public abstract class AbstractGenericWriter<D extends DataObject> implements Writer<D> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractCompositeWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractGenericWriter.class);
 
     private final InstanceIdentifier<D> instanceIdentifier;
 
-    AbstractCompositeWriter(final InstanceIdentifier<D> type) {
-        this.instanceIdentifier = type;
+    protected AbstractGenericWriter(final InstanceIdentifier<D> type) {
+        this.instanceIdentifier = RWUtils.makeIidWildcarded(type);
     }
 
     protected void writeCurrent(final InstanceIdentifier<D> id, final D data, final WriteContext ctx)

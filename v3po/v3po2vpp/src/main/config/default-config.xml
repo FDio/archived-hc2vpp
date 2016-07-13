@@ -187,18 +187,18 @@
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-reader-registry</type>
                     <name>read-registry</name>
-                    <root-readers>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                    <reader-factory>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-factory</type>
                         <name>vpp-state-honeycomb-reader</name>
-                    </root-readers>
-                    <root-readers>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                    </reader-factory>
+                    <reader-factory>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-factory</type>
                         <name>interfaces-state-honeycomb-reader</name>
-                    </root-readers>
-                    <root-readers>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                    </reader-factory>
+                    <reader-factory>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-factory</type>
                         <name>vpp-classifier-state-honeycomb-reader</name>
-                    </root-readers>
+                    </reader-factory>
                 </module>
 
                 <module>
@@ -221,7 +221,7 @@
 
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
                 <service>
-                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-factory</type>
                     <instance>
                         <name>vpp-state-honeycomb-reader</name>
                         <provider>/modules/module[type='vpp-state-honeycomb-reader'][name='vpp-state-honeycomb-reader']

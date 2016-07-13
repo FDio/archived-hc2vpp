@@ -33,7 +33,7 @@ import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.translate.util.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.Writer;
-import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.registry.WriterRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -182,17 +182,17 @@ public class HoneycombWriteInfraTest {
 
     private void initWriterRegistry() {
         writerRegistry = new FlatWriterRegistryBuilder()
-                .addWriter(complexAugmentWriter) // unordered
-                .addWriter(nestedListWriter) // 6
-                .addWriterAfter(listInContainerWriter, NESTED_LIST_ID) // 7
-                .addWriterAfter(containerInListWriter, LIST_IN_CONTAINER_ID) // 8
-                .addWriterAfter(containerWithListWriter, CONTAINER_IN_LIST_ID) // 9
-                .addWriterBefore(containerFromGroupingWriter, NESTED_LIST_ID) // 5
-                .addWriterBefore(containerWithChoiceWriter, CONTAINER_FROM_GROUPING_ID) // 4
-                .addWriterBefore(simpleContainerWriter, CONTAINER_WITH_CHOICE_ID) // 3
-                .addWriterBefore(c3Writer, SIMPLE_CONTAINER_ID) // 2
-                .addWriterBefore(simpleAugmentWriter, SIMPLE_CONTAINER_ID) // 2
-                .addWriterBefore(complexAugmentContainerWriter, Sets.newHashSet(C3_ID, SIMPLE_AUGMENT_ID)) // 1
+                .add(complexAugmentWriter) // unordered
+                .add(nestedListWriter) // 6
+                .addAfter(listInContainerWriter, NESTED_LIST_ID) // 7
+                .addAfter(containerInListWriter, LIST_IN_CONTAINER_ID) // 8
+                .addAfter(containerWithListWriter, CONTAINER_IN_LIST_ID) // 9
+                .addBefore(containerFromGroupingWriter, NESTED_LIST_ID) // 5
+                .addBefore(containerWithChoiceWriter, CONTAINER_FROM_GROUPING_ID) // 4
+                .addBefore(simpleContainerWriter, CONTAINER_WITH_CHOICE_ID) // 3
+                .addBefore(c3Writer, SIMPLE_CONTAINER_ID) // 2
+                .addBefore(simpleAugmentWriter, SIMPLE_CONTAINER_ID) // 2
+                .addBefore(complexAugmentContainerWriter, Sets.newHashSet(C3_ID, SIMPLE_AUGMENT_ID)) // 1
                 .build();
     }
 
@@ -540,7 +540,7 @@ public class HoneycombWriteInfraTest {
     public void testSubtreeWriter() throws Exception {
         writerRegistry = new FlatWriterRegistryBuilder()
                 // Handles also container from grouping
-                .addSubtreeWriter(Sets.newHashSet(CONTAINER_FROM_GROUPING_ID), containerWithChoiceWriter)
+                .subtreeAdd(Sets.newHashSet(CONTAINER_FROM_GROUPING_ID), containerWithChoiceWriter)
                 .build();
 
         final ModifiableDataTreeDelegator modifiableDataTreeDelegator =

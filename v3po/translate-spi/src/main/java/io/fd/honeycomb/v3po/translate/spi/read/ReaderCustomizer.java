@@ -17,25 +17,47 @@
 package io.fd.honeycomb.v3po.translate.spi.read;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
+import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * CompositeChildReader SPI to customize its behavior
+ * CompositeChildReader SPI to customize its behavior.
  *
  * @param <C> Specific DataObject derived type (Identifiable), that is handled by this customizer
  * @param <B> Specific Builder for handled type (C)
  */
 @Beta
-public interface ChildReaderCustomizer<C extends DataObject, B extends Builder<C>> extends
-    RootReaderCustomizer<C, B> {
+public interface ReaderCustomizer<C extends DataObject, B extends Builder<C>> {
+
+    /**
+     * Creates new builder that will be used to build read value.
+     */
+    @Nonnull
+    B getBuilder(@Nonnull final InstanceIdentifier<C> id);
+
+    /**
+     * Adds current data (identified by id) to the provided builder.
+     *
+     * @param id      id of current data object
+     * @param builder builder for creating read value
+     * @param ctx
+     * @throws ReadFailedException if read was unsuccessful
+     */
+    void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id,
+                               @Nonnull final B builder,
+                               @Nonnull final ReadContext ctx) throws ReadFailedException;
 
     // FIXME need to capture parent builder type, but that's inconvenient at best, is it ok to leave it Builder<?> and
     // cast in specific customizers ? ... probably better than adding another type parameter
 
     /**
-     * Merge read data into provided parent builder
+     * Merge read data into provided parent builder.
      */
     void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final C readValue);
+
+
 }

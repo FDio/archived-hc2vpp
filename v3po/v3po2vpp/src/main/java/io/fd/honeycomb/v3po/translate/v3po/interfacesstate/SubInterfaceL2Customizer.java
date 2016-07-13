@@ -20,7 +20,7 @@ import static io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils.getSubI
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import javax.annotation.Nonnull;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Customizer for reading vlan sub interface L2 operational state
  */
-public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements ChildReaderCustomizer<L2, L2Builder> {
+public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements ReaderCustomizer<L2, L2Builder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceL2Customizer.class);
     private final InterconnectionReadUtils icReadUtils;

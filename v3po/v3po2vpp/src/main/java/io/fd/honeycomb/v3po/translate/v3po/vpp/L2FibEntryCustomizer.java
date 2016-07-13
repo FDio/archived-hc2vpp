@@ -19,7 +19,6 @@ package io.fd.honeycomb.v3po.translate.v3po.vpp;
 import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.parseMac;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
@@ -29,16 +28,13 @@ import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.L2FibFilter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.L2FibAddDel;
@@ -64,13 +60,6 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
-    }
-
-    @Nonnull
-    @Override
-    public Optional<List<L2FibEntry>> extract(@Nonnull final InstanceIdentifier<L2FibEntry> currentId,
-                                              @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((L2FibTable) parentData).getL2FibEntry());
     }
 
     @Override

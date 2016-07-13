@@ -24,12 +24,12 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * CompositeRootReader SPI to customize its behavior
+ * CompositeChildWriter SPI to customize its behavior.
  *
- * @param <D> Specific DataObject derived type, that is handled by this customizer
+ * @param <D> Specific DataObject derived type (Identifiable), that is handled by this customizer
  */
 @Beta
-public interface RootWriterCustomizer<D extends DataObject> {
+public interface WriterCustomizer<D extends DataObject> {
 
     /**
      * Handle write operation. C from CRUD.
@@ -71,4 +71,5 @@ public interface RootWriterCustomizer<D extends DataObject> {
     void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                  @Nonnull final D dataBefore,
                                  @Nonnull final WriteContext writeContext) throws WriteFailedException;
+
 }

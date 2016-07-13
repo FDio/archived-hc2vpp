@@ -16,16 +16,11 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeChildReader;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeListReader;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeRootReader;
-import io.fd.honeycomb.v3po.translate.read.ChildReader;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
-import io.fd.honeycomb.v3po.translate.util.read.ReflexiveChildReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.util.read.ReflexiveRootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.v3po.translate.impl.read.GenericReader;
+import io.fd.honeycomb.v3po.translate.read.registry.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.util.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
@@ -35,46 +30,43 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 
 final class VppStateTestUtils {
+
+    private static InstanceIdentifier<BridgeDomains> bridgeDomainsId;
 
     public VppStateTestUtils() {
     }
 
     /**
-     * Create root VppState reader with all its children wired
+     * Create root VppState reader with all its children wired.
      */
-    static CompositeRootReader<VppState, VppStateBuilder> getVppStateReader(@Nonnull final FutureJVpp futureJVpp,
-                                                                            @Nonnull final NamingContext bdContext) {
+    static ReaderRegistry getVppStateReader(@Nonnull final FutureJVpp jVpp,
+                                            @Nonnull final NamingContext bdContext) {
+        final CompositeReaderRegistryBuilder registry = new CompositeReaderRegistryBuilder();
 
-        final ChildReader<Version> versionReader = new CompositeChildReader<>(
-            Version.class, new VersionCustomizer(futureJVpp));
-
-        final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
-            getBridgeDomainReader(futureJVpp, bdContext);
-
-        final ChildReader<BridgeDomains> bridgeDomainsReader = new CompositeChildReader<>(
-            BridgeDomains.class,
-            RWUtils.singletonChildReaderList(bridgeDomainReader),
-            new ReflexiveChildReaderCustomizer<>(BridgeDomainsBuilder.class));
-
-        final List<ChildReader<? extends ChildOf<VppState>>> childVppReaders = new ArrayList<>();
-        childVppReaders.add(versionReader);
-        childVppReaders.add(bridgeDomainsReader);
-
-        return new CompositeRootReader<>(
-            VppState.class,
-            childVppReaders,
-            RWUtils.<VppState>emptyAugReaderList(),
-            new ReflexiveRootReaderCustomizer<>(VppStateBuilder.class));
+        // VppState(Structural)
+        final InstanceIdentifier<VppState> vppStateId = InstanceIdentifier.create(VppState.class);
+        registry.addStructuralReader(vppStateId, VppStateBuilder.class);
+        //  Version
+        // Wrap with keepalive reader to detect connection issues
+        // TODO keepalive reader wrapper relies on VersionReaderCustomizer (to perform timeout on reads)
+        // Once readers+customizers are asynchronous, pull the timeout to keepalive executor so that keepalive wrapper
+        // is truly generic
+        registry.add(new GenericReader<>(vppStateId.child(Version.class), new VersionCustomizer(jVpp)));
+        //  BridgeDomains(Structural)
+        bridgeDomainsId = vppStateId.child(BridgeDomains.class);
+        registry.addStructuralReader(bridgeDomainsId, BridgeDomainsBuilder.class);
+        //   BridgeDomain
+        registry.add(getBridgeDomainReader(jVpp, bdContext));
+        return registry.build();
     }
 
-    static CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> getBridgeDomainReader(
-        final @Nonnull FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext) {
-        return new CompositeListReader<>(
-            BridgeDomain.class,
-            new BridgeDomainCustomizer(futureJVpp, bdContext));
+    static GenericListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> getBridgeDomainReader(
+            final @Nonnull FutureJVpp jVpp, final @Nonnull NamingContext bdContext) {
+        final InstanceIdentifier<BridgeDomain> bridgeDomainId = bridgeDomainsId.child(BridgeDomain.class);
+        return new GenericListReader<>(bridgeDomainId, new BridgeDomainCustomizer(jVpp, bdContext));
     }
 }

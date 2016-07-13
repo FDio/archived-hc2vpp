@@ -14,24 +14,9 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.impl;
+package io.fd.honeycomb.v3po.translate;
 
-/**
- * Type of traversal to be used by readers/writers in a tree
- */
-public enum TraversalType {
+public interface SubtreeManagerRegistryBuilder<R> {
 
-    /**
-     * Read current attributes before reading from children
-     */
-    PREORDER,
-
-    /**
-     * Read from children before reading current attributes
-     */
-    POSTORDER
-
-    // TODO implement different traversal types as injectable iterators
-    // TODO implement above traversal types in readers
-
+    R build();
 }

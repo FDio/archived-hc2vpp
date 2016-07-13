@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -30,14 +29,11 @@ import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import javax.xml.bind.DatatypeConverter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.ClassifyAddDelTable;
@@ -60,13 +56,6 @@ public class ClassifyTableWriter extends FutureJVppCustomizer
                                @Nonnull final NamingContext classifyTableContext) {
         super(futureJvpp);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
-    }
-
-    @Nonnull
-    @Override
-    public Optional<List<ClassifyTable>> extract(@Nonnull final InstanceIdentifier<ClassifyTable> currentId,
-                                                 @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((VppClassifier) parentData).getClassifyTable());
     }
 
     @Override

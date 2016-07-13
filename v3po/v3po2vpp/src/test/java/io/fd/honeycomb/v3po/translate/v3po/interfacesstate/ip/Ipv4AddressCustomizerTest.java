@@ -32,7 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
@@ -83,7 +83,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     }
 
     @Override
-    protected RootReaderCustomizer<Address, AddressBuilder> initCustomizer() {
+    protected ReaderCustomizer<Address, AddressBuilder> initCustomizer() {
         final KeyedInstanceIdentifier<Mapping, MappingKey> eth0Id = getMappingIid(IFACE_NAME, "test-instance");
         final KeyedInstanceIdentifier<Mapping, MappingKey> eth1Id = getMappingIid(IFACE_2_NAME, "test-instance");
         final Optional<Mapping> eth0 = getMapping(IFACE_NAME, IFACE_ID);

@@ -27,8 +27,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -49,7 +49,7 @@ import org.openvpp.jvpp.dto.VxlanGpeTunnelDetails;
 import org.openvpp.jvpp.dto.VxlanGpeTunnelDetailsReplyDump;
 import org.openvpp.jvpp.dto.VxlanGpeTunnelDump;
 
-public class VxlanGpeCustomizerTest extends ChildReaderCustomizerTest<VxlanGpe, VxlanGpeBuilder> {
+public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, VxlanGpeBuilder> {
 
     private NamingContext interfacesContext;
     static final InstanceIdentifier<VxlanGpe> VXLAN_GPE_ID =
@@ -137,7 +137,7 @@ public class VxlanGpeCustomizerTest extends ChildReaderCustomizerTest<VxlanGpe, 
     }
 
     @Override
-    protected RootReaderCustomizer<VxlanGpe, VxlanGpeBuilder> initCustomizer() {
+    protected ReaderCustomizer<VxlanGpe, VxlanGpeBuilder> initCustomizer() {
         return new VxlanGpeCustomizer(api, interfacesContext);
     }
 }

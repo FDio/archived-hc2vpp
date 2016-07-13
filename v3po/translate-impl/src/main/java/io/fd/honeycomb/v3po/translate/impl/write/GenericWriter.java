@@ -16,7 +16,8 @@
 
 package io.fd.honeycomb.v3po.translate.impl.write;
 
-import io.fd.honeycomb.v3po.translate.spi.write.RootWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
+import io.fd.honeycomb.v3po.translate.util.write.AbstractGenericWriter;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
@@ -24,14 +25,14 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Special writer handling updates for any complex nodes.
+ * Generic writer with customizable behavior thanks to injected customizer.
  */
-public final class GenericWriter<D extends DataObject> extends AbstractCompositeWriter<D> {
+public final class GenericWriter<D extends DataObject> extends AbstractGenericWriter<D> {
 
-    private final RootWriterCustomizer<D> customizer;
+    private final WriterCustomizer<D> customizer;
 
     public GenericWriter(@Nonnull final InstanceIdentifier<D> type,
-                         @Nonnull final RootWriterCustomizer<D> customizer) {
+                         @Nonnull final WriterCustomizer<D> customizer) {
         super(type);
         this.customizer = customizer;
     }

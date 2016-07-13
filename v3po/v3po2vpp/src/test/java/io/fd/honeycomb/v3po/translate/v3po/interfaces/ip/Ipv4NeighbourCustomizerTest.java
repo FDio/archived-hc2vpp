@@ -17,7 +17,6 @@
 package io.fd.honeycomb.v3po.translate.v3po.interfaces.ip;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,8 +28,6 @@ import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -146,17 +142,6 @@ public class Ipv4NeighbourCustomizerTest {
         assertEquals("1.2.168.192", TranslateUtils.arrayToIpv4AddressNoZone(request.dstAddress).getValue());
         assertEquals("aabbccee1122", BaseEncoding.base16().lowerCase().encode(request.macAddress));
         assertEquals(5, request.swIfIndex);
-    }
-
-    @Test
-    public void testExtract() {
-        Neighbor data = new NeighborBuilder().build();
-        Ipv4 parentData = new Ipv4Builder().setNeighbor(Collections.singletonList(data)).build();
-
-        Optional<List<Neighbor>> optionalData = new Ipv4NeighbourCustomizer(mock(FutureJVpp.class), null).extract(null,
-                parentData);
-        assertEquals(true, optionalData.isPresent());
-        assertEquals(true, optionalData.get().contains(data));
     }
 
 }

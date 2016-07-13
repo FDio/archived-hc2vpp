@@ -16,15 +16,12 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.v3po.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
@@ -41,13 +38,6 @@ public class EthernetCustomizer extends AbstractInterfaceTypeCustomizer<Ethernet
     @Override
     protected Class<? extends InterfaceType> getExpectedInterfaceType() {
         return EthernetCsmacd.class;
-    }
-
-    @Nonnull
-    @Override
-    public Optional<Ethernet> extract(@Nonnull final InstanceIdentifier<Ethernet> currentId,
-                                      @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((VppInterfaceAugmentation) parentData).getEthernet());
     }
 
     @Override

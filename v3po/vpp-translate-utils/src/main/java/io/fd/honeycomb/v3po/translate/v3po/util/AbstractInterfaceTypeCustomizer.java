@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
@@ -38,7 +38,7 @@ import org.openvpp.jvpp.future.FutureJVpp;
  * Delete this class when DataTree handles when constraints properly
  */
 public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
-    extends FutureJVppCustomizer implements ChildWriterCustomizer<D> {
+    extends FutureJVppCustomizer implements WriterCustomizer<D> {
 
     protected AbstractInterfaceTypeCustomizer(final FutureJVpp futureJvpp) {
         super(futureJvpp);

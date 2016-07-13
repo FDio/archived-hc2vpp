@@ -135,7 +135,7 @@ module v3po-impl {
 
     identity netconf-monitoring-reader {
         base config:module-type;
-        config:provided-service tapi:honeycomb-reader;
+        config:provided-service tapi:honeycomb-reader-factory;
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -156,7 +156,7 @@ module v3po-impl {
 
     identity context-reader {
         base config:module-type;
-        config:provided-service tapi:honeycomb-reader;
+        config:provided-service tapi:honeycomb-reader-factory;
         description "A reader to provide mapping context related data";
     }
 

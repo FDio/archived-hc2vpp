@@ -16,18 +16,17 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
-import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.SwInterfaceSetTable;
@@ -36,10 +35,7 @@ import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.concurrent.CompletionStage;
-
-public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Routing> {
+public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Routing> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingCustomizer.class);
     private final NamingContext interfaceContext;
@@ -47,13 +43,6 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements ChildWrit
     public RoutingCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
-    }
-
-    @Nonnull
-    @Override
-    public Optional<Routing> extract(@Nonnull final InstanceIdentifier<Routing> currentId,
-                                     @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((VppInterfaceAugmentation) parentData).getRouting());
     }
 
     @Override

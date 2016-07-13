@@ -20,7 +20,7 @@ import static io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceUtils
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class TapCustomizer extends FutureJVppCustomizer
-        implements ChildReaderCustomizer<Tap, TapBuilder> {
+        implements ReaderCustomizer<Tap, TapBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TapCustomizer.class);
     public static final String DUMPED_TAPS_CONTEXT_KEY = TapCustomizer.class.getName() + "dumpedTapsDuringGetAllIds";

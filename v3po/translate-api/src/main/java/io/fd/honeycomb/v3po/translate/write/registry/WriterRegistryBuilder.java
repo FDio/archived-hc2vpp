@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.write;
+package io.fd.honeycomb.v3po.translate.write.registry;
+
+import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.translate.SubtreeManagerRegistryBuilder;
 
 /**
  * Builder for writer registries.
  */
-public interface WriterRegistryBuilder {
-
-    WriterRegistry build();
+@Beta
+public interface WriterRegistryBuilder extends SubtreeManagerRegistryBuilder<WriterRegistry> {
 }

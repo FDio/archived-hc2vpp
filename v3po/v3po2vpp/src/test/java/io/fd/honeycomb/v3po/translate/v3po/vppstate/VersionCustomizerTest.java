@@ -21,8 +21,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.test.ReaderCustomizerTest;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
@@ -32,14 +32,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.dto.ShowVersion;
 import org.openvpp.jvpp.dto.ShowVersionReply;
 
-public class VersionCustomizerTest extends ChildReaderCustomizerTest<Version, VersionBuilder> {
+public class VersionCustomizerTest extends ReaderCustomizerTest<Version, VersionBuilder> {
 
     public VersionCustomizerTest() {
         super(Version.class);
     }
 
     @Override
-    protected ChildReaderCustomizer<Version, VersionBuilder> initCustomizer() {
+    protected ReaderCustomizer<Version, VersionBuilder> initCustomizer() {
         return new VersionCustomizer(api);
     }
 

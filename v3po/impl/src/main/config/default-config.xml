@@ -105,10 +105,10 @@
             <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding:impl">prefix:binding-dom-mapping-service</type>
             <name>runtime-mapping-singleton</name>
           </serializer>
-          <reader-registry>
+          <reader-registry-builder>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-registry</type>
             <name>read-registry</name>
-          </reader-registry>
+          </reader-registry-builder>
           <context-binding-broker>
             <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
             <name>honeycomb-context-binding-data-broker</name>

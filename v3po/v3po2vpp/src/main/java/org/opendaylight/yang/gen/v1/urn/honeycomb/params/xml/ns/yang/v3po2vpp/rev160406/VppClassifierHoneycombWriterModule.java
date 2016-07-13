@@ -6,8 +6,8 @@ import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.vppclassifier.ClassifySessionWriter;
 import io.fd.honeycomb.v3po.translate.v3po.vppclassifier.ClassifyTableWriter;
-import io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterFactory;
+import io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;
@@ -66,13 +66,13 @@ public class VppClassifierHoneycombWriterModule extends
         }
 
         @Override
-        public void init(final ModifiableWriterRegistry registry) {
+        public void init(final ModifiableWriterRegistryBuilder registry) {
 
-            registry.addWriterBefore(
+            registry.addBefore(
                 new GenericListWriter<>(CLASSIFY_TABLE_ID, new ClassifyTableWriter(jvpp, classifyTableContext)),
                 ACL_ID);
 
-            registry.addWriterAfter(
+            registry.addBefore(
                 new GenericListWriter<>(CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext)),
                 CLASSIFY_TABLE_ID);
         }

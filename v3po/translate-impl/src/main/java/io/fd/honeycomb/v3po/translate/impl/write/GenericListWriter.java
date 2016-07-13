@@ -17,10 +17,12 @@
 package io.fd.honeycomb.v3po.translate.impl.write;
 
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.util.RWUtils;
+import io.fd.honeycomb.v3po.translate.util.write.AbstractGenericWriter;
+import io.fd.honeycomb.v3po.translate.write.ListWriter;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import io.fd.honeycomb.v3po.translate.write.Writer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -28,12 +30,12 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Special writer handling updates for nodes of type list.
+ * Generic list node writer with customizable behavior thanks to injected customizer.
  */
 public final class GenericListWriter<D extends DataObject & Identifiable<K>, K extends Identifier<D>> extends
-    AbstractCompositeWriter<D> implements Writer<D> {
+        AbstractGenericWriter<D> implements ListWriter<D, K> {
 
-    private final ListWriterCustomizer<D, K> customizer;
+    private final WriterCustomizer<D> customizer;
 
     public GenericListWriter(@Nonnull final InstanceIdentifier<D> type,
                              @Nonnull final ListWriterCustomizer<D, K> customizer) {

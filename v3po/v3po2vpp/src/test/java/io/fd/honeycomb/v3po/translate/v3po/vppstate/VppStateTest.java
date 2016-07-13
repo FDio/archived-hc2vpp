@@ -33,11 +33,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeListReader;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeRootReader;
+import io.fd.honeycomb.v3po.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
-import io.fd.honeycomb.v3po.translate.read.Reader;
-import io.fd.honeycomb.v3po.translate.util.read.DelegatingReaderRegistry;
+import io.fd.honeycomb.v3po.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,7 +49,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
@@ -86,8 +83,7 @@ public class VppStateTest {
     private NamingContext bdContext;
     private NamingContext interfaceContext;
 
-    private CompositeRootReader<VppState, VppStateBuilder> vppStateReader;
-    private DelegatingReaderRegistry readerRegistry;
+    private ReaderRegistry readerRegistry;
 
     @Before
     public void setUp() throws Exception {
@@ -98,9 +94,7 @@ public class VppStateTest {
 
         bdContext = new NamingContext("generatedBdName", "bd-test-instance");
         interfaceContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
-        vppStateReader = VppStateTestUtils.getVppStateReader(api, bdContext);
-        readerRegistry =
-            new DelegatingReaderRegistry(Collections.<Reader<? extends DataObject>>singletonList(vppStateReader));
+        readerRegistry = VppStateTestUtils.getVppStateReader(api, bdContext);
     }
 
     private static Version getVersion() {
@@ -258,7 +252,7 @@ public class VppStateTest {
 
         VppState readRoot = (VppState) readerRegistry.read(InstanceIdentifier.create(VppState.class), ctx).get();
 
-        final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
+        final GenericListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
             VppStateTestUtils.getBridgeDomainReader(api, bdContext);
 
         final List<BridgeDomain> read =

@@ -17,23 +17,26 @@
 package io.fd.honeycomb.v3po.translate.read;
 
 import com.google.common.annotations.Beta;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * List reader, allowing read of all the elements
+ * List reader, allowing read of all the elements.
  *
  * @param <D> Specific DataObject derived type, that is handled by this reader
  */
 @Beta
-public interface ListReader<D extends DataObject & Identifiable<K>, K extends Identifier<D>> extends Reader<D> {
+public interface ListReader
+        <D extends DataObject & Identifiable<K>, K extends Identifier<D>, B extends Builder<D>> extends Reader<D, B> {
 
     /**
-     * Read all elements in this list
+     * Read all elements in this list.
      *
      * @param id Wildcarded identifier of list managed by this reader
      * @param ctx Read context
@@ -42,6 +45,22 @@ public interface ListReader<D extends DataObject & Identifiable<K>, K extends Id
      * @throws ReadFailedException if read was unsuccessful
      */
     @Nonnull
-    List<D> readList(@Nonnull final InstanceIdentifier<D> id,
-                     @Nonnull final ReadContext ctx) throws ReadFailedException;
+    List<D> readList(@Nonnull final InstanceIdentifier<D> id, @Nonnull final ReadContext ctx)
+            throws ReadFailedException;
+
+    /**
+     * Get IDs for all entries in the list.
+     */
+    List<K> getAllIds(@Nonnull InstanceIdentifier<D> id, @Nonnull ReadContext ctx)
+            throws ReadFailedException;
+
+    /**
+     * Merge read data into provided parent builder.
+     */
+    void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<D> readData);
+
+    @Override
+    default void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final D readValue) {
+        merge(parentBuilder, Collections.singletonList(readValue));
+    }
 }

@@ -23,7 +23,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -33,12 +33,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 
 /**
- * Generic test for classes implementing {@link RootReaderCustomizer} interface.
+ * Generic test for classes implementing {@link ReaderCustomizer} interface.
  *
  * @param <D> Specific DataObject derived type (Identifiable), that is handled by this customizer
  * @param <B> Specific Builder for handled type (D)
  */
-public abstract class RootReaderCustomizerTest<D extends DataObject, B extends Builder<D>> {
+public abstract class ReaderCustomizerTest<D extends DataObject, B extends Builder<D>> {
 
     @Mock
     protected FutureJVpp api;
@@ -49,9 +49,9 @@ public abstract class RootReaderCustomizerTest<D extends DataObject, B extends B
     protected MappingContext mappingContext;
 
     protected final Class<D> dataObjectClass;
-    private RootReaderCustomizer<D, B> customizer;
+    private ReaderCustomizer<D, B> customizer;
 
-    protected RootReaderCustomizerTest(Class<D> dataObjectClass) {
+    protected ReaderCustomizerTest(Class<D> dataObjectClass) {
         this.dataObjectClass = dataObjectClass;
     }
 
@@ -81,9 +81,9 @@ public abstract class RootReaderCustomizerTest<D extends DataObject, B extends B
 
     }
 
-    protected abstract RootReaderCustomizer<D, B> initCustomizer();
+    protected abstract ReaderCustomizer<D, B> initCustomizer();
 
-    protected RootReaderCustomizer<D, B> getCustomizer() {
+    protected ReaderCustomizer<D, B> getCustomizer() {
         return customizer;
     }
 

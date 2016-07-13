@@ -25,23 +25,29 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Simple DataBroker backed reader allowing to delegate reads to different brokers
+ * Simple DataBroker backed reader allowing to delegate reads to different brokers.
  */
-public final class BindingBrokerReader<D extends DataObject> implements Reader<D> {
+public final class BindingBrokerReader<D extends DataObject, B extends Builder<D>>
+        implements Reader<D, B>, AutoCloseable {
 
     private final InstanceIdentifier<D> instanceIdentifier;
     private final DataBroker dataBroker;
     private final LogicalDatastoreType datastoreType;
+    private final ReflexiveReaderCustomizer<D, B> reflexiveReaderCustomizer;
 
-    public BindingBrokerReader(final Class<D> managedDataObjectType, final DataBroker dataBroker,
-                               final LogicalDatastoreType datastoreType) {
+    public BindingBrokerReader(final InstanceIdentifier<D> instanceIdentifier,
+                               final DataBroker dataBroker,
+                               final LogicalDatastoreType datastoreType,
+                               final Class<B> builderClass) {
+        this.reflexiveReaderCustomizer = new ReflexiveReaderCustomizer<>(instanceIdentifier.getTargetType(), builderClass);
+        this.instanceIdentifier = instanceIdentifier;
         this.dataBroker = dataBroker;
         this.datastoreType = datastoreType;
-        this.instanceIdentifier = InstanceIdentifier.create(managedDataObjectType);
     }
 
     @Nonnull
@@ -59,9 +65,32 @@ public final class BindingBrokerReader<D extends DataObject> implements Reader<D
         }
     }
 
+    @Override
+    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final D readValue) {
+        reflexiveReaderCustomizer.merge(parentBuilder, readValue);
+    }
+
+    @Nonnull
+    @Override
+    public B getBuilder(final InstanceIdentifier<D> id) {
+        return reflexiveReaderCustomizer.getBuilder(id);
+    }
+
+    @Override
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
+                                      @Nonnull final B builder,
+                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
     @Nonnull
     @Override
     public InstanceIdentifier<D> getManagedDataObjectType() {
         return instanceIdentifier;
+    }
+
+    @Override
+    public void close() throws Exception {
+        // Noop
     }
 }

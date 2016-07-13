@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.write;
+package io.fd.honeycomb.v3po.translate.write.registry;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,16 +23,18 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.v3po.translate.TranslationException;
+import io.fd.honeycomb.v3po.translate.write.DataObjectUpdate;
+import io.fd.honeycomb.v3po.translate.write.WriteContext;
+import io.fd.honeycomb.v3po.translate.write.Writer;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Special {@link Writer} capable of performing bulk updates.
  */
 @Beta
-public interface WriterRegistry extends Writer<DataObject> {
+public interface WriterRegistry {
 
     /**
      * Performs bulk update.

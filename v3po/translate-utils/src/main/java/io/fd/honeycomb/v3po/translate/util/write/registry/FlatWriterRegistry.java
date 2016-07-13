@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -32,7 +31,7 @@ import io.fd.honeycomb.v3po.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import io.fd.honeycomb.v3po.translate.write.Writer;
-import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.registry.WriterRegistry;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -88,15 +87,6 @@ final class FlatWriterRegistry implements WriterRegistry {
             }
         }
         return handledTypesBuilder.build();
-    }
-
-    @Override
-    public void update(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                       @Nullable final DataObject dataBefore,
-                       @Nullable final DataObject dataAfter,
-                       @Nonnull final WriteContext ctx) throws WriteFailedException {
-        singleUpdate(ImmutableMultimap.of(
-                RWUtils.makeIidWildcarded(id), DataObjectUpdate.create(id, dataBefore, dataAfter)), ctx);
     }
 
     @Override
@@ -263,12 +253,6 @@ final class FlatWriterRegistry implements WriterRegistry {
     @Nullable
     private Writer<?> getWriter(@Nonnull final InstanceIdentifier<?> singleType) {
         return writers.get(singleType);
-    }
-
-    @Nonnull
-    @Override
-    public InstanceIdentifier<DataObject> getManagedDataObjectType() {
-        throw new UnsupportedOperationException("Registry has no managed type");
     }
 
     // FIXME unit test

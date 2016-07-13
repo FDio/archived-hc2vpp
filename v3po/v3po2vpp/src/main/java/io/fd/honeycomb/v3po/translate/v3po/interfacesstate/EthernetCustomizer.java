@@ -18,7 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import javax.annotation.Nonnull;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class EthernetCustomizer extends FutureJVppCustomizer
-        implements ChildReaderCustomizer<Ethernet, EthernetBuilder> {
+        implements ReaderCustomizer<Ethernet, EthernetBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(EthernetCustomizer.class);
     private NamingContext interfaceContext;

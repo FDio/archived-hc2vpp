@@ -1,19 +1,10 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
-import static io.fd.honeycomb.v3po.translate.util.RWUtils.emptyAugReaderList;
-import static io.fd.honeycomb.v3po.translate.util.RWUtils.emptyChildReaderList;
-import static io.fd.honeycomb.v3po.translate.util.RWUtils.singletonChildReaderList;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeChildReader;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeListReader;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeRootReader;
-import io.fd.honeycomb.v3po.translate.read.ChildReader;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
-import io.fd.honeycomb.v3po.translate.util.read.CloseableReader;
-import io.fd.honeycomb.v3po.translate.util.read.ReflexiveAugmentReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.util.read.ReflexiveRootReaderCustomizer;
+import com.google.common.collect.Sets;
+import io.fd.honeycomb.v3po.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.v3po.translate.impl.read.GenericReader;
+import io.fd.honeycomb.v3po.translate.read.ReaderFactory;
+import io.fd.honeycomb.v3po.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.AclCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.InterfaceCustomizer;
@@ -26,13 +17,10 @@ import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip.Ipv4AddressCustomi
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip.Ipv4Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip.Ipv6Customizer;
-import java.util.ArrayList;
-import java.util.List;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
@@ -41,6 +29,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip6Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.L2;
@@ -48,11 +39,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.future.FutureJVpp;
 
 public class InterfacesStateHoneycombReaderModule extends
         org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractInterfacesStateHoneycombReaderModule {
+
+    public static final InstanceIdentifier<InterfacesState> IFC_STATE_ID = InstanceIdentifier.create(InterfacesState.class);
+    static final InstanceIdentifier<Interface> IFC_ID = IFC_STATE_ID.child(Interface.class);
+
     public InterfacesStateHoneycombReaderModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
                                                 org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -72,94 +67,93 @@ public class InterfacesStateHoneycombReaderModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final List<ChildReader<? extends Augmentation<Interface>>>
-                interfaceAugReaders = new ArrayList<>();
-        interfaceAugReaders.add(getVppInterfaceStateAugmentationReader());
-        interfaceAugReaders.add(getInterface1AugmentationReader());
-        interfaceAugReaders.add(SubinterfaceStateAugmentationReaderFactory.createInstance(getVppJvppDependency(),
-            getInterfaceContextIfcStateDependency(), getBridgeDomainContextIfcStateDependency(),
-            getClassifyTableContextDependency()));
-
-        final CompositeListReader<Interface, InterfaceKey, InterfaceBuilder> interfaceReader =
-                new CompositeListReader<>(Interface.class,
-                        emptyChildReaderList(),
-                        interfaceAugReaders,
-                        new InterfaceCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
-
-        return new CloseableReader<>(new CompositeRootReader<>(
-                InterfacesState.class,
-                singletonChildReaderList(interfaceReader),
-                emptyAugReaderList(),
-                new ReflexiveRootReaderCustomizer<>(InterfacesStateBuilder.class)));
+        return new VppStateReaderFactory(getVppJvppDependency(),
+                getInterfaceContextIfcStateDependency(),
+                getBridgeDomainContextIfcStateDependency(),
+                getClassifyTableContextDependency());
     }
 
-    private ChildReader<? extends Augmentation<Interface>> getInterface1AugmentationReader() {
+    private static final class VppStateReaderFactory implements ReaderFactory, AutoCloseable {
 
-        final ChildReader<Neighbor> neighborReader = new CompositeListReader<>(Neighbor.class,
-                new Ipv4NeighbourCustomizer(getVppJvppDependency()));
+        private NamingContext ifcCtx;
+        private NamingContext bdCtx;
+        private NamingContext classifyCtx;
+        private FutureJVpp jvpp;
 
-        final ChildReader<Address> addressReader = new CompositeListReader<>(Address.class,
-                new Ipv4AddressCustomizer(getVppJvppDependency(),getInterfaceContextIfcStateDependency()));
+        VppStateReaderFactory(final FutureJVpp jvpp,
+                              final NamingContext ifcCtx,
+                              final NamingContext bdCtx,
+                              final NamingContext classifyCtx) {
+            this.jvpp = jvpp;
+            this.ifcCtx = ifcCtx;
+            this.bdCtx = bdCtx;
+            this.classifyCtx = classifyCtx;
+        }
 
-        final ChildReader<? extends ChildOf<Interface2>> ipv4Reader = new CompositeChildReader<>(Ipv4.class,
-                ImmutableList.of(neighborReader,addressReader),
-                new Ipv4Customizer(getVppJvppDependency()));
-        final ChildReader<? extends ChildOf<Interface2>> ipv6Reader = new CompositeChildReader<>(Ipv6.class,
-                new Ipv6Customizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
+        @Override
+        public void init(final ModifiableReaderRegistryBuilder registry) {
+            // InterfacesState(Structural)
+            registry.addStructuralReader(IFC_STATE_ID, InterfacesStateBuilder.class);
+            //  Interface
+            registry.add(new GenericListReader<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcCtx)));
 
-        final List<ChildReader<? extends ChildOf<Interface2>>> interface1ChildWriters = Lists.newArrayList();
-        interface1ChildWriters.add(ipv4Reader);
-        interface1ChildWriters.add(ipv6Reader);
+            // v3po.yang
+            initVppIfcAugmentationReaders(registry, IFC_ID);
+            // ietf-ip.yang
+            initInterface2AugmentationReaders(registry, IFC_ID);
+            // vpp-vlan.yang
+            new SubinterfaceStateAugmentationReaderFactory(jvpp, ifcCtx, bdCtx, classifyCtx).init(registry);
+        }
 
-        return new CompositeChildReader<>(Interface2.class, interface1ChildWriters,
-                new ReflexiveAugmentReaderCustomizer<>(Interface2Builder.class, Interface2.class));
-    }
+        private void initInterface2AugmentationReaders(final ModifiableReaderRegistryBuilder registry,
+                                                       final InstanceIdentifier<Interface> ifcId) {
+            //   Interface2Augmentation(Structural)
+            final InstanceIdentifier<Interface2> ifc2AugId = ifcId.augmentation(Interface2.class);
+            registry.addStructuralReader(ifc2AugId, Interface2Builder.class);
+            //    Ipv4
+            // TODO unfinished customizer
+            final InstanceIdentifier<Ipv4> ipv4Id = ifc2AugId.child(Ipv4.class);
+            registry.add(new GenericReader<>(ipv4Id, new Ipv4Customizer(jvpp)));
+            //     Address
+            final InstanceIdentifier<Address> ipv4AddrId = ipv4Id.child(Address.class);
+            registry.add(new GenericListReader<>(ipv4AddrId, new Ipv4AddressCustomizer(jvpp, ifcCtx)));
+            //     Neighbor
+            final InstanceIdentifier<Neighbor> neighborId = ipv4Id.child(Neighbor.class);
+            registry.add(new GenericListReader<>(neighborId, new Ipv4NeighbourCustomizer(jvpp)));
+            //    Ipv6
+            // TODO unfinished customizer
+            final InstanceIdentifier<Ipv6> ipv6Id = ifc2AugId.child(Ipv6.class);
+            registry.add(new GenericReader<>(ipv6Id, new Ipv6Customizer(jvpp, ifcCtx)));
+        }
 
+        private void initVppIfcAugmentationReaders(final ModifiableReaderRegistryBuilder registry,
+                                                   final InstanceIdentifier<Interface> ifcId) {
+            //   VppInterfaceStateAugmentation
+            final InstanceIdentifier<VppInterfaceStateAugmentation> vppIfcAugId = ifcId.augmentation(VppInterfaceStateAugmentation.class);
+            registry.addStructuralReader(vppIfcAugId, VppInterfaceStateAugmentationBuilder.class);
+            //    Ethernet
+            registry.add(new GenericReader<>(vppIfcAugId.child(Ethernet.class), new EthernetCustomizer(jvpp, ifcCtx)));
+            //    Tap
+            registry.add(new GenericReader<>(vppIfcAugId.child(Tap.class), new TapCustomizer(jvpp, ifcCtx)));
+            //    VhostUser
+            registry.add(new GenericReader<>(vppIfcAugId.child(VhostUser.class), new VhostUserCustomizer(jvpp, ifcCtx)));
+            //    Vxlan
+            registry.add(new GenericReader<>(vppIfcAugId.child(Vxlan.class), new VxlanCustomizer(jvpp, ifcCtx)));
+            //    VxlanGpe
+            registry.add(new GenericReader<>(vppIfcAugId.child(VxlanGpe.class), new VxlanGpeCustomizer(jvpp, ifcCtx)));
+            //    L2
+            registry.add(new GenericReader<>(vppIfcAugId.child(L2.class), new L2Customizer(jvpp, ifcCtx, bdCtx)));
+            //    Acl(Subtree)
+            final InstanceIdentifier<Acl> aclIdRelative = InstanceIdentifier.create(Acl.class);
+            registry.subtreeAdd(
+                    Sets.newHashSet(aclIdRelative.child(L2Acl.class), aclIdRelative.child(Ip4Acl.class), aclIdRelative.child(Ip6Acl.class)),
+                    new GenericReader<>(vppIfcAugId.child(Acl.class), new AclCustomizer(jvpp, ifcCtx, classifyCtx)));
 
-    private ChildReader<? extends Augmentation<Interface>> getVppInterfaceStateAugmentationReader() {
+        }
 
-        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> ethernetReader =
-                new CompositeChildReader<>(Ethernet.class,
-                        new EthernetCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
-
-        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> tapReader =
-                new CompositeChildReader<>(Tap.class,
-                        new TapCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
-
-        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> vhostUserReader =
-                new CompositeChildReader<>(VhostUser.class,
-                        new VhostUserCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
-
-        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> vxlanReader =
-                new CompositeChildReader<>(Vxlan.class,
-                        new VxlanCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
-
-        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> vxlanGpeReader =
-                new CompositeChildReader<>(VxlanGpe.class,
-                        new VxlanGpeCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency()));
-
-        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> aclReader =
-                new CompositeChildReader<>(Acl.class,
-                        new AclCustomizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency(), getClassifyTableContextDependency()));
-
-        final ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>> l2Reader =
-                new CompositeChildReader<>(L2.class,
-                        new L2Customizer(getVppJvppDependency(), getInterfaceContextIfcStateDependency(), getBridgeDomainContextIfcStateDependency()));
-
-        final List<ChildReader<? extends ChildOf<VppInterfaceStateAugmentation>>> childReaders = Lists.newArrayList();
-        childReaders.add(ethernetReader);
-        childReaders.add(tapReader);
-        childReaders.add(vhostUserReader);
-        childReaders.add(vxlanReader);
-        childReaders.add(vxlanGpeReader);
-        childReaders.add(l2Reader);
-        childReaders.add(aclReader);
-
-        final ChildReader<VppInterfaceStateAugmentation> vppInterfaceStateAugmentationChildReader =
-                new CompositeChildReader<>(VppInterfaceStateAugmentation.class,
-                        childReaders,
-                        new ReflexiveAugmentReaderCustomizer<>(VppInterfaceStateAugmentationBuilder.class,
-                                VppInterfaceStateAugmentation.class));
-        return vppInterfaceStateAugmentationChildReader;
+        @Override
+        public void close() throws Exception {
+            // unregister not supported
+        }
     }
 }

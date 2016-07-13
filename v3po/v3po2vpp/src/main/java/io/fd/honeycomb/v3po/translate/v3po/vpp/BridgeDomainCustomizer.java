@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -29,12 +28,9 @@ import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
-import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.BridgeDomainAddDel;
@@ -55,13 +51,6 @@ public class BridgeDomainCustomizer
     public BridgeDomainCustomizer(@Nonnull final FutureJVpp futureJvpp, @Nonnull final NamingContext bdContext) {
         super(futureJvpp);
         this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
-    }
-
-    @Nonnull
-    @Override
-    public Optional<List<BridgeDomain>> extract(@Nonnull final InstanceIdentifier<BridgeDomain> currentId,
-                                                @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((BridgeDomains) parentData).getBridgeDomain());
     }
 
     private BridgeDomainAddDelReply addOrUpdateBridgeDomain(@Nonnull final InstanceIdentifier<BridgeDomain> id,

@@ -1,26 +1,22 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeChildReader;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeListReader;
-import io.fd.honeycomb.v3po.translate.impl.read.CompositeRootReader;
-import io.fd.honeycomb.v3po.translate.read.ChildReader;
-import io.fd.honeycomb.v3po.translate.util.KeepaliveReaderWrapper;
-import io.fd.honeycomb.v3po.translate.util.RWUtils;
-import io.fd.honeycomb.v3po.translate.util.read.CloseableReader;
-import io.fd.honeycomb.v3po.translate.util.read.ReflexiveChildReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.util.read.ReflexiveRootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.v3po.translate.impl.read.GenericReader;
+import io.fd.honeycomb.v3po.translate.read.ReaderFactory;
+import io.fd.honeycomb.v3po.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.v3po.translate.util.read.KeepaliveReaderWrapper;
+import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.ReadTimeoutException;
 import io.fd.honeycomb.v3po.translate.v3po.vppstate.BridgeDomainCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.vppstate.L2FibEntryCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.vppstate.VersionCustomizer;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.List;
 import javax.management.Attribute;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
 import org.opendaylight.controller.config.api.ValidationException;
+import org.opendaylight.controller.config.threadpool.ScheduledThreadPool;
 import org.opendaylight.controller.config.util.ConfigRegistryJMXClient;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.vpp.jvpp.cfg.rev160406.VppJvppImplModule;
@@ -30,15 +26,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomainsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,55 +59,19 @@ public class VppStateHoneycombReaderModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final FutureJVpp vppApi = getVppJvppDependency();
-
-        ChildReader<Version> versionReader = new CompositeChildReader<>(Version.class, new VersionCustomizer(vppApi));
-        // Wrap with keepalive reader to detect connection issues
-        // TODO keepalive reader wrapper relies on VersionReaderCustomizer (to perform timeout on reads)
-        // Once readers+customizers are asynchronous, pull the timeout to keepalive executor so that keepalive wrapper
-        // is truly generic
-        versionReader = new KeepaliveReaderWrapper<>(versionReader, getKeepaliveExecutorDependency().getExecutor(),
-            ReadTimeoutException.class, 30, () -> reinitializeJVpp(reinitializationCounter));
-
-        final CompositeListReader<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> l2FibEntryReader =
-            new CompositeListReader<>(L2FibEntry.class,
-                new L2FibEntryCustomizer(vppApi,
-                    getBridgeDomainContextVppStateDependency(), getInterfaceContextVppStateDependency()));
-
-        final ChildReader<L2FibTable> l2FibTableReader = new CompositeChildReader<>(
-            L2FibTable.class,
-            RWUtils.singletonChildReaderList(l2FibEntryReader),
-            new ReflexiveChildReaderCustomizer<>(L2FibTableBuilder.class));
-
-        final CompositeListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> bridgeDomainReader =
-            new CompositeListReader<>(BridgeDomain.class,
-                RWUtils.singletonChildReaderList((ChildReader) l2FibTableReader),
-                new BridgeDomainCustomizer(vppApi,
-                    getBridgeDomainContextVppStateDependency()));
-
-        final ChildReader<BridgeDomains> bridgeDomainsReader = new CompositeChildReader<>(
-            BridgeDomains.class,
-            RWUtils.singletonChildReaderList(bridgeDomainReader),
-            new ReflexiveChildReaderCustomizer<>(BridgeDomainsBuilder.class));
-
-        final List<ChildReader<? extends ChildOf<VppState>>> childVppReaders = new ArrayList<>();
-        childVppReaders.add(versionReader);
-        childVppReaders.add(bridgeDomainsReader);
-
-        return new CloseableReader<>(new CompositeRootReader<>(
-            VppState.class,
-            childVppReaders,
-            RWUtils.emptyAugReaderList(),
-            new ReflexiveRootReaderCustomizer<>(VppStateBuilder.class)));
+        return new VppStateHoneycombReaderFactory(getVppJvppDependency(),
+                getInterfaceContextVppStateDependency(),
+                getBridgeDomainContextVppStateDependency(),
+                getKeepaliveExecutorDependency());
     }
 
     private static long reinitializationCounter;
     private static final long reinitializationLimit = 10;
 
     /**
-     * In case we detect connection issues with VPP, reinitialize JVpp
+     * In case we detect connection issues with VPP, reinitialize JVpp.
      */
-    private void reinitializeJVpp(final long currentAttempt) {
+    private static void reinitializeJVpp(final long currentAttempt) {
         // FIXME https://jira.fd.io/browse/HONEYCOMB-78 This code correctly re-initializes all the components
         // starting with jvpp, but jvpp reconnect fails. Test in a JVpp test and then from C
         LOG.info("Reinitializing JVpp, attempt: {}", currentAttempt);
@@ -150,8 +106,7 @@ public class VppStateHoneycombReaderModule extends
             LOG.info("JVpp reinitialized successfully");
         } catch (InstanceNotFoundException | ValidationException e) {
             LOG.error("Unable to reinitialize JVpp. Honeycomb will not work properly from now on.", e);
-            throw new IllegalStateException("Unable to find jvpp instance in config subsystem. " +
-                "Unable to reinitialize JVpp", e);
+            throw new IllegalStateException("Unable to find jvpp instance in config subsystem. Unable to reinitialize JVpp", e);
         } catch (ConflictingVersionException e) {
             LOG.debug("Conflict changes occurred, retrying", e);
             // Just retry until there's no conflicting change in progress
@@ -159,5 +114,57 @@ public class VppStateHoneycombReaderModule extends
         }
 
         reinitializationCounter = nextAttempt;
+    }
+
+
+    private static final class VppStateHoneycombReaderFactory implements ReaderFactory, AutoCloseable {
+
+        private final FutureJVpp jVpp;
+        private final NamingContext ifcCtx;
+        private final NamingContext bdCtx;
+        private final ScheduledThreadPool keepaliveExecutor;
+
+        public VppStateHoneycombReaderFactory(final FutureJVpp jVpp,
+                                              final NamingContext ifcCtx,
+                                              final NamingContext bdCtx,
+                                              final ScheduledThreadPool keepaliveExecutorDependency) {
+            this.jVpp = jVpp;
+            this.ifcCtx = ifcCtx;
+            this.bdCtx = bdCtx;
+            this.keepaliveExecutor = keepaliveExecutorDependency;
+        }
+
+        @Override
+        public void close() throws Exception {
+            // TODO unregister not available
+        }
+
+        @Override
+        public void init(final ModifiableReaderRegistryBuilder registry) {
+            // VppState(Structural)
+            final InstanceIdentifier<VppState> vppStateId = InstanceIdentifier.create(VppState.class);
+            registry.addStructuralReader(vppStateId, VppStateBuilder.class);
+            //  Version
+            // Wrap with keepalive reader to detect connection issues
+            // TODO keepalive reader wrapper relies on VersionReaderCustomizer (to perform timeout on reads)
+            // Once readers+customizers are asynchronous, pull the timeout to keepalive executor so that keepalive wrapper
+            // is truly generic
+            registry.add(new KeepaliveReaderWrapper<>(
+                    new GenericReader<>(vppStateId.child(Version.class), new VersionCustomizer(jVpp)),
+                    keepaliveExecutor.getExecutor(), ReadTimeoutException.class, 30,
+                    () -> reinitializeJVpp(reinitializationCounter)));
+            //  BridgeDomains(Structural)
+            final InstanceIdentifier<BridgeDomains> bridgeDomainsId = vppStateId.child(BridgeDomains.class);
+            registry.addStructuralReader(bridgeDomainsId, BridgeDomainsBuilder.class);
+            //   BridgeDomain
+            final InstanceIdentifier<BridgeDomain> bridgeDomainId = bridgeDomainsId.child(BridgeDomain.class);
+            registry.add(new GenericListReader<>(bridgeDomainId, new BridgeDomainCustomizer(jVpp, bdCtx)));
+            //    L2FibTable(Structural)
+            final InstanceIdentifier<L2FibTable> l2FibTableId = bridgeDomainId.child(L2FibTable.class);
+            registry.addStructuralReader(l2FibTableId, L2FibTableBuilder.class);
+            //     L2FibEntry
+            registry.add(new GenericListReader<>(l2FibTableId.child(L2FibEntry.class),
+                    new L2FibEntryCustomizer(jVpp, bdCtx, ifcCtx)));
+        }
     }
 }

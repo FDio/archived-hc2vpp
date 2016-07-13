@@ -18,7 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
 import java.util.concurrent.CompletionStage;
@@ -36,7 +36,7 @@ import org.openvpp.jvpp.future.FutureJVpp;
 
 public final class VersionCustomizer
     extends FutureJVppCustomizer
-    implements ChildReaderCustomizer<Version, VersionBuilder> {
+    implements ReaderCustomizer<Version, VersionBuilder> {
 
     /**
      * Default timeout for executing version read

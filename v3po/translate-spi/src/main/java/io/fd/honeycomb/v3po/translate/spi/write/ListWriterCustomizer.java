@@ -17,32 +17,18 @@
 package io.fd.honeycomb.v3po.translate.spi.write;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Optional;
-import java.util.List;
-import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * CompositeListWriter SPI to customize its behavior
+ * CompositeListWriter SPI to customize its behavior.
  *
  * @param <C> Specific DataObject derived type (Identifiable), that is handled by this customizer
  * @param <K> Specific Identifier for handled type (C)
  */
 @Beta
 public interface ListWriterCustomizer<C extends DataObject & Identifiable<K>, K extends Identifier<C>> extends
-    RootWriterCustomizer<C> {
-
-    /**
-     * Get children of parentData identified by currentId
-     *
-     * @param currentId Identifier(from root) of data being extracted
-     * @param parentData Parent data object from which managed data object must be extracted
-     */
-    @Nonnull
-    Optional<List<C>> extract(@Nonnull final InstanceIdentifier<C> currentId, @Nonnull final DataObject parentData);
-    // TODO consider removing Optional and make extract return @Nullable (applies also to ChildWriterCustomizer)
+    WriterCustomizer<C> {
 
 }

@@ -20,7 +20,7 @@ import com.google.common.collect.Multimap;
 import io.fd.honeycomb.v3po.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.Writer;
-import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.registry.WriterRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -46,19 +46,6 @@ public class FlatWriterRegistryTest {
         when(writer1.getManagedDataObjectType()).thenReturn(DataObject1.IID);
         when(writer2.getManagedDataObjectType()).thenReturn(DataObject2.IID);
         when(writer3.getManagedDataObjectType()).thenReturn(DataObject3.IID);
-    }
-
-    @Test
-    public void testSingleUpdate() throws Exception {
-        final FlatWriterRegistry flatWriterRegistry =
-                new FlatWriterRegistry(ImmutableMap.of(DataObject1.IID, writer1));
-
-        final InstanceIdentifier<DataObject1> iid = InstanceIdentifier.create(DataObject1.class);
-        final DataObject1 before = mock(DataObject1.class);
-        final DataObject1 after = mock(DataObject1.class);
-        flatWriterRegistry.update(iid, before, after, ctx);
-
-        verify(writer1).update(iid, before, after, ctx);
     }
 
     @Test
@@ -270,17 +257,6 @@ public class FlatWriterRegistryTest {
                            final Class<D> type) throws Exception {
         final InstanceIdentifier<D> iid = (InstanceIdentifier<D>) type.getDeclaredField("IID").get(null);
         updates.put(iid, DataObjectUpdate.create(iid, mock(type), mock(type)));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testSingleUpdateMissingWriter() throws Exception {
-        final FlatWriterRegistry flatWriterRegistry =
-                new FlatWriterRegistry(ImmutableMap.of());
-
-        final InstanceIdentifier<DataObject1> iid = InstanceIdentifier.create(DataObject1.class);
-        final DataObject1 before = mock(DataObject1.class);
-        final DataObject1 after = mock(DataObject1.class);
-        flatWriterRegistry.update(iid, before, after, ctx);
     }
 
     private abstract static class DataObject1 implements DataObject {

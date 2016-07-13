@@ -14,14 +14,19 @@ module translate-api {
             "Initial revision.";
     }
 
-    identity honeycomb-reader {
+    identity honeycomb-reader-factory {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.read.Reader;
+        config:java-class io.fd.honeycomb.v3po.translate.read.ReaderFactory;
     }
 
     identity honeycomb-reader-registry {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+        config:java-class io.fd.honeycomb.v3po.translate.read.registry.ModifiableReaderRegistryBuilder;
+    }
+
+    identity honeycomb-reader-registry-builder {
+        base "config:service-type";
+        config:java-class io.fd.honeycomb.v3po.translate.read.registry.ReaderRegistryBuilder;
     }
 
     identity honeycomb-writer-factory {
@@ -31,12 +36,12 @@ module translate-api {
 
     identity honeycomb-writer-registry {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
+        config:java-class io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
     }
 
     identity honeycomb-writer-registry-builder {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.write.WriterRegistryBuilder;
+        config:java-class io.fd.honeycomb.v3po.translate.write.registry.WriterRegistryBuilder;
     }
 
     identity honeycomb-mapping-context {

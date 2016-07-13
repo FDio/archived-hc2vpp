@@ -17,7 +17,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate.ip;
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import javax.annotation.Nonnull;
@@ -29,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 
-public class Ipv6Customizer extends FutureJVppCustomizer implements ChildReaderCustomizer<Ipv6, Ipv6Builder> {
+public class Ipv6Customizer extends FutureJVppCustomizer implements ReaderCustomizer<Ipv6, Ipv6Builder> {
 
     private final NamingContext interfaceContext;
 

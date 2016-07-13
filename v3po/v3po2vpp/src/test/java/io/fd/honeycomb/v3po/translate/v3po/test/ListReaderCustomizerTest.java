@@ -33,7 +33,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * @param <K> Specific Identifier for handled type (D)
  * @param <B> Specific Builder for handled type (D)
  */
-public abstract class ListReaderCustomizerTest<D extends DataObject & Identifiable<K>, K extends Identifier<D>, B extends Builder<D>> extends RootReaderCustomizerTest<D, B>{
+public abstract class ListReaderCustomizerTest<D extends DataObject & Identifiable<K>, K extends Identifier<D>, B extends Builder<D>> extends
+        ReaderCustomizerTest<D, B> {
 
 
     protected ListReaderCustomizerTest(Class<D> dataObjectClass) {

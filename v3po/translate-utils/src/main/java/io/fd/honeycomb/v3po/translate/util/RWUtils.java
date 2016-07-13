@@ -22,7 +22,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import io.fd.honeycomb.v3po.translate.SubtreeManager;
-import io.fd.honeycomb.v3po.translate.read.ChildReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
@@ -73,24 +71,6 @@ public final class RWUtils {
         });
         Preconditions.checkArgument(i >= 0, "Unable to find %s type in %s", type.getTargetType(), id);
         return Iterables.get(pathArguments, i + 1);
-    }
-
-    public static <T> List<ChildReader<? extends ChildOf<T>>> emptyChildReaderList() {
-        return Collections.emptyList();
-    }
-
-    public static <T> List<ChildReader<? extends Augmentation<T>>> emptyAugReaderList() {
-        return Collections.emptyList();
-    }
-
-    public static <T> List<ChildReader<? extends Augmentation<T>>> singletonAugReaderList(
-        ChildReader<? extends Augmentation<T>> item) {
-        return Collections.<ChildReader<? extends Augmentation<T>>>singletonList(item);
-    }
-
-    public static <T> List<ChildReader<? extends ChildOf<T>>> singletonChildReaderList(
-        ChildReader<? extends ChildOf<T>> item) {
-        return Collections.<ChildReader<? extends ChildOf<T>>>singletonList(item);
     }
 
     /**
@@ -170,25 +150,16 @@ public final class RWUtils {
         }
     };
 
-    @SuppressWarnings("unchecked")
-    public static <D extends DataObject> InstanceIdentifier<D> appendTypeToId(
-        final InstanceIdentifier<? extends DataObject> parentId, final InstanceIdentifier<D> type) {
-        Preconditions.checkArgument(!parentId.contains(type),
-            "Unexpected InstanceIdentifier %s, already contains %s", parentId, type);
-        final InstanceIdentifier.PathArgument t = Iterables.getOnlyElement(type.getPathArguments());
-        return (InstanceIdentifier<D>) InstanceIdentifier.create(Iterables.concat(
-            parentId.getPathArguments(), Collections.singleton(t)));
-    }
-
     /**
      * Transform a keyed instance identifier into a wildcarded one.
      */
-    public static InstanceIdentifier<?> makeIidWildcarded(final InstanceIdentifier<?> id) {
+    @SuppressWarnings("unchecked")
+    public static <D extends DataObject> InstanceIdentifier<D> makeIidWildcarded(final InstanceIdentifier<D> id) {
         final List<InstanceIdentifier.PathArgument> transformedPathArguments =
                 StreamSupport.stream(id.getPathArguments().spliterator(), false)
                         .map(RWUtils::cleanPathArgumentFromKeys)
                         .collect(Collectors.toList());
-        return InstanceIdentifier.create(transformedPathArguments);
+        return (InstanceIdentifier<D>) InstanceIdentifier.create(transformedPathArguments);
     }
 
     private static InstanceIdentifier.PathArgument cleanPathArgumentFromKeys(final InstanceIdentifier.PathArgument pathArgument) {

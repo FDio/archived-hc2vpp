@@ -16,32 +16,22 @@
 
 package io.fd.honeycomb.v3po.translate.v3po.interfaces.ip;
 
-import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv6Customizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Ipv6> {
+public class Ipv6Customizer extends FutureJVppCustomizer implements WriterCustomizer<Ipv6> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6Customizer.class);
 
     public Ipv6Customizer(final FutureJVpp vppApi) {
         super(vppApi);
-    }
-
-    @Nonnull
-    @Override
-    public Optional<Ipv6> extract(@Nonnull final InstanceIdentifier<Ipv6> currentId,
-                                      @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((Interface1) parentData).getIpv6());
     }
 
     @Override

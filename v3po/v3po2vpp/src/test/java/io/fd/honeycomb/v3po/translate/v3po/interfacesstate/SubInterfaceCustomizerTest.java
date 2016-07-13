@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.util.Collections;
@@ -72,7 +72,7 @@ public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInte
     }
 
     @Override
-    protected RootReaderCustomizer<SubInterface, SubInterfaceBuilder> initCustomizer() {
+    protected ReaderCustomizer<SubInterface, SubInterfaceBuilder> initCustomizer() {
         return new SubInterfaceCustomizer(api, interfacesContext);
     }
 

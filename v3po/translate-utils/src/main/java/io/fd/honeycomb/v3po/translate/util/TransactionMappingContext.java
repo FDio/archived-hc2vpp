@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.util.write;
+package io.fd.honeycomb.v3po.translate.util;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -28,7 +28,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Binding Transaction backed mapping context
+ * Binding Transaction backed mapping context.
  */
 public class TransactionMappingContext implements MappingContext {
 

@@ -17,12 +17,17 @@
 package io.fd.honeycomb.v3po.translate.write;
 
 import com.google.common.annotations.Beta;
+import io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
+import javax.annotation.Nonnull;
 
+/**
+ * Factory producing writers for {@link ModifiableWriterRegistryBuilder}.
+ */
 @Beta
 public interface WriterFactory {
 
     /**
      * Initialize 1 or more writers and add them to provided registry.
      */
-    void init(ModifiableWriterRegistry registry);
+    void init(@Nonnull ModifiableWriterRegistryBuilder registry);
 }

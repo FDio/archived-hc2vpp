@@ -19,7 +19,7 @@ package io.fd.honeycomb.v3po.translate.v3po.vppstate;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.util.Collections;
@@ -55,7 +55,7 @@ public class BridgeDomainCustomizerTest
     }
 
     @Override
-    protected RootReaderCustomizer<BridgeDomain, BridgeDomainBuilder> initCustomizer() {
+    protected ReaderCustomizer<BridgeDomain, BridgeDomainBuilder> initCustomizer() {
         return new BridgeDomainCustomizer(api, bdContext);
     }
 }

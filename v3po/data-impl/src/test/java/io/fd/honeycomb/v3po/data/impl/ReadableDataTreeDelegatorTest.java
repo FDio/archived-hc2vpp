@@ -36,7 +36,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
-import io.fd.honeycomb.v3po.translate.read.ReaderRegistry;
+import io.fd.honeycomb.v3po.translate.read.registry.ReaderRegistry;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.Before;
@@ -142,7 +142,7 @@ public class ReadableDataTreeDelegatorTest {
     }
 
     @Test
-    public void testReadFailed() throws Exception{
+    public void testReadFailed() throws Exception {
         doThrow(io.fd.honeycomb.v3po.translate.read.ReadFailedException.class).when(reader).readAll(any(ReadContext.class));
 
         final CheckedFuture<Optional<NormalizedNode<?, ?>>, ReadFailedException> future =

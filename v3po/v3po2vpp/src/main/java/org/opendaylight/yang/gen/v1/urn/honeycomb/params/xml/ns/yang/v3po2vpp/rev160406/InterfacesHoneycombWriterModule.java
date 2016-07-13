@@ -20,7 +20,7 @@ import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.Ipv6Customizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.honeycomb.v3po.translate.write.WriterFactory;
 import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -106,10 +106,10 @@ public class InterfacesHoneycombWriterModule extends
         }
 
         @Override
-        public void init(final ModifiableWriterRegistry registry) {
+        public void init(final ModifiableWriterRegistryBuilder registry) {
             // Interfaces
             //  Interface =
-            registry.addWriter(new GenericListWriter<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcContext)));
+            registry.add(new GenericListWriter<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcContext)));
             //   VppInterfaceAugmentation
             addVppInterfaceAgmentationWriters(IFC_ID, registry);
             //   Interface1 (ietf-ip augmentation)
@@ -119,65 +119,63 @@ public class InterfacesHoneycombWriterModule extends
         }
 
         private void addInterface1AugmentationWriters(final InstanceIdentifier<Interface> ifcId,
-                                                      final ModifiableWriterRegistry registry) {
+                                                      final ModifiableWriterRegistryBuilder registry) {
             final InstanceIdentifier<Interface1> ifc1AugId = ifcId.augmentation(Interface1.class);
             // Ipv6(after interface) TODO unfinished customizer =
-            registry.addWriterAfter(new GenericWriter<>(ifc1AugId.child(Ipv6.class), new Ipv6Customizer(jvpp)),
-                ifcId);
+            registry.addAfter(new GenericWriter<>(ifc1AugId.child(Ipv6.class), new Ipv6Customizer(jvpp)),
+                    ifcId);
             // Ipv4(after interface)
             final InstanceIdentifier<Ipv4> ipv4Id = ifc1AugId.child(Ipv4.class);
-            registry.addWriterAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp, ifcContext)),
-                ifcId);
+            registry.addAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp, ifcContext)),
+                    ifcId);
             //  Address(after Ipv4) =
             final InstanceIdentifier<Address> ipv4AddressId = ipv4Id.child(Address.class);
-            registry.addWriterAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcContext)),
-                ipv4Id);
+            registry.addAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcContext)),
+                    ipv4Id);
             //  Neighbor(after ipv4Address)
-            registry.addWriterAfter(
-                new GenericListWriter<>(ipv4Id.child(Neighbor.class), new Ipv4NeighbourCustomizer(jvpp, ifcContext)),
-                ipv4AddressId);
+            registry.addAfter(new GenericListWriter<>(ipv4Id.child(Neighbor.class), new Ipv4NeighbourCustomizer(jvpp, ifcContext)),
+                    ipv4AddressId);
         }
 
         private void addVppInterfaceAgmentationWriters(final InstanceIdentifier<Interface> ifcId,
-                                                       final ModifiableWriterRegistry registry) {
+                                                       final ModifiableWriterRegistryBuilder registry) {
             // VhostUser(Needs to be executed before Interface customizer) =
             final InstanceIdentifier<VhostUser> vhostId = VPP_IFC_AUG_ID.child(VhostUser.class);
-            registry.addWriterBefore(new GenericWriter<>(vhostId, new VhostUserCustomizer(jvpp, ifcContext)),
-                ifcId);
+            registry.addBefore(new GenericWriter<>(vhostId, new VhostUserCustomizer(jvpp, ifcContext)),
+                    ifcId);
             // Vxlan(Needs to be executed before Interface customizer) =
             final InstanceIdentifier<Vxlan> vxlanId = VPP_IFC_AUG_ID.child(Vxlan.class);
-            registry.addWriterBefore(new GenericWriter<>(vxlanId, new VxlanCustomizer(jvpp, ifcContext)),
-                ifcId);
+            registry.addBefore(new GenericWriter<>(vxlanId, new VxlanCustomizer(jvpp, ifcContext)),
+                    ifcId);
             // VxlanGpe(Needs to be executed before Interface customizer) =
             final InstanceIdentifier<VxlanGpe> vxlanGpeId = VPP_IFC_AUG_ID.child(VxlanGpe.class);
-            registry.addWriterBefore(new GenericWriter<>(vxlanGpeId, new VxlanGpeCustomizer(jvpp, ifcContext)),
-                ifcId);
+            registry.addBefore(new GenericWriter<>(vxlanGpeId, new VxlanGpeCustomizer(jvpp, ifcContext)),
+                    ifcId);
             // Tap(Needs to be executed before Interface customizer) =
             final InstanceIdentifier<Tap> tapId = VPP_IFC_AUG_ID.child(Tap.class);
-            registry.addWriterBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcContext)),
-                ifcId);
+            registry.addBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcContext)),
+                    ifcId);
 
             final Set<InstanceIdentifier<?>> specificIfcTypes = Sets.newHashSet(vhostId, vxlanGpeId, vxlanGpeId, tapId);
 
             // Ethernet(No dependency, customizer not finished TODO) =
-            registry.addWriter(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class), new EthernetCustomizer(jvpp)));
+            registry.add(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class), new EthernetCustomizer(jvpp)));
             // Routing(Execute only after specific interface customizers) =
-            registry.addWriterAfter(
-                new GenericWriter<>(VPP_IFC_AUG_ID.child(Routing.class), new RoutingCustomizer(jvpp, ifcContext)),
-                specificIfcTypes);
+            registry.addAfter(
+                    new GenericWriter<>(VPP_IFC_AUG_ID.child(Routing.class), new RoutingCustomizer(jvpp, ifcContext)),
+                    specificIfcTypes);
             // Routing(Execute only after specific interface customizers) =
-            registry.addWriterAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcContext, bdContext)),
-                specificIfcTypes);
+            registry.addAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcContext, bdContext)),
+                    specificIfcTypes);
 
             // ACL (execute after classify table and session writers)
             // also handles L2Acl, Ip4Acl and Ip6Acl:
             final InstanceIdentifier<Acl> aclId = InstanceIdentifier.create(Acl.class);
             registry
-                .addSubtreeWriterAfter(
+                .subtreeAddAfter(
                     Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
                     new GenericWriter<>(ACL_ID, new AclCustomizer(jvpp, ifcContext, classifyTableContext)),
-                    Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID)
-                );
+                    Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
         }
 
     }

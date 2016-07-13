@@ -331,10 +331,10 @@
                 <module>
                     <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:utils">prefix:delegating-reader-registry</type>
                     <name>read-registry</name>
-                    <root-readers>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                    <reader-factory>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-factory</type>
                         <name>netconf-monitoring-reader</name>
-                    </root-readers>
+                    </reader-factory>
                 </module>
                 <!-- END: Special reader for Netconf monitoring. -->
 
@@ -364,7 +364,7 @@
                 </service>
 
                 <service>
-                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader</type>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:translate:api">prefix:honeycomb-reader-factory</type>
                     <instance>
                         <name>netconf-monitoring-reader</name>
                         <provider>/modules/module[type='netconf-monitoring-reader'][name='netconf-monitoring-reader']</provider>

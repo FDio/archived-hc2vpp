@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.util;
+package io.fd.honeycomb.v3po.translate.util.read;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.MappingContext;
 import io.fd.honeycomb.v3po.translate.ModificationCache;
-import io.fd.honeycomb.v3po.translate.read.ChildReader;
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
+import io.fd.honeycomb.v3po.translate.read.Reader;
 import java.io.Closeable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -39,13 +39,13 @@ import org.slf4j.LoggerFactory;
  * Reader wrapper that periodically invokes a read to determine whether reads are still fully functional.
  * In case a specific error occurs, Keep-alive failure listener gets notified.
  */
-public final class KeepaliveReaderWrapper<D extends DataObject> implements ChildReader<D>, Runnable, Closeable {
+public final class KeepaliveReaderWrapper<D extends DataObject, B extends Builder<D>> implements Reader<D, B>, Runnable, Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeepaliveReaderWrapper.class);
 
     private static final NoopReadContext CTX = new NoopReadContext();
 
-    private final ChildReader<D> delegate;
+    private final Reader<D, B> delegate;
     private final Class<? extends Exception> exceptionType;
     private final KeepaliveFailureListener failureListener;
     private final ScheduledFuture<?> scheduledFuture;
@@ -59,7 +59,7 @@ public final class KeepaliveReaderWrapper<D extends DataObject> implements Child
      * @param delayInSeconds number of seconds to wait between keepalive calls
      * @param failureListener listener to be called whenever a keepalive failure is detected
      */
-    public KeepaliveReaderWrapper(@Nonnull final ChildReader<D> delegate,
+    public KeepaliveReaderWrapper(@Nonnull final Reader<D, B> delegate,
                                   @Nonnull final ScheduledExecutorService executor,
                                   @Nonnull final Class<? extends Exception> exception,
                                   @Nonnegative final int delayInSeconds,
@@ -73,17 +73,25 @@ public final class KeepaliveReaderWrapper<D extends DataObject> implements Child
     }
 
     @Nonnull
-    @Override
-    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+    public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier id,
                                                @Nonnull final ReadContext ctx) throws ReadFailedException {
         return delegate.read(id, ctx);
     }
 
-    @Override
-    public void read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
-                     @Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final ReadContext ctx)
-        throws ReadFailedException {
-        delegate.read(id, parentBuilder, ctx);
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
+                                      @Nonnull final B builder,
+                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
+        delegate.readCurrentAttributes(id, builder, ctx);
+    }
+
+    @Nonnull
+    public B getBuilder(final InstanceIdentifier<D> id) {
+        return delegate.getBuilder(id);
+    }
+
+    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder,
+                      @Nonnull final D readValue) {
+        delegate.merge(parentBuilder, readValue);
     }
 
     @Nonnull
@@ -99,7 +107,7 @@ public final class KeepaliveReaderWrapper<D extends DataObject> implements Child
             final Optional<? extends DataObject> read = read(delegate.getManagedDataObjectType(), CTX);
             LOG.debug("Keepalive executed successfully with data: {}", read);
         } catch (Exception e) {
-            if(exceptionType.isAssignableFrom(e.getClass())) {
+            if (exceptionType.isAssignableFrom(e.getClass())) {
                 LOG.warn("Keepalive failed. Notifying listener", e);
                 failureListener.onKeepaliveFailure();
             }

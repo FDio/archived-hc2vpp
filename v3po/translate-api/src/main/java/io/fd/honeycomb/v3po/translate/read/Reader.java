@@ -20,16 +20,17 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.v3po.translate.SubtreeManager;
 import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Base reader, responsible for translation between DataObjects and any other side
+ * Base reader, responsible for translation between DataObjects and any other side.
  *
  * @param <D> Specific DataObject derived type, that is handled by this reader
  */
 @Beta
-public interface Reader<D extends DataObject> extends SubtreeManager<D> {
+public interface Reader<D extends DataObject, B extends Builder<D>> extends SubtreeManager<D> {
 
     // TODO make async
 
@@ -45,7 +46,31 @@ public interface Reader<D extends DataObject> extends SubtreeManager<D> {
      * @throws ReadFailedException if read was unsuccessful
      */
     @Nonnull
-    Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
+    Optional<? extends DataObject> read(@Nonnull InstanceIdentifier<? extends DataObject> id,
                                         @Nonnull ReadContext ctx) throws ReadFailedException;
 
+    /**
+     * Fill in current node's attributes
+     *
+     * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
+     * @param builder Builder object for current node where the read attributes must be placed
+     * @param ctx Current read context
+     */
+    void readCurrentAttributes(@Nonnull InstanceIdentifier<D> id,
+                               @Nonnull B builder,
+                               @Nonnull ReadContext ctx) throws ReadFailedException;
+
+    /**
+     * Return new instance of a builder object for current node
+     *
+     * @param id {@link InstanceIdentifier} pointing to current node. In case of keyed list, key must be present.
+     * @return Builder object for current node type
+     */
+    @Nonnull
+    B getBuilder(InstanceIdentifier<D> id);
+
+    /**
+     * Merge read data into provided parent builder.
+     */
+    void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final D readValue);
 }

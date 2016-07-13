@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.v3po.translate.read;
+package io.fd.honeycomb.v3po.translate.read.registry;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.v3po.translate.read.ReadContext;
+import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -26,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Simple delegating reader suitable as a holder for all other root readers, providing readAll feature.
  */
 @Beta
-public interface ReaderRegistry extends Reader<DataObject> {
+public interface ReaderRegistry {
 
     /**
      * Performs read on all registered root readers and merges the results into a Multimap. Keys represent identifiers
@@ -39,5 +42,21 @@ public interface ReaderRegistry extends Reader<DataObject> {
      */
     @Nonnull
     Multimap<InstanceIdentifier<? extends DataObject>, ? extends DataObject> readAll(@Nonnull final ReadContext ctx)
+            throws ReadFailedException;
+
+    /**
+     * Reads data identified by id.
+     *
+     * @param id unique identifier of subtree to be read. The subtree must contain managed data object type. For
+     *           identifiers pointing below node managed by this reader, it's reader's responsibility to filter out the
+     *           right node or to delegate the read to a child reader.
+     * @param ctx Read context
+     *
+     * @return List of DataObjects identified by id. If the ID points to a single node, it will be wrapped in a list
+     * @throws ReadFailedException if read was unsuccessful
+     */
+    @Nonnull
+    Optional<? extends DataObject> read(@Nonnull InstanceIdentifier<? extends DataObject> id,
+                                        @Nonnull ReadContext ctx)
             throws ReadFailedException;
 }

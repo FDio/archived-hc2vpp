@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
 import static io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils.booleanToByte;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.v3po.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
@@ -40,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev1
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527._802dot1ad;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.MatchType;
@@ -48,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.vlan.tagged.VlanTagged;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.Tag;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.CreateSubif;
@@ -73,14 +70,6 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
-
-    @Nonnull
-    @Override
-    public Optional<List<SubInterface>> extract(@Nonnull final InstanceIdentifier<SubInterface> currentId,
-                                                @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((SubInterfaces) parentData).getSubInterface());
-    }
-
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<SubInterface> id,

@@ -18,7 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfacesstate;
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -34,15 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Customizer for reading ietf-interfaces:interfaces-state/interface/iface_name/v3po:l2
  */
-public class L2Customizer extends FutureJVppCustomizer implements ChildReaderCustomizer<L2, L2Builder> {
+public class L2Customizer extends FutureJVppCustomizer implements ReaderCustomizer<L2, L2Builder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2Customizer.class);
     private final InterconnectionReadUtils icReadUtils;

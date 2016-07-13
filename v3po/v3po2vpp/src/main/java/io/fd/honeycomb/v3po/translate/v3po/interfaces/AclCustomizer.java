@@ -18,8 +18,7 @@ package io.fd.honeycomb.v3po.translate.v3po.interfaces;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.base.Optional;
-import io.fd.honeycomb.v3po.translate.spi.write.ChildWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.WriteTimeoutException;
@@ -27,9 +26,7 @@ import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Acl;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.future.FutureJVpp;
@@ -37,9 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Customizer for enabling/disabling ACLs on given interface
+ * Customizer for enabling/disabling ACLs on given interface.
  */
-public class AclCustomizer extends FutureJVppCustomizer implements ChildWriterCustomizer<Acl>, AclWriter {
+public class AclCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Acl>, AclWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclCustomizer.class);
     private final NamingContext interfaceContext;
@@ -50,13 +47,6 @@ public class AclCustomizer extends FutureJVppCustomizer implements ChildWriterCu
         super(vppApi);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
-    }
-
-    @Nonnull
-    @Override
-    public Optional<Acl> extract(@Nonnull final InstanceIdentifier<Acl> currentId,
-                                 @Nonnull final DataObject parentData) {
-        return Optional.fromNullable(((VppInterfaceAugmentation) parentData).getAcl());
     }
 
     @Override

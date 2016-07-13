@@ -1,8 +1,8 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.translate.utils.rev160406;
 
 import io.fd.honeycomb.v3po.translate.util.write.NoopWriterRegistry;
-import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
-import io.fd.honeycomb.v3po.translate.write.WriterRegistryBuilder;
+import io.fd.honeycomb.v3po.translate.write.registry.WriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.registry.WriterRegistryBuilder;
 
 public class NoopWriterRegistryModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.translate.utils.rev160406.AbstractNoopWriterRegistryModule {
     public NoopWriterRegistryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {

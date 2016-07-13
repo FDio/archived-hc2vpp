@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.v3po.translate.spi.write.RootWriterCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class GenericWriterTest {
     private static final InstanceIdentifier<DataObject>
             DATA_OBJECT_INSTANCE_IDENTIFIER = InstanceIdentifier.create(DataObject.class);
     @Mock
-    private RootWriterCustomizer<DataObject> customizer;
+    private WriterCustomizer<DataObject> customizer;
     @Mock
     private WriteContext ctx;
 

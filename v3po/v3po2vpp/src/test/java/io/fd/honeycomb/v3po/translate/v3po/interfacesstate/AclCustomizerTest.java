@@ -25,8 +25,8 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.v3po.translate.spi.read.RootReaderCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.test.ChildReaderCustomizerTest;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -48,7 +48,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.dto.ClassifyTableByInterface;
 import org.openvpp.jvpp.dto.ClassifyTableByInterfaceReply;
 
-public class AclCustomizerTest extends ChildReaderCustomizerTest<Acl, AclBuilder> {
+public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
 
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 1;
@@ -90,7 +90,7 @@ public class AclCustomizerTest extends ChildReaderCustomizerTest<Acl, AclBuilder
     }
 
     @Override
-    protected RootReaderCustomizer<Acl, AclBuilder> initCustomizer() {
+    protected ReaderCustomizer<Acl, AclBuilder> initCustomizer() {
         return new AclCustomizer(api, interfaceContext, classifyTableContext);
     }
 

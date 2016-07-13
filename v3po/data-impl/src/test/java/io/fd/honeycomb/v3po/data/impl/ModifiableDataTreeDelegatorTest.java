@@ -42,7 +42,7 @@ import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.translate.TranslationException;
 import io.fd.honeycomb.v3po.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
-import io.fd.honeycomb.v3po.translate.write.WriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.registry.WriterRegistry;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;

@@ -5,7 +5,7 @@ import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.vpp.BridgeDomainCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.vpp.L2FibEntryCustomizer;
-import io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
+import io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.honeycomb.v3po.translate.write.WriterFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
@@ -62,17 +62,17 @@ public class VppHoneycombWriterModule extends
         }
 
         @Override
-        public void init(final ModifiableWriterRegistry registry) {
+        public void init(final ModifiableWriterRegistryBuilder registry) {
             // Vpp has no handlers
             //  BridgeDomains has no handlers
             //   BridgeDomain =
             final InstanceIdentifier<BridgeDomain> bdId =
                     InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(BridgeDomain.class);
-            registry.addWriter(new GenericListWriter<>(bdId, new BridgeDomainCustomizer(jvpp, bdContext)));
+            registry.add(new GenericListWriter<>(bdId, new BridgeDomainCustomizer(jvpp, bdContext)));
             //    L2FibTable has no handlers
             //     L2FibEntry(handled after BridgeDomain and L2 of ifc and subifc) =
             final InstanceIdentifier<L2FibEntry> l2FibEntryId = bdId.child(L2FibTable.class).child(L2FibEntry.class);
-            registry.addWriterAfter(
+            registry.addAfter(
                     new GenericListWriter<>(l2FibEntryId, new L2FibEntryCustomizer(jvpp, bdContext, ifcContext)),
                     Sets.newHashSet(
                             bdId,

@@ -22,7 +22,7 @@ import static io.fd.honeycomb.v3po.translate.v3po.util.SubInterfaceUtils.getSubI
 
 import io.fd.honeycomb.v3po.translate.read.ReadContext;
 import io.fd.honeycomb.v3po.translate.read.ReadFailedException;
-import io.fd.honeycomb.v3po.translate.spi.read.ChildReaderCustomizer;
+import io.fd.honeycomb.v3po.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.v3po.translate.v3po.util.TranslateUtils;
@@ -45,10 +45,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Customizer for reading ACLs enabled on given sub-interface
+ * Customizer for reading ACLs enabled on given sub-interface.
  */
 public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
-    implements ChildReaderCustomizer<Acl, AclBuilder>, AclReader {
+    implements ReaderCustomizer<Acl, AclBuilder>, AclReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceAclCustomizer.class);
     private final NamingContext interfaceContext;
