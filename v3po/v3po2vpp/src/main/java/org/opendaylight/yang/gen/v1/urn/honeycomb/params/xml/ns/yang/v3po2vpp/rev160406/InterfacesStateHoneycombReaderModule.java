@@ -150,10 +150,5 @@ public class InterfacesStateHoneycombReaderModule extends
                     new GenericReader<>(vppIfcAugId.child(Acl.class), new AclCustomizer(jvpp, ifcCtx, classifyCtx)));
 
         }
-
-        @Override
-        public void close() throws Exception {
-            // unregister not supported
-        }
     }
 }

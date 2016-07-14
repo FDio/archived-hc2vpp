@@ -117,7 +117,7 @@ public final class RWUtils {
     }
 
     /**
-     * Create a map from a collection, checking for duplicity in the process
+     * Create an ordered map from a collection, checking for duplicity in the process.
      */
     @Nonnull
     public static <K, V> Map<K, V> uniqueLinkedIndex(@Nonnull final Collection<V> values, @Nonnull final Function<? super V, K> keyFunction) {
@@ -152,6 +152,9 @@ public final class RWUtils {
 
     /**
      * Transform a keyed instance identifier into a wildcarded one.
+     * <p/>
+     * ! This has to be called also for wildcarded List instance identifiers
+     * due to weird behavior of equals in InstanceIdentifier !
      */
     @SuppressWarnings("unchecked")
     public static <D extends DataObject> InstanceIdentifier<D> makeIidWildcarded(final InstanceIdentifier<D> id) {
@@ -160,6 +163,19 @@ public final class RWUtils {
                         .map(RWUtils::cleanPathArgumentFromKeys)
                         .collect(Collectors.toList());
         return (InstanceIdentifier<D>) InstanceIdentifier.create(transformedPathArguments);
+    }
+
+    /**
+     * Transform a keyed instance identifier into a wildcarded one, keeping keys except the last item.
+     */
+    @SuppressWarnings("unchecked")
+    public static <D extends DataObject> InstanceIdentifier<D> makeIidLastWildcarded(final InstanceIdentifier<D> id) {
+        final InstanceIdentifier.Item<D> wildcardedItem = new InstanceIdentifier.Item<>(id.getTargetType());
+        final Iterable<InstanceIdentifier.PathArgument> pathArguments = id.getPathArguments();
+        return (InstanceIdentifier<D>) InstanceIdentifier.create(
+                Iterables.concat(
+                        Iterables.limit(pathArguments, Iterables.size(pathArguments) - 1),
+                        Collections.singleton(wildcardedItem)));
     }
 
     private static InstanceIdentifier.PathArgument cleanPathArgumentFromKeys(final InstanceIdentifier.PathArgument pathArgument) {

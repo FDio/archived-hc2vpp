@@ -101,11 +101,6 @@ public class InterfacesHoneycombWriterModule extends
         }
 
         @Override
-        public void close() throws Exception {
-            // unregister is not supported in ModifiableWriterRegistry (not really needed though)
-        }
-
-        @Override
         public void init(final ModifiableWriterRegistryBuilder registry) {
             // Interfaces
             //  Interface =

@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.translate.util.read.registry;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.LinkedListMultimap;
@@ -31,6 +32,7 @@ import io.fd.honeycomb.v3po.translate.util.RWUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -57,6 +59,11 @@ public final class CompositeReaderRegistry implements ReaderRegistry {
      */
     public CompositeReaderRegistry(@Nonnull final List<Reader<? extends DataObject, ? extends Builder<?>>> rootReaders) {
         this.rootReaders = RWUtils.uniqueLinkedIndex(checkNotNull(rootReaders), RWUtils.MANAGER_CLASS_FUNCTION);
+    }
+
+    @VisibleForTesting
+    Map<Class<? extends DataObject>, Reader<? extends DataObject, ? extends Builder<?>>> getRootReaders() {
+        return rootReaders;
     }
 
     @Override
@@ -100,5 +107,11 @@ public final class CompositeReaderRegistry implements ReaderRegistry {
                 "Unable to read %s. Missing reader. Current readers for: %s", id, rootReaders.keySet());
         LOG.debug("Reading from delegate: {}", reader);
         return reader.read(id, ctx);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + rootReaders.keySet().stream().map(Class::getSimpleName).collect(Collectors.toList());
     }
 }

@@ -55,10 +55,5 @@ public class VppClassifierStateHoneycombReaderModule extends org.opendaylight.ya
             final InstanceIdentifier<ClassifySession> classSesId = classTblId.child(ClassifySession.class);
             registry.add(new GenericListReader<>(classSesId, new ClassifySessionReader(jvpp, classifyCtx)));
         }
-
-        @Override
-        public void close() throws Exception {
-            // Noop, no unregister provided
-        }
     }
 }

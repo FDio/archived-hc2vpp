@@ -89,7 +89,7 @@ class SubtreeReader<D extends DataObject, B extends Builder<D>> implements Reade
             LOG.debug("{}: Subtree node managed by this writer requested: {}. Reading current and filtering", this, id);
             // If there's no dedicated reader, use read current
             final InstanceIdentifier<D> currentId = RWUtils.cutId(id, getManagedDataObjectType());
-            final Optional<? extends DataObject> current = read(currentId, ctx);
+            final Optional<? extends DataObject> current = delegate.read(currentId, ctx);
             // then perform post-reading filtering (return only requested sub-node)
             final Optional<? extends DataObject> readSubtree = current.isPresent()
                 ? filterSubtree(current.get(), id, getManagedDataObjectType().getTargetType())

@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.Futures;
 import io.fd.honeycomb.v3po.data.DataModification;
 import io.fd.honeycomb.v3po.translate.util.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
@@ -39,14 +38,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javassist.ClassPool;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.opendaylight.controller.md.sal.binding.impl.BindingToNormalizedNodeCodec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.$YangModuleInfoImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ComplexAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ComplexAugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.ContainerWithChoice;
@@ -72,13 +65,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.simple.container.ComplexAugmentContainerBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.some.attributes.ContainerFromGrouping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hc.test.rev150105.some.attributes.ContainerFromGroupingBuilder;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.yangtools.binding.data.codec.gen.impl.DataObjectSerializerGenerator;
-import org.opendaylight.yangtools.binding.data.codec.gen.impl.StreamWriterGenerator;
-import org.opendaylight.yangtools.binding.data.codec.impl.BindingNormalizedNodeCodecRegistry;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.BindingRuntimeContext;
-import org.opendaylight.yangtools.sal.binding.generator.util.JavassistUtils;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -87,61 +73,28 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TipProducingDataTree;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.TreeType;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.InMemoryDataTreeFactory;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 
 /**
- * Testing honeycomb writes from data tree up to mocked writers
+ * Testing honeycomb writes from data tree up to mocked writers.
  */
-public class HoneycombWriteInfraTest {
+public class HoneycombWriteInfraTest extends AbstractInfraTest {
 
     private TipProducingDataTree dataTree;
-    private BindingNormalizedNodeSerializer serializer;
     private WriterRegistry writerRegistry;
-    private SchemaContext schemaContext;
 
-    @Mock
-    private org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction ctxTx;
-    @Mock
-    private org.opendaylight.controller.md.sal.binding.api.DataBroker contextBroker;
+    Writer<SimpleContainer> simpleContainerWriter = mockWriter(Ids.SIMPLE_CONTAINER_ID);
+    Writer<ComplexAugment> complexAugmentWriter = mockWriter(Ids.COMPLEX_AUGMENT_ID);
+    Writer<ComplexAugmentContainer> complexAugmentContainerWriter = mockWriter(Ids.COMPLEX_AUGMENT_CONTAINER_ID);
+    Writer<SimpleAugment> simpleAugmentWriter = mockWriter(Ids.SIMPLE_AUGMENT_ID);
 
-    // Simple container
-    // ORDER = 3
-    static final InstanceIdentifier<SimpleContainer> SIMPLE_CONTAINER_ID = InstanceIdentifier.create(SimpleContainer.class);
-    Writer<SimpleContainer> simpleContainerWriter = mockWriter(SIMPLE_CONTAINER_ID);
-    // UNORDERED
-    static final InstanceIdentifier<ComplexAugment> COMPLEX_AUGMENT_ID = SIMPLE_CONTAINER_ID.augmentation(ComplexAugment.class);
-    Writer<ComplexAugment> complexAugmentWriter = mockWriter(COMPLEX_AUGMENT_ID);
-    // 1
-    static final InstanceIdentifier<ComplexAugmentContainer> COMPLEX_AUGMENT_CONTAINER_ID = COMPLEX_AUGMENT_ID.child(ComplexAugmentContainer.class);
-    Writer<ComplexAugmentContainer> complexAugmentContainerWriter = mockWriter(COMPLEX_AUGMENT_CONTAINER_ID);
-    // 2
-    static final InstanceIdentifier<SimpleAugment> SIMPLE_AUGMENT_ID = SIMPLE_CONTAINER_ID.augmentation(SimpleAugment.class);
-    Writer<SimpleAugment> simpleAugmentWriter = mockWriter(SIMPLE_AUGMENT_ID);
+    Writer<ContainerWithList> containerWithListWriter = mockWriter(Ids.CONTAINER_WITH_LIST_ID);
+    Writer<ListInContainer> listInContainerWriter = mockWriter(Ids.LIST_IN_CONTAINER_ID);
+    Writer<ContainerInList> containerInListWriter = mockWriter(Ids.CONTAINER_IN_LIST_ID);
+    Writer<NestedList> nestedListWriter = mockWriter(Ids.NESTED_LIST_ID);
 
-    // Container with list
-    // 9
-    static final InstanceIdentifier<ContainerWithList> CONTAINER_WITH_LIST_ID = InstanceIdentifier.create(ContainerWithList.class);
-    Writer<ContainerWithList> containerWithListWriter = mockWriter(CONTAINER_WITH_LIST_ID);
-    // 7
-    static final InstanceIdentifier<ListInContainer> LIST_IN_CONTAINER_ID = CONTAINER_WITH_LIST_ID.child(ListInContainer.class);
-    Writer<ListInContainer> listInContainerWriter = mockWriter(LIST_IN_CONTAINER_ID);
-    // 8
-    static final InstanceIdentifier<ContainerInList> CONTAINER_IN_LIST_ID = LIST_IN_CONTAINER_ID.child(ContainerInList.class);
-    Writer<ContainerInList> containerInListWriter = mockWriter(CONTAINER_IN_LIST_ID);
-    // 6
-    static final InstanceIdentifier<NestedList> NESTED_LIST_ID = CONTAINER_IN_LIST_ID.child(NestedList.class);
-    Writer<NestedList> nestedListWriter = mockWriter(NESTED_LIST_ID);
-
-    // Container with choice
-    // 4
-    static final InstanceIdentifier<ContainerWithChoice> CONTAINER_WITH_CHOICE_ID = InstanceIdentifier.create(ContainerWithChoice.class);
-    Writer<ContainerWithChoice> containerWithChoiceWriter = mockWriter(CONTAINER_WITH_CHOICE_ID);
-    // 5
-    static final InstanceIdentifier<ContainerFromGrouping> CONTAINER_FROM_GROUPING_ID = CONTAINER_WITH_CHOICE_ID.child(ContainerFromGrouping.class);
-    Writer<ContainerFromGrouping> containerFromGroupingWriter = mockWriter(CONTAINER_FROM_GROUPING_ID);
-    // 2
-    static final InstanceIdentifier<C3> C3_ID = CONTAINER_WITH_CHOICE_ID.child(C3.class);
-    Writer<C3> c3Writer = mockWriter(C3_ID);
+    Writer<ContainerWithChoice> containerWithChoiceWriter = mockWriter(Ids.CONTAINER_WITH_CHOICE_ID);
+    Writer<ContainerFromGrouping> containerFromGroupingWriter = mockWriter(Ids.CONTAINER_FROM_GROUPING_ID);
+    Writer<C3> c3Writer = mockWriter(Ids.C3_ID);
 
 
     private static <D extends DataObject> Writer<D> mockWriter(final InstanceIdentifier<D> id) {
@@ -150,13 +103,8 @@ public class HoneycombWriteInfraTest {
         return mock;
     }
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        when(contextBroker.newReadWriteTransaction()).thenReturn(ctxTx);
-        when(ctxTx.submit()).thenReturn(Futures.immediateCheckedFuture(null));
-
-        initSerializer();
+    @Override
+    void postSetup() {
         initDataTree();
         initWriterRegistry();
     }
@@ -166,33 +114,19 @@ public class HoneycombWriteInfraTest {
         dataTree.setSchemaContext(schemaContext);
     }
 
-    private void initSerializer() {
-        final ModuleInfoBackedContext moduleInfoBackedContext = ModuleInfoBackedContext.create();
-        moduleInfoBackedContext.addModuleInfos(Collections.singleton($YangModuleInfoImpl.getInstance()));
-        schemaContext = moduleInfoBackedContext.tryToCreateSchemaContext().get();
-
-        final DataObjectSerializerGenerator serializerGenerator = new StreamWriterGenerator(JavassistUtils.forClassPool(
-                ClassPool.getDefault()));
-        final BindingNormalizedNodeCodecRegistry codecRegistry = new BindingNormalizedNodeCodecRegistry(serializerGenerator);
-        serializer = new BindingToNormalizedNodeCodec(moduleInfoBackedContext, codecRegistry);
-        final BindingRuntimeContext ctx =
-                BindingRuntimeContext.create(moduleInfoBackedContext, schemaContext);
-        codecRegistry.onBindingRuntimeContextUpdated(ctx);
-    }
-
     private void initWriterRegistry() {
         writerRegistry = new FlatWriterRegistryBuilder()
                 .add(complexAugmentWriter) // unordered
                 .add(nestedListWriter) // 6
-                .addAfter(listInContainerWriter, NESTED_LIST_ID) // 7
-                .addAfter(containerInListWriter, LIST_IN_CONTAINER_ID) // 8
-                .addAfter(containerWithListWriter, CONTAINER_IN_LIST_ID) // 9
-                .addBefore(containerFromGroupingWriter, NESTED_LIST_ID) // 5
-                .addBefore(containerWithChoiceWriter, CONTAINER_FROM_GROUPING_ID) // 4
-                .addBefore(simpleContainerWriter, CONTAINER_WITH_CHOICE_ID) // 3
-                .addBefore(c3Writer, SIMPLE_CONTAINER_ID) // 2
-                .addBefore(simpleAugmentWriter, SIMPLE_CONTAINER_ID) // 2
-                .addBefore(complexAugmentContainerWriter, Sets.newHashSet(C3_ID, SIMPLE_AUGMENT_ID)) // 1
+                .addAfter(listInContainerWriter, Ids.NESTED_LIST_ID) // 7
+                .addAfter(containerInListWriter, Ids.LIST_IN_CONTAINER_ID) // 8
+                .addAfter(containerWithListWriter, Ids.CONTAINER_IN_LIST_ID) // 9
+                .addBefore(containerFromGroupingWriter, Ids.NESTED_LIST_ID) // 5
+                .addBefore(containerWithChoiceWriter, Ids.CONTAINER_FROM_GROUPING_ID) // 4
+                .addBefore(simpleContainerWriter, Ids.CONTAINER_WITH_CHOICE_ID) // 3
+                .addBefore(c3Writer, Ids.SIMPLE_CONTAINER_ID) // 2
+                .addBefore(simpleAugmentWriter, Ids.SIMPLE_CONTAINER_ID) // 2
+                .addBefore(complexAugmentContainerWriter, Sets.newHashSet(Ids.C3_ID, Ids.SIMPLE_AUGMENT_ID)) // 1
                 .build();
     }
 
@@ -206,7 +140,7 @@ public class HoneycombWriteInfraTest {
                 .build();
 
         final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode =
-                serializer.toNormalizedNode(SIMPLE_CONTAINER_ID, data);
+                serializer.toNormalizedNode(Ids.SIMPLE_CONTAINER_ID, data);
         dataModification.write(normalizedNode.getKey(), normalizedNode.getValue());
 
         dataModification.commit();
@@ -239,29 +173,29 @@ public class HoneycombWriteInfraTest {
         // verify(complexAugmentWriter).update(eq(COMPLEX_AUGMENT_ID), eq(null), eq(getComplexAugment()), any(WriteContext.class));
         // 1
         inOrder.verify(complexAugmentContainerWriter)
-                .update(eq(COMPLEX_AUGMENT_CONTAINER_ID), eq(null), eq(getComplexAugmentContainer()), any(WriteContext.class));
+                .update(eq(Ids.COMPLEX_AUGMENT_CONTAINER_ID), eq(null), eq(getComplexAugmentContainer()), any(WriteContext.class));
         // 2
         inOrder.verify(c3Writer)
-                .update(eq(C3_ID), eq(null), eq(getC3()), any(WriteContext.class));
+                .update(eq(Ids.C3_ID), eq(null), eq(getC3()), any(WriteContext.class));
         // 2
         verify(simpleAugmentWriter)
-                .update(eq(SIMPLE_AUGMENT_ID), eq(null), eq(getSimpleAugment()), any(WriteContext.class));
+                .update(eq(Ids.SIMPLE_AUGMENT_ID), eq(null), eq(getSimpleAugment()), any(WriteContext.class));
         // 3
         inOrder.verify(simpleContainerWriter)
-                .update(eq(SIMPLE_CONTAINER_ID), eq(null), eq(getSimpleContainer()), any(WriteContext.class));
+                .update(eq(Ids.SIMPLE_CONTAINER_ID), eq(null), eq(getSimpleContainer()), any(WriteContext.class));
         // 4
         inOrder.verify(containerWithChoiceWriter)
-                .update(eq(CONTAINER_WITH_CHOICE_ID), eq(null), eq(getContainerWithChoiceWithComplexCase()), any(WriteContext.class));
+                .update(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(null), eq(getContainerWithChoiceWithComplexCase()), any(WriteContext.class));
         // 5
         inOrder.verify(containerFromGroupingWriter)
-                .update(eq(CONTAINER_FROM_GROUPING_ID), eq(null), eq(getContainerFromGrouping()), any(WriteContext.class));
+                .update(eq(Ids.CONTAINER_FROM_GROUPING_ID), eq(null), eq(getContainerFromGrouping()), any(WriteContext.class));
 
         final KeyedInstanceIdentifier<ListInContainer, ListInContainerKey> keyedListInContainer1 =
-                CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 1));
+                Ids.CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 1));
         final KeyedInstanceIdentifier<NestedList, NestedListKey> keyedNestedList1 =
                 keyedListInContainer1.child(ContainerInList.class).child(NestedList.class, new NestedListKey("1"));
         final KeyedInstanceIdentifier<ListInContainer, ListInContainerKey> keyedListInContainer2 =
-                CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 2));
+                Ids.CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 2));
         final KeyedInstanceIdentifier<NestedList, NestedListKey> keyedNestedList2 =
                 keyedListInContainer2.child(ContainerInList.class).child(NestedList.class, new NestedListKey("2"));
 
@@ -332,11 +266,11 @@ public class HoneycombWriteInfraTest {
         final InOrder inOrder = inOrder(orderedWriters);
 
         final KeyedInstanceIdentifier<ListInContainer, ListInContainerKey> keyedListInContainer1 =
-                CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 1));
+                Ids.CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 1));
         final KeyedInstanceIdentifier<NestedList, NestedListKey> keyedNestedList1 =
                 keyedListInContainer1.child(ContainerInList.class).child(NestedList.class, new NestedListKey("1"));
         final KeyedInstanceIdentifier<ListInContainer, ListInContainerKey> keyedListInContainer2 =
-                CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 2));
+                Ids.CONTAINER_WITH_LIST_ID.child(ListInContainer.class, new ListInContainerKey((long) 2));
         final KeyedInstanceIdentifier<NestedList, NestedListKey> keyedNestedList2 =
                 keyedListInContainer2.child(ContainerInList.class).child(NestedList.class, new NestedListKey("2"));
 
@@ -360,22 +294,22 @@ public class HoneycombWriteInfraTest {
                 .update(eq(keyedNestedList2), eq(getSingleNestedList("2")), eq(null), any(WriteContext.class));
         // 4
         inOrder.verify(containerFromGroupingWriter)
-                .update(eq(CONTAINER_FROM_GROUPING_ID), eq(getContainerFromGrouping()), eq(null), any(WriteContext.class));
+                .update(eq(Ids.CONTAINER_FROM_GROUPING_ID), eq(getContainerFromGrouping()), eq(null), any(WriteContext.class));
         // 5
         inOrder.verify(containerWithChoiceWriter)
-                .update(eq(CONTAINER_WITH_CHOICE_ID), eq(getContainerWithChoiceWithComplexCase()), eq(null), any(WriteContext.class));
+                .update(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(getContainerWithChoiceWithComplexCase()), eq(null), any(WriteContext.class));
         // 6
         inOrder.verify(simpleContainerWriter)
-                .update(eq(SIMPLE_CONTAINER_ID), eq(getSimpleContainer()), eq(null), any(WriteContext.class));
+                .update(eq(Ids.SIMPLE_CONTAINER_ID), eq(getSimpleContainer()), eq(null), any(WriteContext.class));
         // 7
         verify(simpleAugmentWriter)
-                .update(eq(SIMPLE_AUGMENT_ID), eq(getSimpleAugment()), eq(null), any(WriteContext.class));
+                .update(eq(Ids.SIMPLE_AUGMENT_ID), eq(getSimpleAugment()), eq(null), any(WriteContext.class));
         // 8
         inOrder.verify(c3Writer)
-                .update(eq(C3_ID), eq(getC3()), eq(null), any(WriteContext.class));
+                .update(eq(Ids.C3_ID), eq(getC3()), eq(null), any(WriteContext.class));
         // 9
         inOrder.verify(complexAugmentContainerWriter)
-                .update(eq(COMPLEX_AUGMENT_CONTAINER_ID), eq(getComplexAugmentContainer()), eq(null), any(WriteContext.class));
+                .update(eq(Ids.COMPLEX_AUGMENT_CONTAINER_ID), eq(getComplexAugmentContainer()), eq(null), any(WriteContext.class));
 
         for (Writer<?> orderedWriter : orderedWriters) {
             verify(orderedWriter).getManagedDataObjectType();
@@ -385,12 +319,12 @@ public class HoneycombWriteInfraTest {
 
     private void writeContainerWithList(final DataModification dataModification) {
         final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode =
-                serializer.toNormalizedNode(CONTAINER_WITH_LIST_ID, getContainerWithList());
+                serializer.toNormalizedNode(Ids.CONTAINER_WITH_LIST_ID, getContainerWithList());
         dataModification.write(normalizedNode.getKey(), normalizedNode.getValue());
     }
 
     private void deleteContainerWithList(final DataModification dataModification) {
-        dataModification.delete(serializer.toYangInstanceIdentifier(CONTAINER_WITH_LIST_ID));
+        dataModification.delete(serializer.toYangInstanceIdentifier(Ids.CONTAINER_WITH_LIST_ID));
     }
 
     private ContainerWithList getContainerWithList() {
@@ -442,13 +376,13 @@ public class HoneycombWriteInfraTest {
 
 
     private void deleteContainerWithChoice(final DataModification dataModification) {
-        dataModification.delete(serializer.toYangInstanceIdentifier(CONTAINER_WITH_CHOICE_ID));
+        dataModification.delete(serializer.toYangInstanceIdentifier(Ids.CONTAINER_WITH_CHOICE_ID));
     }
 
     private void writeContainerWithChoice(final DataModification dataModification,
                                           final ContainerWithChoice containerWithChoice) {
         final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode =
-                serializer.toNormalizedNode(CONTAINER_WITH_CHOICE_ID, containerWithChoice);
+                serializer.toNormalizedNode(Ids.CONTAINER_WITH_CHOICE_ID, containerWithChoice);
         dataModification.write(normalizedNode.getKey(), normalizedNode.getValue());
     }
 
@@ -475,7 +409,7 @@ public class HoneycombWriteInfraTest {
 
     private void writeContainerFromGrouping(final DataModification dataModification) {
         final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode =
-                serializer.toNormalizedNode(CONTAINER_FROM_GROUPING_ID, getContainerFromGrouping());
+                serializer.toNormalizedNode(Ids.CONTAINER_FROM_GROUPING_ID, getContainerFromGrouping());
         dataModification.write(normalizedNode.getKey(), normalizedNode.getValue());
     }
 
@@ -488,13 +422,13 @@ public class HoneycombWriteInfraTest {
 
     private void writeSimpleContainer(final DataModification dataModification) {
         final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode =
-                serializer.toNormalizedNode(SIMPLE_CONTAINER_ID, getSimpleContainer());
+                serializer.toNormalizedNode(Ids.SIMPLE_CONTAINER_ID, getSimpleContainer());
         dataModification.write(normalizedNode.getKey(), normalizedNode.getValue());
     }
 
     private void deleteSimpleContainer(final DataModification dataModification) {
         final YangInstanceIdentifier yangId =
-                serializer.toYangInstanceIdentifier(SIMPLE_CONTAINER_ID);
+                serializer.toYangInstanceIdentifier(Ids.SIMPLE_CONTAINER_ID);
         dataModification.delete(yangId);
     }
 
@@ -540,7 +474,7 @@ public class HoneycombWriteInfraTest {
     public void testSubtreeWriter() throws Exception {
         writerRegistry = new FlatWriterRegistryBuilder()
                 // Handles also container from grouping
-                .subtreeAdd(Sets.newHashSet(CONTAINER_FROM_GROUPING_ID), containerWithChoiceWriter)
+                .subtreeAdd(Sets.newHashSet(Ids.CONTAINER_FROM_GROUPING_ID), containerWithChoiceWriter)
                 .build();
 
         final ModifiableDataTreeDelegator modifiableDataTreeDelegator =
@@ -556,7 +490,7 @@ public class HoneycombWriteInfraTest {
 
         verify(containerWithChoiceWriter, atLeastOnce()).getManagedDataObjectType();
         verify(containerWithChoiceWriter)
-                .update(eq(CONTAINER_WITH_CHOICE_ID), eq(null), eq(containerWithChoice), any(WriteContext.class));
+                .update(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(null), eq(containerWithChoice), any(WriteContext.class));
         verifyNoMoreInteractions(containerWithChoiceWriter);
 
         // Test delete sub-node
@@ -567,7 +501,7 @@ public class HoneycombWriteInfraTest {
 
         verify(containerWithChoiceWriter, atLeastOnce()).getManagedDataObjectType();
         verify(containerWithChoiceWriter)
-                .update(eq(CONTAINER_WITH_CHOICE_ID), eq(containerWithChoice), eq(containerWithChoiceEmpty), any(WriteContext.class));
+                .update(eq(Ids.CONTAINER_WITH_CHOICE_ID), eq(containerWithChoice), eq(containerWithChoiceEmpty), any(WriteContext.class));
         verifyNoMoreInteractions(containerWithChoiceWriter);
 
         // Test write with subtree node that's not handled by subtree writer
@@ -582,6 +516,6 @@ public class HoneycombWriteInfraTest {
     }
 
     private void deleteContainerFromGrouping(final DataModification dataModification) {
-        dataModification.delete(serializer.toYangInstanceIdentifier(CONTAINER_FROM_GROUPING_ID));
+        dataModification.delete(serializer.toYangInstanceIdentifier(Ids.CONTAINER_FROM_GROUPING_ID));
     }
 }

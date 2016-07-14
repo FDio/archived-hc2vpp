@@ -42,10 +42,5 @@ public class NetconfMonitoringReaderModule extends org.opendaylight.yang.gen.v1.
                     netconfMonitoringBindingBrokerDependency,
                     LogicalDatastoreType.OPERATIONAL, NetconfStateBuilder.class));
         }
-
-        @Override
-        public void close() throws Exception {
-            // TODO no unregister
-        }
     }
 }

@@ -13,11 +13,11 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import io.fd.honeycomb.v3po.translate.util.DataObjects;
 import io.fd.honeycomb.v3po.translate.write.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -31,19 +31,19 @@ public class FlatWriterRegistryBuilderTest {
             1   ->  2   ->  3
                         ->  4
          */
-        flatWriterRegistryBuilder.add(mockWriter(DataObject3.class));
-        flatWriterRegistryBuilder.add(mockWriter(DataObject4.class));
-        flatWriterRegistryBuilder.addBefore(mockWriter(DataObject2.class),
-                Lists.newArrayList(DataObject3.IID, DataObject4.IID));
-        flatWriterRegistryBuilder.addBefore(mockWriter(DataObject1.class), DataObject2.IID);
+        flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject3.class));
+        flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject4.class));
+        flatWriterRegistryBuilder.addBefore(mockWriter(DataObjects.DataObject2.class),
+                Lists.newArrayList(DataObjects.DataObject3.IID, DataObjects.DataObject4.IID));
+        flatWriterRegistryBuilder.addBefore(mockWriter(DataObjects.DataObject1.class), DataObjects.DataObject2.IID);
         final ImmutableMap<InstanceIdentifier<?>, Writer<?>> mappedWriters =
                 flatWriterRegistryBuilder.getMappedHandlers();
 
         final ArrayList<InstanceIdentifier<?>> typesInList = Lists.newArrayList(mappedWriters.keySet());
-        assertEquals(DataObject1.IID, typesInList.get(0));
-        assertEquals(DataObject2.IID, typesInList.get(1));
-        assertThat(typesInList.get(2), anyOf(equalTo(DataObject3.IID), equalTo(DataObject4.IID)));
-        assertThat(typesInList.get(3), anyOf(equalTo(DataObject3.IID), equalTo(DataObject4.IID)));
+        assertEquals(DataObjects.DataObject1.IID, typesInList.get(0));
+        assertEquals(DataObjects.DataObject2.IID, typesInList.get(1));
+        assertThat(typesInList.get(2), anyOf(equalTo(DataObjects.DataObject3.IID), equalTo(DataObjects.DataObject4.IID)));
+        assertThat(typesInList.get(3), anyOf(equalTo(DataObjects.DataObject3.IID), equalTo(DataObjects.DataObject4.IID)));
     }
 
     @Test
@@ -53,18 +53,18 @@ public class FlatWriterRegistryBuilderTest {
             1   ->  2   ->  3
                         ->  4
          */
-        flatWriterRegistryBuilder.add(mockWriter(DataObject1.class));
-        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject2.class), DataObject1.IID);
-        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject3.class), DataObject2.IID);
-        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject4.class), DataObject2.IID);
+        flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject1.class));
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject2.class), DataObjects.DataObject1.IID);
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject3.class), DataObjects.DataObject2.IID);
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject4.class), DataObjects.DataObject2.IID);
         final ImmutableMap<InstanceIdentifier<?>, Writer<?>> mappedWriters =
                 flatWriterRegistryBuilder.getMappedHandlers();
 
         final List<InstanceIdentifier<?>> typesInList = Lists.newArrayList(mappedWriters.keySet());
-        assertEquals(DataObject1.IID, typesInList.get(0));
-        assertEquals(DataObject2.IID, typesInList.get(1));
-        assertThat(typesInList.get(2), anyOf(equalTo(DataObject3.IID), equalTo(DataObject4.IID)));
-        assertThat(typesInList.get(3), anyOf(equalTo(DataObject3.IID), equalTo(DataObject4.IID)));
+        assertEquals(DataObjects.DataObject1.IID, typesInList.get(0));
+        assertEquals(DataObjects.DataObject2.IID, typesInList.get(1));
+        assertThat(typesInList.get(2), anyOf(equalTo(DataObjects.DataObject3.IID), equalTo(DataObjects.DataObject4.IID)));
+        assertThat(typesInList.get(3), anyOf(equalTo(DataObjects.DataObject3.IID), equalTo(DataObjects.DataObject4.IID)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -73,51 +73,51 @@ public class FlatWriterRegistryBuilderTest {
         /*
             1   ->  2   ->  1
          */
-        flatWriterRegistryBuilder.add(mockWriter(DataObject1.class));
-        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject2.class), DataObject1.IID);
-        flatWriterRegistryBuilder.addAfter(mockWriter(DataObject1.class), DataObject2.IID);
+        flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject1.class));
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject2.class), DataObjects.DataObject1.IID);
+        flatWriterRegistryBuilder.addAfter(mockWriter(DataObjects.DataObject1.class), DataObjects.DataObject2.IID);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAddWriterTwice() throws Exception {
         final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
-        flatWriterRegistryBuilder.add(mockWriter(DataObject1.class));
-        flatWriterRegistryBuilder.add(mockWriter(DataObject1.class));
+        flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject1.class));
+        flatWriterRegistryBuilder.add(mockWriter(DataObjects.DataObject1.class));
     }
 
     @Test
     public void testAddSubtreeWriter() throws Exception {
         final FlatWriterRegistryBuilder flatWriterRegistryBuilder = new FlatWriterRegistryBuilder();
         flatWriterRegistryBuilder.subtreeAdd(
-                Sets.newHashSet(DataObject4.DataObject5.IID,
-                                DataObject4.DataObject5.IID),
-                mockWriter(DataObject4.class));
+                Sets.newHashSet(DataObjects.DataObject4.DataObject41.IID,
+                                DataObjects.DataObject4.DataObject41.IID),
+                mockWriter(DataObjects.DataObject4.class));
         final ImmutableMap<InstanceIdentifier<?>, Writer<?>> mappedWriters =
                 flatWriterRegistryBuilder.getMappedHandlers();
         final ArrayList<InstanceIdentifier<?>> typesInList = Lists.newArrayList(mappedWriters.keySet());
 
-        assertEquals(DataObject4.IID, typesInList.get(0));
+        assertEquals(DataObjects.DataObject4.IID, typesInList.get(0));
         assertEquals(1, typesInList.size());
     }
 
     @Test
     public void testCreateSubtreeWriter() throws Exception {
         final Writer<?> forWriter = SubtreeWriter.createForWriter(Sets.newHashSet(
-                DataObject4.DataObject5.IID,
-                DataObject4.DataObject5.DataObject51.IID,
-                DataObject4.DataObject6.IID),
-                mockWriter(DataObject4.class));
+                DataObjects.DataObject4.DataObject41.IID,
+                DataObjects.DataObject4.DataObject41.DataObject411.IID,
+                DataObjects.DataObject4.DataObject42.IID),
+                mockWriter(DataObjects.DataObject4.class));
         assertThat(forWriter, instanceOf(SubtreeWriter.class));
         assertThat(((SubtreeWriter<?>) forWriter).getHandledChildTypes().size(), is(3));
-        assertThat(((SubtreeWriter<?>) forWriter).getHandledChildTypes(), hasItems(DataObject4.DataObject5.IID,
-                DataObject4.DataObject6.IID, DataObject4.DataObject5.DataObject51.IID));
+        assertThat(((SubtreeWriter<?>) forWriter).getHandledChildTypes(), hasItems(DataObjects.DataObject4.DataObject41.IID,
+                DataObjects.DataObject4.DataObject42.IID, DataObjects.DataObject4.DataObject41.DataObject411.IID));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateInvalidSubtreeWriter() throws Exception {
         SubtreeWriter.createForWriter(Sets.newHashSet(
-                InstanceIdentifier.create(DataObject3.class).child(DataObject3.DataObject31.class)),
-                mockWriter(DataObject4.class));
+                InstanceIdentifier.create(DataObjects.DataObject3.class).child(DataObjects.DataObject3.DataObject31.class)),
+                mockWriter(DataObjects.DataObject4.class));
     }
 
     @SuppressWarnings("unchecked")
@@ -126,31 +126,6 @@ public class FlatWriterRegistryBuilderTest {
         final Writer mock = mock(Writer.class);
         when(mock.getManagedDataObjectType()).thenReturn((InstanceIdentifier<?>) doClass.getDeclaredField("IID").get(null));
         return mock;
-    }
-
-    private abstract static class DataObject1 implements DataObject {
-        static InstanceIdentifier<DataObject1> IID = InstanceIdentifier.create(DataObject1.class);
-    }
-    private abstract static class DataObject2 implements DataObject {
-        static InstanceIdentifier<DataObject2> IID = InstanceIdentifier.create(DataObject2.class);
-    }
-    private abstract static class DataObject3 implements DataObject {
-        static InstanceIdentifier<DataObject3> IID = InstanceIdentifier.create(DataObject3.class);
-        private abstract static class DataObject31 implements DataObject, ChildOf<DataObject3> {
-            static InstanceIdentifier<DataObject31> IID = DataObject3.IID.child(DataObject31.class);
-        }
-    }
-    private abstract static class DataObject4 implements DataObject {
-        static InstanceIdentifier<DataObject4> IID = InstanceIdentifier.create(DataObject4.class);
-        private abstract static class DataObject5 implements DataObject, ChildOf<DataObject4> {
-            static InstanceIdentifier<DataObject5> IID = DataObject4.IID.child(DataObject5.class);
-            private abstract static class DataObject51 implements DataObject, ChildOf<DataObject5> {
-                static InstanceIdentifier<DataObject51> IID = DataObject5.IID.child(DataObject51.class);
-            }
-        }
-        private abstract static class DataObject6 implements DataObject, ChildOf<DataObject4> {
-            static InstanceIdentifier<DataObject6> IID = DataObject4.IID.child(DataObject6.class);
-        }
     }
 
 }

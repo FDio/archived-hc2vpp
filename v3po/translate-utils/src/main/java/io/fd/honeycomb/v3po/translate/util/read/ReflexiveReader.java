@@ -28,7 +28,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * <p/>
  * Might be slow due to reflection !
  */
-public final class ReflexiveReader<C extends DataObject, B extends Builder<C>> extends AbstractGenericReader<C, B> {
+public class ReflexiveReader<C extends DataObject, B extends Builder<C>> extends AbstractGenericReader<C, B> {
 
     private final ReflexiveReaderCustomizer<C, B> customizer;
 

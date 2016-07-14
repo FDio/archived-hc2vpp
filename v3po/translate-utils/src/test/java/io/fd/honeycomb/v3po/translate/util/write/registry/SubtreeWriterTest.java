@@ -22,28 +22,28 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
+import io.fd.honeycomb.v3po.translate.util.DataObjects;
 import io.fd.honeycomb.v3po.translate.write.Writer;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubtreeWriterTest {
 
     @Mock
-    Writer<DataObject1> writer;
+    Writer<DataObjects.DataObject4> writer;
     @Mock
-    Writer<DataObject1.DataObject11> writer11;
+    Writer<DataObjects.DataObject4.DataObject41> writer11;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(writer.getManagedDataObjectType()).thenReturn(DataObject1.IID);
-        when(writer11.getManagedDataObjectType()).thenReturn(DataObject1.DataObject11.IID);
+        when(writer.getManagedDataObjectType()).thenReturn(DataObjects.DataObject4.IID);
+        when(writer11.getManagedDataObjectType()).thenReturn(DataObjects.DataObject4.DataObject41.IID);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -55,15 +55,15 @@ public class SubtreeWriterTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSubtreeWriterCreationFailInvalidIid() throws Exception {
         // The subtree node identified by IID.c(DataObject.class) is not a child of writer.getManagedDataObjectType
-        SubtreeWriter.createForWriter(Collections.singleton(DataObject1.IID), writer);
+        SubtreeWriter.createForWriter(Collections.singleton(DataObjects.DataObject4.IID), writer);
     }
 
     @Test
     public void testSubtreeWriterCreation() throws Exception {
         final SubtreeWriter<?> forWriter = (SubtreeWriter<?>) SubtreeWriter.createForWriter(Sets.newHashSet(
-                DataObject1.DataObject11.IID,
-                DataObject1.DataObject11.DataObject111.IID,
-                DataObject1.DataObject12.IID),
+                DataObjects.DataObject4.DataObject41.IID,
+                DataObjects.DataObject4.DataObject41.DataObject411.IID,
+                DataObjects.DataObject4.DataObject42.IID),
                 writer);
 
         assertEquals(writer.getManagedDataObjectType(), forWriter.getManagedDataObjectType());
@@ -73,24 +73,12 @@ public class SubtreeWriterTest {
     @Test
     public void testSubtreeWriterHandledTypes() throws Exception {
         final SubtreeWriter<?> forWriter = (SubtreeWriter<?>) SubtreeWriter.createForWriter(Sets.newHashSet(
-                DataObject1.DataObject11.DataObject111.IID),
+                DataObjects.DataObject4.DataObject41.DataObject411.IID),
                 writer);
 
         assertEquals(writer.getManagedDataObjectType(), forWriter.getManagedDataObjectType());
         assertEquals(1, forWriter.getHandledChildTypes().size());
-        assertThat(forWriter.getHandledChildTypes(), hasItem(DataObject1.DataObject11.DataObject111.IID));
+        assertThat(forWriter.getHandledChildTypes(), hasItem(DataObjects.DataObject4.DataObject41.DataObject411.IID));
     }
 
-    private abstract static class DataObject1 implements DataObject {
-        static InstanceIdentifier<DataObject1> IID = InstanceIdentifier.create(DataObject1.class);
-        private abstract static class DataObject11 implements DataObject, ChildOf<DataObject1> {
-            static InstanceIdentifier<DataObject11> IID = DataObject1.IID.child(DataObject11.class);
-            private abstract static class DataObject111 implements DataObject, ChildOf<DataObject11> {
-                static InstanceIdentifier<DataObject111> IID = DataObject11.IID.child(DataObject111.class);
-            }
-        }
-        private abstract static class DataObject12 implements DataObject, ChildOf<DataObject1> {
-            static InstanceIdentifier<DataObject12> IID = DataObject1.IID.child(DataObject12.class);
-        }
-    }
 }

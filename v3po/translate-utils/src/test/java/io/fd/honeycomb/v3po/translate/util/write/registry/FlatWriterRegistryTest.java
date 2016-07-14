@@ -17,6 +17,9 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.v3po.translate.util.DataObjects.DataObject1;
+import io.fd.honeycomb.v3po.translate.util.DataObjects.DataObject2;
+import io.fd.honeycomb.v3po.translate.util.DataObjects.DataObject3;
 import io.fd.honeycomb.v3po.translate.write.DataObjectUpdate;
 import io.fd.honeycomb.v3po.translate.write.WriteContext;
 import io.fd.honeycomb.v3po.translate.write.Writer;
@@ -257,15 +260,5 @@ public class FlatWriterRegistryTest {
                            final Class<D> type) throws Exception {
         final InstanceIdentifier<D> iid = (InstanceIdentifier<D>) type.getDeclaredField("IID").get(null);
         updates.put(iid, DataObjectUpdate.create(iid, mock(type), mock(type)));
-    }
-
-    private abstract static class DataObject1 implements DataObject {
-        static final InstanceIdentifier<DataObject1> IID = InstanceIdentifier.create(DataObject1.class);
-    }
-    private abstract static class DataObject2 implements DataObject {
-        static final InstanceIdentifier<DataObject2> IID = InstanceIdentifier.create(DataObject2.class);
-    }
-    private abstract static class DataObject3 implements DataObject {
-        static final InstanceIdentifier<DataObject3> IID = InstanceIdentifier.create(DataObject3.class);
     }
 }

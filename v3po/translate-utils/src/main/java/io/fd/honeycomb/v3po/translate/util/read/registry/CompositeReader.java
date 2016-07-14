@@ -18,6 +18,7 @@ package io.fd.honeycomb.v3po.translate.util.read.registry;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -53,6 +54,11 @@ class CompositeReader<D extends DataObject, B extends Builder<D>> extends Abstra
         this.childReaders = childReaders;
     }
 
+    @VisibleForTesting
+    ImmutableMap<Class<?>, Reader<? extends DataObject, ? extends Builder<?>>> getChildReaders() {
+        return childReaders;
+    }
+
     @SuppressWarnings("unchecked")
     public static <D extends DataObject> InstanceIdentifier<D> appendTypeToId(
         final InstanceIdentifier<? extends DataObject> parentId, final InstanceIdentifier<D> type) {
@@ -66,11 +72,14 @@ class CompositeReader<D extends DataObject, B extends Builder<D>> extends Abstra
     public Optional<? extends DataObject> read(@Nonnull final InstanceIdentifier<? extends DataObject> id,
                                                @Nonnull final ReadContext ctx) throws ReadFailedException {
         if (shouldReadCurrent(id)) {
+            LOG.trace("{}: Reading current: {}", this, id);
             return readCurrent((InstanceIdentifier<D>) id, ctx);
         } else if (shouldDelegateToChild(id)) {
+            LOG.trace("{}: Reading child: {}", this, id);
             return readSubtree(id, ctx);
         } else {
             // Fallback
+            LOG.trace("{}: Delegating read: {}", this, id);
             return delegate.read(id, ctx);
         }
     }
@@ -95,10 +104,11 @@ class CompositeReader<D extends DataObject, B extends Builder<D>> extends Abstra
     @SuppressWarnings("unchecked")
     private void readChildren(final InstanceIdentifier<D> id, @Nonnull final ReadContext ctx, final B builder)
             throws ReadFailedException {
+        LOG.debug("{}: Reading children: {}", this, childReaders.keySet());
         for (Reader child : childReaders.values()) {
-            LOG.debug("{}: Reading child node from: {}", this, child);
             final InstanceIdentifier childId = appendTypeToId(id, child.getManagedDataObjectType());
 
+            LOG.debug("{}: Reading child from: {}", this, child);
             if (child instanceof ListReader) {
                 final List<? extends DataObject> list = ((ListReader) child).readList(childId, ctx);
                 ((ListReader) child).merge(builder, list);

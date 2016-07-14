@@ -24,10 +24,15 @@ import javax.annotation.Nonnull;
  * Factory producing writers for {@link ModifiableWriterRegistryBuilder}.
  */
 @Beta
-public interface WriterFactory {
+public interface WriterFactory extends AutoCloseable {
 
     /**
      * Initialize 1 or more writers and add them to provided registry.
      */
     void init(@Nonnull ModifiableWriterRegistryBuilder registry);
+
+    @Override
+    default void close() {
+        // NOOP TODO allow unregister
+    }
 }

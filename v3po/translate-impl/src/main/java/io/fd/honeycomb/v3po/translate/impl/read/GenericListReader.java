@@ -91,7 +91,10 @@ public final class GenericListReader<C extends DataObject & Identifiable<K>, K e
     @Override
     public List<K> getAllIds(@Nonnull final InstanceIdentifier<C> id, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        return customizer.getAllIds(id, ctx);
+        LOG.trace("{}: Getting all list ids", this);
+        final List<K> allIds = customizer.getAllIds(id, ctx);
+        LOG.debug("{}: All list ids: {}", this, allIds);
+        return allIds;
     }
 
     @Override

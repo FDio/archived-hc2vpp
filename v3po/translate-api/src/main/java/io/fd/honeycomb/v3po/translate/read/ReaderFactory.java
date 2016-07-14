@@ -24,10 +24,15 @@ import javax.annotation.Nonnull;
  * Factory producing readers for {@link ModifiableReaderRegistryBuilder}.
  */
 @Beta
-public interface ReaderFactory {
+public interface ReaderFactory extends AutoCloseable {
 
     /**
      * Initialize 1 or more readers and add them to provided registry.
      */
     void init(@Nonnull ModifiableReaderRegistryBuilder registry);
+
+    @Override
+    default void close() {
+        // NOOP TODO allow unregister
+    }
 }

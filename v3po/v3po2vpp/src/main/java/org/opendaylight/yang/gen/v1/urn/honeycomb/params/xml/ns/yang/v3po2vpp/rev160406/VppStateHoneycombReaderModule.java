@@ -135,11 +135,6 @@ public class VppStateHoneycombReaderModule extends
         }
 
         @Override
-        public void close() throws Exception {
-            // TODO unregister not available
-        }
-
-        @Override
         public void init(final ModifiableReaderRegistryBuilder registry) {
             // VppState(Structural)
             final InstanceIdentifier<VppState> vppStateId = InstanceIdentifier.create(VppState.class);

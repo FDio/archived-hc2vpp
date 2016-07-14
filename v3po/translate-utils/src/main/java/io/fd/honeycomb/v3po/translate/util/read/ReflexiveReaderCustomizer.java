@@ -33,7 +33,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Might be slow !
  */
-final class ReflexiveReaderCustomizer<C extends DataObject, B extends Builder<C>> extends NoopReaderCustomizer<C, B> {
+class ReflexiveReaderCustomizer<C extends DataObject, B extends Builder<C>> extends NoopReaderCustomizer<C, B> {
 
     private final Class<C> typeClass;
     private final Class<B> builderClass;

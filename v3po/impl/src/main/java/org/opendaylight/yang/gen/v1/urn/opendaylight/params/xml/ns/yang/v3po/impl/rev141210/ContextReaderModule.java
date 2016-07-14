@@ -44,10 +44,5 @@ public class ContextReaderModule extends org.opendaylight.yang.gen.v1.urn.openda
                     contextBindingBrokerDependency,
                     LogicalDatastoreType.OPERATIONAL, ContextsBuilder.class));
         }
-
-        @Override
-        public void close() throws Exception {
-            // TODO no unregister
-        }
     }
 }

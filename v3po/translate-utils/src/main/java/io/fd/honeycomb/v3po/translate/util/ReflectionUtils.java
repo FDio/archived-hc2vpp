@@ -44,7 +44,7 @@ public final class ReflectionUtils {
                                                     @Nonnull final List<Class<?>> paramTypes,
                                                     @Nonnull final Class<?> retType) {
         for (Method method : managedType.getMethods()) {
-            if(isMethodMatch(prefix, paramTypes, retType, method)) {
+            if (isMethodMatch(prefix, paramTypes, retType, method)) {
                 return Optional.of(method);
             }
         }
