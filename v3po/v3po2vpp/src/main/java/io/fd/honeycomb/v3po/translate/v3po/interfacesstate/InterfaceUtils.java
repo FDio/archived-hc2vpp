@@ -121,7 +121,7 @@ public final class InterfaceUtils {
         Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
         final int endIndex = startIndex + PHYSICAL_ADDRESS_LENGTH;
         checkArgument(endIndex <= vppPhysAddress.length,
-            "Invalid physical address size (%s) for given startIndex (%d), expected >= %d", vppPhysAddress.length,
+            "Invalid physical address size (%s) for given startIndex (%s), expected >= %s", vppPhysAddress.length,
             startIndex, endIndex);
         StringBuilder physAddr = new StringBuilder();
 
