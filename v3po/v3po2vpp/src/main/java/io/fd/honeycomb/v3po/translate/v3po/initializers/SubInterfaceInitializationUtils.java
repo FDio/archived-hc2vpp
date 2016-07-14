@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.AclBuilder;
 
 /**
  * Utility class for sub interface initialization
@@ -76,6 +77,13 @@ final class SubInterfaceInitializationUtils {
         subInterfaceCfgBuilder.setVlanType(operationalData.getVlanType());
         subInterfaceCfgBuilder.setIpv4(operationalData.getIpv4());
         subInterfaceCfgBuilder.setIpv6(operationalData.getIpv6());
+
+        final AclBuilder aclBuilder = new AclBuilder();
+        aclBuilder.setL2Acl(operationalData.getAcl().getL2Acl());
+        aclBuilder.setIp4Acl(operationalData.getAcl().getIp4Acl());
+        aclBuilder.setIp6Acl(operationalData.getAcl().getIp6Acl());
+        subInterfaceCfgBuilder.setAcl(aclBuilder.build());
+
         return subInterfaceCfgBuilder.build();
     }
 

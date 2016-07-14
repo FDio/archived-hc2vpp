@@ -109,6 +109,15 @@
             <name>cfg-init-binding-data-broker</name>
           </binding-data-broker>
         </module>
+        <!-- Config initializer for vpp-classifier subtree-->
+        <module>
+          <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-classifier-cfg-initializer</type>
+          <name>vpp-classifier-cfg-initializer</name>
+          <binding-data-broker>
+            <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-async-data-broker</type>
+            <name>cfg-init-binding-data-broker</name>
+          </binding-data-broker>
+        </module>
         <module>
           <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:persisted-file-initializer</type>
           <name>persisted-context-initializer</name>
@@ -154,6 +163,10 @@
           <initializers>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
             <name>interfaces-cfg-initializer</name>
+          </initializers>
+          <initializers>
+            <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+            <name>vpp-classifier-cfg-initializer</name>
           </initializers>
           <persisted-config-initializer>
             <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
@@ -205,6 +218,11 @@
           <instance>
             <name>interfaces-cfg-initializer</name>
             <provider>/modules/module[type='interfaces-cfg-initializer'][name='interfaces-cfg-initializer']
+            </provider>
+          </instance>
+          <instance>
+            <name>vpp-classifier-cfg-initializer</name>
+            <provider>/modules/module[type='vpp-classifier-cfg-initializer'][name='vpp-classifier-cfg-initializer']
             </provider>
           </instance>
           <instance>

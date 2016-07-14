@@ -342,5 +342,26 @@ module v3po2vpp {
         }
     }
 
+    identity vpp-classifier-cfg-initializer {
+        base config:module-type;
+        config:provided-service init:cfg-initializer;
+        config:java-name-prefix VppClassifierConfigurationInitializer;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case vpp-classifier-cfg-initializer {
+            when "/config:modules/config:module/config:type = 'vpp-classifier-cfg-initializer'";
+
+             container binding-data-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity md-sal-binding:binding-async-data-broker;
+                    }
+                }
+             }
+        }
+    }
+
 
 }

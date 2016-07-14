@@ -47,12 +47,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanVni;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.EthernetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.TapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUserBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
@@ -76,7 +78,7 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
 
     public InterfacesInitializer(@Nonnull final DataBroker bindingDataBroker) {
         super(bindingDataBroker, InstanceIdentifier.create(InterfacesState.class),
-                InstanceIdentifier.create(Interfaces.class));
+            InstanceIdentifier.create(Interfaces.class));
     }
 
     @Override
@@ -110,42 +112,47 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
     }
 
     private static void initializeVppInterfaceStateAugmentation(
-            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface input,
-            final InterfaceBuilder builder) {
+        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface input,
+        final InterfaceBuilder builder) {
         final VppInterfaceStateAugmentation vppIfcAugmentation =
-                input.getAugmentation(VppInterfaceStateAugmentation.class);
-        if(vppIfcAugmentation != null) {
+            input.getAugmentation(VppInterfaceStateAugmentation.class);
+        if (vppIfcAugmentation != null) {
             final VppInterfaceAugmentationBuilder augmentBuilder = new VppInterfaceAugmentationBuilder();
             builder.setDescription(vppIfcAugmentation.getDescription());
 
             final Vxlan vxlan = vppIfcAugmentation.getVxlan();
-            if(vxlan != null) {
+            if (vxlan != null) {
                 setVxlan(augmentBuilder, vxlan);
             }
 
             final VxlanGpe vxlanGpe = vppIfcAugmentation.getVxlanGpe();
-            if(vxlanGpe != null) {
+            if (vxlanGpe != null) {
                 setVxlanGpe(augmentBuilder, vxlanGpe);
             }
 
             final Tap tap = vppIfcAugmentation.getTap();
-            if(tap != null) {
+            if (tap != null) {
                 setTap(input, augmentBuilder, tap);
             }
 
             final VhostUser vhostUser = vppIfcAugmentation.getVhostUser();
-            if(vhostUser != null) {
+            if (vhostUser != null) {
                 setVhostUser(augmentBuilder, vhostUser);
             }
 
             final L2 l2 = vppIfcAugmentation.getL2();
-            if(l2 != null) {
+            if (l2 != null) {
                 setL2(augmentBuilder, l2);
             }
 
             final Ethernet ethernet = vppIfcAugmentation.getEthernet();
-            if(ethernet != null) {
+            if (ethernet != null) {
                 setEthernet(augmentBuilder, ethernet);
+            }
+
+            final Acl acl = vppIfcAugmentation.getAcl();
+            if (acl != null) {
+                setAcl(augmentBuilder, acl);
             }
 
             // TODO set routing, not present in interface-state
@@ -155,27 +162,28 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
     }
 
     private static void initializeIetfIpAugmentation(
-            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface input,
-            final InterfaceBuilder builder) {
+        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface input,
+        final InterfaceBuilder builder) {
         final Interface2 ietfIpAugmentation = input.getAugmentation(Interface2.class);
-        if(ietfIpAugmentation != null) {
+        if (ietfIpAugmentation != null) {
             final Interface1Builder augmentBuilder = new Interface1Builder();
 
             final Ipv4 ipv4 = ietfIpAugmentation.getIpv4();
             if (ipv4 != null) {
                 final List<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address>
-                        collect =
-                        ipv4.getAddress().stream()
-                                .map(address -> new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressBuilder()
-                                        .setIp(address.getIp())
-                                        .setSubnet(getSubnet(address))
-                                        .build())
-                                .collect(Collectors.toList());
+                    collect =
+                    ipv4.getAddress().stream()
+                        .map(
+                            address -> new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressBuilder()
+                                .setIp(address.getIp())
+                                .setSubnet(getSubnet(address))
+                                .build())
+                        .collect(Collectors.toList());
 
                 final List<Neighbor> neighbors = ipv4.getNeighbor().stream()
-                        .map(neighbor -> new NeighborBuilder().setIp(neighbor.getIp())
-                                .setLinkLayerAddress(neighbor.getLinkLayerAddress()).build())
-                        .collect(Collectors.toList());
+                    .map(neighbor -> new NeighborBuilder().setIp(neighbor.getIp())
+                        .setLinkLayerAddress(neighbor.getLinkLayerAddress()).build())
+                    .collect(Collectors.toList());
 
                 augmentBuilder.setIpv4(new Ipv4Builder().setAddress(collect).setNeighbor(neighbors).build());
             }
@@ -205,11 +213,19 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         augmentBuilder.setEthernet(ethernetBuilder.build());
     }
 
+    private static void setAcl(final VppInterfaceAugmentationBuilder augmentBuilder, final Acl acl) {
+        final AclBuilder aclBuilder = new AclBuilder();
+        aclBuilder.setL2Acl(acl.getL2Acl());
+        aclBuilder.setIp4Acl(acl.getIp4Acl());
+        aclBuilder.setIp6Acl(acl.getIp6Acl());
+        augmentBuilder.setAcl(aclBuilder.build());
+    }
+
     private static void setL2(final VppInterfaceAugmentationBuilder augmentBuilder, final L2 l2) {
         final L2Builder l2Builder = new L2Builder();
 
         final Interconnection interconnection = l2.getInterconnection();
-        if(interconnection != null) {
+        if (interconnection != null) {
             if (interconnection instanceof XconnectBased) {
                 final XconnectBasedBuilder xconnectBasedBuilder = new XconnectBasedBuilder();
                 xconnectBasedBuilder.setXconnectOutgoingInterface(
