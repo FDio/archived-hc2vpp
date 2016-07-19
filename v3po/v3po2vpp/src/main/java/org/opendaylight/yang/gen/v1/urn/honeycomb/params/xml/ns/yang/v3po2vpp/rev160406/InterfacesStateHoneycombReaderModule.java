@@ -10,6 +10,7 @@ import io.fd.honeycomb.translate.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.GreCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.L2Customizer;
+import io.fd.honeycomb.translate.v3po.interfacesstate.ProxyArpCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.TapCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.VxlanCustomizer;
@@ -36,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.L2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
@@ -154,7 +156,9 @@ public class InterfacesStateHoneycombReaderModule extends
             registry.subtreeAdd(
                     Sets.newHashSet(aclIdRelative.child(L2Acl.class), aclIdRelative.child(Ip4Acl.class), aclIdRelative.child(Ip6Acl.class)),
                     new GenericReader<>(vppIfcAugId.child(Acl.class), new AclCustomizer(jvpp, ifcCtx, classifyCtx)));
-
+            //   Proxy ARP
+            registry.add(new GenericReader<>(vppIfcAugId.child(ProxyArp.class), new ProxyArpCustomizer(jvpp,
+             ifcCtx)));
         }
     }
 }

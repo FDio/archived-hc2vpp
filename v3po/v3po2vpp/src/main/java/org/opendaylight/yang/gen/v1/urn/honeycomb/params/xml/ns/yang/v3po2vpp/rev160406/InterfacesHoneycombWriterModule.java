@@ -11,6 +11,7 @@ import io.fd.honeycomb.translate.v3po.interfaces.EthernetCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.GreCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.InterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.L2Customizer;
+import io.fd.honeycomb.translate.v3po.interfaces.ProxyArpCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.RoutingCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.TapCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VhostUserCustomizer;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUser;
@@ -170,7 +172,10 @@ public class InterfacesHoneycombWriterModule extends
             // Routing(Execute only after specific interface customizers) =
             registry.addAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcContext, bdContext)),
                     specificIfcTypes);
-
+            // Proxy Arp (execute after specific interface customizers)
+            registry.addAfter(
+                    new GenericWriter<>(VPP_IFC_AUG_ID.child(ProxyArp.class), new ProxyArpCustomizer(jvpp, ifcContext)),
+                    specificIfcTypes);
             // ACL (execute after classify table and session writers)
             // also handles L2Acl, Ip4Acl and Ip6Acl:
             final InstanceIdentifier<Acl> aclId = InstanceIdentifier.create(Acl.class);

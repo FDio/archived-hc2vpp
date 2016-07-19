@@ -400,6 +400,22 @@ module v3po {
       }
   }
 
+  grouping proxy-arp-attributes {
+        description
+        "Parameters for configuring Proxy ARP on interfaces.";
+
+      leaf vrf-id {
+        type uint32;
+        default 0;
+      }
+      leaf low-addr {
+          type inet:ipv4-address;
+      }
+      leaf high-addr {
+          type inet:ipv4-address;
+      }
+  }
+
   grouping acl-base-attributes {
     description
       "Defines references to classify tables.
@@ -506,6 +522,10 @@ module v3po {
       uses vxlan-gpe-base-attributes;
     }
 
+    container proxy-arp {
+      uses proxy-arp-attributes;
+    }
+
     container acl {
       uses acl-base-attributes;
     }
@@ -580,6 +600,10 @@ module v3po {
       "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
 
       uses l2-base-attributes;
+    }
+
+    container proxy-arp {
+      uses proxy-arp-attributes;
     }
 
     container acl {
