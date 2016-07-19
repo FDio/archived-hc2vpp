@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 
 interface AclReader {
 
+    @Nonnull
     default L2Acl readL2Acl(final int l2TableId, @Nonnull final NamingContext classifyTableContext,
                             @Nonnull final MappingContext mappingContext) {
         if (l2TableId == ~0) {
@@ -37,6 +38,7 @@ interface AclReader {
             .setClassifyTable(classifyTableContext.getName(l2TableId, mappingContext)).build();
     }
 
+    @Nonnull
     default Ip4Acl readIp4Acl(final int ip4TableId, @Nonnull final NamingContext classifyTableContext,
                               @Nonnull final MappingContext mappingContext) {
         if (ip4TableId == ~0) {
@@ -46,6 +48,7 @@ interface AclReader {
             .setClassifyTable(classifyTableContext.getName(ip4TableId, mappingContext)).build();
     }
 
+    @Nonnull
     default Ip6Acl readIp6Acl(final int ip6TableId, @Nonnull final NamingContext classifyTableContext,
                               @Nonnull final MappingContext mappingContext) {
         if (ip6TableId == ~0) {

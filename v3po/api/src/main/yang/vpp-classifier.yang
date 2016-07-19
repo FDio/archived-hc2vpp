@@ -81,10 +81,9 @@ module vpp-classifier {
     }
   }
 
-  grouping classify-table-attributes {
+  grouping classify-table-base-attributes {
     description
-      "Defines classify table attributes that are mapped to classify_add_del_table
-       and classify_table_info_reply messages parameters.";
+      "Defines classify table attributes that are mapped to classify_add_del_table message parameters.";
 
     leaf nbuckets {
       mandatory true;
@@ -122,12 +121,6 @@ module vpp-classifier {
       description
         "Defines match mask (multiple of 16 bytes)";
     }
-    leaf active_sessions {
-      type uint32;
-      config false;
-      description
-        "Number of sessions defined for the classify table.";
-    }
 
     list classify-session {
       key "match";
@@ -150,6 +143,19 @@ module vpp-classifier {
     }
   }
 
+  grouping classify-table-operational-attributes {
+    description
+      "Defines classify table operational attributes (present in classify_table_info_reply message
+       but not in classify_add_del_table).";
+
+    leaf active_sessions {
+      type uint32;
+      config false;
+      description
+        "Number of sessions defined for the classify table.";
+    }
+  }
+
   container vpp-classifier {
     list classify-table {
       key "name";
@@ -160,7 +166,24 @@ module vpp-classifier {
           "Hides classify table identifier managed by vpp.";
       }
 
-      uses classify-table-attributes;
+      uses classify-table-base-attributes;
+    }
+  }
+
+  container vpp-classifier-state {
+    config false;
+
+    list classify-table {
+      key "name";
+
+      leaf name {
+        type string;
+        description
+          "Hides classify table identifier managed by vpp.";
+      }
+
+      uses classify-table-base-attributes;
+      uses classify-table-operational-attributes;
     }
   }
 

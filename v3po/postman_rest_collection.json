@@ -588,7 +588,7 @@
 		{
 			"id": "c067f721-6b1c-f205-799d-720b242f8592",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8181/restconf/operational/vpp-classifier:vpp-classifier/",
+			"url": "http://localhost:8181/restconf/operational/vpp-classifier:vpp-classifier-state/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
@@ -630,7 +630,7 @@
 		{
 			"id": "4f11c937-9562-3377-d03b-a9829b25f688",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8181/restconf/operational/vpp-classifier:vpp-classifier/classify-table/table0",
+			"url": "http://localhost:8181/restconf/operational/vpp-classifier:vpp-classifier-state/classify-table/table0",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",

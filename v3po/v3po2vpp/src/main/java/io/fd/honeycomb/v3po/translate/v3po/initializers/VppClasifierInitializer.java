@@ -22,24 +22,27 @@ import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Initializes vpp-classfier node in config data tree based on operational state.
  */
-public class VppClasifierInitializer extends AbstractDataTreeConverter<VppClassifier, VppClassifier> {
-    private static final InstanceIdentifier<VppClassifier> ID = InstanceIdentifier.create(VppClassifier.class);
+public class VppClasifierInitializer extends AbstractDataTreeConverter<VppClassifierState, VppClassifier> {
+    private static final InstanceIdentifier<VppClassifierState> OPER_ID =
+        InstanceIdentifier.create(VppClassifierState.class);
+    private static final InstanceIdentifier<VppClassifier> CFG_ID = InstanceIdentifier.create(VppClassifier.class);
 
     public VppClasifierInitializer(@Nonnull final DataBroker bindingDataBroker) {
-        super(bindingDataBroker, ID, ID);
+        super(bindingDataBroker, OPER_ID, CFG_ID);
     }
 
     @Override
-    protected VppClassifier convert(final VppClassifier operationalData) {
+    protected VppClassifier convert(final VppClassifierState operationalData) {
         final VppClassifierBuilder builder = new VppClassifierBuilder();
         builder.setClassifyTable(operationalData.getClassifyTable().stream()
-            .map(oper -> new ClassifyTableBuilder(oper).setActiveSessions(null).build())
+            .map(oper -> new ClassifyTableBuilder(oper).build())
             .collect(Collectors.toList()));
         return builder.build();
     }

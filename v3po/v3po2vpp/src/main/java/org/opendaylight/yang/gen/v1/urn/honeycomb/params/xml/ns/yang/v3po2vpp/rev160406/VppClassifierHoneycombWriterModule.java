@@ -10,7 +10,7 @@ import io.fd.honeycomb.v3po.translate.write.ModifiableWriterRegistry;
 import io.fd.honeycomb.v3po.translate.write.WriterFactory;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.attributes.ClassifySession;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;

@@ -155,14 +155,14 @@ module v3po2vpp {
         }
     }
 
-    identity vpp-classifier-honeycomb-reader {
+    identity vpp-classifier-state-honeycomb-reader {
         base config:module-type;
         config:provided-service tapi:honeycomb-reader;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case vpp-classifier-honeycomb-reader {
-            when "/config:modules/config:module/config:type = 'vpp-classifier-honeycomb-reader'";
+        case vpp-classifier-state-honeycomb-reader {
+            when "/config:modules/config:module/config:type = 'vpp-classifier-state-honeycomb-reader'";
 
             container vpp-jvpp {
                 uses config:service-ref {
