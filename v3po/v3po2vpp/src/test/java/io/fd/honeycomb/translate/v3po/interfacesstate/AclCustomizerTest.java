@@ -27,9 +27,11 @@ import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
@@ -55,10 +57,11 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
     private static final String TABLE_NAME = "table123";
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
-    private static final String CT_TEST_INSTANCE = "ct-test-instance";
 
     private NamingContext interfaceContext;
-    private NamingContext classifyTableContext;
+
+    @Mock
+    private VppClassifierContextManager classifyTableContext;
 
     public AclCustomizerTest() {
         super(Acl.class);
@@ -67,22 +70,11 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
     @Override
     public void setUpBefore() {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_TEST_INSTANCE);
-        classifyTableContext = new NamingContext("generatedTableContext", CT_TEST_INSTANCE);
 
         final KeyedInstanceIdentifier<Mapping, MappingKey> ifcMappingKey = ContextTestUtils
                 .getMappingIid(IF_NAME, IFC_TEST_INSTANCE);
         final Optional<Mapping> ifcMapping = ContextTestUtils.getMapping(IF_NAME, IF_INDEX);
         doReturn(ifcMapping).when(mappingContext).read(ifcMappingKey);
-
-        final KeyedInstanceIdentifier<Mapping, MappingKey> ctMappingKey = ContextTestUtils
-                .getMappingIid(TABLE_NAME, CT_TEST_INSTANCE);
-        final Optional<Mapping> ctMapping = ContextTestUtils.getMapping(TABLE_NAME, TABLE_INDEX);
-        doReturn(ctMapping).when(mappingContext).read(ctMappingKey);
-
-        final List<Mapping> allCtMappings = Lists.newArrayList(ctMapping.get());
-        final Mappings allCtMappingsBaObject = new MappingsBuilder().setMapping(allCtMappings).build();
-        doReturn(Optional.of(allCtMappingsBaObject)).when(mappingContext)
-            .read(ctMappingKey.firstIdentifierOf(Mappings.class));
 
         final List<Mapping> allIfcMappings = Lists.newArrayList(ifcMapping.get());
         final Mappings allIfcMappingsBaObject = new MappingsBuilder().setMapping(allIfcMappings).build();
@@ -121,6 +113,8 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
         reply.ip6TableId = ~0;
         replyFuture.complete(reply);
         doReturn(replyFuture).when(api).classifyTableByInterface(any(ClassifyTableByInterface.class));
+
+        doReturn(TABLE_NAME).when(classifyTableContext).getTableName(TABLE_INDEX, mappingContext);
 
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 

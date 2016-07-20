@@ -17,7 +17,7 @@
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4AclBuilder;
@@ -29,32 +29,32 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 interface AclReader {
 
     @Nonnull
-    default L2Acl readL2Acl(final int l2TableId, @Nonnull final NamingContext classifyTableContext,
+    default L2Acl readL2Acl(final int l2TableId, @Nonnull final VppClassifierContextManager classifyTableContext,
                             @Nonnull final MappingContext mappingContext) {
         if (l2TableId == ~0) {
             return null;
         }
         return new L2AclBuilder()
-            .setClassifyTable(classifyTableContext.getName(l2TableId, mappingContext)).build();
+            .setClassifyTable(classifyTableContext.getTableName(l2TableId, mappingContext)).build();
     }
 
     @Nonnull
-    default Ip4Acl readIp4Acl(final int ip4TableId, @Nonnull final NamingContext classifyTableContext,
+    default Ip4Acl readIp4Acl(final int ip4TableId, @Nonnull final VppClassifierContextManager classifyTableContext,
                               @Nonnull final MappingContext mappingContext) {
         if (ip4TableId == ~0) {
             return null;
         }
         return new Ip4AclBuilder()
-            .setClassifyTable(classifyTableContext.getName(ip4TableId, mappingContext)).build();
+            .setClassifyTable(classifyTableContext.getTableName(ip4TableId, mappingContext)).build();
     }
 
     @Nonnull
-    default Ip6Acl readIp6Acl(final int ip6TableId, @Nonnull final NamingContext classifyTableContext,
+    default Ip6Acl readIp6Acl(final int ip6TableId, @Nonnull final VppClassifierContextManager classifyTableContext,
                               @Nonnull final MappingContext mappingContext) {
         if (ip6TableId == ~0) {
             return null;
         }
         return new Ip6AclBuilder()
-            .setClassifyTable(classifyTableContext.getName(ip6TableId, mappingContext)).build();
+            .setClassifyTable(classifyTableContext.getTableName(ip6TableId, mappingContext)).build();
     }
 }

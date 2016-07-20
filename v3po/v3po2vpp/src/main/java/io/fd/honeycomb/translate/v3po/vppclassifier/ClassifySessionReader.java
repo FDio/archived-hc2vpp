@@ -23,11 +23,11 @@ import static io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceUtils.prin
 
 import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInts;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,10 +66,10 @@ public class ClassifySessionReader extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(ClassifySessionReader.class);
     static final String CACHE_KEY = ClassifySessionReader.class.getName();
 
-    private final NamingContext classifyTableContext;
+    private final VppClassifierContextManager classifyTableContext;
 
     public ClassifySessionReader(@Nonnull final FutureJVppCore futureJVppCore,
-                                 @Nonnull final NamingContext classifyTableContext) {
+                                 @Nonnull final VppClassifierContextManager classifyTableContext) {
         super(futureJVppCore);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
     }
@@ -102,10 +102,11 @@ public class ClassifySessionReader extends FutureJVppCustomizer
 
         if (classifySession.isPresent()) {
             final ClassifySessionDetails detail = classifySession.get();
-            builder.setHitNext(readVppNode(detail.hitNextIndex, LOG));
+            builder.setHitNext(
+                readVppNode(detail.tableId, detail.hitNextIndex, classifyTableContext, ctx.getMappingContext(), LOG).get());
             if (detail.opaqueIndex != ~0) {
                 // value is specified:
-                builder.setOpaqueIndex(readOpaqueIndex(detail.opaqueIndex));
+                builder.setOpaqueIndex(readOpaqueIndex(detail.tableId, detail.opaqueIndex, ctx.getMappingContext()));
             }
             builder.setAdvance(detail.advance);
             builder.setMatch(key.getMatch());
@@ -116,13 +117,14 @@ public class ClassifySessionReader extends FutureJVppCustomizer
         }
     }
 
-    private OpaqueIndex readOpaqueIndex(final int opaqueIndex) {
+    private OpaqueIndex readOpaqueIndex(final int tableIndex, final int opaqueIndex, final MappingContext ctx) {
         // We first try to map the value to a vpp node, if that fails, simply wrap the u32 value
         // TODO: HONEYCOMB-118 the approach might fail if the opaqueIndex contains small value that collides
         // with some of the adjacent nodes
-        final VppNode node = readVppNode(opaqueIndex, LOG);
-        if (node != null) {
-            return new OpaqueIndex(node);
+
+        final Optional<VppNode> node = readVppNode(tableIndex, opaqueIndex, classifyTableContext, ctx, LOG);
+        if (node.isPresent()) {
+            return new OpaqueIndex(node.get());
         } else {
             return new OpaqueIndex(UnsignedInts.toLong(opaqueIndex));
         }
@@ -145,10 +147,10 @@ public class ClassifySessionReader extends FutureJVppCustomizer
         }
 
         final String tableName = tableKey.getName();
-        checkState(classifyTableContext.containsIndex(tableName, ctx.getMappingContext()),
+        checkState(classifyTableContext.containsTable(tableName, ctx.getMappingContext()),
             "Reading classify sessions for table {}, but table index could not be found in the classify table context",
             tableName);
-        final int tableId = classifyTableContext.getIndex(tableName, ctx.getMappingContext());
+        final int tableId = classifyTableContext.getTableIndex(tableName, ctx.getMappingContext());
         LOG.debug("Dumping classify sessions for classify table id={}", tableId);
 
         try {
@@ -157,8 +159,11 @@ public class ClassifySessionReader extends FutureJVppCustomizer
             classifySessionDump = TranslateUtils
                 .getReplyForRead(getFutureJVpp().classifySessionDump(dumpRequest).toCompletableFuture(), id);
 
-            // update the cache:
-            ctx.getModificationCache().put(cacheKey, classifySessionDump);
+            if (classifySessionDump != null) {
+                // update the cache:
+                ctx.getModificationCache().put(cacheKey, classifySessionDump);
+            }
+
             return classifySessionDump;
         } catch (VppBaseCallException e) {
             throw new ReadFailedException(id, e);

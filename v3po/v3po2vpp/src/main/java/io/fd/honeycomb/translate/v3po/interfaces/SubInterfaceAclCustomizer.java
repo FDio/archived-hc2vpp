@@ -23,6 +23,7 @@ import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
@@ -45,11 +46,11 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceAclCustomizer.class);
     private final NamingContext interfaceContext;
-    private final NamingContext classifyTableContext;
+    private final VppClassifierContextManager classifyTableContext;
 
     public SubInterfaceAclCustomizer(@Nonnull final FutureJVppCore vppApi,
                                      @Nonnull final NamingContext interfaceContext,
-                                     @Nonnull final NamingContext classifyTableContext) {
+                                     @Nonnull final VppClassifierContextManager classifyTableContext) {
         super(vppApi);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");

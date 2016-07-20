@@ -30,6 +30,7 @@ import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAClWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.SubInterfaceIetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
@@ -60,7 +61,7 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
     private final IetfAClWriter aclWriter;
     private final NamingContext ifcContext;
     private final NamingContext bdContext;
-    private final NamingContext classifyTableContext;
+    private final VppClassifierContextManager classifyTableContext;
 
     public static final InstanceIdentifier<SubinterfaceAugmentation> SUB_IFC_AUG_ID =
             InterfacesWriterFactory.IFC_ID.augmentation(SubinterfaceAugmentation.class);
@@ -73,7 +74,7 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
 
     public SubinterfaceAugmentationWriterFactory(final FutureJVppCore jvpp,
                                                  final IetfAClWriter aclWriter,
-            final NamingContext ifcContext, final NamingContext bdContext, final NamingContext classifyTableContext) {
+            final NamingContext ifcContext, final NamingContext bdContext, final VppClassifierContextManager classifyTableContext) {
         this.jvpp = jvpp;
         this.aclWriter = aclWriter;
         this.ifcContext = ifcContext;

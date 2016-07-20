@@ -21,15 +21,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
-import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
-import io.fd.honeycomb.translate.write.WriteContext;
+import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.OpaqueIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;
@@ -48,14 +48,14 @@ import org.slf4j.LoggerFactory;
  * Writer customizer responsible for classify session create/delete.<br> Sends {@code classify_add_del_session} message
  * to VPP.<br> Equivalent to invoking {@code vppctl classify table} command.
  */
-public class ClassifySessionWriter extends FutureJVppCustomizer
+public class ClassifySessionWriter extends VppNodeWriter
     implements ListWriterCustomizer<ClassifySession, ClassifySessionKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifySessionWriter.class);
-    private final NamingContext classifyTableContext;
+    private final VppClassifierContextManager classifyTableContext;
 
     public ClassifySessionWriter(@Nonnull final FutureJVppCore futureJVppCore,
-                                 @Nonnull final NamingContext classifyTableContext) {
+                                 @Nonnull final VppClassifierContextManager classifyTableContext) {
         super(futureJVppCore);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
     }
@@ -97,37 +97,51 @@ public class ClassifySessionWriter extends FutureJVppCustomizer
     private void classifyAddDelSession(final boolean isAdd, @Nonnull final InstanceIdentifier<ClassifySession> id,
                                        @Nonnull final ClassifySession classifySession,
                                        @Nonnull final WriteContext writeContext)
-        throws VppBaseCallException, WriteTimeoutException {
+        throws VppBaseCallException, WriteFailedException {
         final ClassifyTableKey tableKey = id.firstKeyOf(ClassifyTable.class);
         checkArgument(tableKey != null, "could not find classify table key in {}", id);
 
         final String tableName = tableKey.getName();
-        checkState(classifyTableContext.containsIndex(tableName, writeContext.getMappingContext()),
+        checkState(classifyTableContext.containsTable(tableName, writeContext.getMappingContext()),
             "Could not find classify table index for {} in the classify table context", tableName);
-        final int tableIndex = classifyTableContext.getIndex(tableName, writeContext.getMappingContext());
+        final int tableIndex = classifyTableContext.getTableIndex(tableName, writeContext.getMappingContext());
+
+        final ClassifyTable classifyTable =
+            getClassifyTable(writeContext, id.firstIdentifierOf(ClassifyTable.class), isAdd);
+        final int hitNextIndex = getNodeIndex(classifySession.getHitNext(), classifyTable, classifyTableContext,
+            writeContext.getMappingContext(), id);
+        final int opaqueIndex =
+            getOpaqueIndex(classifySession.getOpaqueIndex(), classifyTable, writeContext.getMappingContext(), id);
 
         final CompletionStage<ClassifyAddDelSessionReply> createClassifyTableReplyCompletionStage = getFutureJVpp()
             .classifyAddDelSession(
-                getClassifyAddDelSessionRequest(isAdd, tableIndex, classifySession));
+                getClassifyAddDelSessionRequest(isAdd, classifySession, tableIndex, hitNextIndex, opaqueIndex));
 
         TranslateUtils.getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
     }
 
-    private static ClassifyAddDelSession getClassifyAddDelSessionRequest(final boolean isAdd, final int tableIndex,
-                                                                         @Nonnull final ClassifySession classifySession) {
+    private ClassifyTable getClassifyTable(final WriteContext writeContext,
+                                            @Nonnull final InstanceIdentifier<ClassifyTable> id,
+                                            final boolean isAdd) {
+        final Optional<ClassifyTable> classifyTable;
+        if (isAdd) {
+            classifyTable = writeContext.readAfter(id);
+        } else {
+            classifyTable = writeContext.readBefore(id);
+        }
+        return classifyTable.get();
+    }
+
+    private static ClassifyAddDelSession getClassifyAddDelSessionRequest(final boolean isAdd,
+                                                                         @Nonnull final ClassifySession classifySession,
+                                                                         final int tableIndex,
+                                                                         final int hitNextIndex,
+                                                                         final int opaqueIndex) {
         ClassifyAddDelSession request = new ClassifyAddDelSession();
         request.isAdd = booleanToByte(isAdd);
         request.tableIndex = tableIndex;
-
-        // mandatory:
-        // TODO implement node name to index conversion after https://jira.fd.io/browse/VPP-203 is fixed
-        request.hitNextIndex = classifySession.getHitNext().getPacketHandlingAction().getIntValue();
-
-        if (classifySession.getOpaqueIndex() != null) {
-            request.opaqueIndex = getOpaqueIndexValue(classifySession.getOpaqueIndex());
-        } else {
-            request.opaqueIndex = ~0; // value not specified
-        }
+        request.hitNextIndex = hitNextIndex;
+        request.opaqueIndex = opaqueIndex;
 
         // default 0:
         request.advance = classifySession.getAdvance();
@@ -136,12 +150,16 @@ public class ClassifySessionWriter extends FutureJVppCustomizer
         return request;
     }
 
-    private static int getOpaqueIndexValue(@Nonnull final OpaqueIndex opaqueIndex) {
+    private int getOpaqueIndex(@Nullable final OpaqueIndex opaqueIndex, final ClassifyTable classifyTable,
+                               final MappingContext ctx, final InstanceIdentifier<ClassifySession> id)
+        throws VppBaseCallException, WriteFailedException {
+        if (opaqueIndex == null) {
+            return ~0; // value not specified
+        }
         if (opaqueIndex.getUint32() != null) {
             return opaqueIndex.getUint32().intValue();
         } else {
-            // TODO: implement node name to index conversion after https://jira.fd.io/browse/VPP-203 is fixed
-            return opaqueIndex.getVppNode().getPacketHandlingAction().getIntValue();
+            return getNodeIndex(opaqueIndex.getVppNode(), classifyTable, classifyTableContext, ctx, id);
         }
     }
 }

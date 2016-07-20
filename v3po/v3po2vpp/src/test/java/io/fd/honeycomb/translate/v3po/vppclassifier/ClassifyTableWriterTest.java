@@ -16,23 +16,19 @@
 
 package io.fd.honeycomb.translate.v3po.vppclassifier;
 
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMapping;
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMappingIid;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
@@ -41,11 +37,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.PacketHandlingAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableKey;
@@ -66,22 +62,23 @@ public class ClassifyTableWriterTest {
     @Mock
     private WriteContext writeContext;
     @Mock
-    private MappingContext mappingContext;
+    private MappingContext ctx;
+    @Mock
+    private VppClassifierContextManager classifierContext;
 
-    private NamingContext classifyTableContext;
     private ClassifyTableWriter customizer;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        classifyTableContext = new NamingContext("generatedClassifyTableName", "test-instance");
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-        customizer = new ClassifyTableWriter(api, classifyTableContext);
+        customizer = new ClassifyTableWriter(api, classifierContext);
+        doReturn(ctx).when(writeContext).getMappingContext();
     }
 
     private static ClassifyTable generateClassifyTable(final String name) {
         final ClassifyTableBuilder builder = new ClassifyTableBuilder();
         builder.setName(name);
+        builder.setClassifierNode(new VppNodeName("ip4-classifier"));
         builder.setKey(new ClassifyTableKey(name));
         builder.setSkipNVectors(0L);
         builder.setNbuckets(2L);
@@ -158,8 +155,7 @@ public class ClassifyTableWriterTest {
         customizer.writeCurrentAttributes(id, classifyTable, writeContext);
 
         verifyClassifyAddDelTableAddWasInvoked(generateClassifyAddDelTable((byte) 1, TABLE_INDEX));
-        verify(mappingContext)
-            .put(eq(getMappingIid(TABLE_NAME, "test-instance")), eq(getMapping(TABLE_NAME, TABLE_INDEX).get()));
+        verify(classifierContext).addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), ctx);
     }
 
     @Test
@@ -174,9 +170,8 @@ public class ClassifyTableWriterTest {
         } catch (WriteFailedException.CreateFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyClassifyAddDelTableAddWasInvoked(generateClassifyAddDelTable((byte) 1, TABLE_INDEX));
-            verify(mappingContext, times(0)).put(
-                eq(getMappingIid(TABLE_NAME, "test-instance")),
-                eq(getMapping(TABLE_NAME, TABLE_INDEX).get()));
+            verify(classifierContext, times(0))
+                .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), ctx);
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -187,9 +182,8 @@ public class ClassifyTableWriterTest {
         final ClassifyTable classifyTable = generateClassifyTable(TABLE_NAME);
         final InstanceIdentifier<ClassifyTable> id = getClassifyTableId(TABLE_NAME);
 
-        final Optional<Mapping> ifcMapping = getMapping(TABLE_NAME, TABLE_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
-
+        when(classifierContext.containsTable(TABLE_NAME, ctx)).thenReturn(true);
+        when(classifierContext.getTableIndex(TABLE_NAME, ctx)).thenReturn(TABLE_INDEX);
         whenClassifyAddDelTableThenSuccess();
 
         customizer.deleteCurrentAttributes(id, classifyTable, writeContext);
@@ -202,9 +196,8 @@ public class ClassifyTableWriterTest {
         final ClassifyTable classifyTable = generateClassifyTable(TABLE_NAME);
         final InstanceIdentifier<ClassifyTable> id = getClassifyTableId(TABLE_NAME);
 
-        final Optional<Mapping> ifcMapping = getMapping(TABLE_NAME, TABLE_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
-
+        when(classifierContext.containsTable(TABLE_NAME, ctx)).thenReturn(true);
+        when(classifierContext.getTableIndex(TABLE_NAME, ctx)).thenReturn(TABLE_INDEX);
         whenClassifyAddDelTableThenFailure();
 
         try {

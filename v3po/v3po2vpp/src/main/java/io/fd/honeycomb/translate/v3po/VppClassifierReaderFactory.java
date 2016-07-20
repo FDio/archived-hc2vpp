@@ -21,9 +21,9 @@ import com.google.inject.name.Named;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifySessionReader;
 import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifyTableReader;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierStateBuilder;
@@ -35,11 +35,11 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 public final class VppClassifierReaderFactory implements ReaderFactory {
 
     private final FutureJVppCore jvpp;
-    private final NamingContext classifyCtx;
+    private final VppClassifierContextManager classifyCtx;
 
     @Inject
     public VppClassifierReaderFactory(final FutureJVppCore jvpp,
-                                      @Named("classify-table-context") final NamingContext classifyCtx) {
+                                      @Named("classify-table-context") final VppClassifierContextManager classifyCtx) {
         this.jvpp = jvpp;
         this.classifyCtx = classifyCtx;
     }

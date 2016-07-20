@@ -27,6 +27,7 @@ import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceL2Customizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip6Acl;
@@ -55,10 +56,10 @@ final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory 
     private final FutureJVppCore jvpp;
     private final NamingContext ifcCtx;
     private final NamingContext bdCtx;
-    private final NamingContext classifyCtx;
+    private final VppClassifierContextManager classifyCtx;
 
     SubinterfaceStateAugmentationReaderFactory(final FutureJVppCore jvpp, final NamingContext ifcCtx,
-                                               final NamingContext bdCtx, final NamingContext classifyCtx) {
+                                               final NamingContext bdCtx, final VppClassifierContextManager classifyCtx) {
         this.jvpp = jvpp;
         this.ifcCtx = ifcCtx;
         this.bdCtx = bdCtx;

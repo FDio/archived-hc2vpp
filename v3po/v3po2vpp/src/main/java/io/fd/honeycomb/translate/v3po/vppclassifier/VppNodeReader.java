@@ -16,9 +16,12 @@
 
 package io.fd.honeycomb.translate.v3po.vppclassifier;
 
+import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.MappingContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.PacketHandlingAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNodeName;
 import org.slf4j.Logger;
 
 interface VppNodeReader {
@@ -29,13 +32,14 @@ interface VppNodeReader {
      * @param nodeIndex index of vpp node treated as signed integer.
      * @return vpp node representation
      */
-    default VppNode readVppNode(final int nodeIndex, @Nonnull final Logger log) {
+    default Optional<VppNode> readVppNode(final int tableIndex, final int nodeIndex,
+                                          @Nonnull final VppClassifierContextManager vppClassifierContextManager,
+                                          @Nonnull final MappingContext ctx, @Nonnull final Logger log) {
         final PacketHandlingAction action = PacketHandlingAction.forValue(nodeIndex);
         if (action == null) {
-            // TODO: implement node index to name conversion after https://jira.fd.io/browse/VPP-203 is fixed
-            log.debug("VPP node index {} cannot be mapped to PacketHandlingAction", nodeIndex);
-            return null;
+            return vppClassifierContextManager.getNodeName(tableIndex, nodeIndex, ctx)
+                .transform(nodeName -> new VppNode(new VppNodeName(nodeName)));
         }
-        return new VppNode(action);
+        return Optional.of(new VppNode(action));
     }
 }

@@ -23,19 +23,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;
@@ -58,23 +55,16 @@ public class ClassifySessionReaderTest extends
     private static final int TABLE_INDEX = 1;
     private static final String TABLE_NAME = "table1";
 
-    private NamingContext classifyTableContext;
+    @Mock
+    private VppClassifierContextManager classifierContext;
 
     public ClassifySessionReaderTest() {
         super(ClassifySession.class);
     }
 
     @Override
-    public void setUpBefore() {
-        classifyTableContext = new NamingContext("classifyTableContext", "test-instance");
-
-        final Optional<Mapping> ifcMapping = ContextTestUtils.getMapping(TABLE_NAME, TABLE_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
-    }
-
-    @Override
     protected ReaderCustomizer<ClassifySession, ClassifySessionBuilder> initCustomizer() {
-        return new ClassifySessionReader(api, classifyTableContext);
+        return new ClassifySessionReader(api, classifierContext);
     }
 
     private static InstanceIdentifier<ClassifySession> getClassifySessionId(final String tableName,
@@ -126,6 +116,9 @@ public class ClassifySessionReaderTest extends
         final CompletableFuture<ClassifySessionDetailsReplyDump> replyFuture = new CompletableFuture<>();
         replyFuture.complete(dump);
         doReturn(replyFuture).when(api).classifySessionDump(any(ClassifySessionDump.class));
+
+        when(classifierContext.containsTable(TABLE_NAME, mappingContext)).thenReturn(true);
+        when(classifierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);
 
         final List<ClassifySessionKey> allIds = getCustomizer().getAllIds(id, ctx);
         assertEquals(2, allIds.size());

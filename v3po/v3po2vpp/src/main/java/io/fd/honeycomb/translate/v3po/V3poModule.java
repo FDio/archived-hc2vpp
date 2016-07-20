@@ -29,6 +29,8 @@ import io.fd.honeycomb.translate.v3po.initializers.VppInitializer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAClWriter;
 import io.fd.honeycomb.translate.v3po.notification.InterfaceChangeNotificationProducer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManagerImpl;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,9 +51,9 @@ public class V3poModule extends AbstractModule {
         bind(NamingContext.class)
                 .annotatedWith(Names.named("bridge-domain-context"))
                 .toInstance(new NamingContext("bridge-domain-", "bridge-domain-context"));
-        bind(NamingContext.class)
+        bind(VppClassifierContextManager.class)
                 .annotatedWith(Names.named("classify-table-context"))
-                .toInstance(new NamingContext("classify-table-", "classify-table-context"));
+                .toInstance(new VppClassifierContextManagerImpl("classify-table-"));
 
         // Executor needed for keepalives
         bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
@@ -68,6 +70,8 @@ public class V3poModule extends AbstractModule {
         readerFactoryBinder.addBinding().to(VppClassifierReaderFactory.class);
         // Expose disabled interfaces in operational data
         readerFactoryBinder.addBinding().to(DisabledInterfacesManager.ContextsReaderFactory.class);
+        // Expose vpp-classfier-context interfaces in operational data
+        readerFactoryBinder.addBinding().to(VppClassifierContextManagerImpl.ContextsReaderFactory.class);
 
         // Writers
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);

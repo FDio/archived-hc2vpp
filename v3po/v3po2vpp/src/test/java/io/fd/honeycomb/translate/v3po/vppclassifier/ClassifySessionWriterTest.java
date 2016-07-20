@@ -16,20 +16,20 @@
 
 package io.fd.honeycomb.translate.v3po.vppclassifier;
 
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMapping;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
@@ -38,12 +38,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.OpaqueIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.PacketHandlingAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySessionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySessionKey;
@@ -66,21 +66,26 @@ public class ClassifySessionWriterTest {
     @Mock
     private WriteContext writeContext;
     @Mock
-    private MappingContext mappingContext;
+    private MappingContext ctx;
+    @Mock
+    private VppClassifierContextManager classfierContext;
 
-    private NamingContext classifyTableContext;
     private ClassifySessionWriter customizer;
     private static final int SESSION_INDEX = 456;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        classifyTableContext = new NamingContext("generatedClassifyTableName", "test-instance");
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-        customizer = new ClassifySessionWriter(api, classifyTableContext);
+        doReturn(ctx).when(writeContext).getMappingContext();
+        customizer = new ClassifySessionWriter(api, classfierContext);
 
-        final Optional<Mapping> ifcMapping = getMapping(TABLE_NAME, TABLE_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
+        when(classfierContext.containsTable(TABLE_NAME, ctx)).thenReturn(true);
+        when(classfierContext.getTableIndex(TABLE_NAME, ctx)).thenReturn(TABLE_INDEX);
+
+        final ClassifyTable table = mock(ClassifyTable.class);
+        when(table.getClassifierNode()).thenReturn(new VppNodeName("ip4-classifier"));
+        when(writeContext.readAfter(any())).thenReturn(Optional.of(table));
+        when(writeContext.readBefore(any())).thenReturn(Optional.of(table));
     }
 
     private static ClassifySession generateClassifySession(final long opaqueIndex, final String match) {

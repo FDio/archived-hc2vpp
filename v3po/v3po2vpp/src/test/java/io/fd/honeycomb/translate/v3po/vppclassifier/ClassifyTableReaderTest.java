@@ -23,21 +23,16 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.PacketHandlingAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierState;
@@ -47,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.core.dto.ClassifyTableIds;
 import org.openvpp.jvpp.core.dto.ClassifyTableIdsReply;
 import org.openvpp.jvpp.core.dto.ClassifyTableInfo;
@@ -61,32 +55,16 @@ public class ClassifyTableReaderTest extends
     private static final int TABLE_INDEX_2 = 2;
     private static final String TABLE_NAME_2 = "table2";
 
-    private NamingContext classifyTableContext;
+    @Mock
+    private VppClassifierContextManager classifierContext;
 
     public ClassifyTableReaderTest() {
         super(ClassifyTable.class);
     }
 
     @Override
-    public void setUpBefore() {
-        classifyTableContext = new NamingContext("classifyTableContext", "test-instance");
-
-        final KeyedInstanceIdentifier<Mapping, MappingKey> t0Id = ContextTestUtils
-                .getMappingIid(TABLE_NAME_1, "test-instance");
-        final KeyedInstanceIdentifier<Mapping, MappingKey> t1Id = ContextTestUtils
-                .getMappingIid(TABLE_NAME_2, "test-instance");
-        final Optional<Mapping> t0 = ContextTestUtils.getMapping(TABLE_NAME_1, TABLE_INDEX_1);
-        final Optional<Mapping> t1 = ContextTestUtils.getMapping(TABLE_NAME_2, TABLE_INDEX_2);
-        final List<Mapping> allMappings = Lists.newArrayList(t0.get(), t1.get());
-        final Mappings allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
-        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(t0Id.firstIdentifierOf(Mappings.class));
-        doReturn(t0).when(mappingContext).read(t0Id);
-        doReturn(t1).when(mappingContext).read(t1Id);
-    }
-
-    @Override
     protected ReaderCustomizer<ClassifyTable, ClassifyTableBuilder> initCustomizer() {
-        return new ClassifyTableReader(api, classifyTableContext);
+        return new ClassifyTableReader(api, classifierContext);
     }
 
     private static InstanceIdentifier<ClassifyTable> getClassifyTableId(final String name) {
@@ -131,6 +109,10 @@ public class ClassifyTableReaderTest extends
         replyFuture.complete(generateClassifyTableInfoReply());
         doReturn(replyFuture).when(api).classifyTableInfo(any(ClassifyTableInfo.class));
 
+        when(classifierContext.containsTable(TABLE_NAME_1, mappingContext)).thenReturn(true);
+        when(classifierContext.getTableIndex(TABLE_NAME_1, mappingContext)).thenReturn(TABLE_INDEX_1);
+        when(classifierContext.getTableBaseNode(TABLE_NAME_1, mappingContext)).thenReturn(Optional.absent());
+
         final ClassifyTableBuilder builder = mock(ClassifyTableBuilder.class);
         getCustomizer().readCurrentAttributes(getClassifyTableId(TABLE_NAME_1), builder, ctx);
 
@@ -144,6 +126,9 @@ public class ClassifyTableReaderTest extends
         reply.ids = new int[] {1, 2};
         replyFuture.complete(reply);
         doReturn(replyFuture).when(api).classifyTableIds(any(ClassifyTableIds.class));
+
+        when(classifierContext.getTableName(TABLE_INDEX_1, mappingContext)).thenReturn(TABLE_NAME_1);
+        when(classifierContext.getTableName(TABLE_INDEX_2, mappingContext)).thenReturn(TABLE_NAME_2);
 
         final List<ClassifyTableKey> allIds = getCustomizer().getAllIds(getClassifyTableId(TABLE_NAME_1), ctx);
 

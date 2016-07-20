@@ -21,14 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import javax.xml.bind.DatatypeConverter;
@@ -46,14 +43,14 @@ import org.slf4j.LoggerFactory;
  * Writer customizer responsible for classify table create/delete. <br> Sends {@code classify_add_del_table} message to
  * VPP.<br> Equivalent to invoking {@code vppctl classify table} command.
  */
-public class ClassifyTableWriter extends FutureJVppCustomizer
+public class ClassifyTableWriter extends VppNodeWriter
     implements ListWriterCustomizer<ClassifyTable, ClassifyTableKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableWriter.class);
-    private final NamingContext classifyTableContext;
+    private final VppClassifierContextManager classifyTableContext;
 
     public ClassifyTableWriter(@Nonnull final FutureJVppCore futureJVppCore,
-                               @Nonnull final NamingContext classifyTableContext) {
+                               @Nonnull final VppClassifierContextManager classifyTableContext) {
         super(futureJVppCore);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
     }
@@ -68,7 +65,7 @@ public class ClassifyTableWriter extends FutureJVppCustomizer
                 classifyAddDelTable(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
 
             // Add classify table name <-> vpp index mapping to the naming context:
-            classifyTableContext.addName(newTableIndex, dataAfter.getName(), writeContext.getMappingContext());
+            classifyTableContext.addTable(newTableIndex, dataAfter.getName(), dataAfter.getClassifierNode(), writeContext.getMappingContext());
             LOG.debug("Successfully created classify table(id={]): iid={} dataAfter={}", newTableIndex, id, dataAfter);
         } catch (VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -88,15 +85,15 @@ public class ClassifyTableWriter extends FutureJVppCustomizer
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         LOG.debug("Removing classify table: iid={} dataBefore={}", id, dataBefore);
         final String tableName = dataBefore.getName();
-        checkState(classifyTableContext.containsIndex(tableName, writeContext.getMappingContext()),
+        checkState(classifyTableContext.containsTable(tableName, writeContext.getMappingContext()),
             "Removing classify table {}, but index could not be found in the classify table context", tableName);
 
-        final int tableIndex = classifyTableContext.getIndex(tableName, writeContext.getMappingContext());
+        final int tableIndex = classifyTableContext.getTableIndex(tableName, writeContext.getMappingContext());
         try {
             classifyAddDelTable(false, id, dataBefore, tableIndex, writeContext.getMappingContext());
 
             // Remove deleted interface from interface context:
-            classifyTableContext.removeName(dataBefore.getName(), writeContext.getMappingContext());
+            classifyTableContext.removeTable(dataBefore.getName(), writeContext.getMappingContext());
             LOG.debug("Successfully removed classify table(id={]): iid={} dataAfter={}", tableIndex, id, dataBefore);
         } catch (VppBaseCallException e) {
             throw new WriteFailedException.DeleteFailedException(id, e);
@@ -105,18 +102,23 @@ public class ClassifyTableWriter extends FutureJVppCustomizer
 
     private int classifyAddDelTable(final boolean isAdd, @Nonnull final InstanceIdentifier<ClassifyTable> id,
                                     @Nonnull final ClassifyTable table, final int tableId, final MappingContext ctx)
-        throws VppBaseCallException, WriteTimeoutException {
+        throws VppBaseCallException, WriteFailedException {
+
+        final int missNextIndex =
+            getNodeIndex(table.getMissNext(), table, classifyTableContext, ctx, id);
+
         final CompletionStage<ClassifyAddDelTableReply> createClassifyTableReplyCompletionStage =
-            getFutureJVpp().classifyAddDelTable(getClassifyAddDelTableRequest(isAdd, tableId, table, ctx));
+            getFutureJVpp()
+                .classifyAddDelTable(getClassifyAddDelTableRequest(isAdd, tableId, table, missNextIndex, ctx));
 
         final ClassifyAddDelTableReply reply =
             TranslateUtils.getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
         return reply.newTableIndex;
-
     }
 
     private ClassifyAddDelTable getClassifyAddDelTableRequest(final boolean isAdd, final int tableIndex,
                                                               @Nonnull final ClassifyTable table,
+                                                              final int missNextIndex,
                                                               @Nonnull final MappingContext ctx) {
         final ClassifyAddDelTable request = new ClassifyAddDelTable();
         request.isAdd = booleanToByte(isAdd);
@@ -128,12 +130,11 @@ public class ClassifyTableWriter extends FutureJVppCustomizer
         request.skipNVectors = table.getSkipNVectors().intValue();
 
         // mandatory
-        // TODO implement node name to index conversion after https://jira.fd.io/browse/VPP-203 is fixed
-        request.missNextIndex = table.getMissNext().getPacketHandlingAction().getIntValue();
+        request.missNextIndex = missNextIndex;
 
         final String nextTable = table.getNextTable();
         if (isAdd && nextTable != null) {
-            request.nextTableIndex = classifyTableContext.getIndex(nextTable, ctx);
+            request.nextTableIndex = classifyTableContext.getTableIndex(nextTable, ctx);
         } else {
             request.nextTableIndex = ~0; // value not specified
         }

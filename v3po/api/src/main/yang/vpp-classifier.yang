@@ -38,14 +38,18 @@ module vpp-classifier {
     }
   }
 
+  typedef vpp-node-name {
+    type string;
+  }
+
   typedef vpp-node {
     type union {
-      // FIXME: enable after VPP-203 is fixed
-      // type string; // name of vpp-node neighbour, TODO: base node also needs to be defined
       type packet-handling-action;
+      type vpp-node-name;
     }
     description
-      "Defines VPP node reference using relative node name or packet handling action.";
+      "Defines VPP node reference using packet handling action or relative node name
+       (if definition in terms of packet handling action is not possible).";
   }
 
   typedef opaque-index {
@@ -85,6 +89,11 @@ module vpp-classifier {
     description
       "Defines classify table attributes that are mapped to classify_add_del_table message parameters.";
 
+    leaf classifier-node {
+      type vpp-node-name;
+      description
+        "Name of VPP node the table is defined for.";
+    }
     leaf nbuckets {
       mandatory true;
       type uint32;

@@ -27,21 +27,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -68,13 +65,13 @@ public class AclCustomizerTest {
     private WriteContext writeContext;
     @Mock
     private MappingContext mappingContext;
+    @Mock
+    private VppClassifierContextManager classifyTableContext;
 
     private NamingContext interfaceContext;
-    private NamingContext classifyTableContext;
     private AclCustomizer customizer;
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
-    private static final String CT_TEST_INSTANCE = "ct-test-instance";
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 1;
 
@@ -85,23 +82,12 @@ public class AclCustomizerTest {
     public void setUp() throws Exception {
         initMocks(this);
         interfaceContext = new NamingContext("generatedInterfaceName", IFC_TEST_INSTANCE);
-        classifyTableContext = new NamingContext("generatedClassifyTable", CT_TEST_INSTANCE);
         doReturn(mappingContext).when(writeContext).getMappingContext();
         customizer = new AclCustomizer(api, interfaceContext, classifyTableContext);
 
         final KeyedInstanceIdentifier<Mapping, MappingKey> ifcMappingKey = getMappingIid(IF_NAME, IFC_TEST_INSTANCE);
         final Optional<Mapping> ifcMapping = getMapping(IF_NAME, IF_INDEX);
         doReturn(ifcMapping).when(mappingContext).read(ifcMappingKey);
-
-        final KeyedInstanceIdentifier<Mapping, MappingKey> ctMappingKey =
-            getMappingIid(ACL_TABLE_NAME, CT_TEST_INSTANCE);
-        final Optional<Mapping> ctMapping = getMapping(ACL_TABLE_NAME, ACL_TABLE_INDEX);
-        doReturn(ctMapping).when(mappingContext).read(ctMappingKey);
-
-        final List<Mapping> allCtMappings = Lists.newArrayList(ctMapping.get());
-        final Mappings allCtMappingsBaObject = new MappingsBuilder().setMapping(allCtMappings).build();
-        doReturn(Optional.of(allCtMappingsBaObject)).when(mappingContext)
-            .read(ctMappingKey.firstIdentifierOf(Mappings.class));
     }
 
 

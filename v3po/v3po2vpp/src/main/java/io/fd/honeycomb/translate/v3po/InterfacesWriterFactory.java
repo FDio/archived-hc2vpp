@@ -42,6 +42,7 @@ import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv6Customizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import java.util.Set;
@@ -85,7 +86,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
     private final IetfAClWriter aclWriter;
     private final NamingContext bdNamingContext;
     private final NamingContext ifcNamingContext;
-    private final NamingContext classifyTableNamingContext;
+    private final VppClassifierContextManager classifyTableContext;
     private final DisabledInterfacesManager ifcDisableContext;
 
     @Inject
@@ -93,14 +94,14 @@ public final class InterfacesWriterFactory implements WriterFactory {
                                    final IetfAClWriter aclWriter,
                                    @Named("bridge-domain-context") final NamingContext bridgeDomainContextDependency,
                                    @Named("interface-context") final NamingContext interfaceContextDependency,
-                                   @Named("classify-table-context") final NamingContext classifyTableContextDependency,
+                                   @Named("classify-table-context") final VppClassifierContextManager classifyTableContext,
                                    final DisabledInterfacesManager ifcDisableContext) {
         this.jvpp = vppJvppIfcDependency;
         this.aclWriter = aclWriter;
         this.bdNamingContext = bridgeDomainContextDependency;
         this.ifcNamingContext = interfaceContextDependency;
         this.ifcDisableContext = ifcDisableContext;
-        this.classifyTableNamingContext = classifyTableContextDependency;
+        this.classifyTableContext = classifyTableContext;
     }
 
     @Override
@@ -114,7 +115,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
         addInterface1AugmentationWriters(IFC_ID, registry);
         //   SubinterfaceAugmentation
         new SubinterfaceAugmentationWriterFactory(jvpp, aclWriter, ifcNamingContext, bdNamingContext,
-                classifyTableNamingContext).init(registry);
+            classifyTableContext).init(registry);
     }
 
     private void addInterface1AugmentationWriters(final InstanceIdentifier<Interface> ifcId,
@@ -183,7 +184,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
         registry
             .subtreeAddAfter(
                 Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
-                new GenericWriter<>(ACL_ID, new AclCustomizer(jvpp, ifcNamingContext, classifyTableNamingContext)),
+                new GenericWriter<>(ACL_ID, new AclCustomizer(jvpp, ifcNamingContext, classifyTableContext)),
                 Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
 
         // IETF-ACL, also handles IetfAcl, AccessLists and Acl:

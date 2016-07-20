@@ -19,10 +19,10 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
-import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -40,7 +40,7 @@ interface AclWriter {
 
     default void inputAclSetInterface(@Nonnull final FutureJVppCore futureJVppCore, final boolean isAdd,
                                       @Nonnull final InstanceIdentifier<?> id, @Nonnull final AclBaseAttributes acl,
-                                      @Nonnegative final int ifIndex, @Nonnull final NamingContext classifyTableContext,
+                                      @Nonnegative final int ifIndex, @Nonnull final VppClassifierContextManager classifyTableContext,
                                       @Nonnull final MappingContext mappingContext)
         throws VppBaseCallException, WriteTimeoutException {
         final InputAclSetInterface request = new InputAclSetInterface();
@@ -53,17 +53,17 @@ interface AclWriter {
         final L2Acl l2Acl = acl.getL2Acl();
         if (l2Acl != null) {
             final String tableName = checkNotNull(l2Acl.getClassifyTable(), "L2 classify table is null");
-            request.l2TableIndex = classifyTableContext.getIndex(tableName, mappingContext);
+            request.l2TableIndex = classifyTableContext.getTableIndex(tableName, mappingContext);
         }
         final Ip4Acl ip4Acl = acl.getIp4Acl();
         if (ip4Acl != null) {
             final String tableName = checkNotNull(ip4Acl.getClassifyTable(), "IPv4 classify table is null");
-            request.ip4TableIndex = classifyTableContext.getIndex(tableName, mappingContext);
+            request.ip4TableIndex = classifyTableContext.getTableIndex(tableName, mappingContext);
         }
         final Ip6Acl ip6Acl = acl.getIp6Acl();
         if (ip6Acl != null) {
             final String tableName = checkNotNull(ip6Acl.getClassifyTable(), "IPv6 classify table is null");
-            request.ip6TableIndex = classifyTableContext.getIndex(tableName, mappingContext);
+            request.ip6TableIndex = classifyTableContext.getTableIndex(tableName, mappingContext);
         }
 
         final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =

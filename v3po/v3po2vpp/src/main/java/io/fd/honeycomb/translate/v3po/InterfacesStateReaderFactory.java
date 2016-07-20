@@ -38,6 +38,7 @@ import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv4Customizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv6Customizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -68,7 +69,7 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
 
     private final NamingContext ifcNamingCtx;
     private final NamingContext bdNamingCtx;
-    private final NamingContext classifyNamingCtx;
+    private final VppClassifierContextManager classifyContext;
     private final DisabledInterfacesManager ifcDisableContext;
     private final FutureJVppCore jvpp;
 
@@ -80,12 +81,12 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
     public InterfacesStateReaderFactory(final FutureJVppCore jvpp,
                                         @Named("interface-context") final NamingContext ifcNamingCtx,
                                         @Named("bridge-domain-context") final NamingContext bdNamingCtx,
-                                        @Named("classify-table-context") final NamingContext classifyNamingCtx,
+                                        @Named("classify-table-context") final VppClassifierContextManager classifyContext,
                                         final DisabledInterfacesManager ifcDisableContext) {
         this.jvpp = jvpp;
         this.ifcNamingCtx = ifcNamingCtx;
         this.bdNamingCtx = bdNamingCtx;
-        this.classifyNamingCtx = classifyNamingCtx;
+        this.classifyContext = classifyContext;
         this.ifcDisableContext = ifcDisableContext;
     }
 
@@ -101,7 +102,7 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         // ietf-ip.yang
         initInterface2AugmentationReaders(registry, IFC_ID);
         // vpp-vlan.yang
-        new SubinterfaceStateAugmentationReaderFactory(jvpp, ifcNamingCtx, bdNamingCtx, classifyNamingCtx).init(registry);
+        new SubinterfaceStateAugmentationReaderFactory(jvpp, ifcNamingCtx, bdNamingCtx, classifyContext).init(registry);
     }
 
     private void initInterface2AugmentationReaders(final ModifiableReaderRegistryBuilder registry,
@@ -147,7 +148,7 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         registry.subtreeAdd(
                 Sets.newHashSet(aclIdRelative.child(L2Acl.class), aclIdRelative.child(Ip4Acl.class), aclIdRelative.child(Ip6Acl.class)),
                 new GenericReader<>(vppIfcAugId.child(Acl.class), new AclCustomizer(jvpp, ifcNamingCtx,
-                        classifyNamingCtx)));
+                    classifyContext)));
         //   Proxy ARP
         registry.add(new GenericReader<>(vppIfcAugId.child(ProxyArp.class), new ProxyArpCustomizer(jvpp,
                 ifcNamingCtx)));

@@ -21,9 +21,9 @@ import static io.fd.honeycomb.translate.v3po.InterfacesWriterFactory.ACL_ID;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifySessionWriter;
 import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifyTableWriter;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
@@ -42,11 +42,11 @@ public final class VppClassifierHoneycombWriterFactory implements WriterFactory 
             CLASSIFY_TABLE_ID.child(ClassifySession.class);
 
     private final FutureJVppCore jvpp;
-    private final NamingContext classifyTableContext;
+    private final VppClassifierContextManager classifyTableContext;
 
     @Inject
     public VppClassifierHoneycombWriterFactory(@Nonnull final FutureJVppCore jvpp,
-                                               @Named("classify-table-context") @Nonnull final NamingContext classifyTableContext) {
+                                               @Named("classify-table-context") @Nonnull final VppClassifierContextManager classifyTableContext) {
         this.jvpp = jvpp;
         this.classifyTableContext = classifyTableContext;
     }

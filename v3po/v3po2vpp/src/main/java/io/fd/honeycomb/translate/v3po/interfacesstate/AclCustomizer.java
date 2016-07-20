@@ -25,6 +25,7 @@ import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -49,10 +50,10 @@ public class AclCustomizer extends FutureJVppCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(AclCustomizer.class);
     private final NamingContext interfaceContext;
-    private final NamingContext classifyTableContext;
+    private final VppClassifierContextManager classifyTableContext;
 
     public AclCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext,
-                         @Nonnull final NamingContext classifyTableContext) {
+                         @Nonnull final VppClassifierContextManager classifyTableContext) {
         super(jvpp);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");

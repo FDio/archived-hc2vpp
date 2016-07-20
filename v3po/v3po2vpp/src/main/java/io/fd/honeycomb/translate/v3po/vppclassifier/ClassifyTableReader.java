@@ -20,12 +20,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceUtils.printHexBinary;
 
+import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInts;
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTableKey;
@@ -57,10 +58,10 @@ public class ClassifyTableReader extends FutureJVppCustomizer
     implements ListReaderCustomizer<ClassifyTable, ClassifyTableKey, ClassifyTableBuilder>, VppNodeReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableReader.class);
-    private final NamingContext classifyTableContext;
+    private final VppClassifierContextManager classifyTableContext;
 
     public ClassifyTableReader(@Nonnull final FutureJVppCore futureJVppCore,
-                               @Nonnull final NamingContext classifyTableContext) {
+                               @Nonnull final VppClassifierContextManager classifyTableContext) {
         super(futureJVppCore);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
     }
@@ -89,11 +90,11 @@ public class ClassifyTableReader extends FutureJVppCustomizer
         final ClassifyTableInfo request = new ClassifyTableInfo();
 
         final String tableName = key.getName();
-        if (!classifyTableContext.containsIndex(tableName, ctx.getMappingContext())) {
+        if (!classifyTableContext.containsTable(tableName, ctx.getMappingContext())) {
             LOG.debug("Could not find classify table {} in the naming context", tableName);
             return;
         }
-        request.tableId = classifyTableContext.getIndex(tableName, ctx.getMappingContext());
+        request.tableId = classifyTableContext.getTableIndex(tableName, ctx.getMappingContext());
 
         try {
             final ClassifyTableInfoReply reply =
@@ -105,14 +106,22 @@ public class ClassifyTableReader extends FutureJVppCustomizer
             builder.setNbuckets(UnsignedInts.toLong(reply.nbuckets));
             builder.setSkipNVectors(UnsignedInts.toLong(reply.skipNVectors));
 
+            // optional value read from context
+            final Optional<String> tableBaseNode =
+                classifyTableContext.getTableBaseNode(tableName, ctx.getMappingContext());
+            if (tableBaseNode.isPresent()) {
+                builder.setClassifierNode(new VppNodeName(tableBaseNode.get()));
+            }
 
-            builder.setMissNext(readVppNode(reply.missNextIndex, LOG));
+            builder.setMissNext(
+                readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext(), LOG)
+                    .get());
             builder.setMask(new HexString(printHexBinary(reply.mask)));
             builder.setActiveSessions(UnsignedInts.toLong(reply.activeSessions));
 
             if (reply.nextTableIndex != ~0) {
                 // next table index is present:
-                builder.setNextTable(classifyTableContext.getName(reply.nextTableIndex, ctx.getMappingContext()));
+                builder.setNextTable(classifyTableContext.getTableName(reply.nextTableIndex, ctx.getMappingContext()));
             }
 
             if (LOG.isTraceEnabled()) {
@@ -133,7 +142,7 @@ public class ClassifyTableReader extends FutureJVppCustomizer
                 .getReplyForRead(getFutureJVpp().classifyTableIds(new ClassifyTableIds()).toCompletableFuture(), id);
             if (classifyTableIdsReply.ids != null) {
                 return Arrays.stream(classifyTableIdsReply.ids).mapToObj(i -> {
-                    final String tableName = classifyTableContext.getName(i, context.getMappingContext());
+                    final String tableName = classifyTableContext.getTableName(i, context.getMappingContext());
                     LOG.trace("Classify table with name: {} and index: {} found in VPP", tableName, i);
                     return new ClassifyTableKey(tableName);
                 }).collect(Collectors.toList());
