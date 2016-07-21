@@ -78,11 +78,13 @@ final class SubInterfaceInitializationUtils {
         subInterfaceCfgBuilder.setIpv4(operationalData.getIpv4());
         subInterfaceCfgBuilder.setIpv6(operationalData.getIpv6());
 
-        final AclBuilder aclBuilder = new AclBuilder();
-        aclBuilder.setL2Acl(operationalData.getAcl().getL2Acl());
-        aclBuilder.setIp4Acl(operationalData.getAcl().getIp4Acl());
-        aclBuilder.setIp6Acl(operationalData.getAcl().getIp6Acl());
-        subInterfaceCfgBuilder.setAcl(aclBuilder.build());
+        if (operationalData.getAcl() != null) {
+            final AclBuilder aclBuilder = new AclBuilder();
+            aclBuilder.setL2Acl(operationalData.getAcl().getL2Acl());
+            aclBuilder.setIp4Acl(operationalData.getAcl().getIp4Acl());
+            aclBuilder.setIp6Acl(operationalData.getAcl().getIp6Acl());
+            subInterfaceCfgBuilder.setAcl(aclBuilder.build());
+        }
 
         return subInterfaceCfgBuilder.build();
     }
