@@ -15,8 +15,8 @@ Current order of v3po-api writers is:
 . L2
 . Ethernet
 . Routing
-. ClassifySession
 . ClassifyTable
+. ClassifySession
 . Acl
 . Ipv6
 . Ipv4

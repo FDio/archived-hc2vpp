@@ -61,15 +61,16 @@ public class VppClassifierHoneycombWriterModule extends
         }
 
         @Override
-        public void init(final ModifiableWriterRegistryBuilder registry) {
-
+        public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
+            // Ordering here is: First create table, then create sessions and then assign as ACL
+            // ClassifyTable
             registry.addBefore(
-                new GenericListWriter<>(CLASSIFY_TABLE_ID, new ClassifyTableWriter(jvpp, classifyTableContext)),
-                ACL_ID);
-
+                    new GenericListWriter<>(CLASSIFY_TABLE_ID, new ClassifyTableWriter(jvpp, classifyTableContext)),
+                    CLASSIFY_SESSION_ID);
+            //  ClassifyTableSession
             registry.addBefore(
-                new GenericListWriter<>(CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext)),
-                CLASSIFY_TABLE_ID);
+                    new GenericListWriter<>(CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext)),
+                    ACL_ID);
         }
     }
 }
