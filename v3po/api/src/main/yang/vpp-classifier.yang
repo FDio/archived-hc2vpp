@@ -92,12 +92,6 @@ module vpp-classifier {
         "Used by classifier hashing algorithm. It is not possible to resize the bucket array,
         therefore suggested value is approximate number of expected entries.";
     }
-    leaf memory_size {
-      mandatory true;
-      type uint32;
-      description
-        "Memory size for classify table and its entries.";
-    }
     leaf skip_n_vectors {
       type uint32;
       default 0;
@@ -143,6 +137,21 @@ module vpp-classifier {
     }
   }
 
+  grouping classify-table-config-attributes {
+    description
+      "Defines classify table config only attributes (present in classify_add_del_table message
+       but not in classify_table_info_reply).";
+
+    // FIXME move to classify-table-base-attributes
+    // after https://jira.fd.io/browse/VPP-208 is fixed
+    leaf memory_size {
+      type uint32;
+      mandatory true;
+      description
+        "Memory size for classify table and its entries.";
+    }
+  }
+
   grouping classify-table-operational-attributes {
     description
       "Defines classify table operational attributes (present in classify_table_info_reply message
@@ -167,6 +176,7 @@ module vpp-classifier {
       }
 
       uses classify-table-base-attributes;
+      uses classify-table-config-attributes;
     }
   }
 

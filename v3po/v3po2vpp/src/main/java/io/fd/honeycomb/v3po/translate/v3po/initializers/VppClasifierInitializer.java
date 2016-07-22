@@ -17,11 +17,13 @@
 package io.fd.honeycomb.v3po.translate.v3po.initializers;
 
 import io.fd.honeycomb.v3po.vpp.data.init.AbstractDataTreeConverter;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -39,10 +41,9 @@ public class VppClasifierInitializer extends AbstractDataTreeConverter<VppClassi
     @Override
     protected VppClassifier convert(final VppClassifierState operationalData) {
         final VppClassifierBuilder builder = new VppClassifierBuilder();
-        // TODO finish translation classify table key + mandatory fields at least must be set
-//        builder.setClassifyTable(operationalData.getClassifyTable().stream()
-//            .map(oper -> new ClassifyTableBuilder(oper).build())
-//            .collect(Collectors.toList()));
+        builder.setClassifyTable(operationalData.getClassifyTable().stream()
+            .map(oper -> new ClassifyTableBuilder(oper).setName(oper.getName()).build())
+            .collect(Collectors.toList()));
         return builder.build();
     }
 }
