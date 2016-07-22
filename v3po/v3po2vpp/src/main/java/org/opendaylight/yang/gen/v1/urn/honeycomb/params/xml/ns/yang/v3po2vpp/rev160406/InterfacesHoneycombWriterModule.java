@@ -8,6 +8,7 @@ import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.AclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.EthernetCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.GreCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.InterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.L2Customizer;
 import io.fd.honeycomb.translate.v3po.interfaces.RoutingCustomizer;
@@ -42,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Gre;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 
@@ -150,6 +152,12 @@ public class InterfacesHoneycombWriterModule extends
             final InstanceIdentifier<Tap> tapId = VPP_IFC_AUG_ID.child(Tap.class);
             registry.addBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcContext)),
                     ifcId);
+
+            // Gre(Needs to be executed before Interface customizer) =
+            final InstanceIdentifier<Gre> greId = VPP_IFC_AUG_ID.child(Gre.class);
+            registry.addBefore(new GenericWriter<>(greId, new GreCustomizer(jvpp, ifcContext)),
+                ifcId);
+
 
             final Set<InstanceIdentifier<?>> specificIfcTypes = Sets.newHashSet(vhostId, vxlanGpeId, vxlanGpeId, tapId);
 

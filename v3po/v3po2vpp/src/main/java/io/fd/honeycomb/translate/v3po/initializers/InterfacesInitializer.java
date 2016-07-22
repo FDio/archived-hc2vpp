@@ -52,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUserBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.GreBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.L2;
@@ -59,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
@@ -126,6 +128,11 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
             final VxlanGpe vxlanGpe = vppIfcAugmentation.getVxlanGpe();
             if (vxlanGpe != null) {
                 setVxlanGpe(augmentBuilder, vxlanGpe);
+            }
+
+            final Gre gre = vppIfcAugmentation.getGre();
+            if (gre != null) {
+                setGre(augmentBuilder, gre);
             }
 
             final Tap tap = vppIfcAugmentation.getTap();
@@ -278,5 +285,13 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         vxlanGpeBuilder.setEncapVrfId(vxlanGpe.getEncapVrfId());
         vxlanGpeBuilder.setDecapVrfId(vxlanGpe.getDecapVrfId());
         augmentBuilder.setVxlanGpe(vxlanGpeBuilder.build());
+    }
+
+    private static void setGre(final VppInterfaceAugmentationBuilder augmentBuilder, final Gre gre) {
+        final GreBuilder greBuilder = new GreBuilder();
+        greBuilder.setDst(gre.getDst());
+        greBuilder.setSrc(gre.getSrc());
+        greBuilder.setOuterFibId(gre.getOuterFibId());
+        augmentBuilder.setGre(greBuilder.build());
     }
 }

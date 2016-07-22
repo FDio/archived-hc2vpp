@@ -49,6 +49,10 @@ module v3po {
     base if:interface-type;
   }
 
+  identity gre-tunnel {
+    base if:interface-type;
+  }
+
   identity vhost-user {
     base if:interface-type;
   }
@@ -291,6 +295,20 @@ module v3po {
     }
   }
 
+  grouping gre-base-attributes {
+    leaf src {
+      /*mandatory true;*/
+      type inet:ip-address;
+    }
+    leaf dst {
+      /*mandatory true;*/
+      type inet:ip-address;
+    }
+    leaf outer-fib-id {
+      type uint32;
+    }
+  }
+
   grouping vxlan-gpe-base-attributes {
     leaf local {
       /*mandatory true;*/
@@ -423,6 +441,11 @@ module v3po {
       uses vxlan-base-attributes;
     }
 
+    container gre {
+      when "../if:type = 'v3po:gre-tunnel'";
+      uses gre-base-attributes;
+    }
+
     container l2 {
       must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
       "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
@@ -494,6 +517,11 @@ module v3po {
       when "../if:type = 'v3po:vxlan-gpe-tunnel'";
 
       uses vxlan-gpe-base-attributes;
+    }
+
+    container gre {
+      when "../if:type = 'gre-tunnel'";
+      uses gre-base-attributes;
     }
 
     container l2 {

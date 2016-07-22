@@ -7,6 +7,7 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.v3po.interfacesstate.AclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.EthernetCustomizer;
+import io.fd.honeycomb.translate.v3po.interfacesstate.GreCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.L2Customizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.TapCustomizer;
@@ -41,6 +42,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Gre;
+import org.opendaylight.yangtools.yang.binding.Augmentation;
+import org.opendaylight.yangtools.yang.binding.ChildOf;
 
 public class InterfacesStateHoneycombReaderModule extends
         org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractInterfacesStateHoneycombReaderModule {
@@ -141,6 +145,8 @@ public class InterfacesStateHoneycombReaderModule extends
             registry.add(new GenericReader<>(vppIfcAugId.child(Vxlan.class), new VxlanCustomizer(jvpp, ifcCtx)));
             //    VxlanGpe
             registry.add(new GenericReader<>(vppIfcAugId.child(VxlanGpe.class), new VxlanGpeCustomizer(jvpp, ifcCtx)));
+            //    Gre
+            registry.add(new GenericReader<>(vppIfcAugId.child(Gre.class), new GreCustomizer(jvpp, ifcCtx)));
             //    L2
             registry.add(new GenericReader<>(vppIfcAugId.child(L2.class), new L2Customizer(jvpp, ifcCtx, bdCtx)));
             //    Acl(Subtree)

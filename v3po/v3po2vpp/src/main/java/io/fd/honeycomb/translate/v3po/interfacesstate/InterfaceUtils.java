@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.GreTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.dto.SwInterfaceDetails;
@@ -253,6 +254,10 @@ public final class InterfaceUtils {
 
         if (interfaceName.startsWith("vxlan")) {
             return VxlanTunnel.class;
+        }
+
+        if (interfaceName.startsWith("gre")) {
+            return GreTunnel.class;
         }
 
         if (interfaceName.startsWith("VirtualEthernet")) {
