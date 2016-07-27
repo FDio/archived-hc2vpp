@@ -17,61 +17,32 @@
 <features name="odl-v3po-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
-  <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
+
+  <repository>mvn:io.fd.honeycomb/honeycomb-features/${project.version}/xml/features</repository>
+  <repository>mvn:io.fd.honeycomb.vpp/vpp-common-features/${project.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.mdsal.model/features-mdsal-model/${mdsal.model.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.netconf/features-restconf/${restconf.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.netconf/features-netconf-connector/${netconf.version}/xml/features</repository>
-  <repository>mvn:org.opendaylight.dlux/features-dlux/${dlux.version}/xml/features</repository>
 
-  <feature name='odl-v3po-api' version='${project.version}' description='OpenDaylight :: v3po :: api'>
+  <feature name='odl-honeycomb-v3po-api' version='${project.version}' description='OpenDaylight :: v3po :: api'>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
-    <bundle>mvn:io.fd.honeycomb.v3po/v3po-api/${project.version}</bundle>
+    <bundle>mvn:io.fd.honeycomb.v3po/v3po-api/{{VERSION}}</bundle>
   </feature>
 
-  <feature name='odl-v3po' version='${project.version}' description='OpenDaylight :: v3po'>
-    <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
-    <feature version='${project.version}'>odl-v3po-api</feature>
-    <!-- FIXME remove netconf-connector-ssh from features, only netconf northbound is needed -->
-    <feature version='${netconf.version}'>odl-netconf-connector-ssh</feature>
-    <feature version='${mdsal.version}'>odl-netconf-mdsal</feature>
-    <bundle>mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/translate-api/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/translate-spi/${project.version}</bundle>
-    <bundle>mvn:org.jgrapht/jgrapht-core/{{VERSION}}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/translate-utils/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/vpp-translate-utils/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/data-api/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/data-impl/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/notification-api/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/notification-impl/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/translate-impl/${project.version}</bundle>
-    <bundle>wrap:mvn:io.fd.vpp/jvpp/16.09-SNAPSHOT</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/vpp-jvpp-cfg/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}</bundle>
-    <bundle>mvn:io.fd.honeycomb.v3po/vpp-cfg-init/${project.version}</bundle>
-    <configfile finalname="${configfile.directory}/vpp-jvpp.xml">mvn:io.fd.honeycomb.v3po/vpp-jvpp-cfg/${project.version}/xml/config</configfile>
-    <configfile finalname="${configfile.directory}/v3po-context.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/context</configfile>
-    <configfile finalname="${configfile.directory}/v3po-notification.xml">mvn:io.fd.honeycomb.v3po/notification-impl/${project.version}/xml/config</configfile>
-    <configfile finalname="${configfile.directory}/v3po.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/config</configfile>
-    <configfile finalname="${configfile.directory}/v3po-init.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/init</configfile>
-    <configfile finalname="${configfile.directory}/v3po2vpp.xml">mvn:io.fd.honeycomb.v3po/v3po2vpp/${project.version}/xml/config</configfile>
+  <feature name='odl-honeycomb-v3po' version='${project.version}' description='OpenDaylight :: v3po'>
+    <feature version='${project.version}'>odl-honeycomb</feature>
+    <feature version='${project.version}'>odl-honeycomb-vpp-common</feature>
+    <feature version='${project.version}'>odl-honeycomb-v3po-api</feature>
+    <bundle>mvn:io.fd.honeycomb.v3po/v3po2vpp/{{VERSION}}</bundle>
+    <configfile finalname="${configfile.directory}/honeycomb-v3po.xml">mvn:io.fd.honeycomb.v3po/v3po2vpp/{{VERSION}}/xml/config</configfile>
   </feature>
 
-  <feature name='odl-v3po-rest' version='${project.version}' description='OpenDaylight :: v3po :: REST'>
-    <feature version="${project.version}">odl-v3po</feature>
-    <feature version="${restconf.version}">odl-restconf</feature>
-    <!-- Northbound interfaces configuration -->
-    <configfile finalname="${configfile.directory}/v3po-netconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/netconf</configfile>
-    <configfile finalname="${configfile.directory}/v3po-notification2netconf.xml">mvn:io.fd.honeycomb.v3po/notification-impl/${project.version}/xml/notification2netconf</configfile>
-    <configfile finalname="${configfile.directory}/v3po-restconf.xml">mvn:io.fd.honeycomb.v3po/v3po-impl/${project.version}/xml/restconf</configfile>
+  <feature name='odl-honeycomb-v3po-rest' version='${project.version}' description='OpenDaylight :: v3po :: rest'>
+    <feature version='${project.version}'>odl-honeycomb-rest</feature>
+    <feature version='${project.version}'>odl-honeycomb-v3po</feature>
   </feature>
 
-  <feature name='odl-v3po-ui' version='${project.version}' description='OpenDaylight :: v3po :: UI'>
-    <feature version="${project.version}">odl-v3po-rest</feature>
-    <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
-    <feature version="${mdsal.version}">odl-mdsal-xsql</feature>
-    <feature version="${dlux.version}">odl-dlux-yangui</feature>
+  <feature name='odl-honeycomb-v3po-ui' version='${project.version}' description='OpenDaylight :: v3po :: ui'>
+    <feature version='${project.version}'>odl-honeycomb-ui</feature>
+    <feature version='${project.version}'>odl-honeycomb-v3po-rest</feature>
   </feature>
 
 </features>

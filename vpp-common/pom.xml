@@ -22,8 +22,8 @@
     <relativePath/>
   </parent>
 
-  <groupId>io.fd.honeycomb.v3po</groupId>
-  <artifactId>v3po-aggregator</artifactId>
+  <groupId>io.fd.honeycomb.vpp</groupId>
+  <artifactId>vpp-common-aggregator</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <name>v3po</name>
   <packaging>pom</packaging>
@@ -32,10 +32,11 @@
     <maven>3.1.1</maven>
   </prerequisites>
   <modules>
-    <module>api</module>
-    <module>v3po2vpp</module>
+    <module>vpp-translate-utils</module>
+    <module>vpp-jvpp-cfg</module>
+    <module>naming-context-api</module>
+    <module>naming-context-impl</module>
     <module>features</module>
-    <module>karaf</module>
   </modules>
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>

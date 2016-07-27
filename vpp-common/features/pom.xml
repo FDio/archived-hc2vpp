@@ -20,8 +20,8 @@
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../../common/features-parent</relativePath>
   </parent>
-  <groupId>io.fd.honeycomb.v3po</groupId>
-  <artifactId>v3po-features</artifactId>
+  <groupId>io.fd.honeycomb.vpp</groupId>
+  <artifactId>vpp-common-features</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <name>${project.artifactId}</name>
   <modelVersion>4.0.0</modelVersion>
@@ -47,29 +47,43 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.vpp</groupId>
-      <artifactId>vpp-common-features</artifactId>
-      <classifier>features</classifier>
-      <version>${project.version}</version>
-      <type>xml</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>v3po-api</artifactId>
+      <artifactId>naming-context-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>v3po2vpp</artifactId>
+      <artifactId>naming-context-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>v3po2vpp</artifactId>
+      <artifactId>naming-context-impl</artifactId>
       <version>${project.version}</version>
       <type>xml</type>
       <classifier>config</classifier>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>vpp-jvpp-cfg</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>vpp-translate-utils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>vpp-jvpp-cfg</artifactId>
+      <version>${project.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.vpp</groupId>
+      <artifactId>jvpp</artifactId>
+      <version>16.09-SNAPSHOT</version>
     </dependency>
   </dependencies>
 </project>

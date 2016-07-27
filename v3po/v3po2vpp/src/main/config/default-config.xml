@@ -217,6 +217,51 @@
                         <name>vpp-classifier-honeycomb-writer</name>
                     </writer-factory>
                 </module>
+
+                <!-- Config initializer for VPP subtree-->
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-cfg-initializer</type>
+                    <name>vpp-cfg-initializer</name>
+                    <binding-data-broker>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-async-data-broker</type>
+                        <name>cfg-init-binding-data-broker</name>
+                    </binding-data-broker>
+                </module>
+                <!-- Config initializer for Interfaces subtree-->
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:interfaces-cfg-initializer</type>
+                    <name>interfaces-cfg-initializer</name>
+                    <binding-data-broker>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-async-data-broker</type>
+                        <name>cfg-init-binding-data-broker</name>
+                    </binding-data-broker>
+                </module>
+                <!-- Config initializer for vpp-classifier subtree-->
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:v3po2vpp">prefix:vpp-classifier-cfg-initializer</type>
+                    <name>vpp-classifier-cfg-initializer</name>
+                    <binding-data-broker>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">prefix:binding-async-data-broker</type>
+                        <name>cfg-init-binding-data-broker</name>
+                    </binding-data-broker>
+                </module>
+                <!-- Add vpp initializer to initializer registry -->
+                <module>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer-registry</type>
+                    <name>initializer-registry</name>
+                    <initializers>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+                        <name>vpp-cfg-initializer</name>
+                    </initializers>
+                    <initializers>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+                        <name>interfaces-cfg-initializer</name>
+                    </initializers>
+                    <initializers>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+                        <name>vpp-classifier-cfg-initializer</name>
+                    </initializers>
+                </module>
             </modules>
 
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -273,6 +318,25 @@
                     <instance>
                         <name>vpp-classifier-honeycomb-writer</name>
                         <provider>/modules/module[type='vpp-classifier-honeycomb-writer'][name='vpp-classifier-honeycomb-writer']
+                        </provider>
+                    </instance>
+                </service>
+
+                <service>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+                    <instance>
+                        <name>vpp-cfg-initializer</name>
+                        <provider>/modules/module[type='vpp-cfg-initializer'][name='vpp-cfg-initializer']
+                        </provider>
+                    </instance>
+                    <instance>
+                        <name>interfaces-cfg-initializer</name>
+                        <provider>/modules/module[type='interfaces-cfg-initializer'][name='interfaces-cfg-initializer']
+                        </provider>
+                    </instance>
+                    <instance>
+                        <name>vpp-classifier-cfg-initializer</name>
+                        <provider>/modules/module[type='vpp-classifier-cfg-initializer'][name='vpp-classifier-cfg-initializer']
                         </provider>
                     </instance>
                 </service>

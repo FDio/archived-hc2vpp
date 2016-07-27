@@ -1,3 +1,0 @@
-= Honeycomb translation layer utils
-
-Provides utility classes useful in translation layer implementation.
