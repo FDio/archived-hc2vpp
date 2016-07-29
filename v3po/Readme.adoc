@@ -1,0 +1,7 @@
+= V3po
+
+This is a Honeycomb plugin providing mapping code between HC and VPP core APIs.
+
+== Usage
+
+Refer to postman_rest_collection.json for sample requests. All capabilities of V3po are demo-ed there
