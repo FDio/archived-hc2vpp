@@ -1,6 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
-import io.fd.honeycomb.v3po.translate.v3po.initializers.InterfacesInitializer;
+import io.fd.honeycomb.translate.v3po.initializers.InterfacesInitializer;
 
 public class InterfacesConfigurationInitializerModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractInterfacesConfigurationInitializerModule {
     public InterfacesConfigurationInitializerModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {

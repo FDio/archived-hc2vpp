@@ -22,7 +22,7 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.DumpCheckFailedException;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.v3po.util.cache.noop.NoopDumpPostProcessingFunction;
-import io.fd.honeycomb.v3po.translate.ModificationCache;
+import io.fd.honeycomb.translate.ModificationCache;
 import javax.annotation.Nonnull;
 import org.openvpp.jvpp.dto.JVppReplyDump;
 import org.slf4j.Logger;

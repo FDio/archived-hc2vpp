@@ -1,11 +1,11 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
-import io.fd.honeycomb.v3po.translate.impl.read.GenericListReader;
-import io.fd.honeycomb.v3po.translate.read.ReaderFactory;
-import io.fd.honeycomb.v3po.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.vppclassifier.ClassifySessionReader;
-import io.fd.honeycomb.v3po.translate.v3po.vppclassifier.ClassifyTableReader;
+import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifySessionReader;
+import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifyTableReader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifierStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;

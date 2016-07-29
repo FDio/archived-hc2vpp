@@ -1,15 +1,15 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
-import io.fd.honeycomb.v3po.translate.impl.read.GenericListReader;
-import io.fd.honeycomb.v3po.translate.impl.read.GenericReader;
-import io.fd.honeycomb.v3po.translate.read.ReaderFactory;
-import io.fd.honeycomb.v3po.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.honeycomb.v3po.translate.util.read.KeepaliveReaderWrapper;
-import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.util.ReadTimeoutException;
-import io.fd.honeycomb.v3po.translate.v3po.vppstate.BridgeDomainCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.vppstate.L2FibEntryCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.vppstate.VersionCustomizer;
+import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.impl.read.GenericReader;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.util.read.KeepaliveReaderWrapper;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.util.ReadTimeoutException;
+import io.fd.honeycomb.translate.v3po.vppstate.BridgeDomainCustomizer;
+import io.fd.honeycomb.translate.v3po.vppstate.L2FibEntryCustomizer;
+import io.fd.honeycomb.translate.v3po.vppstate.VersionCustomizer;
 import java.lang.management.ManagementFactory;
 import javax.management.Attribute;
 import javax.management.InstanceNotFoundException;

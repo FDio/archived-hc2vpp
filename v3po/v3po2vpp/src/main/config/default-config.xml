@@ -247,18 +247,18 @@
                 </module>
                 <!-- Add vpp initializer to initializer registry -->
                 <module>
-                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer-registry</type>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer-registry</type>
                     <name>initializer-registry</name>
                     <initializers>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer</type>
                         <name>vpp-cfg-initializer</name>
                     </initializers>
                     <initializers>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer</type>
                         <name>interfaces-cfg-initializer</name>
                     </initializers>
                     <initializers>
-                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+                        <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer</type>
                         <name>vpp-classifier-cfg-initializer</name>
                     </initializers>
                 </module>
@@ -323,7 +323,7 @@
                 </service>
 
                 <service>
-                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:vpp:data:init">prefix:cfg-initializer</type>
+                    <type xmlns:prefix="urn:honeycomb:params:xml:ns:yang:data:init">prefix:cfg-initializer</type>
                     <instance>
                         <name>vpp-cfg-initializer</name>
                         <provider>/modules/module[type='vpp-cfg-initializer'][name='vpp-cfg-initializer']

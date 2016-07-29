@@ -1,6 +1,6 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
-import io.fd.honeycomb.v3po.translate.v3po.notification.InterfaceChangeNotificationProducer;
+import io.fd.honeycomb.translate.v3po.notification.InterfaceChangeNotificationProducer;
 
 public class VppInterfaceNotificationProducerModule extends org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.AbstractVppInterfaceNotificationProducerModule {
 

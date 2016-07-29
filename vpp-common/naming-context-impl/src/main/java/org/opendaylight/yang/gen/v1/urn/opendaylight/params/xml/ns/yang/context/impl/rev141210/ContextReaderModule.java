@@ -1,7 +1,7 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.context.impl.rev141210;
 
-import io.fd.honeycomb.v3po.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.honeycomb.v3po.translate.util.read.BindingBrokerReader;
+import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.util.read.BindingBrokerReader;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
@@ -30,7 +30,7 @@ public class ContextReaderModule extends org.opendaylight.yang.gen.v1.urn.openda
         return new ReaderFactory(getContextBindingBrokerDependency());
     }
 
-    private static final class ReaderFactory implements AutoCloseable, io.fd.honeycomb.v3po.translate.read.ReaderFactory {
+    private static final class ReaderFactory implements AutoCloseable, io.fd.honeycomb.translate.read.ReaderFactory {
 
         private final DataBroker contextBindingBrokerDependency;
 

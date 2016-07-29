@@ -2,12 +2,12 @@ package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.r
 
 import static org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.InterfacesHoneycombWriterModule.ACL_ID;
 
-import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
-import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.vppclassifier.ClassifySessionWriter;
-import io.fd.honeycomb.v3po.translate.v3po.vppclassifier.ClassifyTableWriter;
-import io.fd.honeycomb.v3po.translate.write.WriterFactory;
-import io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
+import io.fd.honeycomb.translate.impl.write.GenericListWriter;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifySessionWriter;
+import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifyTableWriter;
+import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;

@@ -20,16 +20,16 @@ import static org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po
 import static org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppClassifierHoneycombWriterModule.CLASSIFY_TABLE_ID;
 
 import com.google.common.collect.Sets;
-import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
-import io.fd.honeycomb.v3po.translate.impl.write.GenericWriter;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.RewriteCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceAclCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.SubInterfaceL2Customizer;
-import io.fd.honeycomb.v3po.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
-import io.fd.honeycomb.v3po.translate.write.WriterFactory;
+import io.fd.honeycomb.translate.impl.write.GenericListWriter;
+import io.fd.honeycomb.translate.impl.write.GenericWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.RewriteCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceAclCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceL2Customizer;
+import io.fd.honeycomb.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
+import io.fd.honeycomb.translate.write.WriterFactory;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip6Acl;

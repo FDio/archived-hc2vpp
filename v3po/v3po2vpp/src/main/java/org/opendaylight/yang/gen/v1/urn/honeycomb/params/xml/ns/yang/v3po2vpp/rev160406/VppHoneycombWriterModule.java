@@ -1,12 +1,12 @@
 package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
 
 import com.google.common.collect.Sets;
-import io.fd.honeycomb.v3po.translate.impl.write.GenericListWriter;
-import io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.v3po.translate.v3po.vpp.BridgeDomainCustomizer;
-import io.fd.honeycomb.v3po.translate.v3po.vpp.L2FibEntryCustomizer;
-import io.fd.honeycomb.v3po.translate.write.registry.ModifiableWriterRegistryBuilder;
-import io.fd.honeycomb.v3po.translate.write.WriterFactory;
+import io.fd.honeycomb.translate.impl.write.GenericListWriter;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.vpp.BridgeDomainCustomizer;
+import io.fd.honeycomb.translate.v3po.vpp.L2FibEntryCustomizer;
+import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
+import io.fd.honeycomb.translate.write.WriterFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Vpp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntry;

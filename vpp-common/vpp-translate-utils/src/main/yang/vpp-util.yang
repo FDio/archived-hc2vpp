@@ -16,7 +16,7 @@ module vpp-util {
 
     identity naming-context {
         base "config:service-type";
-        config:java-class io.fd.honeycomb.v3po.translate.v3po.util.NamingContext;
+        config:java-class io.fd.honeycomb.translate.v3po.util.NamingContext;
     }
 
     identity naming-context-impl {
