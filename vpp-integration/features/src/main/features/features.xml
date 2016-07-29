@@ -14,7 +14,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<features name="odl-honeycomb-integration-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+<features name="honeycomb-integration-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
 
@@ -26,27 +26,21 @@
   <repository>mvn:io.fd.honeycomb.v3po/v3po-features/${project.version}/xml/features</repository>
 
   <feature name='honeycomb-vpp-integration-api' version='${project.version}' description='OpenDaylight :: v3po :: api'>
-    <feature version='${project.version}'>odl-honeycomb-api</feature>
-    <feature version='${project.version}'>odl-honeycomb-v3po-api</feature>
+    <feature version='${project.version}'>honeycomb-api</feature>
+    <feature version='${project.version}'>honeycomb-v3po-api</feature>
   </feature>
 
   <feature name='honeycomb-vpp-integration' version='${project.version}' description='OpenDaylight :: v3po'>
     <feature version='${project.version}'>honeycomb-vpp-integration-api</feature>
-    <feature version='${project.version}'>odl-honeycomb</feature>
-    <feature version='${project.version}'>odl-honeycomb-vpp-common</feature>
-    <feature version='${project.version}'>odl-honeycomb-v3po</feature>
+    <feature version='${project.version}'>honeycomb</feature>
+    <feature version='${project.version}'>honeycomb-vpp-common</feature>
+    <feature version='${project.version}'>honeycomb-v3po</feature>
   </feature>
 
   <feature name='honeycomb-vpp-integration-rest' version='${project.version}' description='OpenDaylight :: v3po :: rest'>
     <feature version='${project.version}'>honeycomb-vpp-integration</feature>
-    <feature version='${project.version}'>odl-honeycomb-rest</feature>
-    <feature version='${project.version}'>odl-honeycomb-v3po</feature>
-  </feature>
-
-  <feature name='honeycomb-vpp-integration-ui' version='${project.version}' description='OpenDaylight :: v3po :: ui'>
-    <feature version='${project.version}'>honeycomb-vpp-integration-rest</feature>
-    <feature version='${project.version}'>odl-honeycomb-ui</feature>
-    <feature version='${project.version}'>odl-honeycomb-v3po-rest</feature>
+    <feature version='${project.version}'>honeycomb-rest</feature>
+    <feature version='${project.version}'>honeycomb-v3po</feature>
   </feature>
 
 </features>

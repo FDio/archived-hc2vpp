@@ -14,13 +14,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<features name="odl-honeycomb-vpp-common-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
+<features name="honeycomb-vpp-common-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
   <repository>mvn:io.fd.honeycomb/honeycomb-features/${project.version}/xml/features</repository>
 
-  <feature name='odl-honeycomb-vpp-common' version='${project.version}' description='OpenDaylight :: honeycomb :: vpp-common'>
-    <feature version='${project.version}'>odl-honeycomb</feature>
+  <feature name='honeycomb-vpp-common' version='${project.version}' description='OpenDaylight :: honeycomb :: vpp-common'>
+    <feature version='${project.version}'>honeycomb</feature>
     <bundle>mvn:io.fd.honeycomb.vpp/naming-context-api/{{VERSION}}</bundle>
     <bundle>mvn:io.fd.honeycomb.vpp/naming-context-impl/{{VERSION}}</bundle>
     <bundle>wrap:mvn:io.fd.vpp/jvpp/{{VERSION}}</bundle>
