@@ -36,9 +36,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.BdIpMacAddDel;
-import org.openvpp.jvpp.dto.BdIpMacAddDelReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.BdIpMacAddDel;
+import org.openvpp.jvpp.core.dto.BdIpMacAddDelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
 
     private final NamingContext bdContext;
 
-    public ArpTerminationTableEntryCustomizer(@Nonnull final FutureJVpp futureJvpp,
+    public ArpTerminationTableEntryCustomizer(@Nonnull final FutureJVppCore futureJvpp,
                                               @Nonnull final NamingContext bdContext) {
         super(futureJvpp);
         this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");

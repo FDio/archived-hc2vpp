@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Acl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class AclCustomizer extends FutureJVppCustomizer implements WriterCustomi
     private final NamingContext interfaceContext;
     private final NamingContext classifyTableContext;
 
-    public AclCustomizer(@Nonnull final FutureJVpp vppApi, @Nonnull final NamingContext interfaceContext,
+    public AclCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull final NamingContext interfaceContext,
                          @Nonnull final NamingContext classifyTableContext) {
         super(vppApi);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");

@@ -22,7 +22,8 @@ import com.google.inject.multibindings.Multibinder
 import groovy.util.logging.Slf4j
 import io.fd.honeycomb.translate.read.ReaderFactory
 import net.jmob.guice.conf.core.ConfigurationModule
-import org.openvpp.jvpp.future.FutureJVpp
+import org.openvpp.jvpp.JVppRegistry
+import org.openvpp.jvpp.core.future.FutureJVppCore
 
 @Slf4j
 public final class VppCommonModule extends AbstractModule {
@@ -32,7 +33,8 @@ public final class VppCommonModule extends AbstractModule {
         // Inject non-dependency configuration
         requestInjection(VppConfigAttributes)
 
-        bind(FutureJVpp).toProvider(JVppProvider).in(Singleton)
+        bind(JVppRegistry).toProvider(JVppRegistryProvider).in(Singleton)
+        bind(FutureJVppCore).toProvider(JVppCoreProvider).in(Singleton)
 
         // Naming contexts reader exposing context storage over REST/HONEYCOMB_NETCONF
         Multibinder.newSetBinder(binder(), ReaderFactory.class).with {

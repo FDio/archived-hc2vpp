@@ -59,18 +59,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.CreateVhostUserIf;
-import org.openvpp.jvpp.dto.CreateVhostUserIfReply;
-import org.openvpp.jvpp.dto.DeleteVhostUserIf;
-import org.openvpp.jvpp.dto.DeleteVhostUserIfReply;
-import org.openvpp.jvpp.dto.ModifyVhostUserIf;
-import org.openvpp.jvpp.dto.ModifyVhostUserIfReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.CreateVhostUserIf;
+import org.openvpp.jvpp.core.dto.CreateVhostUserIfReply;
+import org.openvpp.jvpp.core.dto.DeleteVhostUserIf;
+import org.openvpp.jvpp.core.dto.DeleteVhostUserIfReply;
+import org.openvpp.jvpp.core.dto.ModifyVhostUserIf;
+import org.openvpp.jvpp.core.dto.ModifyVhostUserIfReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class VhostUserCustomizerTest {
 
     @Mock
-    private FutureJVpp api;
+    private FutureJVppCore api;
     @Mock
     private WriteContext writeContext;
     @Mock

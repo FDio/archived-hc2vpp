@@ -51,11 +51,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.BridgeDomainDetails;
-import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
-import org.openvpp.jvpp.dto.BridgeDomainDump;
-import org.openvpp.jvpp.dto.BridgeDomainSwIfDetails;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.BridgeDomainDetails;
+import org.openvpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.BridgeDomainDump;
+import org.openvpp.jvpp.core.dto.BridgeDomainSwIfDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 

@@ -27,9 +27,9 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceAddDelAddress;
-import org.openvpp.jvpp.dto.SwInterfaceAddDelAddressReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddress;
+import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Utility class providing Ipv4 CUD support.
@@ -45,7 +45,7 @@ final class Ipv4WriteUtils {
         throw new UnsupportedOperationException("This utility class cannot be instantiated");
     }
 
-    static void addDelAddress(@Nonnull final FutureJVpp futureJvpp, final boolean add, final InstanceIdentifier<?> id,
+    static void addDelAddress(@Nonnull final FutureJVppCore futureJVppCore, final boolean add, final InstanceIdentifier<?> id,
                               @Nonnegative final int ifaceId,
                               @Nonnull final Ipv4AddressNoZone address, @Nonnegative final byte prefixLength)
         throws VppBaseCallException, WriteTimeoutException {
@@ -55,7 +55,7 @@ final class Ipv4WriteUtils {
         final byte[] addressBytes = TranslateUtils.ipv4AddressNoZoneToArray(address);
 
         final CompletionStage<SwInterfaceAddDelAddressReply> swInterfaceAddDelAddressReplyCompletionStage =
-            futureJvpp.swInterfaceAddDelAddress(
+            futureJVppCore.swInterfaceAddDelAddress(
                 getSwInterfaceAddDelAddressRequest(ifaceId, TranslateUtils.booleanToByte(add) /* isAdd */,
                     (byte) 0 /* isIpv6 */, (byte) 0 /* delAll */, prefixLength, addressBytes));
 

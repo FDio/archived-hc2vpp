@@ -35,8 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.IpNeighborAddDel;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.IpNeighborAddDel;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +51,8 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4NeighbourCustomizer.class);
     final NamingContext interfaceContext;
 
-    public Ipv4NeighbourCustomizer(final FutureJVpp futureJvpp, final NamingContext interfaceContext) {
-        super(futureJvpp);
+    public Ipv4NeighbourCustomizer(final FutureJVppCore futureJVppCore, final NamingContext interfaceContext) {
+        super(futureJVppCore);
         this.interfaceContext = interfaceContext;
     }
 

@@ -16,21 +16,20 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces;
 
-import io.fd.honeycomb.translate.v3po.interfaces.ProxyArpCustomizer;
+import static org.mockito.Mockito.doReturn;
+
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.openvpp.jvpp.future.FutureJVpp;
-
-import static org.mockito.Mockito.doReturn;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class ProxyArpCustomizerTest {
 
     @Mock
-    private FutureJVpp vppApi;
+    private FutureJVppCore vppApi;
     @Mock
     private WriteContext writeContext;
     @Mock

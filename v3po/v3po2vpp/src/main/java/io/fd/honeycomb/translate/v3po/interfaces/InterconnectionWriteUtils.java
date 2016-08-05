@@ -32,11 +32,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceSetL2Bridge;
-import org.openvpp.jvpp.dto.SwInterfaceSetL2BridgeReply;
-import org.openvpp.jvpp.dto.SwInterfaceSetL2Xconnect;
-import org.openvpp.jvpp.dto.SwInterfaceSetL2XconnectReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,14 +47,14 @@ final class InterconnectionWriteUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterconnectionWriteUtils.class);
 
-    private final FutureJVpp futureJvpp;
+    private final FutureJVppCore futureJVppCore;
     private final NamingContext interfaceContext;
     private final NamingContext bridgeDomainContext;
 
-    InterconnectionWriteUtils(@Nonnull final FutureJVpp futureJvpp,
+    InterconnectionWriteUtils(@Nonnull final FutureJVppCore futureJVppCore,
                               @Nonnull final NamingContext interfaceContext,
                               @Nonnull final NamingContext bridgeDomainContext) {
-        this.futureJvpp = requireNonNull(futureJvpp, "futureJvpp should not be null");
+        this.futureJVppCore = requireNonNull(futureJVppCore, "futureJVppCore should not be null");
         this.interfaceContext = requireNonNull(interfaceContext, "interfaceContext should not be null");
         this.bridgeDomainContext = requireNonNull(bridgeDomainContext, "bridgeDomainContext should not be null");
     }
@@ -126,7 +126,7 @@ final class InterconnectionWriteUtils {
             shg = bb.getSplitHorizonGroup().byteValue();
         }
 
-        final CompletionStage<SwInterfaceSetL2BridgeReply> swInterfaceSetL2BridgeReplyCompletionStage = futureJvpp
+        final CompletionStage<SwInterfaceSetL2BridgeReply> swInterfaceSetL2BridgeReplyCompletionStage = futureJVppCore
             .swInterfaceSetL2Bridge(getL2BridgeRequest(swIfIndex, bdId, shg, bvi, enabled));
         TranslateUtils.getReplyForWrite(swInterfaceSetL2BridgeReplyCompletionStage.toCompletableFuture(), id);
 
@@ -157,7 +157,7 @@ final class InterconnectionWriteUtils {
             ifcName, outSwIfIndex);
 
         final CompletionStage<SwInterfaceSetL2XconnectReply> swInterfaceSetL2XconnectReplyCompletionStage =
-            futureJvpp
+            futureJVppCore
                 .swInterfaceSetL2Xconnect(getL2XConnectRequest(swIfIndex, outSwIfIndex, enabled));
         TranslateUtils.getReplyForWrite(swInterfaceSetL2XconnectReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Xconnect based interconnection updated successfully for: {}, interconnection: {}", ifcName, ic);

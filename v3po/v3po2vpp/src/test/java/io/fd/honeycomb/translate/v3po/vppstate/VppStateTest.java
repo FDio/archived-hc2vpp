@@ -60,20 +60,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.BridgeDomainDetails;
-import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
-import org.openvpp.jvpp.dto.BridgeDomainDump;
-import org.openvpp.jvpp.dto.L2FibTableDump;
-import org.openvpp.jvpp.dto.L2FibTableEntry;
-import org.openvpp.jvpp.dto.L2FibTableEntryReplyDump;
-import org.openvpp.jvpp.dto.ShowVersion;
-import org.openvpp.jvpp.dto.ShowVersionReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.BridgeDomainDetails;
+import org.openvpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.BridgeDomainDump;
+import org.openvpp.jvpp.core.dto.L2FibTableDump;
+import org.openvpp.jvpp.core.dto.L2FibTableEntry;
+import org.openvpp.jvpp.core.dto.L2FibTableEntryReplyDump;
+import org.openvpp.jvpp.core.dto.ShowVersion;
+import org.openvpp.jvpp.core.dto.ShowVersionReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class VppStateTest {
 
     @Mock
-    private FutureJVpp api;
+    private FutureJVppCore api;
     @Mock
     private ReadContext ctx;
     @Mock

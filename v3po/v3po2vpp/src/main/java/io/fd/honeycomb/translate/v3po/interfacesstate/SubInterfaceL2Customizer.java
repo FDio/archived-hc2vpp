@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,11 +46,11 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Re
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceL2Customizer.class);
     private final InterconnectionReadUtils icReadUtils;
 
-    public SubInterfaceL2Customizer(@Nonnull final FutureJVpp futureJvpp,
+    public SubInterfaceL2Customizer(@Nonnull final FutureJVppCore futureJVppCore,
                                     @Nonnull final NamingContext interfaceContext,
                                     @Nonnull final NamingContext bridgeDomainContext) {
-        super(futureJvpp);
-        this.icReadUtils = new InterconnectionReadUtils(futureJvpp, interfaceContext, bridgeDomainContext);
+        super(futureJVppCore);
+        this.icReadUtils = new InterconnectionReadUtils(futureJVppCore, interfaceContext, bridgeDomainContext);
     }
 
     @Override

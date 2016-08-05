@@ -39,7 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +47,13 @@ public final class VppStateHoneycombReaderFactory implements ReaderFactory, Auto
 
     private static final Logger LOG = LoggerFactory.getLogger(VppStateHoneycombReaderFactory.class);
 
-    private final FutureJVpp jVpp;
+    private final FutureJVppCore jVpp;
     private final NamingContext ifcCtx;
     private final NamingContext bdCtx;
     private final ScheduledExecutorService keepaliveExecutor;
 
     @Inject
-    public VppStateHoneycombReaderFactory(final FutureJVpp jVpp,
+    public VppStateHoneycombReaderFactory(final FutureJVppCore jVpp,
                                           @Named("interface-context") final NamingContext ifcCtx,
                                           @Named("bridge-domain-context") final NamingContext bdCtx,
                                           final ScheduledExecutorService keepaliveExecutorDependency) {

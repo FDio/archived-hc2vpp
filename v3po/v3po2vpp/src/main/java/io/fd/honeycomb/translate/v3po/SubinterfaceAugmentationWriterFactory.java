@@ -48,11 +48,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
 
-    private final FutureJVpp jvpp;
+    private final FutureJVppCore jvpp;
     private final NamingContext ifcContext;
     private final NamingContext bdContext;
     private final NamingContext classifyTableContext;
@@ -65,7 +65,7 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
             L2.class);
     public static final InstanceIdentifier<Acl> SUBIF_ACL_ID = SUB_IFC_ID.child(Acl.class);
 
-    public SubinterfaceAugmentationWriterFactory(final FutureJVpp jvpp,
+    public SubinterfaceAugmentationWriterFactory(final FutureJVppCore jvpp,
             final NamingContext ifcContext, final NamingContext bdContext, final NamingContext classifyTableContext) {
         this.jvpp = jvpp;
         this.ifcContext = ifcContext;

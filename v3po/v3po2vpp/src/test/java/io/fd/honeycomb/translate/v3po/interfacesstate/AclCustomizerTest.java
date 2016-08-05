@@ -44,8 +44,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.AclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.openvpp.jvpp.dto.ClassifyTableByInterface;
-import org.openvpp.jvpp.dto.ClassifyTableByInterfaceReply;
+import org.openvpp.jvpp.core.dto.ClassifyTableByInterface;
+import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 
 public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
 

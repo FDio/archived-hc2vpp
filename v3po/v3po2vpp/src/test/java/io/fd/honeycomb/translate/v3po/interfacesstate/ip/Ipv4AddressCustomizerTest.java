@@ -60,9 +60,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.openvpp.jvpp.dto.IpAddressDetails;
-import org.openvpp.jvpp.dto.IpAddressDetailsReplyDump;
-import org.openvpp.jvpp.dto.IpAddressDump;
+import org.openvpp.jvpp.core.dto.IpAddressDetails;
+import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.IpAddressDump;
 
 public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address, AddressKey, AddressBuilder> {
 

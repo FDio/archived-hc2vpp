@@ -36,16 +36,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class VppHoneycombWriterFactory implements WriterFactory, AutoCloseable {
 
-    private final FutureJVpp jvpp;
+    private final FutureJVppCore jvpp;
     private final NamingContext bdContext;
     private final NamingContext ifcContext;
 
     @Inject
-    public VppHoneycombWriterFactory(final FutureJVpp vppJvppWriterDependency,
+    public VppHoneycombWriterFactory(final FutureJVppCore vppJvppWriterDependency,
                                      @Named("bridge-domain-context") final NamingContext bridgeDomainContextVppDependency,
                                      @Named("interface-context") final NamingContext interfaceContextVppDependency) {
         this.jvpp = vppJvppWriterDependency;

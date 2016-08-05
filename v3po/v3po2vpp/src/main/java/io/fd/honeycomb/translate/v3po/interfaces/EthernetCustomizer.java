@@ -23,7 +23,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class EthernetCustomizer extends FutureJVppCustomizer implements WriterCu
 
     private static final Logger LOG = LoggerFactory.getLogger(EthernetCustomizer.class);
 
-    public EthernetCustomizer(final FutureJVpp vppApi) {
+    public EthernetCustomizer(final FutureJVppCore vppApi) {
         super(vppApi);
     }
 

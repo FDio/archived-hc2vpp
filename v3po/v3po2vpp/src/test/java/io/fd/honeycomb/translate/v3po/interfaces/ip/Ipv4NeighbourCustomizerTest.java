@@ -47,14 +47,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.dto.IpNeighborAddDel;
-import org.openvpp.jvpp.dto.IpNeighborAddDelReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.IpNeighborAddDel;
+import org.openvpp.jvpp.core.dto.IpNeighborAddDelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class Ipv4NeighbourCustomizerTest {
 
     @Mock
-    private FutureJVpp jvpp;
+    private FutureJVppCore jvpp;
 
     @Mock
     private WriteContext context;

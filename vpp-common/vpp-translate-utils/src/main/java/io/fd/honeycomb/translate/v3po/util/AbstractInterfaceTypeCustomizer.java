@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Validation WriteCustomizers for Interface subnodes.
@@ -40,8 +40,8 @@ import org.openvpp.jvpp.future.FutureJVpp;
 public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
     extends FutureJVppCustomizer implements WriterCustomizer<D> {
 
-    protected AbstractInterfaceTypeCustomizer(final FutureJVpp futureJvpp) {
-        super(futureJvpp);
+    protected AbstractInterfaceTypeCustomizer(final FutureJVppCore futureJVppCore) {
+        super(futureJVppCore);
     }
 
     private void checkProperInterfaceType(@Nonnull final WriteContext writeContext,

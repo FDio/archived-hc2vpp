@@ -50,7 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class SubInterfaceCustomizerTest extends
         ListReaderCustomizerTest<SubInterface, SubInterfaceKey, SubInterfaceBuilder> {

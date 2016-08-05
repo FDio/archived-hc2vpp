@@ -50,8 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.dto.SwInterfaceDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDump;
 
 public class InterfaceCustomizerTest extends
         ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> {

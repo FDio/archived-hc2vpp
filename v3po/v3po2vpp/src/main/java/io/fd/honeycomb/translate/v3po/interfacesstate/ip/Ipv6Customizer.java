@@ -27,14 +27,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class Ipv6Customizer extends FutureJVppCustomizer implements ReaderCustomizer<Ipv6, Ipv6Builder> {
 
     private final NamingContext interfaceContext;
 
-    public Ipv6Customizer(@Nonnull final FutureJVpp futureJvpp, final NamingContext interfaceContext) {
-        super(futureJvpp);
+    public Ipv6Customizer(@Nonnull final FutureJVppCore futureJVppCore, final NamingContext interfaceContext) {
+        super(futureJVppCore);
         this.interfaceContext = interfaceContext;
     }
 

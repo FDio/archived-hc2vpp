@@ -62,10 +62,10 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
-import org.openvpp.jvpp.dto.SwInterfaceDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     private NamingContext interfaceContext;
     private static final Dot1qTag.VlanId ANY_VLAN_ID = new Dot1qTag.VlanId(Dot1qTag.VlanId.Enumeration.Any);
 
-    public SubInterfaceCustomizer(@Nonnull final FutureJVpp jvpp,
+    public SubInterfaceCustomizer(@Nonnull final FutureJVppCore jvpp,
                                   @Nonnull final NamingContext interfaceContext) {
         super(jvpp);
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");

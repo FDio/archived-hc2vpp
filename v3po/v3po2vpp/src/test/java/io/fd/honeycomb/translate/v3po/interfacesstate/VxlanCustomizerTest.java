@@ -43,10 +43,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.dto.VxlanTunnelDetails;
-import org.openvpp.jvpp.dto.VxlanTunnelDetailsReplyDump;
-import org.openvpp.jvpp.dto.VxlanTunnelDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.VxlanTunnelDetails;
+import org.openvpp.jvpp.core.dto.VxlanTunnelDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.VxlanTunnelDump;
 
 public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilder> {
 

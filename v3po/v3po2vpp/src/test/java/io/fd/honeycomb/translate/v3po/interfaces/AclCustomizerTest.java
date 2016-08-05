@@ -55,15 +55,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.InputAclSetInterface;
-import org.openvpp.jvpp.dto.InputAclSetInterfaceReply;
-import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.InputAclSetInterface;
+import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
+import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class AclCustomizerTest {
 
     @Mock
-    private FutureJVpp api;
+    private FutureJVppCore api;
     @Mock
     private WriteContext writeContext;
     @Mock

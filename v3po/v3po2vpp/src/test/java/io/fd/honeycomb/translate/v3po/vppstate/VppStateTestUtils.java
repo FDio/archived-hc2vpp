@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 final class VppStateTestUtils {
 
@@ -43,7 +43,7 @@ final class VppStateTestUtils {
     /**
      * Create root VppState reader with all its children wired.
      */
-    static ReaderRegistry getVppStateReader(@Nonnull final FutureJVpp jVpp,
+    static ReaderRegistry getVppStateReader(@Nonnull final FutureJVppCore jVpp,
                                             @Nonnull final NamingContext bdContext) {
         final CompositeReaderRegistryBuilder registry = new CompositeReaderRegistryBuilder();
 
@@ -65,7 +65,7 @@ final class VppStateTestUtils {
     }
 
     static GenericListReader<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> getBridgeDomainReader(
-            final @Nonnull FutureJVpp jVpp, final @Nonnull NamingContext bdContext) {
+            final @Nonnull FutureJVppCore jVpp, final @Nonnull NamingContext bdContext) {
         final InstanceIdentifier<BridgeDomain> bridgeDomainId = bridgeDomainsId.child(BridgeDomain.class);
         return new GenericListReader<>(bridgeDomainId, new BridgeDomainCustomizer(jVpp, bdContext));
     }

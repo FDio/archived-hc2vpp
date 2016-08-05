@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +42,8 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4NeighbourCustomizer.class);
 
-    public Ipv4NeighbourCustomizer(FutureJVpp futureJvpp) {
-        super(futureJvpp);
+    public Ipv4NeighbourCustomizer(FutureJVppCore futureJVppCore) {
+        super(futureJVppCore);
     }
 
     @Override

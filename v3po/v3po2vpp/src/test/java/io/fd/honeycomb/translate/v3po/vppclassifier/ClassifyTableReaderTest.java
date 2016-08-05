@@ -48,10 +48,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.openvpp.jvpp.dto.ClassifyTableIds;
-import org.openvpp.jvpp.dto.ClassifyTableIdsReply;
-import org.openvpp.jvpp.dto.ClassifyTableInfo;
-import org.openvpp.jvpp.dto.ClassifyTableInfoReply;
+import org.openvpp.jvpp.core.dto.ClassifyTableIds;
+import org.openvpp.jvpp.core.dto.ClassifyTableIdsReply;
+import org.openvpp.jvpp.core.dto.ClassifyTableInfo;
+import org.openvpp.jvpp.core.dto.ClassifyTableInfoReply;
 
 public class ClassifyTableReaderTest extends
         ListReaderCustomizerTest<ClassifyTable, ClassifyTableKey, ClassifyTableBuilder> {

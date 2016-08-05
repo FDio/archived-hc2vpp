@@ -30,15 +30,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class VppClassifierReaderFactory implements ReaderFactory, AutoCloseable {
 
-    private final FutureJVpp jvpp;
+    private final FutureJVppCore jvpp;
     private final NamingContext classifyCtx;
 
     @Inject
-    public VppClassifierReaderFactory(final FutureJVpp jvpp,
+    public VppClassifierReaderFactory(final FutureJVppCore jvpp,
                                       @Named("classify-table-context") final NamingContext classifyCtx) {
         this.jvpp = jvpp;
         this.classifyCtx = classifyCtx;

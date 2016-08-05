@@ -30,13 +30,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.TapConnect;
-import org.openvpp.jvpp.dto.TapConnectReply;
-import org.openvpp.jvpp.dto.TapDelete;
-import org.openvpp.jvpp.dto.TapDeleteReply;
-import org.openvpp.jvpp.dto.TapModify;
-import org.openvpp.jvpp.dto.TapModifyReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.TapConnect;
+import org.openvpp.jvpp.core.dto.TapConnectReply;
+import org.openvpp.jvpp.core.dto.TapDelete;
+import org.openvpp.jvpp.core.dto.TapDeleteReply;
+import org.openvpp.jvpp.core.dto.TapModify;
+import org.openvpp.jvpp.core.dto.TapModifyReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
     private static final Logger LOG = LoggerFactory.getLogger(TapCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public TapCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
+    public TapCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
     }

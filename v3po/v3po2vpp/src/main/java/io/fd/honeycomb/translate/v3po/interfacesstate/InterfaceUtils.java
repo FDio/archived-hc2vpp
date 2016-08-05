@@ -41,10 +41,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.GreTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
-import org.openvpp.jvpp.dto.SwInterfaceDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,7 +169,7 @@ public final class InterfaceUtils {
     /**
      * Queries VPP for interface description given interface key.
      *
-     * @param futureJvpp VPP Java Future API
+     * @param futureJVppCore VPP Java Future API
      * @param id         InstanceIdentifier, which is passed in ReadFailedException
      * @param name       interface name
      * @param index      VPP index of the interface
@@ -180,12 +180,12 @@ public final class InterfaceUtils {
      * @throws ReadFailedException      If read operation had failed
      */
     @Nonnull
-    public static SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVpp futureJvpp,
+    public static SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVppCore futureJVppCore,
                                                             @Nonnull final InstanceIdentifier<?> id,
                                                             @Nonnull final String name, final int index,
                                                             @Nonnull final ModificationCache ctx)
         throws ReadFailedException {
-        requireNonNull(futureJvpp, "futureJvpp should not be null");
+        requireNonNull(futureJVppCore, "futureJVppCore should not be null");
         requireNonNull(name, "name should not be null");
         requireNonNull(ctx, "ctx should not be null");
 
@@ -202,7 +202,7 @@ public final class InterfaceUtils {
 
         SwInterfaceDetailsReplyDump ifaces;
         try {
-            CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJvpp.swInterfaceDump(request);
+            CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJVppCore.swInterfaceDump(request);
             ifaces = TranslateUtils.getReplyForRead(requestFuture.toCompletableFuture(), id);
             if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
                 request.nameFilterValid = 0;
@@ -211,7 +211,7 @@ public final class InterfaceUtils {
                 LOG.warn("Iterating through all the interfaces to find interface: {}", name);
 
                 // Or else just perform full dump and do inefficient filtering
-                requestFuture = futureJvpp.swInterfaceDump(request);
+                requestFuture = futureJVppCore.swInterfaceDump(request);
                 ifaces = TranslateUtils.getReplyForRead(requestFuture.toCompletableFuture(), id);
 
                 // Update the cache
@@ -269,10 +269,10 @@ public final class InterfaceUtils {
 
     /**
      * Check interface type. Uses interface details from VPP to determine. Uses {@link
-     * #getVppInterfaceDetails(FutureJVpp, InstanceIdentifier, String, int, ModificationCache)} internally so tries to
+     * #getVppInterfaceDetails(FutureJVppCore, InstanceIdentifier, String, int, ModificationCache)} internally so tries to
      * utilize cache before asking VPP.
      */
-    static boolean isInterfaceOfType(@Nonnull final FutureJVpp jvpp,
+    static boolean isInterfaceOfType(@Nonnull final FutureJVppCore jvpp,
                                      @Nonnull final ModificationCache cache,
                                      @Nonnull final InstanceIdentifier<?> id,
                                      final int index,

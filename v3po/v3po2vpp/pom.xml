@@ -67,7 +67,7 @@
         </dependency>
         <dependency>
             <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp</artifactId>
+            <artifactId>jvpp-core</artifactId>
             <version>16.09-SNAPSHOT</version>
         </dependency>
 

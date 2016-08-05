@@ -39,9 +39,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.dto.IpAddressDetails;
-import org.openvpp.jvpp.dto.IpAddressDetailsReplyDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.IpAddressDetails;
+import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +55,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
     private final NamingContext interfaceContext;
 
-    public Ipv4AddressCustomizer(@Nonnull final FutureJVpp futureJvpp, @Nonnull final NamingContext interfaceContext) {
-        super(futureJvpp);
+    public Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext interfaceContext) {
+        super(futureJVppCore);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
 

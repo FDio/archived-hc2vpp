@@ -19,26 +19,23 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import java.net.InetAddress;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ProxyArp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.ProxyArpAddDel;
-import org.openvpp.jvpp.dto.ProxyArpAddDelReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
+import org.openvpp.jvpp.core.dto.ProxyArpAddDel;
+import org.openvpp.jvpp.core.dto.ProxyArpAddDelReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.net.InetAddress;
-import java.util.concurrent.CompletionStage;
 
 
 public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCustomizer<ProxyArp> {
@@ -46,7 +43,7 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
     private static final Logger LOG = LoggerFactory.getLogger(ProxyArpCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public ProxyArpCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
+    public ProxyArpCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
     }

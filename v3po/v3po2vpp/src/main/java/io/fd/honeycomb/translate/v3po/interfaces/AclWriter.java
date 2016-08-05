@@ -32,13 +32,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2Acl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.InputAclSetInterface;
-import org.openvpp.jvpp.dto.InputAclSetInterfaceReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.InputAclSetInterface;
+import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 interface AclWriter {
 
-    default void inputAclSetInterface(@Nonnull final FutureJVpp futureJvpp, final boolean isAdd,
+    default void inputAclSetInterface(@Nonnull final FutureJVppCore futureJVppCore, final boolean isAdd,
                                       @Nonnull final InstanceIdentifier<?> id, @Nonnull final AclBaseAttributes acl,
                                       @Nonnegative final int ifIndex, @Nonnull final NamingContext classifyTableContext,
                                       @Nonnull final MappingContext mappingContext)
@@ -67,7 +67,7 @@ interface AclWriter {
         }
 
         final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
-            futureJvpp.inputAclSetInterface(request);
+            futureJVppCore.inputAclSetInterface(request);
 
         TranslateUtils.getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
     }

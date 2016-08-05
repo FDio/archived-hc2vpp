@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class VppClassifierHoneycombWriterFactory implements WriterFactory, AutoCloseable {
 
@@ -41,11 +41,11 @@ public final class VppClassifierHoneycombWriterFactory implements WriterFactory,
     public static final InstanceIdentifier<ClassifySession> CLASSIFY_SESSION_ID =
             CLASSIFY_TABLE_ID.child(ClassifySession.class);
 
-    private final FutureJVpp jvpp;
+    private final FutureJVppCore jvpp;
     private final NamingContext classifyTableContext;
 
     @Inject
-    public VppClassifierHoneycombWriterFactory(@Nonnull final FutureJVpp jvpp,
+    public VppClassifierHoneycombWriterFactory(@Nonnull final FutureJVppCore jvpp,
                                                @Named("classify-table-context") @Nonnull final NamingContext classifyTableContext) {
         this.jvpp = jvpp;
         this.classifyTableContext = classifyTableContext;

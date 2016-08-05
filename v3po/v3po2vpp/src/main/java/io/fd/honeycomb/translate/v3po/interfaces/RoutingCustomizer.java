@@ -29,9 +29,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceSetTable;
-import org.openvpp.jvpp.dto.SwInterfaceSetTableReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetTable;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetTableReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
     private static final Logger LOG = LoggerFactory.getLogger(RoutingCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public RoutingCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
+    public RoutingCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
     }

@@ -34,10 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.IpAddressDetails;
-import org.openvpp.jvpp.dto.IpAddressDetailsReplyDump;
-import org.openvpp.jvpp.dto.IpAddressDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.IpAddressDetails;
+import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.IpAddressDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ final class Ipv4ReadUtils {
     // Many VPP APIs do not provide get operation for single item. Dump requests for all items are used instead.
     // To improve HC performance, caching dump requests is a common pattern.
     // TODO: use more generic caching implementation, once provided
-    static Optional<IpAddressDetailsReplyDump> dumpAddresses(@Nonnull final FutureJVpp futureJvpp,
+    static Optional<IpAddressDetailsReplyDump> dumpAddresses(@Nonnull final FutureJVppCore futureJVppCore,
                                                              @Nonnull final InstanceIdentifier<?> id,
                                                              @Nonnull final String interfaceName,
                                                              final int interfaceIndex, @Nonnull final ReadContext ctx)
@@ -71,7 +71,7 @@ final class Ipv4ReadUtils {
 
         Optional<IpAddressDetailsReplyDump> dumpFromOperational;
         try {
-            dumpFromOperational = dumpAddressFromOperationalData(futureJvpp, id, interfaceIndex);
+            dumpFromOperational = dumpAddressFromOperationalData(futureJVppCore, id, interfaceIndex);
         } catch (VppBaseCallException e) {
             throw new ReadFailedException(id, e);
         }
@@ -90,14 +90,14 @@ final class Ipv4ReadUtils {
     }
 
     private static Optional<IpAddressDetailsReplyDump> dumpAddressFromOperationalData(
-        @Nonnull final FutureJVpp futureJvpp, @Nonnull final InstanceIdentifier<?> id, final int interfaceIndex)
+        @Nonnull final FutureJVppCore futureJVppCore, @Nonnull final InstanceIdentifier<?> id, final int interfaceIndex)
         throws VppBaseCallException, ReadTimeoutException {
         LOG.debug("Dumping Ipv4 addresses for interface id={}", interfaceIndex);
         final IpAddressDump dumpRequest = new IpAddressDump();
         dumpRequest.isIpv6 = 0;
         dumpRequest.swIfIndex = interfaceIndex;
         return Optional.fromNullable(
-            TranslateUtils.getReplyForRead(futureJvpp.ipAddressDump(dumpRequest).toCompletableFuture(), id));
+            TranslateUtils.getReplyForRead(futureJVppCore.ipAddressDump(dumpRequest).toCompletableFuture(), id));
     }
 
     @Nonnull static <T extends Identifier> List<T> getAllIpv4AddressIds(

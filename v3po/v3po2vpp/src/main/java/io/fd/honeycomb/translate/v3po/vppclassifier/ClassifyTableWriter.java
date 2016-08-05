@@ -36,9 +36,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.ClassifyAddDelTable;
-import org.openvpp.jvpp.dto.ClassifyAddDelTableReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
+import org.openvpp.jvpp.core.dto.ClassifyAddDelTableReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,9 +52,9 @@ public class ClassifyTableWriter extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableWriter.class);
     private final NamingContext classifyTableContext;
 
-    public ClassifyTableWriter(@Nonnull final FutureJVpp futureJvpp,
+    public ClassifyTableWriter(@Nonnull final FutureJVppCore futureJVppCore,
                                @Nonnull final NamingContext classifyTableContext) {
-        super(futureJvpp);
+        super(futureJVppCore);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
     }
 

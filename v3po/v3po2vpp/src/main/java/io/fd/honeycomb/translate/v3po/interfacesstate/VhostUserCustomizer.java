@@ -41,10 +41,10 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceVhostUserDetails;
-import org.openvpp.jvpp.dto.SwInterfaceVhostUserDetailsReplyDump;
-import org.openvpp.jvpp.dto.SwInterfaceVhostUserDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceVhostUserDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
     public static final String DUMPED_VHOST_USERS_CONTEXT_KEY = VhostUserCustomizer.class.getName() + "dumpedVhostUsersDuringGetAllIds";
     private NamingContext interfaceContext;
 
-    public VhostUserCustomizer(@Nonnull final FutureJVpp jvpp, @Nonnull final NamingContext interfaceContext) {
+    public VhostUserCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
     }

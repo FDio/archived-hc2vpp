@@ -20,37 +20,34 @@ import com.google.inject.Inject
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import io.fd.honeycomb.infra.distro.ProviderTrait
-import org.openvpp.jvpp.JVppImpl
-import org.openvpp.jvpp.VppJNIConnection
-import org.openvpp.jvpp.future.FutureJVpp
-import org.openvpp.jvpp.future.FutureJVppFacade
+import org.openvpp.jvpp.JVppRegistry
+import org.openvpp.jvpp.JVppRegistryImpl
 
 /**
- * This must be a singleton due to shutdown hook usage.
+ * Provides JVppRegistry. Must be a singleton due to shutdown hook usage.
+ * Registers shutdown hook to disconnect from VPP.
  */
 @Slf4j
 @ToString
-class JVppProvider extends ProviderTrait<FutureJVpp> {
+class JVppRegistryProvider extends ProviderTrait<JVppRegistry> {
 
     @Inject
     VppConfigAttributes config
 
     def create() {
         try {
-            def connection = new VppJNIConnection(config.jvppConnectionName)
-            def jVpp = new JVppImpl(connection)
+            def registry = new JVppRegistryImpl(config.jvppConnectionName);
 
             // Closing JVpp connection with shutdown hook to erase the connection from VPP so HC will be able
             // to connect next time. If JVM is force closed, this will not be executed and VPP connection
             // with name from config will stay open and prevent next startup of HC to success
             Runtime.addShutdownHook {
                 log.info("Disconnecting from VPP")
-                jVpp.close()
-                connection.close()
+                registry.close()
                 log.info("Successfully disconnected from VPP as {}", config.jvppConnectionName)
             }
             log.info("JVpp connection opened successfully as: {}", config.jvppConnectionName)
-            new FutureJVppFacade(jVpp)
+            registry
         } catch (IOException e) {
             throw new IllegalStateException("Unable to open VPP management connection", e)
         }

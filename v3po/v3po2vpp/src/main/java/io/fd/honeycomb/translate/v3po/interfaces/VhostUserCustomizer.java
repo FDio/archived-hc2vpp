@@ -31,13 +31,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUser;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.CreateVhostUserIf;
-import org.openvpp.jvpp.dto.CreateVhostUserIfReply;
-import org.openvpp.jvpp.dto.DeleteVhostUserIf;
-import org.openvpp.jvpp.dto.DeleteVhostUserIfReply;
-import org.openvpp.jvpp.dto.ModifyVhostUserIf;
-import org.openvpp.jvpp.dto.ModifyVhostUserIfReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.CreateVhostUserIf;
+import org.openvpp.jvpp.core.dto.CreateVhostUserIfReply;
+import org.openvpp.jvpp.core.dto.DeleteVhostUserIf;
+import org.openvpp.jvpp.core.dto.DeleteVhostUserIfReply;
+import org.openvpp.jvpp.core.dto.ModifyVhostUserIf;
+import org.openvpp.jvpp.core.dto.ModifyVhostUserIfReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
     private static final Logger LOG = LoggerFactory.getLogger(VhostUserCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public VhostUserCustomizer(@Nonnull final FutureJVpp vppApi, @Nonnull final NamingContext interfaceContext) {
+    public VhostUserCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
     }

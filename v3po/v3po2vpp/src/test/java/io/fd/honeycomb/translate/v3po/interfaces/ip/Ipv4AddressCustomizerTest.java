@@ -53,9 +53,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.SwInterfaceAddDelAddress;
-import org.openvpp.jvpp.dto.SwInterfaceAddDelAddressReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddress;
+import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class Ipv4AddressCustomizerTest {
 
@@ -68,7 +68,7 @@ public class Ipv4AddressCustomizerTest {
     @Mock
     private MappingContext mappingContext;
     @Mock
-    private FutureJVpp api;
+    private FutureJVppCore api;
 
     private NamingContext interfaceContext;
     private Ipv4AddressCustomizer customizer;

@@ -18,7 +18,7 @@ package io.fd.honeycomb.translate.v3po.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 import javax.annotation.Nonnull;
 
@@ -28,10 +28,10 @@ import javax.annotation.Nonnull;
 @Beta
 public abstract class FutureJVppCustomizer {
 
-    private final FutureJVpp futureJvpp;
+    private final FutureJVppCore futureJVppCore;
 
-    public FutureJVppCustomizer(@Nonnull final FutureJVpp futureJvpp) {
-        this.futureJvpp = Preconditions.checkNotNull(futureJvpp, "futureJvpp should not be null");
+    public FutureJVppCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
+        this.futureJVppCore = Preconditions.checkNotNull(futureJVppCore, "futureJVppCore should not be null");
     }
 
     /**
@@ -39,7 +39,7 @@ public abstract class FutureJVppCustomizer {
      *
      * @return vppApi reference
      */
-    public FutureJVpp getFutureJVpp() {
-        return futureJvpp;
+    public FutureJVppCore getFutureJVpp() {
+        return futureJVppCore;
     }
 }

@@ -24,9 +24,9 @@ import static org.mockito.Mockito.verify;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.notification.NotificationCollector;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.MappingContext;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
@@ -41,24 +41,24 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.cont
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceStateChange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceStatus;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.openvpp.jvpp.callback.SwInterfaceSetFlagsNotificationCallback;
-import org.openvpp.jvpp.dto.SwInterfaceSetFlagsNotification;
-import org.openvpp.jvpp.dto.WantInterfaceEvents;
-import org.openvpp.jvpp.dto.WantInterfaceEventsReply;
-import org.openvpp.jvpp.future.FutureJVpp;
-import org.openvpp.jvpp.notification.NotificationRegistry;
+import org.openvpp.jvpp.core.callback.SwInterfaceSetFlagsNotificationCallback;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetFlagsNotification;
+import org.openvpp.jvpp.core.dto.WantInterfaceEvents;
+import org.openvpp.jvpp.core.dto.WantInterfaceEventsReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
+import org.openvpp.jvpp.core.notification.CoreNotificationRegistry;
 
 public class InterfaceChangeNotificationProducerTest {
 
     @Mock
-    private FutureJVpp jVpp;
+    private FutureJVppCore jVpp;
     private NamingContext namingContext = new NamingContext("test", "test-instance");
     @Mock
     private MappingContext mappingContext;
     @Mock
     private NotificationCollector collector;
     @Mock
-    private NotificationRegistry notificationRegistry;
+    private CoreNotificationRegistry notificationRegistry;
     @Mock
     private AutoCloseable notificationListenerReg;
 

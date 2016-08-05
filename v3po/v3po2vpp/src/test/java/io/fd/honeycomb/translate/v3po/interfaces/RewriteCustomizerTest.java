@@ -54,14 +54,14 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewrite;
-import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
+import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class RewriteCustomizerTest {
 
     @Mock
-    private FutureJVpp api;
+    private FutureJVppCore api;
     @Mock
     private WriteContext writeContext;
     @Mock

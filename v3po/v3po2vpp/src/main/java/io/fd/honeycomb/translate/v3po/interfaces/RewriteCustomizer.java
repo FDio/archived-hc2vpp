@@ -40,9 +40,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewrite;
-import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
+import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +55,9 @@ public class RewriteCustomizer extends FutureJVppCustomizer implements WriterCus
     private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public RewriteCustomizer(@Nonnull final FutureJVpp futureJvpp,
+    public RewriteCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                              @Nonnull final NamingContext interfaceContext) {
-        super(futureJvpp);
+        super(futureJVppCore);
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
 

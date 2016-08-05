@@ -30,9 +30,9 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.ShowVersion;
-import org.openvpp.jvpp.dto.ShowVersionReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.ShowVersion;
+import org.openvpp.jvpp.core.dto.ShowVersionReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class VersionCustomizer
     extends FutureJVppCustomizer
@@ -43,8 +43,8 @@ public final class VersionCustomizer
      */
     private static final int DEFAULT_TIMEOUT_IN_SECONDS = 30;
 
-    public VersionCustomizer(@Nonnull final FutureJVpp futureJVpp) {
-        super(futureJVpp);
+    public VersionCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
+        super(futureJVppCore);
     }
 
     @Override

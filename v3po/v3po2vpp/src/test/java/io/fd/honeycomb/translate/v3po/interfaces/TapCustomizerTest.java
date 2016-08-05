@@ -43,18 +43,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.TapBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.dto.TapConnect;
-import org.openvpp.jvpp.dto.TapConnectReply;
-import org.openvpp.jvpp.dto.TapDelete;
-import org.openvpp.jvpp.dto.TapDeleteReply;
-import org.openvpp.jvpp.dto.TapModify;
-import org.openvpp.jvpp.dto.TapModifyReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.TapConnect;
+import org.openvpp.jvpp.core.dto.TapConnectReply;
+import org.openvpp.jvpp.core.dto.TapDelete;
+import org.openvpp.jvpp.core.dto.TapDeleteReply;
+import org.openvpp.jvpp.core.dto.TapModify;
+import org.openvpp.jvpp.core.dto.TapModifyReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class TapCustomizerTest {
 
     @Mock
-    private FutureJVpp vppApi;
+    private FutureJVppCore vppApi;
     @Mock
     private WriteContext writeContext;
     @Mock

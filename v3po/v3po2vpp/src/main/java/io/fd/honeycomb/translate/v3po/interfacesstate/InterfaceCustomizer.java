@@ -40,10 +40,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
-import org.openvpp.jvpp.dto.SwInterfaceDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
     private final NamingContext interfaceContext;
 
-    public InterfaceCustomizer(@Nonnull final FutureJVpp jvpp, final NamingContext interfaceContext) {
+    public InterfaceCustomizer(@Nonnull final FutureJVppCore jvpp, final NamingContext interfaceContext) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
     }

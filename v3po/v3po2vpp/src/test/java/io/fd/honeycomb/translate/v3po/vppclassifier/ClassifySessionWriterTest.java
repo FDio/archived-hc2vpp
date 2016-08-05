@@ -51,10 +51,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.ClassifyAddDelSession;
-import org.openvpp.jvpp.dto.ClassifyAddDelSessionReply;
-import org.openvpp.jvpp.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
+import org.openvpp.jvpp.core.dto.ClassifyAddDelSessionReply;
+import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class ClassifySessionWriterTest {
 
@@ -62,7 +62,7 @@ public class ClassifySessionWriterTest {
     private static final String TABLE_NAME = "table123";
 
     @Mock
-    private FutureJVpp api;
+    private FutureJVppCore api;
     @Mock
     private WriteContext writeContext;
     @Mock

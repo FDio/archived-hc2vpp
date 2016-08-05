@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.DottedQuad;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +45,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer implements ListW
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public Ipv4AddressCustomizer(FutureJVpp futureJvpp, NamingContext interfaceContext) {
-        super(futureJvpp);
+    public Ipv4AddressCustomizer(FutureJVppCore futureJVppCore, NamingContext interfaceContext) {
+        super(futureJVppCore);
         this.interfaceContext = interfaceContext;
     }
 

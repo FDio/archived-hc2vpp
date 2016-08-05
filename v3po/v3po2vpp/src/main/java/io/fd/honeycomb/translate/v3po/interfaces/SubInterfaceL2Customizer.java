@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Wr
     private final NamingContext interfaceContext;
     private final InterconnectionWriteUtils icWriterUtils;
 
-    public SubInterfaceL2Customizer(final FutureJVpp vppApi, final NamingContext interfaceContext,
+    public SubInterfaceL2Customizer(final FutureJVppCore vppApi, final NamingContext interfaceContext,
                                     final NamingContext bridgeDomainContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;

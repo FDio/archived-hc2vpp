@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +45,11 @@ public class L2Customizer extends FutureJVppCustomizer implements ReaderCustomiz
     private static final Logger LOG = LoggerFactory.getLogger(L2Customizer.class);
     private final InterconnectionReadUtils icReadUtils;
 
-    public L2Customizer(@Nonnull final FutureJVpp futureJvpp,
+    public L2Customizer(@Nonnull final FutureJVppCore futureJVppCore,
                         @Nonnull final NamingContext interfaceContext,
                         @Nonnull final NamingContext bridgeDomainContext) {
-        super(futureJvpp);
-        this.icReadUtils = new InterconnectionReadUtils(futureJvpp, interfaceContext, bridgeDomainContext);
+        super(futureJVppCore);
+        this.icReadUtils = new InterconnectionReadUtils(futureJVppCore, interfaceContext, bridgeDomainContext);
     }
 
     @Override

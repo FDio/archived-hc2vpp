@@ -48,10 +48,10 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.L2FibTableDump;
-import org.openvpp.jvpp.dto.L2FibTableEntry;
-import org.openvpp.jvpp.dto.L2FibTableEntryReplyDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.L2FibTableDump;
+import org.openvpp.jvpp.core.dto.L2FibTableEntry;
+import org.openvpp.jvpp.core.dto.L2FibTableEntryReplyDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +66,9 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
     private final NamingContext bdContext;
     private final NamingContext interfaceContext;
 
-    public L2FibEntryCustomizer(@Nonnull final FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext,
+    public L2FibEntryCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext bdContext,
                                 @Nonnull final NamingContext interfaceContext) {
-        super(futureJVpp);
+        super(futureJVppCore);
         this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
     }

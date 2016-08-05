@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Acl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
     private final NamingContext interfaceContext;
     private final NamingContext classifyTableContext;
 
-    public SubInterfaceAclCustomizer(@Nonnull final FutureJVpp vppApi, @Nonnull final NamingContext interfaceContext,
+    public SubInterfaceAclCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull final NamingContext interfaceContext,
                                      @Nonnull final NamingContext classifyTableContext) {
         super(vppApi);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");

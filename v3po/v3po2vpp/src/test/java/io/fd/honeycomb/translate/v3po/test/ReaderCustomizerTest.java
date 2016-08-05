@@ -30,7 +30,7 @@ import org.mockito.Mock;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Generic test for classes implementing {@link ReaderCustomizer} interface.
@@ -41,7 +41,7 @@ import org.openvpp.jvpp.future.FutureJVpp;
 public abstract class ReaderCustomizerTest<D extends DataObject, B extends Builder<D>> {
 
     @Mock
-    protected FutureJVpp api;
+    protected FutureJVppCore api;
     protected ModificationCache cache;
     @Mock
     protected ReadContext ctx;

@@ -22,7 +22,7 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class Ipv6Customizer extends FutureJVppCustomizer implements WriterCustom
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6Customizer.class);
 
-    public Ipv6Customizer(final FutureJVpp vppApi) {
+    public Ipv6Customizer(final FutureJVppCore vppApi) {
         super(vppApi);
     }
 

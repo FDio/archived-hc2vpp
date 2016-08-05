@@ -35,9 +35,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Gre;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.GreAddDelTunnel;
-import org.openvpp.jvpp.dto.GreAddDelTunnelReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
+import org.openvpp.jvpp.core.dto.GreAddDelTunnel;
+import org.openvpp.jvpp.core.dto.GreAddDelTunnelReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
     private static final Logger LOG = LoggerFactory.getLogger(GreCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public GreCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
+    public GreCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
     }

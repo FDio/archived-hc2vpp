@@ -48,11 +48,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.Tag;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.CreateSubif;
-import org.openvpp.jvpp.dto.CreateSubifReply;
-import org.openvpp.jvpp.dto.SwInterfaceSetFlags;
-import org.openvpp.jvpp.dto.SwInterfaceSetFlagsReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.CreateSubif;
+import org.openvpp.jvpp.core.dto.CreateSubifReply;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetFlags;
+import org.openvpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +66,8 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public SubInterfaceCustomizer(@Nonnull final FutureJVpp futureJvpp, @Nonnull final NamingContext interfaceContext) {
-        super(futureJvpp);
+    public SubInterfaceCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext interfaceContext) {
+        super(futureJVppCore);
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
 

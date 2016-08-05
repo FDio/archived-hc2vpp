@@ -44,10 +44,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.GreBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.dto.GreTunnelDetails;
-import org.openvpp.jvpp.dto.GreTunnelDetailsReplyDump;
-import org.openvpp.jvpp.dto.GreTunnelDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.GreTunnelDetails;
+import org.openvpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.GreTunnelDump;
 
 public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
 

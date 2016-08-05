@@ -64,10 +64,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.VxlanAddDelTunnelReply;
-import org.openvpp.jvpp.dto.VxlanGpeAddDelTunnel;
-import org.openvpp.jvpp.dto.VxlanGpeAddDelTunnelReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.VxlanAddDelTunnelReply;
+import org.openvpp.jvpp.core.dto.VxlanGpeAddDelTunnel;
+import org.openvpp.jvpp.core.dto.VxlanGpeAddDelTunnelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class VxlanGpeCustomizerTest {
 
@@ -75,7 +75,7 @@ public class VxlanGpeCustomizerTest {
     private static final byte DEL_VXLAN_GPE = 0;
 
     @Mock
-    private FutureJVpp api;
+    private FutureJVppCore api;
     @Mock
     private WriteContext writeContext;
     @Mock

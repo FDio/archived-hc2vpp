@@ -39,10 +39,10 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceTapDetails;
-import org.openvpp.jvpp.dto.SwInterfaceTapDetailsReplyDump;
-import org.openvpp.jvpp.dto.SwInterfaceTapDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceTapDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceTapDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceTapDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class TapCustomizer extends FutureJVppCustomizer
     public static final String DUMPED_TAPS_CONTEXT_KEY = TapCustomizer.class.getName() + "dumpedTapsDuringGetAllIds";
     private NamingContext interfaceContext;
 
-    public TapCustomizer(@Nonnull final FutureJVpp jvpp, @Nonnull final NamingContext interfaceContext) {
+    public TapCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
     }

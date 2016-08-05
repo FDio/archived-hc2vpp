@@ -46,9 +46,9 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.cont
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.dto.BridgeDomainAddDel;
-import org.openvpp.jvpp.dto.BridgeDomainAddDelReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.BridgeDomainAddDel;
+import org.openvpp.jvpp.core.dto.BridgeDomainAddDelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class BridgeDomainCustomizerTest {
 
@@ -56,7 +56,7 @@ public class BridgeDomainCustomizerTest {
     private static final byte ZERO = 0;
 
     @Mock
-    private FutureJVpp api;
+    private FutureJVppCore api;
     @Mock
     private WriteContext ctx;
     @Mock

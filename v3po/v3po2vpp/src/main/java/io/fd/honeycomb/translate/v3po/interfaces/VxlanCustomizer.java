@@ -35,9 +35,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.VxlanAddDelTunnel;
-import org.openvpp.jvpp.dto.VxlanAddDelTunnelReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.VxlanAddDelTunnel;
+import org.openvpp.jvpp.core.dto.VxlanAddDelTunnelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
     private static final Logger LOG = LoggerFactory.getLogger(VxlanCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public VxlanCustomizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
+    public VxlanCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
     }

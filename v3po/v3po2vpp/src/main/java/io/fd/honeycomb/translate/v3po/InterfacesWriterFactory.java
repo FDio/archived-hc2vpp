@@ -65,7 +65,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpe;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class InterfacesWriterFactory implements WriterFactory, AutoCloseable {
 
@@ -76,13 +76,13 @@ public final class InterfacesWriterFactory implements WriterFactory, AutoCloseab
     public static final InstanceIdentifier<Acl> ACL_ID = VPP_IFC_AUG_ID.child(Acl.class);
     public static final InstanceIdentifier<L2> L2_ID = VPP_IFC_AUG_ID.child(L2.class);
 
-    private final FutureJVpp jvpp;
+    private final FutureJVppCore jvpp;
     private final NamingContext bdContext;
     private final NamingContext ifcContext;
     private final NamingContext classifyTableContext;
 
     @Inject
-    public InterfacesWriterFactory(final FutureJVpp vppJvppIfcDependency,
+    public InterfacesWriterFactory(final FutureJVppCore vppJvppIfcDependency,
                                    @Named("bridge-domain-context") final NamingContext bridgeDomainContextDependency,
                                    @Named("interface-context") final NamingContext interfaceContextDependency,
                                    @Named("classify-table-context") final NamingContext classifyTableContextDependency) {

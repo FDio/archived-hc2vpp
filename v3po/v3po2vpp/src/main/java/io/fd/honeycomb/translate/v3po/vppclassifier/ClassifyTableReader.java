@@ -41,11 +41,11 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.ClassifyTableIds;
-import org.openvpp.jvpp.dto.ClassifyTableIdsReply;
-import org.openvpp.jvpp.dto.ClassifyTableInfo;
-import org.openvpp.jvpp.dto.ClassifyTableInfoReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.ClassifyTableIds;
+import org.openvpp.jvpp.core.dto.ClassifyTableIdsReply;
+import org.openvpp.jvpp.core.dto.ClassifyTableInfo;
+import org.openvpp.jvpp.core.dto.ClassifyTableInfoReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,9 +59,9 @@ public class ClassifyTableReader extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableReader.class);
     private final NamingContext classifyTableContext;
 
-    public ClassifyTableReader(@Nonnull final FutureJVpp futureJvpp,
+    public ClassifyTableReader(@Nonnull final FutureJVppCore futureJVppCore,
                                @Nonnull final NamingContext classifyTableContext) {
-        super(futureJvpp);
+        super(futureJVppCore);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
     }
 

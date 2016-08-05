@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class L2Customizer extends FutureJVppCustomizer implements WriterCustomiz
     private final NamingContext interfaceContext;
     private final InterconnectionWriteUtils icWriteUtils;
 
-    public L2Customizer(final FutureJVpp vppApi, final NamingContext interfaceContext,
+    public L2Customizer(final FutureJVppCore vppApi, final NamingContext interfaceContext,
                         final NamingContext bridgeDomainContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;

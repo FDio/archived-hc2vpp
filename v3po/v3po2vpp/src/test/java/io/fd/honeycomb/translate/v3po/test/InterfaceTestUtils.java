@@ -29,17 +29,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.dto.SwInterfaceDetailsReplyDump;
-import org.openvpp.jvpp.dto.SwInterfaceDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class InterfaceTestUtils {
     private InterfaceTestUtils() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
-    public static void whenSwInterfaceDumpThenReturn(final FutureJVpp api, final List<SwInterfaceDetails> interfaceList)
+    public static void whenSwInterfaceDumpThenReturn(final FutureJVppCore api, final List<SwInterfaceDetails> interfaceList)
         throws ExecutionException, InterruptedException, VppBaseCallException, TimeoutException {
         final CompletionStage<SwInterfaceDetailsReplyDump> replyCS = mock(CompletionStage.class);
         final CompletableFuture<SwInterfaceDetailsReplyDump> replyFuture = mock(CompletableFuture.class);

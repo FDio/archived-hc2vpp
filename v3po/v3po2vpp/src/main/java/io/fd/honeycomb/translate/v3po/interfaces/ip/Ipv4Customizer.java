@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements WriterCustom
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4Customizer.class);
     private final NamingContext interfaceContext;
 
-    public Ipv4Customizer(final FutureJVpp vppApi, final NamingContext interfaceContext) {
+    public Ipv4Customizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
         super(vppApi);
         this.interfaceContext = interfaceContext;
     }

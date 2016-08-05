@@ -37,7 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,9 +50,9 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv4AddressCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public SubInterfaceIpv4AddressCustomizer(@Nonnull final FutureJVpp futureJvpp,
+    public SubInterfaceIpv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                              @Nonnull final NamingContext interfaceContext) {
-        super(futureJvpp);
+        super(futureJVppCore);
         this.interfaceContext = checkNotNull(interfaceContext, "interface context should not be null");
     }
 

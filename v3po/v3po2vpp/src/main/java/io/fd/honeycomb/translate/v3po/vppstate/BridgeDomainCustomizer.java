@@ -36,10 +36,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.dto.BridgeDomainDetails;
-import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
-import org.openvpp.jvpp.dto.BridgeDomainDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.BridgeDomainDetails;
+import org.openvpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.BridgeDomainDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +49,8 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
     private final NamingContext bdContext;
 
-    public BridgeDomainCustomizer(@Nonnull final FutureJVpp futureJVpp, @Nonnull final NamingContext bdContext) {
-        super(futureJVpp);
+    public BridgeDomainCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext bdContext) {
+        super(futureJVppCore);
         this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
     }
 

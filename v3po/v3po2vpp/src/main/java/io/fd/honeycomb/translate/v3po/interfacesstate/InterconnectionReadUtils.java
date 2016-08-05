@@ -31,12 +31,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.BridgeDomainDetails;
-import org.openvpp.jvpp.dto.BridgeDomainDetailsReplyDump;
-import org.openvpp.jvpp.dto.BridgeDomainDump;
-import org.openvpp.jvpp.dto.BridgeDomainSwIfDetails;
-import org.openvpp.jvpp.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.BridgeDomainDetails;
+import org.openvpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.BridgeDomainDump;
+import org.openvpp.jvpp.core.dto.BridgeDomainSwIfDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +48,14 @@ final class InterconnectionReadUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterconnectionReadUtils.class);
 
-    private final FutureJVpp futureJvpp;
+    private final FutureJVppCore futureJVppCore;
     private final NamingContext interfaceContext;
     private final NamingContext bridgeDomainContext;
 
-    InterconnectionReadUtils(@Nonnull final FutureJVpp futureJvpp,
+    InterconnectionReadUtils(@Nonnull final FutureJVppCore futureJVppCore,
                              @Nonnull final NamingContext interfaceContext,
                              @Nonnull final NamingContext bridgeDomainContext) {
-        this.futureJvpp = requireNonNull(futureJvpp, "futureJvpp should not be null");
+        this.futureJVppCore = requireNonNull(futureJVppCore, "futureJVppCore should not be null");
         this.interfaceContext = requireNonNull(interfaceContext, "interfaceContext should not be null");
         this.bridgeDomainContext = requireNonNull(bridgeDomainContext, "bridgeDomainContext should not be null");
     }
@@ -66,7 +66,7 @@ final class InterconnectionReadUtils {
         throws ReadFailedException {
         final int ifaceId = interfaceContext.getIndex(ifaceName, ctx.getMappingContext());
 
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(futureJvpp, id, ifaceName,
+        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(futureJVppCore, id, ifaceName,
             ifaceId, ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
@@ -122,7 +122,7 @@ final class InterconnectionReadUtils {
             request.bdId = -1;
 
             final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
-                futureJvpp.bridgeDomainSwIfDump(request).toCompletableFuture();
+                futureJVppCore.bridgeDomainSwIfDump(request).toCompletableFuture();
             return TranslateUtils.getReplyForRead(bdCompletableFuture, id);
         } catch (VppBaseCallException e) {
             throw new ReadFailedException(id, e);

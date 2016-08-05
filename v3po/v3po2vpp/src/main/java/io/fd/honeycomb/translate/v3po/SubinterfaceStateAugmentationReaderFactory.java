@@ -48,16 +48,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory {
 
-    private final FutureJVpp jvpp;
+    private final FutureJVppCore jvpp;
     private final NamingContext ifcCtx;
     private final NamingContext bdCtx;
     private final NamingContext classifyCtx;
 
-    SubinterfaceStateAugmentationReaderFactory(final FutureJVpp jvpp, final NamingContext ifcCtx,
+    SubinterfaceStateAugmentationReaderFactory(final FutureJVppCore jvpp, final NamingContext ifcCtx,
                                                final NamingContext bdCtx, final NamingContext classifyCtx) {
         this.jvpp = jvpp;
         this.ifcCtx = ifcCtx;

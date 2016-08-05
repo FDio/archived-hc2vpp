@@ -35,9 +35,9 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.ClassifyTableByInterface;
-import org.openvpp.jvpp.dto.ClassifyTableByInterfaceReply;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.ClassifyTableByInterface;
+import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class AclCustomizer extends FutureJVppCustomizer
     private final NamingContext interfaceContext;
     private final NamingContext classifyTableContext;
 
-    public AclCustomizer(@Nonnull final FutureJVpp jvpp, @Nonnull final NamingContext interfaceContext,
+    public AclCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext,
                          @Nonnull final NamingContext classifyTableContext) {
         super(jvpp);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");

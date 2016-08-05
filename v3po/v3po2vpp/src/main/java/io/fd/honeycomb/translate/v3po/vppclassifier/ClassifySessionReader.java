@@ -49,10 +49,10 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.ClassifySessionDetails;
-import org.openvpp.jvpp.dto.ClassifySessionDetailsReplyDump;
-import org.openvpp.jvpp.dto.ClassifySessionDump;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.dto.ClassifySessionDetails;
+import org.openvpp.jvpp.core.dto.ClassifySessionDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.ClassifySessionDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,9 +68,9 @@ public class ClassifySessionReader extends FutureJVppCustomizer
 
     private final NamingContext classifyTableContext;
 
-    public ClassifySessionReader(@Nonnull final FutureJVpp futureJvpp,
+    public ClassifySessionReader(@Nonnull final FutureJVppCore futureJVppCore,
                                  @Nonnull final NamingContext classifyTableContext) {
-        super(futureJvpp);
+        super(futureJVppCore);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
     }
 

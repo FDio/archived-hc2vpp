@@ -62,21 +62,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.future.FutureJVpp;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class InterfacesStateReaderFactory implements ReaderFactory, AutoCloseable {
 
     private NamingContext ifcCtx;
     private NamingContext bdCtx;
     private NamingContext classifyCtx;
-    private FutureJVpp jvpp;
+    private FutureJVppCore jvpp;
 
     static final InstanceIdentifier<InterfacesState> IFC_STATE_ID =
             InstanceIdentifier.create(InterfacesState.class);
     static final InstanceIdentifier<Interface> IFC_ID = IFC_STATE_ID.child(Interface.class);
 
     @Inject
-    public InterfacesStateReaderFactory(final FutureJVpp jvpp,
+    public InterfacesStateReaderFactory(final FutureJVppCore jvpp,
                                         @Named("interface-context") final NamingContext ifcCtx,
                                         @Named("bridge-domain-context") final NamingContext bdCtx,
                                         @Named("classify-table-context") final NamingContext classifyCtx) {
