@@ -1,0 +1,10 @@
+= Openconfig-interfaces sample
+This is a sample Honeycomb plugin implementing mapping for openconfig interfaces yang model
+
+== Data
+Only sample data are used, that are not actually handled
+
+== Notifications
+A sample notification was added to the models to showcase notification capabilities
+
+// TODO provide a groovy version, will be more compact

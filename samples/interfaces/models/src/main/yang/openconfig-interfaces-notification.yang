@@ -1,0 +1,60 @@
+module sample-interfaces {
+
+  namespace "io:fd:honeycomb:samples:interfaces";
+
+  prefix "hc-s-if";
+
+  description "Sample interface model";
+
+  revision "2016-08-10" {
+    description "Initial revision";
+  }
+
+  typedef interface-id {
+    type string;
+  }
+
+  grouping interface-common {
+    leaf interface-id {
+        type interface-id;
+    }
+
+    leaf mtu {
+        type uint16;
+    }
+  }
+
+  grouping interface-state {
+    container counters {
+        leaf total-packets {
+            type uint32;
+        }
+        leaf dropped-packets {
+            type uint32;
+        }
+    }
+  }
+
+  container interfaces {
+    list interface {
+        key "interface-id";
+        uses interface-common;
+    }
+  }
+
+  container interfaces-state {
+    config false;
+
+    list interface {
+        key "interface-id";
+        uses interface-common;
+        uses interface-state;
+    }
+  }
+
+  notification interface-up {
+    leaf interface-id {
+        type interface-id;
+    }
+  }
+}
