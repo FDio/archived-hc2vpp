@@ -18,6 +18,8 @@ package io.fd.honeycomb.translate.v3po.initializers;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import io.fd.honeycomb.data.init.AbstractDataTreeConverter;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -43,7 +45,8 @@ import org.slf4j.LoggerFactory;
 public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
     private static final Logger LOG = LoggerFactory.getLogger(VppInitializer.class);
 
-    public VppInitializer(@Nonnull final DataBroker bindingDataBroker) {
+    @Inject
+    public VppInitializer(@Named("honeycomb-initializer") @Nonnull final DataBroker bindingDataBroker) {
         super(bindingDataBroker, InstanceIdentifier.create(VppState.class), InstanceIdentifier.create(Vpp.class));
     }
 

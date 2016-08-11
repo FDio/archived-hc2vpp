@@ -23,19 +23,35 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.fd.honeycomb.samples.distro</groupId>
+  <groupId>io.fd.honeycomb.vpp</groupId>
   <artifactId>minimal-distribution</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <properties>
-    <exec.parameters>-Xms128m -Xmx128m</exec.parameters>
-    <main.class>io.fd.honeycomb.samples.distro.Main</main.class>
+    <main.class>io.fd.honeycomb.vpp.distro.Main</main.class>
   </properties>
 
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+        <!-- 2.8.0-01 and later require maven-compiler-plugin 3.1 or higher -->
+        <configuration>
+          <compilerId>groovy-eclipse-compiler</compilerId>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-eclipse-compiler</artifactId>
+            <version>2.9.2-01</version>
+          </dependency>
+          <!-- for 2.8.0-01 and later you must have an explicit dependency on groovy-eclipse-batch -->
+          <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-eclipse-batch</artifactId>
+            <version>2.4.3-01</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
@@ -57,14 +73,34 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.fd.honeycomb.samples.interfaces</groupId>
-      <artifactId>interfaces-mapping</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
       <groupId>io.fd.honeycomb</groupId>
       <artifactId>minimal-distribution</artifactId>
       <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>naming-context-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>naming-context-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>vpp-jvpp-cfg</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.vpp</groupId>
+      <artifactId>jvpp</artifactId>
+      <version>16.09-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>vpp-translate-utils</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
   </dependencies>

@@ -18,6 +18,8 @@ package io.fd.honeycomb.translate.v3po.initializers;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import io.fd.honeycomb.data.init.AbstractDataTreeConverter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,7 +78,8 @@ import org.slf4j.LoggerFactory;
 public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesState, Interfaces> {
     private static final Logger LOG = LoggerFactory.getLogger(InterfacesInitializer.class);
 
-    public InterfacesInitializer(@Nonnull final DataBroker bindingDataBroker) {
+    @Inject
+    public InterfacesInitializer(@Named("honeycomb-initializer") @Nonnull final DataBroker bindingDataBroker) {
         super(bindingDataBroker, InstanceIdentifier.create(InterfacesState.class),
             InstanceIdentifier.create(Interfaces.class));
     }

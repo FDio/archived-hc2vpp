@@ -34,7 +34,8 @@
   <modules>
     <module>api</module>
     <module>v3po2vpp</module>
-    <module>features</module>
+    <!--Will be deleted-->
+    <!--<module>features</module>-->
   </modules>
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>

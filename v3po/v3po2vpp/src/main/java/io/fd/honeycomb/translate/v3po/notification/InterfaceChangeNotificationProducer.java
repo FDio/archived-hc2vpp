@@ -17,6 +17,8 @@ package io.fd.honeycomb.translate.v3po.notification;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.translate.MappingContext;
@@ -59,9 +61,10 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
     @Nullable
     private AutoCloseable notificationListenerReg;
 
+    @Inject
     public InterfaceChangeNotificationProducer(@Nonnull final FutureJVpp jvpp,
-                                               @Nonnull final NamingContext interfaceContext,
-                                               @Nonnull final MappingContext mappingContext) {
+                                               @Named("interface-context") @Nonnull final NamingContext interfaceContext,
+                                               @Named("honeycomb-context") @Nonnull final MappingContext mappingContext) {
         this.jvpp = jvpp;
         this.interfaceContext = interfaceContext;
         this.mappingContext = mappingContext;

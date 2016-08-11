@@ -36,7 +36,8 @@
     <module>vpp-jvpp-cfg</module>
     <module>naming-context-api</module>
     <module>naming-context-impl</module>
-    <module>features</module>
+    <module>minimal-distribution</module>
+    <!--<module>features</module>-->
   </modules>
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>

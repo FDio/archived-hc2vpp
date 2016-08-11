@@ -23,13 +23,13 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.fd.honeycomb.samples.distro</groupId>
-  <artifactId>minimal-distribution</artifactId>
+  <groupId>io.fd.honeycomb.vpp.integration</groupId>
+  <artifactId>vpp-integration-distribution</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <properties>
     <exec.parameters>-Xms128m -Xmx128m</exec.parameters>
-    <main.class>io.fd.honeycomb.samples.distro.Main</main.class>
+    <main.class>io.fd.honeycomb.vpp.integration.distro.Main</main.class>
   </properties>
 
   <build>
@@ -57,13 +57,13 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.fd.honeycomb.samples.interfaces</groupId>
-      <artifactId>interfaces-mapping</artifactId>
+      <groupId>io.fd.honeycomb.vpp</groupId>
+      <artifactId>minimal-distribution</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb</groupId>
-      <artifactId>minimal-distribution</artifactId>
+      <groupId>io.fd.honeycomb.v3po</groupId>
+      <artifactId>v3po2vpp</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
 

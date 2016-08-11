@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
+package io.fd.honeycomb.translate.v3po;
 
-import static org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppClassifierHoneycombWriterModule.CLASSIFY_SESSION_ID;
-import static org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406.VppClassifierHoneycombWriterModule.CLASSIFY_TABLE_ID;
+import static io.fd.honeycomb.translate.v3po.VppClassifierHoneycombWriterFactory.CLASSIFY_SESSION_ID;
+import static io.fd.honeycomb.translate.v3po.VppClassifierHoneycombWriterFactory.CLASSIFY_TABLE_ID;
 
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
@@ -28,8 +28,8 @@ import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceL2Customizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip6Acl;
@@ -50,7 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.future.FutureJVpp;
 
-final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
+public final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
 
     private final FutureJVpp jvpp;
     private final NamingContext ifcContext;
@@ -58,7 +58,7 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
     private final NamingContext classifyTableContext;
 
     public static final InstanceIdentifier<SubinterfaceAugmentation> SUB_IFC_AUG_ID =
-            InterfacesHoneycombWriterModule.IFC_ID.augmentation(SubinterfaceAugmentation.class);
+            InterfacesWriterFactory.IFC_ID.augmentation(SubinterfaceAugmentation.class);
     public static final InstanceIdentifier<SubInterface> SUB_IFC_ID =
             SUB_IFC_AUG_ID.child(SubInterfaces.class).child(SubInterface.class);
     public static final InstanceIdentifier<L2> L2_ID = SUB_IFC_ID.child(
@@ -87,7 +87,7 @@ final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
                         InstanceIdentifier.create(SubInterface.class).child(Match.class),
                         InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
                 new GenericListWriter<>(SUB_IFC_ID, new SubInterfaceCustomizer(jvpp, ifcContext)),
-                InterfacesHoneycombWriterModule.IFC_ID);
+                InterfacesWriterFactory.IFC_ID);
         //   L2 =
         registry.addAfter(new GenericWriter<>(L2_ID, new SubInterfaceL2Customizer(jvpp, ifcContext, bdContext)),
                 SUB_IFC_ID);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.v3po2vpp.rev160406;
+package io.fd.honeycomb.translate.v3po;
 
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
@@ -69,7 +69,7 @@ final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory 
     public void init(final ModifiableReaderRegistryBuilder registry) {
         // SubinterfaceStateAugmentation(Structural)
         final InstanceIdentifier<SubinterfaceStateAugmentation> subIfcAugId =
-                InterfacesStateHoneycombReaderModule.IFC_ID.augmentation(SubinterfaceStateAugmentation.class);
+                InterfacesStateReaderFactory.IFC_ID.augmentation(SubinterfaceStateAugmentation.class);
         registry.addStructuralReader(subIfcAugId, SubinterfaceStateAugmentationBuilder.class);
         //  SubInterfaces(Structural)
         final InstanceIdentifier<SubInterfaces> subIfcsId = subIfcAugId.child(SubInterfaces.class);

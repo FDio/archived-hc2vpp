@@ -27,14 +27,14 @@ public class ContextReaderModule extends org.opendaylight.yang.gen.v1.urn.openda
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        return new ReaderFactory(getContextBindingBrokerDependency());
+        return new ContextsReaderFactory(getContextBindingBrokerDependency());
     }
 
-    private static final class ReaderFactory implements AutoCloseable, io.fd.honeycomb.translate.read.ReaderFactory {
+    public static final class ContextsReaderFactory implements AutoCloseable, io.fd.honeycomb.translate.read.ReaderFactory {
 
         private final DataBroker contextBindingBrokerDependency;
 
-        public ReaderFactory(final DataBroker contextBindingBrokerDependency) {
+        public ContextsReaderFactory(final DataBroker contextBindingBrokerDependency) {
             this.contextBindingBrokerDependency = contextBindingBrokerDependency;
         }
 
