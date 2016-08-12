@@ -199,7 +199,9 @@ module v3po {
 
   grouping tap-interface-base-attributes {
     leaf tap-name {
-      type string;
+      type string{
+        pattern "[a-zA-Z0-9\-;.+@$#^&*!_()=\[\]]*";
+      }
     }
   }
 
