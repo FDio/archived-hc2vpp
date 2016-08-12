@@ -2,8 +2,8 @@
 set -xe
 DIR=$(dirname $0)
 DIR=$(readlink -f $DIR)
-ZIPDIR=${DIR}/../../vpp-integration/karaf/target/
-ZIPFILE=${ZIPDIR}/vpp-integration-karaf-1.0.0-SNAPSHOT.zip
+ZIPDIR=${DIR}/../../vpp-integration/minimal-distribution/target/
+ZIPFILE=${ZIPDIR}/vpp-integration-distribution-1.0.0-SNAPSHOT-hc.zip
 mkdir -p ${DIR}/SOURCES/
 cp $ZIPFILE ${DIR}/SOURCES/
 cp ${DIR}/honeycomb.spec ${DIR}/SOURCES/

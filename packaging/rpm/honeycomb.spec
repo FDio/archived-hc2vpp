@@ -16,7 +16,7 @@ Summary:    fd.io Honeycomb
 Group:      Applications/Communications
 License:    Apache-1.0
 URL:        http://www.fd.io
-Source0:     vpp-integration-karaf-%{_version}-SNAPSHOT.zip
+Source0:     vpp-integration-distribution-%{_version}-SNAPSHOT-hc.zip
 Source1:     honeycomb.service
 Requires:    vpp, java >= 1:1.8.0
 # Required for creating honeycomb group
@@ -37,13 +37,13 @@ fd.io Honeycomb
 
 %prep
 # Extract Source0 (Honeycomb archive)
-%autosetup -n vpp-integration-karaf-%{_version}-SNAPSHOT
+%autosetup -n vpp-integration-distribution-%{_version}-SNAPSHOT
 
 %install
 # Create directory in build root for Honeycomb
 mkdir -p $RPM_BUILD_ROOT/opt/%name
 # Copy Honeycomb from archive to its dir in build root
-cp -r ../vpp-integration-karaf-%{_version}-SNAPSHOT/* $RPM_BUILD_ROOT/opt/%name
+cp -r ../vpp-integration-distribution-%{_version}-SNAPSHOT/* $RPM_BUILD_ROOT/opt/%name
 # Create directory in build root for systemd .service file
 mkdir -p $RPM_BUILD_ROOT/%{_unitdir}
 # Copy Honeycomb's systemd .service file to correct dir in build root

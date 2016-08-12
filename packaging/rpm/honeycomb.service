@@ -5,9 +5,7 @@ After=vpp.service
 
 [Service]
 Type=forking
-ExecStart=/opt/honeycomb/bin/start
-User=honeycomb
-Group=honeycomb
+ExecStart=/opt/honeycomb/honeycomb
 
 [Install]
 WantedBy=multi-user.target
