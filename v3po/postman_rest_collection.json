@@ -64,7 +64,7 @@
 		},
 		{
 			"id": "fc3c82bf-4a35-3b1a-8abf-ae22a8b23245",
-			"name": "L2 FIB",
+			"name": "Bridge Domain management",
 			"description": "",
 			"order": [
 				"8a79e3b2-70ea-cf56-3317-34fe1dfe4e7b",
@@ -77,7 +77,9 @@
 				"d67e5cbf-73ab-6030-ea0d-9eee69e3f8e3",
 				"f217a13f-6b83-8ce7-e214-ffce25eeb49f",
 				"5e4dbb7f-7527-da2c-39b1-9625163e7198",
-				"d26d5396-483f-092f-5695-7a4f9de3b2e3"
+				"d26d5396-483f-092f-5695-7a4f9de3b2e3",
+				"a042fef8-8aa6-3d79-a623-05f32e1f4cf5",
+				"ee243708-16f4-a3fc-6498-f66dcc82afa7"
 			],
 			"owner": "652751",
 			"collectionId": "e9ba4e80-fb4d-1eae-07e7-97b323164130"
@@ -1235,6 +1237,47 @@
 			"responses": [],
 			"rawModeData": "",
 			"folder": "fc3c82bf-4a35-3b1a-8abf-ae22a8b23245"
+		},
+		{
+			"id": "a042fef8-8aa6-3d79-a623-05f32e1f4cf5",
+			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"url": "http://localhost:8181/restconf/config/v3po:vpp/bridge-domains/bridge-domain/testBD/arp-termination-table/arp-termination-table-entry/1.2.3.4/aa:bb:cc:dd:ee:ff",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Add ARP termination table entry ",
+			"description": "Adds ARP termination termination entry. Corresponds to invoking:\n\nvat# bd_ip_mac_add_del bd_id [bd_id] 1.2.3.4 aa:bb:cc:dd:ee:ff\n\nTo verify run:\n\nvppctl show bridge-domain 1 detail",
+			"descriptionFormat": "html",
+			"time": 1471256345214,
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"collectionId": "58101efe-318b-fd9c-b1e8-096101036acf",
+			"responses": [],
+			"rawModeData": "{\n    \"arp-termination-table-entry\": [\n        {\n            \"ip-address\": \"1.2.3.4\",\n            \"phys-address\": \"aa:bb:cc:dd:ee:ff\"\n        }\n    ]\n}"
+		},
+		{
+			"id": "ee243708-16f4-a3fc-6498-f66dcc82afa7",
+			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"url": "http://localhost:8181/restconf/config/v3po:vpp/bridge-domains/bridge-domain/testBD/arp-termination-table/arp-termination-table-entry/1.2.3.4/aa:bb:cc:dd:ee:ff",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1471257339594,
+			"name": "Delete ARP termination table entry ",
+			"description": "Removes ARP termination termination entry. Corresponds to invoking:\n\nvat# bd_ip_mac_add_del bd_id [bd_id] 1.2.3.4 aa:bb:cc:dd:ee:ff del\n\nTo verify run:\n\nvppctl show bridge-domain 1 detail",
+			"collectionId": "58101efe-318b-fd9c-b1e8-096101036acf",
+			"responses": [],
+			"rawModeData": ""
 		},
 		{
 			"id": "d67e5cbf-73ab-6030-ea0d-9eee69e3f8e3",
