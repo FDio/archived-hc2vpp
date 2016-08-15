@@ -154,6 +154,22 @@ module v3po {
       type boolean;
       default false;
     }
+
+    container arp-termination-table {
+      when "../v3po:arp-termination = 'true'";
+
+      // TODO(HONEYCOMB-133): add support for read (after VPP-230 is done)
+      list arp-termination-table-entry {
+        key "ip-address phys-address";
+        leaf ip-address {
+          // FIXME: change to ip-address-no-zone after https://bugs.opendaylight.org/show_bug.cgi?id=6413 is resolved
+          type inet:ip-address;
+        }
+        leaf phys-address {
+          type yang:phys-address;
+        }
+      }
+    }
   }
 
   // TODO express constraints for L2 FIB entries in YANG if possible
@@ -189,7 +205,7 @@ module v3po {
             "L2 FIB action. For filter action, entry must be configured as static.";
         }
         leaf bridged-virtual-interface {
-          when "../v3po:action = 'forward'";
+          when "../action = 'forward'";
           type boolean;
           config false; // FIXME setting bvi is currently not supported by VPP's binary api
         }
