@@ -162,6 +162,10 @@ module vpp-vlan {
     container acl {
       uses v3po:acl-base-attributes;
     }
+
+    container ietf-acl {
+      uses v3po:ietf-acl-base-attributes;
+    }
   }
 
   grouping sub-interface-config-attributes {

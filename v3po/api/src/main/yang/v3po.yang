@@ -28,6 +28,9 @@ module v3po {
   import vpp-classifier {
     prefix "vpp-classifier";
   }
+  import ietf-access-control-list {
+    prefix "acl";
+  }
 
   typedef bridge-domain-ref {
     type leafref {
@@ -424,6 +427,31 @@ module v3po {
     }
   }
 
+  grouping ietf-acl-base-attributes {
+    description
+      "Provides limited support for ietf-acl model.";
+
+    container access-lists {
+      description
+        "Defines references to ietf-acl lists. Before assignment to interface,
+        ACL lists are merged into 3 type of acls (eth0, ip4 and ip6) that are supported by vpp.
+        Then corresponding tables and sessions are created and assigned to the interface.
+
+        Assignment update/delete removes all created tables and sessions and repeats process described above.
+        Update/delete of ACL lists referenced here is not permitted (assignment needs to be removed first).
+
+        Read is supported only for acls that were created and assigned by Honeycomb agent
+        (corresponding metadata are present).";
+      list acl {
+        key "reference";
+
+        leaf reference {
+          type acl:access-control-list-ref;
+        }
+      }
+    }
+  }
+
   augment /if:interfaces/if:interface {
     ext:augment-identifier "vpp-interface-augmentation";
 
@@ -480,6 +508,10 @@ module v3po {
 
     container acl {
       uses acl-base-attributes;
+    }
+
+    container ietf-acl {
+      uses ietf-acl-base-attributes;
     }
   }
 
@@ -552,6 +584,10 @@ module v3po {
 
     container acl {
       uses acl-base-attributes;
+    }
+
+    container ietf-acl {
+      uses ietf-acl-base-attributes;
     }
   }
 
