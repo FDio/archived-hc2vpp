@@ -23,7 +23,7 @@ import groovy.util.logging.Slf4j
 import io.fd.honeycomb.infra.distro.ProviderTrait
 import io.fd.honeycomb.translate.read.ReaderFactory
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.context.impl.rev141210.ContextReaderModule
+import io.fd.honeycomb.vpp.context.ContextsReaderFactory
 
 /**
  * Mirror of org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.context.impl.rev141210.ContextReaderModule
@@ -36,5 +36,5 @@ class ContextsReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
     @Named("honeycomb-context")
     DataBroker contextDataBroker
 
-    def create() { new ContextReaderModule.ContextsReaderFactory(contextDataBroker) }
+    def create() { new ContextsReaderFactory(contextDataBroker) }
 }

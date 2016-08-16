@@ -31,8 +31,6 @@
     <maven>3.1.1</maven>
   </prerequisites>
   <modules>
-    <!--<module>features</module>-->
-    <!--<module>karaf</module>-->
     <module>minimal-distribution</module>
   </modules>
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->

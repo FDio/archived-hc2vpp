@@ -36,9 +36,10 @@ import org.openvpp.jvpp.future.FutureJVpp;
 public final class VppClassifierHoneycombWriterFactory implements WriterFactory, AutoCloseable {
 
     public static final InstanceIdentifier<ClassifyTable> CLASSIFY_TABLE_ID =
-        InstanceIdentifier.create(VppClassifier.class).child(ClassifyTable.class);
+            InstanceIdentifier.create(VppClassifier.class).child(ClassifyTable.class);
+
     public static final InstanceIdentifier<ClassifySession> CLASSIFY_SESSION_ID =
-        CLASSIFY_TABLE_ID.child(ClassifySession.class);
+            CLASSIFY_TABLE_ID.child(ClassifySession.class);
 
     private final FutureJVpp jvpp;
     private final NamingContext classifyTableContext;
@@ -59,8 +60,7 @@ public final class VppClassifierHoneycombWriterFactory implements WriterFactory,
                 CLASSIFY_SESSION_ID);
         //  ClassifyTableSession
         registry.addBefore(
-                new GenericListWriter<>(
-                        CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext)),
+                new GenericListWriter<>(CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext)),
                 ACL_ID);
     }
 }

@@ -17,12 +17,8 @@
 package io.fd.honeycomb.translate.v3po.cfgattrs;
 
 import net.jmob.guice.conf.core.BindConfig;
-import net.jmob.guice.conf.core.InjectConfig;
 import net.jmob.guice.conf.core.Syntax;
 
 @BindConfig(value = "v3po", syntax = Syntax.JSON)
 public class V3poConfiguration {
-
-    @InjectConfig("some")
-    String some;
 }
