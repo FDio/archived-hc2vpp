@@ -28,7 +28,6 @@
   <version>1.0.0-SNAPSHOT</version>
 
   <properties>
-    <exec.parameters>-Xms128m -Xmx128m</exec.parameters>
     <main.class>io.fd.honeycomb.vpp.integration.distro.Main</main.class>
   </properties>
 
