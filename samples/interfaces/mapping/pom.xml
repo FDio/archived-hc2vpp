@@ -30,6 +30,7 @@
   <properties>
     <guice.version>4.1.0</guice.version>
     <guice.config.version>1.2.0</guice.config.version>
+    <honeycomb.infra.version>1.0.0-SNAPSHOT</honeycomb.infra.version>
   </properties>
 
   <dependencies>
@@ -58,22 +59,22 @@
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
       <artifactId>translate-impl</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${honeycomb.infra.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
       <artifactId>translate-api</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${honeycomb.infra.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
       <artifactId>notification-api</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${honeycomb.infra.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
       <artifactId>cfg-init</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${honeycomb.infra.version}</version>
     </dependency>
   </dependencies>
 </project>

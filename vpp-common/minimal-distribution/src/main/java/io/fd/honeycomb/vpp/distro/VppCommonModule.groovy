@@ -34,7 +34,7 @@ public final class VppCommonModule extends AbstractModule {
 
         bind(FutureJVpp).toProvider(JVppProvider).in(Singleton)
 
-        // Naming contexts reader exposing context storage over REST/NETCONF
+        // Naming contexts reader exposing context storage over REST/HONEYCOMB_NETCONF
         Multibinder.newSetBinder(binder(), ReaderFactory.class).with {
             addBinding().toProvider(ContextsReaderFactoryProvider).in(Singleton)
         }

@@ -25,6 +25,9 @@ import org.openvpp.jvpp.VppJNIConnection
 import org.openvpp.jvpp.future.FutureJVpp
 import org.openvpp.jvpp.future.FutureJVppFacade
 
+/**
+ * This must be a singleton due to shutdown hook usage.
+ */
 @Slf4j
 @ToString
 class JVppProvider extends ProviderTrait<FutureJVpp> {
@@ -38,8 +41,8 @@ class JVppProvider extends ProviderTrait<FutureJVpp> {
             def jVpp = new JVppImpl(connection)
 
             // Closing JVpp connection with shutdown hook to erase the connection from VPP so HC will be able
-            // to connect next time
-            // TODO is there a safer way than a shutdown hook ?
+            // to connect next time. If JVM is force closed, this will not be executed and VPP connection
+            // with name from config will stay open and prevent next startup of HC to success
             Runtime.addShutdownHook {
                 log.info("Disconnecting from VPP")
                 jVpp.close()

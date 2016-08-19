@@ -24,7 +24,7 @@ import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.v3po.cfgattrs.V3poConfiguration;
 import io.fd.honeycomb.translate.v3po.initializers.InterfacesInitializer;
-import io.fd.honeycomb.translate.v3po.initializers.VppClasifierInitializer;
+import io.fd.honeycomb.translate.v3po.initializers.VppClassifierInitializer;
 import io.fd.honeycomb.translate.v3po.initializers.VppInitializer;
 import io.fd.honeycomb.translate.v3po.notification.InterfaceChangeNotificationProducer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
@@ -32,7 +32,6 @@ import io.fd.honeycomb.translate.write.WriterFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import net.jmob.guice.conf.core.ConfigurationModule;
-import org.opendaylight.controller.config.threadpool.ScheduledThreadPool;
 
 public class V3poModule extends AbstractModule {
 
@@ -53,19 +52,7 @@ public class V3poModule extends AbstractModule {
                 .toInstance(new NamingContext("classify-table-", "classify-table-context"));
 
         // Executor needed for keepalives
-        // TODO-minimal remove the funny wrapper. it is only here because of config subsystem
-        final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        bind(ScheduledThreadPool.class).toInstance(new ScheduledThreadPool() {
-            @Override
-            public ScheduledExecutorService getExecutor() {
-                return executor;
-            }
-
-            @Override
-            public int getMaxThreadCount() {
-                return 1;
-            }
-        });
+        bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
 
         // Readers
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
@@ -83,7 +70,7 @@ public class V3poModule extends AbstractModule {
         final Multibinder<DataTreeInitializer> initializerBinder =
                 Multibinder.newSetBinder(binder(), DataTreeInitializer.class);
         initializerBinder.addBinding().to(InterfacesInitializer.class);
-        initializerBinder.addBinding().to(VppClasifierInitializer.class);
+        initializerBinder.addBinding().to(VppClassifierInitializer.class);
         initializerBinder.addBinding().to(VppInitializer.class);
 
         // Notifications

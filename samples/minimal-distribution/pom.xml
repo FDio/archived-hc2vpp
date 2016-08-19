@@ -30,6 +30,8 @@
   <properties>
     <exec.parameters>-Xms128m -Xmx128m</exec.parameters>
     <main.class>io.fd.honeycomb.samples.distro.Main</main.class>
+    <interfaces.mapping.version>1.0.0-SNAPSHOT</interfaces.mapping.version>
+    <honeycomb.min.distro.version>1.0.0-SNAPSHOT</honeycomb.min.distro.version>
   </properties>
 
   <build>
@@ -59,12 +61,12 @@
     <dependency>
       <groupId>io.fd.honeycomb.samples.interfaces</groupId>
       <artifactId>interfaces-mapping</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${interfaces.mapping.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
       <artifactId>minimal-distribution</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${honeycomb.min.distro.version}</version>
     </dependency>
 
   </dependencies>

@@ -29,6 +29,8 @@
 
   <properties>
     <main.class>io.fd.honeycomb.vpp.integration.distro.Main</main.class>
+    <v3po.version>1.0.0-SNAPSHOT</v3po.version>
+    <vpp.common.min.distro.version>1.0.0-SNAPSHOT</vpp.common.min.distro.version>
   </properties>
 
   <build>
@@ -58,12 +60,12 @@
     <dependency>
       <groupId>io.fd.honeycomb.vpp</groupId>
       <artifactId>minimal-distribution</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${vpp.common.min.distro.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb.v3po</groupId>
       <artifactId>v3po2vpp</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${v3po.version}</version>
     </dependency>
 
   </dependencies>

@@ -28,7 +28,7 @@ import io.fd.honeycomb.translate.v3po.util.ReadTimeoutException;
 import io.fd.honeycomb.translate.v3po.vppstate.BridgeDomainCustomizer;
 import io.fd.honeycomb.translate.v3po.vppstate.L2FibEntryCustomizer;
 import io.fd.honeycomb.translate.v3po.vppstate.VersionCustomizer;
-import org.opendaylight.controller.config.threadpool.ScheduledThreadPool;
+import java.util.concurrent.ScheduledExecutorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
@@ -50,13 +50,13 @@ public final class VppStateHoneycombReaderFactory implements ReaderFactory, Auto
     private final FutureJVpp jVpp;
     private final NamingContext ifcCtx;
     private final NamingContext bdCtx;
-    private final ScheduledThreadPool keepaliveExecutor;
+    private final ScheduledExecutorService keepaliveExecutor;
 
     @Inject
     public VppStateHoneycombReaderFactory(final FutureJVpp jVpp,
                                           @Named("interface-context") final NamingContext ifcCtx,
                                           @Named("bridge-domain-context") final NamingContext bdCtx,
-                                          final ScheduledThreadPool keepaliveExecutorDependency) {
+                                          final ScheduledExecutorService keepaliveExecutorDependency) {
         this.jVpp = jVpp;
         this.ifcCtx = ifcCtx;
         this.bdCtx = bdCtx;
@@ -75,7 +75,7 @@ public final class VppStateHoneycombReaderFactory implements ReaderFactory, Auto
         // is truly generic
         registry.add(new KeepaliveReaderWrapper<>(
                 new GenericReader<>(vppStateId.child(Version.class), new VersionCustomizer(jVpp)),
-                keepaliveExecutor.getExecutor(), ReadTimeoutException.class, 30,
+                keepaliveExecutor, ReadTimeoutException.class, 30,
                 // FIXME-minimal trigger jvpp reinitialization here
                 () -> LOG.error("Keepalive failed. VPP is probably DOWN!")));
         //  BridgeDomains(Structural)

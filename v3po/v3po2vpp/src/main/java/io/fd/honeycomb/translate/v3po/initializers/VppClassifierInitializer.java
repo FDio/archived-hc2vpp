@@ -31,13 +31,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Initializes vpp-classfier node in config data tree based on operational state.
  */
-public final class VppClasifierInitializer extends AbstractDataTreeConverter<VppClassifierState, VppClassifier> {
+public final class VppClassifierInitializer extends AbstractDataTreeConverter<VppClassifierState, VppClassifier> {
     private static final InstanceIdentifier<VppClassifierState> OPER_ID =
         InstanceIdentifier.create(VppClassifierState.class);
     private static final InstanceIdentifier<VppClassifier> CFG_ID = InstanceIdentifier.create(VppClassifier.class);
 
     @Inject
-    public VppClasifierInitializer(@Named("honeycomb-initializer") @Nonnull final DataBroker bindingDataBroker) {
+    public VppClassifierInitializer(@Named("honeycomb-initializer") @Nonnull final DataBroker bindingDataBroker) {
         super(bindingDataBroker, OPER_ID, CFG_ID);
     }
 

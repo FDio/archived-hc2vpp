@@ -21,6 +21,7 @@ import com.google.inject.name.Named
 import groovy.transform.ToString
 import groovy.util.logging.Slf4j
 import io.fd.honeycomb.infra.distro.ProviderTrait
+import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule
 import io.fd.honeycomb.translate.read.ReaderFactory
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import io.fd.honeycomb.vpp.context.ContextsReaderFactory
@@ -33,7 +34,7 @@ import io.fd.honeycomb.vpp.context.ContextsReaderFactory
 class ContextsReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
 
     @Inject
-    @Named("honeycomb-context")
+    @Named(ContextPipelineModule.HONEYCOMB_CONTEXT)
     DataBroker contextDataBroker
 
     def create() { new ContextsReaderFactory(contextDataBroker) }
