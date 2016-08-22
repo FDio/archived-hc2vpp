@@ -10,3 +10,4 @@ cp ${DIR}/honeycomb.spec ${DIR}/SOURCES/
 cd ${DIR}
 rpmbuild -bb --define "_topdir ${DIR}"  ${DIR}/honeycomb.spec
 cd -
+
