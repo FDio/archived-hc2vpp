@@ -459,9 +459,13 @@ module v3po {
         Read is supported only for acls that were created and assigned by Honeycomb agent
         (corresponding metadata are present).";
       list acl {
-        key "reference";
+        key "type name";
 
-        leaf reference {
+        leaf type {
+          type acl:acl-type;
+        }
+
+        leaf name {
           type acl:access-control-list-ref;
         }
       }
