@@ -1,0 +1,168 @@
+/*
+ * Copyright (c) 2016 Cisco and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.fd.honeycomb.translate.v3po.interfaces.acl;
+
+import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import java.util.List;
+import javax.annotation.Nonnull;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
+import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
+import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
+import org.openvpp.jvpp.core.dto.InputAclSetInterface;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+class AceEthWriter extends AbstractAceWriter<AceEth> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AceEthWriter.class);
+
+    public AceEthWriter(@Nonnull final FutureJVppCore futureJVppCore) {
+        super(futureJVppCore);
+    }
+
+    @Override
+    public ClassifyAddDelTable getClassifyAddDelTableRequest(@Nonnull final PacketHandling action,
+                                                             @Nonnull final AceEth aceEth,
+                                                             @Nonnull final int nextTableIndex) {
+        final ClassifyAddDelTable request = new ClassifyAddDelTable();
+        request.isAdd = 1;
+        request.tableIndex = -1; // value not present
+
+        request.nbuckets = 1; // we expect exactly one session per table
+
+        if (action instanceof Permit) {
+            request.missNextIndex = 0; // for list of permit rules, deny (0) should be default action
+        } else { // deny is default value
+            request.missNextIndex = -1; // for list of deny rules, permit (-1) should be default action
+        }
+
+        request.nextTableIndex = nextTableIndex;
+
+        request.mask = new byte[16];
+        boolean aceIsEmpty = true;
+
+        // destination-mac-address or destination-mac-address-mask is present =>
+        // ff:ff:ff:ff:ff:ff:00:00:00:00:00:00:00:00:00:00
+        if (aceEth.getDestinationMacAddressMask() != null) {
+            aceIsEmpty = false;
+            final String macAddress = aceEth.getDestinationMacAddressMask().getValue();
+            final List<String> parts = TranslateUtils.COLON_SPLITTER.splitToList(macAddress);
+            int i = 0;
+            for (String part : parts) {
+                request.mask[i++] = TranslateUtils.parseHexByte(part);
+            }
+        } else if (aceEth.getDestinationMacAddress() != null) {
+            aceIsEmpty = false;
+            for (int i = 0; i < 6; ++i) {
+                request.mask[i] = (byte) 0xff;
+            }
+        }
+
+        // source-mac-address or source-mac-address-mask =>
+        // 00:00:00:00:00:00:ff:ff:ff:ff:ff:ff:00:00:00:00
+        if (aceEth.getSourceMacAddressMask() != null) {
+            aceIsEmpty = false;
+            final String macAddress = aceEth.getSourceMacAddressMask().getValue();
+            final List<String> parts = TranslateUtils.COLON_SPLITTER.splitToList(macAddress);
+            int i = 6;
+            for (String part : parts) {
+                request.mask[i++] = TranslateUtils.parseHexByte(part);
+            }
+        } else if (aceEth.getSourceMacAddress() != null) {
+            aceIsEmpty = false;
+            for (int i = 6; i < 12; ++i) {
+                request.mask[i] = (byte) 0xff;
+            }
+        }
+
+        if (aceIsEmpty) {
+            throw new IllegalArgumentException(
+                String.format("Ace %s does not define packet field matches", aceEth.toString()));
+        }
+
+        request.skipNVectors = 0;
+        request.matchNVectors = request.mask.length / 16;
+
+        // TODO: minimise memory used by classify tables (we create a lot of them to make ietf-acl model
+        // mapping more convenient):
+        // according to https://wiki.fd.io/view/VPP/Introduction_To_N-tuple_Classifiers#Creating_a_classifier_table,
+        // classify table needs 16*(1 + match_n_vectors) bytes, but this does not quite work, so setting 8K for now
+        request.memorySize = 8 * 1024;
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceEth,
+                ReflectionToStringBuilder.toString(request));
+        }
+        return request;
+    }
+
+    @Override
+    public ClassifyAddDelSession getClassifyAddDelSessionRequest(@Nonnull final PacketHandling action,
+                                                                 @Nonnull final AceEth aceEth,
+                                                                 @Nonnull final int tableIndex) {
+        final ClassifyAddDelSession request = new ClassifyAddDelSession();
+        request.isAdd = 1;
+        request.tableIndex = tableIndex;
+
+        if (action instanceof Permit) {
+            request.hitNextIndex = -1;
+        } // deny (0) is default value
+
+        request.match = new byte[16];
+        boolean noMatch = true;
+
+        if (aceEth.getDestinationMacAddress() != null) {
+            noMatch = false;
+            final String macAddress = aceEth.getDestinationMacAddress().getValue();
+            final List<String> parts = TranslateUtils.COLON_SPLITTER.splitToList(macAddress);
+            int i = 0;
+            for (String part : parts) {
+                request.match[i++] = TranslateUtils.parseHexByte(part);
+            }
+        }
+
+        if (aceEth.getSourceMacAddress() != null) {
+            noMatch = false;
+            final String macAddress = aceEth.getSourceMacAddress().getValue();
+            final List<String> parts = TranslateUtils.COLON_SPLITTER.splitToList(macAddress);
+            int i = 6;
+            for (String part : parts) {
+                request.match[i++] = TranslateUtils.parseHexByte(part);
+            }
+        }
+
+        if (noMatch) {
+            throw new IllegalArgumentException(
+                String.format("Ace %s does not define neither source nor destination MAC address", aceEth.toString()));
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ACE action={}, rule={} translated to session={}.", action, aceEth,
+                ReflectionToStringBuilder.toString(request));
+        }
+        return request;
+    }
+
+    @Override
+    protected void setClassifyTable(@Nonnull final InputAclSetInterface request, final int tableIndex) {
+        request.l2TableIndex = tableIndex;
+    }
+}

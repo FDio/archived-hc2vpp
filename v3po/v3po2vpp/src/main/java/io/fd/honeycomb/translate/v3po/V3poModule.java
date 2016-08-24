@@ -26,6 +26,7 @@ import io.fd.honeycomb.translate.v3po.cfgattrs.V3poConfiguration;
 import io.fd.honeycomb.translate.v3po.initializers.InterfacesInitializer;
 import io.fd.honeycomb.translate.v3po.initializers.VppClassifierInitializer;
 import io.fd.honeycomb.translate.v3po.initializers.VppInitializer;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAClWriter;
 import io.fd.honeycomb.translate.v3po.notification.InterfaceChangeNotificationProducer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -54,6 +55,9 @@ public class V3poModule extends AbstractModule {
         // Executor needed for keepalives
         bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
 
+        // Utils
+        bind(IetfAClWriter.class).toProvider(IetfAClWriterProvider.class);
+
         // Readers
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readerFactoryBinder.addBinding().to(InterfacesStateReaderFactory.class);
@@ -65,6 +69,7 @@ public class V3poModule extends AbstractModule {
         writerFactoryBinder.addBinding().to(InterfacesWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppHoneycombWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppClassifierHoneycombWriterFactory.class);
+        writerFactoryBinder.addBinding().to(AclWriterFactory.class);
 
         // Initializers
         final Multibinder<DataTreeInitializer> initializerBinder =

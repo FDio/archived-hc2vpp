@@ -35,6 +35,8 @@ import io.fd.honeycomb.translate.v3po.interfaces.TapCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VhostUserCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VxlanCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VxlanGpeCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAClWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4NeighbourCustomizer;
@@ -54,9 +56,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip6Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Gre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.IetfAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
@@ -75,18 +79,22 @@ public final class InterfacesWriterFactory implements WriterFactory, AutoCloseab
         IFC_ID.augmentation(VppInterfaceAugmentation.class);
     public static final InstanceIdentifier<Acl> ACL_ID = VPP_IFC_AUG_ID.child(Acl.class);
     public static final InstanceIdentifier<L2> L2_ID = VPP_IFC_AUG_ID.child(L2.class);
+    public static final InstanceIdentifier<IetfAcl> IETF_ACL_ID = VPP_IFC_AUG_ID.child(IetfAcl.class);
 
     private final FutureJVppCore jvpp;
+    private final IetfAClWriter aclWriter;
     private final NamingContext bdContext;
     private final NamingContext ifcContext;
     private final NamingContext classifyTableContext;
 
     @Inject
     public InterfacesWriterFactory(final FutureJVppCore vppJvppIfcDependency,
+                                   final IetfAClWriter aclWriter,
                                    @Named("bridge-domain-context") final NamingContext bridgeDomainContextDependency,
                                    @Named("interface-context") final NamingContext interfaceContextDependency,
                                    @Named("classify-table-context") final NamingContext classifyTableContextDependency) {
         this.jvpp = vppJvppIfcDependency;
+        this.aclWriter = aclWriter;
         this.bdContext = bridgeDomainContextDependency;
         this.ifcContext = interfaceContextDependency;
         this.classifyTableContext = classifyTableContextDependency;
@@ -102,7 +110,7 @@ public final class InterfacesWriterFactory implements WriterFactory, AutoCloseab
         //   Interface1 (ietf-ip augmentation)
         addInterface1AugmentationWriters(IFC_ID, registry);
         //   SubinterfaceAugmentation TODO make dedicated module for subIfc writer factory
-        new SubinterfaceAugmentationWriterFactory(jvpp, ifcContext, bdContext, classifyTableContext).init(registry);
+        new SubinterfaceAugmentationWriterFactory(jvpp, aclWriter, ifcContext, bdContext, classifyTableContext).init(registry);
     }
 
     private void addInterface1AugmentationWriters(final InstanceIdentifier<Interface> ifcId,
@@ -168,10 +176,19 @@ public final class InterfacesWriterFactory implements WriterFactory, AutoCloseab
         // also handles L2Acl, Ip4Acl and Ip6Acl:
         final InstanceIdentifier<Acl> aclId = InstanceIdentifier.create(Acl.class);
         registry
-                .subtreeAddAfter(
-                        Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
-                        new GenericWriter<>(ACL_ID, new AclCustomizer(jvpp, ifcContext, classifyTableContext)),
-                        Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
+            .subtreeAddAfter(
+                Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
+                new GenericWriter<>(ACL_ID, new AclCustomizer(jvpp, ifcContext, classifyTableContext)),
+                Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
+
+        // IETF-ACL, also handles IetfAcl, AccessLists and Acl:
+        final InstanceIdentifier<AccessLists> accessListsID = InstanceIdentifier.create(IetfAcl.class)
+            .child(AccessLists.class);
+        final InstanceIdentifier<?> aclListId = accessListsID.child(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.access.lists.Acl.class);
+        registry.subtreeAdd(
+            Sets.newHashSet(accessListsID, aclListId),
+            new GenericWriter<>(IETF_ACL_ID, new IetfAclCustomizer(aclWriter, ifcContext)));
     }
 
 
