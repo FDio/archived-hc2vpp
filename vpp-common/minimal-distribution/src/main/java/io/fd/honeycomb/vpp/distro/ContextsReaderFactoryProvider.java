@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.vpp.distro
+package io.fd.honeycomb.vpp.distro;
 
-import com.google.inject.Inject
-import com.google.inject.name.Named
-import groovy.transform.ToString
-import groovy.util.logging.Slf4j
-import io.fd.honeycomb.infra.distro.ProviderTrait
-import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule
-import io.fd.honeycomb.translate.read.ReaderFactory
-import org.opendaylight.controller.md.sal.binding.api.DataBroker
-import io.fd.honeycomb.vpp.context.ContextsReaderFactory
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.infra.distro.data.context.ContextPipelineModule;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.vpp.context.ContextsReaderFactory;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 
 /**
  * Mirror of org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.context.impl.rev141210.ContextReaderModule
  */
-@Slf4j
-@ToString
-class ContextsReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
+public final class ContextsReaderFactoryProvider extends ProviderTrait<ReaderFactory> {
 
     @Inject
     @Named(ContextPipelineModule.HONEYCOMB_CONTEXT)
-    DataBroker contextDataBroker
+    private DataBroker contextDataBroker;
 
-    def create() { new ContextsReaderFactory(contextDataBroker) }
+    @Override
+    protected ContextsReaderFactory create() {
+        return new ContextsReaderFactory(contextDataBroker);
+    }
 }

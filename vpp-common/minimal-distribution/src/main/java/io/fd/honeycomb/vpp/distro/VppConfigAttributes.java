@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.vpp.distro
+package io.fd.honeycomb.vpp.distro;
 
-import groovy.transform.ToString
-import net.jmob.guice.conf.core.BindConfig
-import net.jmob.guice.conf.core.InjectConfig
-import net.jmob.guice.conf.core.Syntax
+import net.jmob.guice.conf.core.BindConfig;
+import net.jmob.guice.conf.core.InjectConfig;
+import net.jmob.guice.conf.core.Syntax;
 
-@ToString(includeNames = true)
 @BindConfig(value = "jvpp", syntax = Syntax.JSON)
-class VppConfigAttributes {
+public class VppConfigAttributes {
 
     @InjectConfig("jvpp-connection-name")
-    String jvppConnectionName
-
+    public String jvppConnectionName;
 }
