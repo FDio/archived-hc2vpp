@@ -64,6 +64,7 @@ public final class IetfAClWriter {
     public IetfAClWriter(@Nonnull final FutureJVppCore futureJVppCore) {
         this.jvpp = Preconditions.checkNotNull(futureJVppCore, "futureJVppCore should not be null");
         aceWriters.put(AclType.ETH, new AceEthWriter(futureJVppCore));
+        aceWriters.put(AclType.IP4, new AceIp4Writer(futureJVppCore));
     }
 
     void deleteAcl(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex)

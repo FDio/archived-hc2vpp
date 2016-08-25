@@ -109,8 +109,12 @@ public final class TranslateUtils {
      * @return byte array with address bytes
      */
     public static byte[] ipv4AddressNoZoneToArray(final Ipv4AddressNoZone ipv4Addr) {
+        return ipv4AddressNoZoneToArray(ipv4Addr.getValue());
+    }
+
+    public static byte[] ipv4AddressNoZoneToArray(final String ipv4Addr) {
         byte[] retval = new byte[4];
-        String[] dots = ipv4Addr.getValue().split("\\.");
+        String[] dots = ipv4Addr.split("\\.");
 
         for (int d = 0; d < 4; d++) {
             retval[d] = (byte) (Short.parseShort(dots[d]) & 0xff);
