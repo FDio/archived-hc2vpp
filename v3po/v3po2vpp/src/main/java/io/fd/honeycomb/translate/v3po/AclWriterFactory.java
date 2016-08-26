@@ -21,7 +21,7 @@ import static io.fd.honeycomb.translate.v3po.SubinterfaceAugmentationWriterFacto
 
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
-import io.fd.honeycomb.translate.v3po.acl.AclWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.AclWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;

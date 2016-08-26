@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.translate.v3po.acl.AclWriter;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -65,13 +64,33 @@ public final class IetfAClWriter {
         this.jvpp = Preconditions.checkNotNull(futureJVppCore, "futureJVppCore should not be null");
         aceWriters.put(AclType.ETH, new AceEthWriter(futureJVppCore));
         aceWriters.put(AclType.IP4, new AceIp4Writer(futureJVppCore));
+        aceWriters.put(AclType.IP6, new AceIp6Writer(futureJVppCore));
+    }
+
+    private static Stream<Ace> aclToAceStream(@Nonnull final Acl assignedAcl,
+                                              @Nonnull final WriteContext writeContext) {
+        final String aclName = assignedAcl.getName();
+        final Class<? extends AclBase> aclType = assignedAcl.getType();
+
+        // ietf-acl updates are handled first, so we use writeContext.readAfter
+        final Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl>
+            aclOptional = writeContext.readAfter(AclWriter.ACL_ID.child(
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
+            new AclKey(aclName, aclType)));
+        checkArgument(aclOptional.isPresent(), "Acl lists not configured");
+        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl
+            acl = aclOptional.get();
+
+        final AccessListEntries accessListEntries = acl.getAccessListEntries();
+        checkArgument(accessListEntries != null, "access list entries not configured");
+
+        return accessListEntries.getAce().stream();
     }
 
     void deleteAcl(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex)
         throws WriteTimeoutException, WriteFailedException.DeleteFailedException {
         final ClassifyTableByInterface request = new ClassifyTableByInterface();
         request.swIfIndex = swIfIndex;
-        jvpp.classifyTableByInterface(request);
 
         try {
             final CompletionStage<ClassifyTableByInterfaceReply> cs = jvpp.classifyTableByInterface(request);
@@ -136,26 +155,6 @@ public final class IetfAClWriter {
             jvpp.inputAclSetInterface(request);
         TranslateUtils.getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
 
-    }
-
-    private static Stream<Ace> aclToAceStream(@Nonnull final Acl assignedAcl,
-                                              @Nonnull final WriteContext writeContext) {
-        final String aclName = assignedAcl.getName();
-        final Class<? extends AclBase> aclType = assignedAcl.getType();
-
-        // ietf-acl updates are handled first, so we use writeContext.readAfter
-        final Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl>
-            aclOptional = writeContext.readAfter(AclWriter.ACL_ID.child(
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
-            new AclKey(aclName, aclType)));
-        checkArgument(aclOptional.isPresent(), "Acl lists not configured");
-        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl
-            acl = aclOptional.get();
-
-        final AccessListEntries accessListEntries = acl.getAccessListEntries();
-        checkArgument(accessListEntries != null, "access list entries not configured");
-
-        return accessListEntries.getAce().stream();
     }
 
     private enum AclType {

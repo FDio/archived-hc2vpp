@@ -1,0 +1,32 @@
+= VPP to IETF-ACL model translation
+
+Package provides VPP translation code for draft-ietf-netmod-acl-model-08.
+Access control lists are mapped to chains of classify tables, each with single classify session.
+
+== Available operations
+
+=== Configuration data
+Configuration data for the model is stored in Honeycomb. Corresponding classify tables and sessions
+are not created until control access list is assigned to an interface.
+
+Classify tables and sessions are removed from VPP when ACL assignment is deleted.
+
+ACLs can be shared among interfaces, but each time, new instance of classify table chain would be created in VPP.
+
+ACLs that are assigned to an interface have to be unassigned before update/removal.
+
+=== Operational state
+Operational read in terms of ietf-acl model is not supported (would require storing additional metadata in vpp).
+As a consequence, configuration data initialization based on operational state is not possible.
+
+To check how ietf-acl model was translated to classify tables/session, low-level vpp-classfier model can be used.
+
+== Restrictions
+
+VPP classfier works in form of offsets and masks of 16B units.
+The offset always starts at the beginning of L2 Ethernet header
+of input packet. Because IP header can have variable length,
+source/destination port matching (L4 features of ietf-acl model) is not possible.
+
+Current implementation also assumes constant Ethernet header size
+(802.1Q headers are not supported).

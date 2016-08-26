@@ -16,12 +16,12 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
@@ -30,8 +30,10 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class AceEthWriter extends AbstractAceWriter<AceEth> {
+final class AceEthWriter extends AbstractAceWriter<AceEth> {
 
+    @VisibleForTesting
+    static final int MATCH_N_VECTORS = 1;
     private static final Logger LOG = LoggerFactory.getLogger(AceEthWriter.class);
 
     public AceEthWriter(@Nonnull final FutureJVppCore futureJVppCore) {
@@ -39,22 +41,10 @@ class AceEthWriter extends AbstractAceWriter<AceEth> {
     }
 
     @Override
-    public ClassifyAddDelTable getClassifyAddDelTableRequest(@Nonnull final PacketHandling action,
-                                                             @Nonnull final AceEth aceEth,
-                                                             @Nonnull final int nextTableIndex) {
-        final ClassifyAddDelTable request = new ClassifyAddDelTable();
-        request.isAdd = 1;
-        request.tableIndex = -1; // value not present
-
-        request.nbuckets = 1; // we expect exactly one session per table
-
-        if (action instanceof Permit) {
-            request.missNextIndex = 0; // for list of permit rules, deny (0) should be default action
-        } else { // deny is default value
-            request.missNextIndex = -1; // for list of deny rules, permit (-1) should be default action
-        }
-
-        request.nextTableIndex = nextTableIndex;
+    public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
+                                                   @Nonnull final AceEth aceEth,
+                                                   @Nonnull final int nextTableIndex) {
+        final ClassifyAddDelTable request = createClassifyTable(action, nextTableIndex);
 
         request.mask = new byte[16];
         boolean aceIsEmpty = true;
@@ -95,17 +85,11 @@ class AceEthWriter extends AbstractAceWriter<AceEth> {
 
         if (aceIsEmpty) {
             throw new IllegalArgumentException(
-                String.format("Ace %s does not define packet field matches", aceEth.toString()));
+                String.format("Ace %s does not define packet field match values", aceEth.toString()));
         }
 
         request.skipNVectors = 0;
-        request.matchNVectors = request.mask.length / 16;
-
-        // TODO: minimise memory used by classify tables (we create a lot of them to make ietf-acl model
-        // mapping more convenient):
-        // according to https://wiki.fd.io/view/VPP/Introduction_To_N-tuple_Classifiers#Creating_a_classifier_table,
-        // classify table needs 16*(1 + match_n_vectors) bytes, but this does not quite work, so setting 8K for now
-        request.memorySize = 8 * 1024;
+        request.matchNVectors = MATCH_N_VECTORS;
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceEth,
@@ -115,16 +99,10 @@ class AceEthWriter extends AbstractAceWriter<AceEth> {
     }
 
     @Override
-    public ClassifyAddDelSession getClassifyAddDelSessionRequest(@Nonnull final PacketHandling action,
-                                                                 @Nonnull final AceEth aceEth,
-                                                                 @Nonnull final int tableIndex) {
-        final ClassifyAddDelSession request = new ClassifyAddDelSession();
-        request.isAdd = 1;
-        request.tableIndex = tableIndex;
-
-        if (action instanceof Permit) {
-            request.hitNextIndex = -1;
-        } // deny (0) is default value
+    public ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
+                                                       @Nonnull final AceEth aceEth,
+                                                       @Nonnull final int tableIndex) {
+        final ClassifyAddDelSession request = createClassifySession(action, tableIndex);
 
         request.match = new byte[16];
         boolean noMatch = true;

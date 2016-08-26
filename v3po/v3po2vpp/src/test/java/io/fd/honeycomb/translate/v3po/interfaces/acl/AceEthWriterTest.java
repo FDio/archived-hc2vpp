@@ -25,43 +25,39 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.DenyBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEthBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
 import org.openvpp.jvpp.core.dto.InputAclSetInterface;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class AceIp4WriterTest {
+public class AceEthWriterTest {
 
     @Mock
     private FutureJVppCore jvpp;
-    private AceIp4Writer writer;
+    private AceEthWriter writer;
     private PacketHandling action;
-    private AceIp aceIp;
+    private AceEth aceEth;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        writer = new AceIp4Writer(jvpp);
+        writer = new AceEthWriter(jvpp);
         action = new DenyBuilder().setDeny(true).build();
-        aceIp = new AceIpBuilder()
-            .setProtocol((short) 4)
-            .setDscp(new Dscp((short) 11))
-            .setAceIpVersion(new AceIpv4Builder()
-                .setSourceIpv4Network(new Ipv4Prefix("1.2.3.4/32"))
-                .setDestinationIpv4Network(new Ipv4Prefix("1.2.4.5/24"))
-                .build())
+        aceEth = new AceEthBuilder()
+            .setDestinationMacAddress(new MacAddress("11:22:33:44:55:66"))
+            .setDestinationMacAddressMask(new MacAddress("ff:ff:ff:ff:ff:ff"))
+            .setSourceMacAddress(new MacAddress("aa:bb:cc:dd:ee:ff"))
+            .setSourceMacAddressMask(new MacAddress("ff:ff:ff:00:00:00"))
             .build();
     }
 
     @Test
     public void testGetClassifyAddDelTableRequest() throws Exception {
         final int nextTableIndex = 42;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, nextTableIndex);
+        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceEth, nextTableIndex);
 
         assertEquals(1, request.isAdd);
         assertEquals(-1, request.tableIndex);
@@ -69,13 +65,15 @@ public class AceIp4WriterTest {
         assertEquals(-1, request.missNextIndex);
         assertEquals(nextTableIndex, request.nextTableIndex);
         assertEquals(0, request.skipNVectors);
-        assertEquals(AceIp4Writer.MATCH_N_VECTORS, request.matchNVectors);
-        assertEquals(AceIp4Writer.TABLE_MEM_SIZE, request.memorySize);
+        assertEquals(AceEthWriter.MATCH_N_VECTORS, request.matchNVectors);
+        assertEquals(AceEthWriter.TABLE_MEM_SIZE, request.memorySize);
 
         byte[] expectedMask = new byte[] {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0xf0, (byte) 0xfc,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1,
-            -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            // destination MAC:
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            // source MAC:
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, 0, 0, 0,
+            0, 0, 0, 0
         };
         assertArrayEquals(expectedMask, request.mask);
     }
@@ -83,16 +81,18 @@ public class AceIp4WriterTest {
     @Test
     public void testGetClassifyAddDelSessionRequest() throws Exception {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createClassifySession(action, aceIp, tableIndex);
+        final ClassifyAddDelSession request = writer.createClassifySession(action, aceEth, tableIndex);
 
         assertEquals(1, request.isAdd);
         assertEquals(tableIndex, request.tableIndex);
         assertEquals(0, request.hitNextIndex);
 
         byte[] expectedMatch = new byte[] {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0x40, (byte) 0x2c,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 1, 2,
-            4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            // destination MAC:
+            (byte) 0x11, (byte) 0x22, (byte) 0x33, (byte) 0x44, (byte) 0x55, (byte) 0x66,
+            // source MAC:
+            (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
+            0, 0, 0, 0
         };
         assertArrayEquals(expectedMatch, request.match);
     }
@@ -102,6 +102,6 @@ public class AceIp4WriterTest {
         final int tableIndex = 321;
         final InputAclSetInterface request = new InputAclSetInterface();
         writer.setClassifyTable(request, tableIndex);
-        assertEquals(tableIndex, request.ip4TableIndex);
+        assertEquals(tableIndex, request.l2TableIndex);
     }
 }

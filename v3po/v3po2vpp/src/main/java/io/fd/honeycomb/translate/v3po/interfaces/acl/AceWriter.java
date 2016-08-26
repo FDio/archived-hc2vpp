@@ -24,7 +24,20 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.InputAclSetInterface;
 
+/**
+ * Writer responsible for translation of ietf-acl model ACEs to VPP's classify tables and sessions.
+ */
 interface AceWriter {
+
+    /**
+     * Translates list of ACEs to chain of classify tables. Each ACE is translated into one classify table with single
+     * classify session. Also initializes input_acl_set_interface request message DTO with first classify table of the
+     * chain that was created.
+     *
+     * @param id      uniquely identifies ietf-acl container
+     * @param aces    list of access control entries
+     * @param request input_acl_set_interface request DTO
+     */
     void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
                @Nonnull final InputAclSetInterface request) throws VppBaseCallException, WriteTimeoutException;
 }
