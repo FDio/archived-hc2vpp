@@ -24,7 +24,7 @@
 
   <groupId>io.fd.honeycomb.samples.interfaces</groupId>
   <artifactId>interfaces-aggregator</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.16.12-SNAPSHOT</version>
   <name>honeycomb-infra</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>

@@ -18,20 +18,20 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.16.12-SNAPSHOT</version>
     <relativePath>../../common/minimal-distribution-parent</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.honeycomb.vpp.integration</groupId>
   <artifactId>vpp-integration-distribution</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.16.12-SNAPSHOT</version>
 
   <properties>
     <main.class>io.fd.honeycomb.vpp.integration.distro.Main</main.class>
-    <v3po.version>1.0.0-SNAPSHOT</v3po.version>
-    <lisp.version>1.0.0-SNAPSHOT</lisp.version>
-    <vpp.common.min.distro.version>1.0.0-SNAPSHOT</vpp.common.min.distro.version>
+    <v3po.version>1.16.12-SNAPSHOT</v3po.version>
+    <lisp.version>1.16.12-SNAPSHOT</lisp.version>
+    <vpp.common.min.distro.version>1.16.12-SNAPSHOT</vpp.common.min.distro.version>
   </properties>
 
   <build>

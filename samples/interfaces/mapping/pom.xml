@@ -17,18 +17,18 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>impl-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.16.12-SNAPSHOT</version>
     <relativePath>../../../common/impl-parent</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.honeycomb.samples.interfaces</groupId>
   <artifactId>interfaces-mapping</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.16.12-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
-    <honeycomb.infra.version>1.0.0-SNAPSHOT</honeycomb.infra.version>
+    <honeycomb.infra.version>1.16.12-SNAPSHOT</honeycomb.infra.version>
   </properties>
 
   <dependencies>

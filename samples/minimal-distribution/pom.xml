@@ -18,20 +18,20 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.16.12-SNAPSHOT</version>
     <relativePath>../../common/minimal-distribution-parent</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.honeycomb.samples.distro</groupId>
   <artifactId>minimal-distribution</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.16.12-SNAPSHOT</version>
 
   <properties>
     <exec.parameters>-Xms128m -Xmx128m</exec.parameters>
     <main.class>io.fd.honeycomb.samples.distro.Main</main.class>
-    <interfaces.mapping.version>1.0.0-SNAPSHOT</interfaces.mapping.version>
-    <honeycomb.min.distro.version>1.0.0-SNAPSHOT</honeycomb.min.distro.version>
+    <interfaces.mapping.version>1.16.12-SNAPSHOT</interfaces.mapping.version>
+    <honeycomb.min.distro.version>1.16.12-SNAPSHOT</honeycomb.min.distro.version>
   </properties>
 
   <build>

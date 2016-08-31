@@ -24,7 +24,7 @@
 
   <groupId>io.fd.honeycomb.v3po</groupId>
   <artifactId>v3po-aggregator</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.16.12-SNAPSHOT</version>
   <name>v3po</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>

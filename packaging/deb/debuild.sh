@@ -8,7 +8,7 @@ PACKAGING_ROOT=${DIR}/honeycomb-${VERSION}
 
 # Copy and unpack the archive with vpp-integration distribution
 ARCHIVE_DIR=${DIR}/../../vpp-integration/minimal-distribution/target/
-ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-1.0.0-SNAPSHOT-hc.tar.gz
+ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-1.16.12-SNAPSHOT-hc.tar.gz
 cp ${ARCHIVE} ${DIR}
 ARCHIVE=${DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT-hc.tar.gz
 tar -xf ${ARCHIVE} -C ${DIR}/
