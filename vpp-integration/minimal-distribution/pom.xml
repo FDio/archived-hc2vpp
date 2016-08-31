@@ -30,6 +30,7 @@
   <properties>
     <main.class>io.fd.honeycomb.vpp.integration.distro.Main</main.class>
     <v3po.version>1.0.0-SNAPSHOT</v3po.version>
+    <lisp.version>1.0.0-SNAPSHOT</lisp.version>
     <vpp.common.min.distro.version>1.0.0-SNAPSHOT</vpp.common.min.distro.version>
   </properties>
 
@@ -67,6 +68,10 @@
       <artifactId>v3po2vpp</artifactId>
       <version>${v3po.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>io.fd.honeycomb.lisp</groupId>
+      <artifactId>lisp2vpp</artifactId>
+      <version>${lisp.version}</version>
+    </dependency>
   </dependencies>
 </project>

@@ -1,0 +1,3 @@
+= Honeycomb translation layer SPI implementation for VPP's LISP APIs
+
+Provides customizers translating lisp.yang model into VPP's LISP API calls

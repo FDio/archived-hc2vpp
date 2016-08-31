@@ -26,6 +26,8 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public interface EntityDumpExecutor<T, U> {
 
+    static Void NO_PARAMS = null;
+
     /**
      * Performs dump on {@link T} entity
      *

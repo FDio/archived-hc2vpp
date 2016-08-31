@@ -18,6 +18,7 @@ package io.fd.honeycomb.vpp.integration.distro;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Module;
+import io.fd.honeycomb.lisp.LispModule;
 import io.fd.honeycomb.translate.v3po.V3poModule;
 import io.fd.honeycomb.vpp.distro.VppCommonModule;
 import java.util.List;
@@ -30,6 +31,7 @@ public class Main {
         // All the plugins should be listed here
         sampleModules.add(new VppCommonModule());
         sampleModules.add(new V3poModule());
+        sampleModules.add(new LispModule());
 
         io.fd.honeycomb.infra.distro.Main.init(sampleModules);
     }

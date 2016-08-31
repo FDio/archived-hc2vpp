@@ -15,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -134,4 +137,62 @@ public class TranslateUtilsTest {
         TranslateUtils.byteToBoolean((byte) 123);
     }
 
+    @Test
+    public void testIpv6NoZone(){
+        final Ipv6AddressNoZone ipv6Addr = new Ipv6AddressNoZone("3ffe:1900:4545:3:200:f8ff:fe21:67cf");
+        byte[] bytes = TranslateUtils.ipv6AddressNoZoneToArray(ipv6Addr);
+        assertEquals((byte)63,bytes[0]);
+
+        bytes = reverseBytes(bytes);
+        final Ipv6AddressNoZone ivp6AddressNoZone = TranslateUtils.arrayToIpv6AddressNoZone(bytes);
+        assertEquals(ipv6Addr,ivp6AddressNoZone);
+    }
+
+    @Test
+    public void testByteArrayToMacUnseparated(){
+        byte[] address = TranslateUtils.parseMac("aa:bb:cc:dd:ee:ff");
+
+        String converted = TranslateUtils.byteArrayToMacUnseparated(address);
+
+        assertEquals("aabbccddeeff",converted);
+    }
+
+    @Test
+    public void testByteArrayToMacSeparated(){
+        byte[] address = TranslateUtils.parseMac("aa:bb:cc:dd:ee:ff");
+
+        String converted = TranslateUtils.byteArrayToMacSeparated(address);
+
+        assertEquals("aa:bb:cc:dd:ee:ff",converted);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testByteArrayToMacUnseparatedIllegal(){
+        TranslateUtils.byteArrayToMacUnseparated(new byte[]{54,26,87,32,14});
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testByteArrayToMacSeparatedIllegal() {
+        TranslateUtils.byteArrayToMacSeparated(new byte[]{54, 26, 87, 32, 14});
+    }
+
+    @Test
+    public void testIpv4AddressPrefixToArray() {
+        byte[] ip = TranslateUtils.ipv4AddressPrefixToArray(new Ipv4Prefix("192.168.2.1/24"));
+
+        assertEquals("1.2.168.192", TranslateUtils.arrayToIpv4AddressNoZone(ip).getValue());
+    }
+
+    @Test
+    public void testIpv6AddressPrefixToArray() {
+        byte[] ip = TranslateUtils.ipv6AddressPrefixToArray(new Ipv6Prefix("3ffe:1900:4545:3:200:f8ff:fe21:67cf/48"));
+
+        assertEquals("cf67:21fe:fff8:2:300:4545:19:fe3f", TranslateUtils.arrayToIpv6AddressNoZone(ip).getValue());
+    }
+
+    @Test
+    public void testExtractPrefix() {
+        assertEquals(24, TranslateUtils.extractPrefix(new Ipv4Prefix("192.168.2.1/24")));
+        assertEquals(48, TranslateUtils.extractPrefix(new Ipv6Prefix("3ffe:1900:4545:3:200:f8ff:fe21:67cf/48")));
+    }
 }

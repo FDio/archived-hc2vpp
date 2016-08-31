@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
@@ -23,61 +23,63 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.honeycomb.vpp</groupId>
-    <artifactId>vpp-translate-utils</artifactId>
+    <groupId>io.fd.honeycomb.lisp</groupId>
+    <artifactId>lisp2vpp</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.opendaylight.mdsal.model</groupId>
-                <artifactId>mdsal-model-artifacts</artifactId>
-                <version>0.8.2-Beryllium-SR2</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <properties>
+        <project.vpp.groupId>io.fd.honeycomb.vpp</project.vpp.groupId>
+        <project.honeycomb.groupId>io.fd.honeycomb</project.honeycomb.groupId>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>translate-utils</artifactId>
+            <groupId>${project.honeycomb.groupId}</groupId>
+            <artifactId>translate-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.vpp.groupId}</groupId>
+            <artifactId>vpp-translate-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>naming-context-api</artifactId>
+            <artifactId>lisp-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp-registry</artifactId>
-            <version>16.09-SNAPSHOT</version>
+            <groupId>${project.honeycomb.groupId}</groupId>
+            <artifactId>translate-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.honeycomb.groupId}</groupId>
+            <artifactId>cfg-init</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fd.vpp</groupId>
             <artifactId>jvpp-core</artifactId>
             <version>16.09-SNAPSHOT</version>
         </dependency>
+
+        <!-- DI -->
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>ietf-inet-types-2013-07-15</artifactId>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>ietf-interfaces</artifactId>
+            <groupId>net.jmob</groupId>
+            <artifactId>guice.conf</artifactId>
+            <version>${guice.config.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>data-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.9</version>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-multibindings</artifactId>
+            <version>${guice.version}</version>
         </dependency>
 
         <!-- Testing Dependencies -->
@@ -91,7 +93,5 @@
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-
 </project>
