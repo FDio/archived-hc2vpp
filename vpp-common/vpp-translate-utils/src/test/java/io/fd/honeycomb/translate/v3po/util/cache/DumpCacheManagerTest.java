@@ -20,9 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.i.DumpEmptyException;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.ModificationCache;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -73,7 +73,7 @@ public class DumpCacheManagerTest {
     public void testCaching() throws DumpExecutionFailedException {
 
 
-        Optional<IpDetailsReplyDump> stage1Optional = managerNegative.getDump(KEY, cache);
+        Optional<IpDetailsReplyDump> stage1Optional = managerNegative.getDump(KEY, cache, null);
 
         //this is first call so instance should be from executor
         assertEquals(false, stage1Optional.isPresent());
@@ -81,18 +81,18 @@ public class DumpCacheManagerTest {
 
         //rebind executor with other data
         IpDetailsReplyDump stage2LoadedDump = new IpDetailsReplyDump();
-        when(executor.executeDump()).thenReturn(stage2LoadedDump);
+        when(executor.executeDump(null)).thenReturn(stage2LoadedDump);
 
-        Optional<IpDetailsReplyDump> stage2Optional = managerPositive.getDump(KEY, cache);
+        Optional<IpDetailsReplyDump> stage2Optional = managerPositive.getDump(KEY, cache, null);
 
         assertEquals(true, stage2Optional.isPresent());
         assertEquals(stage2LoadedDump, stage2Optional.get());
 
         //rebind executor with other data
         IpDetailsReplyDump stage3LoadedDump = new IpDetailsReplyDump();
-        when(executor.executeDump()).thenReturn(stage3LoadedDump);
+        when(executor.executeDump(null)).thenReturn(stage3LoadedDump);
 
-        Optional<IpDetailsReplyDump> stage3Optional = managerPositive.getDump(KEY, cache);
+        Optional<IpDetailsReplyDump> stage3Optional = managerPositive.getDump(KEY, cache, null);
         assertEquals(true, stage3Optional.isPresent());
         //check if it returns instance cached from previous stage
         assertEquals(stage2LoadedDump, stage3Optional.get());
@@ -105,9 +105,9 @@ public class DumpCacheManagerTest {
         details.swIfIndex = 2;
         dump.ipDetails.add(details);
 
-        when(executor.executeDump()).thenReturn(dump);
+        when(executor.executeDump(null)).thenReturn(dump);
 
-        Optional<IpDetailsReplyDump> optionalDump = managerPositiveWithPostProcessing.getDump(KEY, cache);
+        Optional<IpDetailsReplyDump> optionalDump = managerPositiveWithPostProcessing.getDump(KEY, cache, null);
 
         assertEquals(true, optionalDump.isPresent());
         assertEquals(1, optionalDump.get().ipDetails.size());

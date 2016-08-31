@@ -19,12 +19,11 @@ package io.fd.honeycomb.translate.v3po.util.cache;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.DumpCheckFailedException;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.v3po.util.cache.noop.NoopDumpPostProcessingFunction;
-import io.fd.honeycomb.translate.ModificationCache;
 import javax.annotation.Nonnull;
-import org.openvpp.jvpp.dto.JVppReplyDump;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Manager responsible for returning Data object dumps<br> either from cache or by invoking specified {@link
  * EntityDumpExecutor}
  */
-public final class DumpCacheManager<T extends JVppReplyDump, U> {
+public final class DumpCacheManager<T, U> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DumpCacheManager.class);
 
@@ -49,21 +48,21 @@ public final class DumpCacheManager<T extends JVppReplyDump, U> {
     /**
      * Returns {@link Optional<T>} of dump
      */
-    public Optional<T> getDump(@Nonnull String entityKey, @Nonnull ModificationCache cache)
+    public Optional<T> getDump(@Nonnull String entityKey, @Nonnull ModificationCache cache, final U dumpParams)
             throws DumpExecutionFailedException {
 
-        //this key binding to every log has its logic ,because every customizer have its own cache manager and if
-        //there is need for debugging/fixing some complex call with a lot of data,you can get lost in those logs
+        // this key binding to every log has its logic ,because every customizer have its own cache manager and if
+        // there is need for debugging/fixing some complex call with a lot of data,you can get lost in those logs
         LOG.debug("Loading dump for KEY[{}]", entityKey);
 
         T dump = (T) cache.get(entityKey);
 
         if (dump == null) {
             LOG.debug("Dump for KEY[{}] not present in cache,invoking dump executor", entityKey);
+            // binds and execute dump to be thread-save
+            dump = dumpExecutor.executeDump(dumpParams);
 
-            dump = dumpExecutor.executeDump();
-
-            //this is not a critical exception, so its only logged here
+            // this is not a critical exception, so its only logged here
             try {
                 dumpNonEmptyCheck.assertNotEmpty(dump);
             } catch (DumpCheckFailedException e) {
@@ -71,7 +70,7 @@ public final class DumpCacheManager<T extends JVppReplyDump, U> {
                 return Optional.absent();
             }
 
-            //no need to check if post processor active,if wasnt set,default no-op will be used
+            // no need to check if post processor active,if wasn't set,default no-op will be used
             LOG.debug("Post-processing dump for KEY[{}]", entityKey);
             dump = postProcessor.apply(dump);
 
@@ -83,14 +82,14 @@ public final class DumpCacheManager<T extends JVppReplyDump, U> {
         }
     }
 
-    public static final class DumpCacheManagerBuilder<T extends JVppReplyDump, U> {
+    public static final class DumpCacheManagerBuilder<T, U> {
 
         private EntityDumpExecutor<T, U> dumpExecutor;
         private EntityDumpNonEmptyCheck<T> dumpNonEmptyCheck;
         private EntityDumpPostProcessingFunction<T> postProcessingFunction;
 
         public DumpCacheManagerBuilder() {
-            //for cases when user does not set specific post-processor
+            // for cases when user does not set specific post-processor
             postProcessingFunction = new NoopDumpPostProcessingFunction<T>();
         }
 

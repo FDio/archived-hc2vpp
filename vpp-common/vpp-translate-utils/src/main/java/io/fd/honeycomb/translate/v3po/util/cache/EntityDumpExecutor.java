@@ -17,25 +17,20 @@
 package io.fd.honeycomb.translate.v3po.util.cache;
 
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
-import org.openvpp.jvpp.dto.JVppReplyDump;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Generic interface for classes that return dumps for Data objects
+ * Generic interface for classes that return dumps for Data objects.
+ * Must be implemented in Thread-save fashion.
  */
-public interface EntityDumpExecutor<T extends JVppReplyDump, U> {
+@ThreadSafe
+public interface EntityDumpExecutor<T, U> {
 
     /**
-     * Performs dump on {link T} entity
+     * Performs dump on {@link T} entity
      *
      * @return dump of specified {@link T} entity
      * @throws DumpExecutionFailedException when dump fails
      */
-    public T executeDump() throws DumpExecutionFailedException;
-
-    /**
-     * Bind dumping params for executor
-     */
-    default public void bindDumpParams(U params) {
-        throw new UnsupportedOperationException("You should override this method if you need to bind dumping params");
-    }
+    T executeDump(final U params) throws DumpExecutionFailedException;
 }

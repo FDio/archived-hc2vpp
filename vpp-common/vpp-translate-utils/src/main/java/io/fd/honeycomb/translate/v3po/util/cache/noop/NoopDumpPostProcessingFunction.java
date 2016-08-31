@@ -17,11 +17,10 @@
 package io.fd.honeycomb.translate.v3po.util.cache.noop;
 
 import io.fd.honeycomb.translate.v3po.util.cache.EntityDumpPostProcessingFunction;
-import org.openvpp.jvpp.dto.JVppReplyDump;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NoopDumpPostProcessingFunction<T extends JVppReplyDump> implements EntityDumpPostProcessingFunction<T> {
+public class NoopDumpPostProcessingFunction<T> implements EntityDumpPostProcessingFunction<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NoopDumpPostProcessingFunction.class);
 

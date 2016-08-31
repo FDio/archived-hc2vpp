@@ -18,16 +18,14 @@ package io.fd.honeycomb.translate.v3po.util.cache;
 
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.DumpCheckFailedException;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.i.DumpEmptyException;
-import org.openvpp.jvpp.dto.JVppReplyDump;
 
 /**
  * Generic interface for classes that verifies if dump of data object is non-empty
  */
-public interface EntityDumpNonEmptyCheck<T extends JVppReplyDump> {
+public interface EntityDumpNonEmptyCheck<T> {
 
     /**
      * Verifies if data are non-empty,if not throws {@link DumpEmptyException}
-     * @throws DumpEmptyException
      */
     public void assertNotEmpty(T data) throws DumpCheckFailedException;
 }

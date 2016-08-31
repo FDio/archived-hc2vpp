@@ -17,13 +17,12 @@
 package io.fd.honeycomb.translate.v3po.util.cache;
 
 import java.util.function.Function;
-import org.openvpp.jvpp.dto.JVppReplyDump;
 
 /**
  * Generic interface for class that are post-processing data dumped from vpp
  */
 @FunctionalInterface
-public interface EntityDumpPostProcessingFunction<T extends JVppReplyDump> extends Function<T, T> {
+public interface EntityDumpPostProcessingFunction<T> extends Function<T, T> {
 
 
     /**
