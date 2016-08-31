@@ -134,6 +134,6 @@ public class VniTableCustomizer extends FutureJVppCustomizer
                         .collect(RWUtils.singleItemCollector());
 
         builder.setVirtualNetworkIdentifier((long) details.vni);
-        builder.setTableId((long) details.vrf);
+        builder.setTableId((long) details.dpTable);
     }
 }
