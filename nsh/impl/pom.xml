@@ -19,7 +19,7 @@
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>impl-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../../../common/impl-parent</relativePath>
+        <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -32,12 +32,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nsh-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-config</artifactId>
-            <version>1.3.2-Beryllium-SR2</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
