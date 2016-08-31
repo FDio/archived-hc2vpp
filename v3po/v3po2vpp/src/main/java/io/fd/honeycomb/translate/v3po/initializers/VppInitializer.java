@@ -64,24 +64,18 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
     }
 
     private static final Function<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain, BridgeDomain>
-        CONVERT_BD =
-        new Function<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain, BridgeDomain>() {
-            @Nullable
-            @Override
-            public BridgeDomain apply(
-                @Nullable final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain input) {
-                final BridgeDomainBuilder builder = new BridgeDomainBuilder();
-                builder.setLearn(input.isLearn());
-                builder.setUnknownUnicastFlood(input.isUnknownUnicastFlood());
-                builder.setArpTermination(input.isArpTermination());
-                builder.setFlood(input.isFlood());
-                builder.setForward(input.isForward());
-                builder.setKey(new BridgeDomainKey(input.getKey().getName()));
-                builder.setName(input.getName());
-                setL2FibTable(builder, input.getL2FibTable());
-                return builder.build();
-            }
-        };
+            CONVERT_BD = input -> {
+        final BridgeDomainBuilder builder = new BridgeDomainBuilder();
+        builder.setLearn(input.isLearn());
+        builder.setUnknownUnicastFlood(input.isUnknownUnicastFlood());
+        builder.setArpTermination(input.isArpTermination());
+        builder.setFlood(input.isFlood());
+        builder.setForward(input.isForward());
+        builder.setKey(new BridgeDomainKey(input.getKey().getName()));
+        builder.setName(input.getName());
+        setL2FibTable(builder, input.getL2FibTable());
+        return builder.build();
+    };
 
     private static void setL2FibTable(@Nonnull final BridgeDomainBuilder builder,
                                       @Nullable final L2FibTable l2FibTable) {
