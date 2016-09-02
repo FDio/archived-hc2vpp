@@ -111,10 +111,12 @@ public class InterfaceCustomizer
                     .filter(a -> a.swIfIndex == interfaceIndex)
                     .collect(RWUtils.singleItemCollector());
 
+            final String interfaceRef = interfaceContext.getName(details.swIfIndex, ctx.getMappingContext());
+
             builder.setPriority(Byte.valueOf(details.priority).shortValue());
             builder.setWeight(Byte.valueOf(details.weight).shortValue());
-            builder.setInterfaceRef(name);
-            builder.setKey(new InterfaceKey(name));
+            builder.setInterfaceRef(interfaceRef);
+            builder.setKey(new InterfaceKey(interfaceRef));
         }
     }
 
