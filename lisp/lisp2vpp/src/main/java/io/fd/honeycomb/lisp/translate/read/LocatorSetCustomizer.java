@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.lisp.translate.read;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.translate.v3po.util.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
@@ -25,12 +26,14 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSetBuilder;
@@ -52,9 +55,12 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(LocatorSetCustomizer.class);
 
     private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
+    private final NamingContext locatorSetContext;
 
-    public LocatorSetCustomizer(FutureJVppCore futureJvpp) {
+    public LocatorSetCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                                @Nonnull final NamingContext locatorSetContext) {
         super(futureJvpp);
+        this.locatorSetContext = checkNotNull(locatorSetContext, "Locator Set mapping context cannot be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
                 .withExecutor(new LocatorSetsDumpExecutor(futureJvpp))
                 .withNonEmptyPredicate(new LocatorSetsDumpCheck())
@@ -91,7 +97,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
                 .findFirst();
 
         if (details.isPresent()) {
-            final String name  = TranslateUtils.toString(details.get().locatorSetName);
+            final String name = TranslateUtils.toString(details.get().locatorSetName);
 
             builder.setName(name);
             builder.setKey(new LocatorSetKey(name));
@@ -115,6 +121,21 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
 
         if (dumpOptional.isPresent()) {
             return dumpOptional.get().lispLocatorSetDetails.stream()
+                    .map(set -> {
+
+                        final String locatorSetName = TranslateUtils.toString(set.locatorSetName);
+                        //creates mapping for existing locator-set(if it is'nt already existing one)
+                        if (!locatorSetContext.containsIndex(locatorSetName, context.getMappingContext())) {
+                            locatorSetContext.addName(set.locatorSetIndex, locatorSetName, context.getMappingContext());
+                        }
+
+                        LOG.trace("Locator Set with name: {}, VPP name: {} and index: {} found in VPP",
+                                locatorSetContext.getName(set.locatorSetIndex, context.getMappingContext()),
+                                locatorSetName,
+                                set.locatorSetIndex);
+
+                        return set;
+                    })
                     .map(set -> new LocatorSetKey(TranslateUtils.toString(set.locatorSetName)))
                     .collect(Collectors.toList());
         } else {

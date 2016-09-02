@@ -45,7 +45,7 @@ public class LocatorSetsReaderFactory extends AbstractLispReaderFactoryBase impl
                                      final NamingContext locatorSetContext
     ) {
         super(lispStateId, vppApi);
-        this.interfaceContext=interfaceContext;
+        this.interfaceContext = interfaceContext;
         this.locatorSetContext = locatorSetContext;
     }
 
@@ -53,7 +53,7 @@ public class LocatorSetsReaderFactory extends AbstractLispReaderFactoryBase impl
                                                              @Nonnull final FutureJVppCore vppApi,
                                                              final NamingContext interfaceContext,
                                                              @Nonnull final NamingContext locatorSetContext) {
-        return new LocatorSetsReaderFactory(lispStateId, vppApi, interfaceContext,locatorSetContext);
+        return new LocatorSetsReaderFactory(lispStateId, vppApi, interfaceContext, locatorSetContext);
     }
 
     @Override
@@ -63,7 +63,8 @@ public class LocatorSetsReaderFactory extends AbstractLispReaderFactoryBase impl
                 locatorSetsInstanceIdentifier.child(LocatorSet.class);
 
         registry.addStructuralReader(locatorSetsInstanceIdentifier, LocatorSetsBuilder.class);
-        registry.add(new GenericListReader<>(locatorSetInstanceIdentifier, new LocatorSetCustomizer(vppApi)));
+        registry.add(new GenericListReader<>(locatorSetInstanceIdentifier,
+                new LocatorSetCustomizer(vppApi, locatorSetContext)));
         registry.add(new GenericListReader<>(locatorSetInstanceIdentifier.child(Interface.class),
                 new InterfaceCustomizer(vppApi, interfaceContext, locatorSetContext)));
     }

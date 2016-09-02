@@ -41,7 +41,8 @@ public class LocatorSetsDumpExecutor extends AbstractDumpExecutor
     public LispLocatorSetDetailsReplyDump executeDump(final Void params) throws DumpExecutionFailedException {
 
         LispLocatorSetDump request = new LispLocatorSetDump();
-        request.filter = 0;
+        //only local
+        request.filter = 1;
 
         try {
             return TranslateUtils
