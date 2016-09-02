@@ -32,6 +32,7 @@
     <v3po.version>1.16.12-SNAPSHOT</v3po.version>
     <lisp.version>1.16.12-SNAPSHOT</lisp.version>
     <vpp.common.min.distro.version>1.16.12-SNAPSHOT</vpp.common.min.distro.version>
+    <vppnsh.version>1.16.12-SNAPSHOT</vppnsh.version>
   </properties>
 
   <build>
@@ -72,6 +73,11 @@
       <groupId>io.fd.honeycomb.lisp</groupId>
       <artifactId>lisp2vpp</artifactId>
       <version>${lisp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.honeycomb.vppnsh</groupId>
+      <artifactId>vppnsh-impl</artifactId>
+      <version>${vppnsh.version}</version>
     </dependency>
   </dependencies>
 </project>
