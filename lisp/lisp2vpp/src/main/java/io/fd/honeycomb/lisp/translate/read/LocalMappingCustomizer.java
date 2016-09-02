@@ -139,7 +139,8 @@ public class LocalMappingCustomizer
                             RWUtils.singleItemCollector());
 
             //in case of local mappings,locator_set_index stands for interface index
-            checkState(locatorSetContext.containsName(details.locatorSetIndex, ctx.getMappingContext()));
+            checkState(locatorSetContext.containsName(details.locatorSetIndex, ctx.getMappingContext()),
+                    "No Locator Set name found for index %s", details.locatorSetIndex);
             builder.setLocatorSet(locatorSetContext.getName(details.locatorSetIndex, ctx.getMappingContext()));
             builder.setKey(new LocalMappingKey(new MappingId(id.firstKeyOf(LocalMapping.class).getId())));
             builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid));

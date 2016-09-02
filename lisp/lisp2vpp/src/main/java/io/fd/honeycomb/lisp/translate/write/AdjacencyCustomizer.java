@@ -20,6 +20,7 @@ package io.fd.honeycomb.lisp.translate.write;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType;
+import static io.fd.honeycomb.lisp.translate.util.EidConverter.*;
 
 import io.fd.honeycomb.lisp.translate.util.EidConverter;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
@@ -80,8 +81,8 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer implements ListWri
         checkState(id.firstKeyOf(VniTable.class) != null, "Unable to find parent VNI for {}", id);
         final int vni = id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier().intValue();
 
-        EidType localEidType = EidConverter.getEidType(data.getLocalEid());
-        EidType remoteEidType = EidConverter.getEidType(data.getRemoteEid());
+        EidType localEidType = getEidType(data.getLocalEid());
+        EidType remoteEidType = getEidType(data.getRemoteEid());
 
         checkArgument(localEidType ==
                 remoteEidType, "Local[%s] and Remote[%s] eid types must be the same", localEidType, remoteEidType);
@@ -89,10 +90,10 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer implements ListWri
         LispAddDelAdjacency request = new LispAddDelAdjacency();
 
         request.isAdd = TranslateUtils.booleanToByte(add);
-        request.seid = EidConverter.getEidAsByteArray(data.getLocalEid());
-        request.seidLen = (byte) request.seid.length;
-        request.deid = EidConverter.getEidAsByteArray(data.getRemoteEid());
-        request.seidLen = (byte) request.deid.length;
+        request.seid = getEidAsByteArray(data.getLocalEid());
+        request.seidLen = getPrefixLength(data.getLocalEid());
+        request.deid = getEidAsByteArray(data.getRemoteEid());
+        request.deidLen = getPrefixLength(data.getRemoteEid());
         request.eidType = (byte) localEidType.getValue();
         request.vni = vni;
 

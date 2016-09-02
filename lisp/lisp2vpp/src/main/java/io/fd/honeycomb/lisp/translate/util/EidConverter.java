@@ -50,6 +50,14 @@ public final class EidConverter {
         throw new UnsupportedOperationException("Cannot instantiate utility class " + EidConverter.class.getName());
     }
 
+    public static byte getPrefixLength(LocalEid address) {
+        return resolverPrefixLength(address.getAddress());
+    }
+
+    public static byte getPrefixLength(RemoteEid address) {
+        return resolverPrefixLength(address.getAddress());
+    }
+
     public static byte getPrefixLength(
             org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
         return resolverPrefixLength(address.getAddress());
