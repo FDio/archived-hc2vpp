@@ -71,7 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public final class InterfacesWriterFactory implements WriterFactory, AutoCloseable {
+public final class InterfacesWriterFactory implements WriterFactory {
 
     public static final InstanceIdentifier<Interface> IFC_ID =
         InstanceIdentifier.create(Interfaces.class).child(Interface.class);

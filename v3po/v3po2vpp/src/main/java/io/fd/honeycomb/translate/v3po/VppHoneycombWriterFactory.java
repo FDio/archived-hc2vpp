@@ -38,7 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public final class VppHoneycombWriterFactory implements WriterFactory, AutoCloseable {
+public final class VppHoneycombWriterFactory implements WriterFactory {
 
     private final FutureJVppCore jvpp;
     private final NamingContext bdContext;

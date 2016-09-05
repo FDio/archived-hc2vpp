@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public final class VppClassifierHoneycombWriterFactory implements WriterFactory, AutoCloseable {
+public final class VppClassifierHoneycombWriterFactory implements WriterFactory {
 
     public static final InstanceIdentifier<ClassifyTable> CLASSIFY_TABLE_ID =
             InstanceIdentifier.create(VppClassifier.class).child(ClassifyTable.class);
