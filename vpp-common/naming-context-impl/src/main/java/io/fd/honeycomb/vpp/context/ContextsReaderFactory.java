@@ -15,6 +15,7 @@
  */
 package io.fd.honeycomb.vpp.context;
 
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.BindingBrokerReader;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -24,10 +25,10 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.cont
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * {@link io.fd.honeycomb.translate.read.ReaderFactory} initiating reader providing data from context data store.
+ * {@link ReaderFactory} initiating reader providing data from context data store.
  * Making them available over RESTCONF/NETCONF.
  */
-public final class ContextsReaderFactory implements AutoCloseable, io.fd.honeycomb.translate.read.ReaderFactory {
+public final class ContextsReaderFactory implements ReaderFactory {
 
     private final DataBroker contextBindingBrokerDependency;
 

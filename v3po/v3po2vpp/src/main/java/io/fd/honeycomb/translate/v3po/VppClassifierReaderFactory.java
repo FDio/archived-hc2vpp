@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public final class VppClassifierReaderFactory implements ReaderFactory, AutoCloseable {
+public final class VppClassifierReaderFactory implements ReaderFactory {
 
     private final FutureJVppCore jvpp;
     private final NamingContext classifyCtx;

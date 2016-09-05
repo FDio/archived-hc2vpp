@@ -43,7 +43,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class VppStateHoneycombReaderFactory implements ReaderFactory, AutoCloseable {
+public final class VppStateHoneycombReaderFactory implements ReaderFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppStateHoneycombReaderFactory.class);
 

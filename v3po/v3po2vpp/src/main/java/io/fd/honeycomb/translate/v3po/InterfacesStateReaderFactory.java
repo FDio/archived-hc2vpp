@@ -64,7 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public final class InterfacesStateReaderFactory implements ReaderFactory, AutoCloseable {
+public final class InterfacesStateReaderFactory implements ReaderFactory {
 
     private NamingContext ifcCtx;
     private NamingContext bdCtx;
