@@ -37,7 +37,6 @@ public class Ipv6Customizer extends FutureJVppCustomizer implements WriterCustom
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv6> id,
                                        @Nonnull final Ipv6 dataAfter, @Nonnull final WriteContext writeContext) {
-        // TODO
         LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
     }
 
@@ -52,6 +51,5 @@ public class Ipv6Customizer extends FutureJVppCustomizer implements WriterCustom
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv6> id,
                                         @Nonnull final Ipv6 dataBefore, @Nonnull final WriteContext writeContext) {
         LOG.warn("Unsupported, ignoring configuration delete {}", id);
-        // TODO
     }
 }

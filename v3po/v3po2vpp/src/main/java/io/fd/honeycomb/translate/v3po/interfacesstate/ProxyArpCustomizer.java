@@ -35,8 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class ProxyArpCustomizer extends FutureJVppCustomizer
         implements ReaderCustomizer<ProxyArp,
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.
-                state._interface.ProxyArpBuilder> {
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.ProxyArpBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProxyArpCustomizer.class);
     private final NamingContext interfaceContext;
@@ -72,8 +71,7 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer
                                               .rev150105.interfaces.state._interface.ProxyArpBuilder builder,
                                       @Nonnull ReadContext ctx) throws ReadFailedException {
 
-        //TODO: Implement fully when VPP Proxy ARP read API is available
-        // https://jira.fd.io/browse/VPP-225
+        //TODO: VPP-225 Implement fully when VPP Proxy ARP read API is available
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
         LOG.warn("Reading of ARP data not (yet) supported by VPP API");

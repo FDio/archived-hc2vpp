@@ -41,7 +41,6 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO extract common code from all Interface type specific writer customizers into a superclass
 public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VxlanCustomizer.class);

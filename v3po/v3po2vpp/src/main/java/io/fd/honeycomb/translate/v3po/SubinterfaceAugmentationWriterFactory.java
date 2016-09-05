@@ -86,7 +86,7 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
         // Subinterfaces
         //  Subinterface(Handle only after all interface related stuff gets processed) =
         registry.subtreeAddAfter(
-                // TODO this customizer covers quite a lot of complex child nodes (maybe refactor ?)
+                // TODO HONEYCOMB-188 this customizer covers quite a lot of complex child nodes (maybe refactor ?)
                 Sets.newHashSet(
                         InstanceIdentifier.create(SubInterface.class).child(Tags.class),
                         InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class),

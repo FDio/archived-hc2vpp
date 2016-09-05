@@ -34,7 +34,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 /**
  * Utility class providing Ipv4 CUD support.
  */
-// TODO replace with interface with default methods or abstract class
+// TODO HONEYCOMB-175 replace with interface with default methods or abstract class
 final class Ipv4WriteUtils {
 
     private static final int DOTTED_QUAD_MASK_LENGTH = 4;

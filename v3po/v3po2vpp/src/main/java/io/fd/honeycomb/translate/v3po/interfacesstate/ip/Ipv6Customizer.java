@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.honeycomb.translate.v3po.interfacesstate.ip;
 
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -52,12 +53,13 @@ public class Ipv6Customizer extends FutureJVppCustomizer implements ReaderCustom
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv6> id, @Nonnull final Ipv6Builder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        // TODO implement
+        // TODO HONEYCOMB-102 implement
 //        final IpAddressDump dumpRequest = new IpAddressDump();
 //        dumpRequest.isIpv6 = 1;
-//        dumpRequest.swIfIndex = interfaceContext.getIndex(id.firstKeyOf(Interface.class).getName(), ctx.getMappingContext());
-//        final CompletionStage<IpAddressDetailsReplyDump> addressDumpFuture = getFutureJVpp().ipAddressDump(dumpRequest);
-        // TODO consider extracting customizer for address
+//        dumpRequest.swIfIndex = interfaceContext.getIndex(id.firstKeyOf(Interface.class).getName(),
+// ctx.getMappingContext());
+//        final CompletionStage<IpAddressDetailsReplyDump> addressDumpFuture = getFutureJVpp().
+// ipAddressDump(dumpRequest);
 //        final IpAddressDetailsReplyDump reply = TranslateUtils.getReply(addressDumpFuture.toCompletableFuture());
     }
 

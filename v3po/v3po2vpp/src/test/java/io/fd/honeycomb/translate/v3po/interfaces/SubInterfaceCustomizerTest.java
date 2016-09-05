@@ -22,17 +22,16 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.Arrays;
 import java.util.List;
@@ -109,7 +108,7 @@ public class SubInterfaceCustomizerTest {
         initMocks(this);
         namingContext = new NamingContext("generatedSubInterfaceName", "test-instance");
         doReturn(mappingContext).when(writeContext).getMappingContext();
-        // TODO create base class for tests using vppApi
+        // TODO HONEYCOMB-116 create base class for tests using vppApi
         customizer = new SubInterfaceCustomizer(api, namingContext);
         doReturn(ContextTestUtils.getMapping(SUPER_IF_NAME, SUPER_IF_ID)).when(mappingContext)
             .read(ContextTestUtils.getMappingIid(SUPER_IF_NAME, "test-instance"));
@@ -300,16 +299,6 @@ public class SubInterfaceCustomizerTest {
         customizer.updateCurrentAttributes(id, before, after, writeContext);
 
         verifySwInterfaceSetFlagsWasInvoked(generateSwInterfaceEnableRequest(SUBIF_INDEX));
-    }
-
-    @Test
-    public void testUpdateNoStateChange() throws Exception {
-        final List<Tag> tags = Arrays.asList(STAG_100, CTAG_200);
-        final SubInterface before = generateSubInterface(false, tags);
-        final SubInterface after = generateSubInterface(false, tags);
-        customizer.updateCurrentAttributes(null, before, after, writeContext);
-
-        verify(api, never()).swInterfaceSetFlags(any());
     }
 
     @Test(expected = UnsupportedOperationException.class)

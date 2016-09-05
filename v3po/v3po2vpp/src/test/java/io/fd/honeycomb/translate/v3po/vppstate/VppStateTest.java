@@ -29,12 +29,13 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import java.util.Arrays;
 import java.util.Collections;
@@ -283,7 +284,7 @@ public class VppStateTest {
             read.get());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ReadFailedException.class)
     public void testReadBridgeDomainNotExisting() throws Exception {
         doReturn(Optional.absent()).when(mappingContext).read(
                 ContextTestUtils.getMappingIid("NOT EXISTING", "bd-test-instance"));

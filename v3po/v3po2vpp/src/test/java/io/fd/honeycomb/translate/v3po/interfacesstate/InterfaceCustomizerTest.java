@@ -92,7 +92,6 @@ public class InterfaceCustomizerTest extends
         return new InterfaceCustomizer(api, interfacesContext);
     }
 
-    // TODO use reflexion and move to ListReaderCustomizerTest
     @Test
     public void testMerge() throws Exception {
         final InterfacesStateBuilder builder = mock(InterfacesStateBuilder.class);
@@ -104,7 +103,7 @@ public class InterfaceCustomizerTest extends
     private void verifySwInterfaceDumpWasInvoked(final int nameFilterValid, final String ifaceName,
                                                  final int dumpIfcsInvocationCount)
         throws VppInvocationException {
-        // TODO adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
+        // TODO HONEYCOMB-185 adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
         ArgumentCaptor<SwInterfaceDump> argumentCaptor = ArgumentCaptor.forClass(SwInterfaceDump.class);
         verify(api, times(dumpIfcsInvocationCount)).swInterfaceDump(argumentCaptor.capture());
         final SwInterfaceDump actual = argumentCaptor.getValue();

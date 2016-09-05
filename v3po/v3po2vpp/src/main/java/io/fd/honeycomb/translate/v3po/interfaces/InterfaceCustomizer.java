@@ -81,8 +81,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Interface> id,
                                         @Nonnull final Interface dataBefore,
                                         @Nonnull final WriteContext writeContext) {
-
-        // TODO Handle deletes
+        // Nothing to be done here, customizers for specific interface types e.g. vxlan handle the delete
     }
 
     private void setInterface(final InstanceIdentifier<Interface> id, final Interface swIf,

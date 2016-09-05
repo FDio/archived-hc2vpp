@@ -18,9 +18,6 @@ package org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.addre
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import lisp.Ipv4Matcher;
-import lisp.Ipv6Matcher;
-import lisp.MacMatcher;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -29,13 +26,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 /**
  * The purpose of generated class in src/main/java for Union types is to create new instances of unions from a string representation.
  * In some cases it is very difficult to automate it since there can be unions such as (uint32 - uint16), or (string - uint32).
- *
+ * <p/>
  * The reason behind putting it under src/main/java is:
  * This class is generated in form of a stub and needs to be finished by the user. This class is generated only once to prevent
  * loss of user code.
- *
  */
-public class SimpleAddressBuilder {
+public final class SimpleAddressBuilder {
 
     public static SimpleAddress getDefaultInstance(String defaultValue) {
         checkNotNull(defaultValue, "Cannot convert null address");
@@ -47,7 +43,6 @@ public class SimpleAddressBuilder {
         } else if (MacMatcher.matches(defaultValue)) {
             return new SimpleAddress(new MacAddress(defaultValue));
         } else {
-            //TODO - implement other conversions
             throw new IllegalArgumentException("Unknown type");
         }
     }

@@ -41,6 +41,7 @@ public class V3poModule extends AbstractModule {
         install(ConfigurationModule.create());
         requestInjection(V3poConfiguration.class);
 
+        // TODO HONEYCOMB-173 put into constants
         // Naming contexts
         bind(NamingContext.class)
                 .annotatedWith(Names.named("interface-context"))

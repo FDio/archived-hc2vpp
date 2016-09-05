@@ -70,10 +70,8 @@ final class InterconnectionWriteUtils {
             } else if (ic instanceof BridgeBased) {
                 setBridgeBasedL2(id, swIfIndex, ifcName, (BridgeBased) ic, writeContext, (byte) 1 /*enable*/);
             } else {
-                // FIXME how does choice extensibility work
-                // FIXME it is not even possible to create a dedicated customizer for Interconnection, since it's not a DataObject
-                // FIXME we might need a choice customizer
-                // THis choice is already from augment, so its probably not possible to augment augmented choice
+                // Choices&cases are not data objects, so they cannot have a dedicated Reader/Writer
+                // This choice is already from augment, so its not possible to augment augmented choice
                 LOG.error("Unable to handle Interconnection of type {}", ic.getClass());
                 throw new WriteFailedException(id, "Unable to handle Interconnection of type " + ic.getClass());
             }

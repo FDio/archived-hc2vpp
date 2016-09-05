@@ -70,13 +70,11 @@ public final class VppStateHoneycombReaderFactory implements ReaderFactory {
         registry.addStructuralReader(vppStateId, VppStateBuilder.class);
         //  Version
         // Wrap with keepalive reader to detect connection issues
-        // TODO keepalive reader wrapper relies on VersionReaderCustomizer (to perform timeout on reads)
-        // Once readers+customizers are asynchronous, pull the timeout to keepalive executor so that keepalive wrapper
-        // is truly generic
+        // Relying on VersionCustomizer to provide a "timing out read"
         registry.add(new KeepaliveReaderWrapper<>(
                 new GenericReader<>(vppStateId.child(Version.class), new VersionCustomizer(jVpp)),
                 keepaliveExecutor, ReadTimeoutException.class, 30,
-                // FIXME-minimal trigger jvpp reinitialization here
+                // FIXME HONEYCOMB-78 trigger jvpp reinitialization here
                 () -> LOG.error("Keepalive failed. VPP is probably DOWN!")));
         //  BridgeDomains(Structural)
         final InstanceIdentifier<BridgeDomains> bridgeDomainsId = vppStateId.child(BridgeDomains.class);

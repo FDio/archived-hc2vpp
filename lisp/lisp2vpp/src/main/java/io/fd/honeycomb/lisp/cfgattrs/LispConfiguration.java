@@ -21,44 +21,44 @@ import net.jmob.guice.conf.core.Syntax;
 
 /**
  * Class containing static configuration for Lisp module,<br>
- * either loaded from property file or statically typed
+ * either loaded from property file or statically typed.
  */
 @BindConfig(value = "lisp", syntax = Syntax.JSON)
 public class LispConfiguration {
 
-    //TODO - this constant should be part of V3po plugin
+    //TODO HONEYCOMB-176 - this constant should be part of V3po plugin
     /**
-     * Interface index to name mapping
+     * Interface index to name mapping.
      */
     public static final String INTERFACE_CONTEXT = "interface-context";
 
     /**
-     * Locator set index to name mapping
+     * Locator set index to name mapping.
      */
     public static final String LOCATOR_SET_CONTEXT = "locator-set-context";
 
     /**
-     * Local mappings's eid to name mapping
+     * Local mappings's eid to name mapping.
      */
     public static final String LOCAL_MAPPING_CONTEXT = "local-mapping-context";
 
     /**
-     * Remote mappings's eid to name mapping
+     * Remote mappings's eid to name mapping.
      */
     public static final String REMOTE_MAPPING_CONTEXT = "remote-mapping-context";
 
     /**
-     * Central honeycomb initializer
+     * Central honeycomb initializer.
      */
     public static final String HONEYCOMB_INITIALIZER = "honeycomb-initializer";
 
     /**
-     * Unique prefix for naming context of interfaces
+     * Unique prefix for naming context of interfaces.
      **/
     public static final String INTERFACE_CONTEXT_PREFIX = "interface-";
 
     /**
-     * Unique prefix for naming context of locator sets
+     * Unique prefix for naming context of locator sets.
      **/
     public static final String LOCATOR_SET_CONTEXT_PREFIX = "locator-set-";
 }

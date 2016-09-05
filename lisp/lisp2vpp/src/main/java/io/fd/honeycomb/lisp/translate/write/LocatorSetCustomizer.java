@@ -47,7 +47,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
- * Customizer for {@link LocatorSet} entity
+ * Customizer for {@link LocatorSet} entity.
  *
  * @see LocatorSet
  */
@@ -77,7 +77,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         final String locatorSetName = dataAfter.getName();
         checkNotNull(locatorSetName, "LocatorSet name is null");
 
-        //TODO check and fill mapping when api returns index of created locator set
+        // TODO VPP-323 check and fill mapping when api returns index of created locator set
         // checkState(!locatorSetContext.containsIndex(locatorSetName, writeContext.getMappingContext()),
         //         "Locator set with name %s allready defined", locatorSetName);
 
@@ -102,7 +102,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
     public void updateCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
                                         @Nonnull LocatorSet dataBefore,
                                         @Nonnull LocatorSet dataAfter,
-                                        WriteContext writeContext) throws WriteFailedException {
+                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
         throw new UnsupportedOperationException("Operation not supported");
     }
 

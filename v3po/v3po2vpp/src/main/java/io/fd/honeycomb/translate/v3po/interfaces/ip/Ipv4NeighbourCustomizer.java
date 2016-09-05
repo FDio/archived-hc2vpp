@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Customizer for writing {@link Neighbor} for {@link Ipv4}
+ * Customizer for writing {@link Neighbor} for {@link Ipv4}.
  */
 public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<Neighbor, NeighborKey> {
@@ -126,7 +126,7 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
         request.macAddress = TranslateUtils.parseMac(data.getLinkLayerAddress().getValue());
         request.swIfIndex = parentInterfaceIndex;
 
-        //TODO if it is necessary for future use ,make adjustments to be able to set vrfid
+        //TODO HONEYCOMB-182 if it is necessary for future use ,make adjustments to be able to set vrfid
         //request.vrfId
         TranslateUtils.getReplyForWrite(getFutureJVpp().ipNeighborAddDel(request).toCompletableFuture(), id);
     }

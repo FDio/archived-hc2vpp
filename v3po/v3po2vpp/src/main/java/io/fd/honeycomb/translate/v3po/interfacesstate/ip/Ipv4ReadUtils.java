@@ -55,7 +55,7 @@ final class Ipv4ReadUtils {
 
     // Many VPP APIs do not provide get operation for single item. Dump requests for all items are used instead.
     // To improve HC performance, caching dump requests is a common pattern.
-    // TODO: use more generic caching implementation, once provided
+    // TODO: HONEYCOMB-102 use more generic caching implementation, once provided
     static Optional<IpAddressDetailsReplyDump> dumpAddresses(@Nonnull final FutureJVppCore futureJVppCore,
                                                              @Nonnull final InstanceIdentifier<?> id,
                                                              @Nonnull final String interfaceName,

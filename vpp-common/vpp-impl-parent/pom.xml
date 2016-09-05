@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
  Copyright (c) 2015 Cisco and/or its affiliates.
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,39 +15,35 @@
  limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>api-parent</artifactId>
+    <artifactId>impl-parent</artifactId>
     <version>1.16.12-SNAPSHOT</version>
-    <relativePath>../../common/api-parent</relativePath>
+    <relativePath>../../common/impl-parent</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.fd.honeycomb.v3po</groupId>
-  <artifactId>v3po-api</artifactId>
+  <groupId>io.fd.honeycomb.vpp</groupId>
+  <artifactId>vpp-impl-parent</artifactId>
   <version>1.16.12-SNAPSHOT</version>
-  <packaging>bundle</packaging>
+  <properties>
+    <jvpp.version>16.12-SNAPSHOT</jvpp.version>
+  </properties>
+  <packaging>pom</packaging>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.opendaylight.mdsal.model</groupId>
-      <artifactId>iana-if-type-2014-05-08</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.mdsal.model</groupId>
-      <artifactId>ietf-yang-types-20130715</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.mdsal.model</groupId>
-      <artifactId>ietf-interfaces</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.mdsal.model</groupId>
-      <artifactId>ietf-inet-types-2013-07-15</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.mdsal.model</groupId>
-      <artifactId>yang-ext</artifactId>
-    </dependency>
-  </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.fd.vpp</groupId>
+        <artifactId>jvpp-core</artifactId>
+        <version>${jvpp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.fd.vpp</groupId>
+        <artifactId>jvpp-registry</artifactId>
+        <version>${jvpp.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

@@ -93,7 +93,7 @@ public class VhostUserCustomizerTest {
         doReturn(toBeReturned).when(writeContext).getModificationCache();
         doReturn(mappingContext).when(writeContext).getMappingContext();
 
-        // TODO create base class for tests using vppApi
+        // TODO HONEYCOMB-116 create base class for tests using vppApi
         customizer = new VhostUserCustomizer(api, namingContext);
     }
 

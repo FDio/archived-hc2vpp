@@ -21,9 +21,9 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 
 /**
- * Defines vlan tag rewrite config options for VPP
- *
- * TODO corresponding enum (defined in l2_vtr.h) should be defined in vpe.api
+ * Defines vlan tag rewrite config options for VPP.
+ * <p/>
+ * TODO HONEYCOMB-184 corresponding enum (defined in l2_vtr.h) should be defined in vpe.api
  * (does vpp's IDL support enum type definition?)
  * which would allow to generate this class in jvpp
  */
@@ -38,7 +38,7 @@ public enum TagRewriteOperation {
     translate_2_to_1(2),
     translate_2_to_2(2);
 
-    private final static int MAX_INDEX = 3;
+    private static final int MAX_INDEX = 3;
     private final int code;
     private final byte popTags;
 
@@ -73,7 +73,7 @@ public enum TagRewriteOperation {
     @Nullable
     public static TagRewriteOperation get(@Nonnegative final int code) {
         for (TagRewriteOperation operation : TagRewriteOperation.values()) {
-            if (code == operation.code){
+            if (code == operation.code) {
                 return operation;
             }
         }

@@ -72,7 +72,7 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Wr
 
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
-        // TODO handle update properly (if possible)
+        // Setting L2 to new values
         setL2(id, subInterfaceIndex, subInterfaceName, dataAfter, writeContext);
     }
 

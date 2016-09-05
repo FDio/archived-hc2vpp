@@ -32,6 +32,7 @@
     <prerequisites>
         <maven>3.1.1</maven>
     </prerequisites>
+
     <modules>
         <module>api</module>
         <module>lisp2vpp</module>

@@ -29,7 +29,7 @@ import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.Objects;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -102,7 +102,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     }
 
     private CreateSubif getCreateSubifRequest(@Nonnull final SubInterface subInterface, final int swIfIndex) {
-        // TODO add validation
+        // TODO HONEYCOMB-183 add validation
         CreateSubif request = new CreateSubif();
         request.subId = Math.toIntExact(subInterface.getIdentifier().intValue());
         request.swIfIndex = swIfIndex;
@@ -121,7 +121,8 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         }
         request.dot1Ad = booleanToByte(_802dot1ad.class == subInterface.getVlanType());
 
-        final MatchType matchType = subInterface.getMatch().getMatchType(); // todo match should be mandatory
+        // TODO HONEYCOMB-183 match should be mandatory
+        final MatchType matchType = subInterface.getMatch().getMatchType();
         request.exactMatch =
             booleanToByte(matchType instanceof VlanTagged && ((VlanTagged) matchType).isMatchExactTags());
         request.defaultSub = booleanToByte(matchType instanceof Default);
@@ -167,10 +168,6 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
                                         @Nonnull final SubInterface dataBefore, @Nonnull final SubInterface dataAfter,
                                         @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
-        if (Objects.equals(dataBefore.isEnabled(), dataAfter.isEnabled())) {
-            LOG.debug("No state update will be performed. Ignoring config");
-            return; // TODO shouldn't we throw exception here (if there will be dedicated L2 customizer)?
-        }
         final String subIfaceName = getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
             Math.toIntExact(dataAfter.getIdentifier()));
         try {

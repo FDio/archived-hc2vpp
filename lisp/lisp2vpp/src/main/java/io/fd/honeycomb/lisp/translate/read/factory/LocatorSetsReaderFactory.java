@@ -34,7 +34,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
- * Produces reader for {@link LocatorSets} <br> and all its inhired child readers
+ * Produces reader for {@link LocatorSets} <br> and all its inhired child readers.
  */
 public class LocatorSetsReaderFactory extends AbstractLispReaderFactoryBase implements ReaderFactory {
 
@@ -42,8 +42,7 @@ public class LocatorSetsReaderFactory extends AbstractLispReaderFactoryBase impl
     private LocatorSetsReaderFactory(final InstanceIdentifier<LispState> lispStateId,
                                      final FutureJVppCore vppApi,
                                      final NamingContext interfaceContext,
-                                     final NamingContext locatorSetContext
-    ) {
+                                     final NamingContext locatorSetContext) {
         super(lispStateId, vppApi);
         this.interfaceContext = interfaceContext;
         this.locatorSetContext = locatorSetContext;

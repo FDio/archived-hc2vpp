@@ -93,10 +93,8 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         return interfacesBuilder.build();
     }
 
-    // FIXME https://jira.fd.io/browse/HONEYCOMB-73 this kind of initialization/transformation is bad
+    // TODO https://jira.fd.io/browse/HONEYCOMB-73 this kind of initialization/transformation is bad
     // There is no relation to readers, it cannot be extended (readers can) and its hard to keep in sync with readers
-
-    // TODO add IP v4/ v6 initializer
 
     private static Interface initialize(
         final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface input) {
@@ -105,7 +103,8 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         builder.setName(input.getName());
         builder.setType(input.getType());
         builder.setEnabled(AdminStatus.Up.equals(input.getAdminStatus()));
-        // builder.setLinkUpDownTrapEnable(); TODO not present in interfaces-state
+        // Not present in interfaces-state
+        // builder.setLinkUpDownTrapEnable();
 
         initializeVppInterfaceStateAugmentation(input, builder);
         SubInterfaceInitializationUtils.initializeSubinterfaceStateAugmentation(input, builder);
@@ -163,7 +162,7 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
                 setAcl(augmentBuilder, acl);
             }
 
-            // TODO set routing, not present in interface-state
+            // Routing is not present in interface-state. Doing nothing for it
 
             builder.addAugmentation(VppInterfaceAugmentation.class, augmentBuilder.build());
         }
@@ -196,8 +195,6 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
                 augmentBuilder.setIpv4(new Ipv4Builder().setAddress(collect).setNeighbor(neighbors).build());
             }
 
-            // TODO ipv6
-
             builder.addAugmentation(Interface1.class, augmentBuilder.build());
         }
     }
@@ -206,7 +203,7 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
         final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.Subnet
             subnet = address.getSubnet();
 
-        // TODO only prefix length supported
+        // Only prefix length supported
         Preconditions.checkArgument(
             subnet instanceof org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength);
 

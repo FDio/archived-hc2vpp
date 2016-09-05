@@ -121,7 +121,7 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
 
         final IpAddress ipAddress = entry.getIpAddress();
         if (ipAddress.getIpv6Address() != null) {
-            // FIXME: vpp does not support ipv6 in arp-termination table (based on analysis of l2_bd.c)
+            // FIXME: HONEYCOMB-187 vpp does not support ipv6 in arp-termination table (based on analysis of l2_bd.c)
             throw new UnsupportedOperationException("IPv6 address for ARP termination table is not supported yet");
         }
 

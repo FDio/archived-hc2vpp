@@ -84,7 +84,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
         LOG.debug("Reading L2 FIB entry: key={}. bridgeDomainKey={}, bdId={}", key, bridgeDomainKey, bdId);
 
         try {
-            // TODO use cached l2FibTable
+            // TODO HONEYCOMB-186 use cached l2FibTable
             final L2FibTableEntry entry = dumpL2Fibs(id, bdId).stream().filter(e -> key.getPhysAddress()
                 .equals(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(e.mac), 2))))
                 .collect(SINGLE_ITEM_COLLECTOR);

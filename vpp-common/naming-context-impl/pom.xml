@@ -27,6 +27,7 @@
   <groupId>io.fd.honeycomb.vpp</groupId>
   <artifactId>naming-context-impl</artifactId>
   <version>1.16.12-SNAPSHOT</version>
+  <packaging>bundle</packaging>
 
   <dependencies>
     <dependency>
@@ -45,9 +46,4 @@
       <version>${project.version}</version>
     </dependency>
   </dependencies>
-
-  <packaging>bundle</packaging>
-
-
-
 </project>

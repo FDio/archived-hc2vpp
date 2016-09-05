@@ -66,7 +66,7 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Adjacency> id,
                                       @Nonnull final AdjacencyBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        //TODO - finish after https://jira.fd.io/browse/VPP-362
+        // TODO - finish after https://jira.fd.io/browse/VPP-362
         throw new ReadFailedException(id, new OperationNotSupportedException("Operation not supported"));
     }
 }

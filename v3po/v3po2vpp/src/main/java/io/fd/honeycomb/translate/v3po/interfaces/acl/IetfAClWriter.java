@@ -132,9 +132,6 @@ public final class IetfAClWriter {
         // filter ACE entries and group by AceType
         final Map<AclType, List<Ace>> acesByType = acls.stream()
             .flatMap(acl -> aclToAceStream(acl, writeContext))
-            // TODO we should not tolerate nulls, but throw some meaningful exceptions instead
-            .filter(ace -> ace != null && ace.getMatches() != null && ace.getMatches().getAceType() != null &&
-                ace.getActions() != null && ace.getActions().getPacketHandling() != null)
             .collect(Collectors.groupingBy(AclType::fromAce));
 
         final InputAclSetInterface request = new InputAclSetInterface();
@@ -170,16 +167,21 @@ public final class IetfAClWriter {
         @Nonnull
         private static AclType fromAce(final Ace ace) {
             AclType result = null;
-            final AceType aceType = ace.getMatches().getAceType();
-            if (aceType instanceof AceEth) {
-                result = ETH;
-            } else if (aceType instanceof AceIp) {
-                final AceIpVersion aceIpVersion = ((AceIp) aceType).getAceIpVersion();
-                if (aceIpVersion instanceof AceIpv4) {
-                    result = IP4;
-                } else {
-                    result = IP6;
+            final AceType aceType;
+            try {
+                aceType = ace.getMatches().getAceType();
+                if (aceType instanceof AceEth) {
+                    result = ETH;
+                } else if (aceType instanceof AceIp) {
+                    final AceIpVersion aceIpVersion = ((AceIp) aceType).getAceIpVersion();
+                    if (aceIpVersion instanceof AceIpv4) {
+                        result = IP4;
+                    } else {
+                        result = IP6;
+                    }
                 }
+            } catch (NullPointerException e) {
+                throw new IllegalArgumentException("Incomplete ACE: " + ace, e);
             }
             if (result == null) {
                 throw new IllegalArgumentException(String.format("Not supported ace type %s", aceType));

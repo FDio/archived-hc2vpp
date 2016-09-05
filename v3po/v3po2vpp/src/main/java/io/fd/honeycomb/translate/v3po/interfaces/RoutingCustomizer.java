@@ -67,7 +67,6 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
 
         final String ifName = id.firstKeyOf(Interface.class).getName();
         try {
-            // TODO handle updates properly
             setRouting(id, ifName, dataAfter, writeContext);
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to update routing for interface: {}, {}, vxlan: {}", ifName, writeContext, dataAfter);
@@ -78,7 +77,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> id,
                                         @Nonnull final Routing dataBefore, @Nonnull final WriteContext writeContext) {
-        // TODO implement delete
+        // TODO HONEYCOMB-176 implement delete
     }
 
     private void setRouting(final InstanceIdentifier<Routing> id, final String name, final Routing rt,

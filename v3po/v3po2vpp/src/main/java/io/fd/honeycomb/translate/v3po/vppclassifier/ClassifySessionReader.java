@@ -118,7 +118,7 @@ public class ClassifySessionReader extends FutureJVppCustomizer
 
     private OpaqueIndex readOpaqueIndex(final int opaqueIndex) {
         // We first try to map the value to a vpp node, if that fails, simply wrap the u32 value
-        // FIXME: the approach might fail if the opaqueIndex contains small value that collides
+        // TODO: HONEYCOMB-118 the approach might fail if the opaqueIndex contains small value that collides
         // with some of the adjacent nodes
         final VppNode node = readVppNode(opaqueIndex, LOG);
         if (node != null) {

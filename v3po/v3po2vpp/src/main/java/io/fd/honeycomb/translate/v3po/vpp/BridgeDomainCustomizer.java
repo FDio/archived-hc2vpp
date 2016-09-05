@@ -23,12 +23,13 @@ import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -47,6 +48,8 @@ public class BridgeDomainCustomizer
 
     private static final byte ADD_OR_UPDATE_BD = (byte) 1;
     private final NamingContext bdContext;
+    @GuardedBy("this")
+    private int bridgeDomainIndexCounter = 1;
 
     public BridgeDomainCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext bdContext) {
         super(futureJVppCore);
@@ -79,24 +82,30 @@ public class BridgeDomainCustomizer
         LOG.debug("writeCurrentAttributes: id={}, current={}, ctx={}", id, dataBefore, ctx);
         final String bdName = dataBefore.getName();
 
-        try {
-            int index;
-            if (bdContext.containsIndex(bdName, ctx.getMappingContext())) {
-                index = bdContext.getIndex(bdName, ctx.getMappingContext());
-            } else {
-                // FIXME we need the bd index to be returned by VPP or we should have a counter field
-                // (maybe in context similar to artificial name)
-                // Here we assign the next available ID from bdContext's perspective
-                index = 1;
-                while (bdContext.containsName(index, ctx.getMappingContext())) {
-                    index++;
+        // Invoke 1. check index, 2. increase index 3. create ND 4. store mapping in a synchronized block to prevent
+        // race conditions in case of concurrent invocation
+        synchronized (this) {
+            try {
+                int index;
+                if (bdContext.containsIndex(bdName, ctx.getMappingContext())) {
+                    index = bdContext.getIndex(bdName, ctx.getMappingContext());
+                } else {
+                    // Critical section due to bridgeDomainIndexCounter read and write access
+                    // TODO HONEYCOMB-199 move this "get next available index" into naming context or an adapter
+                    // or a dedicated object
+
+                    // Use counter to assign bridge domain index, but still check naming context if it's not taken there
+                    while (bdContext.containsName(bridgeDomainIndexCounter, ctx.getMappingContext())) {
+                        bridgeDomainIndexCounter++;
+                    }
+                    index = bridgeDomainIndexCounter;
                 }
+                addOrUpdateBridgeDomain(id, index, dataBefore);
+                bdContext.addName(index, bdName, ctx.getMappingContext());
+            } catch (VppBaseCallException e) {
+                LOG.warn("Failed to create bridge domain", e);
+                throw new WriteFailedException.CreateFailedException(id, dataBefore, e);
             }
-            addOrUpdateBridgeDomain(id, index, dataBefore);
-            bdContext.addName(index, bdName, ctx.getMappingContext());
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to create bridge domain", e);
-            throw new WriteFailedException.CreateFailedException(id, dataBefore, e);
         }
     }
 

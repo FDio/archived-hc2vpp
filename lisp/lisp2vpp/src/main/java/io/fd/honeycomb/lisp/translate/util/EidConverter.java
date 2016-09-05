@@ -206,7 +206,6 @@ public final class EidConverter {
         } else if (address instanceof Mac) {
             return MAC;
         } else {
-            //TODO - other types
             throw new IllegalStateException("Unknown type detected");
         }
     }
@@ -256,7 +255,6 @@ public final class EidConverter {
             case MAC:
                 return TranslateUtils.parseMac(((Mac) address).getMac().getValue());
             default:
-                //TODO - other types
                 throw new IllegalArgumentException("Unsupported type");
         }
     }

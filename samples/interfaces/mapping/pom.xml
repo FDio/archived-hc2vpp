@@ -41,17 +41,14 @@
     <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
-      <version>${guice.version}</version>
     </dependency>
     <dependency>
       <groupId>net.jmob</groupId>
       <artifactId>guice.conf</artifactId>
-      <version>${guice.config.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
       <artifactId>guice-multibindings</artifactId>
-      <version>${guice.version}</version>
     </dependency>
 
     <dependency>

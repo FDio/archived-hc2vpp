@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Cisco and/or its affiliates.
+ * Copyright (c) 2016 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package lisp;
+package org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105;
 
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 
 /**
- * Class that checks whether {@link String} can represent MacAddress
+ * Class that checks whether {@link String} can represent Ipv6Address
  */
-public class MacMatcher {
+public final class Ipv6Matcher {
 
     private static final List<Pattern> PATTERNS =
-            MacAddress.PATTERN_CONSTANTS.stream().map(a -> Pattern.compile(a)).collect(Collectors.toList());
+            Ipv6Address.PATTERN_CONSTANTS.stream().map(a -> Pattern.compile(a)).collect(Collectors.toList());
 
     public static boolean matches(String candidate) {
         return PATTERNS.stream().anyMatch(pattern -> pattern.matcher(candidate).matches());

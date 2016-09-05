@@ -109,14 +109,14 @@ public final class InterfacesWriterFactory implements WriterFactory {
         addVppInterfaceAgmentationWriters(IFC_ID, registry);
         //   Interface1 (ietf-ip augmentation)
         addInterface1AugmentationWriters(IFC_ID, registry);
-        //   SubinterfaceAugmentation TODO make dedicated module for subIfc writer factory
+        //   SubinterfaceAugmentation
         new SubinterfaceAugmentationWriterFactory(jvpp, aclWriter, ifcContext, bdContext, classifyTableContext).init(registry);
     }
 
     private void addInterface1AugmentationWriters(final InstanceIdentifier<Interface> ifcId,
                                                   final ModifiableWriterRegistryBuilder registry) {
         final InstanceIdentifier<Interface1> ifc1AugId = ifcId.augmentation(Interface1.class);
-        // Ipv6(after interface) TODO unfinished customizer =
+        // Ipv6(after interface) =
         registry.addAfter(new GenericWriter<>(ifc1AugId.child(Ipv6.class), new Ipv6Customizer(jvpp)),
                 ifcId);
         // Ipv4(after interface)
@@ -159,7 +159,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
 
         final Set<InstanceIdentifier<?>> specificIfcTypes = Sets.newHashSet(vhostId, vxlanGpeId, vxlanGpeId, tapId);
 
-        // Ethernet(No dependency, customizer not finished TODO) =
+        // Ethernet =
         registry.add(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class), new EthernetCustomizer(jvpp)));
         // Routing(Execute only after specific interface customizers) =
         registry.addAfter(

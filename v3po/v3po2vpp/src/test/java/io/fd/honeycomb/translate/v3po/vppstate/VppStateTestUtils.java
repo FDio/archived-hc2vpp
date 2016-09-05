@@ -51,10 +51,6 @@ final class VppStateTestUtils {
         final InstanceIdentifier<VppState> vppStateId = InstanceIdentifier.create(VppState.class);
         registry.addStructuralReader(vppStateId, VppStateBuilder.class);
         //  Version
-        // Wrap with keepalive reader to detect connection issues
-        // TODO keepalive reader wrapper relies on VersionReaderCustomizer (to perform timeout on reads)
-        // Once readers+customizers are asynchronous, pull the timeout to keepalive executor so that keepalive wrapper
-        // is truly generic
         registry.add(new GenericReader<>(vppStateId.child(Version.class), new VersionCustomizer(jVpp)));
         //  BridgeDomains(Structural)
         bridgeDomainsId = vppStateId.child(BridgeDomains.class);

@@ -50,8 +50,6 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
         super(bindingDataBroker, InstanceIdentifier.create(VppState.class), InstanceIdentifier.create(Vpp.class));
     }
 
-    // TODO move to v3po2vpp
-
     @Override
     protected Vpp convert(final VppState operationalData) {
         LOG.debug("VppInitializer.convert()");

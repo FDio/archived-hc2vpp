@@ -112,7 +112,7 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
     @Nonnull
     @Override
     public List<BridgeDomainKey> getAllIds(@Nonnull final InstanceIdentifier<BridgeDomain> id,
-                                           @Nonnull final ReadContext context) {
+                                           @Nonnull final ReadContext context) throws ReadFailedException {
         final BridgeDomainDump request = new BridgeDomainDump();
         request.bdId = -1; // dump call
 
@@ -120,7 +120,7 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
         try {
             reply = getFutureJVpp().bridgeDomainDump(request).toCompletableFuture().get();
         } catch (Exception e) {
-            throw new IllegalStateException("Bridge domain dump failed", e); // TODO ReadFailedException?
+            throw new ReadFailedException(id, e);
         }
 
         if (reply == null || reply.bridgeDomainDetails == null) {

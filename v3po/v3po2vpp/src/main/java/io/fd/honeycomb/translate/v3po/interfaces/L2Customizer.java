@@ -59,7 +59,7 @@ public class L2Customizer extends FutureJVppCustomizer implements WriterCustomiz
 
         final String ifcName = id.firstKeyOf(Interface.class).getName();
         final int swIfc = interfaceContext.getIndex(ifcName, writeContext.getMappingContext());
-        // TODO handle update properly (if possible)
+        // No update, again calling set
         setL2(id, swIfc, ifcName, dataAfter, writeContext);
     }
 

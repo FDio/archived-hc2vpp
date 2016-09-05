@@ -67,7 +67,7 @@ public class BridgeDomainCustomizerTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        // TODO create base class for tests using vppApi
+        // TODO HONEYCOMB-116 create base class for tests using vppApi
         NamingContext namingContext = new NamingContext("generatedBDName", "test-instance");
         final ModificationCache toBeReturned = new ModificationCache();
         doReturn(toBeReturned).when(ctx).getModificationCache();
@@ -105,7 +105,7 @@ public class BridgeDomainCustomizerTest {
         final byte learn = BridgeDomainTestUtils.booleanToByte(bd.isLearn());
         final byte uuf = BridgeDomainTestUtils.booleanToByte(bd.isUnknownUnicastFlood());
 
-        // TODO adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
+        // TODO HONEYCOMB-185 adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
         ArgumentCaptor<BridgeDomainAddDel> argumentCaptor = ArgumentCaptor.forClass(BridgeDomainAddDel.class);
         verify(api).bridgeDomainAddDel(argumentCaptor.capture());
         final BridgeDomainAddDel actual = argumentCaptor.getValue();

@@ -101,8 +101,6 @@ public final class InterfaceUtils {
         sb.append(HEX_CHARS[v & 15]);
     }
 
-    // TODO rename and move to V3poUtils
-
     /**
      * Reads first 6 bytes of supplied byte array and converts to string as Yang dictates <p> Replace later with
      * https://git.opendaylight.org/gerrit/#/c/34869/10/model/ietf/ietf-type- util/src/main/

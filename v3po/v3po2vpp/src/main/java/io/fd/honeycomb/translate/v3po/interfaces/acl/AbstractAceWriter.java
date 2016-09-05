@@ -43,14 +43,14 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Base writer for translation of ietf-acl model ACEs to VPP's classify tables and sessions.
- *
+ * <p/>
  * Creates one classify table with single session per ACE.
  *
  * @param <T> type of access control list entry
  */
 abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
 
-    // TODO: minimise memory used by classify tables (we create a lot of them to make ietf-acl model
+    // TODO: HONEYCOMB-181 minimise memory used by classify tables (we create a lot of them to make ietf-acl model
     // mapping more convenient):
     // according to https://wiki.fd.io/view/VPP/Introduction_To_N-tuple_Classifiers#Creating_a_classifier_table,
     // classify table needs 16*(1 + match_n_vectors) bytes, but this does not quite work, so setting 8K for now

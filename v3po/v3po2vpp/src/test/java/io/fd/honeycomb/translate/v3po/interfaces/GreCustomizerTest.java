@@ -89,7 +89,7 @@ public class GreCustomizerTest {
         initMocks(this);
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.GreTunnel.class);
-        // TODO create base class for tests using vppApi
+        // TODO HONEYCOMB-116 create base class for tests using vppApi
         NamingContext namingContext = new NamingContext("generateInterfaceNAme", "test-instance");
         final ModificationCache toBeReturned = new ModificationCache();
         doReturn(toBeReturned).when(writeContext).getModificationCache();

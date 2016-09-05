@@ -89,12 +89,6 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         } else if (subnet instanceof Netmask) {
             setNetmaskSubnet(add, id, interfaceName, subInterfaceIndex, address, (Netmask) subnet);
         } else {
-            // FIXME how does choice extensibility work
-            // FIXME it is not even possible to create a dedicated
-            // customizer for Interconnection, since it's not a DataObject
-            // FIXME we might need a choice customizer
-            // THis choice is already from augment, so its probably not
-            // possible to augment augmented choice
             LOG.error("Unable to handle subnet of type {}", subnet.getClass());
             throw new WriteFailedException(id, "Unable to handle subnet of type " + subnet.getClass());
         }

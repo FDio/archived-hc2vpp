@@ -90,8 +90,9 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
         CreateVhostUserIf request = new CreateVhostUserIf();
         request.isServer = TranslateUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole()));
         request.sockFilename = vhostUser.getSocket().getBytes();
-        request.renumber = 0; // TODO
-        request.customDevInstance = 0; // TODO
+        // TODO HONEYCOMB-177 expose device instance attribute just like for TAP
+        request.renumber = 0;
+        request.customDevInstance = 0;
         request.useCustomMac = 0;
         request.macAddress = new byte[]{};
         return request;
@@ -127,8 +128,9 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
         ModifyVhostUserIf request = new ModifyVhostUserIf();
         request.isServer = TranslateUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole()));
         request.sockFilename = vhostUser.getSocket().getBytes();
-        request.renumber = 0; // TODO
-        request.customDevInstance = 0; // TODO
+        // TODO HONEYCOMB-177
+        request.renumber = 0;
+        request.customDevInstance = 0;
         request.swIfIndex = swIfIndex;
         return request;
     }

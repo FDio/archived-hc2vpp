@@ -43,7 +43,5 @@ public class EidConverterTest {
                                                 new MacAddress("aa:bb:cc:dd:ee:ff"))
                                                 .build())
                                 .build()));
-
-        //TODO  testing of other types when they are implemented
     }
 }

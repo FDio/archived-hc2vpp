@@ -33,9 +33,6 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 /**
  * Validation WriteCustomizers for Interface subnodes.
  * Validates the type of interface.
- *
- * TODO this should be validated on model/DataTree level. However DataTree does not enforce When conditions
- * Delete this class when DataTree handles when constraints properly
  */
 public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
     extends FutureJVppCustomizer implements WriterCustomizer<D> {

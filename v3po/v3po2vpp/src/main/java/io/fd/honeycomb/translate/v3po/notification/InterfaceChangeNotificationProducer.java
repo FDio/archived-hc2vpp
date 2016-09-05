@@ -78,7 +78,7 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
         notificationListenerReg = jvpp.getNotificationRegistry().registerSwInterfaceSetFlagsNotificationCallback(
             swInterfaceSetFlagsNotification -> {
                 LOG.trace("Interface notification received: {}", swInterfaceSetFlagsNotification);
-                // TODO this should be lazy
+                // TODO HONEYCOMB-166 this should be lazy
                 collector.onNotification(transformNotification(swInterfaceSetFlagsNotification));
             }
         );
@@ -101,7 +101,7 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
      * data tree (write transaction is still in progress and context changes have not been committed yet, or
      * VPP sends the notification before it returns create request(that would store mapping)).
      * <p/>
-     * In case mapping is not available, index is used as name. TODO inconsistent behavior, maybe just use indices ?
+     * In case mapping is not available, index is used as name.
      */
     private InterfaceNameOrIndex getIfcName(final SwInterfaceSetFlagsNotification swInterfaceSetFlagsNotification) {
         final Optional<String> optionalName =

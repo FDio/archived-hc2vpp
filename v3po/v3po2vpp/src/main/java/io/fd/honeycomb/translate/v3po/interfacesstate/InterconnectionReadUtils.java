@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility class providing Interconnection read support.
  */
-// FIXME this should be customizer, but it is not possible because Interconnection is not a DataObject
 final class InterconnectionReadUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterconnectionReadUtils.class);
@@ -93,7 +92,7 @@ final class InterconnectionReadUtils {
             }
             return bbBuilder.build();
         }
-        // TODO is there a way to check if interconnection is XconnectBased?
+        // TODO HONEYCOMB-190 is there a way to check if interconnection is XconnectBased?
 
         return null;
     }
@@ -116,8 +115,8 @@ final class InterconnectionReadUtils {
         throws ReadFailedException {
         try {
             // We need to perform full bd dump, because there is no way
-            // to ask VPP for BD details given interface id/name (TODO add it to vpp.api?)
-            // TODO cache dump result
+            // to ask VPP for BD details given interface id/name (TODO HONEYCOMB-190 add it to vpp.api?)
+            // TODO HONEYCOMB-190 cache dump result
             final BridgeDomainDump request = new BridgeDomainDump();
             request.bdId = -1;
 

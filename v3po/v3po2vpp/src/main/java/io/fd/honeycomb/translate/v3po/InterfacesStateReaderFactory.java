@@ -107,7 +107,6 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         final InstanceIdentifier<Interface2> ifc2AugId = ifcId.augmentation(Interface2.class);
         registry.addStructuralReader(ifc2AugId, Interface2Builder.class);
         //    Ipv4
-        // TODO unfinished customizer
         final InstanceIdentifier<Ipv4> ipv4Id = ifc2AugId.child(Ipv4.class);
         registry.add(new GenericReader<>(ipv4Id, new Ipv4Customizer(jvpp)));
         //     Address
@@ -117,7 +116,6 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         final InstanceIdentifier<Neighbor> neighborId = ipv4Id.child(Neighbor.class);
         registry.add(new GenericListReader<>(neighborId, new Ipv4NeighbourCustomizer(jvpp)));
         //    Ipv6
-        // TODO unfinished customizer
         final InstanceIdentifier<Ipv6> ipv6Id = ifc2AugId.child(Ipv6.class);
         registry.add(new GenericReader<>(ipv6Id, new Ipv6Customizer(jvpp, ifcCtx)));
     }

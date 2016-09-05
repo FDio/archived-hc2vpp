@@ -96,7 +96,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             final String ifaceName = key.getName();
             final int ifaceId = interfaceContext.getIndex(ifaceName, context.getMappingContext());
 
-            // TODO if we know that full dump was already performed we could use cache
+            // TODO HONEYCOMB-189 if we know that full dump was already performed we could use cache
             // (checking if getCachedInterfaceDump() returns non empty map is not enough, because
             // we could be part of particular iface state read
             final SwInterfaceDump request = new SwInterfaceDump();

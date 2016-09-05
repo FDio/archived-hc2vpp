@@ -16,10 +16,10 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.fd.honeycomb.common</groupId>
-        <artifactId>impl-parent</artifactId>
+        <groupId>io.fd.honeycomb.vpp</groupId>
+        <artifactId>vpp-impl-parent</artifactId>
         <version>1.16.12-SNAPSHOT</version>
-        <relativePath>../../common/impl-parent</relativePath>
+        <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -62,24 +62,20 @@
         <dependency>
             <groupId>io.fd.vpp</groupId>
             <artifactId>jvpp-core</artifactId>
-            <version>16.12-SNAPSHOT</version>
         </dependency>
 
         <!-- DI -->
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>${guice.version}</version>
         </dependency>
         <dependency>
             <groupId>net.jmob</groupId>
             <artifactId>guice.conf</artifactId>
-            <version>${guice.config.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
-            <version>${guice.version}</version>
         </dependency>
 
         <!-- Testing Dependencies -->

@@ -39,7 +39,6 @@ public class EthernetCustomizer extends FutureJVppCustomizer implements WriterCu
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
                                        @Nonnull final Ethernet dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        // TODO
         LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
         // VPP API does not support setting MTU
     }
@@ -48,14 +47,12 @@ public class EthernetCustomizer extends FutureJVppCustomizer implements WriterCu
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
                                         @Nonnull final Ethernet dataBefore, @Nonnull final Ethernet dataAfter,
                                         @Nonnull final WriteContext writeContext) {
-        // TODO
         LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
                                         @Nonnull final Ethernet dataBefore, @Nonnull final WriteContext writeContext) {
-        // TODO
         LOG.warn("Unsupported, ignoring configuration delete {}", id);
     }
 }

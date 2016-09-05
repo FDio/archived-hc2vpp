@@ -30,6 +30,7 @@
   <properties>
     <main.class>io.fd.honeycomb.vpp.distro.Main</main.class>
     <honeycomb.min.distro.version>1.16.12-SNAPSHOT</honeycomb.min.distro.version>
+    <jvpp.version>16.12-SNAPSHOT</jvpp.version>
   </properties>
 
   <build>
@@ -74,12 +75,12 @@
     <dependency>
       <groupId>io.fd.vpp</groupId>
       <artifactId>jvpp-registry</artifactId>
-      <version>16.12-SNAPSHOT</version>
+      <version>${jvpp.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.vpp</groupId>
       <artifactId>jvpp-core</artifactId>
-      <version>16.12-SNAPSHOT</version>
+      <version>${jvpp.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
