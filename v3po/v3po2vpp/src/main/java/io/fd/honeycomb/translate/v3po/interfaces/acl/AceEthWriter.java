@@ -43,7 +43,8 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> {
     @Override
     public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
                                                    @Nonnull final AceEth aceEth,
-                                                   @Nonnull final int nextTableIndex) {
+                                                   @Nonnull final int nextTableIndex,
+                                                   final int vlanTags) {
         final ClassifyAddDelTable request = createClassifyTable(action, nextTableIndex);
 
         request.mask = new byte[16];
@@ -101,7 +102,8 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> {
     @Override
     public ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
                                                        @Nonnull final AceEth aceEth,
-                                                       @Nonnull final int tableIndex) {
+                                                       @Nonnull final int tableIndex,
+                                                       final int vlanTags) {
         final ClassifyAddDelSession request = createClassifySession(action, tableIndex);
 
         request.match = new byte[16];

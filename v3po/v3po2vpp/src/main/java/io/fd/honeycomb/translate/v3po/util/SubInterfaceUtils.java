@@ -16,6 +16,12 @@
 
 package io.fd.honeycomb.translate.v3po.util;
 
+import java.util.List;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.Tag;
+
 public final class SubInterfaceUtils {
 
     private SubInterfaceUtils() {
@@ -24,5 +30,23 @@ public final class SubInterfaceUtils {
 
     public static String getSubInterfaceName(final String superIfName, final int subIfaceId) {
         return String.format("%s.%d", superIfName, subIfaceId);
+    }
+
+    /**
+     * Returns number of sub-interface tags.
+     *
+     * @param tags data object that represents sub-interface tags
+     * @return number of sub interface tags
+     */
+    @Nonnegative
+    public static int getNumberOfTags(@Nullable final Tags tags) {
+        if (tags == null) {
+            return 0;
+        }
+        final List<Tag> tagList = tags.getTag();
+        if (tagList == null) {
+            return 0;
+        }
+        return tagList.size();
     }
 }

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AclBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclKey;
@@ -121,6 +122,12 @@ public final class IetfAClWriter {
     void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, @Nonnull final List<Acl> acls,
                @Nonnull final WriteContext writeContext)
         throws VppBaseCallException, WriteTimeoutException {
+        write(id, swIfIndex, acls, writeContext, 0);
+    }
+
+    void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, @Nonnull final List<Acl> acls,
+               @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags)
+        throws VppBaseCallException, WriteTimeoutException {
 
         // filter ACE entries and group by AceType
         final Map<AclType, List<Ace>> acesByType = acls.stream()
@@ -147,7 +154,7 @@ public final class IetfAClWriter {
             if (aceWriter == null) {
                 LOG.warn("AceProcessor for {} not registered. Skipping ACE.", aceType);
             } else {
-                aceWriter.write(id, aces, request);
+                aceWriter.write(id, aces, request, numberOfTags);
             }
         }
 

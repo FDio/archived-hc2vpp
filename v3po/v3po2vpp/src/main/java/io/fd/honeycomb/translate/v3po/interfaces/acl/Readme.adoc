@@ -27,6 +27,3 @@ VPP classfier works in form of offsets and masks of 16B units.
 The offset always starts at the beginning of L2 Ethernet header
 of input packet. Because IP header can have variable length,
 source/destination port matching (L4 features of ietf-acl model) is not possible.
-
-Current implementation also assumes constant Ethernet header size
-(802.1Q headers are not supported).

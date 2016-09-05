@@ -16,14 +16,17 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collector;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
@@ -53,6 +56,9 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
     // classify table needs 16*(1 + match_n_vectors) bytes, but this does not quite work, so setting 8K for now
     protected static final int TABLE_MEM_SIZE = 8 * 1024;
 
+    @VisibleForTesting
+    static final int VLAN_TAG_LEN = 4;
+
     private static final Collector<PacketHandling, ?, PacketHandling> SINGLE_ITEM_COLLECTOR =
         RWUtils.singleItemCollector();
 
@@ -68,11 +74,13 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
      * @param action         packet handling action (permit/deny)
      * @param ace            ACE to be translated
      * @param nextTableIndex classify table index
+     * @param vlanTags       number of vlan tags
      * @return classify table that represents given ACE
      */
     protected abstract ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
                                                                @Nonnull final T ace,
-                                                               final int nextTableIndex);
+                                                               final int nextTableIndex,
+                                                               final int vlanTags);
 
     /**
      * Creates classify session for given ACE.
@@ -80,11 +88,13 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
      * @param action     packet handling action (permit/deny)
      * @param ace        ACE to be translated
      * @param tableIndex classify table index for the given session
+     * @param vlanTags   number of vlan tags
      * @return classify session that represents given ACE
      */
     protected abstract ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
                                                                    @Nonnull final T ace,
-                                                                   final int tableIndex);
+                                                                   final int tableIndex,
+                                                                   final int vlanTags);
 
     /**
      * Sets classify table index for input_acl_set_interface request.
@@ -94,21 +104,24 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
      */
     protected abstract void setClassifyTable(@Nonnull final InputAclSetInterface request, final int tableIndex);
 
+    @Override
     public final void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
-                            @Nonnull final InputAclSetInterface request)
+                            @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
         throws VppBaseCallException, WriteTimeoutException {
         final PacketHandling action = aces.stream().map(ace -> ace.getActions().getPacketHandling()).distinct()
             .collect(SINGLE_ITEM_COLLECTOR);
+
+        checkArgument(vlanTags >= 0 && vlanTags <= 2, "Number of vlan tags %s is not in [0,2] range");
 
         int nextTableIndex = -1;
         for (final Ace ace : aces) {
             // Create table + session per entry
 
             final ClassifyAddDelTable ctRequest =
-                createClassifyTable(action, (T) ace.getMatches().getAceType(), nextTableIndex);
+                createClassifyTable(action, (T) ace.getMatches().getAceType(), nextTableIndex, vlanTags);
             nextTableIndex = createClassifyTable(id, ctRequest);
             createClassifySession(id,
-                createClassifySession(action, (T) ace.getMatches().getAceType(), nextTableIndex));
+                createClassifySession(action, (T) ace.getMatches().getAceType(), nextTableIndex, vlanTags));
         }
         setClassifyTable(request, nextTableIndex);
     }
@@ -159,5 +172,9 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
         } // deny (0) is default value
 
         return request;
+    }
+
+    protected int getVlanTagsLen(final int vlanTags) {
+        return vlanTags * VLAN_TAG_LEN;
     }
 }

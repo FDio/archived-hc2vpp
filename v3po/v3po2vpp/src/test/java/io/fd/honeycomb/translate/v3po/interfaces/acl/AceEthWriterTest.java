@@ -57,7 +57,7 @@ public class AceEthWriterTest {
     @Test
     public void testGetClassifyAddDelTableRequest() throws Exception {
         final int nextTableIndex = 42;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceEth, nextTableIndex);
+        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceEth, nextTableIndex, 0);
 
         assertEquals(1, request.isAdd);
         assertEquals(-1, request.tableIndex);
@@ -81,7 +81,7 @@ public class AceEthWriterTest {
     @Test
     public void testGetClassifyAddDelSessionRequest() throws Exception {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createClassifySession(action, aceEth, tableIndex);
+        final ClassifyAddDelSession request = writer.createClassifySession(action, aceEth, tableIndex, 0);
 
         assertEquals(1, request.isAdd);
         assertEquals(tableIndex, request.tableIndex);

@@ -17,18 +17,18 @@
 package io.fd.honeycomb.translate.v3po.interfaces;
 
 import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils.getNumberOfTags;
 import static io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -44,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.MatchType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.Default;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.vlan.tagged.VlanTagged;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.Tag;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
@@ -108,7 +107,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         request.subId = Math.toIntExact(subInterface.getIdentifier().intValue());
         request.swIfIndex = swIfIndex;
 
-        final int numberOfTags = getNumberOfTags(subInterface);
+        final int numberOfTags = getNumberOfTags(subInterface.getTags());
         switch (numberOfTags) {
             case 0:
                 request.noTags = 1;
@@ -153,18 +152,6 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
 
         request.innerVlanId = dot1qVlanIdToShort(vlanId.getDot1qVlanId());
         request.innerVlanIdAny = booleanToByte(Dot1qTag.VlanId.Enumeration.Any.equals(vlanId.getEnumeration()));
-    }
-
-    private static int getNumberOfTags(@Nonnull final SubInterface subInterface) {
-        final Tags tags = subInterface.getTags();
-        if (tags == null) {
-            return 0;
-        }
-        final List<Tag> tagList = tags.getTag();
-        if (tagList == null) {
-            return 0;
-        }
-        return tagList.size();
     }
 
     private static short dot1qVlanIdToShort(@Nullable Dot1qVlanId dot1qVlanId) {

@@ -92,7 +92,8 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
     @Override
     public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
                                                    @Nonnull final AceIp aceIp,
-                                                   final int nextTableIndex) {
+                                                   final int nextTableIndex,
+                                                   final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv6, "Expected AceIpv6 version, but was %", aceIp);
         final AceIpv6 ipVersion = (AceIpv6) aceIp.getAceIpVersion();
 
@@ -102,15 +103,18 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
 
         boolean aceIsEmpty = true;
         request.mask = new byte[TABLE_MASK_LENGTH];
+
+        final int baseOffset = getVlanTagsLen(vlanTags);
+
         if (aceIp.getProtocol() != null) {
-            request.mask[IP_VERSION_OFFSET] |= IP_VERSION_MASK;
+            request.mask[baseOffset + IP_VERSION_OFFSET] |= IP_VERSION_MASK;
         }
 
         if (aceIp.getDscp() != null) {
             aceIsEmpty = false;
             // DCSP (bits 4-9 of IP6 header)
-            request.mask[IP_VERSION_OFFSET] |= DSCP_MASK1;
-            request.mask[IP_VERSION_OFFSET + 1] |= DSCP_MASK2;
+            request.mask[baseOffset + IP_VERSION_OFFSET] |= DSCP_MASK1;
+            request.mask[baseOffset + IP_VERSION_OFFSET + 1] |= DSCP_MASK2;
         }
 
         if (aceIp.getSourcePortRange() != null) {
@@ -124,21 +128,21 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
         if (ipVersion.getFlowLabel() != null) {
             aceIsEmpty = false;
             // bits 12-31
-            request.mask[IP_VERSION_OFFSET + 1] |= (byte) 0x0f;
-            request.mask[IP_VERSION_OFFSET + 2] = (byte) 0xff;
-            request.mask[IP_VERSION_OFFSET + 3] = (byte) 0xff;
+            request.mask[baseOffset + IP_VERSION_OFFSET + 1] |= (byte) 0x0f;
+            request.mask[baseOffset + IP_VERSION_OFFSET + 2] = (byte) 0xff;
+            request.mask[baseOffset + IP_VERSION_OFFSET + 3] = (byte) 0xff;
         }
 
         if (ipVersion.getSourceIpv6Network() != null) {
             aceIsEmpty = false;
             final byte[] mask = toByteMask(ipVersion.getSourceIpv6Network());
-            System.arraycopy(mask, 0, request.mask, SRC_IP_OFFSET, mask.length);
+            System.arraycopy(mask, 0, request.mask, baseOffset + SRC_IP_OFFSET, mask.length);
         }
 
         if (ipVersion.getDestinationIpv6Network() != null) {
             aceIsEmpty = false;
             final byte[] mask = toByteMask(ipVersion.getDestinationIpv6Network());
-            System.arraycopy(mask, 0, request.mask, DST_IP_OFFSET, mask.length);
+            System.arraycopy(mask, 0, request.mask, baseOffset + DST_IP_OFFSET, mask.length);
         }
 
         if (aceIsEmpty) {
@@ -157,7 +161,8 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
     @Override
     public ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
                                                        @Nonnull final AceIp aceIp,
-                                                       final int tableIndex) {
+                                                       final int tableIndex,
+                                                       final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv6, "Expected AceIpv6 version, but was %", aceIp);
         final AceIpv6 ipVersion = (AceIpv6) aceIp.getAceIpVersion();
 
@@ -165,16 +170,19 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
         request.match = new byte[TABLE_MASK_LENGTH];
         boolean noMatch = true;
 
+        final int baseOffset = getVlanTagsLen(vlanTags);
+
         if (aceIp.getProtocol() != null) {
-            request.match[IP_VERSION_OFFSET] |= (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
+            request.match[baseOffset + IP_VERSION_OFFSET] |=
+                (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
         }
 
         if (aceIp.getDscp() != null) {
             noMatch = false;
             final int dscp = aceIp.getDscp().getValue();
             // set bits 4-9 of IP6 header:
-            request.match[IP_VERSION_OFFSET] |= (byte) (DSCP_MASK1 & (dscp >> 2));
-            request.match[IP_VERSION_OFFSET + 1] |= (byte) (DSCP_MASK2 & (dscp << 6));
+            request.match[baseOffset + IP_VERSION_OFFSET] |= (byte) (DSCP_MASK1 & (dscp >> 2));
+            request.match[baseOffset + IP_VERSION_OFFSET + 1] |= (byte) (DSCP_MASK2 & (dscp << 6));
         }
 
         if (aceIp.getSourcePortRange() != null) {
@@ -189,21 +197,21 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
             noMatch = false;
             final int flowLabel = ipVersion.getFlowLabel().getValue().intValue();
             // bits 12-31
-            request.match[IP_VERSION_OFFSET + 1] |= (byte) (0x0f & (flowLabel >> 16));
-            request.match[IP_VERSION_OFFSET + 2] = (byte) (0xff & (flowLabel >> 8));
-            request.match[IP_VERSION_OFFSET + 3] = (byte) (0xff & flowLabel);
+            request.match[baseOffset + IP_VERSION_OFFSET + 1] |= (byte) (0x0f & (flowLabel >> 16));
+            request.match[baseOffset + IP_VERSION_OFFSET + 2] = (byte) (0xff & (flowLabel >> 8));
+            request.match[baseOffset + IP_VERSION_OFFSET + 3] = (byte) (0xff & flowLabel);
         }
 
         if (ipVersion.getSourceIpv6Network() != null) {
             noMatch = false;
             final byte[] match = toMatchValue(ipVersion.getSourceIpv6Network());
-            System.arraycopy(match, 0, request.match, SRC_IP_OFFSET, IP6_LEN);
+            System.arraycopy(match, 0, request.match, baseOffset + SRC_IP_OFFSET, IP6_LEN);
         }
 
         if (ipVersion.getDestinationIpv6Network() != null) {
             noMatch = false;
             final byte[] match = toMatchValue(ipVersion.getDestinationIpv6Network());
-            System.arraycopy(match, 0, request.match, DST_IP_OFFSET, IP6_LEN);
+            System.arraycopy(match, 0, request.match, baseOffset + DST_IP_OFFSET, IP6_LEN);
         }
 
         if (noMatch) {

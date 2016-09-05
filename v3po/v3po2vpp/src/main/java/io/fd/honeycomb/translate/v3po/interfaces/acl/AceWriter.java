@@ -18,6 +18,7 @@ package io.fd.honeycomb.translate.v3po.interfaces.acl;
 
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import java.util.List;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -39,5 +40,6 @@ interface AceWriter {
      * @param request input_acl_set_interface request DTO
      */
     void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
-               @Nonnull final InputAclSetInterface request) throws VppBaseCallException, WriteTimeoutException;
+               @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
+        throws VppBaseCallException, WriteTimeoutException;
 }

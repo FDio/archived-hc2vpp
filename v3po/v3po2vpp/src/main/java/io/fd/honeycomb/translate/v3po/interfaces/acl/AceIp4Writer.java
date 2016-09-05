@@ -77,7 +77,8 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
     @Override
     public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
                                                    @Nonnull final AceIp aceIp,
-                                                   final int nextTableIndex) {
+                                                   final int nextTableIndex,
+                                                   final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv4, "Expected AceIpv4 version, but was %", aceIp);
         final AceIpv4 ipVersion = (AceIpv4) aceIp.getAceIpVersion();
 
@@ -88,14 +89,16 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
         boolean aceIsEmpty = true;
         request.mask = new byte[TABLE_MASK_LENGTH];
 
+        final int baseOffset = getVlanTagsLen(vlanTags);
+
         // First 14 bytes represent l2 header (2x6 + etherType(2))
         if (aceIp.getProtocol() != null) { // Internet Protocol number
-            request.mask[IP_VERSION_OFFSET] = (byte) IP_VERSION_MASK; // first 4 bits
+            request.mask[baseOffset + IP_VERSION_OFFSET] = (byte) IP_VERSION_MASK; // first 4 bits
         }
 
         if (aceIp.getDscp() != null) {
             aceIsEmpty = false;
-            request.mask[DSCP_OFFSET] = (byte) DSCP_MASK; // first 6 bits
+            request.mask[baseOffset + DSCP_OFFSET] = (byte) DSCP_MASK; // first 6 bits
         }
 
         if (aceIp.getSourcePortRange() != null) {
@@ -108,13 +111,15 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
 
         if (ipVersion.getSourceIpv4Network() != null) {
             aceIsEmpty = false;
-            System.arraycopy(toByteMask(ipVersion.getSourceIpv4Network()), 0, request.mask, SRC_IP_OFFSET, IP4_LEN);
+            System.arraycopy(toByteMask(ipVersion.getSourceIpv4Network()), 0, request.mask, baseOffset + SRC_IP_OFFSET,
+                IP4_LEN);
         }
 
         if (ipVersion.getDestinationIpv4Network() != null) {
             aceIsEmpty = false;
             System
-                .arraycopy(toByteMask(ipVersion.getDestinationIpv4Network()), 0, request.mask, DST_IP_OFFSET, IP4_LEN);
+                .arraycopy(toByteMask(ipVersion.getDestinationIpv4Network()), 0, request.mask,
+                    baseOffset + DST_IP_OFFSET, IP4_LEN);
         }
 
         if (aceIsEmpty) {
@@ -132,7 +137,8 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
     @Override
     public ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
                                                        @Nonnull final AceIp aceIp,
-                                                       final int tableIndex) {
+                                                       final int tableIndex,
+                                                       final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv4, "Expected AceIpv4 version, but was %", aceIp);
         final AceIpv4 ipVersion = (AceIpv4) aceIp.getAceIpVersion();
 
@@ -141,13 +147,16 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
         request.match = new byte[TABLE_MASK_LENGTH];
         boolean noMatch = true;
 
+        final int baseOffset = getVlanTagsLen(vlanTags);
+
         if (aceIp.getProtocol() != null) {
-            request.match[IP_VERSION_OFFSET] = (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
+            request.match[baseOffset + IP_VERSION_OFFSET] =
+                (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
         }
 
         if (aceIp.getDscp() != null) {
             noMatch = false;
-            request.match[DSCP_OFFSET] = (byte) (DSCP_MASK & (aceIp.getDscp().getValue() << 2));
+            request.match[baseOffset + DSCP_OFFSET] = (byte) (DSCP_MASK & (aceIp.getDscp().getValue() << 2));
         }
 
         if (aceIp.getSourcePortRange() != null) {
@@ -160,12 +169,15 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
 
         if (ipVersion.getSourceIpv4Network() != null) {
             noMatch = false;
-            System.arraycopy(toMatchValue(ipVersion.getSourceIpv4Network()), 0, request.match, SRC_IP_OFFSET, IP4_LEN);
+            System
+                .arraycopy(toMatchValue(ipVersion.getSourceIpv4Network()), 0, request.match, baseOffset + SRC_IP_OFFSET,
+                    IP4_LEN);
         }
 
         if (ipVersion.getDestinationIpv4Network() != null) {
             noMatch = false;
-            System.arraycopy(toMatchValue(ipVersion.getDestinationIpv4Network()), 0, request.match, DST_IP_OFFSET,
+            System.arraycopy(toMatchValue(ipVersion.getDestinationIpv4Network()), 0, request.match,
+                baseOffset + DST_IP_OFFSET,
                 IP4_LEN);
         }
 

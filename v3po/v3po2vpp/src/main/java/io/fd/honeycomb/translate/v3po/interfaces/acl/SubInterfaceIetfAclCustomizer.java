@@ -18,7 +18,10 @@ package io.fd.honeycomb.translate.v3po.interfaces.acl;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils.getNumberOfTags;
 
+import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
@@ -73,8 +76,14 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<IetfAcl> 
         checkArgument(accessLists != null && accessLists.getAcl() != null,
             "ietf-acl container does not define acl list");
 
+        final Optional<SubInterface> subInterfaceOptional =
+            writeContext.readAfter(id.firstIdentifierOf(SubInterface.class));
+        checkState(subInterfaceOptional.isPresent(), "Could not read SubInterface data object for %s", id);
+        final SubInterface subInterface = subInterfaceOptional.get();
+
         try {
-            aclWriter.write(id, subInterfaceIndex, accessLists.getAcl(), writeContext);
+            aclWriter.write(id, subInterfaceIndex, accessLists.getAcl(), writeContext,
+                getNumberOfTags(subInterface.getTags()));
         } catch (VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }

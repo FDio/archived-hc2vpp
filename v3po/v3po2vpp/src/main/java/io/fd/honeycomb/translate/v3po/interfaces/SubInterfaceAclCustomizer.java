@@ -18,13 +18,13 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -47,7 +47,8 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
     private final NamingContext interfaceContext;
     private final NamingContext classifyTableContext;
 
-    public SubInterfaceAclCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull final NamingContext interfaceContext,
+    public SubInterfaceAclCustomizer(@Nonnull final FutureJVppCore vppApi,
+                                     @Nonnull final NamingContext interfaceContext,
                                      @Nonnull final NamingContext classifyTableContext) {
         super(vppApi);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
