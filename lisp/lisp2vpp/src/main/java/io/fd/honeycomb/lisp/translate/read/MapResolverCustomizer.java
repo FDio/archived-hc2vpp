@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.lisp.translate.read;
 
+import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.arrayToIpAddress;
+import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.byteToBoolean;
 import static io.fd.honeycomb.translate.v3po.util.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
@@ -25,12 +27,12 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.MapResolversBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolver;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolverBuilder;
@@ -82,19 +84,22 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
             return;
         }
 
-        MapResolverKey key = id.firstKeyOf(MapResolver.class);
-        LispMapResolverDetailsReplyDump dump = dumpOptional.get();
+        final MapResolverKey key = id.firstKeyOf(MapResolver.class);
+        final IpAddress address = key.getIpAddress();
+        final LispMapResolverDetailsReplyDump dump = dumpOptional.get();
 
         //cannot use RWUtils.singleItemCollector(),there is some problem with generic params binding
         java.util.Optional<LispMapResolverDetails> mapResolverOptional =
-                dump.lispMapResolverDetails.stream().filter(key::equals).findFirst();
+                dump.lispMapResolverDetails.stream()
+                        .filter(a -> address.equals(arrayToIpAddress(byteToBoolean(a.isIpv6), a.ipAddress)))
+                        .findFirst();
 
         if (mapResolverOptional.isPresent()) {
             LispMapResolverDetails details = mapResolverOptional.get();
 
             builder.setKey(key);
             builder.setIpAddress(
-                    TranslateUtils.arrayToIpAddress(TranslateUtils.byteToBoolean(details.isIpv6), details.ipAddress));
+                    arrayToIpAddress(byteToBoolean(details.isIpv6), details.ipAddress));
         } else {
             LOG.warn("No data found with matching key");
         }
@@ -120,8 +125,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
 
         return dumpOptional.get().lispMapResolverDetails.stream()
                 .map(resolver -> new MapResolverKey(
-                        TranslateUtils
-                                .arrayToIpAddress(TranslateUtils.byteToBoolean(resolver.isIpv6), resolver.ipAddress)))
+                        arrayToIpAddress(byteToBoolean(resolver.isIpv6), resolver.ipAddress)))
                 .collect(Collectors.toList());
     }
 
