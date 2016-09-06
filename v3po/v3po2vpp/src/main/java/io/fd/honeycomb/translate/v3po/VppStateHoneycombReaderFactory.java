@@ -25,6 +25,7 @@ import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.KeepaliveReaderWrapper;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.ReadTimeoutException;
+import io.fd.honeycomb.translate.v3po.util.VppStatusListener;
 import io.fd.honeycomb.translate.v3po.vppstate.BridgeDomainCustomizer;
 import io.fd.honeycomb.translate.v3po.vppstate.L2FibEntryCustomizer;
 import io.fd.honeycomb.translate.v3po.vppstate.VersionCustomizer;
@@ -40,27 +41,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class VppStateHoneycombReaderFactory implements ReaderFactory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(VppStateHoneycombReaderFactory.class);
 
     private final FutureJVppCore jVpp;
     private final NamingContext ifcCtx;
     private final NamingContext bdCtx;
     private final ScheduledExecutorService keepaliveExecutor;
+    private final VppStatusListener vppStatusListener;
 
     @Inject
     public VppStateHoneycombReaderFactory(final FutureJVppCore jVpp,
                                           @Named("interface-context") final NamingContext ifcCtx,
                                           @Named("bridge-domain-context") final NamingContext bdCtx,
-                                          final ScheduledExecutorService keepaliveExecutorDependency) {
+                                          final ScheduledExecutorService keepaliveExecutorDependency,
+                                          final VppStatusListener vppStatusListener) {
         this.jVpp = jVpp;
         this.ifcCtx = ifcCtx;
         this.bdCtx = bdCtx;
         this.keepaliveExecutor = keepaliveExecutorDependency;
+        this.vppStatusListener = vppStatusListener;
     }
 
     @Override
@@ -73,9 +73,7 @@ public final class VppStateHoneycombReaderFactory implements ReaderFactory {
         // Relying on VersionCustomizer to provide a "timing out read"
         registry.add(new KeepaliveReaderWrapper<>(
                 new GenericReader<>(vppStateId.child(Version.class), new VersionCustomizer(jVpp)),
-                keepaliveExecutor, ReadTimeoutException.class, 30,
-                // FIXME HONEYCOMB-78 trigger jvpp reinitialization here
-                () -> LOG.error("Keepalive failed. VPP is probably DOWN!")));
+                keepaliveExecutor, ReadTimeoutException.class, 30, vppStatusListener));
         //  BridgeDomains(Structural)
         final InstanceIdentifier<BridgeDomains> bridgeDomainsId = vppStateId.child(BridgeDomains.class);
         registry.addStructuralReader(bridgeDomainsId, BridgeDomainsBuilder.class);

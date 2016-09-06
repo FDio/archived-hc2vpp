@@ -18,6 +18,7 @@ package io.fd.honeycomb.vpp.distro;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.translate.v3po.util.VppStatusListener;
 import java.io.IOException;
 import org.openvpp.jvpp.JVppRegistry;
 import org.openvpp.jvpp.JVppRegistryImpl;
@@ -34,6 +35,8 @@ public final class JVppRegistryProvider extends ProviderTrait<JVppRegistry> {
 
     @Inject
     private VppConfigAttributes config;
+    @Inject
+    private VppStatusListener vppStatus;
 
     @Override
     protected JVppRegistryImpl create() {
@@ -47,6 +50,10 @@ public final class JVppRegistryProvider extends ProviderTrait<JVppRegistry> {
                 @Override
                 public void run() {
                     LOG.info("Disconnecting from VPP");
+                    if (vppStatus.isDown()) {
+                        LOG.info("VPP is down. JVppRegistry cleanup is not needed. Exiting");
+                        return;
+                    }
                     try {
                         registry.close();
                         LOG.info("Successfully disconnected from VPP as {}", config.jvppConnectionName);

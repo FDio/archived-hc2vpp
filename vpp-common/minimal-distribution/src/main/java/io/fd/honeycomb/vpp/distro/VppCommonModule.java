@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.v3po.util.VppStatusListener;
 import net.jmob.guice.conf.core.ConfigurationModule;
 import org.openvpp.jvpp.JVppRegistry;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
@@ -31,6 +32,7 @@ public final class VppCommonModule extends AbstractModule {
         // Inject non-dependency configuration
         requestInjection(VppConfigAttributes.class);
 
+        bind(VppStatusListener.class).toInstance(new VppStatusListener());
         bind(JVppRegistry.class).toProvider(JVppRegistryProvider.class).in(Singleton.class);
         bind(FutureJVppCore.class).toProvider(JVppCoreProvider.class).in(Singleton.class);
 
