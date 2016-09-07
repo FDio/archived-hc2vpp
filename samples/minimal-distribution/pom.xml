@@ -32,6 +32,7 @@
     <main.class>io.fd.honeycomb.samples.distro.Main</main.class>
     <interfaces.mapping.version>1.16.12-SNAPSHOT</interfaces.mapping.version>
     <honeycomb.min.distro.version>1.16.12-SNAPSHOT</honeycomb.min.distro.version>
+    <sonar.skip>true</sonar.skip>
   </properties>
 
   <build>

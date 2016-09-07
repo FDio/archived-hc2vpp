@@ -29,6 +29,7 @@
 
   <properties>
     <honeycomb.infra.version>1.16.12-SNAPSHOT</honeycomb.infra.version>
+    <sonar.skip>true</sonar.skip>
   </properties>
 
   <dependencies>

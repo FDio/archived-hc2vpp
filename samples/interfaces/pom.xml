@@ -31,10 +31,16 @@
   <prerequisites>
     <maven>3.1.1</maven>
   </prerequisites>
+
+  <properties>
+    <sonar.skip>true</sonar.skip>
+  </properties>
+
   <modules>
     <module>models</module>
     <module>mapping</module>
   </modules>
+
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
     <plugins>
