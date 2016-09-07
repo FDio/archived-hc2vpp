@@ -31,6 +31,11 @@
   <prerequisites>
     <maven>3.1.1</maven>
   </prerequisites>
+
+  <properties>
+    <sonar.skip>true</sonar.skip>
+  </properties>
+
   <modules>
     <module>interfaces</module>
     <module>minimal-distribution</module>
