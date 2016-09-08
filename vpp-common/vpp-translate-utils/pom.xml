@@ -31,7 +31,6 @@
     <properties>
         <commons.codec.version>1.9</commons.codec.version>
         <system.rules.version>1.16.0</system.rules.version>
-        <skinny.logback.version>1.0.8</skinny.logback.version>
     </properties>
 
     <dependencies>
@@ -85,7 +84,6 @@
         <dependency>
             <groupId>org.skinny-framework</groupId>
             <artifactId>skinny-logback</artifactId>
-            <version>${skinny.logback.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
