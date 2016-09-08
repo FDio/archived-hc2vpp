@@ -1,0 +1,14 @@
+= nsh
+
+This is a Honeycomb plugin providing mapping code between HC and NSH_SFC Plugin APIs.
+
+== Usage
+
+Refer to nsh_postman_collection.json for sample requests. All capabilities of NSH_SFC are demo-ed there.
+
+In order to make HC NSH plugin work, need to start vpp and load nsh_sfc plugin first.
+
+Please follow the right order to support NSH_SFC feature:
+(1). Creates vxlan-gpe interface.
+(2). Creates nsh-entry.
+(3). Creates nsh-map. 
