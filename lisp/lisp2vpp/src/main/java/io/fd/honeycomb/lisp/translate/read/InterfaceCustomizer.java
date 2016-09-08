@@ -87,14 +87,22 @@ public class InterfaceCustomizer
     @Override
     public void readCurrentAttributes(InstanceIdentifier<Interface> id, InterfaceBuilder builder, ReadContext ctx)
             throws ReadFailedException {
-        checkState(id.firstKeyOf(LocatorSet.class) != null, "Cannot find reference to parent locator set");
-        final String name = id.firstKeyOf(LocatorSet.class).getName();
 
-        checkState(locatorSetContext.containsIndex(name, ctx.getMappingContext()));
-        final int interfaceIndex = locatorSetContext.getIndex(name, ctx.getMappingContext());
+        final String locatorSetName = id.firstKeyOf(LocatorSet.class).getName();
+        final String referencedInterfaceName = id.firstKeyOf(Interface.class).getInterfaceRef();
+
+        checkState(interfaceContext.containsIndex(referencedInterfaceName, ctx.getMappingContext()),
+                "No interface mapping for name %s", referencedInterfaceName);
+        checkState(locatorSetContext.containsIndex(locatorSetName, ctx.getMappingContext()),
+                "No locator set mapping for name %s", locatorSetName);
+
+        final int locatorSetIndexIndex = locatorSetContext.getIndex(locatorSetName, ctx.getMappingContext());
+        final int referencedInterfaceIndex =
+                interfaceContext.getIndex(referencedInterfaceName, ctx.getMappingContext());
+
         final LocatorDumpParams params = new LocatorDumpParams.LocatorDumpParamsBuilder()
                 .setFilter(LocatorDumpParams.LocatorDumpFilter.LOCAL)
-                .setLocatorSetIndex(interfaceIndex)
+                .setLocatorSetIndex(locatorSetIndexIndex)
                 .build();
 
         Optional<LispLocatorDetailsReplyDump> reply;
@@ -108,7 +116,7 @@ public class InterfaceCustomizer
             final LispLocatorDetails details = reply.get()
                     .lispLocatorDetails
                     .stream()
-                    .filter(a -> a.swIfIndex == interfaceIndex)
+                    .filter(a -> a.swIfIndex == referencedInterfaceIndex)
                     .collect(RWUtils.singleItemCollector());
 
             final String interfaceRef = interfaceContext.getName(details.swIfIndex, ctx.getMappingContext());
