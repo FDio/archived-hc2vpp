@@ -66,10 +66,11 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public final class InterfacesStateReaderFactory implements ReaderFactory {
 
-    private NamingContext ifcCtx;
-    private NamingContext bdCtx;
-    private NamingContext classifyCtx;
-    private FutureJVppCore jvpp;
+    private final NamingContext ifcNamingCtx;
+    private final NamingContext bdNamingCtx;
+    private final NamingContext classifyNamingCtx;
+    private final DisabledInterfacesManager ifcDisableContext;
+    private final FutureJVppCore jvpp;
 
     static final InstanceIdentifier<InterfacesState> IFC_STATE_ID =
             InstanceIdentifier.create(InterfacesState.class);
@@ -77,13 +78,15 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
 
     @Inject
     public InterfacesStateReaderFactory(final FutureJVppCore jvpp,
-                                        @Named("interface-context") final NamingContext ifcCtx,
-                                        @Named("bridge-domain-context") final NamingContext bdCtx,
-                                        @Named("classify-table-context") final NamingContext classifyCtx) {
+                                        @Named("interface-context") final NamingContext ifcNamingCtx,
+                                        @Named("bridge-domain-context") final NamingContext bdNamingCtx,
+                                        @Named("classify-table-context") final NamingContext classifyNamingCtx,
+                                        final DisabledInterfacesManager ifcDisableContext) {
         this.jvpp = jvpp;
-        this.ifcCtx = ifcCtx;
-        this.bdCtx = bdCtx;
-        this.classifyCtx = classifyCtx;
+        this.ifcNamingCtx = ifcNamingCtx;
+        this.bdNamingCtx = bdNamingCtx;
+        this.classifyNamingCtx = classifyNamingCtx;
+        this.ifcDisableContext = ifcDisableContext;
     }
 
     @Override
@@ -91,14 +94,14 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         // InterfacesState(Structural)
         registry.addStructuralReader(IFC_STATE_ID, InterfacesStateBuilder.class);
         //  Interface
-        registry.add(new GenericListReader<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericListReader<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcNamingCtx, ifcDisableContext)));
 
         // v3po.yang
         initVppIfcAugmentationReaders(registry, IFC_ID);
         // ietf-ip.yang
         initInterface2AugmentationReaders(registry, IFC_ID);
         // vpp-vlan.yang
-        new SubinterfaceStateAugmentationReaderFactory(jvpp, ifcCtx, bdCtx, classifyCtx).init(registry);
+        new SubinterfaceStateAugmentationReaderFactory(jvpp, ifcNamingCtx, bdNamingCtx, classifyNamingCtx).init(registry);
     }
 
     private void initInterface2AugmentationReaders(final ModifiableReaderRegistryBuilder registry,
@@ -111,13 +114,13 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         registry.add(new GenericReader<>(ipv4Id, new Ipv4Customizer(jvpp)));
         //     Address
         final InstanceIdentifier<Address> ipv4AddrId = ipv4Id.child(Address.class);
-        registry.add(new GenericListReader<>(ipv4AddrId, new Ipv4AddressCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericListReader<>(ipv4AddrId, new Ipv4AddressCustomizer(jvpp, ifcNamingCtx)));
         //     Neighbor
         final InstanceIdentifier<Neighbor> neighborId = ipv4Id.child(Neighbor.class);
         registry.add(new GenericListReader<>(neighborId, new Ipv4NeighbourCustomizer(jvpp)));
         //    Ipv6
         final InstanceIdentifier<Ipv6> ipv6Id = ifc2AugId.child(Ipv6.class);
-        registry.add(new GenericReader<>(ipv6Id, new Ipv6Customizer(jvpp, ifcCtx)));
+        registry.add(new GenericReader<>(ipv6Id, new Ipv6Customizer(jvpp, ifcNamingCtx)));
     }
 
     private void initVppIfcAugmentationReaders(final ModifiableReaderRegistryBuilder registry,
@@ -126,26 +129,27 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         final InstanceIdentifier<VppInterfaceStateAugmentation> vppIfcAugId = ifcId.augmentation(VppInterfaceStateAugmentation.class);
         registry.addStructuralReader(vppIfcAugId, VppInterfaceStateAugmentationBuilder.class);
         //    Ethernet
-        registry.add(new GenericReader<>(vppIfcAugId.child(Ethernet.class), new EthernetCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericReader<>(vppIfcAugId.child(Ethernet.class), new EthernetCustomizer(jvpp, ifcNamingCtx)));
         //    Tap
-        registry.add(new GenericReader<>(vppIfcAugId.child(Tap.class), new TapCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericReader<>(vppIfcAugId.child(Tap.class), new TapCustomizer(jvpp, ifcNamingCtx)));
         //    VhostUser
-        registry.add(new GenericReader<>(vppIfcAugId.child(VhostUser.class), new VhostUserCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericReader<>(vppIfcAugId.child(VhostUser.class), new VhostUserCustomizer(jvpp, ifcNamingCtx)));
         //    Vxlan
-        registry.add(new GenericReader<>(vppIfcAugId.child(Vxlan.class), new VxlanCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericReader<>(vppIfcAugId.child(Vxlan.class), new VxlanCustomizer(jvpp, ifcNamingCtx)));
         //    VxlanGpe
-        registry.add(new GenericReader<>(vppIfcAugId.child(VxlanGpe.class), new VxlanGpeCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericReader<>(vppIfcAugId.child(VxlanGpe.class), new VxlanGpeCustomizer(jvpp, ifcNamingCtx)));
         //    Gre
-        registry.add(new GenericReader<>(vppIfcAugId.child(Gre.class), new GreCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericReader<>(vppIfcAugId.child(Gre.class), new GreCustomizer(jvpp, ifcNamingCtx)));
         //    L2
-        registry.add(new GenericReader<>(vppIfcAugId.child(L2.class), new L2Customizer(jvpp, ifcCtx, bdCtx)));
+        registry.add(new GenericReader<>(vppIfcAugId.child(L2.class), new L2Customizer(jvpp, ifcNamingCtx, bdNamingCtx)));
         //    Acl(Subtree)
         final InstanceIdentifier<Acl> aclIdRelative = InstanceIdentifier.create(Acl.class);
         registry.subtreeAdd(
                 Sets.newHashSet(aclIdRelative.child(L2Acl.class), aclIdRelative.child(Ip4Acl.class), aclIdRelative.child(Ip6Acl.class)),
-                new GenericReader<>(vppIfcAugId.child(Acl.class), new AclCustomizer(jvpp, ifcCtx, classifyCtx)));
+                new GenericReader<>(vppIfcAugId.child(Acl.class), new AclCustomizer(jvpp, ifcNamingCtx,
+                        classifyNamingCtx)));
         //   Proxy ARP
         registry.add(new GenericReader<>(vppIfcAugId.child(ProxyArp.class), new ProxyArpCustomizer(jvpp,
-                ifcCtx)));
+                ifcNamingCtx)));
     }
 }

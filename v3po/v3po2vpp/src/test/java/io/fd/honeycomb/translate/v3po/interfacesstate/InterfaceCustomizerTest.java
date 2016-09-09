@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.InterfaceTestUtils;
 import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
@@ -38,6 +39,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
@@ -57,6 +59,8 @@ public class InterfaceCustomizerTest extends
         ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> {
 
     private NamingContext interfacesContext;
+    @Mock
+    private DisabledInterfacesManager interfaceDisableContext;
 
     public InterfaceCustomizerTest() {
         super(Interface.class);
@@ -89,7 +93,7 @@ public class InterfaceCustomizerTest extends
         doReturn(eth1).when(mappingContext).read(eth1Id);
         doReturn(subEth1).when(mappingContext).read(subEth1Id);
 
-        return new InterfaceCustomizer(api, interfacesContext);
+        return new InterfaceCustomizer(api, interfacesContext, interfaceDisableContext);
     }
 
     @Test
@@ -206,6 +210,30 @@ public class InterfaceCustomizerTest extends
         verifySwInterfaceDumpWasInvoked(0, "", 1);
 
         // sub-interface should not be on the list
+        assertEquals(expectedIds, actualIds);
+    }
+
+    @Test
+    public void testGetAllIdsWithDisabled() throws Exception {
+        final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
+            .child(Interface.class);
+
+        doReturn(true).when(interfaceDisableContext).isInterfaceDisabled(1, mappingContext);
+
+        final String swIf0Name = "eth0";
+        final SwInterfaceDetails swIf0 = new SwInterfaceDetails();
+        swIf0.swIfIndex = 0;
+        swIf0.interfaceName = swIf0Name.getBytes();
+        final String swIf1Name = "eth1";
+        final SwInterfaceDetails swIf1 = new SwInterfaceDetails();
+        swIf1.swIfIndex = 1;
+        swIf1.interfaceName = swIf1Name.getBytes();
+        InterfaceTestUtils.whenSwInterfaceDumpThenReturn(api, Arrays.asList(swIf0, swIf1));
+
+        final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(swIf0Name));
+        final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);
+
+        // disabled interface should not be on the list
         assertEquals(expectedIds, actualIds);
     }
 }

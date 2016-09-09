@@ -19,11 +19,12 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.net.InetAddresses;
+import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.util.AbstractInterfaceTypeCustomizer;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
@@ -44,11 +45,16 @@ import org.slf4j.LoggerFactory;
 public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VxlanCustomizer.class);
-    private final NamingContext interfaceContext;
 
-    public VxlanCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
+    private final NamingContext interfaceNamingContext;
+    private final DisabledInterfacesManager interfaceDisableContext;
+
+    public VxlanCustomizer(@Nonnull final FutureJVppCore vppApi,
+                           @Nonnull final NamingContext interfaceNamingContext,
+                           @Nonnull final DisabledInterfacesManager interfaceDisableContext) {
         super(vppApi);
-        this.interfaceContext = interfaceContext;
+        this.interfaceNamingContext = interfaceNamingContext;
+        this.interfaceDisableContext = interfaceDisableContext;
     }
 
     @Override
@@ -107,7 +113,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
         final VxlanAddDelTunnelReply reply =
                 TranslateUtils.getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Vxlan tunnel set successfully for: {}, vxlan: {}", swIfName, vxlan);
-        if(interfaceContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
+        if (interfaceNamingContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
             // VPP keeps vxlan tunnels present even after they are delete(reserving ID for next tunnel)
             // This may cause inconsistencies in mapping context when configuring tunnels like this:
             // 1. Add tunnel 2. Delete tunnel 3. Read interfaces (reserved mapping e.g. vxlan_tunnel0 -> 6
@@ -115,13 +121,22 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
             // reserved ID and context is invalid)
             // That's why a check has to be performed here removing mapping vxlan_tunnel0 -> 6 mapping and storing
             // new name for that ID
-            final String formerName = interfaceContext.getName(reply.swIfIndex, writeContext.getMappingContext());
+            final String formerName = interfaceNamingContext.getName(reply.swIfIndex, writeContext.getMappingContext());
             LOG.debug("Removing updated mapping of a vxlan tunnel, id: {}, former name: {}, new name: {}",
                 reply.swIfIndex, formerName, swIfName);
-            interfaceContext.removeName(formerName, writeContext.getMappingContext());
+            interfaceNamingContext.removeName(formerName, writeContext.getMappingContext());
+
         }
+
+        // Removing disability of an interface in case a vxlan tunnel formerly deleted is being reused in VPP
+        // further details in above comment
+        if (interfaceDisableContext.isInterfaceDisabled(reply.swIfIndex, writeContext.getMappingContext())) {
+            LOG.debug("Removing disability of vxlan tunnel, id: {}, name: {}", reply.swIfIndex, swIfName);
+            interfaceDisableContext.removeDisabledInterface(reply.swIfIndex, writeContext.getMappingContext());
+        }
+
         // Add new interface to our interface context
-        interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
+        interfaceNamingContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
     }
 
     private boolean isIpv6(final Vxlan vxlan) {
@@ -156,8 +171,14 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> {
 
         TranslateUtils.getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Vxlan tunnel deleted successfully for: {}, vxlan: {}", swIfName, vxlan);
-        // Remove interface from our interface context
-        interfaceContext.removeName(swIfName, writeContext.getMappingContext());
+
+        final int index = interfaceNamingContext.getIndex(swIfName, writeContext.getMappingContext());
+        // Mark this interface as disabled to not include it in operational reads
+        // because VPP will keep the interface there
+        LOG.debug("Marking vxlan tunnel as disabled, id: {}, name: {}", index, swIfName);
+        interfaceDisableContext.disableInterface(index, writeContext.getMappingContext());
+        // Remove interface from our interface naming context
+        interfaceNamingContext.removeName(swIfName, writeContext.getMappingContext());
     }
 
     private static VxlanAddDelTunnel getVxlanTunnelRequest(final byte isAdd, final byte[] srcAddr, final byte[] dstAddr,

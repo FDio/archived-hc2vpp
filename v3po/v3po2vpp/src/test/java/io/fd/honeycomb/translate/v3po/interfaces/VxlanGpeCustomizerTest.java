@@ -34,6 +34,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
@@ -80,6 +81,8 @@ public class VxlanGpeCustomizerTest {
     private WriteContext writeContext;
     @Mock
     private MappingContext mappingContext;
+    @Mock
+    private DisabledInterfacesManager interfaceDisableContext;
 
     private VxlanGpeCustomizer customizer;
     private String ifaceName;
@@ -96,7 +99,7 @@ public class VxlanGpeCustomizerTest {
         doReturn(toBeReturned).when(writeContext).getModificationCache();
         doReturn(mappingContext).when(writeContext).getMappingContext();
 
-        customizer = new VxlanGpeCustomizer(api, namingContext);
+        customizer = new VxlanGpeCustomizer(api, namingContext, interfaceDisableContext);
 
         ifaceName = "eth0";
         id = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(ifaceName))

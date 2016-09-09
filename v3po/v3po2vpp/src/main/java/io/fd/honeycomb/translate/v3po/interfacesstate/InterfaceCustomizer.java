@@ -16,10 +16,12 @@
 
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
-import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
@@ -27,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -57,11 +60,15 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     public static final String DUMPED_IFCS_CONTEXT_KEY =
         InterfaceCustomizer.class.getName() + "dumpedInterfacesDuringGetAllIds";
 
-    private final NamingContext interfaceContext;
+    private final NamingContext interfaceNamingContext;
+    private final DisabledInterfacesManager interfaceDisableContext;
 
-    public InterfaceCustomizer(@Nonnull final FutureJVppCore jvpp, final NamingContext interfaceContext) {
+    public InterfaceCustomizer(@Nonnull final FutureJVppCore jvpp,
+                               @Nonnull final NamingContext interfaceNamingContext,
+                               @Nonnull final DisabledInterfacesManager interfaceDisableContext) {
         super(jvpp);
-        this.interfaceContext = interfaceContext;
+        this.interfaceNamingContext = interfaceNamingContext;
+        this.interfaceDisableContext = interfaceDisableContext;
     }
 
     @Nonnull
@@ -76,9 +83,17 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         LOG.debug("Reading attributes for interface: {}", id);
         final String ifaceName = id.firstKeyOf(id.getTargetType()).getName();
 
+        final int index = interfaceNamingContext.getIndex(ifaceName, ctx.getMappingContext());
+
+        // Ignore disabled interface (such as deleted VXLAN tunnels)
+        if (interfaceDisableContext.isInterfaceDisabled(index, ctx.getMappingContext())) {
+            LOG.debug("Skipping disabled interface: {}", id);
+            return;
+        }
+
         // Pass cached details from getAllIds to getDetails to avoid additional dumps
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, ifaceName,
-            interfaceContext.getIndex(ifaceName, ctx.getMappingContext()), ctx.getModificationCache());
+                index, ctx.getModificationCache());
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
         if (!isRegularInterface(iface)) {
@@ -139,23 +154,42 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
             context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
                 .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
 
-            interfacesKeys = ifaces.swInterfaceDetails.stream()
-                .filter(elt -> elt != null)
-                .map((elt) -> {
-                    // Store interface name from VPP in context if not yet present
-                    if (!interfaceContext.containsName(elt.swIfIndex, context.getMappingContext())) {
-                        interfaceContext.addName(elt.swIfIndex, TranslateUtils.toString(elt.interfaceName),
-                            context.getMappingContext());
-                    }
-                    LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
-                        interfaceContext.getName(elt.swIfIndex, context.getMappingContext()), elt.interfaceName,
-                        elt.swIfIndex);
+            final MappingContext mappingCtx = context.getMappingContext();
+            final Set<Integer> interfacesIdxs = ifaces.swInterfaceDetails.stream()
+                    .filter(elt -> elt != null)
+                    // Filter out disabled interfaces, dont read them
+                    // This also prevents child readers in being invoked such as vxlan (which relies on disabling interfaces)
+                    .filter(elt -> !interfaceDisableContext
+                            .isInterfaceDisabled(elt.swIfIndex, mappingCtx))
+                    .map((elt) -> {
+                        // Store interface name from VPP in context if not yet present
+                        if (!interfaceNamingContext.containsName(elt.swIfIndex, mappingCtx)) {
+                            interfaceNamingContext.addName(elt.swIfIndex, TranslateUtils.toString(elt.interfaceName),
+                                    mappingCtx);
+                        }
+                        LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
+                                interfaceNamingContext.getName(elt.swIfIndex, mappingCtx),
+                                elt.interfaceName,
+                                elt.swIfIndex);
 
-                    return elt;
-                })
-                .filter(InterfaceCustomizer::isRegularInterface) // filter out sub-interfaces
-                .map((elt) -> new InterfaceKey(interfaceContext.getName(elt.swIfIndex, context.getMappingContext())))
-                .collect(Collectors.toList());
+                        return elt;
+                    })
+                    // filter out sub-interfaces
+                    .filter(InterfaceCustomizer::isRegularInterface)
+                    .map(elt -> elt.swIfIndex)
+                    .collect(Collectors.toSet());
+
+            // Clean disabled interfaces list
+            interfaceDisableContext.getDisabledInterfaces(mappingCtx).stream()
+                    // Find indices not currently in VPP
+                    .filter(interfacesIdxs::contains)
+                    // Remove from disabled list ... not disabled if not existing
+                    .forEach(idx -> interfaceDisableContext.removeDisabledInterface(idx, mappingCtx));
+
+            // Transform indices to keys
+            interfacesKeys = interfacesIdxs.stream()
+                    .map(index -> new InterfaceKey(interfaceNamingContext.getName(index, context.getMappingContext())))
+                    .collect(Collectors.toList());
 
             LOG.debug("Interfaces found in VPP: {}", interfacesKeys);
             return interfacesKeys;
@@ -174,5 +208,4 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                       @Nonnull final List<Interface> readData) {
         ((InterfacesStateBuilder) builder).setInterface(readData);
     }
-
 }

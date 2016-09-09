@@ -83,34 +83,38 @@ public final class InterfacesWriterFactory implements WriterFactory {
 
     private final FutureJVppCore jvpp;
     private final IetfAClWriter aclWriter;
-    private final NamingContext bdContext;
-    private final NamingContext ifcContext;
-    private final NamingContext classifyTableContext;
+    private final NamingContext bdNamingContext;
+    private final NamingContext ifcNamingContext;
+    private final NamingContext classifyTableNamingContext;
+    private final DisabledInterfacesManager ifcDisableContext;
 
     @Inject
     public InterfacesWriterFactory(final FutureJVppCore vppJvppIfcDependency,
                                    final IetfAClWriter aclWriter,
                                    @Named("bridge-domain-context") final NamingContext bridgeDomainContextDependency,
                                    @Named("interface-context") final NamingContext interfaceContextDependency,
-                                   @Named("classify-table-context") final NamingContext classifyTableContextDependency) {
+                                   @Named("classify-table-context") final NamingContext classifyTableContextDependency,
+                                   final DisabledInterfacesManager ifcDisableContext) {
         this.jvpp = vppJvppIfcDependency;
         this.aclWriter = aclWriter;
-        this.bdContext = bridgeDomainContextDependency;
-        this.ifcContext = interfaceContextDependency;
-        this.classifyTableContext = classifyTableContextDependency;
+        this.bdNamingContext = bridgeDomainContextDependency;
+        this.ifcNamingContext = interfaceContextDependency;
+        this.ifcDisableContext = ifcDisableContext;
+        this.classifyTableNamingContext = classifyTableContextDependency;
     }
 
     @Override
     public void init(final ModifiableWriterRegistryBuilder registry) {
         // Interfaces
         //  Interface =
-        registry.add(new GenericListWriter<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcContext)));
+        registry.add(new GenericListWriter<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcNamingContext)));
         //   VppInterfaceAugmentation
         addVppInterfaceAgmentationWriters(IFC_ID, registry);
         //   Interface1 (ietf-ip augmentation)
         addInterface1AugmentationWriters(IFC_ID, registry);
         //   SubinterfaceAugmentation
-        new SubinterfaceAugmentationWriterFactory(jvpp, aclWriter, ifcContext, bdContext, classifyTableContext).init(registry);
+        new SubinterfaceAugmentationWriterFactory(jvpp, aclWriter, ifcNamingContext, bdNamingContext,
+                classifyTableNamingContext).init(registry);
     }
 
     private void addInterface1AugmentationWriters(final InstanceIdentifier<Interface> ifcId,
@@ -121,14 +125,15 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 ifcId);
         // Ipv4(after interface)
         final InstanceIdentifier<Ipv4> ipv4Id = ifc1AugId.child(Ipv4.class);
-        registry.addAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp, ifcContext)),
+        registry.addAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp, ifcNamingContext)),
                 ifcId);
         //  Address(after Ipv4) =
         final InstanceIdentifier<Address> ipv4AddressId = ipv4Id.child(Address.class);
-        registry.addAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcContext)),
+        registry.addAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcNamingContext)),
                 ipv4Id);
         //  Neighbor(after ipv4Address)
-        registry.addAfter(new GenericListWriter<>(ipv4Id.child(Neighbor.class), new Ipv4NeighbourCustomizer(jvpp, ifcContext)),
+        registry.addAfter(new GenericListWriter<>(ipv4Id.child(Neighbor.class), new Ipv4NeighbourCustomizer(jvpp,
+                        ifcNamingContext)),
                 ipv4AddressId);
     }
 
@@ -136,24 +141,24 @@ public final class InterfacesWriterFactory implements WriterFactory {
                                                    final ModifiableWriterRegistryBuilder registry) {
         // VhostUser(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<VhostUser> vhostId = VPP_IFC_AUG_ID.child(VhostUser.class);
-        registry.addBefore(new GenericWriter<>(vhostId, new VhostUserCustomizer(jvpp, ifcContext)),
+        registry.addBefore(new GenericWriter<>(vhostId, new VhostUserCustomizer(jvpp, ifcNamingContext)),
                 ifcId);
         // Vxlan(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<Vxlan> vxlanId = VPP_IFC_AUG_ID.child(Vxlan.class);
-        registry.addBefore(new GenericWriter<>(vxlanId, new VxlanCustomizer(jvpp, ifcContext)),
+        registry.addBefore(new GenericWriter<>(vxlanId, new VxlanCustomizer(jvpp, ifcNamingContext, ifcDisableContext)),
                 ifcId);
         // VxlanGpe(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<VxlanGpe> vxlanGpeId = VPP_IFC_AUG_ID.child(VxlanGpe.class);
-        registry.addBefore(new GenericWriter<>(vxlanGpeId, new VxlanGpeCustomizer(jvpp, ifcContext)),
-                ifcId);
+        registry.addBefore(new GenericWriter<>(vxlanGpeId,
+                        new VxlanGpeCustomizer(jvpp, ifcNamingContext, ifcDisableContext)), ifcId);
         // Tap(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<Tap> tapId = VPP_IFC_AUG_ID.child(Tap.class);
-        registry.addBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcContext)),
+        registry.addBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcNamingContext)),
                 ifcId);
 
         // Gre(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<Gre> greId = VPP_IFC_AUG_ID.child(Gre.class);
-        registry.addBefore(new GenericWriter<>(greId, new GreCustomizer(jvpp, ifcContext)),
+        registry.addBefore(new GenericWriter<>(greId, new GreCustomizer(jvpp, ifcNamingContext)),
                 ifcId);
 
 
@@ -163,14 +168,14 @@ public final class InterfacesWriterFactory implements WriterFactory {
         registry.add(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class), new EthernetCustomizer(jvpp)));
         // Routing(Execute only after specific interface customizers) =
         registry.addAfter(
-                new GenericWriter<>(VPP_IFC_AUG_ID.child(Routing.class), new RoutingCustomizer(jvpp, ifcContext)),
+                new GenericWriter<>(VPP_IFC_AUG_ID.child(Routing.class), new RoutingCustomizer(jvpp, ifcNamingContext)),
                 specificIfcTypes);
         // Routing(Execute only after specific interface customizers) =
-        registry.addAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcContext, bdContext)),
+        registry.addAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcNamingContext, bdNamingContext)),
                 specificIfcTypes);
         // Proxy Arp (execute after specific interface customizers)
         registry.addAfter(
-                new GenericWriter<>(VPP_IFC_AUG_ID.child(ProxyArp.class), new ProxyArpCustomizer(jvpp, ifcContext)),
+                new GenericWriter<>(VPP_IFC_AUG_ID.child(ProxyArp.class), new ProxyArpCustomizer(jvpp, ifcNamingContext)),
                 specificIfcTypes);
         // ACL (execute after classify table and session writers)
         // also handles L2Acl, Ip4Acl and Ip6Acl:
@@ -178,7 +183,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
         registry
             .subtreeAddAfter(
                 Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
-                new GenericWriter<>(ACL_ID, new AclCustomizer(jvpp, ifcContext, classifyTableContext)),
+                new GenericWriter<>(ACL_ID, new AclCustomizer(jvpp, ifcNamingContext, classifyTableNamingContext)),
                 Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
 
         // IETF-ACL, also handles IetfAcl, AccessLists and Acl:
@@ -188,7 +193,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.access.lists.Acl.class);
         registry.subtreeAdd(
             Sets.newHashSet(accessListsID, aclListId),
-            new GenericWriter<>(IETF_ACL_ID, new IetfAclCustomizer(aclWriter, ifcContext)));
+            new GenericWriter<>(IETF_ACL_ID, new IetfAclCustomizer(aclWriter, ifcNamingContext)));
     }
 
 

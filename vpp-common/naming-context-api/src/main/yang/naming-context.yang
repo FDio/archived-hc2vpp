@@ -12,6 +12,8 @@ module naming-context {
     }
 
     container contexts {
+        config false;
+        // context data
 
         list naming-context {
 

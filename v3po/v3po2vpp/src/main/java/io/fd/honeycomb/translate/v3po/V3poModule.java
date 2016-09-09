@@ -58,12 +58,16 @@ public class V3poModule extends AbstractModule {
 
         // Utils
         bind(IetfAClWriter.class).toProvider(IetfAClWriterProvider.class);
+        // Context utility for deleted interfaces
+        bind(DisabledInterfacesManager.class).toInstance(new DisabledInterfacesManager());
 
         // Readers
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readerFactoryBinder.addBinding().to(InterfacesStateReaderFactory.class);
         readerFactoryBinder.addBinding().to(VppStateHoneycombReaderFactory.class);
         readerFactoryBinder.addBinding().to(VppClassifierReaderFactory.class);
+        // Expose disabled interfaces in operational data
+        readerFactoryBinder.addBinding().to(DisabledInterfacesManager.ContextsReaderFactory.class);
 
         // Writers
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);

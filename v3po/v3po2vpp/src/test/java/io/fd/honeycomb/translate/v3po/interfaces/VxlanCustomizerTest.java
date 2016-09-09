@@ -35,11 +35,12 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -80,6 +81,8 @@ public class VxlanCustomizerTest {
     private WriteContext writeContext;
     @Mock
     private MappingContext mappingContext;
+    @Mock
+    private DisabledInterfacesManager disableContext;
 
     private VxlanCustomizer customizer;
     private String ifaceName;
@@ -96,7 +99,7 @@ public class VxlanCustomizerTest {
         doReturn(toBeReturned).when(writeContext).getModificationCache();
         doReturn(mappingContext).when(writeContext).getMappingContext();
 
-        customizer = new VxlanCustomizer(api, namingContext);
+        customizer = new VxlanCustomizer(api, namingContext, disableContext);
 
         ifaceName = "eth0";
         id = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(ifaceName))
@@ -175,6 +178,22 @@ public class VxlanCustomizerTest {
     }
 
     @Test
+    public void testWriteCurrentAttributesWithExistingVxlanPlaceholder() throws Exception {
+        final Vxlan vxlan = generateVxlan();
+
+        whenVxlanAddDelTunnelThenSuccess();
+
+        doReturn(Optional.absent())
+            .when(mappingContext).read(getMappingIid(ifaceName, "test-instance").firstIdentifierOf(Mappings.class));
+        doReturn(true).when(disableContext).isInterfaceDisabled(0, mappingContext);
+
+        customizer.writeCurrentAttributes(id, vxlan, writeContext);
+        verifyVxlanAddWasInvoked(vxlan);
+        verify(mappingContext).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
+        verify(disableContext).removeDisabledInterface(0, mappingContext);
+    }
+
+    @Test
     public void testWriteCurrentAttributesMappingAlreadyPresent() throws Exception {
         final Vxlan vxlan = generateVxlan();
 
@@ -231,6 +250,7 @@ public class VxlanCustomizerTest {
         customizer.deleteCurrentAttributes(id, vxlan, writeContext);
         verifyVxlanDeleteWasInvoked(vxlan);
         verify(mappingContext).delete(eq(getMappingIid(ifaceName, "test-instance")));
+        verify(disableContext).disableInterface(1, mappingContext);
     }
 
     @Test
