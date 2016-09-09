@@ -17,8 +17,8 @@
 package io.fd.honeycomb.translate.v3po.vppstate;
 
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.concurrent.CompletionStage;
@@ -37,11 +37,6 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 public final class VersionCustomizer
     extends FutureJVppCustomizer
     implements ReaderCustomizer<Version, VersionBuilder> {
-
-    /**
-     * Default timeout for executing version read
-     */
-    private static final int DEFAULT_TIMEOUT_IN_SECONDS = 30;
 
     public VersionCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
         super(futureJVppCore);
@@ -64,8 +59,7 @@ public final class VersionCustomizer
         try {
             // Execute with timeout
             final CompletionStage<ShowVersionReply> showVersionFuture = getFutureJVpp().showVersion(new ShowVersion());
-            final ShowVersionReply reply = TranslateUtils.getReplyForRead(showVersionFuture.toCompletableFuture(), id,
-                DEFAULT_TIMEOUT_IN_SECONDS);
+            final ShowVersionReply reply = TranslateUtils.getReplyForRead(showVersionFuture.toCompletableFuture(), id);
 
             builder.setBranch(TranslateUtils.toString(reply.version));
             builder.setName(TranslateUtils.toString(reply.program));
