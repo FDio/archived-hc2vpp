@@ -16,36 +16,41 @@
 
 package io.fd.honeycomb.vppnsh.impl;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
-import io.fd.honeycomb.notification.ManagedNotificationProducer;
-import io.fd.honeycomb.vppnsh.impl.cfgattrs.VppNshConfiguration;
-import io.fd.honeycomb.vppnsh.impl.config.VppNshWriterFactory;
-import io.fd.honeycomb.vppnsh.impl.oper.VppNshReaderFactory;
-import io.fd.honeycomb.vppnsh.impl.init.VppNshInitializer;
-import io.fd.honeycomb.vppnsh.impl.util.JVppNshProvider;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.honeycomb.vppnsh.impl.cfgattrs.VppNshConfiguration;
+import io.fd.honeycomb.vppnsh.impl.config.VppNshWriterFactory;
+import io.fd.honeycomb.vppnsh.impl.init.VppNshInitializer;
+import io.fd.honeycomb.vppnsh.impl.oper.VppNshReaderFactory;
+import io.fd.honeycomb.vppnsh.impl.util.JVppNshProvider;
 import net.jmob.guice.conf.core.ConfigurationModule;
 import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is some glue code necessary for Honeycomb distribution to pick up the plugin classes
  */
 public final class VppNshModule extends AbstractModule {
 
+    private static final Logger LOG = LoggerFactory.getLogger(VppNshModule.class);
+
     @Override
     protected void configure() {
-        // These are plugin specific config attributes
-        install(ConfigurationModule.create());
-        requestInjection(VppNshConfiguration.class);
+        // TODO HONEYCOMB-207 workaround:
+        if (!isEnabled()) {
+            LOG.info("VppNshModule is disabled. Skipping module configuration.");
+            return;
+        }
+        LOG.info("Configuring VppNsh module");
 
         // Naming contexts
         bind(NamingContext.class)
@@ -63,5 +68,21 @@ public final class VppNshModule extends AbstractModule {
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(VppNshWriterFactory.class);
         Multibinder.newSetBinder(binder(), ReaderFactory.class).addBinding().to(VppNshReaderFactory.class);
         Multibinder.newSetBinder(binder(), DataTreeInitializer.class).addBinding().to(VppNshInitializer.class);
+        LOG.info("NSH module successfully configured");
+    }
+
+    private static boolean isEnabled() {
+        final Injector injector = Guice.createInjector(new AbstractModule() {
+            @Override
+            protected void configure() {
+                // These are plugin specific config attributes
+                install(ConfigurationModule.create());
+                requestInjection(VppNshConfiguration.class);
+            }
+        });
+
+        final VppNshConfiguration cfgAttributes = injector.getInstance(VppNshConfiguration.class);
+        LOG.debug("Configuration for VppNsh module: {}", cfgAttributes);
+        return cfgAttributes.isNshEnabled();
     }
 }
