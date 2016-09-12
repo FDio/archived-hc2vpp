@@ -166,6 +166,7 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
         final ClassifyAddDelSession request = new ClassifyAddDelSession();
         request.isAdd = 1;
         request.tableIndex = tableIndex;
+        request.opaqueIndex = ~0; // value not used
 
         if (action instanceof Permit) {
             request.hitNextIndex = -1;
