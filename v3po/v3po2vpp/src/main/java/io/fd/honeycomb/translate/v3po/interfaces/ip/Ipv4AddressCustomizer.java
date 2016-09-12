@@ -18,13 +18,18 @@ package io.fd.honeycomb.translate.v3po.interfaces.ip;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
+import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.Subnet;
@@ -44,36 +49,64 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer implements ListW
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
     private final NamingContext interfaceContext;
+    private final SubnetValidator subnetValidator;
 
-    public Ipv4AddressCustomizer(FutureJVppCore futureJVppCore, NamingContext interfaceContext) {
+    Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext interfaceContext,
+                          @Nonnull final SubnetValidator subnetValidator) {
         super(futureJVppCore);
-        this.interfaceContext = interfaceContext;
+        this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
+        this.subnetValidator = checkNotNull(subnetValidator, "Subnet validator cannot be null");
+    }
+
+    public Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                 @Nonnull final NamingContext interfaceContext) {
+        this(futureJVppCore, interfaceContext, new SubnetValidator());
     }
 
     @Override
     public void writeCurrentAttributes(InstanceIdentifier<Address> id, Address dataAfter, WriteContext writeContext)
-        throws WriteFailedException {
-        setAddress(true, id, dataAfter, writeContext);
+            throws WriteFailedException {
+
+        final String interfaceName = id.firstKeyOf(Interface.class).getName();
+        final int interfaceIndex = interfaceContext.getIndex(interfaceName, writeContext.getMappingContext());
+
+        // checks whether address is not from same subnet of some address already defined on this interface
+        try {
+
+            final InstanceIdentifier<Ipv4> parentId = RWUtils.cutId(id, InstanceIdentifier.create(Ipv4.class));
+            final Optional<Ipv4> ipv4Optional = writeContext.readAfter(parentId);
+
+            //no need to check isPresent() - we are inside of address customizer, therefore there must be Address data
+            //that is being processed by infrastructure
+
+            subnetValidator.checkNotAddingToSameSubnet(ipv4Optional.get().getAddress());
+        } catch (SubnetValidationException e) {
+            throw new WriteFailedException(id, e);
+        }
+
+        setAddress(true, id, interfaceName, interfaceIndex, dataAfter, writeContext);
     }
 
     @Override
     public void updateCurrentAttributes(InstanceIdentifier<Address> id, Address dataBefore, Address dataAfter,
                                         WriteContext writeContext) throws WriteFailedException {
         throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-            new UnsupportedOperationException("Operation not supported"));
+                new UnsupportedOperationException("Operation not supported"));
     }
 
     @Override
     public void deleteCurrentAttributes(InstanceIdentifier<Address> id, Address dataBefore, WriteContext writeContext)
-        throws WriteFailedException {
-        setAddress(false, id, dataBefore, writeContext);
-    }
-
-    private void setAddress(boolean add, final InstanceIdentifier<Address> id, final Address address,
-                            final WriteContext writeContext) throws WriteFailedException {
+            throws WriteFailedException {
 
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, writeContext.getMappingContext());
+
+        setAddress(false, id, interfaceName, interfaceIndex, dataBefore, writeContext);
+    }
+
+    private void setAddress(boolean add, final InstanceIdentifier<Address> id, final String interfaceName,
+                            final int interfaceIndex, final Address address,
+                            final WriteContext writeContext) throws WriteFailedException {
 
         Subnet subnet = address.getSubnet();
 
@@ -90,10 +123,10 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer implements ListW
     private void setNetmaskSubnet(final boolean add, @Nonnull final InstanceIdentifier<Address> id,
                                   @Nonnull final String interfaceName, final int interfaceIndex,
                                   @Nonnull final Address address, @Nonnull final Netmask subnet)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             LOG.debug("Setting Subnet(subnet-mask) for interface: {}(id={}). Subnet: {}, address: {}",
-                interfaceName, interfaceIndex, subnet, address);
+                    interfaceName, interfaceIndex, subnet, address);
 
             final DottedQuad netmask = subnet.getNetmask();
             checkNotNull(netmask, "netmask value should not be null");
@@ -102,7 +135,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer implements ListW
             Ipv4WriteUtils.addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(), subnetLength);
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to set Subnet(subnet-mask) for interface: {}(id={}). Subnet: {}, address: {}",
-                interfaceName, interfaceIndex, subnet, address);
+                    interfaceName, interfaceIndex, subnet, address);
             throw new WriteFailedException(id, "Unable to handle subnet of type " + subnet.getClass(), e);
         }
     }
@@ -110,19 +143,19 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer implements ListW
     private void setPrefixLengthSubnet(final boolean add, @Nonnull final InstanceIdentifier<Address> id,
                                        @Nonnull final String interfaceName, final int interfaceIndex,
                                        @Nonnull final Address address, @Nonnull final PrefixLength subnet)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             LOG.debug("Setting Subnet(prefix-length) for interface: {}(id={}). Subnet: {}, address: {}",
-                interfaceName, interfaceIndex, subnet, address);
+                    interfaceName, interfaceIndex, subnet, address);
 
             Ipv4WriteUtils.addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(),
-                subnet.getPrefixLength().byteValue());
+                    subnet.getPrefixLength().byteValue());
 
             LOG.debug("Subnet(prefix-length) set successfully for interface: {}(id={}). Subnet: {}, address: {}",
-                interfaceName, interfaceIndex, subnet, address);
+                    interfaceName, interfaceIndex, subnet, address);
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to set Subnet(prefix-length) for interface: {}(id={}). Subnet: {}, address: {}",
-                interfaceName, interfaceIndex, subnet, address);
+                    interfaceName, interfaceIndex, subnet, address);
             throw new WriteFailedException(id, "Unable to handle subnet of type " + subnet.getClass(), e);
         }
     }

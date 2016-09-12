@@ -21,21 +21,36 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
+import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
+import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidator;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
+import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -43,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.Netmask;
@@ -53,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
+import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddress;
 import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
@@ -63,15 +80,21 @@ public class Ipv4AddressCustomizerTest {
     private static final String IFACE_NAME = "eth0";
     private static final int IFACE_ID = 123;
 
+    @Captor
+    private ArgumentCaptor<List<Address>> addressesCaptor;
+
     @Mock
     private WriteContext writeContext;
     @Mock
     private MappingContext mappingContext;
     @Mock
     private FutureJVppCore api;
+    @Mock
+    private SubnetValidator subnetValidator;
 
     private NamingContext interfaceContext;
     private Ipv4AddressCustomizer customizer;
+    private ModificationCache cache;
 
     @Before
     public void setUp() throws Exception {
@@ -79,16 +102,25 @@ public class Ipv4AddressCustomizerTest {
         doReturn(mappingContext).when(writeContext).getMappingContext();
         interfaceContext = new NamingContext("generatedlIfaceName", IFC_CTX_NAME);
 
-        customizer = new Ipv4AddressCustomizer(api, interfaceContext);
+        customizer = new Ipv4AddressCustomizer(api, interfaceContext, subnetValidator);
+        cache = new ModificationCache();
+        when(writeContext.getModificationCache()).thenReturn(cache);
+
+        CompletableFuture future = new CompletableFuture();
+        future.complete(new IpAddressDetailsReplyDump());
+
+        when(api.ipAddressDump(Mockito.any())).thenReturn(future);
+        when(writeContext.readAfter(Mockito.any()))
+                .thenReturn(Optional.of(new Ipv4Builder().setAddress(Collections.emptyList()).build()));
     }
 
     private static InstanceIdentifier<Address> getAddressId(final String ifaceName) {
         return InstanceIdentifier.builder(Interfaces.class)
-            .child(Interface.class, new InterfaceKey(ifaceName))
-            .augmentation(Interface1.class)
-            .child(Ipv4.class)
-            .child(Address.class)
-            .build();
+                .child(Interface.class, new InterfaceKey(ifaceName))
+                .augmentation(Interface1.class)
+                .child(Ipv4.class)
+                .child(Address.class)
+                .build();
     }
 
     private void whenSwInterfaceAddDelAddressThenSuccess() {
@@ -100,20 +132,20 @@ public class Ipv4AddressCustomizerTest {
 
     private void whenSwInterfaceAddDelAddressThenFailure() {
         doReturn(TestHelperUtils.createFutureException()).when(api)
-            .swInterfaceAddDelAddress(any(SwInterfaceAddDelAddress.class));
+                .swInterfaceAddDelAddress(any(SwInterfaceAddDelAddress.class));
     }
 
     private void verifySwInterfaceAddDelAddressWasInvoked(final SwInterfaceAddDelAddress expected) throws
-        VppInvocationException {
+            VppInvocationException {
         ArgumentCaptor<SwInterfaceAddDelAddress> argumentCaptor =
-            ArgumentCaptor.forClass(SwInterfaceAddDelAddress.class);
+                ArgumentCaptor.forClass(SwInterfaceAddDelAddress.class);
         verify(api).swInterfaceAddDelAddress(argumentCaptor.capture());
         verifySwInterfaceAddDelAddressWasInvoked(expected, argumentCaptor.getValue());
     }
 
     private void verifySwInterfaceAddDelAddressWasInvoked(final SwInterfaceAddDelAddress expected,
                                                           final SwInterfaceAddDelAddress actual) throws
-        VppInvocationException {
+            VppInvocationException {
         assertArrayEquals(expected.address, actual.address);
         assertEquals(expected.addressLength, actual.addressLength);
         assertEquals(expected.delAll, actual.delAll);
@@ -124,7 +156,10 @@ public class Ipv4AddressCustomizerTest {
 
     @Test
     public void testAddPrefixLengthIpv4Address() throws Exception {
+        doNothing().when(subnetValidator).checkNotAddingToSameSubnet(Mockito.anyList());
+
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
+        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
         Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
         PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
@@ -135,13 +170,14 @@ public class Ipv4AddressCustomizerTest {
 
         customizer.writeCurrentAttributes(id, data, writeContext);
 
-        verifySwInterfaceAddDelAddressWasInvoked(generateSwInterfaceAddDelAddressRequest(new byte[] {-64, -88, 2, 1},
-            (byte) 1, (byte) 24));
+        verifySwInterfaceAddDelAddressWasInvoked(generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
+                (byte) 1, (byte) 24));
     }
 
     @Test
     public void testAddPrefixLengthIpv4AddressFailed() throws Exception {
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
+        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
         Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
         PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
@@ -155,11 +191,55 @@ public class Ipv4AddressCustomizerTest {
         } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifySwInterfaceAddDelAddressWasInvoked(
-                generateSwInterfaceAddDelAddressRequest(new byte[] {-64, -88, 2, 1},
-                    (byte) 1, (byte) 24));
+                    generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
+                            (byte) 1, (byte) 24));
             return;
         }
         fail("WriteFailedException was expected");
+    }
+
+    @Test
+    public void testAddPrefixLengthIpv4AddressConflicted() throws Exception {
+
+        final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
+        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
+
+        Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
+        PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
+        Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(length).build();
+        final List<Address> addressList = Arrays.asList(data);
+
+        //throws when validation invoked
+        doThrow(SubnetValidationException.forConflictingData((short) 24, Arrays.asList(data))).when(subnetValidator)
+                .checkNotAddingToSameSubnet(addressList);
+
+        //fake data return from WriteContext
+        doReturn(Optional.of(new Ipv4Builder().setAddress(addressList).build())).when(writeContext)
+                .readAfter(argThat(matchInstanceIdentifier(Ipv4.class)));
+
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+
+        try {
+            customizer.writeCurrentAttributes(id, data, writeContext);
+        } catch (WriteFailedException e) {
+            //verifies if cause of exception is correct type
+            assertTrue(e.getCause() instanceof SubnetValidationException);
+
+            //verify that validation call was invoked with data from writeContext
+            verify(subnetValidator, times(1)).checkNotAddingToSameSubnet(addressesCaptor.capture());
+            assertEquals(addressList, addressesCaptor.getValue());
+        }
+
+    }
+
+    private static ArgumentMatcher<InstanceIdentifier<?>> matchInstanceIdentifier(
+            Class<?> desiredClass) {
+        return new ArgumentMatcher<InstanceIdentifier<?>>() {
+            @Override
+            public boolean matches(final Object o) {
+                return o instanceof InstanceIdentifier && ((InstanceIdentifier) o).getTargetType().equals(desiredClass);
+            }
+        };
     }
 
     private SwInterfaceAddDelAddress generateSwInterfaceAddDelAddressRequest(final byte[] address, final byte isAdd,
@@ -187,8 +267,8 @@ public class Ipv4AddressCustomizerTest {
 
         customizer.deleteCurrentAttributes(id, data, writeContext);
 
-        verifySwInterfaceAddDelAddressWasInvoked(generateSwInterfaceAddDelAddressRequest(new byte[] {-64, -88, 2, 1},
-            (byte) 0, (byte) 24));
+        verifySwInterfaceAddDelAddressWasInvoked(generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
+                (byte) 0, (byte) 24));
     }
 
     @Test
@@ -207,8 +287,8 @@ public class Ipv4AddressCustomizerTest {
         } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifySwInterfaceAddDelAddressWasInvoked(
-                generateSwInterfaceAddDelAddressRequest(new byte[] {-64, -88, 2, 1},
-                    (byte) 0, (byte) 24));
+                    generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
+                            (byte) 0, (byte) 24));
             return;
         }
         fail("WriteFailedException was expec16ted");
@@ -216,6 +296,7 @@ public class Ipv4AddressCustomizerTest {
 
     private void testSingleNetmask(final int expectedPrefixLength, final String stringMask) throws Exception {
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
+        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
         Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
         Netmask subnet = new NetmaskBuilder().setNetmask(new DottedQuad(stringMask)).build();
@@ -226,18 +307,19 @@ public class Ipv4AddressCustomizerTest {
         final CompletableFuture<SwInterfaceAddDelAddressReply> replyFuture = new CompletableFuture<>();
         replyFuture.complete(new SwInterfaceAddDelAddressReply());
         ArgumentCaptor<SwInterfaceAddDelAddress> argumentCaptor =
-            ArgumentCaptor.forClass(SwInterfaceAddDelAddress.class);
+                ArgumentCaptor.forClass(SwInterfaceAddDelAddress.class);
         doReturn(replyFuture).when(api).swInterfaceAddDelAddress(argumentCaptor.capture());
 
         customizer.writeCurrentAttributes(id, data, writeContext);
 
-        verifySwInterfaceAddDelAddressWasInvoked(generateSwInterfaceAddDelAddressRequest(new byte[] {-64, -88, 2, 1},
-            (byte) 1, (byte) expectedPrefixLength), argumentCaptor.getValue());
+        verifySwInterfaceAddDelAddressWasInvoked(generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
+                (byte) 1, (byte) expectedPrefixLength), argumentCaptor.getValue());
     }
 
     private void testSingleIllegalNetmask(final String stringMask) throws Exception {
         try {
             final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
+            when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
             Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
             Netmask subnet = new NetmaskBuilder().setNetmask(new DottedQuad(stringMask)).build();
@@ -248,7 +330,7 @@ public class Ipv4AddressCustomizerTest {
             final CompletableFuture<SwInterfaceAddDelAddressReply> replyFuture = new CompletableFuture<>();
             replyFuture.complete(new SwInterfaceAddDelAddressReply());
             ArgumentCaptor<SwInterfaceAddDelAddress> argumentCaptor =
-                ArgumentCaptor.forClass(SwInterfaceAddDelAddress.class);
+                    ArgumentCaptor.forClass(SwInterfaceAddDelAddress.class);
             doReturn(replyFuture).when(api).swInterfaceAddDelAddress(argumentCaptor.capture());
 
             customizer.writeCurrentAttributes(id, data, writeContext);
@@ -288,5 +370,4 @@ public class Ipv4AddressCustomizerTest {
         testSingleIllegalNetmask("255.1.255.0");
         testSingleIllegalNetmask("255.255.255.255");
     }
-
 }

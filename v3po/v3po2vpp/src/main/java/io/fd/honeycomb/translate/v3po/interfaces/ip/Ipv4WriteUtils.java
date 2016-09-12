@@ -35,7 +35,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * Utility class providing Ipv4 CUD support.
  */
 // TODO HONEYCOMB-175 replace with interface with default methods or abstract class
-final class Ipv4WriteUtils {
+public final class Ipv4WriteUtils {
 
     private static final int DOTTED_QUAD_MASK_LENGTH = 4;
     private static final int IPV4_ADDRESS_PART_BITS_COUNT = 8;
@@ -83,7 +83,7 @@ final class Ipv4WriteUtils {
      * @param mask the subnet mask in dot notation 255.255.255.255
      * @return the prefix length as number of bits
      */
-    static byte getSubnetMaskLength(final String mask) {
+    public static byte getSubnetMaskLength(final String mask) {
         String[] maskParts = mask.split("\\.");
 
         checkArgument(maskParts.length == DOTTED_QUAD_MASK_LENGTH,
