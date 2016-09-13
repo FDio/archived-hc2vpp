@@ -62,11 +62,11 @@ public final class DumpCacheManager<T, U> {
             // binds and execute dump to be thread-save
             dump = dumpExecutor.executeDump(dumpParams);
 
-            // this is not a critical exception, so its only logged here
+            // TODO (HONEYCOMB-210): remove empty check (empty dump is normal state, special handling is not needed)
             try {
                 dumpNonEmptyCheck.assertNotEmpty(dump);
             } catch (DumpCheckFailedException e) {
-                LOG.warn("Dump for KEY[{}] has been resolved as empty", entityKey, e);
+                LOG.debug("Dump for KEY[{}] has been resolved as empty: {}", entityKey, e.getMessage());
                 return Optional.absent();
             }
 
