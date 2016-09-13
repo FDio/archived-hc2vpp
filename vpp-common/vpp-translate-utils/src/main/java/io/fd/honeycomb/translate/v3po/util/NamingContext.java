@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.util.RWUtils;
 import java.util.stream.Collector;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
@@ -32,16 +32,12 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.cont
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility adapter on top of {@link MappingContext} storing integer to string mappings according to naming-context yang
  * model
  */
 public final class NamingContext implements AutoCloseable {
-
-    private static final Logger LOG = LoggerFactory.getLogger(NamingContext.class);
 
     private final String artificialNamePrefix;
     private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContext, NamingContextKey>
