@@ -49,9 +49,8 @@ public class LocatorDumpExecutor extends AbstractDumpExecutor
 
         LispLocatorDump request = new LispLocatorDump();
         request.lsIndex = params.getLocatorSetIndex();
-        // TODO: HONEYCOMB-211: fix support for locator set filtering
-        // request.lsName
-        // request.filter = params.getFilter();
+        //flag that lsIndex is set
+        request.isIndexSet = (byte) 1;
 
         try {
             return TranslateUtils.getReply(vppApi.lispLocatorDump(request).toCompletableFuture());

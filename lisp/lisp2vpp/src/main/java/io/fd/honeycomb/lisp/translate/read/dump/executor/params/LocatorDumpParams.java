@@ -16,62 +16,27 @@
 
 package io.fd.honeycomb.lisp.translate.read.dump.executor.params;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Params for dumping locators
  */
 public final class LocatorDumpParams {
 
     private final int locatorSetIndex;
-    private final byte filter;
 
     private LocatorDumpParams(LocatorDumpParamsBuilder builder) {
         this.locatorSetIndex = builder.locatorSetIndex;
-        this.filter = builder.filter;
     }
 
     public int getLocatorSetIndex() {
         return locatorSetIndex;
     }
 
-    public byte getFilter() {
-        return filter;
-    }
-
-    /**
-     * Enum for filtering which locators to dump
-     */
-    public enum LocatorDumpFilter {
-
-        ALL(0),
-        LOCAL(1),
-        REMOTE(2);
-
-        private final int value;
-
-        private LocatorDumpFilter(int value) {
-            this.value = value;
-        }
-
-        public final int getValue() {
-            return value;
-        }
-    }
-
     public static final class LocatorDumpParamsBuilder {
 
-        public int locatorSetIndex;
-        public byte filter;
-
+        private int locatorSetIndex;
 
         public LocatorDumpParamsBuilder setLocatorSetIndex(final int locatorSetIndex) {
             this.locatorSetIndex = locatorSetIndex;
-            return this;
-        }
-
-        public LocatorDumpParamsBuilder setFilter(final LocatorDumpFilter filter) {
-            this.filter = Integer.valueOf(checkNotNull(filter, "Cannot set null filter").getValue()).byteValue();
             return this;
         }
 

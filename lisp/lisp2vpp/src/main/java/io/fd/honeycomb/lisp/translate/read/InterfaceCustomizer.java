@@ -24,6 +24,7 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.translate.read.dump.check.LocatorDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams;
+import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams.LocatorDumpParamsBuilder;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
@@ -100,10 +101,8 @@ public class InterfaceCustomizer
         final int referencedInterfaceIndex =
                 interfaceContext.getIndex(referencedInterfaceName, ctx.getMappingContext());
 
-        final LocatorDumpParams params = new LocatorDumpParams.LocatorDumpParamsBuilder()
-                .setFilter(LocatorDumpParams.LocatorDumpFilter.LOCAL)
-                .setLocatorSetIndex(locatorSetIndexIndex)
-                .build();
+        final LocatorDumpParams params =
+                new LocatorDumpParamsBuilder().setLocatorSetIndex(locatorSetIndexIndex).build();
 
         Optional<LispLocatorDetailsReplyDump> reply;
         try {
@@ -136,10 +135,8 @@ public class InterfaceCustomizer
         final String name = id.firstKeyOf(LocatorSet.class).getName();
 
         checkState(locatorSetContext.containsIndex(name, context.getMappingContext()), "No mapping for %s", name);
-        final LocatorDumpParams params = new LocatorDumpParams.LocatorDumpParamsBuilder()
-                .setFilter(LocatorDumpParams.LocatorDumpFilter.LOCAL)
-                .setLocatorSetIndex(locatorSetContext.getIndex(name, context.getMappingContext()))
-                .build();
+        final LocatorDumpParams params = new LocatorDumpParamsBuilder()
+                .setLocatorSetIndex(locatorSetContext.getIndex(name, context.getMappingContext())).build();
 
 
         Optional<LispLocatorDetailsReplyDump> reply;
