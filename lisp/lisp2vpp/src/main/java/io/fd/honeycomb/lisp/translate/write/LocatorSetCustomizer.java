@@ -149,9 +149,9 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
 
         if (reply.isPresent()) {
             return reply.get().lispLocatorSetDetails.stream()
-                    .filter(a -> name.equals(TranslateUtils.toString(a.locatorSetName)))
+                    .filter(a -> name.equals(TranslateUtils.toString(a.lsName)))
                     .collect(RWUtils.singleItemCollector())
-                    .locatorSetIndex;
+                    .lsIndex;
         } else {
             throw new IllegalStateException("Unable to find index of locator set " + name);
         }

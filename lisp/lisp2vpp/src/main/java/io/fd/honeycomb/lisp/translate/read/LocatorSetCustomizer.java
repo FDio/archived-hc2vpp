@@ -93,11 +93,11 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         LispLocatorSetDetailsReplyDump dump = dumpOptional.get();
 
         java.util.Optional<LispLocatorSetDetails> details = dump.lispLocatorSetDetails.stream()
-                .filter(n -> keyName.equals(TranslateUtils.toString(n.locatorSetName)))
+                .filter(n -> keyName.equals(TranslateUtils.toString(n.lsName)))
                 .findFirst();
 
         if (details.isPresent()) {
-            final String name = TranslateUtils.toString(details.get().locatorSetName);
+            final String name = TranslateUtils.toString(details.get().lsName);
 
             builder.setName(name);
             builder.setKey(new LocatorSetKey(name));
@@ -123,20 +123,20 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
             return dumpOptional.get().lispLocatorSetDetails.stream()
                     .map(set -> {
 
-                        final String locatorSetName = TranslateUtils.toString(set.locatorSetName);
+                        final String locatorSetName = TranslateUtils.toString(set.lsName);
                         //creates mapping for existing locator-set(if it is'nt already existing one)
                         if (!locatorSetContext.containsIndex(locatorSetName, context.getMappingContext())) {
-                            locatorSetContext.addName(set.locatorSetIndex, locatorSetName, context.getMappingContext());
+                            locatorSetContext.addName(set.lsIndex, locatorSetName, context.getMappingContext());
                         }
 
                         LOG.trace("Locator Set with name: {}, VPP name: {} and index: {} found in VPP",
-                                locatorSetContext.getName(set.locatorSetIndex, context.getMappingContext()),
+                                locatorSetContext.getName(set.lsIndex, context.getMappingContext()),
                                 locatorSetName,
-                                set.locatorSetIndex);
+                                set.lsIndex);
 
                         return set;
                     })
-                    .map(set -> new LocatorSetKey(TranslateUtils.toString(set.locatorSetName)))
+                    .map(set -> new LocatorSetKey(TranslateUtils.toString(set.lsName)))
                     .collect(Collectors.toList());
         } else {
             LOG.warn("No data dumped for Locator Set {}", id);

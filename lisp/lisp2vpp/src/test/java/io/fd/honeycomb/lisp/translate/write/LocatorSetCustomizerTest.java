@@ -94,7 +94,7 @@ public class LocatorSetCustomizerTest {
 
         final LispLocatorSetDetailsReplyDump reply = new LispLocatorSetDetailsReplyDump();
         LispLocatorSetDetails details = new LispLocatorSetDetails();
-        details.locatorSetName = "Locator".getBytes(StandardCharsets.UTF_8);
+        details.lsName = "Locator".getBytes(StandardCharsets.UTF_8);
         reply.lispLocatorSetDetails = ImmutableList.of(details);
 
         cache.put(io.fd.honeycomb.lisp.translate.read.LocatorSetCustomizer.LOCATOR_SETS_CACHE_ID, reply);
