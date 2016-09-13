@@ -21,8 +21,12 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.i.DumpEmptyException;
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpNonEmptyCheck;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpPostProcessingFunction;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.check.i.DumpEmptyException;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

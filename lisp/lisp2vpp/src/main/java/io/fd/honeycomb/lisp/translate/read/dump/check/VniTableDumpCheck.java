@@ -17,9 +17,9 @@
 package io.fd.honeycomb.lisp.translate.read.dump.check;
 
 
-import io.fd.honeycomb.translate.v3po.util.cache.EntityDumpNonEmptyCheck;
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.DumpCheckFailedException;
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.check.i.DumpEmptyException;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpNonEmptyCheck;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.check.DumpCheckFailedException;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.check.i.DumpEmptyException;
 import org.openvpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
 
 public class VniTableDumpCheck implements EntityDumpNonEmptyCheck<LispEidTableMapDetailsReplyDump> {

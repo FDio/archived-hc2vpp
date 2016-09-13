@@ -17,7 +17,7 @@
 package io.fd.honeycomb.lisp.translate.read;
 
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.v3po.util.cache.EntityDumpExecutor.NO_PARAMS;
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.translate.read.dump.check.VniTableDumpCheck;
@@ -27,8 +27,8 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.v3po.util.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
