@@ -28,6 +28,7 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.BindingBrokerReader;
+import java.util.List;
 import java.util.stream.Collector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -149,7 +150,11 @@ public final class VppClassifierContextManagerImpl implements VppClassifierConte
         }
         final String tableName = getTableName(tableIndex, ctx);
         final Optional<ClassifyTableContext> tableCtx = ctx.read(getMappingIid(tableName));
-        return Optional.fromNullable(tableCtx.get().getNodeContext().stream()
+        final List<NodeContext> nodeContext = tableCtx.get().getNodeContext();
+        if (nodeContext == null) {
+            return Optional.absent();
+        }
+        return Optional.fromNullable(nodeContext.stream()
             .filter(n -> n.getIndex().equals(nodeIndex))
             .findFirst()
             .map(nodes -> nodes.getName())

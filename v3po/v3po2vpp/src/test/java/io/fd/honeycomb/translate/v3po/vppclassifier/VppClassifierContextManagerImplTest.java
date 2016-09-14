@@ -120,6 +120,14 @@ public class VppClassifierContextManagerImplTest {
     }
 
     @Test
+    public void testGetNodeNameMissingNodeCtx() throws Exception {
+        final ClassifyTableContext tableCtx = table(TABLE_ID_0, TABLE_NAME_0, "aa");
+        when(ctx.read(VPP_CLASSIFIER_CONTEXT_IID)).thenReturn(Optional.of(context(tableCtx)));
+        when(ctx.read(TABLE_IID_0)).thenReturn(Optional.of(tableCtx));
+        assertEquals(Optional.absent(), vppClassfierContext.getNodeName(TABLE_ID_0, 123, ctx));
+    }
+
+    @Test
     public void testGetNodeName() throws Exception {
         final ClassifyTableContext tableCtx = table(TABLE_ID_0, TABLE_NAME_0, "aa", node("node123", 123));
         when(ctx.read(VPP_CLASSIFIER_CONTEXT_IID)).thenReturn(Optional.of(context(tableCtx)));
