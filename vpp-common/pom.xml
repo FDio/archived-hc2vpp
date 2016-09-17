@@ -25,7 +25,7 @@
   <groupId>io.fd.honeycomb.vpp</groupId>
   <artifactId>vpp-common-aggregator</artifactId>
   <version>1.16.12-SNAPSHOT</version>
-  <name>v3po</name>
+  <name>vpp-common</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
   <prerequisites>

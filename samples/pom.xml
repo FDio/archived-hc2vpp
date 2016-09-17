@@ -25,7 +25,7 @@
   <groupId>io.fd.honeycomb</groupId>
   <artifactId>samples-aggregator</artifactId>
   <version>1.16.12-SNAPSHOT</version>
-  <name>honeycomb-infra</name>
+  <name>samples</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
   <prerequisites>
