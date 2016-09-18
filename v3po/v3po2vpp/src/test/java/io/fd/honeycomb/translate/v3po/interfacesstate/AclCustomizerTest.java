@@ -21,21 +21,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -45,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.AclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.core.dto.ClassifyTableByInterface;
 import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 
@@ -56,7 +48,7 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
     private static final int TABLE_INDEX = 123;
     private static final String TABLE_NAME = "table123";
 
-    private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
 
     private NamingContext interfaceContext;
 
@@ -69,17 +61,8 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
 
     @Override
     public void setUpBefore() {
-        interfaceContext = new NamingContext("generatedIfaceName", IFC_TEST_INSTANCE);
-
-        final KeyedInstanceIdentifier<Mapping, MappingKey> ifcMappingKey = ContextTestUtils
-                .getMappingIid(IF_NAME, IFC_TEST_INSTANCE);
-        final Optional<Mapping> ifcMapping = ContextTestUtils.getMapping(IF_NAME, IF_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(ifcMappingKey);
-
-        final List<Mapping> allIfcMappings = Lists.newArrayList(ifcMapping.get());
-        final Mappings allIfcMappingsBaObject = new MappingsBuilder().setMapping(allIfcMappings).build();
-        doReturn(Optional.of(allIfcMappingsBaObject)).when(mappingContext)
-            .read(ifcMappingKey.firstIdentifierOf(Mappings.class));
+        interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
     }
 
     @Override

@@ -16,8 +16,6 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces;
 
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMapping;
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMappingIid;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -26,8 +24,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
@@ -39,8 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -50,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.AclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.InputAclSetInterface;
 import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
@@ -82,12 +77,10 @@ public class AclCustomizerTest {
     public void setUp() throws Exception {
         initMocks(this);
         interfaceContext = new NamingContext("generatedInterfaceName", IFC_TEST_INSTANCE);
+        ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
+
         doReturn(mappingContext).when(writeContext).getMappingContext();
         customizer = new AclCustomizer(api, interfaceContext, classifyTableContext);
-
-        final KeyedInstanceIdentifier<Mapping, MappingKey> ifcMappingKey = getMappingIid(IF_NAME, IFC_TEST_INSTANCE);
-        final Optional<Mapping> ifcMapping = getMapping(IF_NAME, IF_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(ifcMappingKey);
     }
 
 

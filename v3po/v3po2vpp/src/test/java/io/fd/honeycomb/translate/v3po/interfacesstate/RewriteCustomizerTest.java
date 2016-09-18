@@ -17,15 +17,12 @@
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TagRewriteOperation;
@@ -35,7 +32,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -54,9 +50,11 @@ import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, RewriteBuilder> {
 
-    public static final String VLAN_IF_NAME = "local0.1";
-    public static final int VLAN_IF_ID = 1;
-    public static final int VLAN_IF_INDEX = 11;
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
+    private static final String IF_NAME = "local0";
+    private static final String VLAN_IF_NAME = "local0.1";
+    private static final int VLAN_IF_INDEX = 11;
+    private static final int VLAN_ID = 1;
 
     private NamingContext interfacesContext;
 
@@ -69,10 +67,8 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("generatedIfaceName", "test-instance");
-
-        final Optional<Mapping> ifcMapping = ContextTestUtils.getMapping(VLAN_IF_NAME, VLAN_IF_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
+        interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_CTX_NAME);
     }
 
     @Override
@@ -103,7 +99,7 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
         final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
 
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
-        ifaceDetails.subId = VLAN_IF_ID;
+        ifaceDetails.subId = VLAN_ID;
         ifaceDetails.interfaceName = VLAN_IF_NAME.getBytes();
         ifaceDetails.vtrOp = TagRewriteOperation.translate_2_to_2.ordinal();
         ifaceDetails.subNumberOfTags = 2;
@@ -115,7 +111,7 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
 
         final RewriteBuilder builder = mock(RewriteBuilder.class);
 
-        getCustomizer().readCurrentAttributes(getVlanTagRewriteId(VLAN_IF_NAME, VLAN_IF_ID), builder, ctx);
+        getCustomizer().readCurrentAttributes(getVlanTagRewriteId(IF_NAME, VLAN_ID), builder, ctx);
 
         verify(builder).setVlanType(_802dot1q.class);
         verify(builder).setPopTags((short) 2);

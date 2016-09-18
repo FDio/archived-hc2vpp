@@ -50,9 +50,13 @@ import org.openvpp.jvpp.core.dto.VxlanTunnelDump;
 
 public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilder> {
 
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
+    private static final String IF_NAME = "ifc1";
+    private static final int IF_INDEX = 0;
+
     private NamingContext interfacesContext;
     static final InstanceIdentifier<Vxlan> IID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey("ifc1"))
+        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
             .augmentation(VppInterfaceStateAugmentation.class).child(Vxlan.class);
 
     public VxlanCustomizerTest() {
@@ -61,9 +65,8 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("vxlan-tunnel", "test-instance");
-        doReturn(ContextTestUtils.getMapping("ifc1", 0)).when(mappingContext).read(
-                ContextTestUtils.getMappingIid("ifc1", "test-instance"));
+        interfacesContext = new NamingContext("vxlan-tunnel", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
 
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "vxlan-tunnel4".getBytes();

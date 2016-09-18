@@ -23,11 +23,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.write.WriteContext;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +53,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class TapCustomizerTest {
 
+    private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
+
     @Mock
     private FutureJVppCore vppApi;
     @Mock
@@ -67,7 +69,7 @@ public class TapCustomizerTest {
         MockitoAnnotations.initMocks(this);
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class);
-        final NamingContext ctx = new NamingContext("ifcintest", "test-instance");
+        final NamingContext ctx = new NamingContext("ifcintest", IFC_TEST_INSTANCE);
         final ModificationCache toBeReturned = new ModificationCache();
         doReturn(toBeReturned).when(writeContext).getModificationCache();
         doReturn(mappingContext).when(writeContext).getMappingContext();
@@ -95,9 +97,9 @@ public class TapCustomizerTest {
         tapCustomizer.writeCurrentAttributes(getTapId("tap2"), getTapData("tap2", "ff:ff:ff:ff:ff:ff"), writeContext);
 
         verify(vppApi, times(2)).tapConnect(any(TapConnect.class));
-        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap", "test-instance")), eq(
+        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)), eq(
                 ContextTestUtils.getMapping("tap", 0).get()));
-        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap2", "test-instance")), eq(
+        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap2", IFC_TEST_INSTANCE)), eq(
                 ContextTestUtils.getMapping("tap2", 1).get()));
     }
 
@@ -116,14 +118,14 @@ public class TapCustomizerTest {
         doReturn(replyModif).when(vppApi).tapModify(any(TapModify.class));
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
-        doReturn(ContextTestUtils.getMapping("tap", 1)).when(mappingContext).read(
-                ContextTestUtils.getMappingIid("tap", "test-instance"));
+
+        ContextTestUtils.mockMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);
         tapCustomizer.updateCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), getTapData("tap", "ff:ff:ff:ff:ff:f1"), writeContext);
 
         verify(vppApi).tapConnect(any(TapConnect.class));
         verify(vppApi).tapModify(any(TapModify.class));
 
-        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap", "test-instance")), eq(
+        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)), eq(
                 ContextTestUtils.getMapping("tap", 0).get()));
     }
 
@@ -141,13 +143,12 @@ public class TapCustomizerTest {
         doReturn(replyDelete).when(vppApi).tapDelete(any(TapDelete.class));
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
-        doReturn(ContextTestUtils.getMapping("tap", 1)).when(mappingContext).read(
-                ContextTestUtils.getMappingIid("tap", "test-instance"));
+        ContextTestUtils.mockMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);
         tapCustomizer.deleteCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
 
         verify(vppApi).tapConnect(any(TapConnect.class));
         verify(vppApi).tapDelete(any(TapDelete.class));
-        verify(mappingContext).delete(eq(ContextTestUtils.getMappingIid("tap", "test-instance")));
+        verify(mappingContext).delete(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)));
     }
 
     private InstanceIdentifier<Tap> getTapId(final String tap) {

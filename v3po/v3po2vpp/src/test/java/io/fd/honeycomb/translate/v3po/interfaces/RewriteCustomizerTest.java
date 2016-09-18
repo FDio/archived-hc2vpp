@@ -24,13 +24,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TagRewriteOperation;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -39,7 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -70,22 +68,24 @@ public class RewriteCustomizerTest {
     private NamingContext namingContext;
     private RewriteCustomizer customizer;
 
-    public static final String VLAN_IF_NAME = "local0.1";
-    public static final int VLAN_IF_ID = 1;
-    public static final int VLAN_IF_INDEX = 11;
+    private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
+    private static final String IF_NAME = "local0";
+    private static final String VLAN_IF_NAME = "local0.1";
+    private static final int VLAN_IF_ID = 1;
+    private static final int VLAN_IF_INDEX = 11;
+    private InstanceIdentifier<Rewrite> VLAN_IID;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        namingContext = new NamingContext("generatedSubInterfaceName", "test-instance");
+        namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
         doReturn(mappingContext).when(writeContext).getMappingContext();
         customizer = new RewriteCustomizer(api, namingContext);
-
-        final Optional<Mapping> ifcMapping = ContextTestUtils.getMapping(VLAN_IF_NAME, VLAN_IF_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
+        VLAN_IID = getVlanTagRewriteId(IF_NAME, VLAN_IF_ID);
+        ContextTestUtils.mockMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_TEST_INSTANCE);
     }
 
-    private InstanceIdentifier<Rewrite> getVlanTagRewriteId(final String name, final long index) {
+    private static InstanceIdentifier<Rewrite> getVlanTagRewriteId(final String name, final long index) {
         final Class<ChildOf<? super SubInterface>> child = (Class)Rewrite.class;
         final InstanceIdentifier id =
                 InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(name)).augmentation(
@@ -154,11 +154,10 @@ public class RewriteCustomizerTest {
     public void testCreate() throws Exception {
         final TagRewriteOperation op = TagRewriteOperation.pop_2;
         final Rewrite vlanTagRewrite = generateRewrite(op);
-        final InstanceIdentifier<Rewrite> id = getVlanTagRewriteId(VLAN_IF_NAME, VLAN_IF_ID);
 
         whenL2InterfaceVlanTagRewriteThenSuccess();
 
-        customizer.writeCurrentAttributes(id, vlanTagRewrite, writeContext);
+        customizer.writeCurrentAttributes(VLAN_IID, vlanTagRewrite, writeContext);
 
         verifyL2InterfaceVlanTagRewriteWasInvoked(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, op));
     }
@@ -167,14 +166,11 @@ public class RewriteCustomizerTest {
     public void testCreateFailed() throws Exception {
         final TagRewriteOperation op = TagRewriteOperation.pop_2;
         final Rewrite vlanTagRewrite = generateRewrite(op);
-        final String subIfaceName = "local0.11";
-        final int subifIndex = 1;
-        final InstanceIdentifier<Rewrite> id = getVlanTagRewriteId(subIfaceName, subifIndex);
 
         whenL2InterfaceVlanTagRewriteThenFailure();
 
         try {
-            customizer.writeCurrentAttributes(id, vlanTagRewrite, writeContext);
+            customizer.writeCurrentAttributes(VLAN_IID, vlanTagRewrite, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2InterfaceVlanTagRewriteWasInvoked(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, op));
@@ -187,11 +183,10 @@ public class RewriteCustomizerTest {
     public void testUpdate() throws Exception {
         final Rewrite before = generateRewrite(TagRewriteOperation.pop_2);
         final Rewrite after = generateRewrite(TagRewriteOperation.pop_1);
-        final InstanceIdentifier<Rewrite> id = getVlanTagRewriteId(VLAN_IF_NAME, VLAN_IF_ID);
 
         whenL2InterfaceVlanTagRewriteThenSuccess();
 
-        customizer.updateCurrentAttributes(id, before, after, writeContext);
+        customizer.updateCurrentAttributes(VLAN_IID, before, after, writeContext);
 
         verifyL2InterfaceVlanTagRewriteWasInvoked(
                 generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, TagRewriteOperation.pop_1));
@@ -201,12 +196,11 @@ public class RewriteCustomizerTest {
     public void testUpdateFailed() throws Exception {
         final Rewrite before = generateRewrite(TagRewriteOperation.pop_2);
         final Rewrite after = generateRewrite(TagRewriteOperation.pop_1);
-        final InstanceIdentifier<Rewrite> id = getVlanTagRewriteId(VLAN_IF_NAME, VLAN_IF_ID);
 
         whenL2InterfaceVlanTagRewriteThenFailure();
 
         try {
-            customizer.updateCurrentAttributes(id, before, after, writeContext);
+            customizer.updateCurrentAttributes(VLAN_IID, before, after, writeContext);
         } catch (WriteFailedException.UpdateFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2InterfaceVlanTagRewriteWasInvoked(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX,
@@ -218,23 +212,19 @@ public class RewriteCustomizerTest {
 
     @Test
     public void testDelete() throws Exception {
-        final InstanceIdentifier<Rewrite> id = getVlanTagRewriteId(VLAN_IF_NAME, VLAN_IF_ID);
-
         whenL2InterfaceVlanTagRewriteThenSuccess();
 
-        customizer.deleteCurrentAttributes(id, null, writeContext);
+        customizer.deleteCurrentAttributes(VLAN_IID, null, writeContext);
 
         verifyL2InterfaceVlanTagRewriteDeleteWasInvoked();
     }
 
     @Test
     public void testDeleteFailed() throws Exception {
-        final InstanceIdentifier<Rewrite> id = getVlanTagRewriteId(VLAN_IF_NAME, VLAN_IF_ID);
-
         whenL2InterfaceVlanTagRewriteThenFailure();
 
         try {
-            customizer.deleteCurrentAttributes(id, null, writeContext);
+            customizer.deleteCurrentAttributes(VLAN_IID, null, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             Assert.assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2InterfaceVlanTagRewriteDeleteWasInvoked();

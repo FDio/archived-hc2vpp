@@ -17,13 +17,10 @@
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.ReaderCustomizerTest;
@@ -35,10 +32,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -49,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
@@ -59,6 +51,8 @@ import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
+    private static final String BD_CTX_NAME = "bd-test-instance";
     private NamingContext interfaceContext;
     private NamingContext bridgeDomainContext;
 
@@ -68,8 +62,8 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 
     @Override
     public void setUpBefore() {
-        interfaceContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
-        bridgeDomainContext = new NamingContext("generatedBDName", "bd-test-instance");
+        interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
+        bridgeDomainContext = new NamingContext("generatedBDName", BD_CTX_NAME);
     }
 
     @Override
@@ -131,20 +125,8 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
         final int bdId = 1;
         final String bdName = "bd001";
         final String ifName = "eth0.sub0";
-        final KeyedInstanceIdentifier<Mapping, MappingKey> ifcIid = ContextTestUtils
-                .getMappingIid(ifName, "ifc-test-instance");
-        doReturn(ContextTestUtils.getMapping(ifName, ifId)).when(mappingContext).read(ifcIid);
-        final KeyedInstanceIdentifier<Mapping, MappingKey> bdIid = ContextTestUtils
-                .getMappingIid(bdName, "bd-test-instance");
-        doReturn(ContextTestUtils.getMapping(bdName, bdId)).when(mappingContext).read(bdIid);
-
-        List<Mapping> allMappings = Lists.newArrayList(ContextTestUtils.getMapping(ifName, ifId).get());
-        Mappings allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
-        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(ifcIid.firstIdentifierOf(Mappings.class));
-
-        allMappings = Lists.newArrayList(ContextTestUtils.getMapping(bdName, bdId).get());
-        allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
-        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(bdIid.firstIdentifierOf(Mappings.class));
+        ContextTestUtils.mockMapping(mappingContext, ifName, ifId, IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
 
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = ifId;

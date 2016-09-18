@@ -230,8 +230,7 @@ public class VhostUserCustomizerTest {
     public void testUpdateCurrentAttributes() throws Exception {
         final VhostUser vhostUserBefore = generateVhostUser(VhostUserRole.Client, "socketName0");
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName1");
-        doReturn(ContextTestUtils.getMapping(IFACE_NAME, IFACE_ID)).when(mappingContext).read(
-                ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance"));
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
         whenModifyVhostUserIfThenSuccess();
 
@@ -243,8 +242,7 @@ public class VhostUserCustomizerTest {
     public void testUpdateCurrentAttributesFailed() throws Exception {
         final VhostUser vhostUserBefore = generateVhostUser(VhostUserRole.Client, "socketName0");
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName1");
-        doReturn(ContextTestUtils.getMapping(IFACE_NAME, IFACE_ID)).when(mappingContext).read(
-                ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance"));
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
         whenModifyVhostUserIfThenFailure();
 
@@ -261,8 +259,7 @@ public class VhostUserCustomizerTest {
     @Test
     public void testDeleteCurrentAttributes() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
-        doReturn(ContextTestUtils.getMapping(IFACE_NAME, IFACE_ID)).when(mappingContext).read(
-                ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance"));
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
         whenDeleteVhostUserIfThenSuccess();
 
@@ -274,8 +271,7 @@ public class VhostUserCustomizerTest {
     @Test
     public void testDeleteCurrentAttributesFailed() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
-        doReturn(ContextTestUtils.getMapping(IFACE_NAME, IFACE_ID)).when(mappingContext).read(
-                ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance"));
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
         whenDeleteVhostUserIfThenFailure();
 

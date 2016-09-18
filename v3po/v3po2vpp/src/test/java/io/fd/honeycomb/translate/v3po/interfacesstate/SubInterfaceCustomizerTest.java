@@ -18,12 +18,9 @@ package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
@@ -36,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -55,11 +51,12 @@ import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
 public class SubInterfaceCustomizerTest extends
         ListReaderCustomizerTest<SubInterface, SubInterfaceKey, SubInterfaceBuilder> {
 
-    public static final String SUPER_IF_NAME = "local0";
-    public static final int SUPER_IF_INDEX = 1;
-    public static final String VLAN_IF_NAME = "local0.1";
-    public static final int VLAN_IF_ID = 1;
-    public static final int VLAN_IF_INDEX = 11;
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
+    private static final String SUPER_IF_NAME = "local0";
+    private static final int SUPER_IF_INDEX = 1;
+    private static final String VLAN_IF_NAME = "local0.1";
+    private static final int VLAN_IF_ID = 1;
+    private static final int VLAN_IF_INDEX = 11;
 
     private NamingContext interfacesContext;
 
@@ -69,7 +66,9 @@ public class SubInterfaceCustomizerTest extends
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("generatedIfaceName", "test-instance");
+        interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_INDEX, IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_CTX_NAME);
     }
 
     @Override
@@ -93,15 +92,14 @@ public class SubInterfaceCustomizerTest extends
 
     @Test
     public void testRead() throws ReadFailedException {
-        final Optional<Mapping> ifcMapping = ContextTestUtils.getMapping(VLAN_IF_NAME, VLAN_IF_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
-
         final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
 
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = VLAN_IF_ID;
         ifaceDetails.interfaceName = VLAN_IF_NAME.getBytes();
         ifaceDetails.subDot1Ad = 1;
+        ContextTestUtils.mockMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_INDEX, IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_CTX_NAME);
         ifaceDetails.subNumberOfTags = 2;
         ifaceDetails.subOuterVlanIdAny = 1;
         ifaceDetails.subInnerVlanIdAny = 1;
@@ -110,7 +108,7 @@ public class SubInterfaceCustomizerTest extends
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
         final SubInterfaceBuilder builder = mock(SubInterfaceBuilder.class);
-        getCustomizer().readCurrentAttributes(getSubInterfaceId(VLAN_IF_NAME, VLAN_IF_ID), builder, ctx);
+        getCustomizer().readCurrentAttributes(getSubInterfaceId(SUPER_IF_NAME, VLAN_IF_ID), builder, ctx);
 
         verify(builder).setIdentifier((long) VLAN_IF_ID);
 
@@ -126,9 +124,6 @@ public class SubInterfaceCustomizerTest extends
 
     @Test
     public void testGetAllIds() throws Exception {
-        final Optional<Mapping> ifcMapping = ContextTestUtils.getMapping(SUPER_IF_NAME, SUPER_IF_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
-
         final SwInterfaceDetails iface = new SwInterfaceDetails();
         iface.interfaceName = VLAN_IF_NAME.getBytes();
         iface.swIfIndex = VLAN_IF_INDEX;
@@ -138,9 +133,8 @@ public class SubInterfaceCustomizerTest extends
         InterfaceTestUtils.whenSwInterfaceDumpThenReturn(api, ifaces);
 
         final List<SubInterfaceKey> allIds =
-                getCustomizer().getAllIds(getSubInterfaceId(VLAN_IF_NAME, VLAN_IF_ID), ctx);
+                getCustomizer().getAllIds(getSubInterfaceId(SUPER_IF_NAME, VLAN_IF_ID), ctx);
 
         assertEquals(ifaces.size(), allIds.size());
-
     }
 }

@@ -25,8 +25,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
@@ -40,23 +38,26 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.core.dto.SwInterfaceDump;
 
 public class InterfaceCustomizerTest extends
         ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> {
+
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
+    private static final String IFACE0_NAME = "eth0";
+    private static final String IFACE1_NAME = "eth1";
+    private static final String SUB_IFACE_NAME = "eth1.1";
+    private static final int IFACE0_ID = 0;
+    private static final int IFACE1_ID = 1;
+    private static final int SUB_IFACE_ID = 2;
 
     private NamingContext interfacesContext;
     @Mock
@@ -68,31 +69,14 @@ public class InterfaceCustomizerTest extends
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("generatedIfaceName", "test-instance");
+        interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IFACE0_NAME, IFACE0_ID, IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IFACE1_NAME, IFACE1_ID, IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, SUB_IFACE_NAME, SUB_IFACE_ID, IFC_CTX_NAME);
     }
 
     @Override
     protected ReaderCustomizer<Interface, InterfaceBuilder> initCustomizer() {
-        final KeyedInstanceIdentifier<Mapping, MappingKey> eth0Id = ContextTestUtils
-                .getMappingIid("eth0", "test-instance");
-        final KeyedInstanceIdentifier<Mapping, MappingKey> eth1Id = ContextTestUtils
-                .getMappingIid("eth1", "test-instance");
-        final KeyedInstanceIdentifier<Mapping, MappingKey> subEth1Id = ContextTestUtils
-                .getMappingIid("eth1.1", "test-instance");
-        final Optional<Mapping> eth0 = ContextTestUtils.getMapping("eth0", 0);
-        final Optional<Mapping> eth1 = ContextTestUtils.getMapping("eth1", 1);
-        final Optional<Mapping> subEth1 = ContextTestUtils.getMapping("eth1.1", 2);
-
-        final List<Mapping> allMappings =
-            Lists.newArrayList(ContextTestUtils.getMapping("eth0", 0).get(), ContextTestUtils.getMapping("eth1", 1).get(), ContextTestUtils
-                    .getMapping("eth1.1", 2).get());
-        final Mappings allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
-        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(eth0Id.firstIdentifierOf(Mappings.class));
-
-        doReturn(eth0).when(mappingContext).read(eth0Id);
-        doReturn(eth1).when(mappingContext).read(eth1Id);
-        doReturn(subEth1).when(mappingContext).read(subEth1Id);
-
         return new InterfaceCustomizer(api, interfacesContext, interfaceDisableContext);
     }
 
@@ -123,13 +107,12 @@ public class InterfaceCustomizerTest extends
 
     @Test
     public void testReadCurrentAttributes() throws Exception {
-        final String ifaceName = "eth0";
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-            .child(Interface.class, new InterfaceKey(ifaceName));
+            .child(Interface.class, new InterfaceKey(IFACE0_NAME));
         final InterfaceBuilder builder = getCustomizer().getBuilder(id);
 
         final SwInterfaceDetails iface = new SwInterfaceDetails();
-        iface.interfaceName = ifaceName.getBytes();
+        iface.interfaceName = IFACE0_NAME.getBytes();
         iface.swIfIndex = 0;
         iface.linkSpeed = 1;
         iface.l2AddressLength = 6;
@@ -139,13 +122,13 @@ public class InterfaceCustomizerTest extends
 
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 
-        verifySwInterfaceDumpWasInvoked(1, ifaceName, 1);
+        verifySwInterfaceDumpWasInvoked(1, IFACE0_NAME, 1);
         assertIfacesAreEqual(builder.build(), iface);
     }
 
     @Test
     public void testReadCurrentAttributesFailed() throws Exception {
-        final String ifaceName = "eth0";
+        final String ifaceName = IFACE0_NAME;
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
             .child(Interface.class, new InterfaceKey(ifaceName));
         final InterfaceBuilder builder = getCustomizer().getBuilder(id);
@@ -164,13 +147,12 @@ public class InterfaceCustomizerTest extends
 
     @Test
     public void testReadSubInterface() throws Exception {
-        final String ifaceName = "eth1.1";
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-            .child(Interface.class, new InterfaceKey(ifaceName));
+            .child(Interface.class, new InterfaceKey(SUB_IFACE_NAME));
         final InterfaceBuilder builder = mock(InterfaceBuilder.class);
 
         final SwInterfaceDetails iface = new SwInterfaceDetails();
-        iface.interfaceName = ifaceName.getBytes();
+        iface.interfaceName = SUB_IFACE_NAME.getBytes();
         iface.swIfIndex = 2;
         iface.supSwIfIndex = 1;
         iface.subId = 1;
@@ -179,7 +161,7 @@ public class InterfaceCustomizerTest extends
 
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 
-        verifySwInterfaceDumpWasInvoked(1, ifaceName, 1);
+        verifySwInterfaceDumpWasInvoked(1, SUB_IFACE_NAME, 1);
         verifyZeroInteractions(builder);
     }
 
@@ -188,23 +170,21 @@ public class InterfaceCustomizerTest extends
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
             .child(Interface.class);
 
-        final String swIf0Name = "eth0";
         final SwInterfaceDetails swIf0 = new SwInterfaceDetails();
         swIf0.swIfIndex = 0;
-        swIf0.interfaceName = swIf0Name.getBytes();
-        final String swIf1Name = "eth1";
+        swIf0.interfaceName = IFACE0_NAME.getBytes();
         final SwInterfaceDetails swIf1 = new SwInterfaceDetails();
         swIf1.swIfIndex = 1;
-        swIf1.interfaceName = swIf1Name.getBytes();
-        final String swSubIf1Name = "eth1.1";
+        swIf1.interfaceName = IFACE1_NAME.getBytes();
         final SwInterfaceDetails swSubIf1 = new SwInterfaceDetails();
         swSubIf1.swIfIndex = 2;
         swSubIf1.subId = 1;
         swSubIf1.supSwIfIndex = 1;
-        swSubIf1.interfaceName = swSubIf1Name.getBytes();
+        swSubIf1.interfaceName = SUB_IFACE_NAME.getBytes();
         InterfaceTestUtils.whenSwInterfaceDumpThenReturn(api, Arrays.asList(swIf0, swIf1, swSubIf1));
 
-        final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(swIf0Name), new InterfaceKey(swIf1Name));
+        final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(IFACE0_NAME), new InterfaceKey(
+            IFACE1_NAME));
         final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);
 
         verifySwInterfaceDumpWasInvoked(0, "", 1);
@@ -220,17 +200,15 @@ public class InterfaceCustomizerTest extends
 
         doReturn(true).when(interfaceDisableContext).isInterfaceDisabled(1, mappingContext);
 
-        final String swIf0Name = "eth0";
         final SwInterfaceDetails swIf0 = new SwInterfaceDetails();
         swIf0.swIfIndex = 0;
-        swIf0.interfaceName = swIf0Name.getBytes();
-        final String swIf1Name = "eth1";
+        swIf0.interfaceName = IFACE0_NAME.getBytes();
         final SwInterfaceDetails swIf1 = new SwInterfaceDetails();
         swIf1.swIfIndex = 1;
-        swIf1.interfaceName = swIf1Name.getBytes();
+        swIf1.interfaceName = IFACE1_NAME.getBytes();
         InterfaceTestUtils.whenSwInterfaceDumpThenReturn(api, Arrays.asList(swIf0, swIf1));
 
-        final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(swIf0Name));
+        final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(IFACE0_NAME));
         final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);
 
         // disabled interface should not be on the list

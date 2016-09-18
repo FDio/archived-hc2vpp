@@ -16,8 +16,6 @@
 
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMapping;
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMappingIid;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -28,6 +26,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import java.net.InetAddress;
@@ -44,16 +43,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.GreBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
 import org.openvpp.jvpp.core.dto.GreTunnelDetails;
 import org.openvpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.GreTunnelDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
 
+    private static final String IFACE_NAME = "ifc1";
+    private static final int IFACE_ID = 0;
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
+
     private NamingContext interfacesContext;
     static final InstanceIdentifier<Gre> IID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey("ifc1"))
+        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
             .augmentation(VppInterfaceStateAugmentation.class).child(Gre.class);
 
     public GreCustomizerTest() {
@@ -62,8 +65,8 @@ public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("gre-tunnel", "test-instance");
-        doReturn(getMapping("ifc1", 0)).when(mappingContext).read(getMappingIid("ifc1", "test-instance"));
+        interfacesContext = new NamingContext("gre-tunnel", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "gre-tunnel4".getBytes();

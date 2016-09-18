@@ -26,7 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
@@ -41,7 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.CVlan;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qTagVlanType;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qVlanId;
@@ -84,8 +82,9 @@ public class SubInterfaceCustomizerTest {
     private NamingContext namingContext;
     private SubInterfaceCustomizer customizer;
 
-    public static final String SUPER_IF_NAME = "local0";
-    public static final int SUPER_IF_ID = 1;
+    private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
+    private static final String SUPER_IF_NAME = "local0";
+    private static final int SUPER_IF_ID = 1;
     private static final String SUB_IFACE_NAME = "local0.11";
     private static final int SUBIF_INDEX = 11;
 
@@ -106,12 +105,12 @@ public class SubInterfaceCustomizerTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        namingContext = new NamingContext("generatedSubInterfaceName", "test-instance");
+        namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
         doReturn(mappingContext).when(writeContext).getMappingContext();
         // TODO HONEYCOMB-116 create base class for tests using vppApi
         customizer = new SubInterfaceCustomizer(api, namingContext);
-        doReturn(ContextTestUtils.getMapping(SUPER_IF_NAME, SUPER_IF_ID)).when(mappingContext)
-            .read(ContextTestUtils.getMappingIid(SUPER_IF_NAME, "test-instance"));
+        ContextTestUtils.mockMapping(mappingContext, SUB_IFACE_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
+        ContextTestUtils.mockMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_ID, IFC_TEST_INSTANCE);
     }
 
     private SubInterface generateSubInterface(final boolean enabled, final List<Tag> tagList) {
@@ -245,7 +244,7 @@ public class SubInterfaceCustomizerTest {
 
         verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
         verify(mappingContext)
-            .put(eq(ContextTestUtils.getMappingIid(SUB_IFACE_NAME, "test-instance")), eq(
+            .put(eq(ContextTestUtils.getMappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
                     ContextTestUtils.getMapping(SUB_IFACE_NAME, 0).get()));
     }
 
@@ -261,7 +260,7 @@ public class SubInterfaceCustomizerTest {
 
         verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ANY_ID, true));
         verify(mappingContext)
-            .put(eq(ContextTestUtils.getMappingIid(SUB_IFACE_NAME, "test-instance")), eq(
+            .put(eq(ContextTestUtils.getMappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
                     ContextTestUtils.getMapping(SUB_IFACE_NAME, 0).get()));
     }
 
@@ -278,7 +277,7 @@ public class SubInterfaceCustomizerTest {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
             verify(mappingContext, times(0)).put(
-                eq(ContextTestUtils.getMappingIid(SUPER_IF_NAME, "test-instance")),
+                eq(ContextTestUtils.getMappingIid(SUPER_IF_NAME, IFC_TEST_INSTANCE)),
                 eq(ContextTestUtils.getMapping(SUPER_IF_NAME, 0).get()));
             return;
         }
@@ -293,9 +292,6 @@ public class SubInterfaceCustomizerTest {
         final InstanceIdentifier<SubInterface> id = getSubInterfaceId(SUPER_IF_NAME, SUBIF_INDEX);
 
         whenSwInterfaceSetFlagsThenSuccess();
-        final Optional<Mapping> ifcMapping = ContextTestUtils.getMapping(SUPER_IF_NAME, SUBIF_INDEX);
-        doReturn(ifcMapping).when(mappingContext).read(any());
-
         customizer.updateCurrentAttributes(id, before, after, writeContext);
 
         verifySwInterfaceSetFlagsWasInvoked(generateSwInterfaceEnableRequest(SUBIF_INDEX));

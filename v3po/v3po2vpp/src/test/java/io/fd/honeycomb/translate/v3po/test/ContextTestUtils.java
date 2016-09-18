@@ -45,14 +45,8 @@ public class ContextTestUtils {
             new NamingContextKey(namingContextName)).child(Mappings.class).child(Mapping.class, new MappingKey(name));
     }
 
-    public static void mockMapping(final MappingContext mappingContext, final String name, final int id,
-                                   final String namingContextName) {
-        final InstanceIdentifier<Mappings> mappingsIid =
-            getMappingIid(name, namingContextName).firstIdentifierOf(Mappings.class);
-
-        final Optional<Mapping> singleMapping = getMapping(name, id);
+    private static List<Mapping> getMappingList(final MappingContext mappingContext, final InstanceIdentifier<Mappings> mappingsIid) {
         final Optional<Mappings> previousMappings = mappingContext.read(mappingsIid);
-
         final MappingsBuilder mappingsBuilder;
         if (previousMappings != null && previousMappings.isPresent()) {
             mappingsBuilder = new MappingsBuilder(previousMappings.get());
@@ -61,10 +55,32 @@ public class ContextTestUtils {
             mappingsBuilder.setMapping(Lists.newArrayList());
         }
 
-        final List<Mapping> mappingList = mappingsBuilder.getMapping();
+        return mappingsBuilder.getMapping();
+    }
+
+    public static void mockMapping(final MappingContext mappingContext, final String name, final int id,
+                                   final String namingContextName) {
+        final InstanceIdentifier<Mappings> mappingsIid =
+            getMappingIid(name, namingContextName).firstIdentifierOf(Mappings.class);
+
+        final Optional<Mapping> singleMapping = getMapping(name, id);
+        final List<Mapping> mappingList = getMappingList(mappingContext, mappingsIid);
         mappingList.add(singleMapping.get());
-        doReturn(Optional.of(mappingsBuilder.setMapping(mappingList).build()))
+
+        doReturn(Optional.of(new MappingsBuilder().setMapping(mappingList).build()))
             .when(mappingContext).read(mappingsIid);
         doReturn(singleMapping).when(mappingContext).read(getMappingIid(name, namingContextName));
+    }
+
+    public static void mockEmptyMapping(final MappingContext mappingContext, final String name,
+                                        final String namingContextName) {
+        final InstanceIdentifier<Mappings> mappingsIid =
+            getMappingIid(name, namingContextName).firstIdentifierOf(Mappings.class);
+
+        final List<Mapping> mappingList = getMappingList(mappingContext, mappingsIid);
+
+        doReturn(Optional.of(new MappingsBuilder().setMapping(mappingList).build()))
+            .when(mappingContext).read(mappingsIid);
+        doReturn(Optional.absent()).when(mappingContext).read(getMappingIid(name, namingContextName));
     }
 }

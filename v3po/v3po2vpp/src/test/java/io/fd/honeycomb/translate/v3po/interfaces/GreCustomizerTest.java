@@ -18,7 +18,8 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 
 import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMapping;
 import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMappingIid;
-import static java.util.Collections.singletonList;
+import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.mockEmptyMapping;
+import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.mockMapping;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +34,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
@@ -50,9 +50,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -64,12 +61,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.openvpp.jvpp.core.dto.GreAddDelTunnel;
 import org.openvpp.jvpp.core.dto.GreAddDelTunnelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class GreCustomizerTest {
 
+    private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
+    private final String IFACE_NAME = "eth0";
+    private final int IFACE_ID = 1;
+    private InstanceIdentifier<Gre> id = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
+        .augmentation(VppInterfaceAugmentation.class).child(Gre.class);
     private static final byte ADD_GRE = 1;
     private static final byte DEL_GRE = 0;
 
@@ -81,8 +83,6 @@ public class GreCustomizerTest {
     private MappingContext mappingContext;
 
     private GreCustomizer customizer;
-    private String ifaceName;
-    private InstanceIdentifier<Gre> id;
 
     @Before
     public void setUp() throws Exception {
@@ -90,16 +90,12 @@ public class GreCustomizerTest {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.GreTunnel.class);
         // TODO HONEYCOMB-116 create base class for tests using vppApi
-        NamingContext namingContext = new NamingContext("generateInterfaceNAme", "test-instance");
+        NamingContext namingContext = new NamingContext("generateInterfaceNAme", IFC_TEST_INSTANCE);
         final ModificationCache toBeReturned = new ModificationCache();
         doReturn(toBeReturned).when(writeContext).getModificationCache();
         doReturn(mappingContext).when(writeContext).getMappingContext();
 
         customizer = new GreCustomizer(api, namingContext);
-
-        ifaceName = "eth0";
-        id = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(ifaceName))
-                        .augmentation(VppInterfaceAugmentation.class).child(Gre.class);
     }
 
     private void whenGreAddDelTunnelThenSuccess()
@@ -108,6 +104,7 @@ public class GreCustomizerTest {
         final CompletableFuture<GreAddDelTunnelReply> replyFuture = mock(CompletableFuture.class);
         when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
         final GreAddDelTunnelReply reply = new GreAddDelTunnelReply();
+        reply.swIfIndex = IFACE_ID;
         when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
         when(api.greAddDelTunnel(any(GreAddDelTunnel.class))).thenReturn(replyCS);
     }
@@ -162,12 +159,12 @@ public class GreCustomizerTest {
 
         whenGreAddDelTunnelThenSuccess();
 
-        doReturn(Optional.absent())
-            .when(mappingContext).read(getMappingIid(ifaceName, "test-instance").firstIdentifierOf(Mappings.class));
+        mockEmptyMapping(mappingContext, IFACE_NAME, IFC_TEST_INSTANCE);
 
         customizer.writeCurrentAttributes(id, gre, writeContext);
         verifyGreAddWasInvoked(gre);
-        verify(mappingContext).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
+        verify(mappingContext).put(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)),
+            eq(getMapping(IFACE_NAME, IFACE_ID).get()));
     }
 
     @Test
@@ -175,17 +172,14 @@ public class GreCustomizerTest {
         final Gre gre = generateGre();
 
         whenGreAddDelTunnelThenSuccess();
-        final Optional<Mapping> ifcMapping = getMapping(ifaceName, 0);
-
-        doReturn(Optional.of(new MappingsBuilder().setMapping(singletonList(ifcMapping.get())).build()))
-            .when(mappingContext).read(getMappingIid(ifaceName, "test-instance").firstIdentifierOf(Mappings.class));
+        mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
 
         customizer.writeCurrentAttributes(id, gre, writeContext);
         verifyGreAddWasInvoked(gre);
 
         // Remove the first mapping before putting in the new one
-        verify(mappingContext).delete(eq(getMappingIid(ifaceName, "test-instance")));
-        verify(mappingContext).put(eq(getMappingIid(ifaceName, "test-instance")), eq(ifcMapping.get()));
+        verify(mappingContext).delete(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
+        verify(mappingContext).put(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)), eq(getMapping(IFACE_NAME, IFACE_ID).get()));
     }
 
     @Test
@@ -200,7 +194,8 @@ public class GreCustomizerTest {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyGreAddWasInvoked(gre);
             // Mapping not stored due to failure
-            verify(mappingContext, times(0)).put(eq(getMappingIid(ifaceName, "test-instance")), eq(getMapping(ifaceName, 0).get()));
+            verify(mappingContext, times(0)).put(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)), eq(getMapping(
+                IFACE_NAME, 0).get()));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -222,11 +217,11 @@ public class GreCustomizerTest {
         final Gre gre = generateGre();
 
         whenGreAddDelTunnelThenSuccess();
-        doReturn(getMapping(ifaceName, 1)).when(mappingContext).read(getMappingIid(ifaceName, "test-instance"));
+        mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
 
         customizer.deleteCurrentAttributes(id, gre, writeContext);
         verifyGreDeleteWasInvoked(gre);
-        verify(mappingContext).delete(eq(getMappingIid(ifaceName, "test-instance")));
+        verify(mappingContext).delete(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
     }
 
     @Test
@@ -234,14 +229,14 @@ public class GreCustomizerTest {
         final Gre gre = generateGre();
 
         whenGreAddDelTunnelThenFailure();
-        doReturn(getMapping(ifaceName, 1)).when(mappingContext).read(getMappingIid(ifaceName, "test-instance"));
+        mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
 
         try {
             customizer.deleteCurrentAttributes(id, gre, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyGreDeleteWasInvoked(gre);
-            verify(mappingContext, times(0)).delete(eq(getMappingIid(ifaceName, "test-instance")));
+            verify(mappingContext, times(0)).delete(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

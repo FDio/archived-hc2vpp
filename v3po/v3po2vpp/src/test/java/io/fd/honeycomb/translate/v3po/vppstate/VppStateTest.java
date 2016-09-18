@@ -73,6 +73,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class VppStateTest {
 
+    private static final String BD_CTX_NAME = "bd-test-instance";
     @Mock
     private FutureJVppCore api;
     @Mock
@@ -92,7 +93,7 @@ public class VppStateTest {
         doReturn(cache).when(ctx).getModificationCache();
         doReturn(mappingContext).when(ctx).getMappingContext();
 
-        bdContext = new NamingContext("generatedBdName", "bd-test-instance");
+        bdContext = new NamingContext("generatedBdName", BD_CTX_NAME);
         interfaceContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
         readerRegistry = VppStateTestUtils.getVppStateReader(api, bdContext);
     }
@@ -239,7 +240,7 @@ public class VppStateTest {
     }
 
     private void mockBdMapping(final BridgeDomainDetails bd, final String bdName) {
-        ContextTestUtils.mockMapping(mappingContext, bdName, bd.bdId, "bd-test-instance");
+        ContextTestUtils.mockMapping(mappingContext, bdName, bd.bdId, BD_CTX_NAME);
     }
 
     @Test
@@ -286,13 +287,11 @@ public class VppStateTest {
 
     @Test(expected = ReadFailedException.class)
     public void testReadBridgeDomainNotExisting() throws Exception {
-        doReturn(Optional.absent()).when(mappingContext).read(
-                ContextTestUtils.getMappingIid("NOT EXISTING", "bd-test-instance"));
+        final String nonExistingBdName = "NOT EXISTING";
+        ContextTestUtils.mockEmptyMapping(mappingContext, nonExistingBdName, BD_CTX_NAME);
 
-        final Optional<? extends DataObject> read =
-            readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
-                BridgeDomain.class, new BridgeDomainKey("NOT EXISTING")), ctx);
-        assertFalse(read.isPresent());
+        readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
+            BridgeDomain.class, new BridgeDomainKey(nonExistingBdName)), ctx);
     }
 
     @Test

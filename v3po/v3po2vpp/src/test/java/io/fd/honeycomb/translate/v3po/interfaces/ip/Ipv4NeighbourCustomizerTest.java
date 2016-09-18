@@ -21,9 +21,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import com.google.common.io.BaseEncoding;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -53,6 +53,10 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class Ipv4NeighbourCustomizerTest {
 
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
+    private static final String IFACE_NAME = "parent";
+    private static final int IFACE_ID = 5;
+
     @Mock
     private FutureJVppCore jvpp;
 
@@ -73,28 +77,23 @@ public class Ipv4NeighbourCustomizerTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
+        when(context.getMappingContext()).thenReturn(mappingContext);
 
-        namingContext = new NamingContext("prefix", "instance");
-        namingContext.addName(5, "parent", mappingContext);
+        namingContext = new NamingContext("prefix", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
         customizer = new Ipv4NeighbourCustomizer(jvpp,namingContext);
 
         requestCaptor = ArgumentCaptor.forClass(IpNeighborAddDel.class);
-
         CompletableFuture<IpNeighborAddDelReply> future = new CompletableFuture<>();
         future.complete(new IpNeighborAddDelReply());
-
-        when(context.getMappingContext()).thenReturn(mappingContext);
-        when(mapping.getIndex()).thenReturn(5);
-        when(mapping.getName()).thenReturn("parent");
-        when(mappingContext.read(Mockito.any())).thenReturn(Optional.fromNullable(mapping));
         when(jvpp.ipNeighborAddDel(Mockito.any(IpNeighborAddDel.class))).thenReturn(future);
     }
 
     @Test
     public void testWriteCurrentAttributes() throws WriteFailedException {
 
-        InterfaceKey intfKey = new InterfaceKey("parent");
+        InterfaceKey intfKey = new InterfaceKey(IFACE_NAME);
 
         InstanceIdentifier<Neighbor> id = InstanceIdentifier.builder(Interfaces.class).child(Interface.class, intfKey)
                 .augmentation(Interface1.class).child(Ipv4.class).child(Neighbor.class).build();
@@ -120,7 +119,7 @@ public class Ipv4NeighbourCustomizerTest {
 
     @Test
     public void testDeleteCurrentAttributes() throws WriteFailedException {
-        InterfaceKey intfKey = new InterfaceKey("parent");
+        InterfaceKey intfKey = new InterfaceKey(IFACE_NAME);
 
         InstanceIdentifier<Neighbor> id = InstanceIdentifier.builder(Interfaces.class).child(Interface.class, intfKey)
                 .augmentation(Interface1.class).child(Ipv4.class).child(Neighbor.class).build();

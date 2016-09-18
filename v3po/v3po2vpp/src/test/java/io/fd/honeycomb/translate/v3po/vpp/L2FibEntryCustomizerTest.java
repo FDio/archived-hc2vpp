@@ -79,7 +79,9 @@ public class L2FibEntryCustomizerTest {
         initMocks(this);
         doReturn(mappingContext).when(writeContext).getMappingContext();
         bdContext = new NamingContext("generatedBdName", BD_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
         customizer = new L2FibEntryCustomizer(api, bdContext, interfaceContext);
     }
@@ -145,9 +147,6 @@ public class L2FibEntryCustomizerTest {
         final L2FibEntry entry = generateL2FibEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
 
-        ContextTestUtils.mockMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
-
         whenL2FibAddDelThenSuccess();
 
         customizer.writeCurrentAttributes(id, entry, writeContext);
@@ -161,9 +160,6 @@ public class L2FibEntryCustomizerTest {
         final PhysAddress address = new PhysAddress("11:22:33:44:55:66");
         final L2FibEntry entry = generateL2FibEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
-
-        ContextTestUtils.mockMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
         whenL2FibAddDelThenFailure();
 
@@ -190,9 +186,6 @@ public class L2FibEntryCustomizerTest {
         final L2FibEntry entry = generateL2FibEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
 
-        ContextTestUtils.mockMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
-
         whenL2FibAddDelThenSuccess();
 
         customizer.deleteCurrentAttributes(id, entry, writeContext);
@@ -206,9 +199,6 @@ public class L2FibEntryCustomizerTest {
         final PhysAddress address = new PhysAddress("01:02:03:04:05:06");
         final L2FibEntry entry = generateL2FibEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
-
-        ContextTestUtils.mockMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
         whenL2FibAddDelThenFailure();
 

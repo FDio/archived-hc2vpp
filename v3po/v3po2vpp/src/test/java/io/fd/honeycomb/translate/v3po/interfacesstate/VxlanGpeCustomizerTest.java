@@ -50,9 +50,13 @@ import org.openvpp.jvpp.core.dto.VxlanGpeTunnelDump;
 
 public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, VxlanGpeBuilder> {
 
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
+    private static final String IF_NAME = "ifc2";
+    private static final int IF_INDEX = 0;
+
     private NamingContext interfacesContext;
-    static final InstanceIdentifier<VxlanGpe> VXLAN_GPE_ID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey("ifc2"))
+    private static final InstanceIdentifier<VxlanGpe> VXLAN_GPE_ID =
+        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
             .augmentation(VppInterfaceStateAugmentation.class).child(VxlanGpe.class);
 
     public VxlanGpeCustomizerTest() {
@@ -61,9 +65,8 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("vxlan_gpe_inf", "test-instance");
-        doReturn(ContextTestUtils.getMapping("ifc2", 0)).when(mappingContext).read(
-                ContextTestUtils.getMappingIid("ifc2", "test-instance"));
+        interfacesContext = new NamingContext("vxlan_gpe_inf", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
 
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "vxlan_gpe_inf2".getBytes();

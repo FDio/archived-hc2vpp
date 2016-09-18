@@ -16,24 +16,20 @@
 
 package io.fd.honeycomb.translate.v3po.interfacesstate.ip;
 
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMapping;
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMappingIid;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.reverseBytes;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
+import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.Arrays;
@@ -43,10 +39,6 @@ import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -59,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.openvpp.jvpp.core.dto.IpAddressDetails;
 import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.IpAddressDump;
@@ -70,6 +61,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     private static final String IFACE_2_NAME = "eth1";
     private static final int IFACE_ID = 1;
     private static final int IFACE_2_ID = 2;
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
 
     private NamingContext interfacesContext;
 
@@ -79,23 +71,13 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
 
     @Override
     public void setUpBefore() {
-        interfacesContext = new NamingContext("generatedIfaceName", "test-instance");
+        interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        ContextTestUtils.mockMapping(mappingContext, IFACE_2_NAME, IFACE_2_ID, IFC_CTX_NAME);
     }
 
     @Override
     protected ReaderCustomizer<Address, AddressBuilder> initCustomizer() {
-        final KeyedInstanceIdentifier<Mapping, MappingKey> eth0Id = getMappingIid(IFACE_NAME, "test-instance");
-        final KeyedInstanceIdentifier<Mapping, MappingKey> eth1Id = getMappingIid(IFACE_2_NAME, "test-instance");
-        final Optional<Mapping> eth0 = getMapping(IFACE_NAME, IFACE_ID);
-        final Optional<Mapping> eth1 = getMapping(IFACE_2_NAME, IFACE_2_ID);
-
-        final List<Mapping> allMappings = Lists.newArrayList(eth0.get(), eth1.get());
-        final Mappings allMappingsBaObject = new MappingsBuilder().setMapping(allMappings).build();
-        doReturn(Optional.of(allMappingsBaObject)).when(mappingContext).read(eth0Id.firstIdentifierOf(Mappings.class));
-
-        doReturn(eth0).when(mappingContext).read(eth0Id);
-        doReturn(eth1).when(mappingContext).read(eth1Id);
-
         return new Ipv4AddressCustomizer(api, interfacesContext);
     }
 

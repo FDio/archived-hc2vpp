@@ -17,8 +17,6 @@
 package io.fd.honeycomb.translate.v3po.vpp;
 
 import javax.annotation.Nullable;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
@@ -46,19 +44,8 @@ final class BridgeDomainTestUtils {
         return null;
     }
 
-    public static int bdNameToID(String bName) {
-        return Integer.parseInt(((Character)bName.charAt(bName.length() - 1)).toString());
-    }
-
     public static KeyedInstanceIdentifier<BridgeDomain, BridgeDomainKey> bdIdentifierForName(
             final String bdName) {
         return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(bdName));
     }
-
-    public static final Answer<Integer> BD_NAME_TO_ID_ANSWER = new Answer<Integer>() {
-        @Override
-        public Integer answer(final InvocationOnMock invocationOnMock) throws Throwable {
-            return bdNameToID((String) invocationOnMock.getArguments()[0]);
-        }
-    };
 }
