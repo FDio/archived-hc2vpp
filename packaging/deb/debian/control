@@ -10,4 +10,5 @@ Vcs-Browser: https://git.fd.io/cgit/honeycomb/tree/
 Package: honeycomb
 Architecture: all
 Depends: vpp, openjdk-8-jdk | openjdk-8-jre
+Suggests: vpp-nsh-plugin
 Description: Honeycomb agent for VPP
