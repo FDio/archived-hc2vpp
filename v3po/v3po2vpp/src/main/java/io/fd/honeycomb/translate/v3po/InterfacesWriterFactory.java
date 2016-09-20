@@ -171,9 +171,9 @@ public final class InterfacesWriterFactory implements WriterFactory {
         registry.addAfter(
                 new GenericWriter<>(VPP_IFC_AUG_ID.child(Routing.class), new RoutingCustomizer(jvpp, ifcNamingContext)),
                 specificIfcTypes);
-        // Routing(Execute only after specific interface customizers) =
+        // L2(Execute only after subinterface (and all other ifc types) =
         registry.addAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcNamingContext, bdNamingContext)),
-                specificIfcTypes);
+                SubinterfaceAugmentationWriterFactory.SUB_IFC_ID);
         // Proxy Arp (execute after specific interface customizers)
         registry.addAfter(
                 new GenericWriter<>(VPP_IFC_AUG_ID.child(ProxyArp.class), new ProxyArpCustomizer(jvpp, ifcNamingContext)),

@@ -10,9 +10,9 @@ Current order of v3po-api writers is:
 . Tap
 . Vxlan
 . Interface
-. L2
 . SubInterface
 . L2
+. SubInterface-L2
 . Ethernet
 . Routing
 . ClassifyTable
