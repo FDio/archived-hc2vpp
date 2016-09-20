@@ -97,14 +97,31 @@ public final class IetfAClWriter {
             final CompletionStage<ClassifyTableByInterfaceReply> cs = jvpp.classifyTableByInterface(request);
             final ClassifyTableByInterfaceReply reply = TranslateUtils.getReplyForWrite(cs.toCompletableFuture(), id);
 
-            // We remove all ACL-related classify tables for given interface (we assume we are the only classify table
-            // manager)
+            // We unassign and remove all ACL-related classify tables for given interface (we assume we are the only
+            // classify table manager)
+
+            unassignClassifyTables(id, reply);
+
             removeClassifyTable(id, reply.l2TableId);
             removeClassifyTable(id, reply.ip4TableId);
             removeClassifyTable(id, reply.ip6TableId);
         } catch (VppBaseCallException e) {
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
+    }
+
+    private void unassignClassifyTables(@Nonnull final InstanceIdentifier<?> id,
+                                        final ClassifyTableByInterfaceReply currentState)
+        throws VppBaseCallException, WriteTimeoutException {
+        final InputAclSetInterface request = new InputAclSetInterface();
+        request.isAdd = 0;
+        request.swIfIndex = currentState.swIfIndex;
+        request.l2TableIndex = currentState.l2TableId;
+        request.ip4TableIndex = currentState.ip4TableId;
+        request.ip6TableIndex = currentState.ip6TableId;
+        final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
+            jvpp.inputAclSetInterface(request);
+        TranslateUtils.getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
     }
 
     private void removeClassifyTable(@Nonnull final InstanceIdentifier<?> id, final int tableIndex)
