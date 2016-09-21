@@ -16,9 +16,10 @@
 
 package io.fd.honeycomb.lisp.translate.read;
 
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.arrayToIpAddress;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.byteToBoolean;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.reverseAddress;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.translate.read.dump.check.MapResolverDumpCheck;
@@ -26,9 +27,9 @@ import io.fd.honeycomb.lisp.translate.read.dump.executor.MapResolversDumpExecuto
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,13 +86,15 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
         }
 
         final MapResolverKey key = id.firstKeyOf(MapResolver.class);
-        final IpAddress address = key.getIpAddress();
+        //revert searched key to match vpp's reversed order ip's
+        final IpAddress address = reverseAddress(key.getIpAddress());
         final LispMapResolverDetailsReplyDump dump = dumpOptional.get();
 
         //cannot use RWUtils.singleItemCollector(),there is some problem with generic params binding
         java.util.Optional<LispMapResolverDetails> mapResolverOptional =
                 dump.lispMapResolverDetails.stream()
-                        .filter(a -> address.equals(arrayToIpAddress(byteToBoolean(a.isIpv6), a.ipAddress)))
+                        .filter(a -> address
+                                .equals(arrayToIpAddress(byteToBoolean(a.isIpv6), a.ipAddress)))
                         .findFirst();
 
         if (mapResolverOptional.isPresent()) {

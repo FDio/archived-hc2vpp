@@ -59,14 +59,14 @@ public final class TranslateUtils {
 
     public static <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
                                                                   @Nonnull final InstanceIdentifier<?> replyType)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         return getReplyForWrite(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
     }
 
     public static <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
                                                                   @Nonnull final InstanceIdentifier<?> replyType,
                                                                   @Nonnegative final int timeoutInSeconds)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         try {
             return getReply(future, timeoutInSeconds);
         } catch (TimeoutException e) {
@@ -76,14 +76,14 @@ public final class TranslateUtils {
 
     public static <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
                                                                  @Nonnull final InstanceIdentifier<?> replyType)
-        throws VppBaseCallException, ReadTimeoutException {
+            throws VppBaseCallException, ReadTimeoutException {
         return getReplyForRead(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
     }
 
     public static <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
                                                                  @Nonnull final InstanceIdentifier<?> replyType,
                                                                  @Nonnegative final int timeoutInSeconds)
-        throws VppBaseCallException, ReadTimeoutException {
+            throws VppBaseCallException, ReadTimeoutException {
         try {
             return getReply(future, timeoutInSeconds);
         } catch (TimeoutException e) {
@@ -92,13 +92,13 @@ public final class TranslateUtils {
     }
 
     public static <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future)
-        throws TimeoutException, VppBaseCallException {
+            throws TimeoutException, VppBaseCallException {
         return getReply(future, DEFAULT_TIMEOUT_IN_SECONDS);
     }
 
     public static <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future,
                                                           @Nonnegative final int timeoutInSeconds)
-        throws TimeoutException, VppBaseCallException {
+            throws TimeoutException, VppBaseCallException {
         try {
             checkArgument(timeoutInSeconds > 0, "Timeout cannot be < 0");
             return future.get(timeoutInSeconds, TimeUnit.SECONDS);
@@ -195,19 +195,19 @@ public final class TranslateUtils {
         //splits address and add ommited zeros for easier parsing
         List<String> segments = Arrays.asList(ipv6Addr.getValue().split(":"))
                 .stream()
-                .map(segment ->  StringUtils.repeat('0',4-segment.length())+segment)
+                .map(segment -> StringUtils.repeat('0', 4 - segment.length()) + segment)
                 .collect(Collectors.toList());
 
         byte index = 0;
         for (String segment : segments) {
 
-            String firstPart =segment.substring(0, 2);
+            String firstPart = segment.substring(0, 2);
             String secondPart = segment.substring(2);
 
             //first part should be ommited
-            if("00".equals(firstPart)){
+            if ("00".equals(firstPart)) {
                 index++;
-            }else{
+            } else {
                 retval[index++] = ((byte) Short.parseShort(firstPart, 16));
             }
 
@@ -312,16 +312,16 @@ public final class TranslateUtils {
 
     /**
      * Converts MAC string to byte array
-     * */
-    public static byte[] macToByteArray(String mac){
-        checkNotNull(mac,"MAC cannot be null");
+     */
+    public static byte[] macToByteArray(String mac) {
+        checkNotNull(mac, "MAC cannot be null");
 
-        mac = mac.replace(":","");
+        mac = mac.replace(":", "");
 
         try {
             return Hex.decodeHex(mac.toCharArray());
         } catch (DecoderException e) {
-            throw new IllegalArgumentException("Unable to convert mac",e);
+            throw new IllegalArgumentException("Unable to convert mac", e);
         }
     }
 
@@ -331,7 +331,7 @@ public final class TranslateUtils {
     public static boolean isIpv6(IpAddress address) {
         checkNotNull(address, "Address cannot be null");
 
-                checkState(!(address.getIpv4Address() == null && address.getIpv6Address() == null), "Invalid address");
+        checkState(!(address.getIpv4Address() == null && address.getIpv6Address() == null), "Invalid address");
         return address.getIpv6Address() != null;
     }
 
@@ -431,19 +431,19 @@ public final class TranslateUtils {
 
     private static byte[] parseMacLikeString(final List<String> strings) {
         return strings.stream().limit(6).map(TranslateUtils::parseHexByte).collect(
-            () -> new byte[strings.size()],
-            new BiConsumer<byte[], Byte>() {
+                () -> new byte[strings.size()],
+                new BiConsumer<byte[], Byte>() {
 
-                private int i = -1;
+                    private int i = -1;
 
-                @Override
-                public void accept(final byte[] bytes, final Byte aByte) {
-                    bytes[++i] = aByte;
-                }
-            },
-            (bytes, bytes2) -> {
-                throw new UnsupportedOperationException("Parallel collect not supported");
-            });
+                    @Override
+                    public void accept(final byte[] bytes, final Byte aByte) {
+                        bytes[++i] = aByte;
+                    }
+                },
+                (bytes, bytes2) -> {
+                    throw new UnsupportedOperationException("Parallel collect not supported");
+                });
     }
 
     public static byte parseHexByte(final String aByte) {
@@ -458,8 +458,8 @@ public final class TranslateUtils {
      */
     public static byte booleanToByte(@Nullable final Boolean value) {
         return value != null && value
-            ? (byte) 1
-            : (byte) 0;
+                ? (byte) 1
+                : (byte) 0;
     }
 
     /**
@@ -493,5 +493,10 @@ public final class TranslateUtils {
         }
 
         return reversed;
+    }
+
+    public static IpAddress reverseAddress(@Nonnull final IpAddress address) {
+        //arrayToIpAdddress internaly reverts order
+        return arrayToIpAddress(isIpv6(address), ipAddressToArray(address));
     }
 }

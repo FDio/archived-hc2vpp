@@ -24,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
@@ -31,13 +32,18 @@ import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.dto.LispAddDelLocatorSet;
 import org.openvpp.jvpp.core.dto.LispAddDelLocatorSetReply;
 import org.openvpp.jvpp.core.dto.LispLocatorSetDetails;
@@ -81,7 +87,12 @@ public class LocatorSetCustomizerTest {
 
         LocatorSet locatorSet = new LocatorSetBuilder()
                 .setName("Locator")
+                .setInterface(Arrays.asList(new InterfaceBuilder().build()))
                 .build();
+
+        InstanceIdentifier<LocatorSet> validId =
+                InstanceIdentifier.create(LocatorSets.class).child(LocatorSet.class, new LocatorSetKey("Locator"));
+
 
         ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
 
@@ -91,6 +102,7 @@ public class LocatorSetCustomizerTest {
         completeFuture.complete(fakeReply);
 
         when(fakeJvpp.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(completeFuture);
+        when(context.readAfter(validId)).thenReturn(Optional.of(locatorSet));
 
         final LispLocatorSetDetailsReplyDump reply = new LispLocatorSetDetailsReplyDump();
         LispLocatorSetDetails details = new LispLocatorSetDetails();
@@ -99,7 +111,7 @@ public class LocatorSetCustomizerTest {
 
         cache.put(io.fd.honeycomb.lisp.translate.read.LocatorSetCustomizer.LOCATOR_SETS_CACHE_ID, reply);
 
-        new LocatorSetCustomizer(fakeJvpp, locatorSetContext).writeCurrentAttributes(null, locatorSet, context);
+        new LocatorSetCustomizer(fakeJvpp, locatorSetContext).writeCurrentAttributes(validId, locatorSet, context);
 
         verify(fakeJvpp, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
 

@@ -17,6 +17,7 @@
 package io.fd.honeycomb.lisp.translate.write;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.getReply;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -26,19 +27,21 @@ import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorSetsDumpExecutor
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.LispAddDelLocatorSet;
@@ -76,7 +79,8 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
 
         final String locatorSetName = dataAfter.getName();
         checkNotNull(locatorSetName, "LocatorSet name is null");
-
+        checkState(isNonEmptyLocatorSet(writeContext.readAfter(id).get()),
+                "Creating empty locator-sets is not allowed");
         // TODO VPP-323 check and fill mapping when api returns index of created locator set
         // checkState(!locatorSetContext.containsIndex(locatorSetName, writeContext.getMappingContext()),
         //         "Locator set with name %s allready defined", locatorSetName);
@@ -96,6 +100,11 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
             throw new WriteFailedException(id,
                     new IllegalStateException("Unable to create mapping for locator set " + locatorSetName, e));
         }
+    }
+
+    private boolean isNonEmptyLocatorSet(final LocatorSet locatorSet) {
+        final List<Interface> locators = locatorSet.getInterface();
+        return locators != null && !locators.isEmpty();
     }
 
     @Override

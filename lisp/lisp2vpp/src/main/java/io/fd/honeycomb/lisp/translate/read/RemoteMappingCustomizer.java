@@ -115,6 +115,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 .setEidType(EidConverter.getEidType(eid))
                 .setEid(EidConverter.getEidAsByteArray(eid))
                 .setPrefixLength(EidConverter.getPrefixLength(eid))
+                .setFilter(FilterType.REMOTE)
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
@@ -158,10 +159,17 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
 
         checkState(id.firstKeyOf(VniTable.class) != null, "Parent VNI table not specified");
+        final int vni = id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier().intValue();
+
+        if (vni == 0) {
+            // ignoring default vni mapping
+            // its not relevant for us and we also don't store mapping for such eid's
+            // such mapping is used to create helper local mappings to process remote ones
+            return Collections.emptyList();
+        }
 
         //requesting all remote with specific vni
         final MappingsDumpParams dumpParams = new MappingsDumpParamsBuilder()
-                .setVni(Long.valueOf(id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier()).intValue())
                 .setEidSet(QuantityType.ALL)
                 .setFilter(FilterType.REMOTE)
                 .build();
@@ -179,6 +187,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             return replyOptional.get()
                     .lispEidTableDetails
                     .stream()
+                    .filter(a -> a.vni == vni)
                     .map(detail -> new RemoteMappingKey(
                             new MappingId(
                                     remoteMappingContext.getId(

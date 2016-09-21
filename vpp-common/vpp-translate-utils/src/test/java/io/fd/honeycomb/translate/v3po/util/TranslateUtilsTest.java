@@ -1,5 +1,6 @@
 package io.fd.honeycomb.translate.v3po.util;
 
+import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.reverseAddress;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.reverseBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -14,8 +15,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -66,7 +70,7 @@ public class TranslateUtilsTest {
     public void testIpv4NoZone() throws Exception {
         final Ipv4AddressNoZone ipv4Addr = new Ipv4AddressNoZone("192.168.1.1");
         byte[] bytes = TranslateUtils.ipv4AddressNoZoneToArray(ipv4Addr);
-        assertEquals((byte)192, bytes[0]);
+        assertEquals((byte) 192, bytes[0]);
         // Simulating the magic of VPP
         bytes = reverseBytes(bytes);
         final Ipv4AddressNoZone ipv4AddressNoZone = TranslateUtils.arrayToIpv4AddressNoZone(bytes);
@@ -138,37 +142,37 @@ public class TranslateUtilsTest {
     }
 
     @Test
-    public void testIpv6NoZone(){
+    public void testIpv6NoZone() {
         final Ipv6AddressNoZone ipv6Addr = new Ipv6AddressNoZone("3ffe:1900:4545:3:200:f8ff:fe21:67cf");
         byte[] bytes = TranslateUtils.ipv6AddressNoZoneToArray(ipv6Addr);
-        assertEquals((byte)63,bytes[0]);
+        assertEquals((byte) 63, bytes[0]);
 
         bytes = reverseBytes(bytes);
         final Ipv6AddressNoZone ivp6AddressNoZone = TranslateUtils.arrayToIpv6AddressNoZone(bytes);
-        assertEquals(ipv6Addr,ivp6AddressNoZone);
+        assertEquals(ipv6Addr, ivp6AddressNoZone);
     }
 
     @Test
-    public void testByteArrayToMacUnseparated(){
+    public void testByteArrayToMacUnseparated() {
         byte[] address = TranslateUtils.parseMac("aa:bb:cc:dd:ee:ff");
 
         String converted = TranslateUtils.byteArrayToMacUnseparated(address);
 
-        assertEquals("aabbccddeeff",converted);
+        assertEquals("aabbccddeeff", converted);
     }
 
     @Test
-    public void testByteArrayToMacSeparated(){
+    public void testByteArrayToMacSeparated() {
         byte[] address = TranslateUtils.parseMac("aa:bb:cc:dd:ee:ff");
 
         String converted = TranslateUtils.byteArrayToMacSeparated(address);
 
-        assertEquals("aa:bb:cc:dd:ee:ff",converted);
+        assertEquals("aa:bb:cc:dd:ee:ff", converted);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testByteArrayToMacUnseparatedIllegal(){
-        TranslateUtils.byteArrayToMacUnseparated(new byte[]{54,26,87,32,14});
+    public void testByteArrayToMacUnseparatedIllegal() {
+        TranslateUtils.byteArrayToMacUnseparated(new byte[]{54, 26, 87, 32, 14});
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -194,5 +198,14 @@ public class TranslateUtilsTest {
     public void testExtractPrefix() {
         assertEquals(24, TranslateUtils.extractPrefix(new Ipv4Prefix("192.168.2.1/24")));
         assertEquals(48, TranslateUtils.extractPrefix(new Ipv6Prefix("3ffe:1900:4545:3:200:f8ff:fe21:67cf/48")));
+    }
+
+    @Test
+    public void testRevertAddress() {
+        assertEquals("1.2.168.192",
+                reverseAddress(new IpAddress(new Ipv4Address("192.168.2.1"))).getIpv4Address().getValue());
+        assertEquals("3473:7003:2e8a::a385:b80d:120",
+                reverseAddress(new IpAddress(new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:7334"))).getIpv6Address()
+                        .getValue());
     }
 }
