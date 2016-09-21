@@ -26,11 +26,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.honeycomb.vpp</groupId>
   <artifactId>vpp-impl-parent</artifactId>
+  <name>${project.artifactId}</name>
   <version>1.16.12-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
   <properties>
     <jvpp.version>16.12-SNAPSHOT</jvpp.version>
   </properties>
-  <packaging>pom</packaging>
 
   <dependencyManagement>
     <dependencies>

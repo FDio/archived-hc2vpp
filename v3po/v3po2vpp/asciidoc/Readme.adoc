@@ -1,0 +1,103 @@
+= Honeycomb translation layer SPI implementation for VPP CORE
+
+Provides customizers for VPP YANG models translation.
+
+== Handlers
+
+=== Writers
+Current order of v3po-api writers is:
+
+. BridgeDomain
+. VhostUser
+. VxlanGpe
+. Tap
+. Vxlan
+. Interface
+. SubInterface
+. L2
+. Subinterface-L2
+. Ethernet
+. Routing
+. ClassifyTable
+. ClassifySession
+. Acl
+. Ipv6
+. Ipv4
+. Address
+. Neighbor
+. L2FibEntry
+. Rewrite
+. Address
+. Acl
+
+To find out current order in runtime, turn on logging for writer registry:
+
+  log:set TRACE io.fd.honeycomb.v3po.translate.util.write.registry
+
+=== Readers
+There is not a strict order for readers, but current configuration produces approx. this order:
+
+Contexts
+. VppState
+. Version
+. BridgeDomains
+. BridgeDomain
+. L2FibTable
+. L2FibEntry
+. InterfacesState
+. Interface
+. VppInterfaceStateAugmentation
+. Ethernet
+. Tap
+. VhostUser
+. Vxlan
+. VxlanGpe
+. L2
+. Acl
+. Interface2
+. Ipv4
+. Address
+. Neighbor
+. Ipv6
+. SubinterfaceStateAugmentation
+. SubInterfaces
+. SubInterface
+. L2
+. Rewrite
+. Ipv4
+. Address
+. Acl
+. VppClassifierState
+. ClassifyTable
+. ClassifySession
+. NetconfState
+
+== VPP to IETF-ACL model translation
+
+Package provides VPP translation code for draft-ietf-netmod-acl-model-08.
+Access control lists are mapped to chains of classify tables, each with single classify session.
+
+=== Available operations
+
+==== Configuration data
+Configuration data for the model is stored in Honeycomb. Corresponding classify tables and sessions
+are not created until control access list is assigned to an interface.
+
+Classify tables and sessions are removed from VPP when ACL assignment is deleted.
+
+ACLs can be shared among interfaces, but each time, new instance of classify table chain would be created in VPP.
+
+ACLs that are assigned to an interface have to be unassigned before update/removal.
+
+==== Operational state
+Operational read in terms of ietf-acl model is not supported (would require storing additional metadata in vpp).
+As a consequence, configuration data initialization based on operational state is not possible.
+
+To check how ietf-acl model was translated to classify tables/session, low-level vpp-classfier model can be used.
+
+=== Restrictions
+
+VPP classfier works in form of offsets and masks of 16B units.
+The offset always starts at the beginning of L2 Ethernet header
+of input packet. Because IP header can have variable length,
+source/destination port matching (L4 features of ietf-acl model) is not possible.

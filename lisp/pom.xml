@@ -17,21 +17,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.opendaylight.odlparent</groupId>
-        <artifactId>odlparent</artifactId>
-        <version>1.6.2-Beryllium-SR2</version>
-        <relativePath/>
+        <groupId>io.fd.honeycomb.common</groupId>
+        <artifactId>honeycomb-parent</artifactId>
+        <version>1.16.12-SNAPSHOT</version>
+        <relativePath>../common/honeycomb-parent</relativePath>
     </parent>
 
     <groupId>io.fd.honeycomb.lisp</groupId>
     <artifactId>lisp-aggregator</artifactId>
     <version>1.16.12-SNAPSHOT</version>
-    <name>lisp</name>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
-    <prerequisites>
-        <maven>3.1.1</maven>
-    </prerequisites>
+    <description>Aggregator for Honeycomb LISP plugin</description>
 
     <modules>
         <module>api</module>

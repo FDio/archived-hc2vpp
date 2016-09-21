@@ -1,3 +1,0 @@
-= Honeycomb translation layer SPI implementation for VPP
-
-Provides customizers for VPP YANG models translation.

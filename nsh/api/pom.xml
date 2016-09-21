@@ -25,6 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.honeycomb.vppnsh</groupId>
   <artifactId>vppnsh-api</artifactId>
+  <name>${project.artifactId}</name>
   <version>1.16.12-SNAPSHOT</version>
   <packaging>bundle</packaging>
 

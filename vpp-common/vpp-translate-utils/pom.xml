@@ -23,8 +23,8 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.honeycomb.vpp</groupId>
     <artifactId>vpp-translate-utils</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.16.12-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
