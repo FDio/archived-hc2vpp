@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.ReaderCustomizerTest;
+import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -64,7 +64,7 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
     }
 
     @Override
-    public void setUpBefore() {
+    public void setUp() throws UnknownHostException, VppBaseCallException {
         interfacesContext = new NamingContext("vxlan_gpe_inf", IFC_CTX_NAME);
         ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
 
@@ -73,10 +73,7 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
         final Map<Integer, SwInterfaceDetails> map = new HashMap<>();
         map.put(0, v);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, map);
-    }
 
-    @Override
-    protected void setUpAfter() throws UnknownHostException, VppBaseCallException {
         final CompletableFuture<VxlanGpeTunnelDetailsReplyDump> vxlanGpeTunnelDetailsReplyDumpCompletionStage =
             new CompletableFuture<>();
 
@@ -95,6 +92,7 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
         vxlanGpeTunnelDetailsReplyDumpCompletionStage.complete(value);
 
         doReturn(vxlanGpeTunnelDetailsReplyDumpCompletionStage).when(api).vxlanGpeTunnelDump(any(VxlanGpeTunnelDump.class));
+
     }
 
     @Test

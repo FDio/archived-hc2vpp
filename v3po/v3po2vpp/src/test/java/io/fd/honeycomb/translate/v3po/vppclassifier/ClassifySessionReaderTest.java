@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
+import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +47,7 @@ import org.openvpp.jvpp.core.dto.ClassifySessionDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.ClassifySessionDump;
 
 public class ClassifySessionReaderTest extends
-        ListReaderCustomizerTest<ClassifySession, ClassifySessionKey, ClassifySessionBuilder> {
+    ListReaderCustomizerTest<ClassifySession, ClassifySessionKey, ClassifySessionBuilder> {
 
     private static final String MATCH_1 = "00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00";
     private static final String MATCH_2 = "00:00:00:00:00:00:01:02:03:04:05:07:00:00:00:00";

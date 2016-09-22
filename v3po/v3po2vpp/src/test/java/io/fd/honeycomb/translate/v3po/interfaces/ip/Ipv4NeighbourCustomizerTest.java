@@ -22,20 +22,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.io.BaseEncoding;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -49,45 +45,25 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.dto.IpNeighborAddDel;
 import org.openvpp.jvpp.core.dto.IpNeighborAddDelReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class Ipv4NeighbourCustomizerTest {
+public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "parent";
     private static final int IFACE_ID = 5;
 
-    @Mock
-    private FutureJVppCore jvpp;
-
-    @Mock
-    private WriteContext context;
-
-    @Mock
-    private MappingContext mappingContext;
-
-    @Mock
-    private Mapping mapping;
-
     private ArgumentCaptor<IpNeighborAddDel> requestCaptor;
     private Ipv4NeighbourCustomizer customizer;
-    private NamingContext namingContext;
-
 
     @Before
     public void init() {
-        MockitoAnnotations.initMocks(this);
-        when(context.getMappingContext()).thenReturn(mappingContext);
-
-        namingContext = new NamingContext("prefix", IFC_CTX_NAME);
         ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
-
-        customizer = new Ipv4NeighbourCustomizer(jvpp,namingContext);
+        customizer = new Ipv4NeighbourCustomizer(api, new NamingContext("prefix", IFC_CTX_NAME));
 
         requestCaptor = ArgumentCaptor.forClass(IpNeighborAddDel.class);
         CompletableFuture<IpNeighborAddDelReply> future = new CompletableFuture<>();
         future.complete(new IpNeighborAddDelReply());
-        when(jvpp.ipNeighborAddDel(Mockito.any(IpNeighborAddDel.class))).thenReturn(future);
+        when(api.ipNeighborAddDel(Mockito.any(IpNeighborAddDel.class))).thenReturn(future);
     }
 
     @Test
@@ -103,9 +79,9 @@ public class Ipv4NeighbourCustomizerTest {
 
         Neighbor data = new NeighborBuilder().setIp(noZoneIp).setLinkLayerAddress(mac).build();
 
-        customizer.writeCurrentAttributes(id, data, context);
+        customizer.writeCurrentAttributes(id, data, writeContext);
 
-        verify(jvpp, times(1)).ipNeighborAddDel(requestCaptor.capture());
+        verify(api, times(1)).ipNeighborAddDel(requestCaptor.capture());
 
         IpNeighborAddDel request = requestCaptor.getValue();
 
@@ -129,9 +105,9 @@ public class Ipv4NeighbourCustomizerTest {
 
         Neighbor data = new NeighborBuilder().setIp(noZoneIp).setLinkLayerAddress(mac).build();
 
-        customizer.deleteCurrentAttributes(id, data, context);
+        customizer.deleteCurrentAttributes(id, data, writeContext);
 
-        verify(jvpp, times(1)).ipNeighborAddDel(requestCaptor.capture());
+        verify(api, times(1)).ipNeighborAddDel(requestCaptor.capture());
 
         IpNeighborAddDel request = requestCaptor.getValue();
 

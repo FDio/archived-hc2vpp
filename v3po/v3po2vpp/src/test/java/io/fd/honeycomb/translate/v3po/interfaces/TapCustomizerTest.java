@@ -23,16 +23,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
 import java.util.concurrent.CompletableFuture;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -49,32 +44,17 @@ import org.openvpp.jvpp.core.dto.TapDelete;
 import org.openvpp.jvpp.core.dto.TapDeleteReply;
 import org.openvpp.jvpp.core.dto.TapModify;
 import org.openvpp.jvpp.core.dto.TapModifyReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class TapCustomizerTest {
+public class TapCustomizerTest extends WriterCustomizerTest {
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
-
-    @Mock
-    private FutureJVppCore vppApi;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
-
     private TapCustomizer tapCustomizer;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class);
-        final NamingContext ctx = new NamingContext("ifcintest", IFC_TEST_INSTANCE);
-        final ModificationCache toBeReturned = new ModificationCache();
-        doReturn(toBeReturned).when(writeContext).getModificationCache();
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-
-        tapCustomizer = new TapCustomizer(vppApi, ctx);
+        tapCustomizer = new TapCustomizer(api, new NamingContext("ifcintest", IFC_TEST_INSTANCE));
     }
 
     @Test
@@ -91,12 +71,12 @@ public class TapCustomizerTest {
                 reply.complete(t);
                 return reply;
             }
-        }).when(vppApi).tapConnect(any(TapConnect.class));
+        }).when(api).tapConnect(any(TapConnect.class));
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
         tapCustomizer.writeCurrentAttributes(getTapId("tap2"), getTapData("tap2", "ff:ff:ff:ff:ff:ff"), writeContext);
 
-        verify(vppApi, times(2)).tapConnect(any(TapConnect.class));
+        verify(api, times(2)).tapConnect(any(TapConnect.class));
         verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)), eq(
                 ContextTestUtils.getMapping("tap", 0).get()));
         verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap2", IFC_TEST_INSTANCE)), eq(
@@ -109,21 +89,21 @@ public class TapCustomizerTest {
         final TapConnectReply t = new TapConnectReply();
         t.swIfIndex = 0;
         reply.complete(t);
-        doReturn(reply).when(vppApi).tapConnect(any(TapConnect.class));
+        doReturn(reply).when(api).tapConnect(any(TapConnect.class));
 
         final CompletableFuture<TapModifyReply> replyModif = new CompletableFuture<>();
         final TapModifyReply tmodif = new TapModifyReply();
         tmodif.swIfIndex = 0;
         replyModif.complete(tmodif);
-        doReturn(replyModif).when(vppApi).tapModify(any(TapModify.class));
+        doReturn(replyModif).when(api).tapModify(any(TapModify.class));
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
 
         ContextTestUtils.mockMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);
         tapCustomizer.updateCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), getTapData("tap", "ff:ff:ff:ff:ff:f1"), writeContext);
 
-        verify(vppApi).tapConnect(any(TapConnect.class));
-        verify(vppApi).tapModify(any(TapModify.class));
+        verify(api).tapConnect(any(TapConnect.class));
+        verify(api).tapModify(any(TapModify.class));
 
         verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)), eq(
                 ContextTestUtils.getMapping("tap", 0).get()));
@@ -135,19 +115,19 @@ public class TapCustomizerTest {
         final TapConnectReply t = new TapConnectReply();
         t.swIfIndex = 0;
         reply.complete(t);
-        doReturn(reply).when(vppApi).tapConnect(any(TapConnect.class));
+        doReturn(reply).when(api).tapConnect(any(TapConnect.class));
 
         final CompletableFuture<TapDeleteReply> replyDelete = new CompletableFuture<>();
         final TapDeleteReply tmodif = new TapDeleteReply();
         replyDelete.complete(tmodif);
-        doReturn(replyDelete).when(vppApi).tapDelete(any(TapDelete.class));
+        doReturn(replyDelete).when(api).tapDelete(any(TapDelete.class));
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
         ContextTestUtils.mockMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);
         tapCustomizer.deleteCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
 
-        verify(vppApi).tapConnect(any(TapConnect.class));
-        verify(vppApi).tapDelete(any(TapDelete.class));
+        verify(api).tapConnect(any(TapConnect.class));
+        verify(api).tapDelete(any(TapDelete.class));
         verify(mappingContext).delete(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)));
     }
 

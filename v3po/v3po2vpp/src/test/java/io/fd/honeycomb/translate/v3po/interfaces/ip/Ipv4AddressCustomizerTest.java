@@ -28,17 +28,14 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidator;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,9 +69,8 @@ import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddress;
 import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class Ipv4AddressCustomizerTest {
+public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "eth0";
@@ -84,27 +80,16 @@ public class Ipv4AddressCustomizerTest {
     private ArgumentCaptor<List<Address>> addressesCaptor;
 
     @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
-    @Mock
-    private FutureJVppCore api;
-    @Mock
     private SubnetValidator subnetValidator;
 
     private NamingContext interfaceContext;
     private Ipv4AddressCustomizer customizer;
-    private ModificationCache cache;
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-        interfaceContext = new NamingContext("generatedlIfaceName", IFC_CTX_NAME);
+        interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
 
         customizer = new Ipv4AddressCustomizer(api, interfaceContext, subnetValidator);
-        cache = new ModificationCache();
-        when(writeContext.getModificationCache()).thenReturn(cache);
 
         CompletableFuture future = new CompletableFuture();
         future.complete(new IpAddressDetailsReplyDump());

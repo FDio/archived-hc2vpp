@@ -26,16 +26,13 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSets;
@@ -48,37 +45,24 @@ import org.openvpp.jvpp.core.dto.LispAddDelLocatorSet;
 import org.openvpp.jvpp.core.dto.LispAddDelLocatorSetReply;
 import org.openvpp.jvpp.core.dto.LispLocatorSetDetails;
 import org.openvpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
+public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
-public class LocatorSetCustomizerTest {
-
-    private FutureJVppCore fakeJvpp;
     private NamingContext locatorSetContext;
-    private MappingContext mappingContext;
-    private ModificationCache cache;
-    private WriteContext context;
 
-    @Before
-    public void init() {
-        fakeJvpp = mock(FutureJVppCore.class);
+    @Override
+    public void setUp() {
         locatorSetContext = new NamingContext("locator-set", "instance");
-        context = mock(WriteContext.class);
-        mappingContext = mock(MappingContext.class);
-        cache = new ModificationCache();
-        when(context.getMappingContext()).thenReturn(mappingContext);
-        when(context.getModificationCache()).thenReturn(cache);
     }
-
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
-        new LocatorSetCustomizer(fakeJvpp, locatorSetContext).writeCurrentAttributes(null, null, null);
+        new LocatorSetCustomizer(api, locatorSetContext).writeCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesBadData() throws WriteFailedException {
-        new LocatorSetCustomizer(fakeJvpp, locatorSetContext)
+        new LocatorSetCustomizer(api, locatorSetContext)
                 .writeCurrentAttributes(null, mock(LocatorSet.class), null);
     }
 
@@ -101,8 +85,8 @@ public class LocatorSetCustomizerTest {
         CompletableFuture<LispAddDelLocatorSetReply> completeFuture = new CompletableFuture<>();
         completeFuture.complete(fakeReply);
 
-        when(fakeJvpp.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(completeFuture);
-        when(context.readAfter(validId)).thenReturn(Optional.of(locatorSet));
+        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(completeFuture);
+        when(writeContext.readAfter(validId)).thenReturn(Optional.of(locatorSet));
 
         final LispLocatorSetDetailsReplyDump reply = new LispLocatorSetDetailsReplyDump();
         LispLocatorSetDetails details = new LispLocatorSetDetails();
@@ -111,31 +95,30 @@ public class LocatorSetCustomizerTest {
 
         cache.put(io.fd.honeycomb.lisp.translate.read.LocatorSetCustomizer.LOCATOR_SETS_CACHE_ID, reply);
 
-        new LocatorSetCustomizer(fakeJvpp, locatorSetContext).writeCurrentAttributes(validId, locatorSet, context);
+        new LocatorSetCustomizer(api, locatorSetContext).writeCurrentAttributes(validId, locatorSet, writeContext);
 
-        verify(fakeJvpp, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
+        verify(api, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
 
         LispAddDelLocatorSet request = locatorSetCaptor.getValue();
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
         assertEquals(1, request.isAdd);
-
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws WriteFailedException {
-        new LocatorSetCustomizer(fakeJvpp, locatorSetContext).updateCurrentAttributes(null, null, null, null);
+        new LocatorSetCustomizer(api, locatorSetContext).updateCurrentAttributes(null, null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesNullData() throws WriteFailedException {
-        new LocatorSetCustomizer(fakeJvpp, locatorSetContext).deleteCurrentAttributes(null, null, null);
+        new LocatorSetCustomizer(api, locatorSetContext).deleteCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesBadData() throws WriteFailedException {
-        new LocatorSetCustomizer(fakeJvpp, locatorSetContext)
+        new LocatorSetCustomizer(api, locatorSetContext)
                 .deleteCurrentAttributes(null, mock(LocatorSet.class), null);
     }
 
@@ -153,17 +136,16 @@ public class LocatorSetCustomizerTest {
         CompletableFuture<LispAddDelLocatorSetReply> completeFuture = new CompletableFuture<>();
         completeFuture.complete(fakeReply);
 
-        when(fakeJvpp.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(completeFuture);
+        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(completeFuture);
 
-        new LocatorSetCustomizer(fakeJvpp, locatorSetContext).deleteCurrentAttributes(null, locatorSet, context);
+        new LocatorSetCustomizer(api, locatorSetContext).deleteCurrentAttributes(null, locatorSet, writeContext);
 
-        verify(fakeJvpp, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
+        verify(api, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
 
         LispAddDelLocatorSet request = locatorSetCaptor.getValue();
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
         assertEquals(0, request.isAdd);
-
     }
 }

@@ -25,20 +25,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSets;
@@ -53,17 +49,7 @@ import org.openvpp.jvpp.core.dto.LispAddDelLocator;
 import org.openvpp.jvpp.core.dto.LispAddDelLocatorReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-
-public class InterfaceCustomizerTest {
-
-    @Mock
-    private FutureJVppCore fakeJvpp;
-
-    @Mock
-    private WriteContext writeContext;
-
-    @Mock
-    private MappingContext mappingContext;
+public class InterfaceCustomizerTest extends WriterCustomizerTest {
 
     @Captor
     private ArgumentCaptor<LispAddDelLocator> intfCaptor;
@@ -75,10 +61,8 @@ public class InterfaceCustomizerTest {
     private Interface intf;
     private InterfaceCustomizer customizer;
 
-    @Before
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-
+    @Override
+    public void setUp() {
         id = InstanceIdentifier.builder(Lisp.class)
                 .child(LocatorSets.class)
                 .child(LocatorSet.class, new LocatorSetKey("Locator"))
@@ -92,18 +76,16 @@ public class InterfaceCustomizerTest {
 
         namingContext = new NamingContext("PREFIX", "INSTANCE");
 
-        customizer = new InterfaceCustomizer(fakeJvpp, namingContext);
+        customizer = new InterfaceCustomizer(api, namingContext);
 
         fakeReply = new LispAddDelLocatorReply();
 
         completeFuture = new CompletableFuture<>();
         completeFuture.complete(fakeReply);
 
-        when(writeContext.getMappingContext()).thenReturn(mappingContext);
         when(mappingContext.read(Mockito.any()))
                 .thenReturn(Optional.of((DataObject) new MappingBuilder().setIndex(5).setName("interface").build()));
-        when(fakeJvpp.lispAddDelLocator(any(LispAddDelLocator.class))).thenReturn(completeFuture);
-
+        when(api.lispAddDelLocator(any(LispAddDelLocator.class))).thenReturn(completeFuture);
     }
 
     @Test(expected = NullPointerException.class)
@@ -136,7 +118,7 @@ public class InterfaceCustomizerTest {
     public void testWriteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
         customizer.writeCurrentAttributes(id, intf, writeContext);
 
-        verify(fakeJvpp, times(1)).lispAddDelLocator(intfCaptor.capture());
+        verify(api, times(1)).lispAddDelLocator(intfCaptor.capture());
 
         LispAddDelLocator request = intfCaptor.getValue();
 
@@ -150,13 +132,13 @@ public class InterfaceCustomizerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws WriteFailedException {
-        new InterfaceCustomizer(fakeJvpp, namingContext)
+        new InterfaceCustomizer(api, namingContext)
                 .updateCurrentAttributes(null, null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesNullData() throws WriteFailedException {
-        new InterfaceCustomizer(fakeJvpp, namingContext)
+        new InterfaceCustomizer(api, namingContext)
                 .deleteCurrentAttributes(null, null, null);
     }
 
@@ -184,7 +166,7 @@ public class InterfaceCustomizerTest {
     public void testDeleteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
         customizer.deleteCurrentAttributes(id, intf, writeContext);
 
-        verify(fakeJvpp, times(1)).lispAddDelLocator(intfCaptor.capture());
+        verify(api, times(1)).lispAddDelLocator(intfCaptor.capture());
 
         LispAddDelLocator request = intfCaptor.getValue();
 

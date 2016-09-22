@@ -30,13 +30,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -45,10 +42,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -65,36 +60,21 @@ import org.openvpp.jvpp.core.dto.DeleteVhostUserIf;
 import org.openvpp.jvpp.core.dto.DeleteVhostUserIfReply;
 import org.openvpp.jvpp.core.dto.ModifyVhostUserIf;
 import org.openvpp.jvpp.core.dto.ModifyVhostUserIfReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class VhostUserCustomizerTest {
-
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
+public class VhostUserCustomizerTest extends WriterCustomizerTest {
 
     private VhostUserCustomizer customizer;
     private static final int IFACE_ID = 1;
     private static final String IFACE_NAME = "eth0";
     private static final InstanceIdentifier<VhostUser> ID =
-            InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
-                    .augmentation(VppInterfaceAugmentation.class).child(VhostUser.class);
+        InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
+            .augmentation(VppInterfaceAugmentation.class).child(VhostUser.class);
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class);
-        final NamingContext namingContext = new NamingContext("generatedInterfaceName", "test-instance");
-        final ModificationCache toBeReturned = new ModificationCache();
-        doReturn(toBeReturned).when(writeContext).getModificationCache();
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-
-        // TODO HONEYCOMB-116 create base class for tests using vppApi
-        customizer = new VhostUserCustomizer(api, namingContext);
+        customizer = new VhostUserCustomizer(api, new NamingContext("generatedInterfaceName", "test-instance"));
     }
 
     private void whenCreateVhostUserIfThenSuccess()
@@ -111,9 +91,9 @@ public class VhostUserCustomizerTest {
      * Failure response send
      */
     private void whenCreateVhostUserIfThenFailure()
-            throws ExecutionException, InterruptedException, VppInvocationException {
+        throws ExecutionException, InterruptedException, VppInvocationException {
         doReturn(TestHelperUtils.<CreateVhostUserIfReply>createFutureException()).when(api)
-                .createVhostUserIf(any(CreateVhostUserIf.class));
+            .createVhostUserIf(any(CreateVhostUserIf.class));
     }
 
     private void whenModifyVhostUserIfThenSuccess()
@@ -130,9 +110,9 @@ public class VhostUserCustomizerTest {
      * Failure response send
      */
     private void whenModifyVhostUserIfThenFailure()
-            throws ExecutionException, InterruptedException, VppInvocationException {
+        throws ExecutionException, InterruptedException, VppInvocationException {
         doReturn(TestHelperUtils.<ModifyVhostUserIfReply>createFutureException()).when(api)
-                .modifyVhostUserIf(any(ModifyVhostUserIf.class));
+            .modifyVhostUserIf(any(ModifyVhostUserIf.class));
     }
 
     private void whenDeleteVhostUserIfThenSuccess()
@@ -149,12 +129,13 @@ public class VhostUserCustomizerTest {
      * Failure response send
      */
     private void whenDeleteVhostUserIfThenFailure()
-            throws ExecutionException, InterruptedException, VppInvocationException {
+        throws ExecutionException, InterruptedException, VppInvocationException {
         doReturn(TestHelperUtils.<DeleteVhostUserIfReply>createFutureException()).when(api)
-                .deleteVhostUserIf(any(DeleteVhostUserIf.class));
+            .deleteVhostUserIf(any(DeleteVhostUserIf.class));
     }
 
-    private CreateVhostUserIf verifyCreateVhostUserIfWasInvoked(final VhostUser vhostUser) throws VppInvocationException {
+    private CreateVhostUserIf verifyCreateVhostUserIfWasInvoked(final VhostUser vhostUser)
+        throws VppInvocationException {
         ArgumentCaptor<CreateVhostUserIf> argumentCaptor = ArgumentCaptor.forClass(CreateVhostUserIf.class);
         verify(api).createVhostUserIf(argumentCaptor.capture());
         final CreateVhostUserIf actual = argumentCaptor.getValue();
@@ -169,7 +150,7 @@ public class VhostUserCustomizerTest {
     }
 
     private ModifyVhostUserIf verifyModifyVhostUserIfWasInvoked(final VhostUser vhostUser, final int swIfIndex)
-            throws VppInvocationException {
+        throws VppInvocationException {
         ArgumentCaptor<ModifyVhostUserIf> argumentCaptor = ArgumentCaptor.forClass(ModifyVhostUserIf.class);
         verify(api).modifyVhostUserIf(argumentCaptor.capture());
         final ModifyVhostUserIf actual = argumentCaptor.getValue();
@@ -206,7 +187,7 @@ public class VhostUserCustomizerTest {
         customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
         verifyCreateVhostUserIfWasInvoked(vhostUser);
         verify(mappingContext).put(eq(ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance")), eq(
-                ContextTestUtils.getMapping(IFACE_NAME, 0).get()));
+            ContextTestUtils.getMapping(IFACE_NAME, 0).get()));
     }
 
     @Test

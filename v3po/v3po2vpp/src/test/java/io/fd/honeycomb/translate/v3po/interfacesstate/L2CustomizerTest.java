@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.ReaderCustomizerTest;
+import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,7 +61,7 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
     }
 
     @Override
-    public void setUpBefore() {
+    public void setUp() {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
         bridgeDomainContext = new NamingContext("generatedBDName", BD_CTX_NAME);
     }

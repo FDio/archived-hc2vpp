@@ -29,7 +29,7 @@ import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
+import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.Arrays;
@@ -70,7 +70,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     }
 
     @Override
-    public void setUpBefore() {
+    public void setUp() {
         interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
         ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         ContextTestUtils.mockMapping(mappingContext, IFACE_2_NAME, IFACE_2_ID, IFC_CTX_NAME);

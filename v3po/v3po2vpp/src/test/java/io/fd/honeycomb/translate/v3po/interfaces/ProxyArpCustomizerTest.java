@@ -16,34 +16,37 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces;
 
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
-import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
-import org.junit.Before;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ProxyArp;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class ProxyArpCustomizerTest {
+public class ProxyArpCustomizerTest extends WriterCustomizerTest {
 
-    @Mock
-    private FutureJVppCore vppApi;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
+    private ProxyArpCustomizer customizer;
 
-    private ProxyArpCustomizer proxyArpCustomizer;
-    private NamingContext namingContext;
+    @Override
+    public void setUp() throws Exception {
+        customizer = new ProxyArpCustomizer(api, new NamingContext("generatedSubInterfaceName", "test-instance"));
+    }
 
-    @Before
-    protected void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        namingContext = new NamingContext("generatedSubInterfaceName", "test-instance");
-        doReturn(mappingContext).when(writeContext).getMappingContext();
+    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    public void testUpdate() throws Exception {
+        final ProxyArp dataBefore = mock(ProxyArp.class);
+        final ProxyArp dataAfter = mock(ProxyArp.class);
+        customizer.updateCurrentAttributes(getProxyArpId("eth0"), dataBefore, dataAfter, writeContext);
+    }
 
-        proxyArpCustomizer = new ProxyArpCustomizer(vppApi, namingContext);
+    private InstanceIdentifier<ProxyArp> getProxyArpId(final String eth0) {
+        return InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(eth0)).augmentation(
+            VppInterfaceAugmentation.class).child(ProxyArp.class);
     }
 }

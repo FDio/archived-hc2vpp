@@ -25,16 +25,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -54,33 +51,24 @@ import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelSessionReply;
 import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class ClassifySessionWriterTest {
+public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
     private static final int TABLE_INDEX = 123;
     private static final String TABLE_NAME = "table123";
 
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext ctx;
     @Mock
     private VppClassifierContextManager classfierContext;
 
     private ClassifySessionWriter customizer;
     private static final int SESSION_INDEX = 456;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
-        doReturn(ctx).when(writeContext).getMappingContext();
         customizer = new ClassifySessionWriter(api, classfierContext);
 
-        when(classfierContext.containsTable(TABLE_NAME, ctx)).thenReturn(true);
-        when(classfierContext.getTableIndex(TABLE_NAME, ctx)).thenReturn(TABLE_INDEX);
+        when(classfierContext.containsTable(TABLE_NAME, mappingContext)).thenReturn(true);
+        when(classfierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);
 
         final ClassifyTable table = mock(ClassifyTable.class);
         when(table.getClassifierNode()).thenReturn(new VppNodeName("ip4-classifier"));

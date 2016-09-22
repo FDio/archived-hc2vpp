@@ -25,19 +25,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
@@ -57,11 +53,7 @@ import org.openvpp.jvpp.core.dto.LispAddDelLocalEidReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
-public class LocalMappingCustomizerTest {
-
-    @Mock
-    private FutureJVppCore fakeJvpp;
-
+public class LocalMappingCustomizerTest extends WriterCustomizerTest {
     @Captor
     private ArgumentCaptor<LispAddDelLocalEid> mappingCaptor;
 
@@ -72,13 +64,9 @@ public class LocalMappingCustomizerTest {
     private CompletableFuture<LispAddDelLocalEidReply> completeFuture;
     private LocalMappingCustomizer customizer;
     private EidMappingContext localMappingContext;
-    private WriteContext writeContext;
-    private MappingContext mappingCtx;
 
-    @Before
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-
+    @Override
+    public void setUp() {
         final Eid
                 eid = new EidBuilder().setAddress(
                 new Ipv4Builder().setIpv4(
@@ -90,8 +78,6 @@ public class LocalMappingCustomizerTest {
         mappingId = new MappingId("REMOTE");
         final LocalMappingKey key = new LocalMappingKey(mappingId);
         localMappingContext = new EidMappingContext("local");
-        mappingCtx = mock(MappingContext.class);
-        writeContext = mock(WriteContext.class);
 
         mapping = new LocalMappingBuilder()
                 .setEid(eid)
@@ -108,11 +94,10 @@ public class LocalMappingCustomizerTest {
         fakeReply = new LispAddDelLocalEidReply();
         completeFuture = new CompletableFuture<>();
         completeFuture.complete(fakeReply);
-        customizer = new LocalMappingCustomizer(fakeJvpp, localMappingContext);
+        customizer = new LocalMappingCustomizer(api, localMappingContext);
 
-        when(fakeJvpp.lispAddDelLocalEid(any(LispAddDelLocalEid.class))).thenReturn(completeFuture);
-        when(writeContext.getMappingContext()).thenReturn(mappingCtx);
-        when(mappingCtx.read(Mockito.any())).thenReturn(com.google.common.base.Optional
+        when(api.lispAddDelLocalEid(any(LispAddDelLocalEid.class))).thenReturn(completeFuture);
+        when(mappingContext.read(Mockito.any())).thenReturn(com.google.common.base.Optional
                 .of(new LocalMappingBuilder().setKey(key).setId(mappingId).setEid(eid).build()));
     }
 
@@ -147,11 +132,11 @@ public class LocalMappingCustomizerTest {
     @Test
     public void testWriteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
         //to simulate no mapping
-        when(mappingCtx.read(Mockito.any())).thenReturn(com.google.common.base.Optional.absent());
+        when(mappingContext.read(Mockito.any())).thenReturn(com.google.common.base.Optional.absent());
 
         customizer.writeCurrentAttributes(id, mapping, writeContext);
 
-        verify(fakeJvpp, times(1)).lispAddDelLocalEid(mappingCaptor.capture());
+        verify(api, times(1)).lispAddDelLocalEid(mappingCaptor.capture());
 
         LispAddDelLocalEid request = mappingCaptor.getValue();
 
@@ -174,7 +159,7 @@ public class LocalMappingCustomizerTest {
     public void testDeleteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
         customizer.deleteCurrentAttributes(id, mapping, writeContext);
 
-        verify(fakeJvpp, times(1)).lispAddDelLocalEid(mappingCaptor.capture());
+        verify(api, times(1)).lispAddDelLocalEid(mappingCaptor.capture());
 
         LispAddDelLocalEid request = mappingCaptor.getValue();
 

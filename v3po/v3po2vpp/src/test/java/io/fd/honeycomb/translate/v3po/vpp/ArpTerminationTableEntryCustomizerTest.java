@@ -24,19 +24,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -52,9 +48,8 @@ import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.BdIpMacAddDel;
 import org.openvpp.jvpp.core.dto.BdIpMacAddDelReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class ArpTerminationTableEntryCustomizerTest {
+public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest {
     private static final String BD_CTX_NAME = "bd-test-instance";
     private static final String IFC_CTX_NAME = "ifc-test-instance";
 
@@ -62,16 +57,6 @@ public class ArpTerminationTableEntryCustomizerTest {
     private static final int BD_ID = 111;
     private static final String IFACE_NAME = "eth0";
     private static final int IFACE_ID = 123;
-
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
-
-    private NamingContext bdContext;
-
     private ArpTerminationTableEntryCustomizer customizer;
     private byte[] ipAddressRaw;
     private byte[] physAddressRaw;
@@ -80,13 +65,9 @@ public class ArpTerminationTableEntryCustomizerTest {
     private ArpTerminationTableEntry entry;
     private InstanceIdentifier<ArpTerminationTableEntry> id;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-        bdContext = new NamingContext("generatedBdName", BD_CTX_NAME);
-
-        customizer = new ArpTerminationTableEntryCustomizer(api, bdContext);
+        customizer = new ArpTerminationTableEntryCustomizer(api, new NamingContext("generatedBdName", BD_CTX_NAME));
 
         ipAddressRaw = new byte[] {1, 2, 3, 4};
         physAddressRaw = new byte[] {1, 2, 3, 4, 5, 6};

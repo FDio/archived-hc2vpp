@@ -30,23 +30,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.net.InetAddresses;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -64,19 +61,12 @@ import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.VxlanAddDelTunnel;
 import org.openvpp.jvpp.core.dto.VxlanAddDelTunnelReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class VxlanCustomizerTest {
+public class VxlanCustomizerTest extends WriterCustomizerTest {
 
     private static final byte ADD_VXLAN = 1;
     private static final byte DEL_VXLAN = 0;
 
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
     @Mock
     private DisabledInterfacesManager disableContext;
 
@@ -84,9 +74,8 @@ public class VxlanCustomizerTest {
     private String ifaceName;
     private InstanceIdentifier<Vxlan> id;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel.class);
         // TODO HONEYCOMB-116 create base class for tests using vppApi

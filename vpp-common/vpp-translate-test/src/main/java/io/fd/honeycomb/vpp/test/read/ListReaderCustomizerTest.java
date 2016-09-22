@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.test;
+package io.fd.honeycomb.vpp.test.read;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -34,8 +34,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * @param <B> Specific Builder for handled type (D)
  */
 public abstract class ListReaderCustomizerTest<D extends DataObject & Identifiable<K>, K extends Identifier<D>, B extends Builder<D>> extends
-        ReaderCustomizerTest<D, B> {
-
+    ReaderCustomizerTest<D, B> {
 
     protected ListReaderCustomizerTest(Class<D> dataObjectClass) {
         super(dataObjectClass);

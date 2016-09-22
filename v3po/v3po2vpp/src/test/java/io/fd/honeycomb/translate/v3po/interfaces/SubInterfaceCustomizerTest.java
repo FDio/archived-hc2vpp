@@ -24,22 +24,18 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.CVlan;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qTagVlanType;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qVlanId;
@@ -68,16 +64,8 @@ import org.openvpp.jvpp.core.dto.CreateSubif;
 import org.openvpp.jvpp.core.dto.CreateSubifReply;
 import org.openvpp.jvpp.core.dto.SwInterfaceSetFlags;
 import org.openvpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class SubInterfaceCustomizerTest {
-
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
+public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 
     private NamingContext namingContext;
     private SubInterfaceCustomizer customizer;
@@ -102,12 +90,9 @@ public class SubInterfaceCustomizerTest {
         CTAG_ANY = generateTag((short) 1, CVlan.class, new Dot1qTag.VlanId(Dot1qTag.VlanId.Enumeration.Any));
     }
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
         namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-        // TODO HONEYCOMB-116 create base class for tests using vppApi
         customizer = new SubInterfaceCustomizer(api, namingContext);
         ContextTestUtils.mockMapping(mappingContext, SUB_IFACE_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
         ContextTestUtils.mockMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_ID, IFC_TEST_INSTANCE);

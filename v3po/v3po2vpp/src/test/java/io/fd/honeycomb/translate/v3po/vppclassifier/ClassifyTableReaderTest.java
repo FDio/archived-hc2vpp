@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
+import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
@@ -48,7 +48,7 @@ import org.openvpp.jvpp.core.dto.ClassifyTableInfo;
 import org.openvpp.jvpp.core.dto.ClassifyTableInfoReply;
 
 public class ClassifyTableReaderTest extends
-        ListReaderCustomizerTest<ClassifyTable, ClassifyTableKey, ClassifyTableBuilder> {
+    ListReaderCustomizerTest<ClassifyTable, ClassifyTableKey, ClassifyTableBuilder> {
 
     private static final int TABLE_INDEX_1 = 1;
     private static final String TABLE_NAME_1 = "table1";

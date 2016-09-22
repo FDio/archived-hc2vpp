@@ -25,15 +25,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -50,29 +47,20 @@ import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class ClassifyTableWriterTest {
+public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
     private static final int TABLE_INDEX = 123;
     private static final String TABLE_NAME = "table123";
 
     @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext ctx;
-    @Mock
     private VppClassifierContextManager classifierContext;
 
     private ClassifyTableWriter customizer;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
         customizer = new ClassifyTableWriter(api, classifierContext);
-        doReturn(ctx).when(writeContext).getMappingContext();
     }
 
     private static ClassifyTable generateClassifyTable(final String name) {
@@ -155,7 +143,8 @@ public class ClassifyTableWriterTest {
         customizer.writeCurrentAttributes(id, classifyTable, writeContext);
 
         verifyClassifyAddDelTableAddWasInvoked(generateClassifyAddDelTable((byte) 1, TABLE_INDEX));
-        verify(classifierContext).addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), ctx);
+        verify(classifierContext)
+            .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), mappingContext);
     }
 
     @Test
@@ -171,7 +160,7 @@ public class ClassifyTableWriterTest {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyClassifyAddDelTableAddWasInvoked(generateClassifyAddDelTable((byte) 1, TABLE_INDEX));
             verify(classifierContext, times(0))
-                .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), ctx);
+                .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), mappingContext);
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -182,8 +171,8 @@ public class ClassifyTableWriterTest {
         final ClassifyTable classifyTable = generateClassifyTable(TABLE_NAME);
         final InstanceIdentifier<ClassifyTable> id = getClassifyTableId(TABLE_NAME);
 
-        when(classifierContext.containsTable(TABLE_NAME, ctx)).thenReturn(true);
-        when(classifierContext.getTableIndex(TABLE_NAME, ctx)).thenReturn(TABLE_INDEX);
+        when(classifierContext.containsTable(TABLE_NAME, mappingContext)).thenReturn(true);
+        when(classifierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);
         whenClassifyAddDelTableThenSuccess();
 
         customizer.deleteCurrentAttributes(id, classifyTable, writeContext);
@@ -196,8 +185,8 @@ public class ClassifyTableWriterTest {
         final ClassifyTable classifyTable = generateClassifyTable(TABLE_NAME);
         final InstanceIdentifier<ClassifyTable> id = getClassifyTableId(TABLE_NAME);
 
-        when(classifierContext.containsTable(TABLE_NAME, ctx)).thenReturn(true);
-        when(classifierContext.getTableIndex(TABLE_NAME, ctx)).thenReturn(TABLE_INDEX);
+        when(classifierContext.containsTable(TABLE_NAME, mappingContext)).thenReturn(true);
+        when(classifierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);
         whenClassifyAddDelTableThenFailure();
 
         try {

@@ -22,22 +22,18 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TagRewriteOperation;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -54,16 +50,8 @@ import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
 import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class RewriteCustomizerTest {
-
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
+public class RewriteCustomizerTest extends WriterCustomizerTest {
 
     private NamingContext namingContext;
     private RewriteCustomizer customizer;
@@ -75,11 +63,9 @@ public class RewriteCustomizerTest {
     private static final int VLAN_IF_INDEX = 11;
     private InstanceIdentifier<Rewrite> VLAN_IID;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
         namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
-        doReturn(mappingContext).when(writeContext).getMappingContext();
         customizer = new RewriteCustomizer(api, namingContext);
         VLAN_IID = getVlanTagRewriteId(IF_NAME, VLAN_IF_ID);
         ContextTestUtils.mockMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_TEST_INSTANCE);

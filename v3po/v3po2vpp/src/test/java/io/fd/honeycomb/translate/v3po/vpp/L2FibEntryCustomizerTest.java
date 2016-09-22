@@ -23,19 +23,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.L2FibFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.L2FibTable;
@@ -51,9 +47,8 @@ import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.L2FibAddDel;
 import org.openvpp.jvpp.core.dto.L2FibAddDelReply;
 import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class L2FibEntryCustomizerTest {
+public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
     private static final String BD_CTX_NAME = "bd-test-instance";
     private static final String IFC_CTX_NAME = "ifc-test-instance";
 
@@ -62,28 +57,17 @@ public class L2FibEntryCustomizerTest {
     private static final String IFACE_NAME = "eth0";
     private static final int IFACE_ID = 123;
 
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
-
-    private NamingContext bdContext;
-    private NamingContext interfaceContext;
-
     private L2FibEntryCustomizer customizer;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-        bdContext = new NamingContext("generatedBdName", BD_CTX_NAME);
         ContextTestUtils.mockMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
-        interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
         ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
-        customizer = new L2FibEntryCustomizer(api, bdContext, interfaceContext);
+        customizer = new L2FibEntryCustomizer(
+            api,
+            new NamingContext("generatedBdName", BD_CTX_NAME),
+            new NamingContext("generatedIfaceName", IFC_CTX_NAME));
     }
 
     private static InstanceIdentifier<L2FibEntry> getL2FibEntryId(final PhysAddress address) {

@@ -20,7 +20,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ListReaderCustomizerTest;
+import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +41,7 @@ public class BridgeDomainCustomizerTest
     }
 
     @Override
-    public void setUpBefore() {
+    public void setUp() {
         bdContext = new NamingContext("generatedBdName", "bd-test-instance");
         interfacesContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
     }

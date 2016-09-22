@@ -32,24 +32,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.net.InetAddresses;
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -63,9 +58,8 @@ import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.GreAddDelTunnel;
 import org.openvpp.jvpp.core.dto.GreAddDelTunnelReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class GreCustomizerTest {
+public class GreCustomizerTest extends WriterCustomizerTest {
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
     private final String IFACE_NAME = "eth0";
@@ -75,27 +69,13 @@ public class GreCustomizerTest {
     private static final byte ADD_GRE = 1;
     private static final byte DEL_GRE = 0;
 
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
-
     private GreCustomizer customizer;
 
-    @Before
+    @Override
     public void setUp() throws Exception {
-        initMocks(this);
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.GreTunnel.class);
-        // TODO HONEYCOMB-116 create base class for tests using vppApi
-        NamingContext namingContext = new NamingContext("generateInterfaceNAme", IFC_TEST_INSTANCE);
-        final ModificationCache toBeReturned = new ModificationCache();
-        doReturn(toBeReturned).when(writeContext).getModificationCache();
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-
-        customizer = new GreCustomizer(api, namingContext);
+        customizer = new GreCustomizer(api, new NamingContext("generateInterfaceNAme", IFC_TEST_INSTANCE));
     }
 
     private void whenGreAddDelTunnelThenSuccess()

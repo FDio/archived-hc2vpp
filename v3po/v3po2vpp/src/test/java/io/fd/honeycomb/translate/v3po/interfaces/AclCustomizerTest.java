@@ -24,16 +24,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -50,16 +48,9 @@ import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.InputAclSetInterface;
 import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class AclCustomizerTest {
+public class AclCustomizerTest extends WriterCustomizerTest {
 
-    @Mock
-    private FutureJVppCore api;
-    @Mock
-    private WriteContext writeContext;
-    @Mock
-    private MappingContext mappingContext;
     @Mock
     private VppClassifierContextManager classifyTableContext;
 
@@ -73,7 +64,7 @@ public class AclCustomizerTest {
     private static final int ACL_TABLE_INDEX = 0;
     private static final String ACL_TABLE_NAME = "table0";
 
-    @Before
+    @Override
     public void setUp() throws Exception {
         initMocks(this);
         interfaceContext = new NamingContext("generatedInterfaceName", IFC_TEST_INSTANCE);
