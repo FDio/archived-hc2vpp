@@ -16,7 +16,6 @@
 
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
@@ -91,12 +89,10 @@ public class InterfaceCustomizerTest extends
     private void verifySwInterfaceDumpWasInvoked(final int nameFilterValid, final String ifaceName,
                                                  final int dumpIfcsInvocationCount)
         throws VppInvocationException {
-        // TODO HONEYCOMB-185 adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
-        ArgumentCaptor<SwInterfaceDump> argumentCaptor = ArgumentCaptor.forClass(SwInterfaceDump.class);
-        verify(api, times(dumpIfcsInvocationCount)).swInterfaceDump(argumentCaptor.capture());
-        final SwInterfaceDump actual = argumentCaptor.getValue();
-        assertEquals(nameFilterValid, actual.nameFilterValid);
-        assertArrayEquals(ifaceName.getBytes(), actual.nameFilter);
+        final SwInterfaceDump expected = new SwInterfaceDump();
+        expected.nameFilterValid = (byte)nameFilterValid;
+        expected.nameFilter = ifaceName.getBytes();
+        verify(api, times(dumpIfcsInvocationCount)).swInterfaceDump(expected);
     }
 
     private static void assertIfacesAreEqual(final Interface iface, final SwInterfaceDetails details) {

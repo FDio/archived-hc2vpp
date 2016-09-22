@@ -16,7 +16,6 @@
 
 package io.fd.honeycomb.translate.v3po.vpp;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -38,7 +37,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainBuilder;
@@ -97,36 +95,21 @@ public class BridgeDomainCustomizerTest {
 
     private void verifyBridgeDomainAddOrUpdateWasInvoked(final BridgeDomain bd, final int bdId)
         throws VppInvocationException {
-        final byte arpTerm = BridgeDomainTestUtils.booleanToByte(bd.isArpTermination());
-        final byte flood = BridgeDomainTestUtils.booleanToByte(bd.isFlood());
-        final byte forward = BridgeDomainTestUtils.booleanToByte(bd.isForward());
-        final byte learn = BridgeDomainTestUtils.booleanToByte(bd.isLearn());
-        final byte uuf = BridgeDomainTestUtils.booleanToByte(bd.isUnknownUnicastFlood());
-
-        // TODO HONEYCOMB-185 adding equals methods for jvpp DTOs would make ArgumentCaptor usage obsolete
-        ArgumentCaptor<BridgeDomainAddDel> argumentCaptor = ArgumentCaptor.forClass(BridgeDomainAddDel.class);
-        verify(api).bridgeDomainAddDel(argumentCaptor.capture());
-        final BridgeDomainAddDel actual = argumentCaptor.getValue();
-        assertEquals(arpTerm, actual.arpTerm);
-        assertEquals(flood, actual.flood);
-        assertEquals(forward, actual.forward);
-        assertEquals(learn, actual.learn);
-        assertEquals(uuf, actual.uuFlood);
-        assertEquals(ADD_OR_UPDATE_BD, actual.isAdd);
-        assertEquals(bdId, actual.bdId);
+        final BridgeDomainAddDel expected = new BridgeDomainAddDel();
+        expected.arpTerm = BridgeDomainTestUtils.booleanToByte(bd.isArpTermination());
+        expected.flood = BridgeDomainTestUtils.booleanToByte(bd.isFlood());
+        expected.forward = BridgeDomainTestUtils.booleanToByte(bd.isForward());
+        expected.learn = BridgeDomainTestUtils.booleanToByte(bd.isLearn());
+        expected.uuFlood = BridgeDomainTestUtils.booleanToByte(bd.isUnknownUnicastFlood());
+        expected.isAdd = ADD_OR_UPDATE_BD;
+        expected.bdId = bdId;
+        verify(api).bridgeDomainAddDel(expected);
     }
 
     private void verifyBridgeDomainDeleteWasInvoked(final int bdId) throws VppInvocationException {
-        ArgumentCaptor<BridgeDomainAddDel> argumentCaptor = ArgumentCaptor.forClass(BridgeDomainAddDel.class);
-        verify(api).bridgeDomainAddDel(argumentCaptor.capture());
-        final BridgeDomainAddDel actual = argumentCaptor.getValue();
-        assertEquals(bdId, actual.bdId);
-        assertEquals(ZERO, actual.arpTerm);
-        assertEquals(ZERO, actual.flood);
-        assertEquals(ZERO, actual.forward);
-        assertEquals(ZERO, actual.learn);
-        assertEquals(ZERO, actual.uuFlood);
-        assertEquals(ZERO, actual.isAdd);
+        final BridgeDomainAddDel expected = new BridgeDomainAddDel();
+        expected.bdId = bdId;
+        verify(api).bridgeDomainAddDel(expected);
     }
 
     private void whenBridgeDomainAddDelThenSuccess()
