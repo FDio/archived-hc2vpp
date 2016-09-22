@@ -28,7 +28,6 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
@@ -106,7 +105,7 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
         final int bdId = bdContext.getIndex(bdName, writeContext.getMappingContext());
 
         final BdIpMacAddDel request = createRequest(entry, bdId, isAdd);
-        LOG.debug("Sending l2FibAddDel request: {}", ReflectionToStringBuilder.toString(request));
+        LOG.debug("Sending l2FibAddDel request: {}", request);
         final CompletionStage<BdIpMacAddDelReply> replyCompletionStage =
             getFutureJVpp().bdIpMacAddDel(request);
 

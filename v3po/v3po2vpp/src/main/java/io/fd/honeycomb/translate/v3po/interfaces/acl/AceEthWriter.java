@@ -20,7 +20,6 @@ import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
@@ -92,10 +91,7 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> {
         request.skipNVectors = 0;
         request.matchNVectors = MATCH_N_VECTORS;
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceEth,
-                ReflectionToStringBuilder.toString(request));
-        }
+        LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceEth, request);
         return request;
     }
 
@@ -134,10 +130,7 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> {
                 String.format("Ace %s does not define neither source nor destination MAC address", aceEth.toString()));
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("ACE action={}, rule={} translated to session={}.", action, aceEth,
-                ReflectionToStringBuilder.toString(request));
-        }
+        LOG.debug("ACE action={}, rule={} translated to session={}.", action, aceEth, request);
         return request;
     }
 

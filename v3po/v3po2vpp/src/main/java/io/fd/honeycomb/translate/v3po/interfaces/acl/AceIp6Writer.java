@@ -23,7 +23,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.BitSet;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6;
@@ -150,11 +149,7 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
                 String.format("Ace %s does not define packet field match values", aceIp.toString()));
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceIp,
-                ReflectionToStringBuilder.toString(request));
-        }
-
+        LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceIp, request);
         return request;
     }
 
@@ -219,10 +214,7 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
                 String.format("Ace %s does not define packet field match values", aceIp.toString()));
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("ACE action={}, rule={} translated to session={}.", action, aceIp,
-                ReflectionToStringBuilder.toString(request));
-        }
+        LOG.debug("ACE action={}, rule={} translated to session={}.", action, aceIp, request);
         return request;
     }
 

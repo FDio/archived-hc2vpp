@@ -19,7 +19,6 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
@@ -27,11 +26,11 @@ import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.v3po.util.TagRewriteOperation;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527._802dot1q;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterface;
@@ -119,7 +118,7 @@ public class RewriteCustomizer extends FutureJVppCustomizer implements WriterCus
             }
         }
 
-        LOG.debug("Generated tag rewrite request: {}", ReflectionToStringBuilder.toString(request));
+        LOG.debug("Generated tag rewrite request: {}", request);
         return request;
     }
 

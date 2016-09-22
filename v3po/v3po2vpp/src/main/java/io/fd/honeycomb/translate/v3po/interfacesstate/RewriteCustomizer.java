@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
@@ -29,7 +29,6 @@ import io.fd.honeycomb.translate.v3po.util.TagRewriteOperation;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.CVlan;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qTagVlanType;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.Dot1qVlanId;
@@ -89,7 +88,7 @@ public class RewriteCustomizer extends FutureJVppCustomizer
 
         final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, subInterfaceName,
                 interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache());
-        LOG.debug("VPP sub-interface details: {}", ReflectionToStringBuilder.toString(iface));
+        LOG.debug("VPP sub-interface details: {}", iface);
 
         checkState(iface.subId != 0, "Interface returned by the VPP is not a sub-interface");
 

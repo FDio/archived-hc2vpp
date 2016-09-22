@@ -21,16 +21,15 @@ import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.parseMac;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.L2FibFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
@@ -111,7 +110,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
         }
 
         final L2FibAddDel l2FibRequest = createL2FibRequest(entry, bdId, swIfIndex, isAdd);
-        LOG.debug("Sending l2FibAddDel request: {}", ReflectionToStringBuilder.toString(l2FibRequest));
+        LOG.debug("Sending l2FibAddDel request: {}", l2FibRequest);
         final CompletionStage<L2FibAddDelReply> l2FibAddDelReplyCompletionStage =
             getFutureJVpp().l2FibAddDel(l2FibRequest);
 
