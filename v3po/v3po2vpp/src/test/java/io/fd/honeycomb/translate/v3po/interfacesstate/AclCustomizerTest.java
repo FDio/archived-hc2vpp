@@ -23,10 +23,9 @@ import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
-import java.util.concurrent.CompletableFuture;
+import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -89,13 +88,11 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
         final InstanceIdentifier<Acl> id = getAclId(IF_NAME);
         final AclBuilder builder = mock(AclBuilder.class);
 
-        final CompletableFuture<ClassifyTableByInterfaceReply> replyFuture = new CompletableFuture<>();
         final ClassifyTableByInterfaceReply reply = new ClassifyTableByInterfaceReply();
         reply.l2TableId = TABLE_INDEX;
         reply.ip4TableId = ~0;
         reply.ip6TableId = ~0;
-        replyFuture.complete(reply);
-        doReturn(replyFuture).when(api).classifyTableByInterface(any(ClassifyTableByInterface.class));
+        doReturn(future(reply)).when(api).classifyTableByInterface(any(ClassifyTableByInterface.class));
 
         doReturn(TABLE_NAME).when(classifyTableContext).getTableName(TABLE_INDEX, mappingContext);
 

@@ -27,13 +27,12 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -74,9 +73,6 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
         map.put(0, v);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, map);
 
-        final CompletableFuture<VxlanTunnelDetailsReplyDump> vxlanTunnelDetailsReplyDumpCompletionStage =
-            new CompletableFuture<>();
-
         final VxlanTunnelDetailsReplyDump value = new VxlanTunnelDetailsReplyDump();
         final VxlanTunnelDetails vxlanTunnelDetails = new VxlanTunnelDetails();
         vxlanTunnelDetails.isIpv6 = 0;
@@ -86,12 +82,8 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
         vxlanTunnelDetails.encapVrfId = 55;
         vxlanTunnelDetails.swIfIndex = 0;
         vxlanTunnelDetails.vni = 9;
-
         value.vxlanTunnelDetails = Lists.newArrayList(vxlanTunnelDetails);
-        vxlanTunnelDetailsReplyDumpCompletionStage.complete(value);
-
-        doReturn(vxlanTunnelDetailsReplyDumpCompletionStage).when(api).vxlanTunnelDump(any(VxlanTunnelDump.class));
-
+        doReturn(future(value)).when(api).vxlanTunnelDump(any(VxlanTunnelDump.class));
     }
 
     @Test

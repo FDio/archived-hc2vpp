@@ -25,8 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
@@ -36,7 +35,18 @@ import org.openvpp.jvpp.core.dto.LispEnableDisableReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
-public class LispCustomizerTest {
+public class LispCustomizerTest extends WriterCustomizerTest {
+
+    private LispCustomizer customizer;
+
+    @Override
+    public void setUp() {
+        customizer = new LispCustomizer(api);
+    }
+
+    private void whenlispEnableDisableThenSuccess() {
+        when(api.lispEnableDisable(any(LispEnableDisable.class))).thenReturn(future(new LispEnableDisableReply()));
+    }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
@@ -44,22 +54,14 @@ public class LispCustomizerTest {
     }
 
     @Test
-    public void testWriteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
-        FutureJVppCore fakeJvpp = mock(FutureJVppCore.class);
+    public void testWriteCurrentAttributes() throws WriteFailedException {
         Lisp intf = new LispBuilder().setEnable(true).build();
 
+        whenlispEnableDisableThenSuccess();
+        customizer.writeCurrentAttributes(null, intf, null);
+
         ArgumentCaptor<LispEnableDisable> mappingCaptor = ArgumentCaptor.forClass(LispEnableDisable.class);
-
-        LispEnableDisableReply fakeReply = new LispEnableDisableReply();
-
-        CompletableFuture<LispEnableDisableReply> completeFuture = new CompletableFuture<>();
-        completeFuture.complete(fakeReply);
-
-        when(fakeJvpp.lispEnableDisable(any(LispEnableDisable.class))).thenReturn(completeFuture);
-
-        new LispCustomizer(fakeJvpp).writeCurrentAttributes(null, intf, null);
-
-        verify(fakeJvpp, times(1)).lispEnableDisable(mappingCaptor.capture());
+        verify(api, times(1)).lispEnableDisable(mappingCaptor.capture());
 
         LispEnableDisable request = mappingCaptor.getValue();
 
@@ -69,26 +71,18 @@ public class LispCustomizerTest {
 
     @Test(expected = NullPointerException.class)
     public void testUpdateCurrentAttributesNullData() throws WriteFailedException {
-        new LispCustomizer(mock(FutureJVppCore.class)).updateCurrentAttributes(null, null, null, null);
+        customizer.updateCurrentAttributes(null, null, null, null);
     }
 
     @Test
-    public void testUpdateCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
-        FutureJVppCore fakeJvpp = mock(FutureJVppCore.class);
+    public void testUpdateCurrentAttributes() throws WriteFailedException {
         Lisp lisp = new LispBuilder().setEnable(true).build();
 
+        whenlispEnableDisableThenSuccess();
+        customizer.updateCurrentAttributes(null, null, lisp, null);
+
         ArgumentCaptor<LispEnableDisable> lispCaptor = ArgumentCaptor.forClass(LispEnableDisable.class);
-
-        LispEnableDisableReply fakeReply = new LispEnableDisableReply();
-
-        CompletableFuture<LispEnableDisableReply> completeFuture = new CompletableFuture<>();
-        completeFuture.complete(fakeReply);
-
-        when(fakeJvpp.lispEnableDisable(any(LispEnableDisable.class))).thenReturn(completeFuture);
-
-        new LispCustomizer(fakeJvpp).updateCurrentAttributes(null, null, lisp, null);
-
-        verify(fakeJvpp, times(1)).lispEnableDisable(lispCaptor.capture());
+        verify(api, times(1)).lispEnableDisable(lispCaptor.capture());
 
         LispEnableDisable request = lispCaptor.getValue();
 
@@ -98,31 +92,22 @@ public class LispCustomizerTest {
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesNullData() throws WriteFailedException {
-        new LispCustomizer(mock(FutureJVppCore.class)).deleteCurrentAttributes(null, null, null);
+        customizer.deleteCurrentAttributes(null, null, null);
     }
 
     @Test
-    public void testDeleteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
-        FutureJVppCore fakeJvpp = mock(FutureJVppCore.class);
+    public void testDeleteCurrentAttributes() throws WriteFailedException {
         Lisp lisp = new LispBuilder().setEnable(true).build();
 
+        whenlispEnableDisableThenSuccess();
+        customizer.deleteCurrentAttributes(null, lisp, null);
+
         ArgumentCaptor<LispEnableDisable> lispCaptor = ArgumentCaptor.forClass(LispEnableDisable.class);
-
-        LispEnableDisableReply fakeReply = new LispEnableDisableReply();
-
-        CompletableFuture<LispEnableDisableReply> completeFuture = new CompletableFuture<>();
-        completeFuture.complete(fakeReply);
-
-        when(fakeJvpp.lispEnableDisable(any(LispEnableDisable.class))).thenReturn(completeFuture);
-
-        new LispCustomizer(fakeJvpp).deleteCurrentAttributes(null, lisp, null);
-
-        verify(fakeJvpp, times(1)).lispEnableDisable(lispCaptor.capture());
+        verify(api, times(1)).lispEnableDisable(lispCaptor.capture());
 
         LispEnableDisable request = lispCaptor.getValue();
 
         assertNotNull(request);
         assertEquals(0, request.isEn);
     }
-
 }

@@ -30,7 +30,6 @@ import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
@@ -112,10 +111,7 @@ public class ClassifySessionReaderTest extends
             new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
                 (byte) 0x05, (byte) 0x07, 0x00, 0x00, 0x00, 0x00};
         dump.classifySessionDetails = Arrays.asList(details1, details2);
-
-        final CompletableFuture<ClassifySessionDetailsReplyDump> replyFuture = new CompletableFuture<>();
-        replyFuture.complete(dump);
-        doReturn(replyFuture).when(api).classifySessionDump(any(ClassifySessionDump.class));
+        doReturn(future(dump)).when(api).classifySessionDump(any(ClassifySessionDump.class));
 
         when(classifierContext.containsTable(TABLE_NAME, mappingContext)).thenReturn(true);
         when(classifierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);

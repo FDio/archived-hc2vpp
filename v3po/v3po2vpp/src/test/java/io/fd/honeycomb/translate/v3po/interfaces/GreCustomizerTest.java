@@ -25,24 +25,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.google.common.net.InetAddresses;
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -78,24 +69,14 @@ public class GreCustomizerTest extends WriterCustomizerTest {
         customizer = new GreCustomizer(api, new NamingContext("generateInterfaceNAme", IFC_TEST_INSTANCE));
     }
 
-    private void whenGreAddDelTunnelThenSuccess()
-        throws ExecutionException, InterruptedException, VppInvocationException, TimeoutException {
-        final CompletionStage<GreAddDelTunnelReply> replyCS = mock(CompletionStage.class);
-        final CompletableFuture<GreAddDelTunnelReply> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
+    private void whenGreAddDelTunnelThenSuccess() {
         final GreAddDelTunnelReply reply = new GreAddDelTunnelReply();
         reply.swIfIndex = IFACE_ID;
-        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
-        when(api.greAddDelTunnel(any(GreAddDelTunnel.class))).thenReturn(replyCS);
+        doReturn(future(reply)).when(api).greAddDelTunnel(any(GreAddDelTunnel.class));
     }
 
-    /**
-     * Failure response send
-     */
-    private void whenGreAddDelTunnelThenFailure()
-            throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<GreAddDelTunnelReply>createFutureException()).when(api)
-                .greAddDelTunnel(any(GreAddDelTunnel.class));
+    private void whenGreAddDelTunnelThenFailure() {
+        doReturn(failedFuture()).when(api).greAddDelTunnel(any(GreAddDelTunnel.class));
     }
 
     private GreAddDelTunnel verifyGreAddDelTunnelWasInvoked(final Gre gre) throws VppInvocationException {
@@ -121,16 +102,12 @@ public class GreCustomizerTest extends WriterCustomizerTest {
         assertEquals(DEL_GRE, actual.isAdd);
     }
 
-    private static Gre generateGre(long vni) {
+    private static Gre generateGre() {
         final GreBuilder builder = new GreBuilder();
         builder.setSrc(new IpAddress(new Ipv4Address("192.168.20.10")));
         builder.setDst(new IpAddress(new Ipv4Address("192.168.20.11")));
         builder.setOuterFibId(Long.valueOf(123));
         return builder.build();
-    }
-
-    private static Gre generateGre() {
-        return generateGre(Long.valueOf(11));
     }
 
     @Test
@@ -184,7 +161,7 @@ public class GreCustomizerTest extends WriterCustomizerTest {
     @Test
     public void testUpdateCurrentAttributes() throws Exception {
         try {
-            customizer.updateCurrentAttributes(id, generateGre(10), generateGre(11), writeContext);
+            customizer.updateCurrentAttributes(id, generateGre(), generateGre(), writeContext);
         } catch (WriteFailedException.UpdateFailedException e) {
             assertEquals(UnsupportedOperationException.class, e.getCause().getClass());
             return;

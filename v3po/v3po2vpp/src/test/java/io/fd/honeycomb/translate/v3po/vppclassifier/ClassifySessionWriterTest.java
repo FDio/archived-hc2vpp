@@ -16,8 +16,6 @@
 
 package io.fd.honeycomb.translate.v3po.vppclassifier;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -27,13 +25,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.OpaqueIndex;
@@ -50,7 +44,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelSessionReply;
-import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
 
 public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
@@ -92,36 +85,13 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
             .child(ClassifySession.class, new ClassifySessionKey(new HexString(match)));
     }
 
-    private void whenClassifyAddDelSessionThenSuccess() throws ExecutionException, InterruptedException {
-        final CompletableFuture<ClassifyAddDelSessionReply> replyFuture = new CompletableFuture<>();
-        replyFuture.complete(new ClassifyAddDelSessionReply());
-        doReturn(replyFuture).when(api).classifyAddDelSession(any(ClassifyAddDelSession.class));
-    }
-
-    private void whenClassifyAddDelSessionThenFailure() throws ExecutionException, InterruptedException {
-        doReturn(TestHelperUtils.<L2InterfaceVlanTagRewriteReply>createFutureException()).when(api)
+    private void whenClassifyAddDelSessionThenSuccess() {
+        doReturn(future(new ClassifyAddDelSessionReply())).when(api)
             .classifyAddDelSession(any(ClassifyAddDelSession.class));
     }
 
-    private void verifyClassifyAddDelSessionWasInvoked(final ClassifyAddDelSession expected) {
-        ArgumentCaptor<ClassifyAddDelSession> argumentCaptor = ArgumentCaptor.forClass(ClassifyAddDelSession.class);
-        verify(api).classifyAddDelSession(argumentCaptor.capture());
-        final ClassifyAddDelSession actual = argumentCaptor.getValue();
-        assertEquals(expected.opaqueIndex, actual.opaqueIndex);
-        assertEquals(expected.isAdd, actual.isAdd);
-        assertEquals(expected.tableIndex, actual.tableIndex);
-        assertEquals(expected.hitNextIndex, actual.hitNextIndex);
-        assertArrayEquals(expected.match, actual.match);
-        assertEquals(expected.advance, actual.advance);
-    }
-
-    private void verifyClassifyAddDelSessionDeleteWasInvoked(final ClassifyAddDelSession expected) {
-        ArgumentCaptor<ClassifyAddDelSession> argumentCaptor = ArgumentCaptor.forClass(ClassifyAddDelSession.class);
-        verify(api).classifyAddDelSession(argumentCaptor.capture());
-        final ClassifyAddDelSession actual = argumentCaptor.getValue();
-        assertEquals(expected.opaqueIndex, actual.opaqueIndex);
-        assertEquals(expected.isAdd, actual.isAdd);
-        assertEquals(expected.tableIndex, actual.tableIndex);
+    private void whenClassifyAddDelSessionThenFailure() {
+        doReturn(failedFuture()).when(api).classifyAddDelSession(any(ClassifyAddDelSession.class));
     }
 
     private static ClassifyAddDelSession generateClassifyAddDelSession(final byte isAdd, final int tableIndex,
@@ -148,7 +118,7 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
         customizer.writeCurrentAttributes(id, classifySession, writeContext);
 
-        verifyClassifyAddDelSessionWasInvoked(generateClassifyAddDelSession((byte) 1, TABLE_INDEX, SESSION_INDEX));
+        verify(api).classifyAddDelSession(generateClassifyAddDelSession((byte) 1, TABLE_INDEX, SESSION_INDEX));
     }
 
     @Test
@@ -163,7 +133,7 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
             customizer.writeCurrentAttributes(id, classifySession, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
-            verifyClassifyAddDelSessionWasInvoked(generateClassifyAddDelSession((byte) 1, TABLE_INDEX, SESSION_INDEX));
+            verify(api).classifyAddDelSession(generateClassifyAddDelSession((byte) 1, TABLE_INDEX, SESSION_INDEX));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -184,7 +154,7 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
         customizer.deleteCurrentAttributes(id, classifySession, writeContext);
 
-        verifyClassifyAddDelSessionDeleteWasInvoked(
+        verify(api).classifyAddDelSession(
             generateClassifyAddDelSession((byte) 0, TABLE_INDEX, SESSION_INDEX));
     }
 
@@ -200,7 +170,7 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
             customizer.deleteCurrentAttributes(id, classifySession, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
-            verifyClassifyAddDelSessionDeleteWasInvoked(
+            verify(api).classifyAddDelSession(
                 generateClassifyAddDelSession((byte) 0, TABLE_INDEX, SESSION_INDEX));
             return;
         }

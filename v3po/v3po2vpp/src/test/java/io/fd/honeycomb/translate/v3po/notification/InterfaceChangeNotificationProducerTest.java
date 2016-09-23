@@ -25,7 +25,7 @@ import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import java.util.concurrent.CompletableFuture;
+import io.fd.honeycomb.vpp.test.util.FutureProducer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -40,7 +40,7 @@ import org.openvpp.jvpp.core.dto.WantInterfaceEventsReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.openvpp.jvpp.core.notification.CoreNotificationRegistry;
 
-public class InterfaceChangeNotificationProducerTest {
+public class InterfaceChangeNotificationProducerTest implements FutureProducer {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "eth0";
@@ -68,13 +68,11 @@ public class InterfaceChangeNotificationProducerTest {
         doReturn(notificationListenerReg).when(notificationRegistry).registerSwInterfaceSetFlagsNotificationCallback(
             callbackArgumentCaptor.capture());
         ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        doReturn(future(new WantInterfaceEventsReply())).when(jVpp).wantInterfaceEvents(any(WantInterfaceEvents.class));
     }
 
     @Test
     public void testStart() throws Exception {
-        final CompletableFuture<WantInterfaceEventsReply> response = new CompletableFuture<>();
-        response.complete(new WantInterfaceEventsReply());
-        doReturn(response).when(jVpp).wantInterfaceEvents(any(WantInterfaceEvents.class));
         final InterfaceChangeNotificationProducer interfaceChangeNotificationProducer =
             new InterfaceChangeNotificationProducer(jVpp, namingContext, mappingContext);
 
@@ -91,9 +89,6 @@ public class InterfaceChangeNotificationProducerTest {
 
     @Test
     public void testNotification() throws Exception {
-        final CompletableFuture<WantInterfaceEventsReply> response = new CompletableFuture<>();
-        response.complete(new WantInterfaceEventsReply());
-        doReturn(response).when(jVpp).wantInterfaceEvents(any(WantInterfaceEvents.class));
         final InterfaceChangeNotificationProducer interfaceChangeNotificationProducer =
             new InterfaceChangeNotificationProducer(jVpp, namingContext, mappingContext);
 

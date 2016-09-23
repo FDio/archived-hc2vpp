@@ -25,11 +25,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -46,7 +44,6 @@ import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.L2FibAddDel;
 import org.openvpp.jvpp.core.dto.L2FibAddDelReply;
-import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
 
 public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
     private static final String BD_CTX_NAME = "bd-test-instance";
@@ -76,15 +73,11 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
     }
 
     private void whenL2FibAddDelThenSuccess() {
-        final CompletableFuture<L2FibAddDelReply> replyFuture = new CompletableFuture<>();
-        final L2FibAddDelReply reply = new L2FibAddDelReply();
-        replyFuture.complete(reply);
-        doReturn(replyFuture).when(api).l2FibAddDel(any(L2FibAddDel.class));
+        doReturn(future(new L2FibAddDelReply())).when(api).l2FibAddDel(any(L2FibAddDel.class));
     }
 
     private void whenL2FibAddDelThenFailure() {
-        doReturn(TestHelperUtils.<L2InterfaceVlanTagRewriteReply>createFutureException()).when(api)
-            .l2FibAddDel(any(L2FibAddDel.class));
+        doReturn(failedFuture()).when(api).l2FibAddDel(any(L2FibAddDel.class));
     }
 
     private L2FibAddDel generateL2FibAddDelRequest(final long mac, final byte isAdd) {

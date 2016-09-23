@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
-import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
@@ -53,15 +52,13 @@ public class VersionCustomizerTest extends ReaderCustomizerTest<Version, Version
 
     @Test
     public void testReadCurrentAttributes() throws Exception {
-        final CompletableFuture<ShowVersionReply> replyFuture = new CompletableFuture<>();
         final ShowVersionReply reply = new ShowVersionReply();
         reply.version = new byte[] {};
         reply.program = new byte[] {};
         reply.buildDate = new byte[] {};
         reply.buildDirectory = new byte[] {};
-        replyFuture.complete(reply);
 
-        when(api.showVersion(any(ShowVersion.class))).thenReturn(replyFuture);
+        when(api.showVersion(any(ShowVersion.class))).thenReturn(future(reply));
         getCustomizer().readCurrentAttributes(InstanceIdentifier.create(Version.class), new VersionBuilder(), ctx);
         verify(api).showVersion(any(ShowVersion.class));
     }

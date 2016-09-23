@@ -18,15 +18,16 @@ package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.InterfaceTestUtils;
-import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.SwInterfaceDump;
 
 public class SubInterfaceCustomizerTest extends
         ListReaderCustomizerTest<SubInterface, SubInterfaceKey, SubInterfaceBuilder> {
@@ -130,7 +133,10 @@ public class SubInterfaceCustomizerTest extends
         iface.subId = VLAN_IF_ID;
         iface.supSwIfIndex = SUPER_IF_INDEX;
         final List<SwInterfaceDetails> ifaces = Collections.singletonList(iface);
-        InterfaceTestUtils.whenSwInterfaceDumpThenReturn(api, ifaces);
+
+        final SwInterfaceDetailsReplyDump reply = new SwInterfaceDetailsReplyDump();
+        reply.swInterfaceDetails = ifaces;
+        when(api.swInterfaceDump(any(SwInterfaceDump.class))).thenReturn(future(reply));
 
         final List<SubInterfaceKey> allIds =
                 getCustomizer().getAllIds(getSubInterfaceId(SUPER_IF_NAME, VLAN_IF_ID), ctx);

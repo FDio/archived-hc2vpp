@@ -23,27 +23,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.net.InetAddresses;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -78,36 +69,21 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
     public void setUp() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel.class);
-        // TODO HONEYCOMB-116 create base class for tests using vppApi
-        NamingContext namingContext = new NamingContext("generateInterfaceNAme", "test-instance");
-        final ModificationCache toBeReturned = new ModificationCache();
-        doReturn(toBeReturned).when(writeContext).getModificationCache();
-        doReturn(mappingContext).when(writeContext).getMappingContext();
 
-        customizer = new VxlanCustomizer(api, namingContext, disableContext);
+        customizer =
+            new VxlanCustomizer(api, new NamingContext("generateInterfaceNAme", "test-instance"), disableContext);
 
         ifaceName = "eth0";
         id = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(ifaceName))
             .augmentation(VppInterfaceAugmentation.class).child(Vxlan.class);
     }
 
-    private void whenVxlanAddDelTunnelThenSuccess()
-        throws ExecutionException, InterruptedException, VppInvocationException, TimeoutException {
-        final CompletionStage<VxlanAddDelTunnelReply> replyCS = mock(CompletionStage.class);
-        final CompletableFuture<VxlanAddDelTunnelReply> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
-        final VxlanAddDelTunnelReply reply = new VxlanAddDelTunnelReply();
-        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
-        when(api.vxlanAddDelTunnel(any(VxlanAddDelTunnel.class))).thenReturn(replyCS);
+    private void whenVxlanAddDelTunnelThenSuccess() {
+        when(api.vxlanAddDelTunnel(any(VxlanAddDelTunnel.class))).thenReturn(future(new VxlanAddDelTunnelReply()));
     }
 
-    /**
-     * Failure response send
-     */
-    private void whenVxlanAddDelTunnelThenFailure()
-        throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<VxlanAddDelTunnelReply>createFutureException()).when(api)
-            .vxlanAddDelTunnel(any(VxlanAddDelTunnel.class));
+    private void whenVxlanAddDelTunnelThenFailure() {
+        doReturn(failedFuture()).when(api).vxlanAddDelTunnel(any(VxlanAddDelTunnel.class));
     }
 
     private VxlanAddDelTunnel verifyVxlanAddDelTunnelWasInvoked(final Vxlan vxlan) throws VppInvocationException {

@@ -31,7 +31,6 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -48,27 +47,26 @@ import org.openvpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 
 public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
-    private NamingContext locatorSetContext;
+    private LocatorSetCustomizer customizer;
 
     @Override
     public void setUp() {
-        locatorSetContext = new NamingContext("locator-set", "instance");
+        customizer = new LocatorSetCustomizer(api, new NamingContext("locator-set", "instance"));
     }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
-        new LocatorSetCustomizer(api, locatorSetContext).writeCurrentAttributes(null, null, null);
+        customizer.writeCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesBadData() throws WriteFailedException {
-        new LocatorSetCustomizer(api, locatorSetContext)
+        customizer
                 .writeCurrentAttributes(null, mock(LocatorSet.class), null);
     }
 
     @Test
     public void testWriteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
-
         LocatorSet locatorSet = new LocatorSetBuilder()
                 .setName("Locator")
                 .setInterface(Arrays.asList(new InterfaceBuilder().build()))
@@ -80,12 +78,7 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
         ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
 
-        LispAddDelLocatorSetReply fakeReply = new LispAddDelLocatorSetReply();
-
-        CompletableFuture<LispAddDelLocatorSetReply> completeFuture = new CompletableFuture<>();
-        completeFuture.complete(fakeReply);
-
-        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(completeFuture);
+        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(future(new LispAddDelLocatorSetReply()));
         when(writeContext.readAfter(validId)).thenReturn(Optional.of(locatorSet));
 
         final LispLocatorSetDetailsReplyDump reply = new LispLocatorSetDetailsReplyDump();
@@ -95,7 +88,7 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
         cache.put(io.fd.honeycomb.lisp.translate.read.LocatorSetCustomizer.LOCATOR_SETS_CACHE_ID, reply);
 
-        new LocatorSetCustomizer(api, locatorSetContext).writeCurrentAttributes(validId, locatorSet, writeContext);
+        customizer.writeCurrentAttributes(validId, locatorSet, writeContext);
 
         verify(api, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
 
@@ -108,37 +101,30 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws WriteFailedException {
-        new LocatorSetCustomizer(api, locatorSetContext).updateCurrentAttributes(null, null, null, null);
+        customizer.updateCurrentAttributes(null, null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesNullData() throws WriteFailedException {
-        new LocatorSetCustomizer(api, locatorSetContext).deleteCurrentAttributes(null, null, null);
+        customizer.deleteCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesBadData() throws WriteFailedException {
-        new LocatorSetCustomizer(api, locatorSetContext)
-                .deleteCurrentAttributes(null, mock(LocatorSet.class), null);
+        customizer.deleteCurrentAttributes(null, mock(LocatorSet.class), null);
     }
 
     @Test
     public void testDeleteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
-
         LocatorSet locatorSet = new LocatorSetBuilder()
                 .setName("Locator")
                 .build();
 
         ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
 
-        LispAddDelLocatorSetReply fakeReply = new LispAddDelLocatorSetReply();
+        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(future(new LispAddDelLocatorSetReply()));
 
-        CompletableFuture<LispAddDelLocatorSetReply> completeFuture = new CompletableFuture<>();
-        completeFuture.complete(fakeReply);
-
-        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(completeFuture);
-
-        new LocatorSetCustomizer(api, locatorSetContext).deleteCurrentAttributes(null, locatorSet, writeContext);
+        customizer.deleteCurrentAttributes(null, locatorSet, writeContext);
 
         verify(api, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
 

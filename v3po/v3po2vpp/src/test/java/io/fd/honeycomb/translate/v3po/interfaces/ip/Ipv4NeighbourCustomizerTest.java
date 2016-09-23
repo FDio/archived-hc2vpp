@@ -17,21 +17,20 @@
 package io.fd.honeycomb.translate.v3po.interfaces.ip;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.io.BaseEncoding;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -61,9 +60,7 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest {
         customizer = new Ipv4NeighbourCustomizer(api, new NamingContext("prefix", IFC_CTX_NAME));
 
         requestCaptor = ArgumentCaptor.forClass(IpNeighborAddDel.class);
-        CompletableFuture<IpNeighborAddDelReply> future = new CompletableFuture<>();
-        future.complete(new IpNeighborAddDelReply());
-        when(api.ipNeighborAddDel(Mockito.any(IpNeighborAddDel.class))).thenReturn(future);
+        when(api.ipNeighborAddDel(any())).thenReturn(future(new IpNeighborAddDelReply()));
     }
 
     @Test

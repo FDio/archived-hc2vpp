@@ -37,6 +37,10 @@
         </dependency>
         <dependency>
             <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-registry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
             <artifactId>jvpp-core</artifactId>
         </dependency>
         <dependency>

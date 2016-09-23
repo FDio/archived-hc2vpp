@@ -23,14 +23,12 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -42,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.BridgeDomainDetails;
 import org.openvpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.BridgeDomainDump;
@@ -86,15 +83,11 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
     }
 
     private void whenBridgeDomainSwIfDumpThenReturn(final List<BridgeDomainSwIfDetails> bdSwIfList,
-                                                    final List<BridgeDomainDetails> bridgeDomainDetailses)
-        throws ExecutionException, InterruptedException, VppInvocationException {
+                                                    final List<BridgeDomainDetails> bridgeDomainDetailses) {
         final BridgeDomainDetailsReplyDump reply = new BridgeDomainDetailsReplyDump();
         reply.bridgeDomainSwIfDetails = bdSwIfList;
         reply.bridgeDomainDetails = bridgeDomainDetailses;
-
-        final CompletableFuture<BridgeDomainDetailsReplyDump> replyFuture = new CompletableFuture<>();
-        replyFuture.complete(reply);
-        when(api.bridgeDomainSwIfDump(any(BridgeDomainDump.class))).thenReturn(replyFuture);
+        when(api.bridgeDomainSwIfDump(any(BridgeDomainDump.class))).thenReturn(future(reply));
     }
 
 

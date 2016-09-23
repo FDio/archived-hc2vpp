@@ -26,14 +26,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.CVlan;
@@ -163,47 +160,19 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
             .child(SubInterface.class, new SubInterfaceKey(index));
     }
 
-    private void whenCreateSubifThenSuccess() throws ExecutionException, InterruptedException, VppBaseCallException {
-        final CompletableFuture<CreateSubifReply> replyFuture = new CompletableFuture<>();
-        final CreateSubifReply reply = new CreateSubifReply();
-        replyFuture.complete(reply);
-        doReturn(replyFuture).when(api).createSubif(any(CreateSubif.class));
+    private void whenCreateSubifThenSuccess() {
+        doReturn(future(new CreateSubifReply())).when(api).createSubif(any(CreateSubif.class));
     }
 
     /**
      * Failure response send
      */
-    private void whenCreateSubifThenFailure() throws ExecutionException, InterruptedException, VppBaseCallException {
-        doReturn(TestHelperUtils.<CreateSubifReply>createFutureException()).when(api)
-            .createSubif(any(CreateSubif.class));
+    private void whenCreateSubifThenFailure() {
+        doReturn(failedFuture()).when(api).createSubif(any(CreateSubif.class));
     }
 
-    private void whenSwInterfaceSetFlagsThenSuccess()
-        throws ExecutionException, InterruptedException, VppBaseCallException {
-        final CompletableFuture<SwInterfaceSetFlagsReply> replyFuture = new CompletableFuture<>();
-        final SwInterfaceSetFlagsReply reply = new SwInterfaceSetFlagsReply();
-        replyFuture.complete(reply);
-        doReturn(replyFuture).when(api).swInterfaceSetFlags(any(SwInterfaceSetFlags.class));
-    }
-
-    private CreateSubif verifyCreateSubifWasInvoked(final CreateSubif expected) throws VppBaseCallException {
-        ArgumentCaptor<CreateSubif> argumentCaptor = ArgumentCaptor.forClass(CreateSubif.class);
-        verify(api).createSubif(argumentCaptor.capture());
-        final CreateSubif actual = argumentCaptor.getValue();
-
-        assertEquals(expected.swIfIndex, actual.swIfIndex);
-        assertEquals(expected.subId, actual.subId);
-        assertEquals(expected.noTags, actual.noTags);
-        assertEquals(expected.oneTag, actual.oneTag);
-        assertEquals(expected.twoTags, actual.twoTags);
-        assertEquals(expected.dot1Ad, actual.dot1Ad);
-        assertEquals(expected.exactMatch, actual.exactMatch);
-        assertEquals(expected.defaultSub, actual.defaultSub);
-        assertEquals(expected.outerVlanIdAny, actual.outerVlanIdAny);
-        assertEquals(expected.innerVlanIdAny, actual.innerVlanIdAny);
-        assertEquals(expected.outerVlanId, actual.outerVlanId);
-        assertEquals(expected.innerVlanId, actual.innerVlanId);
-        return actual;
+    private void whenSwInterfaceSetFlagsThenSuccess() {
+        doReturn(future(new SwInterfaceSetFlagsReply())).when(api).swInterfaceSetFlags(any(SwInterfaceSetFlags.class));
     }
 
     private SwInterfaceSetFlags verifySwInterfaceSetFlagsWasInvoked(final SwInterfaceSetFlags expected)
@@ -227,10 +196,10 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 
         customizer.writeCurrentAttributes(id, subInterface, writeContext);
 
-        verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
+        verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
         verify(mappingContext)
             .put(eq(ContextTestUtils.getMappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
-                    ContextTestUtils.getMapping(SUB_IFACE_NAME, 0).get()));
+                ContextTestUtils.getMapping(SUB_IFACE_NAME, 0).get()));
     }
 
     @Test
@@ -243,10 +212,10 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 
         customizer.writeCurrentAttributes(id, subInterface, writeContext);
 
-        verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ANY_ID, true));
+        verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ANY_ID, true));
         verify(mappingContext)
             .put(eq(ContextTestUtils.getMappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
-                    ContextTestUtils.getMapping(SUB_IFACE_NAME, 0).get()));
+                ContextTestUtils.getMapping(SUB_IFACE_NAME, 0).get()));
     }
 
     @Test
@@ -260,7 +229,7 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
             customizer.writeCurrentAttributes(id, subInterface, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
-            verifyCreateSubifWasInvoked(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
+            verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
             verify(mappingContext, times(0)).put(
                 eq(ContextTestUtils.getMappingIid(SUPER_IF_NAME, IFC_TEST_INSTANCE)),
                 eq(ContextTestUtils.getMapping(SUPER_IF_NAME, 0).get()));

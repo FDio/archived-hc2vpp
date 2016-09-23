@@ -30,7 +30,6 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
@@ -105,9 +104,7 @@ public class ClassifyTableReaderTest extends
 
     @Test
     public void testRead() throws ReadFailedException {
-        final CompletableFuture<ClassifyTableInfoReply> replyFuture = new CompletableFuture<>();
-        replyFuture.complete(generateClassifyTableInfoReply());
-        doReturn(replyFuture).when(api).classifyTableInfo(any(ClassifyTableInfo.class));
+        doReturn(future(generateClassifyTableInfoReply())).when(api).classifyTableInfo(any(ClassifyTableInfo.class));
 
         when(classifierContext.containsTable(TABLE_NAME_1, mappingContext)).thenReturn(true);
         when(classifierContext.getTableIndex(TABLE_NAME_1, mappingContext)).thenReturn(TABLE_INDEX_1);
@@ -121,11 +118,9 @@ public class ClassifyTableReaderTest extends
 
     @Test
     public void testGetAllIds() throws ReadFailedException {
-        final CompletableFuture<ClassifyTableIdsReply> replyFuture = new CompletableFuture<>();
         final ClassifyTableIdsReply reply = new ClassifyTableIdsReply();
         reply.ids = new int[] {1, 2};
-        replyFuture.complete(reply);
-        doReturn(replyFuture).when(api).classifyTableIds(any(ClassifyTableIds.class));
+        doReturn(future(reply)).when(api).classifyTableIds(any(ClassifyTableIds.class));
 
         when(classifierContext.getTableName(TABLE_INDEX_1, mappingContext)).thenReturn(TABLE_NAME_1);
         when(classifierContext.getTableName(TABLE_INDEX_2, mappingContext)).thenReturn(TABLE_NAME_2);

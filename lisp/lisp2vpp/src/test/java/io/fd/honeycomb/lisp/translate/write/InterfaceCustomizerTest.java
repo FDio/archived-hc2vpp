@@ -29,7 +29,6 @@ import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -56,8 +55,6 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest {
 
     private NamingContext namingContext;
     private InstanceIdentifier<Interface> id;
-    private CompletableFuture<LispAddDelLocatorReply> completeFuture;
-    private LispAddDelLocatorReply fakeReply;
     private Interface intf;
     private InterfaceCustomizer customizer;
 
@@ -78,14 +75,9 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest {
 
         customizer = new InterfaceCustomizer(api, namingContext);
 
-        fakeReply = new LispAddDelLocatorReply();
-
-        completeFuture = new CompletableFuture<>();
-        completeFuture.complete(fakeReply);
-
         when(mappingContext.read(Mockito.any()))
                 .thenReturn(Optional.of((DataObject) new MappingBuilder().setIndex(5).setName("interface").build()));
-        when(api.lispAddDelLocator(any(LispAddDelLocator.class))).thenReturn(completeFuture);
+        when(api.lispAddDelLocator(any(LispAddDelLocator.class))).thenReturn(future(new LispAddDelLocatorReply()));
     }
 
     @Test(expected = NullPointerException.class)

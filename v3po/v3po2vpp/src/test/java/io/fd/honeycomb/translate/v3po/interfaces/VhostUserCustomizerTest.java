@@ -22,26 +22,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -75,63 +67,6 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class);
         customizer = new VhostUserCustomizer(api, new NamingContext("generatedInterfaceName", "test-instance"));
-    }
-
-    private void whenCreateVhostUserIfThenSuccess()
-        throws ExecutionException, InterruptedException, VppInvocationException, TimeoutException {
-        final CompletionStage<CreateVhostUserIfReply> replyCS = mock(CompletionStage.class);
-        final CompletableFuture<CreateVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
-        final CreateVhostUserIfReply reply = new CreateVhostUserIfReply();
-        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
-        when(api.createVhostUserIf(any(CreateVhostUserIf.class))).thenReturn(replyCS);
-    }
-
-    /**
-     * Failure response send
-     */
-    private void whenCreateVhostUserIfThenFailure()
-        throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<CreateVhostUserIfReply>createFutureException()).when(api)
-            .createVhostUserIf(any(CreateVhostUserIf.class));
-    }
-
-    private void whenModifyVhostUserIfThenSuccess()
-        throws ExecutionException, InterruptedException, VppInvocationException, TimeoutException {
-        final CompletionStage<ModifyVhostUserIfReply> replyCS = mock(CompletionStage.class);
-        final CompletableFuture<ModifyVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
-        final ModifyVhostUserIfReply reply = new ModifyVhostUserIfReply();
-        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
-        when(api.modifyVhostUserIf(any(ModifyVhostUserIf.class))).thenReturn(replyCS);
-    }
-
-    /**
-     * Failure response send
-     */
-    private void whenModifyVhostUserIfThenFailure()
-        throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<ModifyVhostUserIfReply>createFutureException()).when(api)
-            .modifyVhostUserIf(any(ModifyVhostUserIf.class));
-    }
-
-    private void whenDeleteVhostUserIfThenSuccess()
-        throws ExecutionException, InterruptedException, VppInvocationException, TimeoutException {
-        final CompletionStage<DeleteVhostUserIfReply> replyCS = mock(CompletionStage.class);
-        final CompletableFuture<DeleteVhostUserIfReply> replyFuture = mock(CompletableFuture.class);
-        when(replyCS.toCompletableFuture()).thenReturn(replyFuture);
-        final DeleteVhostUserIfReply reply = new DeleteVhostUserIfReply();
-        when(replyFuture.get(anyLong(), eq(TimeUnit.SECONDS))).thenReturn(reply);
-        when(api.deleteVhostUserIf(any(DeleteVhostUserIf.class))).thenReturn(replyCS);
-    }
-
-    /**
-     * Failure response send
-     */
-    private void whenDeleteVhostUserIfThenFailure()
-        throws ExecutionException, InterruptedException, VppInvocationException {
-        doReturn(TestHelperUtils.<DeleteVhostUserIfReply>createFutureException()).when(api)
-            .deleteVhostUserIf(any(DeleteVhostUserIf.class));
     }
 
     private CreateVhostUserIf verifyCreateVhostUserIfWasInvoked(final VhostUser vhostUser)
@@ -182,7 +117,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
     public void testWriteCurrentAttributes() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Server, "socketName");
 
-        whenCreateVhostUserIfThenSuccess();
+        when(api.createVhostUserIf(any(CreateVhostUserIf.class))).thenReturn(future(new CreateVhostUserIfReply()));
 
         customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
         verifyCreateVhostUserIfWasInvoked(vhostUser);
@@ -194,7 +129,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
     public void testWriteCurrentAttributesFailed() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
 
-        whenCreateVhostUserIfThenFailure();
+        doReturn(failedFuture()).when(api).createVhostUserIf(any(CreateVhostUserIf.class));
 
         try {
             customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
@@ -213,7 +148,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName1");
         ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
-        whenModifyVhostUserIfThenSuccess();
+        when(api.modifyVhostUserIf(any(ModifyVhostUserIf.class))).thenReturn(future(new ModifyVhostUserIfReply()));
 
         customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, writeContext);
         verifyModifyVhostUserIfWasInvoked(vhostUserAfter, IFACE_ID);
@@ -225,7 +160,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName1");
         ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
-        whenModifyVhostUserIfThenFailure();
+        doReturn(failedFuture()).when(api).modifyVhostUserIf(any(ModifyVhostUserIf.class));
 
         try {
             customizer.updateCurrentAttributes(ID, vhostUserBefore, vhostUserAfter, writeContext);
@@ -242,7 +177,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
         ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
-        whenDeleteVhostUserIfThenSuccess();
+        when(api.deleteVhostUserIf(any(DeleteVhostUserIf.class))).thenReturn(future(new DeleteVhostUserIfReply()));
 
         customizer.deleteCurrentAttributes(ID, vhostUser, writeContext);
         verifyDeleteVhostUserIfWasInvoked(IFACE_ID);
@@ -254,7 +189,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
         ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
-        whenDeleteVhostUserIfThenFailure();
+        doReturn(failedFuture()).when(api).deleteVhostUserIf(any(DeleteVhostUserIf.class));
 
         try {
             customizer.deleteCurrentAttributes(ID, vhostUser, writeContext);

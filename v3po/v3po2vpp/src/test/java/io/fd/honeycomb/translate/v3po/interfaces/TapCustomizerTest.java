@@ -24,9 +24,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import java.util.concurrent.CompletableFuture;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -65,11 +64,9 @@ public class TapCustomizerTest extends WriterCustomizerTest {
 
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final CompletableFuture<Object> reply = new CompletableFuture<>();
                 final TapConnectReply t = new TapConnectReply();
                 t.swIfIndex = idx++;
-                reply.complete(t);
-                return reply;
+                return future(t);
             }
         }).when(api).tapConnect(any(TapConnect.class));
 
@@ -85,17 +82,13 @@ public class TapCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testModify() throws Exception {
-        final CompletableFuture<TapConnectReply> reply = new CompletableFuture<>();
         final TapConnectReply t = new TapConnectReply();
         t.swIfIndex = 0;
-        reply.complete(t);
-        doReturn(reply).when(api).tapConnect(any(TapConnect.class));
+        doReturn(future(t)).when(api).tapConnect(any(TapConnect.class));
 
-        final CompletableFuture<TapModifyReply> replyModif = new CompletableFuture<>();
         final TapModifyReply tmodif = new TapModifyReply();
         tmodif.swIfIndex = 0;
-        replyModif.complete(tmodif);
-        doReturn(replyModif).when(api).tapModify(any(TapModify.class));
+        doReturn(future(tmodif)).when(api).tapModify(any(TapModify.class));
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
 
@@ -111,16 +104,11 @@ public class TapCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDelete() throws Exception {
-        final CompletableFuture<TapConnectReply> reply = new CompletableFuture<>();
         final TapConnectReply t = new TapConnectReply();
         t.swIfIndex = 0;
-        reply.complete(t);
-        doReturn(reply).when(api).tapConnect(any(TapConnect.class));
+        doReturn(future(t)).when(api).tapConnect(any(TapConnect.class));
 
-        final CompletableFuture<TapDeleteReply> replyDelete = new CompletableFuture<>();
-        final TapDeleteReply tmodif = new TapDeleteReply();
-        replyDelete.complete(tmodif);
-        doReturn(replyDelete).when(api).tapDelete(any(TapDelete.class));
+        doReturn(future(new TapDeleteReply())).when(api).tapDelete(any(TapDelete.class));
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
         ContextTestUtils.mockMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);

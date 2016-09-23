@@ -22,6 +22,7 @@ import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.vpp.test.util.FutureProducer;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,7 +39,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * @param <D> Specific DataObject derived type (Identifiable), that is handled by this customizer
  * @param <B> Specific Builder for handled type (D)
  */
-public abstract class ReaderCustomizerTest<D extends DataObject, B extends Builder<D>> {
+public abstract class ReaderCustomizerTest<D extends DataObject, B extends Builder<D>> implements FutureProducer {
 
     @Mock
     protected FutureJVppCore api;

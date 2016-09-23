@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -32,39 +32,40 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfgBuilder;
 import org.openvpp.jvpp.core.dto.LispPitrSetLocatorSet;
 import org.openvpp.jvpp.core.dto.LispPitrSetLocatorSetReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
-public class PitrCfgCustomizerTest {
+public class PitrCfgCustomizerTest extends WriterCustomizerTest {
+
+    private PitrCfgCustomizer customizer;
+
+    @Override
+    public void setUp() {
+        customizer = new PitrCfgCustomizer(api);
+    }
+
+    private void whenLispPitrSetLocatorSetThenSuccess() {
+        when(api.lispPitrSetLocatorSet(any(LispPitrSetLocatorSet.class))).thenReturn(future(new LispPitrSetLocatorSetReply()));
+    }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
-        new PitrCfgCustomizer(mock(FutureJVppCore.class)).writeCurrentAttributes(null, null, null);
+        customizer.writeCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesBadData() throws WriteFailedException {
-        new PitrCfgCustomizer(mock(FutureJVppCore.class)).writeCurrentAttributes(null, mock(PitrCfg.class), null);
+        customizer.writeCurrentAttributes(null, mock(PitrCfg.class), null);
     }
 
     @Test
-    public void testWriteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
-        FutureJVppCore fakeJvpp = mock(FutureJVppCore.class);
-
-        PitrCfgCustomizer customizer = new PitrCfgCustomizer(fakeJvpp);
+    public void testWriteCurrentAttributes() throws WriteFailedException {
         PitrCfg cfg = new PitrCfgBuilder().setLocatorSet("Locator").build();
 
-        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
-
-        LispPitrSetLocatorSetReply fakeReply = new LispPitrSetLocatorSetReply();
-
-        CompletableFuture<LispPitrSetLocatorSetReply> finalStage = new CompletableFuture<>();
-        finalStage.complete(fakeReply);
-
-        when(fakeJvpp.lispPitrSetLocatorSet(any(LispPitrSetLocatorSet.class))).thenReturn(finalStage);
-
+        whenLispPitrSetLocatorSetThenSuccess();
         customizer.writeCurrentAttributes(null, cfg, null);
-        verify(fakeJvpp, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
+
+        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
+        verify(api, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
 
         LispPitrSetLocatorSet request = cfgCaptor.getValue();
         assertEquals(1, request.isAdd);
@@ -73,22 +74,14 @@ public class PitrCfgCustomizerTest {
 
     @Test
     public void testUpdateCurrentAttributes() throws WriteFailedException {
-        FutureJVppCore fakeJvpp = mock(FutureJVppCore.class);
-
-        PitrCfgCustomizer customizer = new PitrCfgCustomizer(fakeJvpp);
         PitrCfg cfg = new PitrCfgBuilder().setLocatorSet("Locator").build();
 
-        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
-
-        LispPitrSetLocatorSetReply fakeReply = new LispPitrSetLocatorSetReply();
-
-        CompletableFuture<LispPitrSetLocatorSetReply> finalStage = new CompletableFuture<>();
-        finalStage.complete(fakeReply);
-
-        when(fakeJvpp.lispPitrSetLocatorSet(any(LispPitrSetLocatorSet.class))).thenReturn(finalStage);
+        whenLispPitrSetLocatorSetThenSuccess();
 
         customizer.writeCurrentAttributes(null, cfg, null);
-        verify(fakeJvpp, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
+
+        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
+        verify(api, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
 
         LispPitrSetLocatorSet request = cfgCaptor.getValue();
         assertEquals(1, request.isAdd);
@@ -97,32 +90,24 @@ public class PitrCfgCustomizerTest {
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesNullData() throws WriteFailedException {
-        new PitrCfgCustomizer(mock(FutureJVppCore.class)).deleteCurrentAttributes(null, null, null);
+        customizer.deleteCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesBadData() throws WriteFailedException {
-        new PitrCfgCustomizer(mock(FutureJVppCore.class)).deleteCurrentAttributes(null, mock(PitrCfg.class), null);
+        customizer.deleteCurrentAttributes(null, mock(PitrCfg.class), null);
     }
 
     @Test
     public void testDeleteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
-        FutureJVppCore fakeJvpp = mock(FutureJVppCore.class);
-
-        PitrCfgCustomizer customizer = new PitrCfgCustomizer(fakeJvpp);
         PitrCfg cfg = new PitrCfgBuilder().setLocatorSet("Locator").build();
 
-        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
-
-        LispPitrSetLocatorSetReply fakeReply = new LispPitrSetLocatorSetReply();
-
-        CompletableFuture<LispPitrSetLocatorSetReply> finalStage = new CompletableFuture<>();
-        finalStage.complete(fakeReply);
-
-        when(fakeJvpp.lispPitrSetLocatorSet(any(LispPitrSetLocatorSet.class))).thenReturn(finalStage);
+        whenLispPitrSetLocatorSetThenSuccess();
 
         customizer.deleteCurrentAttributes(null, cfg, null);
-        verify(fakeJvpp, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
+
+        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
+        verify(api, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
 
         LispPitrSetLocatorSet request = cfgCaptor.getValue();
         assertEquals(0, request.isAdd);

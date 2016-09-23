@@ -28,7 +28,6 @@ import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -60,8 +59,6 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest {
     private MappingId mappingId;
     private InstanceIdentifier<LocalMapping> id;
     private LocalMapping mapping;
-    private LispAddDelLocalEidReply fakeReply;
-    private CompletableFuture<LispAddDelLocalEidReply> completeFuture;
     private LocalMappingCustomizer customizer;
     private EidMappingContext localMappingContext;
 
@@ -91,12 +88,9 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest {
                 .child(LocalMapping.class, new LocalMappingKey(new MappingId("local")))
                 .build();
 
-        fakeReply = new LispAddDelLocalEidReply();
-        completeFuture = new CompletableFuture<>();
-        completeFuture.complete(fakeReply);
         customizer = new LocalMappingCustomizer(api, localMappingContext);
 
-        when(api.lispAddDelLocalEid(any(LispAddDelLocalEid.class))).thenReturn(completeFuture);
+        when(api.lispAddDelLocalEid(any(LispAddDelLocalEid.class))).thenReturn(future(new LispAddDelLocalEidReply()));
         when(mappingContext.read(Mockito.any())).thenReturn(com.google.common.base.Optional
                 .of(new LocalMappingBuilder().setKey(key).setId(mappingId).setEid(eid).build()));
     }

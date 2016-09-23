@@ -28,7 +28,6 @@ import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -91,10 +90,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
         throws ExecutionException, InterruptedException, VppInvocationException {
         final L2FibTableEntryReplyDump reply = new L2FibTableEntryReplyDump();
         reply.l2FibTableEntry = l2FibTableEntryList;
-
-        final CompletableFuture<L2FibTableEntryReplyDump> replyFuture = new CompletableFuture<>();
-        replyFuture.complete(reply);
-        when(api.l2FibTableDump(any(L2FibTableDump.class))).thenReturn(replyFuture);
+        when(api.l2FibTableDump(any(L2FibTableDump.class))).thenReturn(future(reply));
     }
 
     @Test

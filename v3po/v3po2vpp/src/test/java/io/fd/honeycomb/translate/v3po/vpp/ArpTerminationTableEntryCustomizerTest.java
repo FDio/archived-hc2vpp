@@ -26,11 +26,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -89,15 +87,11 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     }
 
     private void whenBdIpMacAddDelThenSuccess() {
-        final CompletableFuture<BdIpMacAddDelReply> replyFuture = new CompletableFuture<>();
-        final BdIpMacAddDelReply reply = new BdIpMacAddDelReply();
-        replyFuture.complete(reply);
-        doReturn(replyFuture).when(api).bdIpMacAddDel(any(BdIpMacAddDel.class));
+        doReturn(future(new BdIpMacAddDelReply())).when(api).bdIpMacAddDel(any(BdIpMacAddDel.class));
     }
 
     private void whenBdIpMacAddDelThenFailure() {
-        doReturn(TestHelperUtils.<BdIpMacAddDelReply>createFutureException()).when(api)
-            .bdIpMacAddDel(any(BdIpMacAddDel.class));
+        doReturn(failedFuture()).when(api).bdIpMacAddDel(any(BdIpMacAddDel.class));
     }
 
     private BdIpMacAddDel generateBdIpMacAddDelRequest(final byte[] ipAddress, final byte[] macAddress,

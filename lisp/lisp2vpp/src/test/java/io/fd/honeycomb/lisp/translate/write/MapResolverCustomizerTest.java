@@ -18,14 +18,13 @@ package io.fd.honeycomb.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,41 +34,43 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolverBuilder;
 import org.openvpp.jvpp.core.dto.LispAddDelMapResolver;
 import org.openvpp.jvpp.core.dto.LispAddDelMapResolverReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
-public class MapResolverCustomizerTest {
+public class MapResolverCustomizerTest extends WriterCustomizerTest {
+
+    private MapResolverCustomizer customizer;
+
+    @Override
+    public void setUp() {
+        customizer = new MapResolverCustomizer(api);
+    }
+
+    private void whenLispAddDelMapResolverThenSuccess() {
+        when(api.lispAddDelMapResolver(any(LispAddDelMapResolver.class)))
+            .thenReturn(future(new LispAddDelMapResolverReply()));
+    }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
-        new MapResolverCustomizer(mock(FutureJVppCore.class)).writeCurrentAttributes(null, null, null);
+        customizer.writeCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesBadData() throws WriteFailedException {
-        new MapResolverCustomizer(mock(FutureJVppCore.class))
-                .writeCurrentAttributes(null, new MapResolverBuilder().build(), null);
+        customizer.writeCurrentAttributes(null, new MapResolverBuilder().build(), null);
     }
 
     @Test
-    public void testWriteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
-        FutureJVppCore fakeJvpp = mock(FutureJVppCore.class);
-
-        MapResolverCustomizer customizer = new MapResolverCustomizer(fakeJvpp);
+    public void testWriteCurrentAttributes() throws WriteFailedException {
         Ipv4Address address = new Ipv4Address("192.168.2.1");
         MapResolver resolver = new MapResolverBuilder().setIpAddress(new IpAddress(address)).build();
 
-        ArgumentCaptor<LispAddDelMapResolver> resolverCaptor = ArgumentCaptor.forClass(LispAddDelMapResolver.class);
-
-        LispAddDelMapResolverReply fakeReply = new LispAddDelMapResolverReply();
-
-        CompletableFuture<LispAddDelMapResolverReply> finalStage = new CompletableFuture<>();
-        finalStage.complete(fakeReply);
-
-        when(fakeJvpp.lispAddDelMapResolver(any(LispAddDelMapResolver.class))).thenReturn(finalStage);
+        whenLispAddDelMapResolverThenSuccess();
 
         customizer.writeCurrentAttributes(null, resolver, null);
-        verify(fakeJvpp, times(1)).lispAddDelMapResolver(resolverCaptor.capture());
+
+        ArgumentCaptor<LispAddDelMapResolver> resolverCaptor = ArgumentCaptor.forClass(LispAddDelMapResolver.class);
+        verify(api, times(1)).lispAddDelMapResolver(resolverCaptor.capture());
 
         LispAddDelMapResolver request = resolverCaptor.getValue();
         assertEquals(1, request.isAdd);
@@ -79,29 +80,20 @@ public class MapResolverCustomizerTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws WriteFailedException {
-        new MapResolverCustomizer(mock(FutureJVppCore.class)).updateCurrentAttributes(null, null, null, null);
+        customizer.updateCurrentAttributes(null, null, null, null);
     }
 
     @Test
     public void testDeleteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
-
-        FutureJVppCore fakeJvpp = mock(FutureJVppCore.class);
-
-        MapResolverCustomizer customizer = new MapResolverCustomizer(fakeJvpp);
         Ipv4Address address = new Ipv4Address("192.168.2.1");
         MapResolver resolver = new MapResolverBuilder().setIpAddress(new IpAddress(address)).build();
 
-        ArgumentCaptor<LispAddDelMapResolver> resolverCaptor = ArgumentCaptor.forClass(LispAddDelMapResolver.class);
-
-        LispAddDelMapResolverReply fakeReply = new LispAddDelMapResolverReply();
-
-        CompletableFuture<LispAddDelMapResolverReply> finalStage = new CompletableFuture<>();
-        finalStage.complete(fakeReply);
-
-        when(fakeJvpp.lispAddDelMapResolver(any(LispAddDelMapResolver.class))).thenReturn(finalStage);
+        whenLispAddDelMapResolverThenSuccess();
 
         customizer.deleteCurrentAttributes(null, resolver, null);
-        verify(fakeJvpp, times(1)).lispAddDelMapResolver(resolverCaptor.capture());
+
+        ArgumentCaptor<LispAddDelMapResolver> resolverCaptor = ArgumentCaptor.forClass(LispAddDelMapResolver.class);
+        verify(api, times(1)).lispAddDelMapResolver(resolverCaptor.capture());
 
         LispAddDelMapResolver request = resolverCaptor.getValue();
         assertEquals(0, request.isAdd);

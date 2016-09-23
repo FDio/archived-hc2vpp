@@ -17,23 +17,17 @@
 package io.fd.honeycomb.translate.v3po.interfaces;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -47,14 +41,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.InputAclSetInterface;
 import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
-import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
 
 public class AclCustomizerTest extends WriterCustomizerTest {
 
     @Mock
     private VppClassifierContextManager classifyTableContext;
 
-    private NamingContext interfaceContext;
     private AclCustomizer customizer;
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
@@ -65,15 +57,11 @@ public class AclCustomizerTest extends WriterCustomizerTest {
     private static final String ACL_TABLE_NAME = "table0";
 
     @Override
-    public void setUp() throws Exception {
-        initMocks(this);
-        interfaceContext = new NamingContext("generatedInterfaceName", IFC_TEST_INSTANCE);
+    public void setUp() {
         ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
-
-        doReturn(mappingContext).when(writeContext).getMappingContext();
-        customizer = new AclCustomizer(api, interfaceContext, classifyTableContext);
+        customizer = new AclCustomizer(api, new NamingContext("generatedInterfaceName", IFC_TEST_INSTANCE),
+            classifyTableContext);
     }
-
 
     private InstanceIdentifier<Acl> getAclId(final String name) {
         return InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(name)).augmentation(
@@ -87,36 +75,13 @@ public class AclCustomizerTest extends WriterCustomizerTest {
         return builder.build();
     }
 
-    private void whenInputAclSetInterfaceThenSuccess() throws ExecutionException, InterruptedException {
-        final CompletableFuture<InputAclSetInterfaceReply> replyFuture = new CompletableFuture<>();
-        final InputAclSetInterfaceReply reply = new InputAclSetInterfaceReply();
-        replyFuture.complete(reply);
-        doReturn(replyFuture).when(api).inputAclSetInterface(any(InputAclSetInterface.class));
-    }
-
-    private void whenInputAclSetInterfaceThenFailure() throws ExecutionException, InterruptedException {
-        doReturn(TestHelperUtils.<L2InterfaceVlanTagRewriteReply>createFutureException()).when(api)
+    private void whenInputAclSetInterfaceThenSuccess() {
+        doReturn(future(new InputAclSetInterfaceReply())).when(api)
             .inputAclSetInterface(any(InputAclSetInterface.class));
     }
 
-    private void verifyInputAclSetInterfaceWasInvoked(final InputAclSetInterface expected) {
-        final ArgumentCaptor<InputAclSetInterface> argumentCaptor = ArgumentCaptor.forClass(InputAclSetInterface.class);
-        verify(api).inputAclSetInterface(argumentCaptor.capture());
-        final InputAclSetInterface actual = argumentCaptor.getValue();
-        assertEquals(expected.swIfIndex, actual.swIfIndex);
-        assertEquals(expected.l2TableIndex, actual.l2TableIndex);
-        assertEquals(expected.ip4TableIndex, actual.ip4TableIndex);
-        assertEquals(expected.ip6TableIndex, actual.ip6TableIndex);
-        assertEquals(expected.isAdd, actual.isAdd);
-    }
-
-    private void verifyInputAclSetInterfaceDisableWasInvoked(final InputAclSetInterface expected) {
-        final ArgumentCaptor<InputAclSetInterface> argumentCaptor = ArgumentCaptor.forClass(InputAclSetInterface.class);
-        verify(api).inputAclSetInterface(argumentCaptor.capture());
-        final InputAclSetInterface actual = argumentCaptor.getValue();
-        assertEquals(expected.swIfIndex, actual.swIfIndex);
-        assertEquals(expected.l2TableIndex, actual.l2TableIndex);
-        assertEquals(0, actual.isAdd);
+    private void whenInputAclSetInterfaceThenFailure() {
+        doReturn(failedFuture()).when(api).inputAclSetInterface(any(InputAclSetInterface.class));
     }
 
     private static InputAclSetInterface generateInputAclSetInterface(final byte isAdd, final int ifIndex,
@@ -139,7 +104,7 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
         customizer.writeCurrentAttributes(id, acl, writeContext);
 
-        verifyInputAclSetInterfaceWasInvoked(generateInputAclSetInterface((byte) 1, IF_INDEX, ACL_TABLE_INDEX));
+        verify(api).inputAclSetInterface(generateInputAclSetInterface((byte) 1, IF_INDEX, ACL_TABLE_INDEX));
     }
 
     @Test
@@ -153,7 +118,7 @@ public class AclCustomizerTest extends WriterCustomizerTest {
             customizer.writeCurrentAttributes(id, acl, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
-            verifyInputAclSetInterfaceWasInvoked(generateInputAclSetInterface((byte) 1, IF_INDEX, ACL_TABLE_INDEX));
+            verify(api).inputAclSetInterface(generateInputAclSetInterface((byte) 1, IF_INDEX, ACL_TABLE_INDEX));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -168,7 +133,7 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
         customizer.deleteCurrentAttributes(id, acl, writeContext);
 
-        verifyInputAclSetInterfaceDisableWasInvoked(generateInputAclSetInterface((byte) 0, IF_INDEX, ACL_TABLE_INDEX));
+        verify(api).inputAclSetInterface(generateInputAclSetInterface((byte) 0, IF_INDEX, ACL_TABLE_INDEX));
     }
 
     @Test
@@ -182,8 +147,7 @@ public class AclCustomizerTest extends WriterCustomizerTest {
             customizer.deleteCurrentAttributes(id, acl, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
-            verifyInputAclSetInterfaceDisableWasInvoked(
-                generateInputAclSetInterface((byte) 0, IF_INDEX, ACL_TABLE_INDEX));
+            verify(api).inputAclSetInterface(generateInputAclSetInterface((byte) 0, IF_INDEX, ACL_TABLE_INDEX));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

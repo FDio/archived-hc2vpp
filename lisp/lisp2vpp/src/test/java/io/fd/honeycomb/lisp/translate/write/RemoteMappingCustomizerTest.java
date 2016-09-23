@@ -27,7 +27,6 @@ import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -61,8 +60,6 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest {
     private MappingId mappingId;
     private RemoteMappingCustomizer customizer;
     private RemoteMapping intf;
-    private LispAddDelRemoteMappingReply fakeReply;
-    private CompletableFuture<LispAddDelRemoteMappingReply> completeFuture;
     private InstanceIdentifier<RemoteMapping> id;
     private EidMappingContext remoteMappingContext;
 
@@ -78,7 +75,6 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest {
         final RemoteMappingKey key = new RemoteMappingKey(mappingId);
         remoteMappingContext = new EidMappingContext("remote");
 
-
         intf = new RemoteMappingBuilder()
                 .setEid(
                         eid)
@@ -90,12 +86,9 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest {
                 .child(RemoteMappings.class)
                 .child(RemoteMapping.class, key).build();
 
-        fakeReply = new LispAddDelRemoteMappingReply();
-        completeFuture = new CompletableFuture<>();
-        completeFuture.complete(fakeReply);
         customizer = new RemoteMappingCustomizer(api, remoteMappingContext);
 
-        when(api.lispAddDelRemoteMapping(Mockito.any())).thenReturn(completeFuture);
+        when(api.lispAddDelRemoteMapping(Mockito.any())).thenReturn(future(new LispAddDelRemoteMappingReply()));
         when(mappingContext.read(Mockito.any())).thenReturn(com.google.common.base.Optional
                 .of(new RemoteMappingBuilder().setKey(key).setId(mappingId).setEid(eid).build()));
     }

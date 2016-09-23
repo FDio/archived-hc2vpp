@@ -16,8 +16,6 @@
 
 package io.fd.honeycomb.translate.v3po.vppclassifier;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -26,13 +24,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.v3po.test.TestHelperUtils;
-import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.PacketHandlingAction;
@@ -46,7 +40,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
 import org.openvpp.jvpp.core.dto.ClassifyAddDelTableReply;
-import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
 
 public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
@@ -81,40 +74,18 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
             .child(ClassifyTable.class, new ClassifyTableKey(name));
     }
 
-    private void whenClassifyAddDelTableThenSuccess() throws ExecutionException, InterruptedException {
-        final CompletableFuture<ClassifyAddDelTableReply> replyFuture = new CompletableFuture<>();
+    private void whenClassifyAddDelTableThenSuccess() {
         final ClassifyAddDelTableReply reply = new ClassifyAddDelTableReply();
         reply.newTableIndex = TABLE_INDEX;
-        replyFuture.complete(reply);
-        doReturn(replyFuture).when(api).classifyAddDelTable(any(ClassifyAddDelTable.class));
+        doReturn(future(reply)).when(api).classifyAddDelTable(any(ClassifyAddDelTable.class));
     }
 
-    private void whenClassifyAddDelTableThenFailure() throws ExecutionException, InterruptedException {
-        doReturn(TestHelperUtils.<L2InterfaceVlanTagRewriteReply>createFutureException()).when(api)
-            .classifyAddDelTable(any(ClassifyAddDelTable.class));
+    private void whenClassifyAddDelTableThenFailure() {
+        doReturn(failedFuture()).when(api).classifyAddDelTable(any(ClassifyAddDelTable.class));
     }
 
-    private void verifyClassifyAddDelTableAddWasInvoked(final ClassifyAddDelTable expected) {
-        ArgumentCaptor<ClassifyAddDelTable> argumentCaptor = ArgumentCaptor.forClass(ClassifyAddDelTable.class);
-        verify(api).classifyAddDelTable(argumentCaptor.capture());
-        final ClassifyAddDelTable actual = argumentCaptor.getValue();
-        assertEquals(expected.isAdd, actual.isAdd);
-        assertEquals(~0, actual.tableIndex);
-        assertEquals(expected.nbuckets, actual.nbuckets);
-        assertEquals(expected.memorySize, actual.memorySize);
-        assertEquals(expected.skipNVectors, actual.skipNVectors);
-        assertEquals(expected.matchNVectors, actual.matchNVectors);
-        assertEquals(expected.nextTableIndex, actual.nextTableIndex);
-        assertEquals(expected.missNextIndex, actual.missNextIndex);
-        assertArrayEquals(expected.mask, actual.mask);
-    }
-
-    private void verifyClassifyAddDelTableDeleteWasInvoked(final ClassifyAddDelTable expected) {
-        ArgumentCaptor<ClassifyAddDelTable> argumentCaptor = ArgumentCaptor.forClass(ClassifyAddDelTable.class);
-        verify(api).classifyAddDelTable(argumentCaptor.capture());
-        final ClassifyAddDelTable actual = argumentCaptor.getValue();
-        assertEquals(expected.isAdd, actual.isAdd);
-        assertEquals(expected.tableIndex, actual.tableIndex);
+    private static ClassifyAddDelTable generateClassifyAddDelTable(final byte isAdd) {
+        return generateClassifyAddDelTable(isAdd, -1);
     }
 
     private static ClassifyAddDelTable generateClassifyAddDelTable(final byte isAdd, final int tableIndex) {
@@ -142,7 +113,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
         customizer.writeCurrentAttributes(id, classifyTable, writeContext);
 
-        verifyClassifyAddDelTableAddWasInvoked(generateClassifyAddDelTable((byte) 1, TABLE_INDEX));
+        verify(api).classifyAddDelTable(generateClassifyAddDelTable((byte) 1));
         verify(classifierContext)
             .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), mappingContext);
     }
@@ -158,7 +129,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
             customizer.writeCurrentAttributes(id, classifyTable, writeContext);
         } catch (WriteFailedException.CreateFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
-            verifyClassifyAddDelTableAddWasInvoked(generateClassifyAddDelTable((byte) 1, TABLE_INDEX));
+            verify(api).classifyAddDelTable(generateClassifyAddDelTable((byte) 1));
             verify(classifierContext, times(0))
                 .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), mappingContext);
             return;
@@ -177,7 +148,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
         customizer.deleteCurrentAttributes(id, classifyTable, writeContext);
 
-        verifyClassifyAddDelTableDeleteWasInvoked(generateClassifyAddDelTable((byte) 0, TABLE_INDEX));
+        verify(api).classifyAddDelTable(generateClassifyAddDelTable((byte) 0, TABLE_INDEX));
     }
 
     @Test
@@ -193,7 +164,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
             customizer.deleteCurrentAttributes(id, classifyTable, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
-            verifyClassifyAddDelTableDeleteWasInvoked(generateClassifyAddDelTable((byte) 0, TABLE_INDEX));
+            verify(api).classifyAddDelTable(generateClassifyAddDelTable((byte) 0, TABLE_INDEX));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

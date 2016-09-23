@@ -29,12 +29,11 @@ import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
-import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -136,12 +135,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         IpAddressDetailsReplyDump reply2 = new IpAddressDetailsReplyDump();
         reply2.ipAddressDetails = ImmutableList.of(detail2);
 
-        CompletableFuture<IpAddressDetailsReplyDump> future = new CompletableFuture<>();
-        future.complete(reply);
-        CompletableFuture<IpAddressDetailsReplyDump> future2 = new CompletableFuture<>();
-        future2.complete(reply2);
-
-        when(api.ipAddressDump(Mockito.any(IpAddressDump.class))).thenReturn(future).thenReturn(future2);
+        when(api.ipAddressDump(Mockito.any(IpAddressDump.class))).thenReturn(future(reply)).thenReturn(future(reply2));
         when(ctx.getModificationCache()).thenReturn(cache);
 
         final InstanceIdentifier<Address> id = getId("192.168.2.1", IFACE_NAME);
@@ -179,13 +173,8 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
 
         IpAddressDetailsReplyDump reply = new IpAddressDetailsReplyDump();
         reply.ipAddressDetails = ImmutableList.of(detail1, detail2, detail3);
-
-        CompletableFuture<IpAddressDetailsReplyDump> future = new CompletableFuture<>();
-        future.complete(reply);
-
-        when(api.ipAddressDump(Mockito.any(IpAddressDump.class))).thenReturn(future);
+        when(api.ipAddressDump(Mockito.any(IpAddressDump.class))).thenReturn(future(reply));
         when(ctx.getModificationCache()).thenReturn(cache);
-
 
         final AddressBuilder builder = new AddressBuilder();
         final InstanceIdentifier<Address> id = getId("192.168.2.1", IFACE_NAME);
@@ -246,11 +235,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
 
         IpAddressDetailsReplyDump reply = new IpAddressDetailsReplyDump();
         reply.ipAddressDetails = ImmutableList.of(detail1, detail2, detail3);
-
-        CompletableFuture<IpAddressDetailsReplyDump> future = new CompletableFuture<>();
-        future.complete(reply);
-
-        when(api.ipAddressDump(Mockito.any(IpAddressDump.class))).thenReturn(future);
+        when(api.ipAddressDump(Mockito.any(IpAddressDump.class))).thenReturn(future(reply));
         when(ctx.getModificationCache()).thenReturn(cache);
 
         final InstanceIdentifier<Address> id = getId("192.168.2.1", IFACE_NAME);
