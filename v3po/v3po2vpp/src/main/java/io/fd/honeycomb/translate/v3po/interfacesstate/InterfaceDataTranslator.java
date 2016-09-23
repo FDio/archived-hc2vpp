@@ -22,7 +22,8 @@ import static java.util.Objects.requireNonNull;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
@@ -34,11 +35,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.GreTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.GreTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
@@ -46,29 +47,23 @@ import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.SwInterfaceDump;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public final class InterfaceUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceUtils.class);
+public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyConsumer {
 
-    private static final Gauge64 vppLinkSpeed0 = new Gauge64(BigInteger.ZERO);
-    private static final Gauge64 vppLinkSpeed1 = new Gauge64(BigInteger.valueOf(10L * 1000000));
-    private static final Gauge64 vppLinkSpeed2 = new Gauge64(BigInteger.valueOf(100L * 1000000));
-    private static final Gauge64 vppLinkSpeed4 = new Gauge64(BigInteger.valueOf(1000L * 1000000));
-    private static final Gauge64 vppLinkSpeed8 = new Gauge64(BigInteger.valueOf(10000L * 1000000));
-    private static final Gauge64 vppLinkSpeed16 = new Gauge64(BigInteger.valueOf(40000L * 1000000));
-    private static final Gauge64 vppLinkSpeed32 = new Gauge64(BigInteger.valueOf(100000L * 1000000));
+    Gauge64 vppLinkSpeed0 = new Gauge64(BigInteger.ZERO);
+    Gauge64 vppLinkSpeed1 = new Gauge64(BigInteger.valueOf(10L * 1000000));
+    Gauge64 vppLinkSpeed2 = new Gauge64(BigInteger.valueOf(100L * 1000000));
+    Gauge64 vppLinkSpeed4 = new Gauge64(BigInteger.valueOf(1000L * 1000000));
+    Gauge64 vppLinkSpeed8 = new Gauge64(BigInteger.valueOf(10000L * 1000000));
+    Gauge64 vppLinkSpeed16 = new Gauge64(BigInteger.valueOf(40000L * 1000000));
+    Gauge64 vppLinkSpeed32 = new Gauge64(BigInteger.valueOf(100000L * 1000000));
 
-    private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
+    char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
-    private static final int PHYSICAL_ADDRESS_LENGTH = 6;
+    int PHYSICAL_ADDRESS_LENGTH = 6;
 
-    private static final Collector<SwInterfaceDetails, ?, SwInterfaceDetails> SINGLE_ITEM_COLLECTOR =
-        RWUtils.singleItemCollector();
-
-    private InterfaceUtils() {
-        throw new UnsupportedOperationException("This utility class cannot be instantiated");
-    }
+    Collector<SwInterfaceDetails, ?, SwInterfaceDetails> SINGLE_ITEM_COLLECTOR =
+            RWUtils.singleItemCollector();
 
     /**
      * Convert VPP's link speed bitmask to Yang type. 1 = 10M, 2 = 100M, 4 = 1G, 8 = 10G, 16 = 40G, 32 = 100G
@@ -76,7 +71,7 @@ public final class InterfaceUtils {
      * @param vppLinkSpeed Link speed in bitmask format from VPP.
      * @return Converted value from VPP link speed
      */
-    public static Gauge64 vppInterfaceSpeedToYang(byte vppLinkSpeed) {
+    default Gauge64 vppInterfaceSpeedToYang(byte vppLinkSpeed) {
         switch (vppLinkSpeed) {
             case 1:
                 return vppLinkSpeed1;
@@ -95,7 +90,7 @@ public final class InterfaceUtils {
         }
     }
 
-    private static final void appendHexByte(final StringBuilder sb, final byte b) {
+    default void appendHexByte(final StringBuilder sb, final byte b) {
         final int v = b & 0xFF;
         sb.append(HEX_CHARS[v >>> 4]);
         sb.append(HEX_CHARS[v & 15]);
@@ -111,25 +106,25 @@ public final class InterfaceUtils {
      * @throws NullPointerException     if vppPhysAddress is null
      * @throws IllegalArgumentException if vppPhysAddress.length < 6
      */
-    public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress) {
+    default String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress) {
         return vppPhysAddrToYang(vppPhysAddress, 0);
     }
 
-    public static String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress, final int startIndex) {
+    default String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress, final int startIndex) {
         Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
         final int endIndex = startIndex + PHYSICAL_ADDRESS_LENGTH;
         checkArgument(endIndex <= vppPhysAddress.length,
-            "Invalid physical address size (%s) for given startIndex (%s), expected >= %s", vppPhysAddress.length,
-            startIndex, endIndex);
+                "Invalid physical address size (%s) for given startIndex (%s), expected >= %s", vppPhysAddress.length,
+                startIndex, endIndex);
         return printHexBinary(vppPhysAddress, startIndex, endIndex);
     }
 
-    public static String printHexBinary(@Nonnull final byte[] bytes) {
+    default String printHexBinary(@Nonnull final byte[] bytes) {
         Objects.requireNonNull(bytes, "bytes array should not be null");
         return printHexBinary(bytes, 0, bytes.length);
     }
 
-    private static String printHexBinary(@Nonnull final byte[] bytes, final int startIndex, final int endIndex) {
+    default String printHexBinary(@Nonnull final byte[] bytes, final int startIndex, final int endIndex) {
         StringBuilder str = new StringBuilder();
 
         appendHexByte(str, bytes[startIndex]);
@@ -148,7 +143,7 @@ public final class InterfaceUtils {
      * @param vppIfIndex the sw interface index VPP reported.
      * @return VPP's interface index incremented by one
      */
-    public static int vppIfIndexToYang(int vppIfIndex) {
+    default int vppIfIndexToYang(int vppIfIndex) {
         return vppIfIndex + 1;
     }
 
@@ -158,7 +153,7 @@ public final class InterfaceUtils {
      * @param yangIfIndex if-index from ietf-interfaces.
      * @return VPP's representation of the if-index
      */
-    public static int yangIfIndexToVpp(int yangIfIndex) {
+    default int yangIfIndexToVpp(int yangIfIndex) {
         checkArgument(yangIfIndex >= 1, "YANG if-index has invalid value %s", yangIfIndex);
         return yangIfIndex - 1;
     }
@@ -168,21 +163,22 @@ public final class InterfaceUtils {
      * Queries VPP for interface description given interface key.
      *
      * @param futureJVppCore VPP Java Future API
-     * @param id         InstanceIdentifier, which is passed in ReadFailedException
-     * @param name       interface name
-     * @param index      VPP index of the interface
-     * @param ctx        per-tx scope context containing cached dump with all the interfaces. If the cache is not
-     *                   available or outdated, another dump will be performed.
+     * @param id             InstanceIdentifier, which is passed in ReadFailedException
+     * @param name           interface name
+     * @param index          VPP index of the interface
+     * @param ctx            per-tx scope context containing cached dump with all the interfaces. If the cache is not
+     *                       available or outdated, another dump will be performed.
      * @return SwInterfaceDetails DTO or null if interface was not found
      * @throws IllegalArgumentException If interface cannot be found
      * @throws ReadFailedException      If read operation had failed
      */
     @Nonnull
-    public static SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVppCore futureJVppCore,
-                                                            @Nonnull final InstanceIdentifier<?> id,
-                                                            @Nonnull final String name, final int index,
-                                                            @Nonnull final ModificationCache ctx)
-        throws ReadFailedException {
+    default SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVppCore futureJVppCore,
+                                                      @Nonnull final InstanceIdentifier<?> id,
+                                                      @Nonnull final String name, final int index,
+                                                      @Nonnull final ModificationCache ctx,
+                                                      @Nonnull final Logger callerLogger)
+            throws ReadFailedException {
         requireNonNull(futureJVppCore, "futureJVppCore should not be null");
         requireNonNull(name, "name should not be null");
         requireNonNull(ctx, "ctx should not be null");
@@ -201,21 +197,21 @@ public final class InterfaceUtils {
         SwInterfaceDetailsReplyDump ifaces;
         try {
             CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJVppCore.swInterfaceDump(request);
-            ifaces = TranslateUtils.getReplyForRead(requestFuture.toCompletableFuture(), id);
+            ifaces = getReplyForRead(requestFuture.toCompletableFuture(), id);
             if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
                 request.nameFilterValid = 0;
 
-                LOG.warn("VPP returned null instead of interface by key {} and its not cached", name);
-                LOG.warn("Iterating through all the interfaces to find interface: {}", name);
+                callerLogger.warn("VPP returned null instead of interface by key {} and its not cached", name);
+                callerLogger.warn("Iterating through all the interfaces to find interface: {}", name);
 
                 // Or else just perform full dump and do inefficient filtering
                 requestFuture = futureJVppCore.swInterfaceDump(request);
-                ifaces = TranslateUtils.getReplyForRead(requestFuture.toCompletableFuture(), id);
+                ifaces = getReplyForRead(requestFuture.toCompletableFuture(), id);
 
                 // Update the cache
                 allInterfaces.clear();
                 allInterfaces
-                    .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
+                        .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
 
                 if (allInterfaces.containsKey(index)) {
                     return allInterfaces.get(index);
@@ -223,13 +219,13 @@ public final class InterfaceUtils {
                 throw new IllegalArgumentException("Unable to find interface " + name);
             }
         } catch (VppBaseCallException e) {
-            LOG.warn("getVppInterfaceDetails for id :{} and name :{} failed with exception :", id, name, e);
+            callerLogger.warn("getVppInterfaceDetails for id :{} and name :{} failed with exception :", id, name, e);
             throw new ReadFailedException(id, e);
         }
 
         // SwInterfaceDump's name filter does prefix match, so we need additional filtering:
         final SwInterfaceDetails iface =
-            ifaces.swInterfaceDetails.stream().filter(d -> d.swIfIndex == index).collect(SINGLE_ITEM_COLLECTOR);
+                ifaces.swInterfaceDetails.stream().filter(d -> d.swIfIndex == index).collect(SINGLE_ITEM_COLLECTOR);
         allInterfaces.put(index, iface); // update the cache
         return iface;
     }
@@ -241,7 +237,7 @@ public final class InterfaceUtils {
      * @return Interface type
      */
     @Nonnull
-    public static Class<? extends InterfaceType> getInterfaceType(@Nonnull final String interfaceName) {
+    default Class<? extends InterfaceType> getInterfaceType(@Nonnull final String interfaceName) {
         if (interfaceName.startsWith("tap")) {
             return Tap.class;
         }
@@ -267,23 +263,25 @@ public final class InterfaceUtils {
 
     /**
      * Check interface type. Uses interface details from VPP to determine. Uses {@link
-     * #getVppInterfaceDetails(FutureJVppCore, InstanceIdentifier, String, int, ModificationCache)} internally so tries to
-     * utilize cache before asking VPP.
+     * #getVppInterfaceDetails(FutureJVppCore, InstanceIdentifier, String, int, ModificationCache, Logger)} internally so
+     * tries to utilize cache before asking VPP.
      */
-    static boolean isInterfaceOfType(@Nonnull final FutureJVppCore jvpp,
-                                     @Nonnull final ModificationCache cache,
-                                     @Nonnull final InstanceIdentifier<?> id,
-                                     final int index,
-                                     @Nonnull final Class<? extends InterfaceType> ifcType) throws ReadFailedException {
+    default boolean isInterfaceOfType(@Nonnull final FutureJVppCore jvpp,
+                                      @Nonnull final ModificationCache cache,
+                                      @Nonnull final InstanceIdentifier<?> id,
+                                      final int index,
+                                      @Nonnull final Class<? extends InterfaceType> ifcType,
+                                      @Nonnull final Logger callerLogger)
+            throws ReadFailedException {
         final String name = id.firstKeyOf(Interface.class).getName();
         final SwInterfaceDetails vppInterfaceDetails =
-            getVppInterfaceDetails(jvpp, id, name, index, cache);
+                getVppInterfaceDetails(jvpp, id, name, index, cache, callerLogger);
 
         return isInterfaceOfType(ifcType, vppInterfaceDetails);
     }
 
-    static boolean isInterfaceOfType(final Class<? extends InterfaceType> ifcType,
-                                     final SwInterfaceDetails cachedDetails) {
-        return ifcType.equals(getInterfaceType(TranslateUtils.toString(cachedDetails.interfaceName)));
+    default boolean isInterfaceOfType(final Class<? extends InterfaceType> ifcType,
+                                      final SwInterfaceDetails cachedDetails) {
+        return ifcType.equals(getInterfaceType(toString(cachedDetails.interfaceName)));
     }
 }

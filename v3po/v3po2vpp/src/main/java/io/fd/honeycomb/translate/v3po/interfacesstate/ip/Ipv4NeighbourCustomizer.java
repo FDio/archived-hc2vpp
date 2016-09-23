@@ -17,9 +17,9 @@
 package io.fd.honeycomb.translate.v3po.interfacesstate.ip;
 
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4Builder;

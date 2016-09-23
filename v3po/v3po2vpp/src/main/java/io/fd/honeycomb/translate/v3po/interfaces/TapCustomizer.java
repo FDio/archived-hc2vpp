@@ -17,10 +17,11 @@
 package io.fd.honeycomb.translate.v3po.interfaces;
 
 import io.fd.honeycomb.translate.v3po.util.AbstractInterfaceTypeCustomizer;
-import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.v3po.util.MacTranslator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -40,7 +41,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
+public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> implements MacTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(TapCustomizer.class);
     private final NamingContext interfaceContext;
@@ -57,8 +58,8 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
 
     @Override
     protected final void writeInterface(@Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap dataAfter,
-                                       @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+                                        @Nonnull final WriteContext writeContext)
+            throws WriteFailedException {
         final String ifcName = id.firstKeyOf(Interface.class).getName();
         try {
             createTap(id, ifcName, dataAfter, writeContext);
@@ -71,7 +72,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap dataBefore,
                                         @Nonnull final Tap dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         final String ifcName = id.firstKeyOf(Interface.class).getName();
 
         final int index;
@@ -92,7 +93,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap dataBefore,
                                         @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         final String ifcName = id.firstKeyOf(Interface.class).getName();
 
         final int index;
@@ -114,31 +115,33 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
                            final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
         LOG.debug("Setting tap interface: {}. Tap: {}", swIfName, tap);
         final CompletionStage<TapConnectReply> tapConnectFuture =
-            getFutureJVpp().tapConnect(getTapConnectRequest(tap.getTapName(), tap.getMac(), tap.getDeviceInstance()));
+                getFutureJVpp()
+                        .tapConnect(getTapConnectRequest(tap.getTapName(), tap.getMac(), tap.getDeviceInstance()));
         final TapConnectReply reply =
-            TranslateUtils.getReplyForWrite(tapConnectFuture.toCompletableFuture(), id);
+                getReplyForWrite(tapConnectFuture.toCompletableFuture(), id);
         LOG.debug("Tap set successfully for: {}, tap: {}", swIfName, tap);
         // Add new interface to our interface context
         interfaceContext.addName(reply.swIfIndex, swIfName, writeContext.getMappingContext());
     }
 
     private void modifyTap(final InstanceIdentifier<Tap> id, final String swIfName, final int index, final Tap tap)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         LOG.debug("Modifying tap interface: {}. Tap: {}", swIfName, tap);
         final CompletionStage<TapModifyReply> vxlanAddDelTunnelReplyCompletionStage =
-            getFutureJVpp().tapModify(getTapModifyRequest(tap.getTapName(), index, tap.getMac(), tap.getDeviceInstance()));
-        TranslateUtils.getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+                getFutureJVpp()
+                        .tapModify(getTapModifyRequest(tap.getTapName(), index, tap.getMac(), tap.getDeviceInstance()));
+        getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Tap modified successfully for: {}, tap: {}", swIfName, tap);
     }
 
     private void deleteTap(final InstanceIdentifier<Tap> id, final String swIfName, final int index,
                            final Tap dataBefore,
                            final WriteContext writeContext)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         LOG.debug("Deleting tap interface: {}. Tap: {}", swIfName, dataBefore);
         final CompletionStage<TapDeleteReply> vxlanAddDelTunnelReplyCompletionStage =
-            getFutureJVpp().tapDelete(getTapDeleteRequest(index));
-        TranslateUtils.getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+                getFutureJVpp().tapDelete(getTapDeleteRequest(index));
+        getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Tap deleted successfully for: {}, tap: {}", swIfName, dataBefore);
         // Remove deleted interface from interface context
         interfaceContext.removeName(swIfName, writeContext.getMappingContext());
@@ -148,15 +151,15 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         final TapConnect tapConnect = new TapConnect();
         tapConnect.tapName = tapName.getBytes();
 
-        if(mac == null) {
+        if (mac == null) {
             tapConnect.useRandomMac = 1;
             tapConnect.macAddress = new byte[6];
         } else {
             tapConnect.useRandomMac = 0;
-            tapConnect.macAddress = TranslateUtils.parseMac(mac.getValue());
+            tapConnect.macAddress = parseMac(mac.getValue());
         }
 
-        if(deviceInstance == null) {
+        if (deviceInstance == null) {
             tapConnect.renumber = 0;
         } else {
             tapConnect.renumber = 1;
@@ -166,20 +169,21 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> {
         return tapConnect;
     }
 
-    private TapModify getTapModifyRequest(final String tapName, final int swIndex, final PhysAddress mac, final Long deviceInstance) {
+    private TapModify getTapModifyRequest(final String tapName, final int swIndex, final PhysAddress mac,
+                                          final Long deviceInstance) {
         final TapModify tapConnect = new TapModify();
         tapConnect.tapName = tapName.getBytes();
         tapConnect.swIfIndex = swIndex;
 
-        if(mac == null) {
+        if (mac == null) {
             tapConnect.useRandomMac = 1;
             tapConnect.macAddress = new byte[6];
         } else {
             tapConnect.useRandomMac = 0;
-            tapConnect.macAddress = TranslateUtils.parseMac(mac.getValue());
+            tapConnect.macAddress = parseMac(mac.getValue());
         }
 
-        if(deviceInstance == null) {
+        if (deviceInstance == null) {
             tapConnect.renumber = 0;
         } else {
             tapConnect.renumber = 1;

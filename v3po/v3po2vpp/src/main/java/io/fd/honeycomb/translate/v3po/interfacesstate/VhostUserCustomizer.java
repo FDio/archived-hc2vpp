@@ -16,14 +16,12 @@
 
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
-import static io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
-
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -50,10 +48,11 @@ import org.slf4j.LoggerFactory;
 
 
 public class VhostUserCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<VhostUser, VhostUserBuilder> {
+        implements ReaderCustomizer<VhostUser, VhostUserBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
 
+    public static final String DUMPED_VHOST_USERS_CONTEXT_KEY =
+            VhostUserCustomizer.class.getName() + "dumpedVhostUsersDuringGetAllIds";
     private static final Logger LOG = LoggerFactory.getLogger(VhostUserCustomizer.class);
-    public static final String DUMPED_VHOST_USERS_CONTEXT_KEY = VhostUserCustomizer.class.getName() + "dumpedVhostUsersDuringGetAllIds";
     private NamingContext interfaceContext;
 
     public VhostUserCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext) {
@@ -80,7 +79,8 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
             final InterfaceKey key = id.firstKeyOf(Interface.class);
             final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
             if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index,
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class)) {
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class,
+                    LOG)) {
                 return;
             }
 
@@ -88,23 +88,26 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
 
             @SuppressWarnings("unchecked")
             Map<Integer, SwInterfaceVhostUserDetails> mappedVhostUsers =
-                (Map<Integer, SwInterfaceVhostUserDetails>) ctx.getModificationCache().get(DUMPED_VHOST_USERS_CONTEXT_KEY);
+                    (Map<Integer, SwInterfaceVhostUserDetails>) ctx.getModificationCache()
+                            .get(DUMPED_VHOST_USERS_CONTEXT_KEY);
 
-            if(mappedVhostUsers == null) {
+            if (mappedVhostUsers == null) {
                 // Full VhostUser dump has to be performed here, no filter or anything is here to help so at least we cache it
                 final SwInterfaceVhostUserDump request = new SwInterfaceVhostUserDump();
-                final CompletionStage<SwInterfaceVhostUserDetailsReplyDump> swInterfaceVhostUserDetailsReplyDumpCompletionStage =
-                    getFutureJVpp().swInterfaceVhostUserDump(request);
+                final CompletionStage<SwInterfaceVhostUserDetailsReplyDump>
+                        swInterfaceVhostUserDetailsReplyDumpCompletionStage =
+                        getFutureJVpp().swInterfaceVhostUserDump(request);
                 final SwInterfaceVhostUserDetailsReplyDump reply =
-                    TranslateUtils.getReplyForRead(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
+                        getReplyForRead(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
 
-                if(null == reply || null == reply.swInterfaceVhostUserDetails) {
+                if (null == reply || null == reply.swInterfaceVhostUserDetails) {
                     mappedVhostUsers = Collections.emptyMap();
                 } else {
-                    final List<SwInterfaceVhostUserDetails> swInterfaceVhostUserDetails = reply.swInterfaceVhostUserDetails;
+                    final List<SwInterfaceVhostUserDetails> swInterfaceVhostUserDetails =
+                            reply.swInterfaceVhostUserDetails;
                     // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
                     mappedVhostUsers = swInterfaceVhostUserDetails.stream()
-                        .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails));
+                            .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails));
                 }
 
                 ctx.getModificationCache().put(DUMPED_VHOST_USERS_CONTEXT_KEY, mappedVhostUsers);
@@ -112,12 +115,15 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
 
             // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping
             final SwInterfaceVhostUserDetails swInterfaceVhostUserDetails = mappedVhostUsers.get(index);
-            LOG.trace("Vhost user interface: {} attributes returned from VPP: {}", key.getName(), swInterfaceVhostUserDetails);
+            LOG.trace("Vhost user interface: {} attributes returned from VPP: {}", key.getName(),
+                    swInterfaceVhostUserDetails);
 
-            builder.setRole(swInterfaceVhostUserDetails.isServer == 1 ? VhostUserRole.Server : VhostUserRole.Client);
+            builder.setRole(swInterfaceVhostUserDetails.isServer == 1
+                    ? VhostUserRole.Server
+                    : VhostUserRole.Client);
             builder.setFeatures(BigInteger.valueOf(swInterfaceVhostUserDetails.features));
             builder.setNumMemoryRegions((long) swInterfaceVhostUserDetails.numRegions);
-            builder.setSocket(TranslateUtils.toString(swInterfaceVhostUserDetails.sockFilename));
+            builder.setSocket(toString(swInterfaceVhostUserDetails.sockFilename));
             builder.setVirtioNetHdrSize((long) swInterfaceVhostUserDetails.virtioNetHdrSz);
             builder.setConnectError(Integer.toString(swInterfaceVhostUserDetails.sockErrno));
 

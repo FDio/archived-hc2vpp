@@ -18,7 +18,6 @@ package io.fd.honeycomb.lisp.translate.write;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.getReply;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Optional;
@@ -30,9 +29,10 @@ import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.io.UnsupportedEncodingException;
@@ -55,7 +55,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * @see LocatorSet
  */
 public class LocatorSetCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<LocatorSet, LocatorSetKey> {
+        implements ListWriterCustomizer<LocatorSet, LocatorSetKey>, ByteDataTranslator,
+        JvppReplyConsumer {
 
     private final NamingContext locatorSetContext;
     private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
@@ -140,7 +141,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
 
         LispAddDelLocatorSet addDelSet = new LispAddDelLocatorSet();
 
-        addDelSet.isAdd = TranslateUtils.booleanToByte(add);
+        addDelSet.isAdd = booleanToByte(add);
         addDelSet.locatorSetName = name.getBytes(UTF_8);
 
 
@@ -158,7 +159,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
 
         if (reply.isPresent()) {
             return reply.get().lispLocatorSetDetails.stream()
-                    .filter(a -> name.equals(TranslateUtils.toString(a.lsName)))
+                    .filter(a -> name.equals(toString(a.lsName)))
                     .collect(RWUtils.singleItemCollector())
                     .lsIndex;
         } else {

@@ -21,11 +21,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.util.AbstractInterfaceTypeCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -42,7 +42,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe> {
+public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe> implements JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(VxlanGpeCustomizer.class);
     private final NamingContext interfaceNamingContext;
@@ -62,8 +62,9 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
     }
 
     @Override
-    protected final void writeInterface(@Nonnull final InstanceIdentifier<VxlanGpe> id, @Nonnull final VxlanGpe dataAfter,
-                                       @Nonnull final WriteContext writeContext)
+    protected final void writeInterface(@Nonnull final InstanceIdentifier<VxlanGpe> id,
+                                        @Nonnull final VxlanGpe dataAfter,
+                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         try {
@@ -75,7 +76,8 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanGpe> id, @Nonnull final VxlanGpe dataBefore,
+    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanGpe> id,
+                                        @Nonnull final VxlanGpe dataBefore,
                                         @Nonnull final VxlanGpe dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException.UpdateFailedException {
         throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
@@ -83,7 +85,8 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
     }
 
     @Override
-    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanGpe> id, @Nonnull final VxlanGpe dataBefore,
+    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanGpe> id,
+                                        @Nonnull final VxlanGpe dataBefore,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
@@ -97,8 +100,10 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
 
     private void createVxlanGpeTunnel(final InstanceIdentifier<VxlanGpe> id, final String swIfName,
                                       final VxlanGpe vxlanGpe, final WriteContext writeContext)
-        throws VppBaseCallException, WriteTimeoutException {
-        final byte isIpv6 = (byte) (isIpv6(vxlanGpe) ? 1 : 0);
+            throws VppBaseCallException, WriteTimeoutException {
+        final byte isIpv6 = (byte) (isIpv6(vxlanGpe)
+                ? 1
+                : 0);
         final InetAddress Local = InetAddresses.forString(getAddressString(vxlanGpe.getLocal()));
         final InetAddress Remote = InetAddresses.forString(getAddressString(vxlanGpe.getRemote()));
 
@@ -110,15 +115,15 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
         LOG.debug("Setting VxlanGpe tunnel for interface: {}. VxlanGpe: {}", swIfName, vxlanGpe);
         final CompletionStage<VxlanGpeAddDelTunnelReply> VxlanGpeAddDelTunnelReplyCompletionStage =
                 getFutureJVpp().vxlanGpeAddDelTunnel(getVxlanGpeTunnelRequest((byte) 1 /* is add */, Local.getAddress(),
-                    Remote.getAddress(), vni, protocol, encapVrfId, decapVrfId, isIpv6));
+                        Remote.getAddress(), vni, protocol, encapVrfId, decapVrfId, isIpv6));
 
         final VxlanGpeAddDelTunnelReply reply =
-                TranslateUtils.getReplyForWrite(VxlanGpeAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForWrite(VxlanGpeAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("VxlanGpe tunnel set successfully for: {}, VxlanGpe: {}", swIfName, vxlanGpe);
         if (interfaceNamingContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
             final String formerName = interfaceNamingContext.getName(reply.swIfIndex, writeContext.getMappingContext());
             LOG.debug("Removing updated mapping of a vxlan-gpe tunnel, id: {}, former name: {}, new name: {}",
-                reply.swIfIndex, formerName, swIfName);
+                    reply.swIfIndex, formerName, swIfName);
             interfaceNamingContext.removeName(formerName, writeContext.getMappingContext());
         }
 
@@ -135,24 +140,30 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
 
     private boolean isIpv6(final VxlanGpe vxlanGpe) {
         if (vxlanGpe.getLocal().getIpv4Address() == null) {
-            checkArgument(vxlanGpe.getRemote().getIpv4Address() == null, "Inconsistent ip addresses: %s, %s", vxlanGpe.getLocal(),
-                vxlanGpe.getRemote());
+            checkArgument(vxlanGpe.getRemote().getIpv4Address() == null, "Inconsistent ip addresses: %s, %s",
+                    vxlanGpe.getLocal(),
+                    vxlanGpe.getRemote());
             return true;
         } else {
-            checkArgument(vxlanGpe.getRemote().getIpv6Address() == null, "Inconsistent ip addresses: %s, %s", vxlanGpe.getLocal(),
-                vxlanGpe.getRemote());
+            checkArgument(vxlanGpe.getRemote().getIpv6Address() == null, "Inconsistent ip addresses: %s, %s",
+                    vxlanGpe.getLocal(),
+                    vxlanGpe.getRemote());
             return false;
         }
     }
 
     private String getAddressString(final IpAddress addr) {
-        return addr.getIpv4Address() == null ? addr.getIpv6Address().getValue() : addr.getIpv4Address().getValue();
+        return addr.getIpv4Address() == null
+                ? addr.getIpv6Address().getValue()
+                : addr.getIpv4Address().getValue();
     }
 
     private void deleteVxlanGpeTunnel(final InstanceIdentifier<VxlanGpe> id, final String swIfName,
                                       final VxlanGpe vxlanGpe, final WriteContext writeContext)
-        throws VppBaseCallException, WriteTimeoutException {
-        final byte isIpv6 = (byte) (isIpv6(vxlanGpe) ? 1 : 0);
+            throws VppBaseCallException, WriteTimeoutException {
+        final byte isIpv6 = (byte) (isIpv6(vxlanGpe)
+                ? 1
+                : 0);
         final InetAddress local = InetAddresses.forString(getAddressString(vxlanGpe.getLocal()));
         final InetAddress remote = InetAddresses.forString(getAddressString(vxlanGpe.getRemote()));
 
@@ -163,10 +174,11 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
 
         LOG.debug("Deleting VxlanGpe tunnel for interface: {}. VxlanGpe: {}", swIfName, vxlanGpe);
         final CompletionStage<VxlanGpeAddDelTunnelReply> VxlanGpeAddDelTunnelReplyCompletionStage =
-                getFutureJVpp().vxlanGpeAddDelTunnel(getVxlanGpeTunnelRequest((byte) 0 /* is delete */, local.getAddress(),
-                    remote.getAddress(), vni, protocol, encapVrfId, decapVrfId, isIpv6));
+                getFutureJVpp()
+                        .vxlanGpeAddDelTunnel(getVxlanGpeTunnelRequest((byte) 0 /* is delete */, local.getAddress(),
+                                remote.getAddress(), vni, protocol, encapVrfId, decapVrfId, isIpv6));
 
-        TranslateUtils.getReplyForWrite(VxlanGpeAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForWrite(VxlanGpeAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
 
         final int index = interfaceNamingContext.getIndex(swIfName, writeContext.getMappingContext());
         // Mark this interface as disabled to not include it in operational reads
@@ -177,9 +189,11 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
         interfaceNamingContext.removeName(swIfName, writeContext.getMappingContext());
     }
 
-    private static VxlanGpeAddDelTunnel getVxlanGpeTunnelRequest(final byte isAdd, final byte[] local, final byte[] remote,
-                                        final int vni, final byte protocol, final int encapVrfId, final int decapVrfId,
-                                        final byte isIpv6) {
+    private static VxlanGpeAddDelTunnel getVxlanGpeTunnelRequest(final byte isAdd, final byte[] local,
+                                                                 final byte[] remote,
+                                                                 final int vni, final byte protocol,
+                                                                 final int encapVrfId, final int decapVrfId,
+                                                                 final byte isIpv6) {
         final VxlanGpeAddDelTunnel VxlanGpeAddDelTunnel = new VxlanGpeAddDelTunnel();
         VxlanGpeAddDelTunnel.isAdd = isAdd;
         VxlanGpeAddDelTunnel.local = local;

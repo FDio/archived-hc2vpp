@@ -19,8 +19,8 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.net.InetAddress;
@@ -31,14 +31,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ProxyArp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.openvpp.jvpp.core.dto.ProxyArpAddDel;
 import org.openvpp.jvpp.core.dto.ProxyArpAddDelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCustomizer<ProxyArp> {
+public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCustomizer<ProxyArp>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProxyArpCustomizer.class);
     private final NamingContext interfaceContext;
@@ -49,7 +49,8 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
     }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull InstanceIdentifier<ProxyArp> id, @Nonnull ProxyArp dataAfter, @Nonnull WriteContext writeContext) throws WriteFailedException {
+    public void writeCurrentAttributes(@Nonnull InstanceIdentifier<ProxyArp> id, @Nonnull ProxyArp dataAfter,
+                                       @Nonnull WriteContext writeContext) throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
 
         try {
@@ -93,7 +94,7 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
                         dstAddress.getAddress(), vrfId));
 
         final ProxyArpAddDelReply reply =
-                TranslateUtils.getReplyForWrite(proxyArpAddDelReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForWrite(proxyArpAddDelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Proxy ARP setting applied, with reply context:", reply.context);
     }
 

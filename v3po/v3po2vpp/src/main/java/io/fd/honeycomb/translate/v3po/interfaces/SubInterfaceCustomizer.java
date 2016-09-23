@@ -19,17 +19,16 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils.getNumberOfTags;
 import static io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -60,12 +59,13 @@ import org.slf4j.LoggerFactory;
  * Equivalent of invoking {@code vppclt create subif} command.
  */
 public class SubInterfaceCustomizer extends FutureJVppCustomizer
-    implements ListWriterCustomizer<SubInterface, SubInterfaceKey> {
+        implements ListWriterCustomizer<SubInterface, SubInterfaceKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceCustomizer.class);
     private final NamingContext interfaceContext;
 
-    public SubInterfaceCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext interfaceContext) {
+    public SubInterfaceCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                  @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
@@ -73,7 +73,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<SubInterface> id,
                                        @Nonnull final SubInterface dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         final String superIfName = id.firstKeyOf(Interface.class).getName();
         try {
             createSubInterface(id, superIfName, dataAfter, writeContext);
@@ -89,15 +89,15 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             WriteTimeoutException {
         final int superIfIndex = interfaceContext.getIndex(superIfName, writeContext.getMappingContext());
         final CompletionStage<CreateSubifReply> createSubifReplyCompletionStage =
-            getFutureJVpp().createSubif(getCreateSubifRequest(subInterface, superIfIndex));
+                getFutureJVpp().createSubif(getCreateSubifRequest(subInterface, superIfIndex));
 
         final CreateSubifReply reply =
-            TranslateUtils.getReplyForWrite(createSubifReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForWrite(createSubifReplyCompletionStage.toCompletableFuture(), id);
 
         setInterfaceState(id, reply.swIfIndex, booleanToByte(subInterface.isEnabled()));
         interfaceContext.addName(reply.swIfIndex,
-            getSubInterfaceName(superIfName, Math.toIntExact(subInterface.getIdentifier())),
-            writeContext.getMappingContext());
+                getSubInterfaceName(superIfName, Math.toIntExact(subInterface.getIdentifier())),
+                writeContext.getMappingContext());
         LOG.debug("Sub interface created successfully for: {}, subInterface: {}", superIfName, subInterface);
     }
 
@@ -124,7 +124,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         // TODO HONEYCOMB-183 match should be mandatory
         final MatchType matchType = subInterface.getMatch().getMatchType();
         request.exactMatch =
-            booleanToByte(matchType instanceof VlanTagged && ((VlanTagged) matchType).isMatchExactTags());
+                booleanToByte(matchType instanceof VlanTagged && ((VlanTagged) matchType).isMatchExactTags());
         request.defaultSub = booleanToByte(matchType instanceof Default);
 
         if (numberOfTags > 0) {
@@ -167,41 +167,41 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<SubInterface> id,
                                         @Nonnull final SubInterface dataBefore, @Nonnull final SubInterface dataAfter,
                                         @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         final String subIfaceName = getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
-            Math.toIntExact(dataAfter.getIdentifier()));
+                Math.toIntExact(dataAfter.getIdentifier()));
         try {
             setInterfaceState(id, interfaceContext.getIndex(subIfaceName, writeContext.getMappingContext()),
-                booleanToByte(dataAfter.isEnabled()));
+                    booleanToByte(dataAfter.isEnabled()));
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to update interface state for: interface if={}, enabled: {}",
-                subIfaceName, booleanToByte(dataAfter.isEnabled()));
+                    subIfaceName, booleanToByte(dataAfter.isEnabled()));
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
         }
     }
 
     private void setInterfaceState(final InstanceIdentifier<SubInterface> id, final int swIfIndex, final byte enabled)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final SwInterfaceSetFlags swInterfaceSetFlags = new SwInterfaceSetFlags();
         swInterfaceSetFlags.swIfIndex = swIfIndex;
         swInterfaceSetFlags.adminUpDown = enabled;
 
         final CompletionStage<SwInterfaceSetFlagsReply> swInterfaceSetFlagsReplyFuture =
-            getFutureJVpp().swInterfaceSetFlags(swInterfaceSetFlags);
+                getFutureJVpp().swInterfaceSetFlags(swInterfaceSetFlags);
 
         LOG.debug("Updating interface state for interface if={}, enabled: {}", swIfIndex, enabled);
 
         SwInterfaceSetFlagsReply reply =
-            TranslateUtils.getReplyForWrite(swInterfaceSetFlagsReplyFuture.toCompletableFuture(), id);
+                getReplyForWrite(swInterfaceSetFlagsReplyFuture.toCompletableFuture(), id);
         LOG.debug("Interface state updated successfully for interface index: {}, enabled: {}, ctxId: {}",
-            swIfIndex, enabled, reply.context);
+                swIfIndex, enabled, reply.context);
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<SubInterface> id,
                                         @Nonnull final SubInterface dataBefore,
                                         @Nonnull final WriteContext writeContext)
-        throws WriteFailedException.DeleteFailedException {
+            throws WriteFailedException.DeleteFailedException {
         throw new UnsupportedOperationException("Sub interface delete is not supported");
     }
 }

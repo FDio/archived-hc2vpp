@@ -45,7 +45,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Customizer for writing {@link Address}
  */
-public class Ipv4AddressCustomizer extends FutureJVppCustomizer implements ListWriterCustomizer<Address, AddressKey> {
+public class Ipv4AddressCustomizer extends FutureJVppCustomizer
+        implements ListWriterCustomizer<Address, AddressKey>, Ipv4Writer {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
     private final NamingContext interfaceContext;
@@ -131,8 +132,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer implements ListW
             final DottedQuad netmask = subnet.getNetmask();
             checkNotNull(netmask, "netmask value should not be null");
 
-            final byte subnetLength = Ipv4WriteUtils.getSubnetMaskLength(netmask.getValue());
-            Ipv4WriteUtils.addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(), subnetLength);
+            final byte subnetLength = getSubnetMaskLength(netmask.getValue());
+            addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(), subnetLength);
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to set Subnet(subnet-mask) for interface: {}(id={}). Subnet: {}, address: {}",
                     interfaceName, interfaceIndex, subnet, address);
@@ -148,7 +149,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer implements ListW
             LOG.debug("Setting Subnet(prefix-length) for interface: {}(id={}). Subnet: {}, address: {}",
                     interfaceName, interfaceIndex, subnet, address);
 
-            Ipv4WriteUtils.addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(),
+            addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(),
                     subnet.getPrefixLength().byteValue());
 
             LOG.debug("Subnet(prefix-length) set successfully for interface: {}(id={}). Subnet: {}, address: {}",

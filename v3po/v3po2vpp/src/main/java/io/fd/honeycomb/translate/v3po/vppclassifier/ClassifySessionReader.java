@@ -19,7 +19,6 @@ package io.fd.honeycomb.translate.v3po.vppclassifier;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceUtils.printHexBinary;
 
 import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInts;
@@ -27,8 +26,9 @@ import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +61,8 @@ import org.slf4j.LoggerFactory;
  * class table verbose} command.
  */
 public class ClassifySessionReader extends FutureJVppCustomizer
-    implements ListReaderCustomizer<ClassifySession, ClassifySessionKey, ClassifySessionBuilder>, VppNodeReader {
+        implements ListReaderCustomizer<ClassifySession, ClassifySessionKey, ClassifySessionBuilder>,
+        InterfaceDataTranslator, VppNodeReader, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifySessionReader.class);
     static final String CACHE_KEY = ClassifySessionReader.class.getName();
@@ -89,7 +90,7 @@ public class ClassifySessionReader extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<ClassifySession> id,
                                       @Nonnull final ClassifySessionBuilder builder, @Nonnull final ReadContext ctx)
-        throws ReadFailedException {
+            throws ReadFailedException {
         LOG.debug("Reading attributes for classify session: {}", id);
 
         final ClassifySessionKey key = id.firstKeyOf(ClassifySession.class);
@@ -98,12 +99,13 @@ public class ClassifySessionReader extends FutureJVppCustomizer
         final ClassifySessionDetailsReplyDump classifySessionDump = dumpClassifySessions(id, ctx);
         final byte[] match = DatatypeConverter.parseHexBinary(key.getMatch().getValue().replace(":", ""));
         final Optional<ClassifySessionDetails> classifySession =
-            findClassifySessionDetailsByMatch(classifySessionDump, match);
+                findClassifySessionDetailsByMatch(classifySessionDump, match);
 
         if (classifySession.isPresent()) {
             final ClassifySessionDetails detail = classifySession.get();
             builder.setHitNext(
-                readVppNode(detail.tableId, detail.hitNextIndex, classifyTableContext, ctx.getMappingContext(), LOG).get());
+                    readVppNode(detail.tableId, detail.hitNextIndex, classifyTableContext, ctx.getMappingContext(), LOG)
+                            .get());
             if (detail.opaqueIndex != ~0) {
                 // value is specified:
                 builder.setOpaqueIndex(readOpaqueIndex(detail.tableId, detail.opaqueIndex, ctx.getMappingContext()));
@@ -133,14 +135,14 @@ public class ClassifySessionReader extends FutureJVppCustomizer
     @Nullable
     private ClassifySessionDetailsReplyDump dumpClassifySessions(@Nonnull final InstanceIdentifier<?> id,
                                                                  @Nonnull final ReadContext ctx)
-        throws ReadFailedException {
+            throws ReadFailedException {
         final ClassifyTableKey tableKey = id.firstKeyOf(ClassifyTable.class);
         checkArgument(tableKey != null, "could not find ClassifyTable key in {}", id);
 
         final String cacheKey = CACHE_KEY + tableKey;
 
         ClassifySessionDetailsReplyDump classifySessionDump =
-            (ClassifySessionDetailsReplyDump) ctx.getModificationCache().get(cacheKey);
+                (ClassifySessionDetailsReplyDump) ctx.getModificationCache().get(cacheKey);
         if (classifySessionDump != null) {
             LOG.debug("Classify sessions is present in cache: {}", cacheKey);
             return classifySessionDump;
@@ -148,16 +150,16 @@ public class ClassifySessionReader extends FutureJVppCustomizer
 
         final String tableName = tableKey.getName();
         checkState(classifyTableContext.containsTable(tableName, ctx.getMappingContext()),
-            "Reading classify sessions for table {}, but table index could not be found in the classify table context",
-            tableName);
+                "Reading classify sessions for table {}, but table index could not be found in the classify table context",
+                tableName);
         final int tableId = classifyTableContext.getTableIndex(tableName, ctx.getMappingContext());
         LOG.debug("Dumping classify sessions for classify table id={}", tableId);
 
         try {
             final ClassifySessionDump dumpRequest = new ClassifySessionDump();
             dumpRequest.tableId = tableId;
-            classifySessionDump = TranslateUtils
-                .getReplyForRead(getFutureJVpp().classifySessionDump(dumpRequest).toCompletableFuture(), id);
+            classifySessionDump =
+                    getReplyForRead(getFutureJVpp().classifySessionDump(dumpRequest).toCompletableFuture(), id);
 
             if (classifySessionDump != null) {
                 // update the cache:
@@ -171,19 +173,19 @@ public class ClassifySessionReader extends FutureJVppCustomizer
     }
 
     private static Optional<ClassifySessionDetails> findClassifySessionDetailsByMatch(
-        @Nullable final ClassifySessionDetailsReplyDump classifySessionDump, @Nonnull final byte[] match) {
+            @Nullable final ClassifySessionDetailsReplyDump classifySessionDump, @Nonnull final byte[] match) {
         if (classifySessionDump != null && classifySessionDump.classifySessionDetails != null) {
             final List<ClassifySessionDetails> details = classifySessionDump.classifySessionDetails;
             final List<ClassifySessionDetails> filteredSessions = details.stream()
-                .filter(singleDetail -> Arrays.equals(singleDetail.match, match)).collect(Collectors.toList());
+                    .filter(singleDetail -> Arrays.equals(singleDetail.match, match)).collect(Collectors.toList());
             if (filteredSessions.isEmpty()) {
                 return Optional.absent();
             } else if (filteredSessions.size() == 1) {
                 return Optional.of(filteredSessions.get(0));
             } else {
                 throw new IllegalStateException(String.format(
-                    "Found %d classify sessions witch given match. Single session expected.",
-                    filteredSessions.size()));
+                        "Found %d classify sessions witch given match. Single session expected.",
+                        filteredSessions.size()));
             }
         }
         return Optional.absent();
@@ -198,8 +200,8 @@ public class ClassifySessionReader extends FutureJVppCustomizer
         final ClassifySessionDetailsReplyDump classifySessionDump = dumpClassifySessions(id, ctx);
         if (classifySessionDump != null && classifySessionDump.classifySessionDetails != null) {
             return classifySessionDump.classifySessionDetails.stream()
-                .map(detail -> new ClassifySessionKey(new HexString(printHexBinary(detail.match))))
-                .collect(Collectors.toList());
+                    .map(detail -> new ClassifySessionKey(new HexString(printHexBinary(detail.match))))
+                    .collect(Collectors.toList());
         } else {
             return Collections.emptyList();
         }

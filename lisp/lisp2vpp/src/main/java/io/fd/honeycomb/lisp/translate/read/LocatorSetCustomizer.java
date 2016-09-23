@@ -25,11 +25,11 @@ import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorSetsDumpExecutor
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocatorSetCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<LocatorSet, LocatorSetKey, LocatorSetBuilder> {
+        implements ListReaderCustomizer<LocatorSet, LocatorSetKey, LocatorSetBuilder>, ByteDataTranslator {
 
     //TODO - temporary as public because of hack in write customizer in *.write.LocatorSetCustomizer
     public static final String LOCATOR_SETS_CACHE_ID = LocatorSetCustomizer.class.getName();
@@ -93,11 +93,11 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         LispLocatorSetDetailsReplyDump dump = dumpOptional.get();
 
         java.util.Optional<LispLocatorSetDetails> details = dump.lispLocatorSetDetails.stream()
-                .filter(n -> keyName.equals(TranslateUtils.toString(n.lsName)))
+                .filter(n -> keyName.equals(toString(n.lsName)))
                 .findFirst();
 
         if (details.isPresent()) {
-            final String name = TranslateUtils.toString(details.get().lsName);
+            final String name = toString(details.get().lsName);
 
             builder.setName(name);
             builder.setKey(new LocatorSetKey(name));
@@ -123,7 +123,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
             return dumpOptional.get().lispLocatorSetDetails.stream()
                     .map(set -> {
 
-                        final String locatorSetName = TranslateUtils.toString(set.lsName);
+                        final String locatorSetName = toString(set.lsName);
                         //creates mapping for existing locator-set(if it is'nt already existing one)
                         if (!locatorSetContext.containsIndex(locatorSetName, context.getMappingContext())) {
                             locatorSetContext.addName(set.lsIndex, locatorSetName, context.getMappingContext());
@@ -136,7 +136,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
 
                         return set;
                     })
-                    .map(set -> new LocatorSetKey(TranslateUtils.toString(set.lsName)))
+                    .map(set -> new LocatorSetKey(toString(set.lsName)))
                     .collect(Collectors.toList());
         } else {
             LOG.warn("No data dumped for Locator Set {}", id);

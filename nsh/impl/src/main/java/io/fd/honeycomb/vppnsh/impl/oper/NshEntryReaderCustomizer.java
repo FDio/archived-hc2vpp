@@ -18,30 +18,24 @@ package io.fd.honeycomb.vppnsh.impl.oper;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
-
+import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NextProtocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NshMdType1StateAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NshMdType1StateAugmentBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNshStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshEntriesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.entries.NshEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.entries.NshEntryBuilder;
@@ -50,12 +44,10 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.nsh.dto.NshEntryDump;
-import org.openvpp.jvpp.nsh.dto.NshAddDelEntry;
 import org.openvpp.jvpp.nsh.dto.NshEntryDetails;
 import org.openvpp.jvpp.nsh.dto.NshEntryDetailsReplyDump;
+import org.openvpp.jvpp.nsh.dto.NshEntryDump;
 import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
-import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * Reader customizer responsible for nsh entry read.<br> to VPP.
  */
 public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
-    implements ListReaderCustomizer<NshEntry, NshEntryKey, NshEntryBuilder> {
+        implements ListReaderCustomizer<NshEntry, NshEntryKey, NshEntryBuilder>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(NshEntryReaderCustomizer.class);
     private final NamingContext nshEntryContext;
@@ -90,18 +82,18 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
     private void setNshEntryMdType1Augment(@Nonnull final NshEntryBuilder builder,
                                            @Nonnull NshEntryDetails nshEntryDetails) {
         final NshMdType1StateAugmentBuilder augmentBuilder = new NshMdType1StateAugmentBuilder();
-        augmentBuilder.setC1((long)nshEntryDetails.c1);
-        augmentBuilder.setC2((long)nshEntryDetails.c2);
-        augmentBuilder.setC3((long)nshEntryDetails.c3);
-        augmentBuilder.setC4((long)nshEntryDetails.c4);
+        augmentBuilder.setC1((long) nshEntryDetails.c1);
+        augmentBuilder.setC2((long) nshEntryDetails.c2);
+        augmentBuilder.setC3((long) nshEntryDetails.c3);
+        augmentBuilder.setC4((long) nshEntryDetails.c4);
 
         builder.addAugmentation(NshMdType1StateAugment.class, augmentBuilder.build());
     }
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<NshEntry> id,
-                    @Nonnull final NshEntryBuilder builder, @Nonnull final ReadContext ctx)
-                    throws ReadFailedException {
+                                      @Nonnull final NshEntryBuilder builder, @Nonnull final ReadContext ctx)
+            throws ReadFailedException {
         LOG.debug("Reading attributes for nsh entry: {}", id);
         try {
             final NshEntryKey key = id.firstKeyOf(NshEntry.class);
@@ -116,9 +108,9 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
             request.entryIndex = nshEntryContext.getIndex(entryName, ctx.getMappingContext());
 
             final CompletionStage<NshEntryDetailsReplyDump> nshEntryDetailsReplyDumpCompletionStage =
-                     getFutureJVppNsh().nshEntryDump(request);
+                    getFutureJVppNsh().nshEntryDump(request);
             final NshEntryDetailsReplyDump reply =
-                     TranslateUtils.getReplyForRead(nshEntryDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
+                    getReplyForRead(nshEntryDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
 
             if (reply == null || reply.nshEntryDetails == null || reply.nshEntryDetails.isEmpty()) {
                 LOG.debug("Has no Nsh Entry {} in VPP. ", key.getName());
@@ -130,50 +122,48 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
             final NshEntryDetails nshEntryDetails = reply.nshEntryDetails.get(0);
             builder.setName(entryName);
             builder.setKey(key);
-            builder.setVersion( (short) nshEntryDetails.verOC );
-            builder.setLength( (short) nshEntryDetails.length );
+            builder.setVersion((short) nshEntryDetails.verOC);
+            builder.setLength((short) nshEntryDetails.length);
 
-            switch(nshEntryDetails.nextProtocol) {
-            case 1:
-                builder.setNextProtocol(Ipv4.class);
-                break;
-            case 2:
-                builder.setNextProtocol(Ipv6.class);
-                break;
-            case 3:
-                builder.setNextProtocol(Ethernet.class);
-                break;
-            default:
-                LOG.trace("Unsupported next protocol for nsh entry: {}", nshEntryDetails.nextProtocol);
-                return;
-            }
-
-            switch(nshEntryDetails.mdType) {
-            case 1:
-            {
-                builder.setMdType(MdType1.class);
-                setNshEntryMdType1Augment(builder, nshEntryDetails);
-                break;
-            }
-            case 2:
-            {
-                builder.setMdType(MdType1.class);
-                break;
-            }
-            default:
-                LOG.trace("Unsupported Mdtype for nsh entry: {}", nshEntryDetails.mdType);
-                return;
+            switch (nshEntryDetails.nextProtocol) {
+                case 1:
+                    builder.setNextProtocol(Ipv4.class);
+                    break;
+                case 2:
+                    builder.setNextProtocol(Ipv6.class);
+                    break;
+                case 3:
+                    builder.setNextProtocol(Ethernet.class);
+                    break;
+                default:
+                    LOG.trace("Unsupported next protocol for nsh entry: {}", nshEntryDetails.nextProtocol);
+                    return;
             }
 
-            builder.setNsp( (long)((nshEntryDetails.nspNsi>>8) & 0xFFFFFF));
-            builder.setNsi( (short)(nshEntryDetails.nspNsi & 0xFF ));
+            switch (nshEntryDetails.mdType) {
+                case 1: {
+                    builder.setMdType(MdType1.class);
+                    setNshEntryMdType1Augment(builder, nshEntryDetails);
+                    break;
+                }
+                case 2: {
+                    builder.setMdType(MdType1.class);
+                    break;
+                }
+                default:
+                    LOG.trace("Unsupported Mdtype for nsh entry: {}", nshEntryDetails.mdType);
+                    return;
+            }
+
+            builder.setNsp((long) ((nshEntryDetails.nspNsi >> 8) & 0xFFFFFF));
+            builder.setNsi((short) (nshEntryDetails.nspNsi & 0xFF));
 
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Attributes for nsh entry {} successfully read: {}", id, builder.build());
             }
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to readCurrentAttributes for: {}", id);
-            throw new ReadFailedException( id, e );
+            throw new ReadFailedException(id, e);
         }
     }
 

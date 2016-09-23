@@ -19,8 +19,9 @@ package io.fd.honeycomb.lisp.translate.write;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.TimeoutException;
@@ -28,8 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.openvpp.jvpp.core.dto.LispEidTableAddDelMap;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Customizer for {@code TableId}
  */
-public class VniTableCustomizer extends FutureJVppCustomizer implements ListWriterCustomizer<VniTable, VniTableKey> {
+public class VniTableCustomizer extends FutureJVppCustomizer
+        implements ListWriterCustomizer<VniTable, VniTableKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
@@ -90,11 +92,11 @@ public class VniTableCustomizer extends FutureJVppCustomizer implements ListWrit
 
         LispEidTableAddDelMap request = new LispEidTableAddDelMap();
 
-        request.isAdd = TranslateUtils.booleanToByte(isAdd);
+        request.isAdd = booleanToByte(isAdd);
         request.vni = vni;
         request.dpTable = vrf;
         request.isL2 = 0;
 
-        TranslateUtils.getReply(getFutureJVpp().lispEidTableAddDelMap(request).toCompletableFuture());
+        getReply(getFutureJVpp().lispEidTableAddDelMap(request).toCompletableFuture());
     }
 }

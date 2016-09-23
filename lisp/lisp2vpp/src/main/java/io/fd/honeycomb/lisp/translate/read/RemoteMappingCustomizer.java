@@ -21,8 +21,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.valueOf;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.FilterType;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.MappingsDumpParamsBuilder;
-import static io.fd.honeycomb.lisp.translate.util.EidConverter.compareAddresses;
-import static io.fd.honeycomb.lisp.translate.util.EidConverter.getArrayAsEidLocal;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
@@ -30,15 +28,14 @@ import io.fd.honeycomb.lisp.translate.read.dump.check.MappingsDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.MappingsDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.QuantityType;
-import io.fd.honeycomb.lisp.translate.util.EidConverter;
+import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -64,7 +61,8 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading {@code RemoteMapping}<br>
  */
 public class RemoteMappingCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<RemoteMapping, RemoteMappingKey, RemoteMappingBuilder> {
+        implements ListReaderCustomizer<RemoteMapping, RemoteMappingKey, RemoteMappingBuilder>,
+        EidTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(RemoteMappingCustomizer.class);
     private static final String KEY = RemoteMappingCustomizer.class.getName();
@@ -112,9 +110,9 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         final MappingsDumpParams dumpParams = new MappingsDumpParamsBuilder()
                 .setVni(Long.valueOf(vni).intValue())
                 .setEidSet(QuantityType.SPECIFIC)
-                .setEidType(EidConverter.getEidType(eid))
-                .setEid(EidConverter.getEidAsByteArray(eid))
-                .setPrefixLength(EidConverter.getPrefixLength(eid))
+                .setEidType(getEidType(eid))
+                .setEid(getEidAsByteArray(eid))
+                .setPrefixLength(getPrefixLength(eid))
                 .setFilter(FilterType.REMOTE)
                 .build();
 
@@ -136,11 +134,11 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                     .collect(
                             RWUtils.singleItemCollector());
 
-            builder.setEid(EidConverter.getArrayAsEidRemote(valueOf(details.eidType), details.eid));
+            builder.setEid(getArrayAsEidRemote(valueOf(details.eidType), details.eid));
             builder.setKey(new RemoteMappingKey(new MappingId(id.firstKeyOf(RemoteMapping.class).getId())));
             builder.setTtl(resolveTtl(details.ttl));
             builder.setAuthoritative(
-                    new RemoteMapping.Authoritative(TranslateUtils.byteToBoolean(details.authoritative)));
+                    new RemoteMapping.Authoritative(byteToBoolean(details.authoritative)));
 
         } else {
             LOG.debug("No data dumped");
@@ -191,7 +189,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                     .map(detail -> new RemoteMappingKey(
                             new MappingId(
                                     remoteMappingContext.getId(
-                                            EidConverter.getArrayAsEidRemote(
+                                            getArrayAsEidRemote(
                                                     valueOf(detail.eidType), detail.eid),
                                             context.getMappingContext()))))
                     .collect(Collectors.toList());

@@ -17,13 +17,12 @@
 package io.fd.honeycomb.lisp.translate.read;
 
 
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.getReply;
-
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfg;
@@ -42,7 +41,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Customizer for reading {@link PitrCfg}<br> Currently unsupported in jvpp
  */
-public class PitrCfgCustomizer extends FutureJVppCustomizer implements ReaderCustomizer<PitrCfg, PitrCfgBuilder> {
+public class PitrCfgCustomizer extends FutureJVppCustomizer
+        implements ReaderCustomizer<PitrCfg, PitrCfgBuilder>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PitrCfgCustomizer.class);
 
@@ -68,7 +68,7 @@ public class PitrCfgCustomizer extends FutureJVppCustomizer implements ReaderCus
             throw new ReadFailedException(id, e);
         }
 
-        builder.setLocatorSet(TranslateUtils.toString(reply.locatorSetName));
+        builder.setLocatorSet(toString(reply.locatorSetName));
         LOG.debug("Reading status for Lisp Pitr node {} successfull", id);
     }
 

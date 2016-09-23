@@ -23,10 +23,11 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.lisp.translate.util.EidConverter;
+import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.io.UnsupportedEncodingException;
@@ -46,7 +47,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * Customizer that writes changes for {@link LocalMapping}
  */
 public class LocalMappingCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<LocalMapping, LocalMappingKey> {
+        implements ListWriterCustomizer<LocalMapping, LocalMappingKey>, ByteDataTranslator, EidTranslator,
+        JvppReplyConsumer {
 
     private final EidMappingContext localMappingsContext;
 
@@ -118,9 +120,9 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
 
         LispAddDelLocalEid request = new LispAddDelLocalEid();
 
-        request.isAdd = TranslateUtils.booleanToByte(add);
-        request.eid = EidConverter.getEidAsByteArray(data.getEid());
-        request.eidType = (byte) EidConverter.getEidType(data.getEid()).getValue();
+        request.isAdd = booleanToByte(add);
+        request.eid = getEidAsByteArray(data.getEid());
+        request.eidType = (byte) getEidType(data.getEid()).getValue();
         request.locatorSetName = data.getLocatorSet().getBytes(UTF_8);
         request.vni = vni;
 
@@ -131,7 +133,7 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
             request.prefixLen = (byte) 128;
         }
 
-        TranslateUtils.getReply(getFutureJVpp().lispAddDelLocalEid(request).toCompletableFuture());
+        getReply(getFutureJVpp().lispAddDelLocalEid(request).toCompletableFuture());
     }
 
 }

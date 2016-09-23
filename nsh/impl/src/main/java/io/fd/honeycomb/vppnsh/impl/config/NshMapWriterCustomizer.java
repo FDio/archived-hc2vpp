@@ -16,31 +16,28 @@
 
 package io.fd.honeycomb.vppnsh.impl.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import javax.xml.bind.DatatypeConverter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.EncapType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.nsh.dto.*;
-import org.openvpp.jvpp.nsh.callback.*;
+import org.openvpp.jvpp.nsh.dto.NshAddDelMap;
+import org.openvpp.jvpp.nsh.dto.NshAddDelMapReply;
 import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
-import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,15 +45,15 @@ import org.slf4j.LoggerFactory;
  * Writer customizer responsible for NshMap create/delete.
  */
 public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
-    implements ListWriterCustomizer<NshMap, NshMapKey> {
+        implements ListWriterCustomizer<NshMap, NshMapKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(NshMapWriterCustomizer.class);
     private final NamingContext nshMapContext;
     private final NamingContext interfaceContext;
 
     public NshMapWriterCustomizer(@Nonnull final FutureJVppNsh futureJVppNsh,
-                                    @Nonnull final NamingContext nshMapContext,
-                                    @Nonnull final NamingContext interfaceContext) {
+                                  @Nonnull final NamingContext nshMapContext,
+                                  @Nonnull final NamingContext interfaceContext) {
         super(futureJVppNsh);
         this.nshMapContext = checkNotNull(nshMapContext, "nshMapContext should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
@@ -65,11 +62,11 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<NshMap> id,
                                        @Nonnull final NshMap dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         LOG.debug("Creating nsh map: iid={} dataAfter={}", id, dataAfter);
         try {
             final int newMapIndex =
-                nshAddDelMap(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
+                    nshAddDelMap(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
 
             // Add nsh map name <-> vpp index mapping to the naming context:
             nshMapContext.addName(newMapIndex, dataAfter.getName(), writeContext.getMappingContext());
@@ -93,7 +90,7 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
         LOG.debug("Removing nsh map: iid={} dataBefore={}", id, dataBefore);
         final String mapName = dataBefore.getName();
         checkState(nshMapContext.containsIndex(mapName, writeContext.getMappingContext()),
-            "Removing nsh map {}, but index could not be found in the nsh map context", mapName);
+                "Removing nsh map {}, but index could not be found in the nsh map context", mapName);
 
         final int mapIndex = nshMapContext.getIndex(mapName, writeContext.getMappingContext());
         try {
@@ -108,25 +105,24 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
     }
 
     private int nshAddDelMap(final boolean isAdd, @Nonnull final InstanceIdentifier<NshMap> id,
-                                    @Nonnull final NshMap map, final int mapId, final MappingContext ctx)
-        throws VppBaseCallException, WriteTimeoutException {
+                             @Nonnull final NshMap map, final int mapId, final MappingContext ctx)
+            throws VppBaseCallException, WriteTimeoutException {
         final CompletionStage<NshAddDelMapReply> createNshMapReplyCompletionStage =
-            getFutureJVppNsh().nshAddDelMap(getNshAddDelMapRequest(isAdd, mapId, map, ctx));
+                getFutureJVppNsh().nshAddDelMap(getNshAddDelMapRequest(isAdd, mapId, map, ctx));
 
-        final NshAddDelMapReply reply =
-            TranslateUtils.getReplyForWrite(createNshMapReplyCompletionStage.toCompletableFuture(), id);
+        final NshAddDelMapReply reply = getReplyForWrite(createNshMapReplyCompletionStage.toCompletableFuture(), id);
         return reply.mapIndex;
 
     }
 
     private NshAddDelMap getNshAddDelMapRequest(final boolean isAdd, final int mapIndex,
-                                                    @Nonnull final NshMap map,
-                                                    @Nonnull final MappingContext ctx) {
+                                                @Nonnull final NshMap map,
+                                                @Nonnull final MappingContext ctx) {
         final NshAddDelMap request = new NshAddDelMap();
         request.isAdd = booleanToByte(isAdd);
 
-        request.nspNsi = (map.getNsp().intValue()<<8) | map.getNsi();
-        request.mappedNspNsi = (map.getMappedNsp().intValue()<<8) | map.getMappedNsi();
+        request.nspNsi = (map.getNsp().intValue() << 8) | map.getNsi();
+        request.mappedNspNsi = (map.getMappedNsp().intValue() << 8) | map.getMappedNsi();
 
         if (map.getEncapType() == VxlanGpe.class) {
             request.nextNode = 2;

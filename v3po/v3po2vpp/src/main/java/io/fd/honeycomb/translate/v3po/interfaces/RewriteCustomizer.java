@@ -16,15 +16,14 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces;
 
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
-
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.v3po.util.TagRewriteOperation;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -49,7 +48,8 @@ import org.slf4j.LoggerFactory;
  * Writer Customizer responsible for vlan tag rewrite.<br> Sends {@code l2_interface_vlan_tag_rewrite} message to
  * VPP.<br> Equivalent of invoking {@code vppctl set interface l2 tag-rewrite} command.
  */
-public class RewriteCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Rewrite> {
+public class RewriteCustomizer extends FutureJVppCustomizer
+        implements WriterCustomizer<Rewrite>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
     private final NamingContext interfaceContext;
@@ -80,14 +80,14 @@ public class RewriteCustomizer extends FutureJVppCustomizer implements WriterCus
 
     private void setTagRewrite(final InstanceIdentifier<Rewrite> id, final String ifname, final Rewrite rewrite,
                                final WriteContext writeContext)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final int swIfIndex = interfaceContext.getIndex(ifname, writeContext.getMappingContext());
         LOG.debug("Setting tag rewrite for interface {}(id=): {}", ifname, swIfIndex, rewrite);
 
         final CompletionStage<L2InterfaceVlanTagRewriteReply> replyCompletionStage =
                 getFutureJVpp().l2InterfaceVlanTagRewrite(getTagRewriteRequest(swIfIndex, rewrite));
 
-        TranslateUtils.getReplyForWrite(replyCompletionStage.toCompletableFuture(), id);
+        getReplyForWrite(replyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Tag rewrite for interface {}(id=) set successfully: {}", ifname, swIfIndex, rewrite);
     }
 

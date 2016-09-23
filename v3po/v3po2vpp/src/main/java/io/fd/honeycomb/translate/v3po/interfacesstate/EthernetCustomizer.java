@@ -17,9 +17,9 @@
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class EthernetCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<Ethernet, EthernetBuilder> {
+        implements ReaderCustomizer<Ethernet, EthernetBuilder>, InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(EthernetCustomizer.class);
     private NamingContext interfaceContext;
@@ -66,10 +66,10 @@ public class EthernetCustomizer extends FutureJVppCustomizer
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
 
         final InterfaceKey key = id.firstKeyOf(Interface.class);
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
-                interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache());
+        final SwInterfaceDetails iface = getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
+                interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache(), LOG);
 
-        if(iface.linkMtu != 0) {
+        if (iface.linkMtu != 0) {
             builder.setMtu((int) iface.linkMtu);
         }
 

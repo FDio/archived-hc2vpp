@@ -19,8 +19,8 @@ package io.fd.honeycomb.translate.v3po.interfacesstate;
 import static io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
 
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import javax.annotation.Nonnull;

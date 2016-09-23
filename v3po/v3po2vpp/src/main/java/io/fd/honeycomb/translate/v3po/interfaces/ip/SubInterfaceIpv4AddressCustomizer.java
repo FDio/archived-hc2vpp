@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * Write customizer for sub-interface {@link Address}
  */
 public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
-    implements ListWriterCustomizer<Address, AddressKey> {
+        implements ListWriterCustomizer<Address, AddressKey>, Ipv4Writer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv4AddressCustomizer.class);
     private final NamingContext interfaceContext;
@@ -58,7 +58,7 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
 
     @Override
     public void writeCurrentAttributes(InstanceIdentifier<Address> id, Address dataAfter, WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         setAddress(true, id, dataAfter, writeContext);
     }
 
@@ -66,12 +66,12 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
     public void updateCurrentAttributes(InstanceIdentifier<Address> id, Address dataBefore, Address dataAfter,
                                         WriteContext writeContext) throws WriteFailedException {
         throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-            new UnsupportedOperationException("Operation not supported"));
+                new UnsupportedOperationException("Operation not supported"));
     }
 
     @Override
     public void deleteCurrentAttributes(InstanceIdentifier<Address> id, Address dataBefore, WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         setAddress(false, id, dataBefore, writeContext);
     }
 
@@ -98,26 +98,26 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         final InterfaceKey parentInterfacekey = id.firstKeyOf(Interface.class);
         final SubInterfaceKey subInterfacekey = id.firstKeyOf(SubInterface.class);
         return SubInterfaceUtils
-            .getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
+                .getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
     }
 
     private void setNetmaskSubnet(final boolean add, @Nonnull final InstanceIdentifier<Address> id,
                                   @Nonnull final String subInterfaceName, final int subInterfaceIndex,
                                   @Nonnull final Address address, @Nonnull final Netmask subnet)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             LOG.debug("Setting Subnet(subnet-mask) for sub-interface: {}(id={}). Subnet: {}, address: {}",
-                subInterfaceName, subInterfaceIndex, subnet, address);
+                    subInterfaceName, subInterfaceIndex, subnet, address);
 
             final DottedQuad netmask = subnet.getNetmask();
             checkNotNull(netmask, "netmask value should not be null");
 
-            final byte subnetLength = Ipv4WriteUtils.getSubnetMaskLength(netmask.getValue());
-            Ipv4WriteUtils.addDelAddress(getFutureJVpp(), add, id, subInterfaceIndex, address.getIp(), subnetLength);
+            final byte subnetLength = getSubnetMaskLength(netmask.getValue());
+            addDelAddress(getFutureJVpp(), add, id, subInterfaceIndex, address.getIp(), subnetLength);
 
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to set Subnet(subnet-mask) for sub-interface: {}(id={}). Subnet: {}, address: {}",
-                subInterfaceName, subInterfaceIndex, subnet, address);
+                    subInterfaceName, subInterfaceIndex, subnet, address);
             throw new WriteFailedException(id, "Unable to handle subnet of type " + subnet.getClass(), e);
         }
     }
@@ -125,19 +125,19 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
     private void setPrefixLengthSubnet(final boolean add, @Nonnull final InstanceIdentifier<Address> id,
                                        @Nonnull final String subInterfaceName, final int subInterfaceIndex,
                                        @Nonnull final Address address, @Nonnull final PrefixLength subnet)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             LOG.debug("Setting Subnet(prefix-length) for sub-interface: {}(id={}). Subnet: {}, address: {}",
-                subInterfaceName, subInterfaceIndex, subnet, address);
+                    subInterfaceName, subInterfaceIndex, subnet, address);
 
-            Ipv4WriteUtils.addDelAddress(getFutureJVpp(), add, id, subInterfaceIndex, address.getIp(),
-                subnet.getPrefixLength().byteValue());
+            addDelAddress(getFutureJVpp(), add, id, subInterfaceIndex, address.getIp(),
+                    subnet.getPrefixLength().byteValue());
 
             LOG.debug("Subnet(prefix-length) set successfully for sub-interface: {}(id={}). Subnet: {}, address: {}",
-                subInterfaceName, subInterfaceIndex, subnet, address);
+                    subInterfaceName, subInterfaceIndex, subnet, address);
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to set Subnet(prefix-length) for sub-interface: {}(id={}). Subnet: {}, address: {}",
-                subInterfaceName, subInterfaceIndex, subnet, address);
+                    subInterfaceName, subInterfaceIndex, subnet, address);
             throw new WriteFailedException(id, "Unable to handle subnet of type " + subnet.getClass(), e);
         }
     }

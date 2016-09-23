@@ -17,10 +17,10 @@
 package io.fd.honeycomb.translate.v3po.interfaces.acl;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.ipv4AddressNoZoneToArray;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.Ints;
+import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
@@ -33,7 +33,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class AceIp4Writer extends AbstractAceWriter<AceIp> {
+final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Translator {
 
     @VisibleForTesting
     static final int MATCH_N_VECTORS = 3; // number of 16B vectors
@@ -63,7 +63,8 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
         return toByteMask(prefixLength);
     }
 
-    private static byte[] toMatchValue(final Ipv4Prefix ipv4Prefix) {
+    // static removed, cant use default from static content
+    private byte[] toMatchValue(final Ipv4Prefix ipv4Prefix) {
         final String[] split = ipv4Prefix.getValue().split("/");
         final byte[] addressBytes = ipv4AddressNoZoneToArray(split[0]);
         final byte[] mask = toByteMask(Byte.valueOf(split[1]));
@@ -111,19 +112,19 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
         if (ipVersion.getSourceIpv4Network() != null) {
             aceIsEmpty = false;
             System.arraycopy(toByteMask(ipVersion.getSourceIpv4Network()), 0, request.mask, baseOffset + SRC_IP_OFFSET,
-                IP4_LEN);
+                    IP4_LEN);
         }
 
         if (ipVersion.getDestinationIpv4Network() != null) {
             aceIsEmpty = false;
             System
-                .arraycopy(toByteMask(ipVersion.getDestinationIpv4Network()), 0, request.mask,
-                    baseOffset + DST_IP_OFFSET, IP4_LEN);
+                    .arraycopy(toByteMask(ipVersion.getDestinationIpv4Network()), 0, request.mask,
+                            baseOffset + DST_IP_OFFSET, IP4_LEN);
         }
 
         if (aceIsEmpty) {
             throw new IllegalArgumentException(
-                String.format("Ace %s does not define packet field match values", aceIp.toString()));
+                    String.format("Ace %s does not define packet field match values", aceIp.toString()));
         }
 
         LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceIp, request);
@@ -147,7 +148,7 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
 
         if (aceIp.getProtocol() != null) {
             request.match[baseOffset + IP_VERSION_OFFSET] =
-                (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
+                    (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
         }
 
         if (aceIp.getDscp() != null) {
@@ -166,20 +167,21 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> {
         if (ipVersion.getSourceIpv4Network() != null) {
             noMatch = false;
             System
-                .arraycopy(toMatchValue(ipVersion.getSourceIpv4Network()), 0, request.match, baseOffset + SRC_IP_OFFSET,
-                    IP4_LEN);
+                    .arraycopy(toMatchValue(ipVersion.getSourceIpv4Network()), 0, request.match,
+                            baseOffset + SRC_IP_OFFSET,
+                            IP4_LEN);
         }
 
         if (ipVersion.getDestinationIpv4Network() != null) {
             noMatch = false;
             System.arraycopy(toMatchValue(ipVersion.getDestinationIpv4Network()), 0, request.match,
-                baseOffset + DST_IP_OFFSET,
-                IP4_LEN);
+                    baseOffset + DST_IP_OFFSET,
+                    IP4_LEN);
         }
 
         if (noMatch) {
             throw new IllegalArgumentException(
-                String.format("Ace %s does not define packet field match values", aceIp.toString()));
+                    String.format("Ace %s does not define packet field match values", aceIp.toString()));
         }
 
         LOG.debug("ACE action={}, rule={} translated to session={}.", action, aceIp, request);

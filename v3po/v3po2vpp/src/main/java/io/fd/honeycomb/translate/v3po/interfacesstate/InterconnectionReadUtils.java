@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility class providing Interconnection read support.
  */
-final class InterconnectionReadUtils {
+final class InterconnectionReadUtils implements InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterconnectionReadUtils.class);
 
@@ -62,11 +61,11 @@ final class InterconnectionReadUtils {
     @Nullable
     Interconnection readInterconnection(@Nonnull final InstanceIdentifier<?> id, @Nonnull final String ifaceName,
                                         @Nonnull final ReadContext ctx)
-        throws ReadFailedException {
+            throws ReadFailedException {
         final int ifaceId = interfaceContext.getIndex(ifaceName, ctx.getMappingContext());
 
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(futureJVppCore, id, ifaceName,
-            ifaceId, ctx.getModificationCache());
+        final SwInterfaceDetails iface = getVppInterfaceDetails(futureJVppCore, id, ifaceName,
+                ifaceId, ctx.getModificationCache(), LOG);
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
         final BridgeDomainDetailsReplyDump dumpReply = getDumpReply(id);
@@ -78,7 +77,7 @@ final class InterconnectionReadUtils {
 
             // Set BVI if the bridgeDomainDetails.bviSwIfIndex == current sw if index
             final Optional<BridgeDomainDetails> bridgeDomainForInterface =
-                getBridgeDomainForInterface(dumpReply, bdForInterface.get().bdId);
+                    getBridgeDomainForInterface(dumpReply, bdForInterface.get().bdId);
             // Since we already found an interface assigned to a bridge domain, the details for BD must be present
             checkState(bridgeDomainForInterface.isPresent());
             if (bridgeDomainForInterface.get().bviSwIfIndex == ifaceId) {
@@ -112,7 +111,7 @@ final class InterconnectionReadUtils {
     }
 
     private BridgeDomainDetailsReplyDump getDumpReply(@Nonnull final InstanceIdentifier<?> id)
-        throws ReadFailedException {
+            throws ReadFailedException {
         try {
             // We need to perform full bd dump, because there is no way
             // to ask VPP for BD details given interface id/name (TODO HONEYCOMB-190 add it to vpp.api?)
@@ -121,8 +120,8 @@ final class InterconnectionReadUtils {
             request.bdId = -1;
 
             final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
-                futureJVppCore.bridgeDomainSwIfDump(request).toCompletableFuture();
-            return TranslateUtils.getReplyForRead(bdCompletableFuture, id);
+                    futureJVppCore.bridgeDomainSwIfDump(request).toCompletableFuture();
+            return getReplyForRead(bdCompletableFuture, id);
         } catch (VppBaseCallException e) {
             throw new ReadFailedException(id, e);
         }

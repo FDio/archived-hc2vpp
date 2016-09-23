@@ -16,15 +16,14 @@
 
 package io.fd.honeycomb.translate.v3po.vpp;
 
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.parseMac;
-
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.v3po.util.MacTranslator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -47,7 +46,8 @@ import org.slf4j.LoggerFactory;
  * VPP.<br> Equivalent of invoking {@code vppctl l2fib add/del} command.
  */
 public class L2FibEntryCustomizer extends FutureJVppCustomizer
-    implements ListWriterCustomizer<L2FibEntry, L2FibEntryKey> {
+        implements ListWriterCustomizer<L2FibEntry, L2FibEntryKey>, ByteDataTranslator, MacTranslator,
+        JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2FibEntryCustomizer.class);
 
@@ -64,7 +64,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                        @Nonnull final L2FibEntry dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             LOG.debug("Creating L2 FIB entry: {} {}", id, dataAfter);
             l2FibAddDel(id, dataAfter, writeContext, true);
@@ -80,13 +80,13 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
                                         @Nonnull final L2FibEntry dataBefore, @Nonnull final L2FibEntry dataAfter,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         throw new UnsupportedOperationException(
-            "L2 FIB entry update is not supported. It has to be deleted and then created.");
+                "L2 FIB entry update is not supported. It has to be deleted and then created.");
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                         @Nonnull final L2FibEntry dataBefore, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             LOG.debug("Deleting L2 FIB entry: {} {}", id, dataBefore);
             l2FibAddDel(id, dataBefore, writeContext, false);
@@ -99,7 +99,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
 
     private void l2FibAddDel(@Nonnull final InstanceIdentifier<L2FibEntry> id, @Nonnull final L2FibEntry entry,
                              final WriteContext writeContext, boolean isAdd)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
         final int bdId = bdContext.getIndex(bdName, writeContext.getMappingContext());
 
@@ -112,9 +112,9 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
         final L2FibAddDel l2FibRequest = createL2FibRequest(entry, bdId, swIfIndex, isAdd);
         LOG.debug("Sending l2FibAddDel request: {}", l2FibRequest);
         final CompletionStage<L2FibAddDelReply> l2FibAddDelReplyCompletionStage =
-            getFutureJVpp().l2FibAddDel(l2FibRequest);
+                getFutureJVpp().l2FibAddDel(l2FibRequest);
 
-        TranslateUtils.getReplyForWrite(l2FibAddDelReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForWrite(l2FibAddDelReplyCompletionStage.toCompletableFuture(), id);
     }
 
     private L2FibAddDel createL2FibRequest(final L2FibEntry entry, final int bdId, final int swIfIndex, boolean isAdd) {
@@ -132,9 +132,9 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
 
     // mac address is string of the form: 11:22:33:44:55:66
     // but VPP expects long value in the format 11:22:33:44:55:66:XX:XX
-    private static long macToLong(final String macAddress) {
+    private long macToLong(final String macAddress) {
         final byte[] mac = parseMac(macAddress);
         return Longs.fromBytes(mac[0], mac[1], mac[2], mac[3],
-            mac[4], mac[5], (byte) 0, (byte) 0);
+                mac[4], mac[5], (byte) 0, (byte) 0);
     }
 }

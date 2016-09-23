@@ -20,11 +20,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading ACLs enabled on given interface.
  */
 public class AclCustomizer extends FutureJVppCustomizer
-    implements ReaderCustomizer<Acl, AclBuilder>, AclReader {
+        implements ReaderCustomizer<Acl, AclBuilder>, AclReader, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclCustomizer.class);
     private final NamingContext interfaceContext;
@@ -80,8 +80,8 @@ public class AclCustomizer extends FutureJVppCustomizer
         final ClassifyTableByInterface request = new ClassifyTableByInterface();
         request.swIfIndex = interfaceContext.getIndex(interfaceKey.getName(), ctx.getMappingContext());
         try {
-            final ClassifyTableByInterfaceReply reply = TranslateUtils
-                .getReplyForRead(getFutureJVpp().classifyTableByInterface(request).toCompletableFuture(), id);
+            final ClassifyTableByInterfaceReply reply =
+                    getReplyForRead(getFutureJVpp().classifyTableByInterface(request).toCompletableFuture(), id);
 
             builder.setL2Acl(readL2Acl(reply.l2TableId, classifyTableContext, ctx.getMappingContext()));
             builder.setIp4Acl(readIp4Acl(reply.ip4TableId, classifyTableContext, ctx.getMappingContext()));

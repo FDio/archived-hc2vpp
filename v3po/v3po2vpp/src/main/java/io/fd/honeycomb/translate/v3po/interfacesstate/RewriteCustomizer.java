@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading vlan tag-rewrite configuration state form the VPP.
  */
 public class RewriteCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<Rewrite, RewriteBuilder> {
+        implements ReaderCustomizer<Rewrite, RewriteBuilder>, InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
     private final NamingContext interfaceContext;
@@ -86,8 +86,8 @@ public class RewriteCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         LOG.debug("Reading attributes for sub interface: {}", subInterfaceName);
 
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, subInterfaceName,
-                interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache());
+        final SwInterfaceDetails iface = getVppInterfaceDetails(getFutureJVpp(), id, subInterfaceName,
+                interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache(), LOG);
         LOG.debug("VPP sub-interface details: {}", iface);
 
         checkState(iface.subId != 0, "Interface returned by the VPP is not a sub-interface");

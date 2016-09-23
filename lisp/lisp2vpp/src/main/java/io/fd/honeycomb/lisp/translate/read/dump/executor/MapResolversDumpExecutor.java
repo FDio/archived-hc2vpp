@@ -17,11 +17,11 @@
 package io.fd.honeycomb.lisp.translate.read.dump.executor;
 
 
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.openvpp.jvpp.VppBaseCallException;
@@ -31,7 +31,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
 public class MapResolversDumpExecutor extends AbstractDumpExecutor
-        implements EntityDumpExecutor<LispMapResolverDetailsReplyDump, Void> {
+        implements EntityDumpExecutor<LispMapResolverDetailsReplyDump, Void>, JvppReplyConsumer {
 
     public MapResolversDumpExecutor(@Nonnull FutureJVppCore api) {
         super(api);
@@ -40,7 +40,7 @@ public class MapResolversDumpExecutor extends AbstractDumpExecutor
     @Override
     public LispMapResolverDetailsReplyDump executeDump(final Void params) throws DumpExecutionFailedException {
         try {
-            return TranslateUtils.getReply(vppApi.lispMapResolverDump(new LispMapResolverDump()).toCompletableFuture());
+            return getReply(vppApi.lispMapResolverDump(new LispMapResolverDump()).toCompletableFuture());
         } catch (TimeoutException e) {
             throw DumpTimeoutException
                     .wrapTimeoutException("Map resolver dump execution ended in timeout", e);

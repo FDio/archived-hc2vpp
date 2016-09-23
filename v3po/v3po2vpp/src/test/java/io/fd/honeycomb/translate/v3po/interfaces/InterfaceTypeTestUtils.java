@@ -19,8 +19,8 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.write.WriteContext;
 import org.mockito.Matchers;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;

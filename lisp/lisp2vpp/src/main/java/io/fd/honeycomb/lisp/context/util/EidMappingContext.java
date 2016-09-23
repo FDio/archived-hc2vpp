@@ -19,7 +19,7 @@ package io.fd.honeycomb.lisp.context.util;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.util.EidConverter;
+import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
 import java.util.stream.Collector;
@@ -39,7 +39,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 /**
  * Utility class allowing {@link MappingId} to {@link Eid} mapping
  */
-public class EidMappingContext {
+public class EidMappingContext implements EidTranslator {
 
     private static final Collector<Mapping, ?, Mapping> SINGLE_ITEM_COLLECTOR = RWUtils.singleItemCollector();
 
@@ -75,7 +75,7 @@ public class EidMappingContext {
         checkArgument(read.isPresent(), "No mapping stored for eid: %s", eid);
 
         return read.get().getMapping().stream()
-                .filter(mapping -> EidConverter.compareEids(mapping.getEid(), eid))
+                .filter(mapping -> compareEids(mapping.getEid(), eid))
                 .collect(SINGLE_ITEM_COLLECTOR).getId();
     }
 
@@ -104,7 +104,7 @@ public class EidMappingContext {
         //  that is, for any non-null reference values x and y, this method returns true if and only if x and y refer to the same object
         //  (x == y has the value true).
         return read.get().getMapping().stream()
-                .filter(mapping -> EidConverter.compareEids(mapping.getEid(), eid))
+                .filter(mapping -> compareEids(mapping.getEid(), eid))
                 .collect(SINGLE_ITEM_COLLECTOR).getId();
     }
 
@@ -124,7 +124,7 @@ public class EidMappingContext {
         checkArgument(read.isPresent(), "No mapping stored for eid: %s", eid);
 
         return read.isPresent()
-                ? read.get().getMapping().stream().anyMatch(mapping -> EidConverter.compareEids(mapping.getEid(), eid))
+                ? read.get().getMapping().stream().anyMatch(mapping -> compareEids(mapping.getEid(), eid))
                 : false;
     }
 
@@ -143,7 +143,7 @@ public class EidMappingContext {
         checkArgument(read.isPresent(), "No mapping stored for eid: %s", eid);
 
         return read.isPresent()
-                ? read.get().getMapping().stream().anyMatch(mapping -> EidConverter.compareEids(mapping.getEid(), eid))
+                ? read.get().getMapping().stream().anyMatch(mapping -> compareEids(mapping.getEid(), eid))
                 : false;
     }
 

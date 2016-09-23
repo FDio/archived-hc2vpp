@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.honeycomb.translate.v3po.util;
 
 import com.google.common.base.Preconditions;
@@ -39,6 +40,11 @@ public enum TagRewriteOperation {
     translate_2_to_2(2);
 
     private static final int MAX_INDEX = 3;
+    private static TagRewriteOperation[][] translation = new TagRewriteOperation[][]{
+            {disabled, push_1, push_2},
+            {pop_1, translate_1_to_1, translate_1_to_2},
+            {pop_2, translate_2_to_1, translate_2_to_2}
+    };
     private final int code;
     private final byte popTags;
 
@@ -47,15 +53,10 @@ public enum TagRewriteOperation {
         this.popTags = UnsignedBytes.checkedCast(popTags);
     }
 
-    private static TagRewriteOperation[][] translation = new TagRewriteOperation[][] {
-        {disabled, push_1, push_2},
-        {pop_1, translate_1_to_1, translate_1_to_2},
-        {pop_2, translate_2_to_1, translate_2_to_2}
-    };
-
     /**
      * Returns VPP tag rewrite operation for given number of tags to pop and tags to push.
-     * @param toPop number of tags to pop (0..2)
+     *
+     * @param toPop  number of tags to pop (0..2)
      * @param toPush number of tags to push (0..2)
      * @return vpp tag rewrite operation for given input parameters
      */
@@ -67,6 +68,7 @@ public enum TagRewriteOperation {
 
     /**
      * Returns VPP tag rewrite operation for given operation code.
+     *
      * @param code VPP tag rewrite operation code
      * @return vpp tag rewrite operation for given input parameter
      */

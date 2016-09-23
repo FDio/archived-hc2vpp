@@ -19,7 +19,9 @@ package io.fd.honeycomb.translate.v3po.interfaces.ip;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnegative;
@@ -34,37 +36,33 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 /**
  * Utility class providing Ipv4 CUD support.
  */
-// TODO HONEYCOMB-175 replace with interface with default methods or abstract class
-public final class Ipv4WriteUtils {
+public interface Ipv4Writer extends ByteDataTranslator, Ipv4Translator, JvppReplyConsumer {
 
-    private static final int DOTTED_QUAD_MASK_LENGTH = 4;
-    private static final int IPV4_ADDRESS_PART_BITS_COUNT = 8;
-    private static final int NETMASK_PART_LIMIT = 256; // 2 power to 8
+    int DOTTED_QUAD_MASK_LENGTH = 4;
+    int IPV4_ADDRESS_PART_BITS_COUNT = 8;
+    int NETMASK_PART_LIMIT = 256; // 2 power to 8
 
-    private Ipv4WriteUtils() {
-        throw new UnsupportedOperationException("This utility class cannot be instantiated");
-    }
-
-    static void addDelAddress(@Nonnull final FutureJVppCore futureJVppCore, final boolean add, final InstanceIdentifier<?> id,
-                              @Nonnegative final int ifaceId,
-                              @Nonnull final Ipv4AddressNoZone address, @Nonnegative final byte prefixLength)
-        throws VppBaseCallException, WriteTimeoutException {
+    default void addDelAddress(@Nonnull final FutureJVppCore futureJVppCore, final boolean add,
+                               final InstanceIdentifier<?> id,
+                               @Nonnegative final int ifaceId,
+                               @Nonnull final Ipv4AddressNoZone address, @Nonnegative final byte prefixLength)
+            throws VppBaseCallException, WriteTimeoutException {
         checkArgument(prefixLength > 0, "Invalid prefix length");
         checkNotNull(address, "address should not be null");
 
-        final byte[] addressBytes = TranslateUtils.ipv4AddressNoZoneToArray(address);
+        final byte[] addressBytes = ipv4AddressNoZoneToArray(address);
 
         final CompletionStage<SwInterfaceAddDelAddressReply> swInterfaceAddDelAddressReplyCompletionStage =
-            futureJVppCore.swInterfaceAddDelAddress(
-                getSwInterfaceAddDelAddressRequest(ifaceId, TranslateUtils.booleanToByte(add) /* isAdd */,
-                    (byte) 0 /* isIpv6 */, (byte) 0 /* delAll */, prefixLength, addressBytes));
+                futureJVppCore.swInterfaceAddDelAddress(
+                        getSwInterfaceAddDelAddressRequest(ifaceId, booleanToByte(add) /* isAdd */,
+                                (byte) 0 /* isIpv6 */, (byte) 0 /* delAll */, prefixLength, addressBytes));
 
-        TranslateUtils.getReplyForWrite(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForWrite(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture(), id);
     }
 
-    static SwInterfaceAddDelAddress getSwInterfaceAddDelAddressRequest(final int swIfc, final byte isAdd,
-                                                                       final byte ipv6, final byte deleteAll,
-                                                                       final byte length, final byte[] addr) {
+    default SwInterfaceAddDelAddress getSwInterfaceAddDelAddressRequest(final int swIfc, final byte isAdd,
+                                                                        final byte ipv6, final byte deleteAll,
+                                                                        final byte length, final byte[] addr) {
         final SwInterfaceAddDelAddress swInterfaceAddDelAddress = new SwInterfaceAddDelAddress();
         swInterfaceAddDelAddress.swIfIndex = swIfc;
         swInterfaceAddDelAddress.isAdd = isAdd;
@@ -83,11 +81,11 @@ public final class Ipv4WriteUtils {
      * @param mask the subnet mask in dot notation 255.255.255.255
      * @return the prefix length as number of bits
      */
-    public static byte getSubnetMaskLength(final String mask) {
+    default byte getSubnetMaskLength(final String mask) {
         String[] maskParts = mask.split("\\.");
 
         checkArgument(maskParts.length == DOTTED_QUAD_MASK_LENGTH,
-            "Network mask %s is not in Quad Dotted Decimal notation!", mask);
+                "Network mask %s is not in Quad Dotted Decimal notation!", mask);
 
         long maskAsNumber = 0;
         for (int i = 0; i < DOTTED_QUAD_MASK_LENGTH; i++) {
@@ -100,11 +98,11 @@ public final class Ipv4WriteUtils {
 
         String bits = Long.toBinaryString(maskAsNumber);
         checkArgument(bits.length() == IPV4_ADDRESS_PART_BITS_COUNT * DOTTED_QUAD_MASK_LENGTH,
-            "Incorrect network mask %s", mask);
+                "Incorrect network mask %s", mask);
         final int leadingOnes = bits.indexOf('0');
         checkArgument(leadingOnes != -1, "Broadcast address %s is not allowed!", mask);
         checkArgument(bits.substring(leadingOnes).indexOf('1') == -1,
-            "Non-contiguous network mask %s is not allowed!", mask);
+                "Non-contiguous network mask %s is not allowed!", mask);
         return (byte) leadingOnes;
     }
 

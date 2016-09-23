@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.honeycomb.translate.v3po.notification;
 
 import com.google.common.base.Optional;
@@ -22,8 +23,8 @@ import com.google.inject.name.Named;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CompletionStage;
@@ -51,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * received notification, it transforms it into its BA equivalent and pushes into HC's notification collector.
  */
 @NotThreadSafe
-public final class InterfaceChangeNotificationProducer implements ManagedNotificationProducer {
+public final class InterfaceChangeNotificationProducer implements ManagedNotificationProducer, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceChangeNotificationProducer.class);
 
@@ -76,11 +77,11 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
         enableDisableIfcNotifications(1);
         LOG.debug("Interface notifications started successfully");
         notificationListenerReg = jvpp.getNotificationRegistry().registerSwInterfaceSetFlagsNotificationCallback(
-            swInterfaceSetFlagsNotification -> {
-                LOG.trace("Interface notification received: {}", swInterfaceSetFlagsNotification);
-                // TODO HONEYCOMB-166 this should be lazy
-                collector.onNotification(transformNotification(swInterfaceSetFlagsNotification));
-            }
+                swInterfaceSetFlagsNotification -> {
+                    LOG.trace("Interface notification received: {}", swInterfaceSetFlagsNotification);
+                    // TODO HONEYCOMB-166 this should be lazy
+                    collector.onNotification(transformNotification(swInterfaceSetFlagsNotification));
+                }
         );
     }
 
@@ -89,10 +90,14 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
             return new InterfaceDeletedBuilder().setName(getIfcName(swInterfaceSetFlagsNotification)).build();
         } else {
             return new InterfaceStateChangeBuilder()
-                .setName(getIfcName(swInterfaceSetFlagsNotification))
-                .setAdminStatus(swInterfaceSetFlagsNotification.adminUpDown == 1 ? InterfaceStatus.Up : InterfaceStatus.Down)
-                .setOperStatus(swInterfaceSetFlagsNotification.linkUpDown == 1 ? InterfaceStatus.Up : InterfaceStatus.Down)
-                .build();
+                    .setName(getIfcName(swInterfaceSetFlagsNotification))
+                    .setAdminStatus(swInterfaceSetFlagsNotification.adminUpDown == 1
+                            ? InterfaceStatus.Up
+                            : InterfaceStatus.Down)
+                    .setOperStatus(swInterfaceSetFlagsNotification.linkUpDown == 1
+                            ? InterfaceStatus.Up
+                            : InterfaceStatus.Down)
+                    .build();
         }
     }
 
@@ -107,8 +112,8 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
         final Optional<String> optionalName =
                 interfaceContext.getNameIfPresent(swInterfaceSetFlagsNotification.swIfIndex, mappingContext);
         return optionalName.isPresent()
-            ? new InterfaceNameOrIndex(optionalName.get())
-            : new InterfaceNameOrIndex((long) swInterfaceSetFlagsNotification.swIfIndex);
+                ? new InterfaceNameOrIndex(optionalName.get())
+                : new InterfaceNameOrIndex((long) swInterfaceSetFlagsNotification.swIfIndex);
     }
 
     @Override
@@ -132,9 +137,11 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
         final CompletionStage<WantInterfaceEventsReply> wantInterfaceEventsReplyCompletionStage;
         try {
             wantInterfaceEventsReplyCompletionStage = jvpp.wantInterfaceEvents(wantInterfaceEvents);
-            TranslateUtils.getReply(wantInterfaceEventsReplyCompletionStage.toCompletableFuture());
+            getReply(wantInterfaceEventsReplyCompletionStage.toCompletableFuture());
         } catch (VppBaseCallException | TimeoutException e) {
-            LOG.warn("Unable to {} interface notifications", enableDisable == 1 ? "enable" : "disable",  e);
+            LOG.warn("Unable to {} interface notifications", enableDisable == 1
+                    ? "enable"
+                    : "disable", e);
             throw new IllegalStateException("Unable to control interface notifications", e);
         }
     }

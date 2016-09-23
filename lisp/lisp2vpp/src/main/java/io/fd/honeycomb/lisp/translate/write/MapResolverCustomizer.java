@@ -19,8 +19,9 @@ package io.fd.honeycomb.lisp.translate.write;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.AddressTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.TimeoutException;
@@ -37,7 +38,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * Handles updates of {@link MapResolver} list
  */
 public class MapResolverCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<MapResolver, MapResolverKey> {
+        implements ListWriterCustomizer<MapResolver, MapResolverKey>, AddressTranslator,
+        JvppReplyConsumer {
 
     public MapResolverCustomizer(final FutureJVppCore vppApi) {
         super(vppApi);
@@ -84,14 +86,14 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
             TimeoutException {
 
         LispAddDelMapResolver request = new LispAddDelMapResolver();
-        request.isAdd = TranslateUtils.booleanToByte(add);
+        request.isAdd = booleanToByte(add);
 
 
-        boolean ipv6 = TranslateUtils.isIpv6(data.getIpAddress());
+        boolean ipv6 = isIpv6(data.getIpAddress());
 
-        request.isIpv6 = TranslateUtils.booleanToByte(ipv6);
-        request.ipAddress = TranslateUtils.ipAddressToArray(ipv6, data.getIpAddress());
+        request.isIpv6 = booleanToByte(ipv6);
+        request.ipAddress = ipAddressToArray(ipv6, data.getIpAddress());
 
-        TranslateUtils.getReply(getFutureJVpp().lispAddDelMapResolver(request).toCompletableFuture());
+        getReply(getFutureJVpp().lispAddDelMapResolver(request).toCompletableFuture());
     }
 }

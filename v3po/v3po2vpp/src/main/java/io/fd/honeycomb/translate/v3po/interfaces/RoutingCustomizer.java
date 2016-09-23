@@ -16,13 +16,13 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces;
 
+import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -35,7 +35,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Routing> {
+public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Routing>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingCustomizer.class);
     private final NamingContext interfaceContext;
@@ -48,7 +48,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> id,
                                        @Nonnull final Routing dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
 
         final String ifName = id.firstKeyOf(Interface.class).getName();
         try {
@@ -63,7 +63,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> id,
                                         @Nonnull final Routing dataBefore, @Nonnull final Routing dataAfter,
                                         @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
 
         final String ifName = id.firstKeyOf(Interface.class).getName();
         try {
@@ -86,13 +86,14 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
         LOG.debug("Setting routing for interface: {}, {}. Routing: {}", name, swIfc, rt);
 
         int vrfId = (rt != null)
-            ? rt.getVrfId().intValue()
-            : 0;
+                ? rt.getVrfId().intValue()
+                : 0;
 
         if (vrfId != 0) {
             final CompletionStage<SwInterfaceSetTableReply> swInterfaceSetTableReplyCompletionStage =
-                getFutureJVpp().swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, /* isIpv6 */ vrfId));
-            TranslateUtils.getReplyForWrite(swInterfaceSetTableReplyCompletionStage.toCompletableFuture(), id);
+                    getFutureJVpp()
+                            .swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, /* isIpv6 */ vrfId));
+            getReplyForWrite(swInterfaceSetTableReplyCompletionStage.toCompletableFuture(), id);
             LOG.debug("Routing set successfully for interface: {}, {}, routing: {}", name, swIfc, rt);
         }
     }

@@ -16,13 +16,12 @@
 
 package io.fd.honeycomb.translate.v3po.vppstate;
 
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.byteToBoolean;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import java.util.ArrayList;
@@ -44,12 +43,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BridgeDomainCustomizer extends FutureJVppCustomizer
-    implements ListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder> {
+        implements ListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder>, ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
     private final NamingContext bdContext;
 
-    public BridgeDomainCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext bdContext) {
+    public BridgeDomainCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                  @Nonnull final NamingContext bdContext) {
         super(futureJVppCore);
         this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
     }
@@ -57,9 +57,9 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomain> id,
                                       @Nonnull final BridgeDomainBuilder builder, @Nonnull final ReadContext context)
-        throws ReadFailedException {
+            throws ReadFailedException {
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: id={}, builderbuilder={}, context={}",
-            id, builder, context);
+                id, builder, context);
 
         final BridgeDomainKey key = id.firstKeyOf(id.getTargetType());
         LOG.debug("vppstate.BridgeDomainCustomizer.readCurrentAttributes: key={}", key);

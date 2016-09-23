@@ -17,10 +17,10 @@
 package io.fd.honeycomb.translate.v3po.interfaces;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import java.util.concurrent.CompletionStage;
@@ -36,13 +36,14 @@ import org.openvpp.jvpp.core.dto.InputAclSetInterface;
 import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-interface AclWriter {
+interface AclWriter extends ByteDataTranslator, JvppReplyConsumer {
 
     default void inputAclSetInterface(@Nonnull final FutureJVppCore futureJVppCore, final boolean isAdd,
                                       @Nonnull final InstanceIdentifier<?> id, @Nonnull final AclBaseAttributes acl,
-                                      @Nonnegative final int ifIndex, @Nonnull final VppClassifierContextManager classifyTableContext,
+                                      @Nonnegative final int ifIndex,
+                                      @Nonnull final VppClassifierContextManager classifyTableContext,
                                       @Nonnull final MappingContext mappingContext)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final InputAclSetInterface request = new InputAclSetInterface();
         request.isAdd = booleanToByte(isAdd);
         request.swIfIndex = ifIndex;
@@ -67,8 +68,8 @@ interface AclWriter {
         }
 
         final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
-            futureJVppCore.inputAclSetInterface(request);
+                futureJVppCore.inputAclSetInterface(request);
 
-        TranslateUtils.getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
     }
 }

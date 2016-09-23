@@ -17,9 +17,6 @@
 package io.fd.honeycomb.lisp.translate.read;
 
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.arrayToIpAddress;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.byteToBoolean;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.reverseAddress;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.translate.read.dump.check.MapResolverDumpCheck;
@@ -29,6 +26,7 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.v3po.util.AddressTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MapResolverCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<MapResolver, MapResolverKey, MapResolverBuilder> {
+        implements ListReaderCustomizer<MapResolver, MapResolverKey, MapResolverBuilder>, AddressTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(MapResolverCustomizer.class);
     private static final String MAP_RESOLVERS_CACHE_ID = MapResolverCustomizer.class.getName();

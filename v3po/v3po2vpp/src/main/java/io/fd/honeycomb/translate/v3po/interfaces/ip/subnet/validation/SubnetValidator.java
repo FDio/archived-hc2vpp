@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Function;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4WriteUtils;
+import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4Writer;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 /**
  * Validator for detecting if there is an attempt to assign multiple addresses from same subnet
  */
-public class SubnetValidator {
+public class SubnetValidator implements Ipv4Writer {
 
     /**
      * Checks whether data provided for writing are not in collision with already existing data
@@ -60,7 +60,7 @@ public class SubnetValidator {
                 .forConflictingData(conflictingPrefix, prefixLengthRegister.get(conflictingPrefix));
     }
 
-    private static Function<Address, Short> toPrefixLength() {
+    private Function<Address, Short> toPrefixLength() {
         return (final Address address) -> {
             final Subnet subnet = address.getSubnet();
 
@@ -69,7 +69,7 @@ public class SubnetValidator {
             }
 
             if (address.getSubnet() instanceof Netmask) {
-                return (short) Ipv4WriteUtils.getSubnetMaskLength(
+                return (short) getSubnetMaskLength(
                         checkNotNull(((Netmask) subnet).getNetmask(), "No netmask defined for %s", subnet)
                                 .getValue());
             }

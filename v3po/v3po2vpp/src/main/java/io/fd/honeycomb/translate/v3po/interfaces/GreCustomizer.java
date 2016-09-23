@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.translate.v3po.util.AbstractInterfaceTypeCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -35,13 +35,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Gre;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.openvpp.jvpp.core.dto.GreAddDelTunnel;
 import org.openvpp.jvpp.core.dto.GreAddDelTunnelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
+public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implements JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(GreCustomizer.class);
     private final NamingContext interfaceContext;
@@ -51,6 +51,17 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
         this.interfaceContext = interfaceContext;
     }
 
+    private static GreAddDelTunnel getGreTunnelRequest(final byte isAdd, final byte[] srcAddr, final byte[] dstAddr,
+                                                       final int outerFibId, final byte isIpv6) {
+        final GreAddDelTunnel greAddDelTunnel = new GreAddDelTunnel();
+        greAddDelTunnel.isAdd = isAdd;
+        greAddDelTunnel.srcAddress = srcAddr;
+        greAddDelTunnel.dstAddress = dstAddr;
+        greAddDelTunnel.outerFibId = outerFibId;
+        greAddDelTunnel.isIpv6 = isIpv6;
+        return greAddDelTunnel;
+    }
+
     @Override
     protected Class<? extends InterfaceType> getExpectedInterfaceType() {
         return GreTunnel.class;
@@ -58,7 +69,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
 
     @Override
     protected final void writeInterface(@Nonnull final InstanceIdentifier<Gre> id, @Nonnull final Gre dataAfter,
-                                       @Nonnull final WriteContext writeContext)
+                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         try {
@@ -91,8 +102,10 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
     }
 
     private void createGreTunnel(final InstanceIdentifier<Gre> id, final String swIfName, final Gre gre,
-                                   final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
-        final byte isIpv6 = (byte) (isIpv6(gre) ? 1 : 0);
+                                 final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+        final byte isIpv6 = (byte) (isIpv6(gre)
+                ? 1
+                : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(gre.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(gre.getDst()));
 
@@ -104,9 +117,9 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
                         dstAddress.getAddress(), outerFibId, isIpv6));
 
         final GreAddDelTunnelReply reply =
-                TranslateUtils.getReplyForWrite(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForWrite(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Gre tunnel set successfully for: {}, gre: {}", swIfName, gre);
-        if(interfaceContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
+        if (interfaceContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
             // VPP keeps gre tunnels present even after they are delete(reserving ID for next tunnel)
             // This may cause inconsistencies in mapping context when configuring tunnels like this:
             // 1. Add tunnel 2. Delete tunnel 3. Read interfaces (reserved mapping e.g. gre_tunnel0 -> 6
@@ -116,7 +129,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
             // new name for that ID
             final String formerName = interfaceContext.getName(reply.swIfIndex, writeContext.getMappingContext());
             LOG.debug("Removing updated mapping of a gre tunnel, id: {}, former name: {}, new name: {}",
-                reply.swIfIndex, formerName, swIfName);
+                    reply.swIfIndex, formerName, swIfName);
             interfaceContext.removeName(formerName, writeContext.getMappingContext());
         }
         // Add new interface to our interface context
@@ -126,22 +139,26 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
     private boolean isIpv6(final Gre gre) {
         if (gre.getSrc().getIpv4Address() == null) {
             checkArgument(gre.getDst().getIpv4Address() == null, "Inconsistent ip addresses: %s, %s", gre.getSrc(),
-                gre.getDst());
+                    gre.getDst());
             return true;
         } else {
             checkArgument(gre.getDst().getIpv6Address() == null, "Inconsistent ip addresses: %s, %s", gre.getSrc(),
-                gre.getDst());
+                    gre.getDst());
             return false;
         }
     }
 
     private String getAddressString(final IpAddress addr) {
-        return addr.getIpv4Address() == null ? addr.getIpv6Address().getValue() : addr.getIpv4Address().getValue();
+        return addr.getIpv4Address() == null
+                ? addr.getIpv6Address().getValue()
+                : addr.getIpv4Address().getValue();
     }
 
     private void deleteGreTunnel(final InstanceIdentifier<Gre> id, final String swIfName, final Gre gre,
-                                   final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
-        final byte isIpv6 = (byte) (isIpv6(gre) ? 1 : 0);
+                                 final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+        final byte isIpv6 = (byte) (isIpv6(gre)
+                ? 1
+                : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(gre.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(gre.getDst()));
 
@@ -152,20 +169,9 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> {
                 getFutureJVpp().greAddDelTunnel(getGreTunnelRequest((byte) 0 /* is add */, srcAddress.getAddress(),
                         dstAddress.getAddress(), outerFibId, isIpv6));
 
-        TranslateUtils.getReplyForWrite(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForWrite(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Gre tunnel deleted successfully for: {}, gre: {}", swIfName, gre);
         // Remove interface from our interface context
         interfaceContext.removeName(swIfName, writeContext.getMappingContext());
-    }
-
-    private static GreAddDelTunnel getGreTunnelRequest(final byte isAdd, final byte[] srcAddr, final byte[] dstAddr,
-                                                    final int outerFibId, final byte isIpv6) {
-        final GreAddDelTunnel greAddDelTunnel = new GreAddDelTunnel();
-        greAddDelTunnel.isAdd = isAdd;
-        greAddDelTunnel.srcAddress = srcAddr;
-        greAddDelTunnel.dstAddress = dstAddr;
-        greAddDelTunnel.outerFibId = outerFibId;
-        greAddDelTunnel.isIpv6 = isIpv6;
-        return greAddDelTunnel;
     }
 }

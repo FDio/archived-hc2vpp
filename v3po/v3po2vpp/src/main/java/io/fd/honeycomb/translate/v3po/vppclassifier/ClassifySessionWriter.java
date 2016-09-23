@@ -19,12 +19,12 @@ package io.fd.honeycomb.translate.v3po.vppclassifier;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * to VPP.<br> Equivalent to invoking {@code vppctl classify table} command.
  */
 public class ClassifySessionWriter extends VppNodeWriter
-    implements ListWriterCustomizer<ClassifySession, ClassifySessionKey> {
+        implements ListWriterCustomizer<ClassifySession, ClassifySessionKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifySessionWriter.class);
     private final VppClassifierContextManager classifyTableContext;
@@ -97,32 +97,32 @@ public class ClassifySessionWriter extends VppNodeWriter
     private void classifyAddDelSession(final boolean isAdd, @Nonnull final InstanceIdentifier<ClassifySession> id,
                                        @Nonnull final ClassifySession classifySession,
                                        @Nonnull final WriteContext writeContext)
-        throws VppBaseCallException, WriteFailedException {
+            throws VppBaseCallException, WriteFailedException {
         final ClassifyTableKey tableKey = id.firstKeyOf(ClassifyTable.class);
         checkArgument(tableKey != null, "could not find classify table key in {}", id);
 
         final String tableName = tableKey.getName();
         checkState(classifyTableContext.containsTable(tableName, writeContext.getMappingContext()),
-            "Could not find classify table index for {} in the classify table context", tableName);
+                "Could not find classify table index for {} in the classify table context", tableName);
         final int tableIndex = classifyTableContext.getTableIndex(tableName, writeContext.getMappingContext());
 
         final ClassifyTable classifyTable =
-            getClassifyTable(writeContext, id.firstIdentifierOf(ClassifyTable.class), isAdd);
+                getClassifyTable(writeContext, id.firstIdentifierOf(ClassifyTable.class), isAdd);
         final int hitNextIndex = getNodeIndex(classifySession.getHitNext(), classifyTable, classifyTableContext,
-            writeContext.getMappingContext(), id);
+                writeContext.getMappingContext(), id);
         final int opaqueIndex =
-            getOpaqueIndex(classifySession.getOpaqueIndex(), classifyTable, writeContext.getMappingContext(), id);
+                getOpaqueIndex(classifySession.getOpaqueIndex(), classifyTable, writeContext.getMappingContext(), id);
 
         final CompletionStage<ClassifyAddDelSessionReply> createClassifyTableReplyCompletionStage = getFutureJVpp()
-            .classifyAddDelSession(
-                getClassifyAddDelSessionRequest(isAdd, classifySession, tableIndex, hitNextIndex, opaqueIndex));
+                .classifyAddDelSession(
+                        getClassifyAddDelSessionRequest(isAdd, classifySession, tableIndex, hitNextIndex, opaqueIndex));
 
-        TranslateUtils.getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
     }
 
     private ClassifyTable getClassifyTable(final WriteContext writeContext,
-                                            @Nonnull final InstanceIdentifier<ClassifyTable> id,
-                                            final boolean isAdd) {
+                                           @Nonnull final InstanceIdentifier<ClassifyTable> id,
+                                           final boolean isAdd) {
         final Optional<ClassifyTable> classifyTable;
         if (isAdd) {
             classifyTable = writeContext.readAfter(id);
@@ -132,11 +132,11 @@ public class ClassifySessionWriter extends VppNodeWriter
         return classifyTable.get();
     }
 
-    private static ClassifyAddDelSession getClassifyAddDelSessionRequest(final boolean isAdd,
-                                                                         @Nonnull final ClassifySession classifySession,
-                                                                         final int tableIndex,
-                                                                         final int hitNextIndex,
-                                                                         final int opaqueIndex) {
+    private ClassifyAddDelSession getClassifyAddDelSessionRequest(final boolean isAdd,
+                                                                  @Nonnull final ClassifySession classifySession,
+                                                                  final int tableIndex,
+                                                                  final int hitNextIndex,
+                                                                  final int opaqueIndex) {
         ClassifyAddDelSession request = new ClassifyAddDelSession();
         request.isAdd = booleanToByte(isAdd);
         request.tableIndex = tableIndex;
@@ -152,7 +152,7 @@ public class ClassifySessionWriter extends VppNodeWriter
 
     private int getOpaqueIndex(@Nullable final OpaqueIndex opaqueIndex, final ClassifyTable classifyTable,
                                final MappingContext ctx, final InstanceIdentifier<ClassifySession> id)
-        throws VppBaseCallException, WriteFailedException {
+            throws VppBaseCallException, WriteFailedException {
         if (opaqueIndex == null) {
             return ~0; // value not specified
         }

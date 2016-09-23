@@ -17,16 +17,15 @@
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.byteToBoolean;
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,16 +71,39 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading sub interfaces form the VPP.
  */
 public class SubInterfaceCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<SubInterface, SubInterfaceKey, SubInterfaceBuilder> {
+        implements ListReaderCustomizer<SubInterface, SubInterfaceKey, SubInterfaceBuilder>, ByteDataTranslator,
+        InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceCustomizer.class);
-    private NamingContext interfaceContext;
     private static final Dot1qTag.VlanId ANY_VLAN_ID = new Dot1qTag.VlanId(Dot1qTag.VlanId.Enumeration.Any);
+    private NamingContext interfaceContext;
 
     public SubInterfaceCustomizer(@Nonnull final FutureJVppCore jvpp,
                                   @Nonnull final NamingContext interfaceContext) {
         super(jvpp);
         this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
+    }
+
+    private static String getSubInterfaceName(final InstanceIdentifier<SubInterface> id) {
+        return SubInterfaceUtils.getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
+                Math.toIntExact(id.firstKeyOf(id.getTargetType()).getIdentifier()));
+    }
+
+    private static Tag buildTag(final short index, final Class<? extends Dot1qTagVlanType> tagType,
+                                final Dot1qTag.VlanId vlanId) {
+        TagBuilder tag = new TagBuilder();
+        tag.setIndex(index);
+        tag.setKey(new TagKey(index));
+        final Dot1qTagBuilder dtag = new Dot1qTagBuilder();
+        dtag.setTagType(tagType);
+        dtag.setVlanId(vlanId);
+        tag.setDot1qTag(dtag.build());
+        return tag.build();
+    }
+
+    private static Dot1qTag.VlanId buildVlanId(final short vlanId) {
+        // treat vlanId as unsigned value:
+        return new Dot1qTag.VlanId(new Dot1qVlanId(0xffff & vlanId));
     }
 
     @Nonnull
@@ -105,7 +127,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
                     getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
             final SwInterfaceDetailsReplyDump ifaces =
-                    TranslateUtils.getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
+                    getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
 
             if (null == ifaces || null == ifaces.swInterfaceDetails) {
                 LOG.warn("Looking for sub-interfaces, but no interfaces found in VPP");
@@ -113,8 +135,9 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             }
 
             // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-            context.getModificationCache().put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-                    .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+            context.getModificationCache()
+                    .put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
+                            .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
 
             final List<SubInterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
                     .filter(elt -> elt != null)
@@ -126,7 +149,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             LOG.debug("Sub-interfaces of {} found in VPP: {}", ifaceName, interfacesKeys);
             return interfacesKeys;
         } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id,e);
+            throw new ReadFailedException(id, e);
         }
     }
 
@@ -149,8 +172,8 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         LOG.debug("Reading attributes for sub interface: {}", subInterfaceName);
 
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, subInterfaceName,
-                interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache());
+        final SwInterfaceDetails iface = getVppInterfaceDetails(getFutureJVpp(), id, subInterfaceName,
+                interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache(), LOG);
         LOG.debug("VPP sub-interface details: {}", iface);
 
         checkState(iface.subId != 0, "Interface returned by the VPP is not a sub-interface");
@@ -169,18 +192,13 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         builder.setOperStatus(1 == iface.linkUpDown
                 ? SubInterfaceStatus.Up
                 : SubInterfaceStatus.Down);
-        builder.setIfIndex(InterfaceUtils.vppIfIndexToYang(iface.swIfIndex));
+        builder.setIfIndex(vppIfIndexToYang(iface.swIfIndex));
         if (iface.l2AddressLength == 6) {
-            builder.setPhysAddress(new PhysAddress(InterfaceUtils.vppPhysAddrToYang(iface.l2Address)));
+            builder.setPhysAddress(new PhysAddress(vppPhysAddrToYang(iface.l2Address)));
         }
         if (0 != iface.linkSpeed) {
-            builder.setSpeed(InterfaceUtils.vppInterfaceSpeedToYang(iface.linkSpeed));
+            builder.setSpeed(vppInterfaceSpeedToYang(iface.linkSpeed));
         }
-    }
-
-    private static String getSubInterfaceName(final InstanceIdentifier<SubInterface> id) {
-        return SubInterfaceUtils.getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
-                Math.toIntExact(id.firstKeyOf(id.getTargetType()).getIdentifier()));
     }
 
     private Tags readTags(final SwInterfaceDetails iface) {
@@ -203,23 +221,6 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         }
         tags.setTag(list);
         return tags.build();
-    }
-
-    private static Tag buildTag(final short index, final Class<? extends Dot1qTagVlanType> tagType,
-                                final Dot1qTag.VlanId vlanId) {
-        TagBuilder tag = new TagBuilder();
-        tag.setIndex(index);
-        tag.setKey(new TagKey(index));
-        final Dot1qTagBuilder dtag = new Dot1qTagBuilder();
-        dtag.setTagType(tagType);
-        dtag.setVlanId(vlanId);
-        tag.setDot1qTag(dtag.build());
-        return tag.build();
-    }
-
-    private static Dot1qTag.VlanId buildVlanId(final short vlanId) {
-        // treat vlanId as unsigned value:
-        return new Dot1qTag.VlanId(new Dot1qVlanId(0xffff & vlanId));
     }
 
     private Match readMatch(final SwInterfaceDetails iface) {

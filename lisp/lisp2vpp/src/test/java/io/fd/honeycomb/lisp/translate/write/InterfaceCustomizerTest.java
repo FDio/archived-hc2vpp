@@ -25,8 +25,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +48,7 @@ import org.openvpp.jvpp.core.dto.LispAddDelLocator;
 import org.openvpp.jvpp.core.dto.LispAddDelLocatorReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class InterfaceCustomizerTest extends WriterCustomizerTest {
+public class InterfaceCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 
     @Captor
     private ArgumentCaptor<LispAddDelLocator> intfCaptor;
@@ -119,7 +119,7 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest {
         assertEquals(2, request.weight);
         assertEquals(1, request.priority);
         assertEquals(5, request.swIfIndex);
-        assertEquals("Locator", TranslateUtils.toString(request.locatorSetName));
+        assertEquals("Locator", toString(request.locatorSetName));
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -167,6 +167,6 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest {
         assertEquals(2, request.weight);
         assertEquals(1, request.priority);
         assertEquals(5, request.swIfIndex);
-        assertEquals("Locator", TranslateUtils.toString(request.locatorSetName));
+        assertEquals("Locator", toString(request.locatorSetName));
     }
 }

@@ -20,11 +20,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -36,7 +36,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 /**
  * Customizer for {@code PitrCfg}
  */
-public class PitrCfgCustomizer extends FutureJVppCustomizer implements WriterCustomizer<PitrCfg> {
+public class PitrCfgCustomizer extends FutureJVppCustomizer
+        implements WriterCustomizer<PitrCfg>, JvppReplyConsumer, ByteDataTranslator {
 
     public PitrCfgCustomizer(FutureJVppCore futureJvpp) {
         super(futureJvpp);
@@ -85,10 +86,10 @@ public class PitrCfgCustomizer extends FutureJVppCustomizer implements WriterCus
             throws VppBaseCallException, TimeoutException {
 
         LispPitrSetLocatorSet request = new LispPitrSetLocatorSet();
-        request.isAdd = TranslateUtils.booleanToByte(add);
+        request.isAdd = booleanToByte(add);
         request.lsName = data.getLocatorSet().getBytes(UTF_8);
 
-        TranslateUtils.getReply(getFutureJVpp().lispPitrSetLocatorSet(request).toCompletableFuture());
+        getReply(getFutureJVpp().lispPitrSetLocatorSet(request).toCompletableFuture());
     }
 
 }

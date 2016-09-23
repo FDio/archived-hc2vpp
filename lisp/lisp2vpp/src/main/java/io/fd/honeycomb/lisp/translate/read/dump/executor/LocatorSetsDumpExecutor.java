@@ -17,11 +17,11 @@
 package io.fd.honeycomb.lisp.translate.read.dump.executor;
 
 
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.openvpp.jvpp.VppBaseCallException;
@@ -31,7 +31,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
 public class LocatorSetsDumpExecutor extends AbstractDumpExecutor
-        implements EntityDumpExecutor<LispLocatorSetDetailsReplyDump, Void> {
+        implements EntityDumpExecutor<LispLocatorSetDetailsReplyDump, Void>, JvppReplyConsumer {
 
     public LocatorSetsDumpExecutor(@Nonnull FutureJVppCore api) {
         super(api);
@@ -45,8 +45,7 @@ public class LocatorSetsDumpExecutor extends AbstractDumpExecutor
         request.filter = 1;
 
         try {
-            return TranslateUtils
-                    .getReply(vppApi.lispLocatorSetDump(request).toCompletableFuture());
+            return getReply(vppApi.lispLocatorSetDump(request).toCompletableFuture());
         } catch (TimeoutException e) {
             throw DumpTimeoutException.wrapTimeoutException("Locator sets dump ended in timeout", e);
         } catch (VppBaseCallException e) {

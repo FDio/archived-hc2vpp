@@ -18,8 +18,9 @@ package io.fd.honeycomb.lisp.translate.write;
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -36,7 +37,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 /**
  * Handles updates of {@link Lisp} node. Takes care of LISP enable/disable
  */
-public class LispCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Lisp> {
+public class LispCustomizer extends FutureJVppCustomizer
+        implements WriterCustomizer<Lisp>, ByteDataTranslator, JvppReplyConsumer {
 
     public LispCustomizer(final FutureJVppCore vppApi) {
         super(vppApi);
@@ -84,12 +86,12 @@ public class LispCustomizer extends FutureJVppCustomizer implements WriterCustom
     private void enableDisableLisp(final boolean enable) throws VppBaseCallException, TimeoutException {
         final CompletionStage<LispEnableDisableReply> lispEnableDisableReplyCompletionStage =
                 getFutureJVpp().lispEnableDisable(getRequest(enable));
-        TranslateUtils.getReply(lispEnableDisableReplyCompletionStage.toCompletableFuture());
+        getReply(lispEnableDisableReplyCompletionStage.toCompletableFuture());
     }
 
     private LispEnableDisable getRequest(final boolean enable) {
         final LispEnableDisable lispEnableDisable = new LispEnableDisable();
-        lispEnableDisable.isEn = TranslateUtils.booleanToByte(enable);
+        lispEnableDisable.isEn = booleanToByte(enable);
         return lispEnableDisable;
     }
 }

@@ -35,7 +35,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * Validates the type of interface.
  */
 public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
-    extends FutureJVppCustomizer implements WriterCustomizer<D> {
+        extends FutureJVppCustomizer implements WriterCustomizer<D> {
 
     protected AbstractInterfaceTypeCustomizer(final FutureJVppCore futureJVppCore) {
         super(futureJVppCore);
@@ -46,13 +46,13 @@ public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
         final InstanceIdentifier<Interface> ifcTypeFromIid = id.firstIdentifierOf(Interface.class);
         checkArgument(ifcTypeFromIid != null, "Instance identifier does not contain {} type", Interface.class);
         checkArgument(id.firstKeyOf(Interface.class) != null, "Instance identifier does not contain keyed {} type",
-            Interface.class);
+                Interface.class);
         final Optional<Interface> interfaceConfig = writeContext.readAfter(ifcTypeFromIid);
         checkState(interfaceConfig.isPresent(),
-            "Unable to get Interface configuration for an interface: %s currently being updated", ifcTypeFromIid);
+                "Unable to get Interface configuration for an interface: %s currently being updated", ifcTypeFromIid);
 
         IllegalInterfaceTypeException
-            .checkInterfaceType(interfaceConfig.get(), getExpectedInterfaceType());
+                .checkInterfaceType(interfaceConfig.get(), getExpectedInterfaceType());
     }
 
     protected abstract Class<? extends InterfaceType> getExpectedInterfaceType();
@@ -62,14 +62,14 @@ public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
      */
     @Override
     public final void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataAfter,
-                                       @Nonnull final WriteContext writeContext) throws WriteFailedException {
+                                             @Nonnull final WriteContext writeContext) throws WriteFailedException {
         checkProperInterfaceType(writeContext, id);
         writeInterface(id, dataAfter, writeContext);
     }
 
     protected abstract void writeInterface(final InstanceIdentifier<D> id, final D dataAfter,
                                            final WriteContext writeContext)
-        throws WriteFailedException;
+            throws WriteFailedException;
 
     // Validation for update and delete is not necessary
 
@@ -91,8 +91,8 @@ public abstract class AbstractInterfaceTypeCustomizer<D extends DataObject>
                                        @Nonnull final Class<? extends InterfaceType> expectedType) {
             if (ifc.getType() == null || !expectedType.equals(ifc.getType())) {
                 throw new IllegalInterfaceTypeException(String.format(
-                    "Unexpected interface type: %s for interface: %s. Expected interface is: %s", ifc.getType(),
-                    ifc.getName(), expectedType));
+                        "Unexpected interface type: %s for interface: %s. Expected interface is: %s", ifc.getType(),
+                        ifc.getName(), expectedType));
             }
         }
 

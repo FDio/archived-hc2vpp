@@ -16,13 +16,13 @@
 
 package io.fd.honeycomb.translate.v3po.vpp;
 
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
-
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.AddressTranslator;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -46,7 +46,8 @@ import org.slf4j.LoggerFactory;
  * VPP.<br> Equivalent of invoking {@code vppctl set bridge-domain arp term} command.
  */
 public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
-    implements ListWriterCustomizer<ArpTerminationTableEntry, ArpTerminationTableEntryKey> {
+        implements ListWriterCustomizer<ArpTerminationTableEntry, ArpTerminationTableEntryKey>, ByteDataTranslator,
+        AddressTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArpTerminationTableEntryCustomizer.class);
 
@@ -62,7 +63,7 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<ArpTerminationTableEntry> id,
                                        @Nonnull final ArpTerminationTableEntry dataAfter,
                                        @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             LOG.debug("Creating ARP termination table entry: {} {}", id, dataAfter);
             bdIpMacAddDel(id, dataAfter, writeContext, true);
@@ -79,14 +80,14 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
                                         @Nonnull final ArpTerminationTableEntry dataAfter,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         throw new UnsupportedOperationException(
-            "ARP termination table entry update is not supported. It has to be deleted and then created.");
+                "ARP termination table entry update is not supported. It has to be deleted and then created.");
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<ArpTerminationTableEntry> id,
                                         @Nonnull final ArpTerminationTableEntry dataBefore,
                                         @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             LOG.debug("Deleting ARP termination table entry entry: {} {}", id, dataBefore);
             bdIpMacAddDel(id, dataBefore, writeContext, false);
@@ -100,23 +101,23 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
     private void bdIpMacAddDel(@Nonnull final InstanceIdentifier<ArpTerminationTableEntry> id,
                                @Nonnull final ArpTerminationTableEntry entry,
                                final WriteContext writeContext, boolean isAdd)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
         final int bdId = bdContext.getIndex(bdName, writeContext.getMappingContext());
 
         final BdIpMacAddDel request = createRequest(entry, bdId, isAdd);
         LOG.debug("Sending l2FibAddDel request: {}", request);
         final CompletionStage<BdIpMacAddDelReply> replyCompletionStage =
-            getFutureJVpp().bdIpMacAddDel(request);
+                getFutureJVpp().bdIpMacAddDel(request);
 
-        TranslateUtils.getReplyForWrite(replyCompletionStage.toCompletableFuture(), id);
+        getReplyForWrite(replyCompletionStage.toCompletableFuture(), id);
     }
 
     private BdIpMacAddDel createRequest(final ArpTerminationTableEntry entry, final int bdId, boolean isAdd) {
         final BdIpMacAddDel request = new BdIpMacAddDel();
         request.bdId = bdId;
         request.isAdd = booleanToByte(isAdd);
-        request.macAddress = TranslateUtils.parseMac(entry.getPhysAddress().getValue());
+        request.macAddress = parseMac(entry.getPhysAddress().getValue());
 
         final IpAddress ipAddress = entry.getIpAddress();
         if (ipAddress.getIpv6Address() != null) {
@@ -124,7 +125,7 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
             throw new UnsupportedOperationException("IPv6 address for ARP termination table is not supported yet");
         }
 
-        request.ipAddress = TranslateUtils.ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(ipAddress.getIpv4Address()));
+        request.ipAddress = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(ipAddress.getIpv4Address()));
         return request;
     }
 }

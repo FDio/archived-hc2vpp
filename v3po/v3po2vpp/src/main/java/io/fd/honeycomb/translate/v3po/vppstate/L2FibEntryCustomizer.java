@@ -16,19 +16,17 @@
 
 package io.fd.honeycomb.translate.v3po.vppstate;
 
-import static io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceUtils.vppPhysAddrToYang;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.byteToBoolean;
-
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.ReadTimeoutException;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -56,12 +54,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class L2FibEntryCustomizer extends FutureJVppCustomizer
-    implements ListReaderCustomizer<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> {
+        implements ListReaderCustomizer<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder>, ByteDataTranslator,
+        InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2FibEntryCustomizer.class);
 
     private static final Collector<L2FibTableEntry, ?, L2FibTableEntry> SINGLE_ITEM_COLLECTOR =
-        RWUtils.singleItemCollector();
+            RWUtils.singleItemCollector();
 
     private final NamingContext bdContext;
     private final NamingContext interfaceContext;
@@ -76,7 +75,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                       @Nonnull final L2FibEntryBuilder builder, @Nonnull final ReadContext ctx)
-        throws ReadFailedException {
+            throws ReadFailedException {
 
         final L2FibEntryKey key = id.firstKeyOf(id.getTargetType());
         final BridgeDomainKey bridgeDomainKey = id.firstKeyOf(BridgeDomain.class);
@@ -86,12 +85,12 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
         try {
             // TODO HONEYCOMB-186 use cached l2FibTable
             final L2FibTableEntry entry = dumpL2Fibs(id, bdId).stream().filter(e -> key.getPhysAddress()
-                .equals(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(e.mac), 2))))
-                .collect(SINGLE_ITEM_COLLECTOR);
+                    .equals(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(e.mac), 2))))
+                    .collect(SINGLE_ITEM_COLLECTOR);
 
             builder.setAction(byteToBoolean(entry.filterMac)
-                ? L2FibFilter.class
-                : L2FibForward.class);
+                    ? L2FibFilter.class
+                    : L2FibForward.class);
             builder.setBridgedVirtualInterface(byteToBoolean(entry.bviMac));
 
             if (entry.swIfIndex != -1) {
@@ -107,14 +106,14 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
 
     @Nonnull
     private List<L2FibTableEntry> dumpL2Fibs(final InstanceIdentifier<L2FibEntry> id, final int bdId)
-        throws VppBaseCallException, ReadTimeoutException {
+            throws VppBaseCallException, ReadTimeoutException {
         final L2FibTableDump l2FibRequest = new L2FibTableDump();
         l2FibRequest.bdId = bdId;
 
         final CompletableFuture<L2FibTableEntryReplyDump> l2FibTableDumpCompletableFuture =
-            getFutureJVpp().l2FibTableDump(l2FibRequest).toCompletableFuture();
+                getFutureJVpp().l2FibTableDump(l2FibRequest).toCompletableFuture();
 
-        final L2FibTableEntryReplyDump dump = TranslateUtils.getReplyForRead(l2FibTableDumpCompletableFuture, id);
+        final L2FibTableEntryReplyDump dump = getReplyForRead(l2FibTableDumpCompletableFuture, id);
 
         if (null == dump || null == dump.l2FibTableEntry) {
             return Collections.emptyList();

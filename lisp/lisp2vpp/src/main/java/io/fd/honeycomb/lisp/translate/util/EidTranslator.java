@@ -22,7 +22,7 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV6;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.MAC;
 
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.AddressTranslator;
 import java.util.Arrays;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
@@ -42,38 +42,35 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 
 
 /**
- * Helper class that converts {@code SimpleAddress} to eid format for vpp
+ * Trait providing converting logic for eid's
  */
-public final class EidConverter {
+public interface EidTranslator extends AddressTranslator {
 
-    private EidConverter() {
-        throw new UnsupportedOperationException("Cannot instantiate utility class " + EidConverter.class.getName());
-    }
 
-    public static byte getPrefixLength(LocalEid address) {
+    default byte getPrefixLength(LocalEid address) {
         return resolverPrefixLength(address.getAddress());
     }
 
-    public static byte getPrefixLength(RemoteEid address) {
+    default byte getPrefixLength(RemoteEid address) {
         return resolverPrefixLength(address.getAddress());
     }
 
-    public static byte getPrefixLength(
+    default byte getPrefixLength(
             org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
         return resolverPrefixLength(address.getAddress());
     }
 
-    public static byte getPrefixLength(
+    default byte getPrefixLength(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid address) {
         return resolverPrefixLength(address.getAddress());
     }
 
-    public static byte getPrefixLength(
+    default byte getPrefixLength(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid address) {
         return resolverPrefixLength(address.getAddress());
     }
 
-    private static byte resolverPrefixLength(Address address) {
+    static byte resolverPrefixLength(Address address) {
 
         switch (resolveType(address)) {
             case IPV4:
@@ -87,22 +84,22 @@ public final class EidConverter {
         }
     }
 
-    public static Eid getArrayAsEidLocal(EidType type, byte[] address) {
+    default Eid getArrayAsEidLocal(EidType type, byte[] address) {
 
         switch (type) {
             case IPV4: {
                 return new EidBuilder().setAddress(
-                        new Ipv4Builder().setIpv4(TranslateUtils.arrayToIpv4AddressNoZoneReversed(address)).build())
+                        new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZoneReversed(address)).build())
                         .build();
             }
             case IPV6: {
                 return new EidBuilder().setAddress(
-                        new Ipv6Builder().setIpv6(TranslateUtils.arrayToIpv6AddressNoZoneReversed(address)).build())
+                        new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZoneReversed(address)).build())
                         .build();
             }
             case MAC: {
                 return new EidBuilder().setAddress(
-                        new MacBuilder().setMac(new MacAddress(TranslateUtils.byteArrayToMacSeparated(address)))
+                        new MacBuilder().setMac(new MacAddress(byteArrayToMacSeparated(address)))
                                 .build()).build();
             }
             default: {
@@ -111,28 +108,28 @@ public final class EidConverter {
         }
     }
 
-    public static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid getArrayAsEidRemote(
+    default org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid getArrayAsEidRemote(
             EidType type, byte[] address) {
 
         switch (type) {
             case IPV4: {
                 return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.EidBuilder()
                         .setAddress(
-                                new Ipv4Builder().setIpv4(TranslateUtils.arrayToIpv4AddressNoZoneReversed(address))
+                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZoneReversed(address))
                                         .build())
                         .build();
             }
             case IPV6: {
                 return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.EidBuilder()
                         .setAddress(
-                                new Ipv6Builder().setIpv6(TranslateUtils.arrayToIpv6AddressNoZoneReversed(address))
+                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZoneReversed(address))
                                         .build())
                         .build();
             }
             case MAC: {
                 return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.EidBuilder()
                         .setAddress(
-                                new MacBuilder().setMac(new MacAddress(TranslateUtils.byteArrayToMacSeparated(address)))
+                                new MacBuilder().setMac(new MacAddress(byteArrayToMacSeparated(address)))
                                         .build()).build();
             }
             default: {
@@ -141,18 +138,18 @@ public final class EidConverter {
         }
     }
 
-    public static String getArrayAsEidString(
+    default String getArrayAsEidString(
             EidType type, byte[] address) {
         switch (type) {
             case IPV4: {
-                return TranslateUtils.arrayToIpv4AddressNoZoneReversed(address).getValue();
+                return arrayToIpv4AddressNoZoneReversed(address).getValue();
             }
             case IPV6: {
-                return TranslateUtils.arrayToIpv6AddressNoZoneReversed(address).getValue();
+                return arrayToIpv6AddressNoZoneReversed(address).getValue();
             }
             case MAC: {
                 //as wrong as it looks ,its right(second param is not end index,but count)
-                return TranslateUtils.byteArrayToMacSeparated(Arrays.copyOfRange(address, 0, 6));
+                return byteArrayToMacSeparated(Arrays.copyOfRange(address, 0, 6));
             }
             default: {
                 throw new IllegalStateException("Unknown type detected");
@@ -161,14 +158,14 @@ public final class EidConverter {
     }
 
 
-    public static EidType getEidType(
+    default EidType getEidType(
             org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
         checkNotNull(address, "SimpleAddress cannot be null");
 
         return resolveType(address.getAddress());
     }
 
-    public static EidType getEidType(
+    default EidType getEidType(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid address) {
         checkNotNull(address, "SimpleAddress cannot be null");
 
@@ -176,7 +173,7 @@ public final class EidConverter {
     }
 
 
-    public static EidType getEidType(
+    default EidType getEidType(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid address) {
         checkNotNull(address, "Address cannot be null");
 
@@ -184,19 +181,19 @@ public final class EidConverter {
     }
 
 
-    public static EidType getEidType(final LocalEid address) {
+    default EidType getEidType(final LocalEid address) {
         checkNotNull(address, "Address cannot be null");
 
         return resolveType(address.getAddress());
     }
 
-    public static EidType getEidType(final RemoteEid address) {
+    default EidType getEidType(final RemoteEid address) {
         checkNotNull(address, "Address cannot be null");
 
         return resolveType(address.getAddress());
     }
 
-    private static EidType resolveType(
+    static EidType resolveType(
             Address address) {
 
         if (address instanceof Ipv4) {
@@ -210,56 +207,54 @@ public final class EidConverter {
         }
     }
 
-    public static byte[] getEidAsByteArray(
+    default byte[] getEidAsByteArray(
             org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
-    public static byte[] getEidAsByteArray(
+    default byte[] getEidAsByteArray(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
-    public static byte[] getEidAsByteArray(
+    default byte[] getEidAsByteArray(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
-    public static byte[] getEidAsByteArray(final LocalEid address) {
+    default byte[] getEidAsByteArray(final LocalEid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
 
-    public static byte[] getEidAsByteArray(final RemoteEid address) {
+    default byte[] getEidAsByteArray(final RemoteEid address) {
         checkNotNull(address, "Eid cannot be null");
 
         return resolveByteArray(getEidType(address), address.getAddress());
     }
 
-    private static byte[] resolveByteArray(EidType type, Address address) {
+    default byte[] resolveByteArray(EidType type, Address address) {
         switch (type) {
             case IPV4:
-                return TranslateUtils
-                        .ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(((Ipv4) address).getIpv4()));
+                return ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(((Ipv4) address).getIpv4()));
             case IPV6:
-                return TranslateUtils
-                        .ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(((Ipv6) address).getIpv6()));
+                return ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(((Ipv6) address).getIpv6()));
             case MAC:
-                return TranslateUtils.parseMac(((Mac) address).getMac().getValue());
+                return parseMac(((Mac) address).getMac().getValue());
             default:
                 throw new IllegalArgumentException("Unsupported type");
         }
     }
 
-    public static boolean compareEids(
+    default boolean compareEids(
             LispAddress first,
             LispAddress second) {
 
@@ -267,7 +262,7 @@ public final class EidConverter {
                 checkNotNull(second, "Second eid is null").getAddress());
     }
 
-    public static boolean compareAddresses(Address firstAddress, Address secondAddress) {
+    default boolean compareAddresses(Address firstAddress, Address secondAddress) {
 
         checkNotNull(firstAddress, "First address is null");
         checkNotNull(secondAddress, "Second address is null");

@@ -20,11 +20,11 @@ package io.fd.honeycomb.lisp.translate.read.dump.executor;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.openvpp.jvpp.VppBaseCallException;
@@ -37,7 +37,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * Common dump executor for both local and remote mappings
  */
 public class MappingsDumpExecutor extends AbstractDumpExecutor
-        implements EntityDumpExecutor<LispEidTableDetailsReplyDump, MappingsDumpParams> {
+        implements EntityDumpExecutor<LispEidTableDetailsReplyDump, MappingsDumpParams>, JvppReplyConsumer {
 
     public MappingsDumpExecutor(@Nonnull FutureJVppCore vppApi) {
         super(vppApi);
@@ -58,7 +58,7 @@ public class MappingsDumpExecutor extends AbstractDumpExecutor
         request.filter = params.getFilter();
 
         try {
-            return TranslateUtils.getReply(vppApi.lispEidTableDump(request).toCompletableFuture());
+            return getReply(vppApi.lispEidTableDump(request).toCompletableFuture());
         } catch (TimeoutException e) {
             throw DumpTimeoutException
                     .wrapTimeoutException("Mappings dump execution timed out with params " + params.toString(), e);

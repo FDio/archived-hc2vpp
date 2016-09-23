@@ -30,8 +30,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
+import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
@@ -53,30 +53,30 @@ import org.openvpp.jvpp.core.dto.DeleteVhostUserIfReply;
 import org.openvpp.jvpp.core.dto.ModifyVhostUserIf;
 import org.openvpp.jvpp.core.dto.ModifyVhostUserIfReply;
 
-public class VhostUserCustomizerTest extends WriterCustomizerTest {
+public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
 
     private VhostUserCustomizer customizer;
     private static final int IFACE_ID = 1;
     private static final String IFACE_NAME = "eth0";
     private static final InstanceIdentifier<VhostUser> ID =
-        InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
-            .augmentation(VppInterfaceAugmentation.class).child(VhostUser.class);
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
+                    .augmentation(VppInterfaceAugmentation.class).child(VhostUser.class);
 
     @Override
     public void setUp() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class);
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class);
         customizer = new VhostUserCustomizer(api, new NamingContext("generatedInterfaceName", "test-instance"));
     }
 
     private CreateVhostUserIf verifyCreateVhostUserIfWasInvoked(final VhostUser vhostUser)
-        throws VppInvocationException {
+            throws VppInvocationException {
         ArgumentCaptor<CreateVhostUserIf> argumentCaptor = ArgumentCaptor.forClass(CreateVhostUserIf.class);
         verify(api).createVhostUserIf(argumentCaptor.capture());
         final CreateVhostUserIf actual = argumentCaptor.getValue();
         assertEquals(0, actual.customDevInstance);
 
-        assertEquals(TranslateUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole())), actual.isServer);
+        assertEquals(booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole())), actual.isServer);
         assertEquals(0, actual.renumber);
         assertEquals(0, actual.useCustomMac);
         assertArrayEquals(vhostUser.getSocket().getBytes(), actual.sockFilename);
@@ -85,13 +85,13 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
     }
 
     private ModifyVhostUserIf verifyModifyVhostUserIfWasInvoked(final VhostUser vhostUser, final int swIfIndex)
-        throws VppInvocationException {
+            throws VppInvocationException {
         ArgumentCaptor<ModifyVhostUserIf> argumentCaptor = ArgumentCaptor.forClass(ModifyVhostUserIf.class);
         verify(api).modifyVhostUserIf(argumentCaptor.capture());
         final ModifyVhostUserIf actual = argumentCaptor.getValue();
         assertEquals(0, actual.customDevInstance);
 
-        assertEquals(TranslateUtils.booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole())), actual.isServer);
+        assertEquals(booleanToByte(VhostUserRole.Server.equals(vhostUser.getRole())), actual.isServer);
         assertEquals(0, actual.renumber);
         assertEquals(swIfIndex, actual.swIfIndex);
         assertArrayEquals(vhostUser.getSocket().getBytes(), actual.sockFilename);
@@ -122,7 +122,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest {
         customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
         verifyCreateVhostUserIfWasInvoked(vhostUser);
         verify(mappingContext).put(eq(ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance")), eq(
-            ContextTestUtils.getMapping(IFACE_NAME, 0).get()));
+                ContextTestUtils.getMapping(IFACE_NAME, 0).get()));
     }
 
     @Test

@@ -17,11 +17,11 @@
 package io.fd.honeycomb.lisp.translate.read.dump.executor;
 
 
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.openvpp.jvpp.VppBaseCallException;
@@ -31,7 +31,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
 public class VniTableDumpExecutor extends AbstractDumpExecutor
-        implements EntityDumpExecutor<LispEidTableMapDetailsReplyDump, Void> {
+        implements EntityDumpExecutor<LispEidTableMapDetailsReplyDump, Void>, JvppReplyConsumer {
 
     public VniTableDumpExecutor(@Nonnull FutureJVppCore api) {
         super(api);
@@ -40,7 +40,7 @@ public class VniTableDumpExecutor extends AbstractDumpExecutor
     @Override
     public LispEidTableMapDetailsReplyDump executeDump(Void params) throws DumpExecutionFailedException {
         try {
-            return TranslateUtils.getReply(vppApi.lispEidTableMapDump(new LispEidTableMapDump()).toCompletableFuture());
+            return getReply(vppApi.lispEidTableMapDump(new LispEidTableMapDump()).toCompletableFuture());
         } catch (TimeoutException e) {
             throw DumpTimeoutException.wrapTimeoutException("Eid table map dump ended in timeout", e);
         } catch (VppBaseCallException e) {

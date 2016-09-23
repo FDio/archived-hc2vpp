@@ -25,10 +25,11 @@ import static io.fd.honeycomb.lisp.translate.write.RemoteMappingCustomizer.Locat
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.lisp.translate.util.EidConverter;
+import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.AddressTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.io.ByteArrayOutputStream;
@@ -60,7 +61,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * Customizer for {@link RemoteMapping}
  */
 public class RemoteMappingCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<RemoteMapping, RemoteMappingKey> {
+        implements ListWriterCustomizer<RemoteMapping, RemoteMappingKey>, EidTranslator,
+        AddressTranslator, JvppReplyConsumer {
 
     private final EidMappingContext remoteMappingContext;
 
@@ -127,13 +129,13 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
         LispAddDelRemoteMapping request = new LispAddDelRemoteMapping();
 
-        request.isAdd = TranslateUtils.booleanToByte(add);
+        request.isAdd = booleanToByte(add);
         request.vni = vni;
-        request.eidType = (byte) EidConverter.getEidType(data.getEid()).getValue();
-        request.eid = EidConverter.getEidAsByteArray(data.getEid());
+        request.eidType = (byte) getEidType(data.getEid()).getValue();
+        request.eid = getEidAsByteArray(data.getEid());
 
         //this is not length of eid array,but prefix length(bad naming by vpp)
-        request.eidLen = EidConverter.getPrefixLength(data.getEid());
+        request.eidLen = getPrefixLength(data.getEid());
 
         if (LocatorListType.NEGATIVE
                 .equals(resolveType(data.getLocatorList()))) {
@@ -147,7 +149,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             request.rlocNum = Integer.valueOf(rlocs.getLocator().size()).byteValue();
         }
 
-        TranslateUtils.getReply(getFutureJVpp().lispAddDelRemoteMapping(request).toCompletableFuture());
+        getReply(getFutureJVpp().lispAddDelRemoteMapping(request).toCompletableFuture());
     }
 
     private static LocatorListType resolveType(LocatorList locatorList) {
@@ -176,7 +178,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         return ((PositiveMapping) locatorList).getRlocs();
     }
 
-    private static byte[] locatorsToBinaryData(List<Locator> locators) throws IOException {
+    //cant be static because of use of default methods from traits
+    private byte[] locatorsToBinaryData(List<Locator> locators) throws IOException {
         checkNotNull(locators, "Cannot convert null list");
 
         ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
@@ -189,8 +192,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             byte[] address;
 
             //first byte says that its v4/v6
-            isIpv4 = !TranslateUtils.isIpv6(locator.getAddress());
-            out.writeByte(TranslateUtils.booleanToByte(isIpv4));
+            isIpv4 = !isIpv6(locator.getAddress());
+            out.writeByte(booleanToByte(isIpv4));
 
             //then writes priority
             out.write(locator.getPriority());
@@ -201,14 +204,14 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             if (isIpv4) {
                 //vpp in this case needs address as 16 byte array,regardless if it is ivp4 or ipv6
                 address = Arrays.copyOf(
-                        TranslateUtils
-                                .ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(locator.getAddress().getIpv4Address())),
+
+                        ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(locator.getAddress().getIpv4Address())),
                         16);
 
                 out.write(address);
             } else {
-                out.write(TranslateUtils
-                        .ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(locator.getAddress().getIpv6Address())));
+                out.write(
+                        ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(locator.getAddress().getIpv6Address())));
             }
         }
 

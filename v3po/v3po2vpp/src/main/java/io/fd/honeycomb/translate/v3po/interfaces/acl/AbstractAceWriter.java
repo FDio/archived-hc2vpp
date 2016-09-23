@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -48,7 +48,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  *
  * @param <T> type of access control list entry
  */
-abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
+abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppReplyConsumer {
 
     // TODO: HONEYCOMB-181 minimise memory used by classify tables (we create a lot of them to make ietf-acl model
     // mapping more convenient):
@@ -60,7 +60,7 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
     static final int VLAN_TAG_LEN = 4;
 
     private static final Collector<PacketHandling, ?, PacketHandling> SINGLE_ITEM_COLLECTOR =
-        RWUtils.singleItemCollector();
+            RWUtils.singleItemCollector();
 
     private final FutureJVppCore futureJVppCore;
 
@@ -107,9 +107,9 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
     @Override
     public final void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
                             @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final PacketHandling action = aces.stream().map(ace -> ace.getActions().getPacketHandling()).distinct()
-            .collect(SINGLE_ITEM_COLLECTOR);
+                .collect(SINGLE_ITEM_COLLECTOR);
 
         checkArgument(vlanTags >= 0 && vlanTags <= 2, "Number of vlan tags %s is not in [0,2] range");
 
@@ -118,29 +118,29 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter {
             // Create table + session per entry
 
             final ClassifyAddDelTable ctRequest =
-                createClassifyTable(action, (T) ace.getMatches().getAceType(), nextTableIndex, vlanTags);
+                    createClassifyTable(action, (T) ace.getMatches().getAceType(), nextTableIndex, vlanTags);
             nextTableIndex = createClassifyTable(id, ctRequest);
             createClassifySession(id,
-                createClassifySession(action, (T) ace.getMatches().getAceType(), nextTableIndex, vlanTags));
+                    createClassifySession(action, (T) ace.getMatches().getAceType(), nextTableIndex, vlanTags));
         }
         setClassifyTable(request, nextTableIndex);
     }
 
     private int createClassifyTable(@Nonnull final InstanceIdentifier<?> id,
                                     @Nonnull final ClassifyAddDelTable request)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final CompletionStage<ClassifyAddDelTableReply> cs = futureJVppCore.classifyAddDelTable(request);
 
-        final ClassifyAddDelTableReply reply = TranslateUtils.getReplyForWrite(cs.toCompletableFuture(), id);
+        final ClassifyAddDelTableReply reply = getReplyForWrite(cs.toCompletableFuture(), id);
         return reply.newTableIndex;
     }
 
     private void createClassifySession(@Nonnull final InstanceIdentifier<?> id,
                                        @Nonnull final ClassifyAddDelSession request)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final CompletionStage<ClassifyAddDelSessionReply> cs = futureJVppCore.classifyAddDelSession(request);
 
-        TranslateUtils.getReplyForWrite(cs.toCompletableFuture(), id);
+        getReplyForWrite(cs.toCompletableFuture(), id);
     }
 
     protected ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action, final int nextTableIndex) {

@@ -21,9 +21,10 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.io.UnsupportedEncodingException;
@@ -43,7 +44,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  *
  * @see Interface
  */
-public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWriterCustomizer<Interface, InterfaceKey> {
+public class InterfaceCustomizer extends FutureJVppCustomizer
+        implements ListWriterCustomizer<Interface, InterfaceKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private final NamingContext interfaceContext;
 
@@ -109,12 +111,12 @@ public class InterfaceCustomizer extends FutureJVppCustomizer implements ListWri
             throws VppBaseCallException, TimeoutException, UnsupportedEncodingException {
         LispAddDelLocator request = new LispAddDelLocator();
 
-        request.isAdd = TranslateUtils.booleanToByte(add);
+        request.isAdd = booleanToByte(add);
         request.priority = data.getPriority().byteValue();
         request.weight = data.getWeight().byteValue();
         request.swIfIndex = interfaceIndex;
         request.locatorSetName = locatorSetName.getBytes(UTF_8);
 
-        TranslateUtils.getReply(getFutureJVpp().lispAddDelLocator(request).toCompletableFuture());
+        getReply(getFutureJVpp().lispAddDelLocator(request).toCompletableFuture());
     }
 }

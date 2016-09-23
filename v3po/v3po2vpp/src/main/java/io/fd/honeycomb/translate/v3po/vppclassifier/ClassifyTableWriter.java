@@ -19,11 +19,11 @@ package io.fd.honeycomb.translate.v3po.vppclassifier;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * VPP.<br> Equivalent to invoking {@code vppctl classify table} command.
  */
 public class ClassifyTableWriter extends VppNodeWriter
-    implements ListWriterCustomizer<ClassifyTable, ClassifyTableKey> {
+        implements ListWriterCustomizer<ClassifyTable, ClassifyTableKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableWriter.class);
     private final VppClassifierContextManager classifyTableContext;
@@ -58,14 +58,16 @@ public class ClassifyTableWriter extends VppNodeWriter
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<ClassifyTable> id,
                                        @Nonnull final ClassifyTable dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         LOG.debug("Creating classify table: iid={} dataAfter={}", id, dataAfter);
         try {
             final int newTableIndex =
-                classifyAddDelTable(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
+                    classifyAddDelTable(true, id, dataAfter, ~0 /* value not present */,
+                            writeContext.getMappingContext());
 
             // Add classify table name <-> vpp index mapping to the naming context:
-            classifyTableContext.addTable(newTableIndex, dataAfter.getName(), dataAfter.getClassifierNode(), writeContext.getMappingContext());
+            classifyTableContext.addTable(newTableIndex, dataAfter.getName(), dataAfter.getClassifierNode(),
+                    writeContext.getMappingContext());
             LOG.debug("Successfully created classify table(id={]): iid={} dataAfter={}", newTableIndex, id, dataAfter);
         } catch (VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
@@ -86,7 +88,7 @@ public class ClassifyTableWriter extends VppNodeWriter
         LOG.debug("Removing classify table: iid={} dataBefore={}", id, dataBefore);
         final String tableName = dataBefore.getName();
         checkState(classifyTableContext.containsTable(tableName, writeContext.getMappingContext()),
-            "Removing classify table {}, but index could not be found in the classify table context", tableName);
+                "Removing classify table {}, but index could not be found in the classify table context", tableName);
 
         final int tableIndex = classifyTableContext.getTableIndex(tableName, writeContext.getMappingContext());
         try {
@@ -102,17 +104,17 @@ public class ClassifyTableWriter extends VppNodeWriter
 
     private int classifyAddDelTable(final boolean isAdd, @Nonnull final InstanceIdentifier<ClassifyTable> id,
                                     @Nonnull final ClassifyTable table, final int tableId, final MappingContext ctx)
-        throws VppBaseCallException, WriteFailedException {
+            throws VppBaseCallException, WriteFailedException {
 
         final int missNextIndex =
-            getNodeIndex(table.getMissNext(), table, classifyTableContext, ctx, id);
+                getNodeIndex(table.getMissNext(), table, classifyTableContext, ctx, id);
 
         final CompletionStage<ClassifyAddDelTableReply> createClassifyTableReplyCompletionStage =
-            getFutureJVpp()
-                .classifyAddDelTable(getClassifyAddDelTableRequest(isAdd, tableId, table, missNextIndex, ctx));
+                getFutureJVpp()
+                        .classifyAddDelTable(getClassifyAddDelTableRequest(isAdd, tableId, table, missNextIndex, ctx));
 
         final ClassifyAddDelTableReply reply =
-            TranslateUtils.getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
         return reply.newTableIndex;
     }
 

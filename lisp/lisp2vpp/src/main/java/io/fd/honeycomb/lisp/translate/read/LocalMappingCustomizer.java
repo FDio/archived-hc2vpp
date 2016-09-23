@@ -22,17 +22,13 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.FilterType;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.MappingsDumpParamsBuilder;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.QuantityType;
-import static io.fd.honeycomb.lisp.translate.util.EidConverter.compareAddresses;
-import static io.fd.honeycomb.lisp.translate.util.EidConverter.getArrayAsEidLocal;
-import static io.fd.honeycomb.lisp.translate.util.EidConverter.getEidAsByteArray;
-import static io.fd.honeycomb.lisp.translate.util.EidConverter.getEidType;
-import static io.fd.honeycomb.lisp.translate.util.EidConverter.getPrefixLength;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.read.dump.check.MappingsDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.MappingsDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
+import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
@@ -66,7 +62,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LocalMappingCustomizer
         extends FutureJVppCustomizer
-        implements ListReaderCustomizer<LocalMapping, LocalMappingKey, LocalMappingBuilder> {
+        implements ListReaderCustomizer<LocalMapping, LocalMappingKey, LocalMappingBuilder>, EidTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalMappingCustomizer.class);
     private static final String KEY = LocalMappingCustomizer.class.getName();

@@ -16,38 +16,32 @@
 
 package io.fd.honeycomb.vppnsh.impl.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.v3po.util.TranslateUtils.booleanToByte;
 
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import javax.xml.bind.DatatypeConverter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NextProtocol;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NshMdType1Augment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NshMdType1AugmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.nsh.dto.*;
-import org.openvpp.jvpp.nsh.callback.*;
+import org.openvpp.jvpp.nsh.dto.NshAddDelEntry;
+import org.openvpp.jvpp.nsh.dto.NshAddDelEntryReply;
 import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
-import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * Writer customizer responsible for NshEntry create/delete.
  */
 public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
-    implements ListWriterCustomizer<NshEntry, NshEntryKey> {
+        implements ListWriterCustomizer<NshEntry, NshEntryKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(NshEntryWriterCustomizer.class);
     private final NamingContext nshEntryContext;
@@ -69,11 +63,11 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<NshEntry> id,
                                        @Nonnull final NshEntry dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         LOG.debug("Creating nsh entry: iid={} dataAfter={}", id, dataAfter);
         try {
             final int newEntryIndex =
-                nshAddDelEntry(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
+                    nshAddDelEntry(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
 
             // Add nsh entry name <-> vpp index mapping to the naming context:
             nshEntryContext.addName(newEntryIndex, dataAfter.getName(), writeContext.getMappingContext());
@@ -97,7 +91,7 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
         LOG.debug("Removing nsh entry: iid={} dataBefore={}", id, dataBefore);
         final String entryName = dataBefore.getName();
         checkState(nshEntryContext.containsIndex(entryName, writeContext.getMappingContext()),
-            "Removing nsh entry {}, but index could not be found in the nsh entry context", entryName);
+                "Removing nsh entry {}, but index could not be found in the nsh entry context", entryName);
 
         final int entryIndex = nshEntryContext.getIndex(entryName, writeContext.getMappingContext());
         try {
@@ -112,13 +106,13 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
     }
 
     private int nshAddDelEntry(final boolean isAdd, @Nonnull final InstanceIdentifier<NshEntry> id,
-                                    @Nonnull final NshEntry entry, final int entryId, final MappingContext ctx)
-        throws VppBaseCallException, WriteTimeoutException {
+                               @Nonnull final NshEntry entry, final int entryId, final MappingContext ctx)
+            throws VppBaseCallException, WriteTimeoutException {
         final CompletionStage<NshAddDelEntryReply> createNshEntryReplyCompletionStage =
-            getFutureJVppNsh().nshAddDelEntry(getNshAddDelEntryRequest(isAdd, entryId, entry, ctx));
+                getFutureJVppNsh().nshAddDelEntry(getNshAddDelEntryRequest(isAdd, entryId, entry, ctx));
 
         final NshAddDelEntryReply reply =
-            TranslateUtils.getReplyForWrite(createNshEntryReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForWrite(createNshEntryReplyCompletionStage.toCompletableFuture(), id);
         return reply.entryIndex;
 
     }
@@ -142,26 +136,26 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
 
         request.verOC = (byte) entry.getVersion().shortValue();
         request.length = (byte) entry.getLength().intValue();
-        if (entry.getNextProtocol() == Ipv4.class)
+        if (entry.getNextProtocol() == Ipv4.class) {
             request.nextProtocol = 1;
-        else if (entry.getNextProtocol() == Ipv6.class)
+        } else if (entry.getNextProtocol() == Ipv6.class) {
             request.nextProtocol = 2;
-        else if (entry.getNextProtocol() == Ethernet.class)
+        } else if (entry.getNextProtocol() == Ethernet.class) {
             request.nextProtocol = 3;
-        else
+        } else {
             request.nextProtocol = 0;
+        }
 
-        if (entry.getMdType() == MdType1.class)
-        {
+        if (entry.getMdType() == MdType1.class) {
             request.mdType = 1;
             getNshEntryMdType1Request(entry, request);
-        }
-        else if (entry.getMdType() == MdType1.class)
+        } else if (entry.getMdType() == MdType1.class) {
             request.mdType = 2;
-        else
+        } else {
             request.mdType = 0;
+        }
 
-        request.nspNsi = (entry.getNsp().intValue()<<8) | entry.getNsi();
+        request.nspNsi = (entry.getNsp().intValue() << 8) | entry.getNsi();
 
         return request;
     }

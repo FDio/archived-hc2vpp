@@ -20,12 +20,12 @@ package io.fd.honeycomb.lisp.translate.write;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType;
-import static io.fd.honeycomb.lisp.translate.util.EidConverter.*;
 
-import io.fd.honeycomb.lisp.translate.util.EidConverter;
+import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.TimeoutException;
@@ -39,7 +39,9 @@ import org.openvpp.jvpp.core.dto.LispAddDelAdjacency;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 
-public class AdjacencyCustomizer extends FutureJVppCustomizer implements ListWriterCustomizer<Adjacency, AdjacencyKey> {
+public class AdjacencyCustomizer extends FutureJVppCustomizer
+        implements ListWriterCustomizer<Adjacency, AdjacencyKey>, ByteDataTranslator, EidTranslator,
+        JvppReplyConsumer {
 
     public AdjacencyCustomizer(@Nonnull final FutureJVppCore futureJvpp) {
         super(futureJvpp);
@@ -89,7 +91,7 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer implements ListWri
 
         LispAddDelAdjacency request = new LispAddDelAdjacency();
 
-        request.isAdd = TranslateUtils.booleanToByte(add);
+        request.isAdd = booleanToByte(add);
         request.seid = getEidAsByteArray(data.getLocalEid());
         request.seidLen = getPrefixLength(data.getLocalEid());
         request.deid = getEidAsByteArray(data.getRemoteEid());
@@ -97,6 +99,6 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer implements ListWri
         request.eidType = (byte) localEidType.getValue();
         request.vni = vni;
 
-        TranslateUtils.getReply(getFutureJVpp().lispAddDelAdjacency(request).toCompletableFuture());
+        getReply(getFutureJVpp().lispAddDelAdjacency(request).toCompletableFuture());
     }
 }

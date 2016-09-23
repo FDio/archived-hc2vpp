@@ -18,15 +18,16 @@ package io.fd.honeycomb.translate.v3po.vppclassifier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceUtils.printHexBinary;
 
 import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInts;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.v3po.util.MacTranslator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +56,9 @@ import org.slf4j.LoggerFactory;
  * class table} command.
  */
 public class ClassifyTableReader extends FutureJVppCustomizer
-    implements ListReaderCustomizer<ClassifyTable, ClassifyTableKey, ClassifyTableBuilder>, VppNodeReader {
+        implements ListReaderCustomizer<ClassifyTable, ClassifyTableKey, ClassifyTableBuilder>, VppNodeReader,
+        MacTranslator,
+        InterfaceDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableReader.class);
     private final VppClassifierContextManager classifyTableContext;
@@ -82,7 +85,7 @@ public class ClassifyTableReader extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<ClassifyTable> id,
                                       @Nonnull final ClassifyTableBuilder builder, @Nonnull final ReadContext ctx)
-        throws ReadFailedException {
+            throws ReadFailedException {
         LOG.debug("Reading attributes for classify table: {}", id);
 
         final ClassifyTableKey key = id.firstKeyOf(ClassifyTable.class);
@@ -98,7 +101,7 @@ public class ClassifyTableReader extends FutureJVppCustomizer
 
         try {
             final ClassifyTableInfoReply reply =
-                TranslateUtils.getReplyForRead(getFutureJVpp().classifyTableInfo(request).toCompletableFuture(), id);
+                    getReplyForRead(getFutureJVpp().classifyTableInfo(request).toCompletableFuture(), id);
 
             // mandatory values:
             builder.setName(tableName);
@@ -108,14 +111,14 @@ public class ClassifyTableReader extends FutureJVppCustomizer
 
             // optional value read from context
             final Optional<String> tableBaseNode =
-                classifyTableContext.getTableBaseNode(tableName, ctx.getMappingContext());
+                    classifyTableContext.getTableBaseNode(tableName, ctx.getMappingContext());
             if (tableBaseNode.isPresent()) {
                 builder.setClassifierNode(new VppNodeName(tableBaseNode.get()));
             }
 
             builder.setMissNext(
-                readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext(), LOG)
-                    .get());
+                    readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext(), LOG)
+                            .get());
             builder.setMask(new HexString(printHexBinary(reply.mask)));
             builder.setActiveSessions(UnsignedInts.toLong(reply.activeSessions));
 
@@ -138,8 +141,9 @@ public class ClassifyTableReader extends FutureJVppCustomizer
                                             @Nonnull final ReadContext context) throws ReadFailedException {
         LOG.debug("Reading list of keys for classify tables: {}", id);
         try {
-            final ClassifyTableIdsReply classifyTableIdsReply = TranslateUtils
-                .getReplyForRead(getFutureJVpp().classifyTableIds(new ClassifyTableIds()).toCompletableFuture(), id);
+            final ClassifyTableIdsReply classifyTableIdsReply =
+                    getReplyForRead(getFutureJVpp().classifyTableIds(new ClassifyTableIds()).toCompletableFuture(),
+                            id);
             if (classifyTableIdsReply.ids != null) {
                 return Arrays.stream(classifyTableIdsReply.ids).mapToObj(i -> {
                     final String tableName = classifyTableContext.getTableName(i, context.getMappingContext());

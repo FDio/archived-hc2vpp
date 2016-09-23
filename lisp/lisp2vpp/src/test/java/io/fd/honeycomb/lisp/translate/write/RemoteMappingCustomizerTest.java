@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +52,7 @@ import org.openvpp.jvpp.core.dto.LispAddDelRemoteMapping;
 import org.openvpp.jvpp.core.dto.LispAddDelRemoteMappingReply;
 
 
-public class RemoteMappingCustomizerTest extends WriterCustomizerTest {
+public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
 
     @Captor
     private ArgumentCaptor<LispAddDelRemoteMapping> mappingCaptor;
@@ -117,7 +117,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest {
 
         assertNotNull(request);
         assertEquals(1, request.isAdd);
-        assertEquals("1.2.168.192", TranslateUtils.arrayToIpv4AddressNoZone(request.eid).getValue());
+        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.eid).getValue());
         assertEquals(25, request.vni);
     }
 
@@ -141,7 +141,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest {
 
         assertNotNull(request);
         assertEquals(0, request.isAdd);
-        assertEquals("1.2.168.192", TranslateUtils.arrayToIpv4AddressNoZone(request.eid).getValue());
+        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.eid).getValue());
         assertEquals(25, request.vni);
     }
 

@@ -21,11 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils.getSubInterfaceName;
 
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading ACLs enabled on given sub-interface.
  */
 public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
-    implements ReaderCustomizer<Acl, AclBuilder>, AclReader {
+        implements ReaderCustomizer<Acl, AclBuilder>, AclReader, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceAclCustomizer.class);
     private final NamingContext interfaceContext;
@@ -82,13 +82,13 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
         final SubInterfaceKey subInterfacekey = id.firstKeyOf(SubInterface.class);
         checkArgument(subInterfacekey != null, "No sub-interface key found");
         final String subInterfaceName =
-            getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
+                getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
 
         final ClassifyTableByInterface request = new ClassifyTableByInterface();
         request.swIfIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
         try {
-            final ClassifyTableByInterfaceReply reply = TranslateUtils
-                .getReplyForRead(getFutureJVpp().classifyTableByInterface(request).toCompletableFuture(), id);
+            final ClassifyTableByInterfaceReply reply =
+                    getReplyForRead(getFutureJVpp().classifyTableByInterface(request).toCompletableFuture(), id);
 
             builder.setL2Acl(readL2Acl(reply.l2TableId, classifyTableContext, ctx.getMappingContext()));
             builder.setIp4Acl(readIp4Acl(reply.ip4TableId, classifyTableContext, ctx.getMappingContext()));

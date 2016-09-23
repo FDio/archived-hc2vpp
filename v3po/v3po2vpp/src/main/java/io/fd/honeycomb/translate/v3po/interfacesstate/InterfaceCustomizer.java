@@ -22,9 +22,9 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -54,12 +54,12 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading ietf-interfaces:interfaces-state/interface.
  */
 public class InterfaceCustomizer extends FutureJVppCustomizer
-    implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder> {
+        implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder>, ByteDataTranslator,
+        InterfaceDataTranslator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceCustomizer.class);
     public static final String DUMPED_IFCS_CONTEXT_KEY =
-        InterfaceCustomizer.class.getName() + "dumpedInterfacesDuringGetAllIds";
-
+            InterfaceCustomizer.class.getName() + "dumpedInterfacesDuringGetAllIds";
+    private static final Logger LOG = LoggerFactory.getLogger(InterfaceCustomizer.class);
     private final NamingContext interfaceNamingContext;
     private final DisabledInterfacesManager interfaceDisableContext;
 
@@ -69,6 +69,19 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         super(jvpp);
         this.interfaceNamingContext = interfaceNamingContext;
         this.interfaceDisableContext = interfaceDisableContext;
+    }
+
+    @Nonnull
+    @SuppressWarnings("unchecked")
+    public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(@Nonnull final ModificationCache ctx) {
+        return ctx.get(DUMPED_IFCS_CONTEXT_KEY) == null
+                ? new HashMap<>()
+                // allow customizers to update the cache
+                : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
+    }
+
+    private static boolean isRegularInterface(final SwInterfaceDetails iface) {
+        return iface.subId == 0;
     }
 
     @Nonnull
@@ -92,8 +105,8 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         }
 
         // Pass cached details from getAllIds to getDetails to avoid additional dumps
-        final SwInterfaceDetails iface = InterfaceUtils.getVppInterfaceDetails(getFutureJVpp(), id, ifaceName,
-                index, ctx.getModificationCache());
+        final SwInterfaceDetails iface = getVppInterfaceDetails(getFutureJVpp(), id, ifaceName,
+                index, ctx.getModificationCache(), LOG);
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
         if (!isRegularInterface(iface)) {
@@ -102,30 +115,21 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         }
 
         builder.setName(ifaceName);
-        builder.setType(InterfaceUtils.getInterfaceType(new String(iface.interfaceName).intern()));
-        builder.setIfIndex(InterfaceUtils.vppIfIndexToYang(iface.swIfIndex));
+        builder.setType(getInterfaceType(new String(iface.interfaceName).intern()));
+        builder.setIfIndex(vppIfIndexToYang(iface.swIfIndex));
         builder.setAdminStatus(1 == iface.adminUpDown
-            ? AdminStatus.Up
-            : AdminStatus.Down);
+                ? AdminStatus.Up
+                : AdminStatus.Down);
         builder.setOperStatus(1 == iface.linkUpDown
-            ? OperStatus.Up
-            : OperStatus.Down);
+                ? OperStatus.Up
+                : OperStatus.Down);
         if (0 != iface.linkSpeed) {
-            builder.setSpeed(InterfaceUtils.vppInterfaceSpeedToYang(iface.linkSpeed));
+            builder.setSpeed(vppInterfaceSpeedToYang(iface.linkSpeed));
         }
         if (iface.l2AddressLength == 6) {
-            builder.setPhysAddress(new PhysAddress(InterfaceUtils.vppPhysAddrToYang(iface.l2Address)));
+            builder.setPhysAddress(new PhysAddress(vppPhysAddrToYang(iface.l2Address)));
         }
         LOG.trace("Base attributes read for interface: {} as: {}", ifaceName, builder);
-    }
-
-    @Nonnull
-    @SuppressWarnings("unchecked")
-    public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(@Nonnull final ModificationCache ctx) {
-        return ctx.get(DUMPED_IFCS_CONTEXT_KEY) == null
-            ? new HashMap<>()
-            // allow customizers to update the cache
-            : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
     }
 
     @Nonnull
@@ -141,9 +145,9 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
             request.nameFilterValid = 0;
 
             final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
-                getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
+                    getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
             final SwInterfaceDetailsReplyDump ifaces =
-                TranslateUtils.getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
+                    getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
 
             if (null == ifaces || null == ifaces.swInterfaceDetails) {
                 LOG.debug("No interfaces for :{} found in VPP", id);
@@ -152,7 +156,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
             // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
             context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-                .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+                    .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
 
             final MappingContext mappingCtx = context.getMappingContext();
             final Set<Integer> interfacesIdxs = ifaces.swInterfaceDetails.stream()
@@ -164,7 +168,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                     .map((elt) -> {
                         // Store interface name from VPP in context if not yet present
                         if (!interfaceNamingContext.containsName(elt.swIfIndex, mappingCtx)) {
-                            interfaceNamingContext.addName(elt.swIfIndex, TranslateUtils.toString(elt.interfaceName),
+                            interfaceNamingContext.addName(elt.swIfIndex, toString(elt.interfaceName),
                                     mappingCtx);
                         }
                         LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
@@ -197,10 +201,6 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
             LOG.warn("getAllIds for id :{} failed with exception ", id, e);
             throw new ReadFailedException(id, e);
         }
-    }
-
-    private static boolean isRegularInterface(final SwInterfaceDetails iface) {
-        return iface.subId == 0;
     }
 
     @Override

@@ -17,7 +17,7 @@
 package io.fd.honeycomb.translate.v3po.interfaces.acl;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.MacTranslator;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
@@ -29,7 +29,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class AceEthWriter extends AbstractAceWriter<AceEth> {
+final class AceEthWriter extends AbstractAceWriter<AceEth> implements MacTranslator {
 
     @VisibleForTesting
     static final int MATCH_N_VECTORS = 1;
@@ -54,10 +54,10 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> {
         if (aceEth.getDestinationMacAddressMask() != null) {
             aceIsEmpty = false;
             final String macAddress = aceEth.getDestinationMacAddressMask().getValue();
-            final List<String> parts = TranslateUtils.COLON_SPLITTER.splitToList(macAddress);
+            final List<String> parts = COLON_SPLITTER.splitToList(macAddress);
             int i = 0;
             for (String part : parts) {
-                request.mask[i++] = TranslateUtils.parseHexByte(part);
+                request.mask[i++] = parseHexByte(part);
             }
         } else if (aceEth.getDestinationMacAddress() != null) {
             aceIsEmpty = false;
@@ -71,10 +71,10 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> {
         if (aceEth.getSourceMacAddressMask() != null) {
             aceIsEmpty = false;
             final String macAddress = aceEth.getSourceMacAddressMask().getValue();
-            final List<String> parts = TranslateUtils.COLON_SPLITTER.splitToList(macAddress);
+            final List<String> parts = COLON_SPLITTER.splitToList(macAddress);
             int i = 6;
             for (String part : parts) {
-                request.mask[i++] = TranslateUtils.parseHexByte(part);
+                request.mask[i++] = parseHexByte(part);
             }
         } else if (aceEth.getSourceMacAddress() != null) {
             aceIsEmpty = false;
@@ -85,7 +85,7 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> {
 
         if (aceIsEmpty) {
             throw new IllegalArgumentException(
-                String.format("Ace %s does not define packet field match values", aceEth.toString()));
+                    String.format("Ace %s does not define packet field match values", aceEth.toString()));
         }
 
         request.skipNVectors = 0;
@@ -108,26 +108,27 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> {
         if (aceEth.getDestinationMacAddress() != null) {
             noMatch = false;
             final String macAddress = aceEth.getDestinationMacAddress().getValue();
-            final List<String> parts = TranslateUtils.COLON_SPLITTER.splitToList(macAddress);
+            final List<String> parts = COLON_SPLITTER.splitToList(macAddress);
             int i = 0;
             for (String part : parts) {
-                request.match[i++] = TranslateUtils.parseHexByte(part);
+                request.match[i++] = parseHexByte(part);
             }
         }
 
         if (aceEth.getSourceMacAddress() != null) {
             noMatch = false;
             final String macAddress = aceEth.getSourceMacAddress().getValue();
-            final List<String> parts = TranslateUtils.COLON_SPLITTER.splitToList(macAddress);
+            final List<String> parts = COLON_SPLITTER.splitToList(macAddress);
             int i = 6;
             for (String part : parts) {
-                request.match[i++] = TranslateUtils.parseHexByte(part);
+                request.match[i++] = parseHexByte(part);
             }
         }
 
         if (noMatch) {
             throw new IllegalArgumentException(
-                String.format("Ace %s does not define neither source nor destination MAC address", aceEth.toString()));
+                    String.format("Ace %s does not define neither source nor destination MAC address",
+                            aceEth.toString()));
         }
 
         LOG.debug("ACE action={}, rule={} translated to session={}.", action, aceEth, request);

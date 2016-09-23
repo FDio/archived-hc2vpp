@@ -20,14 +20,16 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.AddressTranslator;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
@@ -45,7 +47,8 @@ import org.slf4j.LoggerFactory;
  * Customizer for writing {@link Neighbor} for {@link Ipv4}.
  */
 public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<Neighbor, NeighborKey> {
+        implements ListWriterCustomizer<Neighbor, NeighborKey>, ByteDataTranslator, AddressTranslator,
+        JvppReplyConsumer {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4NeighbourCustomizer.class);
@@ -119,15 +122,15 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
 
         IpNeighborAddDel request = new IpNeighborAddDel();
 
-        request.isAdd = TranslateUtils.booleanToByte(add);
+        request.isAdd = booleanToByte(add);
         request.isIpv6 = 0;
         request.isStatic = 1;
-        request.dstAddress = TranslateUtils.ipv4AddressNoZoneToArray(data.getIp());
-        request.macAddress = TranslateUtils.parseMac(data.getLinkLayerAddress().getValue());
+        request.dstAddress = ipv4AddressNoZoneToArray(data.getIp());
+        request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
         request.swIfIndex = parentInterfaceIndex;
 
         //TODO HONEYCOMB-182 if it is necessary for future use ,make adjustments to be able to set vrfid
         //request.vrfId
-        TranslateUtils.getReplyForWrite(getFutureJVpp().ipNeighborAddDel(request).toCompletableFuture(), id);
+        getReplyForWrite(getFutureJVpp().ipNeighborAddDel(request).toCompletableFuture(), id);
     }
 }

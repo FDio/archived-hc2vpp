@@ -16,14 +16,12 @@
 
 package io.fd.honeycomb.translate.v3po.interfacesstate;
 
-import static io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceUtils.isInterfaceOfType;
-
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class TapCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<Tap, TapBuilder> {
+        implements ReaderCustomizer<Tap, TapBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(TapCustomizer.class);
     public static final String DUMPED_TAPS_CONTEXT_KEY = TapCustomizer.class.getName() + "dumpedTapsDuringGetAllIds";
@@ -78,7 +76,7 @@ public class TapCustomizer extends FutureJVppCustomizer
             final InterfaceKey key = id.firstKeyOf(Interface.class);
             final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
             if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index,
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class)) {
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.Tap.class, LOG)) {
                 return;
             }
 
@@ -86,23 +84,23 @@ public class TapCustomizer extends FutureJVppCustomizer
 
             @SuppressWarnings("unchecked")
             Map<Integer, SwInterfaceTapDetails> mappedTaps =
-                (Map<Integer, SwInterfaceTapDetails>) ctx.getModificationCache().get(DUMPED_TAPS_CONTEXT_KEY);
+                    (Map<Integer, SwInterfaceTapDetails>) ctx.getModificationCache().get(DUMPED_TAPS_CONTEXT_KEY);
 
-            if(mappedTaps == null) {
+            if (mappedTaps == null) {
                 // Full Tap dump has to be performed here, no filter or anything is here to help so at least we cache it
                 final SwInterfaceTapDump request = new SwInterfaceTapDump();
                 final CompletionStage<SwInterfaceTapDetailsReplyDump> swInterfaceTapDetailsReplyDumpCompletionStage =
-                    getFutureJVpp().swInterfaceTapDump(request);
+                        getFutureJVpp().swInterfaceTapDump(request);
                 final SwInterfaceTapDetailsReplyDump reply =
-                    TranslateUtils.getReplyForRead(swInterfaceTapDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
+                        getReplyForRead(swInterfaceTapDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
 
-                if(null == reply || null == reply.swInterfaceTapDetails) {
+                if (null == reply || null == reply.swInterfaceTapDetails) {
                     mappedTaps = Collections.emptyMap();
                 } else {
                     final List<SwInterfaceTapDetails> swInterfaceTapDetails = reply.swInterfaceTapDetails;
                     // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
                     mappedTaps = swInterfaceTapDetails.stream()
-                        .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails));
+                            .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails));
                 }
 
                 ctx.getModificationCache().put(DUMPED_TAPS_CONTEXT_KEY, mappedTaps);
@@ -111,7 +109,7 @@ public class TapCustomizer extends FutureJVppCustomizer
             final SwInterfaceTapDetails swInterfaceTapDetails = mappedTaps.get(index);
             LOG.trace("Tap interface: {} attributes returned from VPP: {}", key.getName(), swInterfaceTapDetails);
 
-            builder.setTapName(TranslateUtils.toString(swInterfaceTapDetails.devName));
+            builder.setTapName(toString(swInterfaceTapDetails.devName));
             LOG.debug("Tap interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to readCurrentAttributes for: {}", id, e);

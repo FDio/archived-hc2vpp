@@ -20,8 +20,9 @@ package io.fd.honeycomb.lisp.translate.read;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispState;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Customizer that handles reads of {@code LispState}
  */
 public class LispStateCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<LispState, LispStateBuilder> {
+        implements ReaderCustomizer<LispState, LispStateBuilder>, JvppReplyConsumer, ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(LispStateCustomizer.class);
 
@@ -60,12 +61,12 @@ public class LispStateCustomizer extends FutureJVppCustomizer
 
         ShowLispStatusReply reply;
         try {
-            reply = TranslateUtils.getReply(getFutureJVpp().showLispStatus(new ShowLispStatus()).toCompletableFuture());
+            reply = getReply(getFutureJVpp().showLispStatus(new ShowLispStatus()).toCompletableFuture());
         } catch (TimeoutException | VppBaseCallException e) {
             throw new ReadFailedException(id, e);
         }
 
-        builder.setEnable(TranslateUtils.byteToBoolean(reply.featureStatus));
+        builder.setEnable(byteToBoolean(reply.featureStatus));
     }
 
     @Override

@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.io.BaseEncoding;
 import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
+import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Before;
@@ -45,7 +45,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.dto.IpNeighborAddDel;
 import org.openvpp.jvpp.core.dto.IpNeighborAddDelReply;
 
-public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest {
+public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "parent";
@@ -85,7 +85,7 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest {
         assertEquals(0, request.isIpv6);
         assertEquals(1, request.isAdd);
         assertEquals(1, request.isStatic);
-        assertEquals("1.2.168.192", TranslateUtils.arrayToIpv4AddressNoZone(request.dstAddress).getValue());
+        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.dstAddress).getValue());
         assertEquals("aabbccee1122", BaseEncoding.base16().lowerCase().encode(request.macAddress));
         assertEquals(5, request.swIfIndex);
     }
@@ -111,7 +111,7 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest {
         assertEquals(0, request.isIpv6);
         assertEquals(0, request.isAdd);
         assertEquals(1, request.isStatic);
-        assertEquals("1.2.168.192", TranslateUtils.arrayToIpv4AddressNoZone(request.dstAddress).getValue());
+        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.dstAddress).getValue());
         assertEquals("aabbccee1122", BaseEncoding.base16().lowerCase().encode(request.macAddress));
         assertEquals(5, request.swIfIndex);
     }

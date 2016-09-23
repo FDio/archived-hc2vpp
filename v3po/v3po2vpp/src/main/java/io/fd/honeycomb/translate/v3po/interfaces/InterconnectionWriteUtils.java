@@ -19,11 +19,11 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility class providing Interconnection CUD support.
  */
-final class InterconnectionWriteUtils {
+final class InterconnectionWriteUtils implements JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterconnectionWriteUtils.class);
 
@@ -61,7 +61,7 @@ final class InterconnectionWriteUtils {
 
     void setInterconnection(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                             final String ifcName, final Interconnection ic, final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             if (ic == null) { // TODO in case of update we should delete interconnection
                 LOG.trace("Interconnection is not set. Skipping");
@@ -77,14 +77,14 @@ final class InterconnectionWriteUtils {
             }
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to update bridge/xconnect based interconnection flags for: {}, interconnection: {}",
-                ifcName, ic);
+                    ifcName, ic);
             throw new WriteFailedException(id, "Unable to handle Interconnection of type " + ic.getClass(), e);
         }
     }
 
     void deleteInterconnection(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                                final String ifcName, final Interconnection ic, final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         try {
             if (ic == null) { // TODO in case of update we should delete interconnection
                 LOG.trace("Interconnection is not set. Skipping");
@@ -98,7 +98,7 @@ final class InterconnectionWriteUtils {
             }
         } catch (VppBaseCallException e) {
             LOG.warn("Failed to delete bridge/xconnect based interconnection flags for: {}, interconnection: {}",
-                ifcName, ic);
+                    ifcName, ic);
             throw new WriteFailedException(id, "Unable to delete Interconnection of type " + ic.getClass(), e);
         }
     }
@@ -106,27 +106,27 @@ final class InterconnectionWriteUtils {
     private void setBridgeBasedL2(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                                   final String ifcName, final BridgeBased bb,
                                   final WriteContext writeContext, final byte enabled)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         LOG.debug("Setting bridge based interconnection(bridge-domain={}) for interface: {}", bb.getBridgeDomain(),
-            ifcName);
+                ifcName);
 
         String bdName = bb.getBridgeDomain();
 
         int bdId = bridgeDomainContext.getIndex(bdName, writeContext.getMappingContext());
         checkArgument(bdId > 0, "Unable to set Interconnection for Interface: %s, bridge domain: %s does not exist",
-            ifcName, bdName);
+                ifcName, bdName);
 
         byte bvi = bb.isBridgedVirtualInterface()
-            ? (byte) 1
-            : (byte) 0;
+                ? (byte) 1
+                : (byte) 0;
         byte shg = 0;
         if (bb.getSplitHorizonGroup() != null) {
             shg = bb.getSplitHorizonGroup().byteValue();
         }
 
         final CompletionStage<SwInterfaceSetL2BridgeReply> swInterfaceSetL2BridgeReplyCompletionStage = futureJVppCore
-            .swInterfaceSetL2Bridge(getL2BridgeRequest(swIfIndex, bdId, shg, bvi, enabled));
-        TranslateUtils.getReplyForWrite(swInterfaceSetL2BridgeReplyCompletionStage.toCompletableFuture(), id);
+                .swInterfaceSetL2Bridge(getL2BridgeRequest(swIfIndex, bdId, shg, bvi, enabled));
+        getReplyForWrite(swInterfaceSetL2BridgeReplyCompletionStage.toCompletableFuture(), id);
 
         LOG.debug("Bridge based interconnection updated successfully for: {}, interconnection: {}", ifcName, bb);
     }
@@ -145,19 +145,19 @@ final class InterconnectionWriteUtils {
     private void setXconnectBasedL2(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                                     final String ifcName, final XconnectBased ic,
                                     final WriteContext writeContext, final byte enabled)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         String outSwIfName = ic.getXconnectOutgoingInterface();
         LOG.debug("Setting xconnect based interconnection(outgoing ifc={}) for interface: {}", outSwIfName, ifcName);
 
         int outSwIfIndex = interfaceContext.getIndex(outSwIfName, writeContext.getMappingContext());
         checkArgument(outSwIfIndex > 0,
-            "Unable to set Interconnection for Interface: %s, outgoing interface: %s does not exist",
-            ifcName, outSwIfIndex);
+                "Unable to set Interconnection for Interface: %s, outgoing interface: %s does not exist",
+                ifcName, outSwIfIndex);
 
         final CompletionStage<SwInterfaceSetL2XconnectReply> swInterfaceSetL2XconnectReplyCompletionStage =
-            futureJVppCore
-                .swInterfaceSetL2Xconnect(getL2XConnectRequest(swIfIndex, outSwIfIndex, enabled));
-        TranslateUtils.getReplyForWrite(swInterfaceSetL2XconnectReplyCompletionStage.toCompletableFuture(), id);
+                futureJVppCore
+                        .swInterfaceSetL2Xconnect(getL2XConnectRequest(swIfIndex, outSwIfIndex, enabled));
+        getReplyForWrite(swInterfaceSetL2XconnectReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Xconnect based interconnection updated successfully for: {}, interconnection: {}", ifcName, ic);
     }
 

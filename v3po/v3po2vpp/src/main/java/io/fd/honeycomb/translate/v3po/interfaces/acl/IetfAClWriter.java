@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.v3po.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -54,7 +54,7 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class IetfAClWriter {
+public final class IetfAClWriter implements JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(IetfAClWriter.class);
     private final FutureJVppCore jvpp;
@@ -75,12 +75,12 @@ public final class IetfAClWriter {
 
         // ietf-acl updates are handled first, so we use writeContext.readAfter
         final Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl>
-            aclOptional = writeContext.readAfter(AclWriter.ACL_ID.child(
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
-            new AclKey(aclName, aclType)));
+                aclOptional = writeContext.readAfter(AclWriter.ACL_ID.child(
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
+                new AclKey(aclName, aclType)));
         checkArgument(aclOptional.isPresent(), "Acl lists not configured");
         final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl
-            acl = aclOptional.get();
+                acl = aclOptional.get();
 
         final AccessListEntries accessListEntries = acl.getAccessListEntries();
         checkArgument(accessListEntries != null, "access list entries not configured");
@@ -89,13 +89,13 @@ public final class IetfAClWriter {
     }
 
     void deleteAcl(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex)
-        throws WriteTimeoutException, WriteFailedException.DeleteFailedException {
+            throws WriteTimeoutException, WriteFailedException.DeleteFailedException {
         final ClassifyTableByInterface request = new ClassifyTableByInterface();
         request.swIfIndex = swIfIndex;
 
         try {
             final CompletionStage<ClassifyTableByInterfaceReply> cs = jvpp.classifyTableByInterface(request);
-            final ClassifyTableByInterfaceReply reply = TranslateUtils.getReplyForWrite(cs.toCompletableFuture(), id);
+            final ClassifyTableByInterfaceReply reply = getReplyForWrite(cs.toCompletableFuture(), id);
 
             // We unassign and remove all ACL-related classify tables for given interface (we assume we are the only
             // classify table manager)
@@ -112,7 +112,7 @@ public final class IetfAClWriter {
 
     private void unassignClassifyTables(@Nonnull final InstanceIdentifier<?> id,
                                         final ClassifyTableByInterfaceReply currentState)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         final InputAclSetInterface request = new InputAclSetInterface();
         request.isAdd = 0;
         request.swIfIndex = currentState.swIfIndex;
@@ -120,12 +120,12 @@ public final class IetfAClWriter {
         request.ip4TableIndex = currentState.ip4TableId;
         request.ip6TableIndex = currentState.ip6TableId;
         final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
-            jvpp.inputAclSetInterface(request);
-        TranslateUtils.getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
+                jvpp.inputAclSetInterface(request);
+        getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
     }
 
     private void removeClassifyTable(@Nonnull final InstanceIdentifier<?> id, final int tableIndex)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
 
         if (tableIndex == -1) {
             return; // classify table id is absent
@@ -133,23 +133,23 @@ public final class IetfAClWriter {
         final ClassifyAddDelTable request = new ClassifyAddDelTable();
         request.tableIndex = tableIndex;
         final CompletionStage<ClassifyAddDelTableReply> cs = jvpp.classifyAddDelTable(request);
-        TranslateUtils.getReplyForWrite(cs.toCompletableFuture(), id);
+        getReplyForWrite(cs.toCompletableFuture(), id);
     }
 
     void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, @Nonnull final List<Acl> acls,
                @Nonnull final WriteContext writeContext)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
         write(id, swIfIndex, acls, writeContext, 0);
     }
 
     void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, @Nonnull final List<Acl> acls,
                @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags)
-        throws VppBaseCallException, WriteTimeoutException {
+            throws VppBaseCallException, WriteTimeoutException {
 
         // filter ACE entries and group by AceType
         final Map<AclType, List<Ace>> acesByType = acls.stream()
-            .flatMap(acl -> aclToAceStream(acl, writeContext))
-            .collect(Collectors.groupingBy(AclType::fromAce));
+                .flatMap(acl -> aclToAceStream(acl, writeContext))
+                .collect(Collectors.groupingBy(AclType::fromAce));
 
         final InputAclSetInterface request = new InputAclSetInterface();
         request.isAdd = 1;
@@ -173,9 +173,8 @@ public final class IetfAClWriter {
         }
 
         final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
-            jvpp.inputAclSetInterface(request);
-        TranslateUtils.getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
-
+                jvpp.inputAclSetInterface(request);
+        getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
     }
 
     private enum AclType {

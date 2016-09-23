@@ -25,31 +25,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 
-public class InterfaceUtilsTest {
+public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
 
     @Test
     public void testVppPhysAddrToYang() throws Exception {
-        assertEquals("01:02:03:04:05:06", InterfaceUtils.vppPhysAddrToYang(new byte[]{1, 2, 3, 4, 5, 6}));
-        assertEquals("0a:0b:0c:0d:0e:0f", InterfaceUtils.vppPhysAddrToYang(new byte[]{0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0, 0}));
+        assertEquals("01:02:03:04:05:06", vppPhysAddrToYang(new byte[]{1, 2, 3, 4, 5, 6}));
+        assertEquals("0a:0b:0c:0d:0e:0f", vppPhysAddrToYang(new byte[]{0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0, 0}));
     }
 
     @Test(expected = NullPointerException.class)
     public void testVppPhysAddrToYangFailNullArgument() throws Exception {
-        InterfaceUtils.vppPhysAddrToYang(null);
+        vppPhysAddrToYang(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testVppPhysAddrToYangInvalidByteArrayLength() throws Exception {
-        InterfaceUtils.vppPhysAddrToYang(new byte[]{1, 2, 3, 4, 5});
+        vppPhysAddrToYang(new byte[]{1, 2, 3, 4, 5});
     }
 
     @Test
     public void testGetInterfaceType() {
-        assertEquals(Tap.class, InterfaceUtils.getInterfaceType("tap0"));
-        assertEquals(VxlanTunnel.class, InterfaceUtils.getInterfaceType("vxlan0"));
-        assertEquals(VxlanGpeTunnel.class, InterfaceUtils.getInterfaceType("vxlan_gpe0"));
-        assertEquals(VhostUser.class, InterfaceUtils.getInterfaceType("VirtualEthernet0/0/0"));
-        assertEquals(EthernetCsmacd.class, InterfaceUtils.getInterfaceType("eth0.0"));
-        assertEquals(EthernetCsmacd.class, InterfaceUtils.getInterfaceType("local0"));
+        assertEquals(Tap.class, getInterfaceType("tap0"));
+        assertEquals(VxlanTunnel.class, getInterfaceType("vxlan0"));
+        assertEquals(VxlanGpeTunnel.class, getInterfaceType("vxlan_gpe0"));
+        assertEquals(VhostUser.class, getInterfaceType("VirtualEthernet0/0/0"));
+        assertEquals(EthernetCsmacd.class, getInterfaceType("eth0.0"));
+        assertEquals(EthernetCsmacd.class, getInterfaceType("local0"));
     }
 }

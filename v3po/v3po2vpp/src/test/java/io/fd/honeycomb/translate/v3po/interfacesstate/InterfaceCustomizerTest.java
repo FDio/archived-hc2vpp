@@ -49,7 +49,7 @@ import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.SwInterfaceDump;
 
 public class InterfaceCustomizerTest extends
-        ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> {
+        ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> implements InterfaceDataTranslator {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE0_NAME = "eth0";
@@ -96,23 +96,23 @@ public class InterfaceCustomizerTest extends
 
     private void verifySwInterfaceDumpWasInvoked(final int nameFilterValid, final String ifaceName,
                                                  final int dumpIfcsInvocationCount)
-        throws VppInvocationException {
+            throws VppInvocationException {
         final SwInterfaceDump expected = new SwInterfaceDump();
-        expected.nameFilterValid = (byte)nameFilterValid;
+        expected.nameFilterValid = (byte) nameFilterValid;
         expected.nameFilter = ifaceName.getBytes();
         verify(api, times(dumpIfcsInvocationCount)).swInterfaceDump(expected);
     }
 
-    private static void assertIfacesAreEqual(final Interface iface, final SwInterfaceDetails details) {
+    private void assertIfacesAreEqual(final Interface iface, final SwInterfaceDetails details) {
         assertEquals(iface.getName(), new String(details.interfaceName));
-        Assert.assertEquals(InterfaceUtils.yangIfIndexToVpp(iface.getIfIndex().intValue()), details.swIfIndex);
-        assertEquals(iface.getPhysAddress().getValue(), InterfaceUtils.vppPhysAddrToYang(details.l2Address));
+        Assert.assertEquals(yangIfIndexToVpp(iface.getIfIndex().intValue()), details.swIfIndex);
+        assertEquals(iface.getPhysAddress().getValue(), vppPhysAddrToYang(details.l2Address));
     }
 
     @Test
     public void testReadCurrentAttributes() throws Exception {
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-            .child(Interface.class, new InterfaceKey(IFACE0_NAME));
+                .child(Interface.class, new InterfaceKey(IFACE0_NAME));
         final InterfaceBuilder builder = getCustomizer().getBuilder(id);
 
         final SwInterfaceDetails iface = new SwInterfaceDetails();
@@ -134,7 +134,7 @@ public class InterfaceCustomizerTest extends
     public void testReadCurrentAttributesFailed() throws Exception {
         final String ifaceName = IFACE0_NAME;
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-            .child(Interface.class, new InterfaceKey(ifaceName));
+                .child(Interface.class, new InterfaceKey(ifaceName));
         final InterfaceBuilder builder = getCustomizer().getBuilder(id);
 
         whenSwInterfaceDumpThenReturn(Collections.emptyList());
@@ -152,7 +152,7 @@ public class InterfaceCustomizerTest extends
     @Test
     public void testReadSubInterface() throws Exception {
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-            .child(Interface.class, new InterfaceKey(SUB_IFACE_NAME));
+                .child(Interface.class, new InterfaceKey(SUB_IFACE_NAME));
         final InterfaceBuilder builder = mock(InterfaceBuilder.class);
 
         final SwInterfaceDetails iface = new SwInterfaceDetails();
@@ -172,7 +172,7 @@ public class InterfaceCustomizerTest extends
     @Test
     public void testGetAllIds() throws Exception {
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-            .child(Interface.class);
+                .child(Interface.class);
 
         final SwInterfaceDetails swIf0 = new SwInterfaceDetails();
         swIf0.swIfIndex = 0;
@@ -188,7 +188,7 @@ public class InterfaceCustomizerTest extends
         whenSwInterfaceDumpThenReturn(Arrays.asList(swIf0, swIf1, swSubIf1));
 
         final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(IFACE0_NAME), new InterfaceKey(
-            IFACE1_NAME));
+                IFACE1_NAME));
         final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);
 
         verifySwInterfaceDumpWasInvoked(0, "", 1);
@@ -200,7 +200,7 @@ public class InterfaceCustomizerTest extends
     @Test
     public void testGetAllIdsWithDisabled() throws Exception {
         final InstanceIdentifier<Interface> id = InstanceIdentifier.create(InterfacesState.class)
-            .child(Interface.class);
+                .child(Interface.class);
 
         doReturn(true).when(interfaceDisableContext).isInterfaceDisabled(1, mappingContext);
 
