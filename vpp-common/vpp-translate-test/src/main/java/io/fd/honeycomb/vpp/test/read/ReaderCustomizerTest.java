@@ -61,7 +61,7 @@ public abstract class ReaderCustomizerTest<D extends DataObject, B extends Build
     }
 
     @Before
-    public void setUpParent() throws Exception {
+    public final void setUpParent() throws Exception {
         MockitoAnnotations.initMocks(this);
         cache = new ModificationCache();
         Mockito.doReturn(cache).when(ctx).getModificationCache();

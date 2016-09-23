@@ -106,6 +106,7 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
         final int baseOffset = getVlanTagsLen(vlanTags);
 
         if (aceIp.getProtocol() != null) {
+            aceIsEmpty = false;
             request.mask[baseOffset + IP_VERSION_OFFSET] |= IP_VERSION_MASK;
         }
 
@@ -168,6 +169,7 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
         final int baseOffset = getVlanTagsLen(vlanTags);
 
         if (aceIp.getProtocol() != null) {
+            noMatch = false;
             request.match[baseOffset + IP_VERSION_OFFSET] |=
                 (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
         }

@@ -47,7 +47,7 @@ public abstract class WriterCustomizerTest implements FutureProducer,
     }
 
     @Before
-    public void setUpParent() throws Exception {
+    public final void setUpParent() throws Exception {
         MockitoAnnotations.initMocks(this);
         cache = new ModificationCache();
         Mockito.doReturn(cache).when(writeContext).getModificationCache();
