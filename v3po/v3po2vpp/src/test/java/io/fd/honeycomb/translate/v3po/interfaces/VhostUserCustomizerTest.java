@@ -29,7 +29,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -121,8 +120,8 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv
 
         customizer.writeCurrentAttributes(ID, vhostUser, writeContext);
         verifyCreateVhostUserIfWasInvoked(vhostUser);
-        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance")), eq(
-                ContextTestUtils.getMapping(IFACE_NAME, 0).get()));
+        verify(mappingContext).put(eq(mappingIid(IFACE_NAME, "test-instance")), eq(
+            mapping(IFACE_NAME, 0).get()));
     }
 
     @Test
@@ -146,7 +145,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv
     public void testUpdateCurrentAttributes() throws Exception {
         final VhostUser vhostUserBefore = generateVhostUser(VhostUserRole.Client, "socketName0");
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName1");
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
         when(api.modifyVhostUserIf(any(ModifyVhostUserIf.class))).thenReturn(future(new ModifyVhostUserIfReply()));
 
@@ -158,7 +157,7 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv
     public void testUpdateCurrentAttributesFailed() throws Exception {
         final VhostUser vhostUserBefore = generateVhostUser(VhostUserRole.Client, "socketName0");
         final VhostUser vhostUserAfter = generateVhostUser(VhostUserRole.Server, "socketName1");
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
         doReturn(failedFuture()).when(api).modifyVhostUserIf(any(ModifyVhostUserIf.class));
 
@@ -175,19 +174,19 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv
     @Test
     public void testDeleteCurrentAttributes() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
         when(api.deleteVhostUserIf(any(DeleteVhostUserIf.class))).thenReturn(future(new DeleteVhostUserIfReply()));
 
         customizer.deleteCurrentAttributes(ID, vhostUser, writeContext);
         verifyDeleteVhostUserIfWasInvoked(IFACE_ID);
-        verify(mappingContext).delete(eq(ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance")));
+        verify(mappingContext).delete(eq(mappingIid(IFACE_NAME, "test-instance")));
     }
 
     @Test
     public void testDeleteCurrentAttributesFailed() throws Exception {
         final VhostUser vhostUser = generateVhostUser(VhostUserRole.Client, "socketName");
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, "test-instance");
 
         doReturn(failedFuture()).when(api).deleteVhostUserIf(any(DeleteVhostUserIf.class));
 
@@ -197,8 +196,8 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyDeleteVhostUserIfWasInvoked(IFACE_ID);
             // Delete from context not invoked if delete from VPP failed
-            verify(mappingContext, times(0)).delete(eq(ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance")));
-            verify(mappingContext).read(eq(ContextTestUtils.getMappingIid(IFACE_NAME, "test-instance")));
+            verify(mappingContext, times(0)).delete(eq(mappingIid(IFACE_NAME, "test-instance")));
+            verify(mappingContext).read(eq(mappingIid(IFACE_NAME, "test-instance")));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

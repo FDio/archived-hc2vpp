@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
@@ -61,7 +60,7 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
     @Override
     public void setUp() {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
+        defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
     }
 
     @Override

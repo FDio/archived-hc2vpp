@@ -61,8 +61,7 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesBadData() throws WriteFailedException {
-        customizer
-                .writeCurrentAttributes(null, mock(LocatorSet.class), null);
+        customizer.writeCurrentAttributes(null, mock(LocatorSet.class), null);
     }
 
     @Test

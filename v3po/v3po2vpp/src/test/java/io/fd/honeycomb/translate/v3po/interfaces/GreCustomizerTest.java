@@ -16,10 +16,6 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces;
 
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMapping;
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.getMappingIid;
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.mockEmptyMapping;
-import static io.fd.honeycomb.translate.v3po.test.ContextTestUtils.mockMapping;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -116,12 +112,12 @@ public class GreCustomizerTest extends WriterCustomizerTest {
 
         whenGreAddDelTunnelThenSuccess();
 
-        mockEmptyMapping(mappingContext, IFACE_NAME, IFC_TEST_INSTANCE);
+        noMappingDefined(mappingContext, IFACE_NAME, IFC_TEST_INSTANCE);
 
         customizer.writeCurrentAttributes(id, gre, writeContext);
         verifyGreAddWasInvoked(gre);
-        verify(mappingContext).put(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)),
-            eq(getMapping(IFACE_NAME, IFACE_ID).get()));
+        verify(mappingContext).put(eq(mappingIid(IFACE_NAME, IFC_TEST_INSTANCE)),
+            eq(mapping(IFACE_NAME, IFACE_ID).get()));
     }
 
     @Test
@@ -129,14 +125,14 @@ public class GreCustomizerTest extends WriterCustomizerTest {
         final Gre gre = generateGre();
 
         whenGreAddDelTunnelThenSuccess();
-        mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
 
         customizer.writeCurrentAttributes(id, gre, writeContext);
         verifyGreAddWasInvoked(gre);
 
         // Remove the first mapping before putting in the new one
-        verify(mappingContext).delete(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
-        verify(mappingContext).put(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)), eq(getMapping(IFACE_NAME, IFACE_ID).get()));
+        verify(mappingContext).delete(eq(mappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
+        verify(mappingContext).put(eq(mappingIid(IFACE_NAME, IFC_TEST_INSTANCE)), eq(mapping(IFACE_NAME, IFACE_ID).get()));
     }
 
     @Test
@@ -151,7 +147,7 @@ public class GreCustomizerTest extends WriterCustomizerTest {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyGreAddWasInvoked(gre);
             // Mapping not stored due to failure
-            verify(mappingContext, times(0)).put(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)), eq(getMapping(
+            verify(mappingContext, times(0)).put(eq(mappingIid(IFACE_NAME, IFC_TEST_INSTANCE)), eq(mapping(
                 IFACE_NAME, 0).get()));
             return;
         }
@@ -174,11 +170,11 @@ public class GreCustomizerTest extends WriterCustomizerTest {
         final Gre gre = generateGre();
 
         whenGreAddDelTunnelThenSuccess();
-        mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
 
         customizer.deleteCurrentAttributes(id, gre, writeContext);
         verifyGreDeleteWasInvoked(gre);
-        verify(mappingContext).delete(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
+        verify(mappingContext).delete(eq(mappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
     }
 
     @Test
@@ -186,14 +182,14 @@ public class GreCustomizerTest extends WriterCustomizerTest {
         final Gre gre = generateGre();
 
         whenGreAddDelTunnelThenFailure();
-        mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_TEST_INSTANCE);
 
         try {
             customizer.deleteCurrentAttributes(id, gre, writeContext);
         } catch (WriteFailedException.DeleteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyGreDeleteWasInvoked(gre);
-            verify(mappingContext, times(0)).delete(eq(getMappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
+            verify(mappingContext, times(0)).delete(eq(mappingIid(IFACE_NAME, IFC_TEST_INSTANCE)));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

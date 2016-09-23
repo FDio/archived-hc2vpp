@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
+import io.fd.honeycomb.vpp.test.util.NamingContextHelper;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;
 import org.junit.Before;
@@ -40,7 +40,7 @@ import org.openvpp.jvpp.core.dto.WantInterfaceEventsReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.openvpp.jvpp.core.notification.CoreNotificationRegistry;
 
-public class InterfaceChangeNotificationProducerTest implements FutureProducer {
+public class InterfaceChangeNotificationProducerTest implements FutureProducer, NamingContextHelper {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "eth0";
@@ -67,7 +67,7 @@ public class InterfaceChangeNotificationProducerTest implements FutureProducer {
         callbackArgumentCaptor = ArgumentCaptor.forClass(SwInterfaceSetFlagsNotificationCallback.class);
         doReturn(notificationListenerReg).when(notificationRegistry).registerSwInterfaceSetFlagsNotificationCallback(
             callbackArgumentCaptor.capture());
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         doReturn(future(new WantInterfaceEventsReply())).when(jVpp).wantInterfaceEvents(any(WantInterfaceEvents.class));
     }
 

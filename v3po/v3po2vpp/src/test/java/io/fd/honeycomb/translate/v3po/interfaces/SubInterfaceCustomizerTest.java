@@ -25,7 +25,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
@@ -91,8 +90,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
     public void setUp() throws Exception {
         namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
         customizer = new SubInterfaceCustomizer(api, namingContext);
-        ContextTestUtils.mockMapping(mappingContext, SUB_IFACE_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
-        ContextTestUtils.mockMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_ID, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, SUB_IFACE_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_ID, IFC_TEST_INSTANCE);
     }
 
     private SubInterface generateSubInterface(final boolean enabled, final List<Tag> tagList) {
@@ -198,8 +197,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 
         verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
         verify(mappingContext)
-            .put(eq(ContextTestUtils.getMappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
-                ContextTestUtils.getMapping(SUB_IFACE_NAME, 0).get()));
+            .put(eq(mappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
+                mapping(SUB_IFACE_NAME, 0).get()));
     }
 
     @Test
@@ -214,8 +213,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 
         verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ANY_ID, true));
         verify(mappingContext)
-            .put(eq(ContextTestUtils.getMappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
-                ContextTestUtils.getMapping(SUB_IFACE_NAME, 0).get()));
+            .put(eq(mappingIid(SUB_IFACE_NAME, IFC_TEST_INSTANCE)), eq(
+                mapping(SUB_IFACE_NAME, 0).get()));
     }
 
     @Test
@@ -231,8 +230,8 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).createSubif(generateSubInterfaceRequest(SUPER_IF_ID, CTAG_ID, false));
             verify(mappingContext, times(0)).put(
-                eq(ContextTestUtils.getMappingIid(SUPER_IF_NAME, IFC_TEST_INSTANCE)),
-                eq(ContextTestUtils.getMapping(SUPER_IF_NAME, 0).get()));
+                eq(mappingIid(SUPER_IF_NAME, IFC_TEST_INSTANCE)),
+                eq(mapping(SUPER_IF_NAME, 0).get()));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");

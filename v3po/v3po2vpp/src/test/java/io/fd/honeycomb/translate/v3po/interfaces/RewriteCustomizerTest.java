@@ -22,7 +22,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.util.TagRewriteOperation;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -63,7 +62,7 @@ public class RewriteCustomizerTest extends WriterCustomizerTest {
         namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
         customizer = new RewriteCustomizer(api, namingContext);
         VLAN_IID = getVlanTagRewriteId(IF_NAME, VLAN_IF_ID);
-        ContextTestUtils.mockMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_TEST_INSTANCE);
     }
 
     private static InstanceIdentifier<Rewrite> getVlanTagRewriteId(final String name, final long index) {

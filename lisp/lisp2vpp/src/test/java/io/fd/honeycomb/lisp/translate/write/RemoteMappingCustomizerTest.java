@@ -18,6 +18,8 @@ package io.fd.honeycomb.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,11 +29,10 @@ import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
-import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
@@ -51,7 +52,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.dto.LispAddDelRemoteMapping;
 import org.openvpp.jvpp.core.dto.LispAddDelRemoteMappingReply;
 
-
 public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
 
     @Captor
@@ -61,6 +61,8 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     private RemoteMappingCustomizer customizer;
     private RemoteMapping intf;
     private InstanceIdentifier<RemoteMapping> id;
+
+    @Mock
     private EidMappingContext remoteMappingContext;
 
     @Override
@@ -73,7 +75,6 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
         mappingId = new MappingId("REMOTE");
         final RemoteMappingKey key = new RemoteMappingKey(mappingId);
-        remoteMappingContext = new EidMappingContext("remote");
 
         intf = new RemoteMappingBuilder()
                 .setEid(
@@ -88,9 +89,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
         customizer = new RemoteMappingCustomizer(api, remoteMappingContext);
 
-        when(api.lispAddDelRemoteMapping(Mockito.any())).thenReturn(future(new LispAddDelRemoteMappingReply()));
-        when(mappingContext.read(Mockito.any())).thenReturn(com.google.common.base.Optional
-                .of(new RemoteMappingBuilder().setKey(key).setId(mappingId).setEid(eid).build()));
+        when(api.lispAddDelRemoteMapping(any())).thenReturn(future(new LispAddDelRemoteMappingReply()));
     }
 
     @Test(expected = NullPointerException.class)
@@ -105,10 +104,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     }
 
     @Test
-    public void testWriteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
-        //to simulate no mapping
-        when(mappingContext.read(Mockito.any())).thenReturn(com.google.common.base.Optional.absent());
-
+    public void testWriteCurrentAttributes() throws WriteFailedException {
         customizer.writeCurrentAttributes(id, intf, writeContext);
 
         verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
@@ -132,7 +128,8 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     }
 
     @Test
-    public void testDeleteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
+    public void testDeleteCurrentAttributes() throws WriteFailedException {
+        when(remoteMappingContext.containsEid(any(), eq(mappingContext))).thenReturn(true);
         customizer.deleteCurrentAttributes(id, intf, writeContext);
 
         verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());

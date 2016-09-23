@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.Arrays;
@@ -70,9 +69,9 @@ public class InterfaceCustomizerTest extends
     @Override
     public void setUp() {
         interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IFACE0_NAME, IFACE0_ID, IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IFACE1_NAME, IFACE1_ID, IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, SUB_IFACE_NAME, SUB_IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE0_NAME, IFACE0_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE1_NAME, IFACE1_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, SUB_IFACE_NAME, SUB_IFACE_ID, IFC_CTX_NAME);
     }
 
     @Override

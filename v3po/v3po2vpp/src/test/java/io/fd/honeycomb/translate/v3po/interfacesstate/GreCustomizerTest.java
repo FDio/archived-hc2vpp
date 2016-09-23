@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import java.net.InetAddress;
@@ -65,7 +64,7 @@ public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
     @Override
     public void setUp() throws UnknownHostException, VppInvocationException {
         interfacesContext = new NamingContext("gre-tunnel", IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "gre-tunnel4".getBytes();

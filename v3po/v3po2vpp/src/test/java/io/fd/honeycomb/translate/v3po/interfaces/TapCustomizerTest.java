@@ -23,7 +23,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import org.junit.Test;
@@ -74,10 +73,10 @@ public class TapCustomizerTest extends WriterCustomizerTest {
         tapCustomizer.writeCurrentAttributes(getTapId("tap2"), getTapData("tap2", "ff:ff:ff:ff:ff:ff"), writeContext);
 
         verify(api, times(2)).tapConnect(any(TapConnect.class));
-        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)), eq(
-                ContextTestUtils.getMapping("tap", 0).get()));
-        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap2", IFC_TEST_INSTANCE)), eq(
-                ContextTestUtils.getMapping("tap2", 1).get()));
+        verify(mappingContext).put(eq(mappingIid("tap", IFC_TEST_INSTANCE)), eq(
+                mapping("tap", 0).get()));
+        verify(mappingContext).put(eq(mappingIid("tap2", IFC_TEST_INSTANCE)), eq(
+                mapping("tap2", 1).get()));
     }
 
     @Test
@@ -92,14 +91,14 @@ public class TapCustomizerTest extends WriterCustomizerTest {
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
 
-        ContextTestUtils.mockMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);
         tapCustomizer.updateCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), getTapData("tap", "ff:ff:ff:ff:ff:f1"), writeContext);
 
         verify(api).tapConnect(any(TapConnect.class));
         verify(api).tapModify(any(TapModify.class));
 
-        verify(mappingContext).put(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)), eq(
-                ContextTestUtils.getMapping("tap", 0).get()));
+        verify(mappingContext).put(eq(mappingIid("tap", IFC_TEST_INSTANCE)), eq(
+                mapping("tap", 0).get()));
     }
 
     @Test
@@ -111,12 +110,12 @@ public class TapCustomizerTest extends WriterCustomizerTest {
         doReturn(future(new TapDeleteReply())).when(api).tapDelete(any(TapDelete.class));
 
         tapCustomizer.writeCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
-        ContextTestUtils.mockMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, "tap", 1, IFC_TEST_INSTANCE);
         tapCustomizer.deleteCurrentAttributes(getTapId("tap"), getTapData("tap", "ff:ff:ff:ff:ff:ff"), writeContext);
 
         verify(api).tapConnect(any(TapConnect.class));
         verify(api).tapDelete(any(TapDelete.class));
-        verify(mappingContext).delete(eq(ContextTestUtils.getMappingIid("tap", IFC_TEST_INSTANCE)));
+        verify(mappingContext).delete(eq(mappingIid("tap", IFC_TEST_INSTANCE)));
     }
 
     private InstanceIdentifier<Tap> getTapId(final String tap) {

@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.Collections;
@@ -64,7 +63,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
     @Override
     public void setUp() {
         bdContext = new NamingContext("generatedBdName", BD_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
+        defineMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
         interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
     }
 
@@ -97,7 +96,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
     public void testRead() throws Exception {
         final long address_vpp = 0x0000010203040506L;
         final PhysAddress address = new PhysAddress("01:02:03:04:05:06");
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
         whenL2FibTableDumpThenReturn(Collections.singletonList(generateL2FibEntry(address_vpp)));
 

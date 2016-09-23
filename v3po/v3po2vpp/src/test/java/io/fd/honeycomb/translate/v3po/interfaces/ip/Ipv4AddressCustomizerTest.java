@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidator;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
@@ -114,7 +113,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
         Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(length).build();
 
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         whenSwInterfaceAddDelAddressThenSuccess();
 
         customizer.writeCurrentAttributes(id, data, writeContext);
@@ -132,7 +131,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
         Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(length).build();
 
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         whenSwInterfaceAddDelAddressThenFailure();
 
         try {
@@ -166,7 +165,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         doReturn(Optional.of(new Ipv4Builder().setAddress(addressList).build())).when(writeContext)
                 .readAfter(argThat(matchInstanceIdentifier(Ipv4.class)));
 
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
         try {
             customizer.writeCurrentAttributes(id, data, writeContext);
@@ -210,7 +209,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
         Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(length).build();
 
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         whenSwInterfaceAddDelAddressThenSuccess();
 
         customizer.deleteCurrentAttributes(id, data, writeContext);
@@ -227,7 +226,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
         Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(length).build();
 
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         whenSwInterfaceAddDelAddressThenFailure();
 
         try {
@@ -250,7 +249,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         Netmask subnet = new NetmaskBuilder().setNetmask(new DottedQuad(stringMask)).build();
         Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(subnet).build();
 
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         whenSwInterfaceAddDelAddressThenSuccess();
 
         customizer.writeCurrentAttributes(id, data, writeContext);
@@ -268,7 +267,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
             Netmask subnet = new NetmaskBuilder().setNetmask(new DottedQuad(stringMask)).build();
             Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(subnet).build();
 
-            ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+            defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
             whenSwInterfaceAddDelAddressThenSuccess();
 
             customizer.writeCurrentAttributes(id, data, writeContext);

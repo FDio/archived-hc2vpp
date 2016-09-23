@@ -36,7 +36,7 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuilder;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
+import io.fd.honeycomb.vpp.test.util.NamingContextHelper;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;
 import java.util.Arrays;
@@ -72,7 +72,7 @@ import org.openvpp.jvpp.core.dto.ShowVersion;
 import org.openvpp.jvpp.core.dto.ShowVersionReply;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
 
-public class VppStateTest implements FutureProducer {
+public class VppStateTest implements FutureProducer, NamingContextHelper {
 
     private static final String BD_CTX_NAME = "bd-test-instance";
     @Mock
@@ -226,7 +226,7 @@ public class VppStateTest implements FutureProducer {
         bd.bdId = 0;
         final String bdName = "bdn1";
         mockBdMapping(bd, bdName);
-        ContextTestUtils.mockMapping(mappingContext, "eth1", 0, "ifc-test-instance");
+        defineMapping(mappingContext, "eth1", 0, "ifc-test-instance");
 
         whenBridgeDomainDumpThenReturn(Collections.singletonList(bd));
         final L2FibTableEntry l2FibEntry = new L2FibTableEntry();
@@ -253,7 +253,7 @@ public class VppStateTest implements FutureProducer {
     }
 
     private void mockBdMapping(final BridgeDomainDetails bd, final String bdName) {
-        ContextTestUtils.mockMapping(mappingContext, bdName, bd.bdId, BD_CTX_NAME);
+        defineMapping(mappingContext, bdName, bd.bdId, BD_CTX_NAME);
     }
 
     @Test
@@ -301,7 +301,7 @@ public class VppStateTest implements FutureProducer {
     @Test(expected = ReadFailedException.class)
     public void testReadBridgeDomainNotExisting() throws Exception {
         final String nonExistingBdName = "NOT EXISTING";
-        ContextTestUtils.mockEmptyMapping(mappingContext, nonExistingBdName, BD_CTX_NAME);
+        noMappingDefined(mappingContext, nonExistingBdName, BD_CTX_NAME);
 
         readerRegistry.read(InstanceIdentifier.create(VppState.class).child(BridgeDomains.class).child(
             BridgeDomain.class, new BridgeDomainKey(nonExistingBdName)), ctx);

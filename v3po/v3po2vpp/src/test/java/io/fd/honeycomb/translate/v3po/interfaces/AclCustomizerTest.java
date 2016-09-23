@@ -22,7 +22,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -58,7 +57,7 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
     @Override
     public void setUp() {
-        ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
         customizer = new AclCustomizer(api, new NamingContext("generatedInterfaceName", IFC_TEST_INSTANCE),
             classifyTableContext);
     }

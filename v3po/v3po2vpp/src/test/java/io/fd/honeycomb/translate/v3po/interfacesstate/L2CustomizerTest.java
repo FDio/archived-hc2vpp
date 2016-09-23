@@ -22,7 +22,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import java.util.Collections;
@@ -118,8 +117,8 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
         final int bdId = 1;
         final String bdName = "bd001";
         final String ifName = "eth0.sub0";
-        ContextTestUtils.mockMapping(mappingContext, ifName, ifId, IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        defineMapping(mappingContext, ifName, ifId, IFC_CTX_NAME);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
 
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = ifId;

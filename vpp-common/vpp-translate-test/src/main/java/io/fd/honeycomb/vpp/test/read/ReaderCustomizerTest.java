@@ -25,6 +25,7 @@ import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;
+import io.fd.honeycomb.vpp.test.util.NamingContextHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -41,7 +42,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
  * @param <D> Specific DataObject derived type (Identifiable), that is handled by this customizer
  * @param <B> Specific Builder for handled type (D)
  */
-public abstract class ReaderCustomizerTest<D extends DataObject, B extends Builder<D>> implements FutureProducer {
+public abstract class ReaderCustomizerTest<D extends DataObject, B extends Builder<D>> implements FutureProducer,
+    NamingContextHelper {
 
     @Mock
     protected FutureJVppCore api;
@@ -52,7 +54,7 @@ public abstract class ReaderCustomizerTest<D extends DataObject, B extends Build
 
     protected ModificationCache cache;
     protected final Class<D> dataObjectClass;
-    private ReaderCustomizer<D, B> customizer;
+    protected ReaderCustomizer<D, B> customizer;
 
     protected ReaderCustomizerTest(Class<D> dataObjectClass) {
         this.dataObjectClass = dataObjectClass;

@@ -24,17 +24,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
-import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mockito;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
@@ -42,28 +38,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.InterfaceKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.dto.LispAddDelLocator;
 import org.openvpp.jvpp.core.dto.LispAddDelLocatorReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
 
 public class InterfaceCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 
     @Captor
     private ArgumentCaptor<LispAddDelLocator> intfCaptor;
 
-    private NamingContext namingContext;
     private InstanceIdentifier<Interface> id;
     private Interface intf;
     private InterfaceCustomizer customizer;
 
     @Override
     public void setUp() {
+        final String ifcCtxName = "INInterruptedException, ExecutionException, STANCE";
+        final String interfaceName = "Interface";
+        defineMapping(mappingContext, interfaceName, 5, ifcCtxName);
+
         id = InstanceIdentifier.builder(Lisp.class)
                 .child(LocatorSets.class)
                 .child(LocatorSet.class, new LocatorSetKey("Locator"))
-                .child(Interface.class, new InterfaceKey("Interface"))
+            .child(Interface.class, new InterfaceKey(interfaceName))
                 .build();
 
         intf = new InterfaceBuilder()
@@ -71,19 +68,14 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
                 .setWeight((short) 2)
                 .build();
 
-        namingContext = new NamingContext("PREFIX", "INSTANCE");
+        customizer = new InterfaceCustomizer(api, new NamingContext("PREFIX", ifcCtxName));
 
-        customizer = new InterfaceCustomizer(api, namingContext);
-
-        when(mappingContext.read(Mockito.any()))
-                .thenReturn(Optional.of((DataObject) new MappingBuilder().setIndex(5).setName("interface").build()));
         when(api.lispAddDelLocator(any(LispAddDelLocator.class))).thenReturn(future(new LispAddDelLocatorReply()));
     }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
-        new InterfaceCustomizer(mock(FutureJVppCore.class), new NamingContext("PREFIX", "INSTANCE"))
-                .writeCurrentAttributes(null, null, null);
+        customizer.writeCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
@@ -92,8 +84,7 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
         when(intf.getWeight()).thenReturn((short) 1);
         when(intf.getPriority()).thenReturn(null);
 
-        new InterfaceCustomizer(mock(FutureJVppCore.class), new NamingContext("PREFIX", "INSTANCE"))
-                .writeCurrentAttributes(null, intf, null);
+        customizer.writeCurrentAttributes(null, intf, null);
     }
 
     @Test(expected = NullPointerException.class)
@@ -102,12 +93,11 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
         when(intf.getWeight()).thenReturn(null);
         when(intf.getPriority()).thenReturn((short) 1);
 
-        new InterfaceCustomizer(mock(FutureJVppCore.class), new NamingContext("PREFIX", "INSTANCE"))
-                .writeCurrentAttributes(null, intf, null);
+        customizer.writeCurrentAttributes(null, intf, null);
     }
 
     @Test
-    public void testWriteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
+    public void testWriteCurrentAttributes() throws WriteFailedException {
         customizer.writeCurrentAttributes(id, intf, writeContext);
 
         verify(api, times(1)).lispAddDelLocator(intfCaptor.capture());
@@ -124,14 +114,12 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
 
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws WriteFailedException {
-        new InterfaceCustomizer(api, namingContext)
-                .updateCurrentAttributes(null, null, null, null);
+        customizer.updateCurrentAttributes(null, null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesNullData() throws WriteFailedException {
-        new InterfaceCustomizer(api, namingContext)
-                .deleteCurrentAttributes(null, null, null);
+        customizer.deleteCurrentAttributes(null, null, null);
     }
 
     @Test(expected = NullPointerException.class)
@@ -140,8 +128,7 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
         when(interf.getWeight()).thenReturn((short) 1);
         when(interf.getPriority()).thenReturn(null);
 
-        new InterfaceCustomizer(mock(FutureJVppCore.class), new NamingContext("PREFIX", "INSTANCE"))
-                .deleteCurrentAttributes(null, interf, null);
+        customizer.deleteCurrentAttributes(null, interf, null);
     }
 
     @Test(expected = NullPointerException.class)
@@ -150,12 +137,11 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
         when(interf.getWeight()).thenReturn(null);
         when(interf.getPriority()).thenReturn((short) 1);
 
-        new InterfaceCustomizer(mock(FutureJVppCore.class), new NamingContext("PREFIX", "INSTANCE"))
-                .deleteCurrentAttributes(null, interf, null);
+        customizer.deleteCurrentAttributes(null, interf, null);
     }
 
     @Test
-    public void testDeleteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
+    public void testDeleteCurrentAttributes() throws WriteFailedException {
         customizer.deleteCurrentAttributes(id, intf, writeContext);
 
         verify(api, times(1)).lispAddDelLocator(intfCaptor.capture());

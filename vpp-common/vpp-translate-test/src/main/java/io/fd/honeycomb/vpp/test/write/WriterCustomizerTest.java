@@ -21,6 +21,7 @@ import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;
+import io.fd.honeycomb.vpp.test.util.NamingContextHelper;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,7 +31,8 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 /**
  * Generic test for classes implementing {@link WriterCustomizer} interface.
  */
-public abstract class WriterCustomizerTest implements FutureProducer {
+public abstract class WriterCustomizerTest implements FutureProducer,
+    NamingContextHelper {
 
     @Mock
     protected FutureJVppCore api;

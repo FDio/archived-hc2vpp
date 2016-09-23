@@ -23,7 +23,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.io.BaseEncoding;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -56,7 +55,7 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
 
     @Before
     public void init() {
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         customizer = new Ipv4NeighbourCustomizer(api, new NamingContext("prefix", IFC_CTX_NAME));
 
         requestCaptor = ArgumentCaptor.forClass(IpNeighborAddDel.class);

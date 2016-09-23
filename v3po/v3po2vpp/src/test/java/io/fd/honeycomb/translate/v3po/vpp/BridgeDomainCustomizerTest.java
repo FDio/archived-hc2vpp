@@ -23,7 +23,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -120,15 +119,14 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
-        ContextTestUtils.mockEmptyMapping(mappingContext, bdName, BD_CTX_NAME);
+        noMappingDefined(mappingContext, bdName, BD_CTX_NAME);
 
         whenBridgeDomainAddDelThenSuccess();
 
         customizer.writeCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
 
         verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
-        verify(mappingContext).put(
-                ContextTestUtils.getMappingIid(bdName, BD_CTX_NAME), ContextTestUtils.getMapping(bdName, bdId).get());
+        verify(mappingContext).put(mappingIid(bdName, BD_CTX_NAME), mapping(bdName, bdId).get());
     }
 
     @Test
@@ -136,15 +134,14 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
-        ContextTestUtils.mockMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
 
         whenBridgeDomainAddDelThenSuccess();
 
         customizer.writeCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
 
         verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
-        verify(mappingContext).put(
-                ContextTestUtils.getMappingIid(bdName, BD_CTX_NAME), ContextTestUtils.getMapping(bdName, bdId).get());
+        verify(mappingContext).put(mappingIid(bdName, BD_CTX_NAME), mapping(bdName, bdId).get());
     }
 
     @Test
@@ -152,7 +149,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
-        ContextTestUtils.mockEmptyMapping(mappingContext, bdName, BD_CTX_NAME);
+        noMappingDefined(mappingContext, bdName, BD_CTX_NAME);
 
         whenBridgeDomainAddDelThenFailure();
 
@@ -170,7 +167,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
-        ContextTestUtils.mockMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
 
         whenBridgeDomainAddDelThenSuccess();
 
@@ -183,7 +180,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
     public void testDeleteUnknownBridgeDomain() throws Exception {
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain("bd1");
-        ContextTestUtils.mockEmptyMapping(mappingContext, bdName, BD_CTX_NAME);
+        noMappingDefined(mappingContext, bdName, BD_CTX_NAME);
 
         try {
             customizer.deleteCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
@@ -199,7 +196,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final int bdId = 1;
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
-        ContextTestUtils.mockMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
 
         whenBridgeDomainAddDelThenFailure();
 
@@ -217,7 +214,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
     public void testUpdateBridgeDomain() throws Exception {
         final int bdId = 1;
         final String bdName = "bd1";
-        ContextTestUtils.mockMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
 
         final byte arpTermBefore = 1;
         final byte floodBefore = 1;
@@ -244,7 +241,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final String bdName = "bd1";
         final BridgeDomain bdBefore = generateBridgeDomain(bdName, 0, 1, 0, 1, 0);
         final BridgeDomain bdAfter = generateBridgeDomain(bdName, 1, 1, 0, 1, 0);
-        ContextTestUtils.mockEmptyMapping(mappingContext, bdName, BD_CTX_NAME);
+        noMappingDefined(mappingContext, bdName, BD_CTX_NAME);
 
         try {
             customizer
@@ -263,7 +260,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final String bdName = "bd1";
         final BridgeDomain bdBefore = generateBridgeDomain(bdName, 0, 1, 0, 1, 0);
         final BridgeDomain bdAfter = generateBridgeDomain(bdName, 1, 1, 0, 1, 0);
-        ContextTestUtils.mockMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
 
         whenBridgeDomainAddDelThenFailure();
 

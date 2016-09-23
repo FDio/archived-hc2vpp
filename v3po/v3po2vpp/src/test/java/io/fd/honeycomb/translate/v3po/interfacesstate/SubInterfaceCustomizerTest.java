@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.Collections;
@@ -70,8 +69,8 @@ public class SubInterfaceCustomizerTest extends
     @Override
     public void setUp() {
         interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_INDEX, IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_CTX_NAME);
+        defineMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_INDEX, IFC_CTX_NAME);
+        defineMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_CTX_NAME);
     }
 
     @Override
@@ -101,8 +100,8 @@ public class SubInterfaceCustomizerTest extends
         ifaceDetails.subId = VLAN_IF_ID;
         ifaceDetails.interfaceName = VLAN_IF_NAME.getBytes();
         ifaceDetails.subDot1Ad = 1;
-        ContextTestUtils.mockMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_INDEX, IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_CTX_NAME);
+        defineMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_INDEX, IFC_CTX_NAME);
+        defineMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_CTX_NAME);
         ifaceDetails.subNumberOfTags = 2;
         ifaceDetails.subOuterVlanIdAny = 1;
         ifaceDetails.subInnerVlanIdAny = 1;

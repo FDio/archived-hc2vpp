@@ -25,7 +25,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
@@ -75,8 +74,8 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         entry = generateArpEntry(ipAddress, physAddress);
         id = getArpEntryId(ipAddress, physAddress);
 
-        ContextTestUtils.mockMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
     }
 
     private static InstanceIdentifier<ArpTerminationTableEntry> getArpEntryId(final IpAddress ipAddress,

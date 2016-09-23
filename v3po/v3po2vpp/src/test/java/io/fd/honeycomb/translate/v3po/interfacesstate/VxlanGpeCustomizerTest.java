@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.test.ContextTestUtils;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import java.net.InetAddress;
@@ -65,7 +64,7 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
     @Override
     public void setUp() throws UnknownHostException, VppBaseCallException {
         interfacesContext = new NamingContext("vxlan_gpe_inf", IFC_CTX_NAME);
-        ContextTestUtils.mockMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
+        defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
 
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "vxlan_gpe_inf2".getBytes();
