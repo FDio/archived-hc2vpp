@@ -17,7 +17,6 @@
 package io.fd.honeycomb.translate.v3po.vppstate;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,20 +33,12 @@ import org.openvpp.jvpp.core.dto.ShowVersionReply;
 public class VersionCustomizerTest extends ReaderCustomizerTest<Version, VersionBuilder> {
 
     public VersionCustomizerTest() {
-        super(Version.class);
+        super(Version.class, VppStateBuilder.class);
     }
 
     @Override
     protected ReaderCustomizer<Version, VersionBuilder> initCustomizer() {
         return new VersionCustomizer(api);
-    }
-
-    @Test
-    public void testMerge() {
-        final VppStateBuilder builder = mock(VppStateBuilder.class);
-        final Version value = mock(Version.class);
-        getCustomizer().merge(builder, value);
-        verify(builder).setVersion(value);
     }
 
     @Test

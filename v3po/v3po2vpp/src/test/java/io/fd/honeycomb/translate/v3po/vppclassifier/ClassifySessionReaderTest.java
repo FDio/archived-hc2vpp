@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.ModificationCache;
@@ -58,7 +57,7 @@ public class ClassifySessionReaderTest extends
     private VppClassifierContextManager classifierContext;
 
     public ClassifySessionReaderTest() {
-        super(ClassifySession.class);
+        super(ClassifySession.class, ClassifyTableBuilder.class);
     }
 
     @Override
@@ -71,14 +70,6 @@ public class ClassifySessionReaderTest extends
         return InstanceIdentifier.create(VppClassifierState.class)
             .child(ClassifyTable.class, new ClassifyTableKey(tableName))
             .child(ClassifySession.class, new ClassifySessionKey(new HexString(match)));
-    }
-
-    @Test
-    public void testMerge() {
-        final ClassifyTableBuilder builder = mock(ClassifyTableBuilder.class);
-        final List<ClassifySession> value = mock(List.class);
-        getCustomizer().merge(builder, value);
-        verify(builder).setClassifySession(value);
     }
 
     @Test

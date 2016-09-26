@@ -17,6 +17,8 @@
 package io.fd.honeycomb.vpp.test.read;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
@@ -26,6 +28,7 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;
 import io.fd.honeycomb.vpp.test.util.NamingContextHelper;
+import java.lang.reflect.Method;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -52,12 +55,16 @@ public abstract class ReaderCustomizerTest<D extends DataObject, B extends Build
     @Mock
     protected MappingContext mappingContext;
 
-    protected ModificationCache cache;
+    protected final Class<? extends Builder<? extends DataObject>> parentBuilderClass;
     protected final Class<D> dataObjectClass;
+    protected ModificationCache cache;
     protected ReaderCustomizer<D, B> customizer;
 
-    protected ReaderCustomizerTest(Class<D> dataObjectClass) {
+    public ReaderCustomizerTest(
+        final Class<D> dataObjectClass,
+        final Class<? extends Builder<? extends DataObject>> parentBuilderClass) {
         this.dataObjectClass = dataObjectClass;
+        this.parentBuilderClass = parentBuilderClass;
     }
 
     @Before
@@ -87,5 +94,13 @@ public abstract class ReaderCustomizerTest<D extends DataObject, B extends Build
         assertNotNull(customizer.getBuilder(InstanceIdentifier.create(dataObjectClass)));
     }
 
-    // TODO HONEYCOMB-116: create generic testMerge()
+    @Test
+    public void testMerge() throws Exception {
+        final Builder<? extends DataObject> parentBuilder = mock(parentBuilderClass);
+        final D value = mock(dataObjectClass);
+        getCustomizer().merge(parentBuilder, value);
+
+        final Method method = parentBuilderClass.getMethod("set" + dataObjectClass.getSimpleName(), dataObjectClass);
+        method.invoke(verify(parentBuilder), value);
+    }
 }

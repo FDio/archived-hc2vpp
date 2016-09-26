@@ -16,15 +16,9 @@
 
 package io.fd.honeycomb.translate.v3po.vppstate;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import java.util.Collections;
-import java.util.List;
-import org.junit.Test;
+import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.BridgeDomainsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainBuilder;
@@ -37,21 +31,13 @@ public class BridgeDomainCustomizerTest
     private NamingContext interfacesContext;
 
     public BridgeDomainCustomizerTest() {
-        super(BridgeDomain.class);
+        super(BridgeDomain.class, BridgeDomainsBuilder.class);
     }
 
     @Override
     public void setUp() {
         bdContext = new NamingContext("generatedBdName", "bd-test-instance");
         interfacesContext = new NamingContext("generatedIfaceName", "ifc-test-instance");
-    }
-
-    @Test
-    public void testMerge() throws Exception {
-        final BridgeDomainsBuilder builder = mock(BridgeDomainsBuilder.class);
-        final List<BridgeDomain> value = Collections.emptyList();
-        getCustomizer().merge(builder, value);
-        verify(builder).setBridgeDomain(value);
     }
 
     @Override

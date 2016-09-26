@@ -57,7 +57,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
     private NamingContext interfacesContext;
 
     public L2FibEntryCustomizerTest() {
-        super(L2FibEntry.class);
+        super(L2FibEntry.class, L2FibTableBuilder.class);
     }
 
     @Override
@@ -70,14 +70,6 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
     @Override
     protected ReaderCustomizer<L2FibEntry, L2FibEntryBuilder> initCustomizer() {
         return new L2FibEntryCustomizer(api, bdContext, interfacesContext);
-    }
-
-    @Test
-    public void testMerge() throws Exception {
-        final L2FibTableBuilder builder = mock(L2FibTableBuilder.class);
-        final List<L2FibEntry> value = Collections.emptyList();
-        getCustomizer().merge(builder, value);
-        verify(builder).setL2FibEntry(value);
     }
 
     private static InstanceIdentifier<L2FibEntry> getL2FibEntryId(final String bdName, final PhysAddress address) {

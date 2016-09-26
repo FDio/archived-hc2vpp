@@ -30,7 +30,6 @@ import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -66,7 +65,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     private NamingContext interfacesContext;
 
     public Ipv4AddressCustomizerTest() {
-        super(Address.class);
+        super(Address.class, Ipv4Builder.class);
     }
 
     @Override
@@ -197,16 +196,4 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         assertEquals(true, "192.168.2.2".equals(ids.get(1).getValue()));
         assertEquals(true, "192.168.2.3".equals(ids.get(2).getValue()));
     }
-
-    @Test
-    public void testMerge() {
-
-        Address address = new AddressBuilder().build();
-        Ipv4Builder ipv4Builder = new Ipv4Builder();
-        getCustomizer().merge(ipv4Builder, Arrays.asList(address));
-
-        assertEquals(1, ipv4Builder.getAddress().size());
-        assertEquals(true, ipv4Builder.getAddress().contains(address));
-    }
-
 }

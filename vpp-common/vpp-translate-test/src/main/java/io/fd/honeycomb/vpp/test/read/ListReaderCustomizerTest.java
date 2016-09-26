@@ -16,15 +16,16 @@
 
 package io.fd.honeycomb.vpp.test.read;
 
-import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
-import org.junit.Test;
+import java.lang.reflect.Method;
+import java.util.List;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Generic test for classes implementing {@link ListReaderCustomizer} interface.
@@ -36,8 +37,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public abstract class ListReaderCustomizerTest<D extends DataObject & Identifiable<K>, K extends Identifier<D>, B extends Builder<D>> extends
     ReaderCustomizerTest<D, B> {
 
-    protected ListReaderCustomizerTest(Class<D> dataObjectClass) {
-        super(dataObjectClass);
+    protected ListReaderCustomizerTest(
+        final Class<D> dataObjectClass,
+        final Class<? extends Builder<? extends DataObject>> parentBuilderClass) {
+        super(dataObjectClass, parentBuilderClass);
     }
 
     @Override
@@ -45,8 +48,13 @@ public abstract class ListReaderCustomizerTest<D extends DataObject & Identifiab
         return ListReaderCustomizer.class.cast(super.getCustomizer());
     }
 
-    @Test
-    public void testGetBuilder() throws Exception {
-        assertNotNull(getCustomizer().getBuilder(InstanceIdentifier.create(dataObjectClass)));
+    @Override
+    public void testMerge() throws Exception {
+        final Builder<? extends DataObject> parentBuilder = mock(parentBuilderClass);
+        final List<D> value = (List<D>) mock(List.class);
+        getCustomizer().merge(parentBuilder, value);
+
+        final Method method = parentBuilderClass.getMethod("set" + dataObjectClass.getSimpleName(), List.class);
+        method.invoke(verify(parentBuilder), value);
     }
 }

@@ -63,7 +63,7 @@ public class SubInterfaceCustomizerTest extends
     private NamingContext interfacesContext;
 
     public SubInterfaceCustomizerTest() {
-        super(SubInterface.class);
+        super(SubInterface.class, SubInterfacesBuilder.class);
     }
 
     @Override
@@ -82,14 +82,6 @@ public class SubInterfaceCustomizerTest extends
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name)).augmentation(
                 SubinterfaceStateAugmentation.class).child(
                 SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(id));
-    }
-
-    @Test
-    public void testMerge() {
-        final SubInterfacesBuilder builder = mock(SubInterfacesBuilder.class);
-        final  List<SubInterface> value = mock(List.class);
-        getCustomizer().merge(builder, value);
-        verify(builder).setSubInterface(value);
     }
 
     @Test

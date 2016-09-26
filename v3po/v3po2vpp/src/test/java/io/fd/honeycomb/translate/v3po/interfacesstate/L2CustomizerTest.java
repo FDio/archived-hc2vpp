@@ -53,7 +53,7 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
     private NamingContext bridgeDomainContext;
 
     public L2CustomizerTest() {
-        super(L2.class);
+        super(L2.class, VppInterfaceStateAugmentationBuilder.class);
     }
 
     @Override
@@ -65,14 +65,6 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
     @Override
     protected ReaderCustomizer<L2, L2Builder> initCustomizer() {
         return new L2Customizer(api, interfaceContext, bridgeDomainContext);
-    }
-
-    @Test
-    public void testMerge() {
-        final VppInterfaceStateAugmentationBuilder builder = mock(VppInterfaceStateAugmentationBuilder.class);
-        final L2 value = mock(L2.class);
-        getCustomizer().merge(builder, value);
-        verify(builder).setL2(value);
     }
 
     private InstanceIdentifier<L2> getL2Id(final String name) {

@@ -54,7 +54,7 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
     private VppClassifierContextManager classifyTableContext;
 
     public AclCustomizerTest() {
-        super(Acl.class);
+        super(Acl.class, VppInterfaceStateAugmentationBuilder.class);
     }
 
     @Override
@@ -66,14 +66,6 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
     @Override
     protected ReaderCustomizer<Acl, AclBuilder> initCustomizer() {
         return new AclCustomizer(api, interfaceContext, classifyTableContext);
-    }
-
-    @Test
-    public void testMerge() {
-        final VppInterfaceStateAugmentationBuilder builder = mock(VppInterfaceStateAugmentationBuilder.class);
-        final Acl value = mock(Acl.class);
-        getCustomizer().merge(builder, value);
-        verify(builder).setAcl(value);
     }
 
     private InstanceIdentifier<Acl> getAclId(final String name) {

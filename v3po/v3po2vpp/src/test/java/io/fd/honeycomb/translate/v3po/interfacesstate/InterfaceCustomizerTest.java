@@ -63,7 +63,7 @@ public class InterfaceCustomizerTest extends
     private DisabledInterfacesManager interfaceDisableContext;
 
     public InterfaceCustomizerTest() {
-        super(Interface.class);
+        super(Interface.class, InterfacesStateBuilder.class);
     }
 
     @Override
@@ -79,15 +79,7 @@ public class InterfaceCustomizerTest extends
         return new InterfaceCustomizer(api, interfacesContext, interfaceDisableContext);
     }
 
-    @Test
-    public void testMerge() throws Exception {
-        final InterfacesStateBuilder builder = mock(InterfacesStateBuilder.class);
-        final List<Interface> value = Collections.emptyList();
-        getCustomizer().merge(builder, value);
-        verify(builder).setInterface(value);
-    }
-
-    public void whenSwInterfaceDumpThenReturn(final List<SwInterfaceDetails> interfaceList) {
+    private void whenSwInterfaceDumpThenReturn(final List<SwInterfaceDetails> interfaceList) {
         final SwInterfaceDetailsReplyDump reply = new SwInterfaceDetailsReplyDump();
         reply.swInterfaceDetails = interfaceList;
         when(api.swInterfaceDump(any(SwInterfaceDump.class))).thenReturn(future(reply));

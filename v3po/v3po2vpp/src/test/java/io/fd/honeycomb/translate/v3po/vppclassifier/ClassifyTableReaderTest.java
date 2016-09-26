@@ -58,7 +58,7 @@ public class ClassifyTableReaderTest extends
     private VppClassifierContextManager classifierContext;
 
     public ClassifyTableReaderTest() {
-        super(ClassifyTable.class);
+        super(ClassifyTable.class, VppClassifierStateBuilder.class);
     }
 
     @Override
@@ -92,14 +92,6 @@ public class ClassifyTableReaderTest extends
         verify(builder).setMissNext(new VppNode(PacketHandlingAction.Permit));
         verify(builder).setMask(new HexString("00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00"));
         verify(builder).setActiveSessions(0L);
-    }
-
-    @Test
-    public void testMerge() {
-        final VppClassifierStateBuilder builder = mock(VppClassifierStateBuilder.class);
-        final List<ClassifyTable> value = mock(List.class);
-        getCustomizer().merge(builder, value);
-        verify(builder).setClassifyTable(value);
     }
 
     @Test

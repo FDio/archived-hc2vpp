@@ -61,7 +61,7 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
     private ArgumentCaptor<List<PushTags>> captor;
 
     public RewriteCustomizerTest() {
-        super(Rewrite.class);
+        super(Rewrite.class, L2Builder.class);
     }
 
     @Override
@@ -73,14 +73,6 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
     @Override
     protected ReaderCustomizer<Rewrite, RewriteBuilder> initCustomizer() {
         return new RewriteCustomizer(api, interfacesContext);
-    }
-
-    @Test
-    public void testMerge() {
-        final L2Builder builder = mock(L2Builder.class);
-        final Rewrite value = mock(Rewrite.class);
-        getCustomizer().merge(builder, value);
-        verify(builder).setRewrite(value);
     }
 
     private InstanceIdentifier<Rewrite> getVlanTagRewriteId(final String name, final long index) {
