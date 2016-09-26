@@ -16,20 +16,16 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.ip;
 
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.google.common.io.BaseEncoding;
 import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -41,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
 import org.openvpp.jvpp.core.dto.IpNeighborAddDel;
 import org.openvpp.jvpp.core.dto.IpNeighborAddDelReply;
 
@@ -49,70 +46,75 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "parent";
     private static final int IFACE_ID = 5;
+    private static final InstanceIdentifier<Neighbor> IID =
+        InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
+            .augmentation(Interface1.class).child(Ipv4.class).child(Neighbor.class);
 
-    private ArgumentCaptor<IpNeighborAddDel> requestCaptor;
     private Ipv4NeighbourCustomizer customizer;
 
-    @Before
-    public void init() {
+    @Override
+    public void setUp() {
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         customizer = new Ipv4NeighbourCustomizer(api, new NamingContext("prefix", IFC_CTX_NAME));
-
-        requestCaptor = ArgumentCaptor.forClass(IpNeighborAddDel.class);
-        when(api.ipNeighborAddDel(any())).thenReturn(future(new IpNeighborAddDelReply()));
     }
 
     @Test
     public void testWriteCurrentAttributes() throws WriteFailedException {
+        when(api.ipNeighborAddDel(any())).thenReturn(future(new IpNeighborAddDelReply()));
+        customizer.writeCurrentAttributes(IID, getData(), writeContext);
+        verify(api).ipNeighborAddDel(getExpectedRequest(true));
+    }
 
-        InterfaceKey intfKey = new InterfaceKey(IFACE_NAME);
-
-        InstanceIdentifier<Neighbor> id = InstanceIdentifier.builder(Interfaces.class).child(Interface.class, intfKey)
-                .augmentation(Interface1.class).child(Ipv4.class).child(Neighbor.class).build();
-
-        Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
-        PhysAddress mac = new PhysAddress("aa:bb:cc:ee:11:22");
-
-        Neighbor data = new NeighborBuilder().setIp(noZoneIp).setLinkLayerAddress(mac).build();
-
-        customizer.writeCurrentAttributes(id, data, writeContext);
-
-        verify(api, times(1)).ipNeighborAddDel(requestCaptor.capture());
-
-        IpNeighborAddDel request = requestCaptor.getValue();
-
-        assertEquals(0, request.isIpv6);
-        assertEquals(1, request.isAdd);
-        assertEquals(1, request.isStatic);
-        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.dstAddress).getValue());
-        assertEquals("aabbccee1122", BaseEncoding.base16().lowerCase().encode(request.macAddress));
-        assertEquals(5, request.swIfIndex);
+    @Test
+    public void testWriteCurrentAttributesFailed() {
+        when(api.ipNeighborAddDel(any())).thenReturn(failedFuture());
+        try {
+            customizer.writeCurrentAttributes(IID, getData(), writeContext);
+        } catch (WriteFailedException e) {
+            assertTrue(e.getCause() instanceof VppBaseCallException);
+            verify(api).ipNeighborAddDel(getExpectedRequest(true));
+            return;
+        }
+        fail("WriteFailedException expected");
+    }
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUpdateCurrentAttributes() throws WriteFailedException {
+        customizer.updateCurrentAttributes(IID, getData(), getData(), writeContext);
     }
 
     @Test
     public void testDeleteCurrentAttributes() throws WriteFailedException {
-        InterfaceKey intfKey = new InterfaceKey(IFACE_NAME);
-
-        InstanceIdentifier<Neighbor> id = InstanceIdentifier.builder(Interfaces.class).child(Interface.class, intfKey)
-                .augmentation(Interface1.class).child(Ipv4.class).child(Neighbor.class).build();
-
-        Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
-        PhysAddress mac = new PhysAddress("aa:bb:cc:ee:11:22");
-
-        Neighbor data = new NeighborBuilder().setIp(noZoneIp).setLinkLayerAddress(mac).build();
-
-        customizer.deleteCurrentAttributes(id, data, writeContext);
-
-        verify(api, times(1)).ipNeighborAddDel(requestCaptor.capture());
-
-        IpNeighborAddDel request = requestCaptor.getValue();
-
-        assertEquals(0, request.isIpv6);
-        assertEquals(0, request.isAdd);
-        assertEquals(1, request.isStatic);
-        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.dstAddress).getValue());
-        assertEquals("aabbccee1122", BaseEncoding.base16().lowerCase().encode(request.macAddress));
-        assertEquals(5, request.swIfIndex);
+        when(api.ipNeighborAddDel(any())).thenReturn(future(new IpNeighborAddDelReply()));
+        customizer.deleteCurrentAttributes(IID, getData(), writeContext);
+        verify(api).ipNeighborAddDel(getExpectedRequest(false));
     }
 
+    @Test
+    public void testDeleteCurrentAttributesFailed() {
+        when(api.ipNeighborAddDel(any())).thenReturn(failedFuture());
+        try {
+            customizer.deleteCurrentAttributes(IID, getData(), writeContext);
+        } catch (WriteFailedException e) {
+            assertTrue(e.getCause() instanceof VppBaseCallException);
+            verify(api).ipNeighborAddDel(getExpectedRequest(false));
+            return;
+        }
+        fail("WriteFailedException expected");
+    }
+
+    private Neighbor getData() {
+        final Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
+        final PhysAddress mac = new PhysAddress("aa:bb:cc:ee:11:22");
+        return new NeighborBuilder().setIp(noZoneIp).setLinkLayerAddress(mac).build();
+    }
+    private IpNeighborAddDel getExpectedRequest(final boolean isAdd) {
+        final IpNeighborAddDel request = new IpNeighborAddDel();
+        request.isIpv6 = 0;
+        request.isAdd = booleanToByte(isAdd);
+        request.isStatic = 1;
+        request.dstAddress = new byte[] {(byte) 192, (byte) 168, 2, 1};
+        request.macAddress = new byte[] {(byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xee, 0x11, 0x22};
+        request.swIfIndex = IFACE_ID;
+        return request;
+    }
 }

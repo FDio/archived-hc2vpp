@@ -176,7 +176,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 SubinterfaceAugmentationWriterFactory.SUB_IFC_ID);
         // Proxy Arp (execute after specific interface customizers)
         registry.addAfter(
-                new GenericWriter<>(VPP_IFC_AUG_ID.child(ProxyArp.class), new ProxyArpCustomizer(jvpp, ifcNamingContext)),
+                new GenericWriter<>(VPP_IFC_AUG_ID.child(ProxyArp.class), new ProxyArpCustomizer(jvpp)),
                 specificIfcTypes);
         // ACL (execute after classify table and session writers)
         // also handles L2Acl, Ip4Acl and Ip6Acl:

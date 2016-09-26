@@ -20,7 +20,6 @@ import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.net.InetAddress;
@@ -37,15 +36,12 @@ import org.openvpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCustomizer<ProxyArp>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProxyArpCustomizer.class);
-    private final NamingContext interfaceContext;
 
-    public ProxyArpCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
+    public ProxyArpCustomizer(final FutureJVppCore vppApi) {
         super(vppApi);
-        this.interfaceContext = interfaceContext;
     }
 
     @Override
@@ -54,10 +50,10 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
         final String swIfName = id.firstKeyOf(Interface.class).getName();
 
         try {
-            setProxyArp(id, swIfName, dataAfter, writeContext, (byte) 1 /* 1 is add */);
+            setProxyArp(id, swIfName, dataAfter, (byte) 1 /* 1 is add */);
         } catch (VppBaseCallException e) {
             LOG.error("Failed to set Proxy ARP settings: {}, for interface: {}", dataAfter, swIfName);
-            throw new WriteFailedException(id, dataAfter.toString(), e);
+            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
     }
 
@@ -75,16 +71,15 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
 
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         try {
-            setProxyArp(id, swIfName, dataBefore, writeContext, (byte) 0 /* 0 is delete */);
+            setProxyArp(id, swIfName, dataBefore, (byte) 0 /* 0 is delete */);
         } catch (VppBaseCallException e) {
             LOG.debug("Failed to delete Proxy ARP settings: {}, for interface: {}", dataBefore, swIfName);
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
-    private void setProxyArp(InstanceIdentifier<ProxyArp> id, String swIfName, ProxyArp proxyArp, WriteContext
-            writeContext, byte operation) throws VppBaseCallException, WriteFailedException {
-
+    private void setProxyArp(InstanceIdentifier<ProxyArp> id, String swIfName, ProxyArp proxyArp, byte operation)
+        throws VppBaseCallException, WriteFailedException {
         LOG.debug("Setting Proxy ARP settings for interface: {}", swIfName);
         final InetAddress srcAddress = InetAddresses.forString(getv4AddressString(proxyArp.getLowAddr()));
         final InetAddress dstAddress = InetAddresses.forString(getv4AddressString(proxyArp.getHighAddr()));

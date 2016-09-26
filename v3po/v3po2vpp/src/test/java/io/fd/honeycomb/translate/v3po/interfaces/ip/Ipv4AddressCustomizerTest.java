@@ -23,6 +23,7 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -189,6 +190,12 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         };
     }
 
+    @Test(expected =  WriteFailedException.UpdateFailedException.class)
+    public void testUpdate() throws Exception {
+        final Address data = mock(Address.class);
+        customizer.updateCurrentAttributes(getAddressId(IFACE_NAME), data, data, writeContext);
+    }
+
     private SwInterfaceAddDelAddress generateSwInterfaceAddDelAddressRequest(final byte[] address, final byte isAdd,
                                                                              final byte prefixLength) {
         final SwInterfaceAddDelAddress request = new SwInterfaceAddDelAddress();
@@ -241,6 +248,32 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         fail("WriteFailedException was expec16ted");
     }
 
+    @Test
+    public void testNetmaskFailed() {
+        final int expectedPrefixLength = 1;
+        final String stringMask = "128.0.0.0";
+        final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
+        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
+
+        Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
+        Netmask subnet = new NetmaskBuilder().setNetmask(new DottedQuad(stringMask)).build();
+        Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(subnet).build();
+
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        whenSwInterfaceAddDelAddressThenFailure();
+
+        try {
+            customizer.writeCurrentAttributes(id, data, writeContext);
+        } catch (WriteFailedException e) {
+            assertTrue(e.getCause() instanceof VppBaseCallException);
+            verify(api).swInterfaceAddDelAddress(generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
+                (byte) 1, (byte) expectedPrefixLength));
+            return;
+        }
+        fail("WriteFailedException was expec16ted");
+
+    }
+
     private void testSingleNetmask(final int expectedPrefixLength, final String stringMask) throws Exception {
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
         when(writeContext.readBefore(id)).thenReturn(Optional.absent());
@@ -255,7 +288,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         customizer.writeCurrentAttributes(id, data, writeContext);
 
         verify(api).swInterfaceAddDelAddress(generateSwInterfaceAddDelAddressRequest(new byte[]{-64, -88, 2, 1},
-                (byte) 1, (byte) expectedPrefixLength));
+            (byte) 1, (byte) expectedPrefixLength));
     }
 
     private void testSingleIllegalNetmask(final String stringMask) throws Exception {
