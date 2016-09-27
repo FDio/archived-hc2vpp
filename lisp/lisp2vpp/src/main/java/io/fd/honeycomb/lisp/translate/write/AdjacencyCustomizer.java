@@ -23,9 +23,9 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.TimeoutException;

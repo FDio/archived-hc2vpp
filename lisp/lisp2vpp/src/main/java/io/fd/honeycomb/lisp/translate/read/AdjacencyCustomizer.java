@@ -20,7 +20,7 @@ package io.fd.honeycomb.lisp.translate.read;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;

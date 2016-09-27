@@ -31,7 +31,7 @@ import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.write.registry.FlatWriterRegistryBuilder;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import java.util.HashSet;
 import java.util.Set;

@@ -28,7 +28,7 @@ import io.fd.honeycomb.translate.v3po.initializers.VppClassifierInitializer;
 import io.fd.honeycomb.translate.v3po.initializers.VppInitializer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAClWriter;
 import io.fd.honeycomb.translate.v3po.notification.InterfaceChangeNotificationProducer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManagerImpl;
 import io.fd.honeycomb.translate.write.WriterFactory;

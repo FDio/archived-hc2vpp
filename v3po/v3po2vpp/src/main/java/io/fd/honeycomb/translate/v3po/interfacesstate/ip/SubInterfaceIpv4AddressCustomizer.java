@@ -27,9 +27,9 @@ import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecut
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.AddressDumpExecutor;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.check.AddressDumpCheck;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
+import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;

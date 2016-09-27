@@ -19,7 +19,7 @@ package io.fd.honeycomb.lisp.translate.write.factory;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;

@@ -35,7 +35,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
- * Utility that helps stubbing {@link io.fd.honeycomb.translate.v3po.util.NamingContext} methods.
+ * Utility that helps stubbing {@link io.fd.honeycomb.translate.vpp.util.NamingContext} methods.
  */
 // TODO(HONEYCOMB-226): the class needs to be refactored or even removed after extracting interface from NamingContext
 public interface NamingContextHelper {

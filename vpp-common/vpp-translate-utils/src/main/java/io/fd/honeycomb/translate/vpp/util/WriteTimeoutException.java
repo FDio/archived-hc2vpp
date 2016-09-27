@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util;
+package io.fd.honeycomb.translate.vpp.util;
 
 import com.google.common.annotations.Beta;
 import io.fd.honeycomb.translate.write.WriteFailedException;

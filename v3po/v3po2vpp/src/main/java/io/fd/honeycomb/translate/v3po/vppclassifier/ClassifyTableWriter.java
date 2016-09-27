@@ -22,8 +22,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
-import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;

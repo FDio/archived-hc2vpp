@@ -19,9 +19,9 @@ package io.fd.honeycomb.translate.v3po.vppclassifier;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
-import io.fd.honeycomb.translate.v3po.util.ReadTimeoutException;
+import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.vpp.util.ReadTimeoutException;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;

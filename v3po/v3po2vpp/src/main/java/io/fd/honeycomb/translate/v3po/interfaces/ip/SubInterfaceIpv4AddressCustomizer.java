@@ -19,9 +19,9 @@ package io.fd.honeycomb.translate.v3po.interfaces.ip;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.v3po.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.util.SubInterfaceUtils;
+import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;

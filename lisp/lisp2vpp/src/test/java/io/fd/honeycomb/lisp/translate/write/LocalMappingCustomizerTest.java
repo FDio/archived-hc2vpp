@@ -26,8 +26,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.translate.v3po.util.ByteDataTranslator;
-import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
+import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.concurrent.ExecutionException;

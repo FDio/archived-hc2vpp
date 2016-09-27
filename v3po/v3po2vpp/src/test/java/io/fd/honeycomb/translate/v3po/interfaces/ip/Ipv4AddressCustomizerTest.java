@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.subnet.validation.SubnetValidator;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import java.util.Arrays;

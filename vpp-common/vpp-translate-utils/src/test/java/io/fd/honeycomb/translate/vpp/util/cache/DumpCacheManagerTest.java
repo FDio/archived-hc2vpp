@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util.cache;
+package io.fd.honeycomb.translate.vpp.util.cache;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;

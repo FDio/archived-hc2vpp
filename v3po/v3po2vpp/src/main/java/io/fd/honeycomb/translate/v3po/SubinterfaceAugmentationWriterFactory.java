@@ -29,7 +29,7 @@ import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceL2Customizer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAClWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.SubInterfaceIetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;

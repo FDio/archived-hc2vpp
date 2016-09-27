@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.vpp.test.util.InterfaceDumpHelper;
 import java.util.HashMap;

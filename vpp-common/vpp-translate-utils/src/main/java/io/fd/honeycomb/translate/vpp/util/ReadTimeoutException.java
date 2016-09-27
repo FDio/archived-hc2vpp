@@ -14,31 +14,20 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.util;
+package io.fd.honeycomb.translate.vpp.util;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Preconditions;
-import javax.annotation.Nonnull;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Abstract utility to hold the vppApi reference.
+ * Thrown when read method invocation times out.
  */
 @Beta
-public abstract class FutureJVppCustomizer {
+public class ReadTimeoutException extends ReadFailedException {
 
-    private final FutureJVppCore futureJVppCore;
-
-    public FutureJVppCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
-        this.futureJVppCore = Preconditions.checkNotNull(futureJVppCore, "futureJVppCore should not be null");
+    public ReadTimeoutException(final InstanceIdentifier<?> id, final Throwable cause) {
+        super(id, cause);
     }
 
-    /**
-     * Get vppApi reference
-     *
-     * @return vppApi reference
-     */
-    public FutureJVppCore getFutureJVpp() {
-        return futureJVppCore;
-    }
 }

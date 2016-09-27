@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.vpp.test.util.NamingContextHelper;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;
 import org.junit.Before;
 import org.junit.Test;

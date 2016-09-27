@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vpp.ArpTerminationTableEntryCustomizer;
 import io.fd.honeycomb.translate.v3po.vpp.BridgeDomainCustomizer;
 import io.fd.honeycomb.translate.v3po.vpp.L2FibEntryCustomizer;

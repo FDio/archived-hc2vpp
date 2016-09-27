@@ -18,7 +18,7 @@ package io.fd.honeycomb.vpp.distro;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import io.fd.honeycomb.translate.v3po.util.VppStatusListener;
+import io.fd.honeycomb.translate.vpp.util.VppStatusListener;
 import java.io.IOException;
 import org.openvpp.jvpp.JVppRegistry;
 import org.openvpp.jvpp.JVppRegistryImpl;

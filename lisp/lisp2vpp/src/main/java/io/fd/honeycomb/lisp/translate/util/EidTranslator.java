@@ -22,7 +22,7 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV6;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.MAC;
 
-import io.fd.honeycomb.translate.v3po.util.AddressTranslator;
+import io.fd.honeycomb.translate.vpp.util.AddressTranslator;
 import java.util.Arrays;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;

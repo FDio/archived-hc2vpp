@@ -28,7 +28,7 @@ import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.write.LispCustomizer;
 import io.fd.honeycomb.lisp.translate.write.PitrCfgCustomizer;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;

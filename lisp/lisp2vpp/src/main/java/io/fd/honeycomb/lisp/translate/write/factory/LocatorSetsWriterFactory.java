@@ -19,7 +19,7 @@ package io.fd.honeycomb.lisp.translate.write.factory;
 import io.fd.honeycomb.lisp.translate.write.InterfaceCustomizer;
 import io.fd.honeycomb.lisp.translate.write.LocatorSetCustomizer;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;

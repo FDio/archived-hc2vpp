@@ -1,4 +1,4 @@
-package io.fd.honeycomb.translate.v3po.util;
+package io.fd.honeycomb.translate.vpp.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

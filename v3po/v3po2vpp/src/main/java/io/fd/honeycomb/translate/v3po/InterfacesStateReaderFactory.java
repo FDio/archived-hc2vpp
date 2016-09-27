@@ -37,7 +37,7 @@ import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv4Customizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv6Customizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;

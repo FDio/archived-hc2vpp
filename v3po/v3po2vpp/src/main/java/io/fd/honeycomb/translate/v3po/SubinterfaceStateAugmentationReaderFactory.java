@@ -26,7 +26,7 @@ import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceL2Customizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.SubInterfaceIpv4AddressCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4Acl;

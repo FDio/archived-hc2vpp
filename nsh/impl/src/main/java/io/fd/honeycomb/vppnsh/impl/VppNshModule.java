@@ -24,7 +24,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.vppnsh.impl.cfgattrs.VppNshConfiguration;
 import io.fd.honeycomb.vppnsh.impl.config.VppNshWriterFactory;

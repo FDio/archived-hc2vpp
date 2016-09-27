@@ -41,7 +41,7 @@ import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv6Customizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;

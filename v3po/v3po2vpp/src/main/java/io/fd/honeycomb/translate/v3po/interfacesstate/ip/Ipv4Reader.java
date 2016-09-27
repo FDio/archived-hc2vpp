@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.v3po.util.Ipv4Translator;
-import io.fd.honeycomb.translate.v3po.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
+import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
