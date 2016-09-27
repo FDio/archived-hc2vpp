@@ -117,7 +117,7 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
         cachedInterfaceDump.put(ifId, ifaceDetails);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
-        // BVI
+        // BVIinterfaceContext
         whenBridgeDomainSwIfDumpThenReturn(Collections.singletonList(generateBdSwIfDetails(ifId, bdId)),
             Collections.singletonList(generateBdDetails(ifId, bdId)));
 

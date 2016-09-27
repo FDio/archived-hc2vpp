@@ -18,16 +18,14 @@ package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
-import java.util.Collections;
+import io.fd.honeycomb.vpp.test.util.InterfaceDumpHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,11 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.SwInterfaceDump;
 
-public class SubInterfaceCustomizerTest extends
-        ListReaderCustomizerTest<SubInterface, SubInterfaceKey, SubInterfaceBuilder> {
+public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInterface, SubInterfaceKey, SubInterfaceBuilder> implements
+    InterfaceDumpHelper {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String SUPER_IF_NAME = "local0";
@@ -123,15 +119,11 @@ public class SubInterfaceCustomizerTest extends
         iface.swIfIndex = VLAN_IF_INDEX;
         iface.subId = VLAN_IF_ID;
         iface.supSwIfIndex = SUPER_IF_INDEX;
-        final List<SwInterfaceDetails> ifaces = Collections.singletonList(iface);
-
-        final SwInterfaceDetailsReplyDump reply = new SwInterfaceDetailsReplyDump();
-        reply.swInterfaceDetails = ifaces;
-        when(api.swInterfaceDump(any(SwInterfaceDump.class))).thenReturn(future(reply));
+        whenSwInterfaceDumpThenReturn(api, iface);
 
         final List<SubInterfaceKey> allIds =
                 getCustomizer().getAllIds(getSubInterfaceId(SUPER_IF_NAME, VLAN_IF_ID), ctx);
 
-        assertEquals(ifaces.size(), allIds.size());
+        assertEquals(1, allIds.size());
     }
 }

@@ -125,6 +125,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
             builder.setNumMemoryRegions((long) swInterfaceVhostUserDetails.numRegions);
             builder.setSocket(toString(swInterfaceVhostUserDetails.sockFilename));
             builder.setVirtioNetHdrSize((long) swInterfaceVhostUserDetails.virtioNetHdrSz);
+            // TODO: map error code to meaningful message after VPP-436 is done
             builder.setConnectError(Integer.toString(swInterfaceVhostUserDetails.sockErrno));
 
             LOG.debug("Vhost user interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);

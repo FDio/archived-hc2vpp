@@ -18,20 +18,18 @@ package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
+import io.fd.honeycomb.vpp.test.util.InterfaceDumpHelper;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,11 +42,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.VppInvocationException;
 import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
 import org.openvpp.jvpp.core.dto.SwInterfaceDump;
 
-public class InterfaceCustomizerTest extends
-        ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> implements InterfaceDataTranslator {
+public class InterfaceCustomizerTest extends ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder>
+    implements InterfaceDataTranslator, InterfaceDumpHelper {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE0_NAME = "eth0";
@@ -79,12 +76,6 @@ public class InterfaceCustomizerTest extends
         return new InterfaceCustomizer(api, interfacesContext, interfaceDisableContext);
     }
 
-    private void whenSwInterfaceDumpThenReturn(final List<SwInterfaceDetails> interfaceList) {
-        final SwInterfaceDetailsReplyDump reply = new SwInterfaceDetailsReplyDump();
-        reply.swInterfaceDetails = interfaceList;
-        when(api.swInterfaceDump(any(SwInterfaceDump.class))).thenReturn(future(reply));
-    }
-
     private void verifySwInterfaceDumpWasInvoked(final int nameFilterValid, final String ifaceName,
                                                  final int dumpIfcsInvocationCount)
             throws VppInvocationException {
@@ -112,8 +103,7 @@ public class InterfaceCustomizerTest extends
         iface.linkSpeed = 1;
         iface.l2AddressLength = 6;
         iface.l2Address = new byte[iface.l2AddressLength];
-        final List<SwInterfaceDetails> interfaceList = Collections.singletonList(iface);
-        whenSwInterfaceDumpThenReturn(interfaceList);
+        whenSwInterfaceDumpThenReturn(api, iface);
 
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 
@@ -128,7 +118,7 @@ public class InterfaceCustomizerTest extends
                 .child(Interface.class, new InterfaceKey(ifaceName));
         final InterfaceBuilder builder = getCustomizer().getBuilder(id);
 
-        whenSwInterfaceDumpThenReturn(Collections.emptyList());
+        whenSwInterfaceDumpThenReturn(api);
 
         try {
             getCustomizer().readCurrentAttributes(id, builder, ctx);
@@ -151,8 +141,7 @@ public class InterfaceCustomizerTest extends
         iface.swIfIndex = 2;
         iface.supSwIfIndex = 1;
         iface.subId = 1;
-        final List<SwInterfaceDetails> interfaceList = Collections.singletonList(iface);
-        whenSwInterfaceDumpThenReturn(interfaceList);
+        whenSwInterfaceDumpThenReturn(api, iface);
 
         getCustomizer().readCurrentAttributes(id, builder, ctx);
 
@@ -176,7 +165,7 @@ public class InterfaceCustomizerTest extends
         swSubIf1.subId = 1;
         swSubIf1.supSwIfIndex = 1;
         swSubIf1.interfaceName = SUB_IFACE_NAME.getBytes();
-        whenSwInterfaceDumpThenReturn(Arrays.asList(swIf0, swIf1, swSubIf1));
+        whenSwInterfaceDumpThenReturn(api, swIf0, swIf1, swSubIf1);
 
         final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(IFACE0_NAME), new InterfaceKey(
                 IFACE1_NAME));
@@ -201,7 +190,7 @@ public class InterfaceCustomizerTest extends
         final SwInterfaceDetails swIf1 = new SwInterfaceDetails();
         swIf1.swIfIndex = 1;
         swIf1.interfaceName = IFACE1_NAME.getBytes();
-        whenSwInterfaceDumpThenReturn(Arrays.asList(swIf0, swIf1));
+        whenSwInterfaceDumpThenReturn(api, swIf0, swIf1);
 
         final List<InterfaceKey> expectedIds = Arrays.asList(new InterfaceKey(IFACE0_NAME));
         final List<InterfaceKey> actualIds = getCustomizer().getAllIds(id, ctx);

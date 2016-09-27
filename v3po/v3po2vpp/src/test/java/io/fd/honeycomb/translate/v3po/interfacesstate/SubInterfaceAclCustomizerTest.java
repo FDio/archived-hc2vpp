@@ -31,44 +31,52 @@ import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2AclBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip4AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip6AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.SubinterfaceStateAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.SubInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.AclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 
-public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
-
+public class SubInterfaceAclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
+    private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 1;
+    private static final String SUB_IF_NAME = "local0.1";
+    private static final long SUB_IF_ID = 1;
+    private static final int SUB_IF_INDEX = 11;
     private static final int TABLE_INDEX = 123;
     private static final String TABLE_NAME = "table123";
+
     private static final InstanceIdentifier<Acl> IID =
         InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
-            .augmentation(VppInterfaceStateAugmentation.class).child(Acl.class);
-
-    private static final String IFC_CTX_NAME = "ifc-test-instance";
+            .augmentation(SubinterfaceStateAugmentation.class).child(SubInterfaces.class)
+            .child(SubInterface.class, new SubInterfaceKey(SUB_IF_ID)).child(Acl.class);
 
     private NamingContext interfaceContext;
 
     @Mock
     private VppClassifierContextManager classifyTableContext;
 
-    public AclCustomizerTest() {
-        super(Acl.class, VppInterfaceStateAugmentationBuilder.class);
+    public SubInterfaceAclCustomizerTest() {
+        super(Acl.class, SubInterfaceBuilder.class);
     }
 
     @Override
-    public void setUp() {
+    protected void setUp() throws Exception {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
+        defineMapping(mappingContext, SUB_IF_NAME, SUB_IF_INDEX, IFC_CTX_NAME);
     }
 
     @Override
     protected ReaderCustomizer<Acl, AclBuilder> initCustomizer() {
-        return new AclCustomizer(api, interfaceContext, classifyTableContext);
+        return new SubInterfaceAclCustomizer(api, interfaceContext, classifyTableContext);
     }
 
     @Test
@@ -76,18 +84,19 @@ public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
         final AclBuilder builder = mock(AclBuilder.class);
 
         final ClassifyTableByInterfaceReply reply = new ClassifyTableByInterfaceReply();
-        reply.l2TableId = TABLE_INDEX;
-        reply.ip4TableId = ~0;
-        reply.ip6TableId = ~0;
+        reply.swIfIndex = SUB_IF_INDEX;
+        reply.l2TableId = ~0;
+        reply.ip4TableId = TABLE_INDEX;
+        reply.ip6TableId = TABLE_INDEX;
         when(api.classifyTableByInterface(any())).thenReturn(future(reply));
 
         when(classifyTableContext.getTableName(TABLE_INDEX, mappingContext)).thenReturn(TABLE_NAME);
 
         getCustomizer().readCurrentAttributes(IID, builder, ctx);
 
-        verify(builder).setL2Acl(new L2AclBuilder().setClassifyTable(TABLE_NAME).build());
-        verify(builder).setIp4Acl(null);
-        verify(builder).setIp6Acl(null);
+        verify(builder).setL2Acl(null);
+        verify(builder).setIp4Acl(new Ip4AclBuilder().setClassifyTable(TABLE_NAME).build());
+        verify(builder).setIp6Acl(new Ip6AclBuilder().setClassifyTable(TABLE_NAME).build());
     }
 
     @Test(expected = ReadFailedException.class)

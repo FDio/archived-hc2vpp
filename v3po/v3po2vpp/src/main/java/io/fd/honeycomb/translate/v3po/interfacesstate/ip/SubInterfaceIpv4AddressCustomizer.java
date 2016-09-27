@@ -98,8 +98,8 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
 
         if (ipAddressDetails.isPresent()) {
             final IpAddressDetails detail = ipAddressDetails.get();
-            builder.setIp(arrayToIpv4AddressNoZone(detail.ip))
-                    .setSubnet(new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
+            builder.setIp(arrayToIpv4AddressNoZone(detail.ip));
+            builder.setSubnet(new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Attributes for {} sub-interface (id={}) address {} successfully read: {}",

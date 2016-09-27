@@ -60,7 +60,6 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     private static final int IFACE_ID = 1;
     private static final int IFACE_2_ID = 2;
     private static final String IFC_CTX_NAME = "ifc-test-instance";
-    public static final String CACHE_KEY = Ipv4AddressCustomizer.class.getName();
 
     private NamingContext interfacesContext;
 

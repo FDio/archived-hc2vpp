@@ -24,75 +24,75 @@ import static org.mockito.Mockito.when;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
+import io.fd.honeycomb.vpp.test.util.InterfaceDumpHelper;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2AclBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.TapBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
+import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceTapDetails;
+import org.openvpp.jvpp.core.dto.SwInterfaceTapDetailsReplyDump;
 
-public class AclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
-
-    private static final String IF_NAME = "local0";
-    private static final int IF_INDEX = 1;
-    private static final int TABLE_INDEX = 123;
-    private static final String TABLE_NAME = "table123";
-    private static final InstanceIdentifier<Acl> IID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
-            .augmentation(VppInterfaceStateAugmentation.class).child(Acl.class);
+public class TapCustomizerTest extends ReaderCustomizerTest<Tap, TapBuilder> implements InterfaceDumpHelper {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
-
+    private static final String IF_NAME = "tap1";
+    private static final String TAP_NAME = "testTapName";
+    private static final int IF_INDEX = 1;
+    private static final InstanceIdentifier<Tap> IID =
+        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
+            .augmentation(VppInterfaceStateAugmentation.class).child(Tap.class);
     private NamingContext interfaceContext;
 
-    @Mock
-    private VppClassifierContextManager classifyTableContext;
-
-    public AclCustomizerTest() {
-        super(Acl.class, VppInterfaceStateAugmentationBuilder.class);
+    public TapCustomizerTest() {
+        super(Tap.class, VppInterfaceStateAugmentationBuilder.class);
     }
 
     @Override
-    public void setUp() {
+    protected void setUp() throws Exception {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
+        whenSwInterfaceDumpThenReturn(api, ifaceDetails());
+    }
+
+    private SwInterfaceDetails ifaceDetails() {
+        final SwInterfaceDetails details = new SwInterfaceDetails();
+        details.swIfIndex = IF_INDEX;
+        details.interfaceName = IF_NAME.getBytes();
+        return details;
     }
 
     @Override
-    protected ReaderCustomizer<Acl, AclBuilder> initCustomizer() {
-        return new AclCustomizer(api, interfaceContext, classifyTableContext);
+    protected ReaderCustomizer<Tap, TapBuilder> initCustomizer() {
+        return new TapCustomizer(api, interfaceContext);
     }
 
     @Test
     public void testRead() throws ReadFailedException {
-        final AclBuilder builder = mock(AclBuilder.class);
-
-        final ClassifyTableByInterfaceReply reply = new ClassifyTableByInterfaceReply();
-        reply.l2TableId = TABLE_INDEX;
-        reply.ip4TableId = ~0;
-        reply.ip6TableId = ~0;
-        when(api.classifyTableByInterface(any())).thenReturn(future(reply));
-
-        when(classifyTableContext.getTableName(TABLE_INDEX, mappingContext)).thenReturn(TABLE_NAME);
-
+        final TapBuilder builder = mock(TapBuilder.class);
+        when(api.swInterfaceTapDump(any())).thenReturn(future(tapDump()));
         getCustomizer().readCurrentAttributes(IID, builder, ctx);
-
-        verify(builder).setL2Acl(new L2AclBuilder().setClassifyTable(TABLE_NAME).build());
-        verify(builder).setIp4Acl(null);
-        verify(builder).setIp6Acl(null);
+        verify(builder).setTapName(TAP_NAME);
     }
 
     @Test(expected = ReadFailedException.class)
     public void testReadFailed() throws ReadFailedException {
-        when(api.classifyTableByInterface(any())).thenReturn(failedFuture());
-        getCustomizer().readCurrentAttributes(IID, mock(AclBuilder.class), ctx);
+        when(api.swInterfaceTapDump(any())).thenReturn(failedFuture());
+        getCustomizer().readCurrentAttributes(IID, mock(TapBuilder.class), ctx);
+    }
+
+    private SwInterfaceTapDetailsReplyDump tapDump() {
+        final SwInterfaceTapDetailsReplyDump reply = new SwInterfaceTapDetailsReplyDump();
+        final SwInterfaceTapDetails details = new SwInterfaceTapDetails();
+        details.devName = TAP_NAME.getBytes();
+        details.swIfIndex = IF_INDEX;
+        reply.swInterfaceTapDetails.add(details);
+        return reply;
     }
 }
