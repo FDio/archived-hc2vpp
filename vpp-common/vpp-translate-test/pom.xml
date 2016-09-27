@@ -29,6 +29,10 @@
     <version>1.16.12-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.fd.honeycomb.vpp</groupId>
