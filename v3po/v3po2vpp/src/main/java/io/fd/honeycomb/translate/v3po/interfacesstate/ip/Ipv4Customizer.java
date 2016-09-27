@@ -53,8 +53,7 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements ReaderCustom
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id, @Nonnull final Ipv4Builder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        //TODO HONEYCOMB-180 add reading of isForwarding flag when there is dump for it
-        LOG.warn("Operation not supported");
+        LOG.debug("Reading Ipv4 leaves (mtu, forwarding) is not supported by VPP API");
     }
 
 }

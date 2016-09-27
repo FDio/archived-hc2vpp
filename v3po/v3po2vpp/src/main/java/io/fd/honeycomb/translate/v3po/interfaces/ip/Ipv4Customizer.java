@@ -18,11 +18,8 @@ package io.fd.honeycomb.translate.v3po.interfaces.ip;
 
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.openvpp.jvpp.core.future.FutureJVppCore;
@@ -32,35 +29,28 @@ import org.slf4j.LoggerFactory;
 public class Ipv4Customizer extends FutureJVppCustomizer implements WriterCustomizer<Ipv4> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4Customizer.class);
-    private final NamingContext interfaceContext;
 
-    public Ipv4Customizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
+    public Ipv4Customizer(final FutureJVppCore vppApi) {
         super(vppApi);
-        this.interfaceContext = interfaceContext;
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
-                                       @Nonnull final Ipv4 dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-
-        //TODO - add subnet validation after HONEYCOMB-201
+                                       @Nonnull final Ipv4 dataAfter, @Nonnull final WriteContext writeContext) {
+        LOG.debug("Handling Ipv4 leaves (mtu, forwarding) is not supported by VPP API. Ignoring configuration");
     }
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
                                         @Nonnull final Ipv4 dataBefore, @Nonnull final Ipv4 dataAfter,
-                                        @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-        final String ifcName = id.firstKeyOf(Interface.class).getName();
-
-        // TODO handle update in a better way
+                                        @Nonnull final WriteContext writeContext) {
+        LOG.debug("Handling Ipv4 leaves (mtu, forwarding) is not supported by VPP API. Ignoring configuration");
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
                                         @Nonnull final Ipv4 dataBefore, @Nonnull final WriteContext writeContext) {
-        // TODO HONEYCOMB-180 implement delete
+        LOG.debug("Handling Ipv4 leaves (mtu, forwarding) is not supported by VPP API. Ignoring configuration");
     }
 
 }

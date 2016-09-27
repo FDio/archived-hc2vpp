@@ -126,7 +126,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 ifcId);
         // Ipv4(after interface)
         final InstanceIdentifier<Ipv4> ipv4Id = ifc1AugId.child(Ipv4.class);
-        registry.addAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp, ifcNamingContext)),
+        registry.addAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp)),
                 ifcId);
         //  Address(after Ipv4) =
         final InstanceIdentifier<Address> ipv4AddressId = ipv4Id.child(Address.class);
