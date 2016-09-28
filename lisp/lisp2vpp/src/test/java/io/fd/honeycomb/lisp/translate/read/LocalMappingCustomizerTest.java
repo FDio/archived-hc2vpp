@@ -10,7 +10,7 @@ import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.util.List;
 import org.junit.Test;
@@ -85,7 +85,8 @@ public class LocalMappingCustomizerTest extends
     private void defineMappings() {
         //eid mapping
 
-        when(localMappingContext.getId(any(Eid.class), any(MappingContext.class))).thenReturn(new MappingId("local-mapping"));
+        when(localMappingContext.getId(any(Eid.class), any(MappingContext.class)))
+                .thenReturn(new MappingId("local-mapping"));
         when(localMappingContext.containsEid(new MappingId("local-mapping"), mappingContext)).thenReturn(true);
         when(localMappingContext.getEid(new MappingId("local-mapping"), mappingContext)).thenReturn(new EidBuilder()
                 .setAddress(EID_ADDRESS).build());

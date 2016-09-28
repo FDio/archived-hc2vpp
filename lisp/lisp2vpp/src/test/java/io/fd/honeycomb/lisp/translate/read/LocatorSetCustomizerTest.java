@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
