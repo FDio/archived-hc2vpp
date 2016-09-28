@@ -24,7 +24,6 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.lisp.translate.read.dump.check.MappingsDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.MappingsDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.QuantityType;
@@ -77,7 +76,6 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         this.dumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
                         .withExecutor(new MappingsDumpExecutor(futureJvpp))
-                        .withNonEmptyPredicate(new MappingsDumpCheck())
                         .build();
     }
 
@@ -125,24 +123,23 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (replyOptional.isPresent()) {
-            LOG.debug("Valid dump loaded");
-
-            LispEidTableDetails details = replyOptional.get().lispEidTableDetails.stream()
-                    .filter(a -> compareAddresses(eid.getAddress(),
-                            getArrayAsEidLocal(valueOf(a.eidType), a.eid).getAddress()))
-                    .collect(
-                            RWUtils.singleItemCollector());
-
-            builder.setEid(getArrayAsEidRemote(valueOf(details.eidType), details.eid));
-            builder.setKey(new RemoteMappingKey(new MappingId(id.firstKeyOf(RemoteMapping.class).getId())));
-            builder.setTtl(resolveTtl(details.ttl));
-            builder.setAuthoritative(
-                    new RemoteMapping.Authoritative(byteToBoolean(details.authoritative)));
-
-        } else {
-            LOG.debug("No data dumped");
+        if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
+            return;
         }
+
+        LOG.debug("Valid dump loaded");
+
+        LispEidTableDetails details = replyOptional.get().lispEidTableDetails.stream()
+                .filter(a -> compareAddresses(eid.getAddress(),
+                        getArrayAsEidLocal(valueOf(a.eidType), a.eid).getAddress()))
+                .collect(
+                        RWUtils.singleItemCollector());
+
+        builder.setEid(getArrayAsEidRemote(valueOf(details.eidType), details.eid));
+        builder.setKey(new RemoteMappingKey(new MappingId(id.firstKeyOf(RemoteMapping.class).getId())));
+        builder.setTtl(resolveTtl(details.ttl));
+        builder.setAuthoritative(
+                new RemoteMapping.Authoritative(byteToBoolean(details.authoritative)));
     }
 
     //compensate ~0 as default value of ttl
@@ -180,23 +177,21 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (replyOptional.isPresent()) {
-            LOG.debug("Valid dump loaded");
-            return replyOptional.get()
-                    .lispEidTableDetails
-                    .stream()
-                    .filter(a -> a.vni == vni)
-                    .map(detail -> new RemoteMappingKey(
-                            new MappingId(
-                                    remoteMappingContext.getId(
-                                            getArrayAsEidRemote(
-                                                    valueOf(detail.eidType), detail.eid),
-                                            context.getMappingContext()))))
-                    .collect(Collectors.toList());
-        } else {
-            LOG.debug("No data dumped");
+        if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return Collections.emptyList();
         }
+
+        return replyOptional.get()
+                .lispEidTableDetails
+                .stream()
+                .filter(a -> a.vni == vni)
+                .map(detail -> new RemoteMappingKey(
+                        new MappingId(
+                                remoteMappingContext.getId(
+                                        getArrayAsEidRemote(
+                                                valueOf(detail.eidType), detail.eid),
+                                        context.getMappingContext()))))
+                .collect(Collectors.toList());
     }
 
     @Override

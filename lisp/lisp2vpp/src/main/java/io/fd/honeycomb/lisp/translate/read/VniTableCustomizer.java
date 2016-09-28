@@ -20,15 +20,14 @@ import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.check.VniTableDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.VniTableDumpExecutor;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +60,6 @@ public class VniTableCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, Void>()
                 .withExecutor(new VniTableDumpExecutor(futureJvpp))
-                .withNonEmptyPredicate(new VniTableDumpCheck())
                 .build();
     }
 
@@ -95,18 +93,12 @@ public class VniTableCustomizer extends FutureJVppCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (!optionalReply.isPresent()) {
+        if (!optionalReply.isPresent() || optionalReply.get().lispEidTableMapDetails.isEmpty()) {
             return Collections.emptyList();
         }
 
-        LispEidTableMapDetailsReplyDump reply = optionalReply.get();
-        LOG.debug("Dumped ...");
-
-        // Just transform received details into a list of keys
-        final List<VniTableKey> collect = reply.lispEidTableMapDetails.stream().map(VniTableCustomizer::detailsToKey)
+        return optionalReply.get().lispEidTableMapDetails.stream().map(VniTableCustomizer::detailsToKey)
                 .collect(Collectors.toList());
-        LOG.debug("All IDs found: {} ...", collect);
-        return collect;
     }
 
     @Override
@@ -124,12 +116,12 @@ public class VniTableCustomizer extends FutureJVppCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (!optionalReply.isPresent()) {
+        if (!optionalReply.isPresent() || optionalReply.get().lispEidTableMapDetails.isEmpty()) {
             return;
         }
 
         //transforming right away to single detail(specific request should do the magic)
-        LispEidTableMapDetails details =
+        final LispEidTableMapDetails details =
                 optionalReply.get().lispEidTableMapDetails.stream().filter(a -> detailsToKey(a).equals(key))
                         .collect(RWUtils.singleItemCollector());
 

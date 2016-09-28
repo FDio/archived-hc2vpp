@@ -19,11 +19,11 @@ package io.fd.honeycomb.lisp.translate.read;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.check.MapResolverDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.MapResolversDumpExecutor;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.AddressTranslator;
@@ -57,7 +57,6 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispMapResolverDetailsReplyDump, Void>()
                 .withExecutor(new MapResolversDumpExecutor((futureJvpp)))
-                .withNonEmptyPredicate(new MapResolverDumpCheck())
                 .build();
     }
 
@@ -78,7 +77,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (!dumpOptional.isPresent()) {
+        if (!dumpOptional.isPresent() || dumpOptional.get().lispMapResolverDetails.isEmpty()) {
             LOG.warn("No data dumped");
             return;
         }
@@ -86,25 +85,15 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
         final MapResolverKey key = id.firstKeyOf(MapResolver.class);
         //revert searched key to match vpp's reversed order ip's
         final IpAddress address = reverseAddress(key.getIpAddress());
-        final LispMapResolverDetailsReplyDump dump = dumpOptional.get();
-
-        //cannot use RWUtils.singleItemCollector(),there is some problem with generic params binding
-        java.util.Optional<LispMapResolverDetails> mapResolverOptional =
-                dump.lispMapResolverDetails.stream()
+        final LispMapResolverDetails mapResolverDetails =
+                dumpOptional.get().lispMapResolverDetails.stream()
                         .filter(a -> address
                                 .equals(arrayToIpAddress(byteToBoolean(a.isIpv6), a.ipAddress)))
-                        .findFirst();
+                        .collect(RWUtils.singleItemCollector());
 
-        if (mapResolverOptional.isPresent()) {
-            LispMapResolverDetails details = mapResolverOptional.get();
-
-            builder.setKey(key);
-            builder.setIpAddress(
-                    arrayToIpAddress(byteToBoolean(details.isIpv6), details.ipAddress));
-        } else {
-            LOG.warn("No data found with matching key");
-        }
-
+        builder.setKey(key);
+        builder.setIpAddress(
+                arrayToIpAddress(byteToBoolean(mapResolverDetails.isIpv6), mapResolverDetails.ipAddress));
     }
 
     @Override
@@ -112,15 +101,14 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
         LOG.debug("Dumping MapResolver...");
 
-        Optional<LispMapResolverDetailsReplyDump> dumpOptional = null;
+        Optional<LispMapResolverDetailsReplyDump> dumpOptional;
         try {
             dumpOptional = dumpManager.getDump(MAP_RESOLVERS_CACHE_ID, context.getModificationCache(), NO_PARAMS);
         } catch (DumpExecutionFailedException e) {
             throw new ReadFailedException(id, e);
         }
 
-        if (!dumpOptional.isPresent()) {
-            LOG.warn("No data dumped");
+        if (!dumpOptional.isPresent() || dumpOptional.get().lispMapResolverDetails.isEmpty()) {
             return Collections.emptyList();
         }
 

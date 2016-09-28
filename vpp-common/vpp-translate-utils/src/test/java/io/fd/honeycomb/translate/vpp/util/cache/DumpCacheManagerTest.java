@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.translate.vpp.util.cache;
 
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -23,9 +24,7 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.EntityDumpNonEmptyCheck;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpPostProcessingFunction;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.check.i.DumpEmptyException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,19 +51,16 @@ public class DumpCacheManagerTest {
         managerPositive =
                 new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
                         .withExecutor(executor)
-                        .withNonEmptyPredicate(createPositivePredicate())
                         .build();
 
         managerPositiveWithPostProcessing = new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
                 .withExecutor(executor)
-                .withNonEmptyPredicate(createPositivePredicate())
                 .withPostProcessingFunction(createPostProcessor())
                 .build();
 
         managerNegative =
                 new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
                         .withExecutor(executor)
-                        .withNonEmptyPredicate(createNegativePredicate())
                         .build();
 
         cache = new ModificationCache();
@@ -75,28 +71,34 @@ public class DumpCacheManagerTest {
      */
     @Test
     public void testCaching() throws DumpExecutionFailedException {
+        final IpDetailsReplyDump stage1Data = new IpDetailsReplyDump();
 
+        // executor cant return null data
+        when(executor.executeDump(NO_PARAMS)).thenReturn(new IpDetailsReplyDump());
 
-        Optional<IpDetailsReplyDump> stage1Optional = managerNegative.getDump(KEY, cache, null);
+        final Optional<IpDetailsReplyDump> stage1Optional = managerNegative.getDump(KEY, cache, NO_PARAMS);
 
-        //this is first call so instance should be from executor
-        assertEquals(false, stage1Optional.isPresent());
-        assertEquals(false, cache.containsKey(KEY));
+        // this is first call so instance should be from executor
+        // and it should be cached after calling executor
+        assertEquals(true, stage1Optional.isPresent());
+        assertEquals(stage1Data, stage1Optional.get());
+        assertEquals(true, cache.containsKey(KEY));
+        assertEquals(stage1Data, cache.get(KEY));
 
         //rebind executor with other data
         IpDetailsReplyDump stage2LoadedDump = new IpDetailsReplyDump();
-        when(executor.executeDump(null)).thenReturn(stage2LoadedDump);
+        when(executor.executeDump(NO_PARAMS)).thenReturn(stage2LoadedDump);
 
-        Optional<IpDetailsReplyDump> stage2Optional = managerPositive.getDump(KEY, cache, null);
+        final Optional<IpDetailsReplyDump> stage2Optional = managerPositive.getDump(KEY, cache, NO_PARAMS);
 
         assertEquals(true, stage2Optional.isPresent());
         assertEquals(stage2LoadedDump, stage2Optional.get());
 
         //rebind executor with other data
         IpDetailsReplyDump stage3LoadedDump = new IpDetailsReplyDump();
-        when(executor.executeDump(null)).thenReturn(stage3LoadedDump);
+        when(executor.executeDump(NO_PARAMS)).thenReturn(stage3LoadedDump);
 
-        Optional<IpDetailsReplyDump> stage3Optional = managerPositive.getDump(KEY, cache, null);
+        final Optional<IpDetailsReplyDump> stage3Optional = managerPositive.getDump(KEY, cache, NO_PARAMS);
         assertEquals(true, stage3Optional.isPresent());
         //check if it returns instance cached from previous stage
         assertEquals(stage2LoadedDump, stage3Optional.get());
@@ -111,23 +113,11 @@ public class DumpCacheManagerTest {
 
         when(executor.executeDump(null)).thenReturn(dump);
 
-        Optional<IpDetailsReplyDump> optionalDump = managerPositiveWithPostProcessing.getDump(KEY, cache, null);
+        Optional<IpDetailsReplyDump> optionalDump = managerPositiveWithPostProcessing.getDump(KEY, cache, NO_PARAMS);
 
         assertEquals(true, optionalDump.isPresent());
         assertEquals(1, optionalDump.get().ipDetails.size());
         assertEquals(7, optionalDump.get().ipDetails.get(0).swIfIndex);
-    }
-
-    private EntityDumpNonEmptyCheck<IpDetailsReplyDump> createNegativePredicate() {
-        return data -> {
-            throw new DumpEmptyException("Empty dump", new IllegalArgumentException());
-        };
-    }
-
-    private EntityDumpNonEmptyCheck<IpDetailsReplyDump> createPositivePredicate() {
-        return data -> {
-            //DO NOTHING
-        };
     }
 
     private EntityDumpPostProcessingFunction<IpDetailsReplyDump> createPostProcessor() {

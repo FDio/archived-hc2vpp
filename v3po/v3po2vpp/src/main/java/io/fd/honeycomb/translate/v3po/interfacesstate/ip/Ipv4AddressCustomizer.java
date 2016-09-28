@@ -25,7 +25,6 @@ import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.AddressDumpExecutor;
-import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.check.AddressDumpCheck;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -64,7 +63,6 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
                 .withExecutor(new AddressDumpExecutor(futureJVppCore))
-                .withNonEmptyPredicate(new AddressDumpCheck())
                 .build();
     }
 
@@ -91,24 +89,23 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (dumpOptional.isPresent()) {
-            final Optional<IpAddressDetails> ipAddressDetails =
-                    findIpAddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
+        if (!dumpOptional.isPresent() || dumpOptional.get().ipAddressDetails.isEmpty()) {
+            return;
+        }
+        final Optional<IpAddressDetails> ipAddressDetails =
+                findIpAddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
 
-            if (ipAddressDetails.isPresent()) {
-                final IpAddressDetails detail = ipAddressDetails.get();
-                builder.setIp(arrayToIpv4AddressNoZone(detail.ip))
-                        .setSubnet(
-                                new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
+        if (ipAddressDetails.isPresent()) {
+            final IpAddressDetails detail = ipAddressDetails.get();
+            builder.setIp(arrayToIpv4AddressNoZone(detail.ip))
+                    .setSubnet(
+                            new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Attributes for {} interface (id={}) address {} successfully read: {}",
-                            interfaceName, interfaceIndex, id, builder.build());
-                }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Attributes for {} interface (id={}) address {} successfully read: {}",
+                        interfaceName, interfaceIndex, id, builder.build());
             }
         }
-
-
     }
 
     @Override

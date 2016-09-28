@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.check.LocatorSetsDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorSetsDumpExecutor;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -63,7 +62,6 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator Set mapping context cannot be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
                 .withExecutor(new LocatorSetsDumpExecutor(futureJvpp))
-                .withNonEmptyPredicate(new LocatorSetsDumpCheck())
                 .build();
     }
 
@@ -84,8 +82,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         } catch (DumpExecutionFailedException e) {
             throw new ReadFailedException(id, e);
         }
-        if (!dumpOptional.isPresent()) {
-            LOG.warn("No dump present for Locator Set {}", id);
+        if (!dumpOptional.isPresent() || dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
             return;
         }
 
@@ -119,29 +116,28 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
             return Collections.emptyList();
         }
 
-        if (dumpOptional.isPresent()) {
-            return dumpOptional.get().lispLocatorSetDetails.stream()
-                    .map(set -> {
-
-                        final String locatorSetName = toString(set.lsName);
-                        //creates mapping for existing locator-set(if it is'nt already existing one)
-                        if (!locatorSetContext.containsIndex(locatorSetName, context.getMappingContext())) {
-                            locatorSetContext.addName(set.lsIndex, locatorSetName, context.getMappingContext());
-                        }
-
-                        LOG.trace("Locator Set with name: {}, VPP name: {} and index: {} found in VPP",
-                                locatorSetContext.getName(set.lsIndex, context.getMappingContext()),
-                                locatorSetName,
-                                set.lsIndex);
-
-                        return set;
-                    })
-                    .map(set -> new LocatorSetKey(toString(set.lsName)))
-                    .collect(Collectors.toList());
-        } else {
-            LOG.warn("No data dumped for Locator Set {}", id);
+        if (!dumpOptional.isPresent() || dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
             return Collections.emptyList();
         }
+
+        return dumpOptional.get().lispLocatorSetDetails.stream()
+                .map(set -> {
+
+                    final String locatorSetName = toString(set.lsName);
+                    //creates mapping for existing locator-set(if it is'nt already existing one)
+                    if (!locatorSetContext.containsIndex(locatorSetName, context.getMappingContext())) {
+                        locatorSetContext.addName(set.lsIndex, locatorSetName, context.getMappingContext());
+                    }
+
+                    LOG.trace("Locator Set with name: {}, VPP name: {} and index: {} found in VPP",
+                            locatorSetContext.getName(set.lsIndex, context.getMappingContext()),
+                            locatorSetName,
+                            set.lsIndex);
+
+                    return set;
+                })
+                .map(set -> new LocatorSetKey(toString(set.lsName)))
+                .collect(Collectors.toList());
     }
 
     @Override

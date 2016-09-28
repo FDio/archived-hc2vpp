@@ -25,7 +25,6 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.lisp.translate.read.dump.check.MappingsDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.MappingsDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
@@ -81,7 +80,6 @@ public class LocalMappingCustomizer
         this.dumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
                         .withExecutor(dumpExecutor)
-                        .withNonEmptyPredicate(new MappingsDumpCheck())
                         .build();
     }
 
@@ -125,24 +123,22 @@ public class LocalMappingCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (replyOptional.isPresent()) {
-            LOG.debug("Valid dump loaded");
-
-            LispEidTableDetails details = replyOptional.get().lispEidTableDetails.stream()
-                    .filter(a -> compareAddresses(eid.getAddress(),
-                            getArrayAsEidLocal(valueOf(a.eidType), a.eid).getAddress()))
-                    .collect(
-                            RWUtils.singleItemCollector());
-
-            //in case of local mappings,locator_set_index stands for interface index
-            checkState(locatorSetContext.containsName(details.locatorSetIndex, ctx.getMappingContext()),
-                    "No Locator Set name found for index %s", details.locatorSetIndex);
-            builder.setLocatorSet(locatorSetContext.getName(details.locatorSetIndex, ctx.getMappingContext()));
-            builder.setKey(new LocalMappingKey(new MappingId(id.firstKeyOf(LocalMapping.class).getId())));
-            builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid));
-        } else {
-            LOG.debug("No data dumped");
+        if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
+            return;
         }
+
+        LispEidTableDetails details = replyOptional.get().lispEidTableDetails.stream()
+                .filter(a -> compareAddresses(eid.getAddress(),
+                        getArrayAsEidLocal(valueOf(a.eidType), a.eid).getAddress()))
+                .collect(
+                        RWUtils.singleItemCollector());
+
+        //in case of local mappings,locator_set_index stands for interface index
+        checkState(locatorSetContext.containsName(details.locatorSetIndex, ctx.getMappingContext()),
+                "No Locator Set name found for index %s", details.locatorSetIndex);
+        builder.setLocatorSet(locatorSetContext.getName(details.locatorSetIndex, ctx.getMappingContext()));
+        builder.setKey(new LocalMappingKey(new MappingId(id.firstKeyOf(LocalMapping.class).getId())));
+        builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid));
     }
 
     @Override
@@ -173,21 +169,19 @@ public class LocalMappingCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (replyOptional.isPresent()) {
-            LOG.debug("Valid dump loaded");
-            return replyOptional.get().lispEidTableDetails.stream()
-                    //filtering with vni to skip help local mappings that are created in vpp to handle remote mappings(vpp feature)
-                    .filter(a -> a.vni == vni)
-                    .map(a -> new LocalMappingKey(
-                            new MappingId(
-                                    localMappingContext.getId(
-                                            getArrayAsEidLocal(valueOf(a.eidType), a.eid),
-                                            context.getMappingContext()))))
-                    .collect(Collectors.toList());
-        } else {
-            LOG.debug("No data dumped");
+        if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return Collections.emptyList();
         }
+
+        return replyOptional.get().lispEidTableDetails.stream()
+                //filtering with vni to skip help local mappings that are created in vpp to handle remote mappings(vpp feature)
+                .filter(a -> a.vni == vni)
+                .map(a -> new LocalMappingKey(
+                        new MappingId(
+                                localMappingContext.getId(
+                                        getArrayAsEidLocal(valueOf(a.eidType), a.eid),
+                                        context.getMappingContext()))))
+                .collect(Collectors.toList());
     }
 
     @Override

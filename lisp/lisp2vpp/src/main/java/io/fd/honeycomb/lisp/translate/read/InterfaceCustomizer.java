@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.check.LocatorDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams.LocatorDumpParamsBuilder;
@@ -29,10 +28,10 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
+import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,7 +75,6 @@ public class InterfaceCustomizer
         this.dumpCacheManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorDetailsReplyDump, LocatorDumpParams>()
                         .withExecutor(new LocatorDumpExecutor(futureJvpp))
-                        .withNonEmptyPredicate(new LocatorDumpCheck())
                         .build();
     }
 
@@ -111,20 +109,22 @@ public class InterfaceCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (reply.isPresent()) {
-            final LispLocatorDetails details = reply.get()
-                    .lispLocatorDetails
-                    .stream()
-                    .filter(a -> a.swIfIndex == referencedInterfaceIndex)
-                    .collect(RWUtils.singleItemCollector());
-
-            final String interfaceRef = interfaceContext.getName(details.swIfIndex, ctx.getMappingContext());
-
-            builder.setPriority(Byte.valueOf(details.priority).shortValue());
-            builder.setWeight(Byte.valueOf(details.weight).shortValue());
-            builder.setInterfaceRef(interfaceRef);
-            builder.setKey(new InterfaceKey(interfaceRef));
+        if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
+            return;
         }
+
+        final LispLocatorDetails details = reply.get()
+                .lispLocatorDetails
+                .stream()
+                .filter(a -> a.swIfIndex == referencedInterfaceIndex)
+                .collect(RWUtils.singleItemCollector());
+
+        final String interfaceRef = interfaceContext.getName(details.swIfIndex, ctx.getMappingContext());
+
+        builder.setPriority(Byte.valueOf(details.priority).shortValue());
+        builder.setWeight(Byte.valueOf(details.weight).shortValue());
+        builder.setInterfaceRef(interfaceRef);
+        builder.setKey(new InterfaceKey(interfaceRef));
     }
 
     @Override
@@ -146,15 +146,15 @@ public class InterfaceCustomizer
             throw new ReadFailedException(id, e);
         }
 
-        if (reply.isPresent()) {
-            return reply.get()
-                    .lispLocatorDetails
-                    .stream()
-                    .map(a -> new InterfaceKey(interfaceContext.getName(a.swIfIndex, context.getMappingContext())))
-                    .collect(Collectors.toList());
-        } else {
+        if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
             return Collections.emptyList();
         }
+
+        return reply.get()
+                .lispLocatorDetails
+                .stream()
+                .map(a -> new InterfaceKey(interfaceContext.getName(a.swIfIndex, context.getMappingContext())))
+                .collect(Collectors.toList());
     }
 
     @Override

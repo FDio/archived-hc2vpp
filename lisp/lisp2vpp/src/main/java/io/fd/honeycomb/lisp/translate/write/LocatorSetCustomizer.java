@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.check.LocatorSetsDumpCheck;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorSetsDumpExecutor;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
@@ -67,7 +66,6 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator set context cannot be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
                 .withExecutor(new LocatorSetsDumpExecutor(futureJvpp))
-                .withNonEmptyPredicate(new LocatorSetsDumpCheck())
                 .build();
     }
 
