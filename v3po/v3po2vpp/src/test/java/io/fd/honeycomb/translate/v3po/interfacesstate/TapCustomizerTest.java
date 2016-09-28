@@ -35,9 +35,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.TapBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.core.dto.SwInterfaceTapDetails;
-import org.openvpp.jvpp.core.dto.SwInterfaceTapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDetailsReplyDump;
 
 public class TapCustomizerTest extends ReaderCustomizerTest<Tap, TapBuilder> implements InterfaceDumpHelper {
 

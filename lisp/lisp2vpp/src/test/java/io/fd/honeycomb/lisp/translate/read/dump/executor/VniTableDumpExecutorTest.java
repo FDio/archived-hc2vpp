@@ -16,8 +16,8 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.openvpp.jvpp.core.dto.LispEidTableMapDetails;
-import org.openvpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
 
 
 public class VniTableDumpExecutorTest extends JvppDumpExecutorTest<VniTableDumpExecutor> {

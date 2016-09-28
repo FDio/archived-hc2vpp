@@ -39,11 +39,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.XconnectBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.XconnectBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
 
 public class L2CustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
     private static final String IFACE_CTX_NAME = "interface-ctx";

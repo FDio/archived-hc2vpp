@@ -45,9 +45,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLengthBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddress;
-import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
 
 public class SubInterfaceIpv4AddressCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 

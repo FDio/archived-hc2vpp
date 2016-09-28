@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Validation WriteCustomizers for Interface subnodes.

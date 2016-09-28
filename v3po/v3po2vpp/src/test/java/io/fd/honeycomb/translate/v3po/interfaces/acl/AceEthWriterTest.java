@@ -28,10 +28,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEthBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
-import org.openvpp.jvpp.core.dto.InputAclSetInterface;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public class AceEthWriterTest {
 

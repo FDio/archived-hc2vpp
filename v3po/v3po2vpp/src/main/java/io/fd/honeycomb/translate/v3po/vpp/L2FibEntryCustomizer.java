@@ -34,10 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.L2FibAddDel;
-import org.openvpp.jvpp.core.dto.L2FibAddDelReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.L2FibAddDel;
+import io.fd.vpp.jvpp.core.dto.L2FibAddDelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -28,10 +28,10 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddress;
-import org.openvpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Utility class providing Ipv4 CUD support.

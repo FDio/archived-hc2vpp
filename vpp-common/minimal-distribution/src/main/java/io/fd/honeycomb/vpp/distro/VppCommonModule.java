@@ -22,8 +22,8 @@ import com.google.inject.multibindings.Multibinder;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.vpp.util.VppStatusListener;
 import net.jmob.guice.conf.core.ConfigurationModule;
-import org.openvpp.jvpp.JVppRegistry;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.JVppRegistry;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public final class VppCommonModule extends AbstractModule {
     protected void configure() {

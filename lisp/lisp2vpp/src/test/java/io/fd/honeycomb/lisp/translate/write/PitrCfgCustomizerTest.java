@@ -30,8 +30,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfgBuilder;
-import org.openvpp.jvpp.core.dto.LispPitrSetLocatorSet;
-import org.openvpp.jvpp.core.dto.LispPitrSetLocatorSetReply;
+import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSet;
+import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSetReply;
 
 
 public class PitrCfgCustomizerTest extends WriterCustomizerTest {

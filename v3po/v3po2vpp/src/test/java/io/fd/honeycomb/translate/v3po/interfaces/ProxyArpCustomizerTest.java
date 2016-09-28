@@ -32,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ProxyArpBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.ProxyArpAddDel;
-import org.openvpp.jvpp.core.dto.ProxyArpAddDelReply;
+import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
+import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
 
 public class ProxyArpCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
     private static final String IF_NAME = "eth1";

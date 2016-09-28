@@ -40,8 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.AclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.InputAclSetInterface;
-import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 
 public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";

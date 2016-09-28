@@ -31,12 +31,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.XconnectBased;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

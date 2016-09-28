@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Generic test for classes implementing {@link WriterCustomizer} interface.

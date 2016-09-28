@@ -33,13 +33,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.AceType;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelSessionReply;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelTableReply;
-import org.openvpp.jvpp.core.dto.InputAclSetInterface;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Base writer for translation of ietf-acl model ACEs to VPP's classify tables and sessions.

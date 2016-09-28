@@ -34,10 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.nsh.dto.NshAddDelMap;
-import org.openvpp.jvpp.nsh.dto.NshAddDelMapReply;
-import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.nsh.dto.NshAddDelMap;
+import io.fd.vpp.jvpp.nsh.dto.NshAddDelMapReply;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

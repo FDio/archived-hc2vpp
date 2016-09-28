@@ -28,10 +28,10 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.LispEnableDisable;
-import org.openvpp.jvpp.core.dto.LispEnableDisableReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispEnableDisable;
+import io.fd.vpp.jvpp.core.dto.LispEnableDisableReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**

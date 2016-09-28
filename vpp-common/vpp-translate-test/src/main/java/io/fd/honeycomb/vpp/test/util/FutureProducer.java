@@ -18,8 +18,8 @@ package io.fd.honeycomb.vpp.test.util;
 
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
-import org.openvpp.jvpp.VppCallbackException;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppCallbackException;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * <p>VPP translation test helper, that produces instances of {@link CompletableFuture} with desired results.</p>

@@ -44,13 +44,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.IetfAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.IetfAclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelSessionReply;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelTableReply;
-import org.openvpp.jvpp.core.dto.ClassifyTableByInterface;
-import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
-import org.openvpp.jvpp.core.dto.InputAclSetInterface;
-import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 
 public class IetfAclCustomizerTest extends WriterCustomizerTest {
 

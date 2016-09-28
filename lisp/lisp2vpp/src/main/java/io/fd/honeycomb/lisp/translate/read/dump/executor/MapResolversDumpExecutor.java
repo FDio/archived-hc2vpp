@@ -24,10 +24,10 @@ import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTime
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.LispMapResolverDump;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 public class MapResolversDumpExecutor extends AbstractDumpExecutor

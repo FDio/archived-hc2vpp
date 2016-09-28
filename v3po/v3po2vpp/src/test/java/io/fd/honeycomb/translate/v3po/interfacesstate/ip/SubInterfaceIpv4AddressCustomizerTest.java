@@ -45,8 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.AddressKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLengthBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.IpAddressDetails;
-import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 
 public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerTest<Address, AddressKey, AddressBuilder> {
 

@@ -34,9 +34,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetFlags;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
 
 public class InterfaceCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
     private static final String IFACE_CTX_NAME = "interface-ctx";

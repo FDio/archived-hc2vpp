@@ -17,8 +17,8 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.openvpp.jvpp.core.dto.LispMapResolverDetails;
-import org.openvpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 
 
 public class MapResolversDumpExecutorTest extends JvppDumpExecutorTest<MapResolversDumpExecutor> {

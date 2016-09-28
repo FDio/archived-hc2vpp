@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.EthernetBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class EthernetCustomizerTest extends ReaderCustomizerTest<Ethernet, EthernetBuilder> implements
     InterfaceDumpHelper {

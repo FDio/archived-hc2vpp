@@ -49,8 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.EidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.locator.list.NegativeMappingBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.LispAddDelRemoteMapping;
-import org.openvpp.jvpp.core.dto.LispAddDelRemoteMappingReply;
+import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMapping;
+import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMappingReply;
 
 public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
 

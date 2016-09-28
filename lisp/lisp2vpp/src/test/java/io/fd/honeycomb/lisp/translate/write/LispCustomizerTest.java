@@ -29,8 +29,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispBuilder;
-import org.openvpp.jvpp.core.dto.LispEnableDisable;
-import org.openvpp.jvpp.core.dto.LispEnableDisableReply;
+import io.fd.vpp.jvpp.core.dto.LispEnableDisable;
+import io.fd.vpp.jvpp.core.dto.LispEnableDisableReply;
 
 
 public class LispCustomizerTest extends WriterCustomizerTest {

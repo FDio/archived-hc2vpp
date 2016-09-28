@@ -22,10 +22,10 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelSession;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
-import org.openvpp.jvpp.core.dto.InputAclSetInterface;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

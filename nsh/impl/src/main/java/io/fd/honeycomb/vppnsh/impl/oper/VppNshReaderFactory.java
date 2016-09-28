@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshMapsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.maps.NshMap;
 
-import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class VppNshReaderFactory implements ReaderFactory {

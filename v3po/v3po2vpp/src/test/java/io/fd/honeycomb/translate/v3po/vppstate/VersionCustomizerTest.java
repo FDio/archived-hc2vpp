@@ -27,8 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.Version;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.VersionBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.ShowVersion;
-import org.openvpp.jvpp.core.dto.ShowVersionReply;
+import io.fd.vpp.jvpp.core.dto.ShowVersion;
+import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
 
 public class VersionCustomizerTest extends ReaderCustomizerTest<Version, VersionBuilder> {
 

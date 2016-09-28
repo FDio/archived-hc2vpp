@@ -26,10 +26,10 @@ import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTime
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.LispLocatorDump;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**

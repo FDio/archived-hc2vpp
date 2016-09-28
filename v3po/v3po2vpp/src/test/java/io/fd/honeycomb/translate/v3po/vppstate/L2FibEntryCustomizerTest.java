@@ -40,10 +40,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.state.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.core.dto.L2FibTableDump;
-import org.openvpp.jvpp.core.dto.L2FibTableEntry;
-import org.openvpp.jvpp.core.dto.L2FibTableEntryReplyDump;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDump;
+import io.fd.vpp.jvpp.core.dto.L2FibTableEntry;
+import io.fd.vpp.jvpp.core.dto.L2FibTableEntryReplyDump;
 
 public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> {
 

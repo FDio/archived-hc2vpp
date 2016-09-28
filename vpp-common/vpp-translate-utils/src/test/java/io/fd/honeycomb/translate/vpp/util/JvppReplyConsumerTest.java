@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.dto.JVppReply;
+import io.fd.vpp.jvpp.dto.JVppReply;
 
 public class JvppReplyConsumerTest implements JvppReplyConsumer {
 

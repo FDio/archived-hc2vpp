@@ -32,7 +32,7 @@ import io.fd.honeycomb.vppnsh.impl.init.VppNshInitializer;
 import io.fd.honeycomb.vppnsh.impl.oper.VppNshReaderFactory;
 import io.fd.honeycomb.vppnsh.impl.util.JVppNshProvider;
 import net.jmob.guice.conf.core.ConfigurationModule;
-import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -45,7 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, RewriteBuilder> {
 

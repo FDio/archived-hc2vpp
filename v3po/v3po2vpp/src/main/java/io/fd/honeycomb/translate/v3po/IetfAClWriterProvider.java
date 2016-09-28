@@ -19,7 +19,7 @@ package io.fd.honeycomb.translate.v3po;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAClWriter;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 class IetfAClWriterProvider implements Provider<IetfAClWriter> {
 

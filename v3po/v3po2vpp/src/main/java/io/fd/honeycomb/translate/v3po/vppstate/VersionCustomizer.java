@@ -30,10 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.ShowVersion;
-import org.openvpp.jvpp.core.dto.ShowVersionReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.ShowVersion;
+import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public final class VersionCustomizer
         extends FutureJVppCustomizer

@@ -19,7 +19,7 @@ package io.fd.honeycomb.lisp.translate.read.dump.executor;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.annotation.Nonnull;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**

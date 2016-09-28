@@ -24,9 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.openvpp.jvpp.core.dto.LispEidTableDetails;
-import org.openvpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.LispEidTableDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDump;
 
 public class MappingsDumpExecutorTest extends JvppDumpExecutorTest<MappingsDumpExecutor> {
 

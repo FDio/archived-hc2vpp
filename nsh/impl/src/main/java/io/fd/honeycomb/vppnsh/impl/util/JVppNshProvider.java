@@ -19,10 +19,10 @@ package io.fd.honeycomb.vppnsh.impl.util;
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import java.io.IOException;
-import org.openvpp.jvpp.JVppRegistry;
-import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
-import org.openvpp.jvpp.nsh.future.FutureJVppNshFacade;
-import org.openvpp.jvpp.nsh.JVppNshImpl;
+import io.fd.vpp.jvpp.JVppRegistry;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
+import io.fd.vpp.jvpp.nsh.JVppNshImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

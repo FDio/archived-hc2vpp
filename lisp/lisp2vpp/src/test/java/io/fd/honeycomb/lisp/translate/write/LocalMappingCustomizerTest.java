@@ -49,8 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.EidBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.LispAddDelLocalEid;
-import org.openvpp.jvpp.core.dto.LispAddDelLocalEidReply;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEid;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEidReply;
 
 public class LocalMappingCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator, Ipv4Translator {
 

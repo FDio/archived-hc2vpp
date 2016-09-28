@@ -31,14 +31,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUserRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUser;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.CreateVhostUserIf;
-import org.openvpp.jvpp.core.dto.CreateVhostUserIfReply;
-import org.openvpp.jvpp.core.dto.DeleteVhostUserIf;
-import org.openvpp.jvpp.core.dto.DeleteVhostUserIfReply;
-import org.openvpp.jvpp.core.dto.ModifyVhostUserIf;
-import org.openvpp.jvpp.core.dto.ModifyVhostUserIfReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.CreateVhostUserIf;
+import io.fd.vpp.jvpp.core.dto.CreateVhostUserIfReply;
+import io.fd.vpp.jvpp.core.dto.DeleteVhostUserIf;
+import io.fd.vpp.jvpp.core.dto.DeleteVhostUserIfReply;
+import io.fd.vpp.jvpp.core.dto.ModifyVhostUserIf;
+import io.fd.vpp.jvpp.core.dto.ModifyVhostUserIfReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

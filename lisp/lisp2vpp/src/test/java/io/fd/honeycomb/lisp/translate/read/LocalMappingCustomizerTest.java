@@ -30,8 +30,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.LocalMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.LispEidTableDetails;
-import org.openvpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 
 public class LocalMappingCustomizerTest extends
         ListReaderCustomizerTest<LocalMapping, LocalMappingKey, LocalMappingBuilder> implements EidTranslator {

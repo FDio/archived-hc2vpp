@@ -17,8 +17,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.LispEidTableMapDetails;
-import org.openvpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
 
 
 public class VniTableCustomizerTest extends ListReaderCustomizerTest<VniTable, VniTableKey, VniTableBuilder> {

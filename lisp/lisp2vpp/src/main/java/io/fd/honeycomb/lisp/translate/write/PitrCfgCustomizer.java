@@ -28,9 +28,9 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.TimeoutException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.LispPitrSetLocatorSet;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSet;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**

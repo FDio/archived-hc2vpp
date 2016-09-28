@@ -37,9 +37,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUserBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
-import org.openvpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
 
 public class VhostUserCustomizerTest extends ReaderCustomizerTest<VhostUser, VhostUserBuilder> implements
     InterfaceDumpHelper {

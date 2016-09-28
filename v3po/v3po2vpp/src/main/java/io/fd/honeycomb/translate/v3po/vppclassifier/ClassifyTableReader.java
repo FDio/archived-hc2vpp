@@ -42,12 +42,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.ClassifyTableIds;
-import org.openvpp.jvpp.core.dto.ClassifyTableIdsReply;
-import org.openvpp.jvpp.core.dto.ClassifyTableInfo;
-import org.openvpp.jvpp.core.dto.ClassifyTableInfoReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableIds;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableIdsReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableInfo;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableInfoReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

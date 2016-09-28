@@ -21,9 +21,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import javax.annotation.Nonnull;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * VPP translation test helper, that helps stubbing {@link FutureJVppCore#swInterfaceDump}.

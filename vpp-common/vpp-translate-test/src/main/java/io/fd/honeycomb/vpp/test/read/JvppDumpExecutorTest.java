@@ -31,8 +31,8 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Generic test for implementation of {@link EntityDumpExecutor}

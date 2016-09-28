@@ -43,11 +43,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.nsh.dto.NshEntryDetails;
-import org.openvpp.jvpp.nsh.dto.NshEntryDetailsReplyDump;
-import org.openvpp.jvpp.nsh.dto.NshEntryDump;
-import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.nsh.dto.NshEntryDetails;
+import io.fd.vpp.jvpp.nsh.dto.NshEntryDetailsReplyDump;
+import io.fd.vpp.jvpp.nsh.dto.NshEntryDump;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

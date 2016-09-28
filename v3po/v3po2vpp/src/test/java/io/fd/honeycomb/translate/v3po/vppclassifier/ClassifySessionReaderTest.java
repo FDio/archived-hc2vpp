@@ -40,9 +40,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.state.ClassifyTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.ClassifySessionDetails;
-import org.openvpp.jvpp.core.dto.ClassifySessionDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.ClassifySessionDump;
+import io.fd.vpp.jvpp.core.dto.ClassifySessionDetails;
+import io.fd.vpp.jvpp.core.dto.ClassifySessionDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.ClassifySessionDump;
 
 public class ClassifySessionReaderTest extends
     ListReaderCustomizerTest<ClassifySession, ClassifySessionKey, ClassifySessionBuilder> {

@@ -37,7 +37,7 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Generic test for classes implementing {@link ReaderCustomizer} interface.

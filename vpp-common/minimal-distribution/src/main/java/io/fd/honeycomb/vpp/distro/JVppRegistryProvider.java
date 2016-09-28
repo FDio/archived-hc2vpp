@@ -20,8 +20,8 @@ import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import io.fd.honeycomb.translate.vpp.util.VppStatusListener;
 import java.io.IOException;
-import org.openvpp.jvpp.JVppRegistry;
-import org.openvpp.jvpp.JVppRegistryImpl;
+import io.fd.vpp.jvpp.JVppRegistry;
+import io.fd.vpp.jvpp.JVppRegistryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

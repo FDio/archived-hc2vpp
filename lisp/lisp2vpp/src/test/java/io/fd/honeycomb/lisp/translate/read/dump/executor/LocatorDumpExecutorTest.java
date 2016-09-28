@@ -22,9 +22,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
-import org.openvpp.jvpp.core.dto.LispLocatorDetails;
-import org.openvpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.LispLocatorDump;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDump;
 
 
 public class LocatorDumpExecutorTest extends JvppDumpExecutorTest<LocatorDumpExecutor> {

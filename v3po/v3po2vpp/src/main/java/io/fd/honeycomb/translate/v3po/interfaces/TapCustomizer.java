@@ -30,14 +30,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.TapConnect;
-import org.openvpp.jvpp.core.dto.TapConnectReply;
-import org.openvpp.jvpp.core.dto.TapDelete;
-import org.openvpp.jvpp.core.dto.TapDeleteReply;
-import org.openvpp.jvpp.core.dto.TapModify;
-import org.openvpp.jvpp.core.dto.TapModifyReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.TapConnect;
+import io.fd.vpp.jvpp.core.dto.TapConnectReply;
+import io.fd.vpp.jvpp.core.dto.TapDelete;
+import io.fd.vpp.jvpp.core.dto.TapDeleteReply;
+import io.fd.vpp.jvpp.core.dto.TapModify;
+import io.fd.vpp.jvpp.core.dto.TapModifyReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

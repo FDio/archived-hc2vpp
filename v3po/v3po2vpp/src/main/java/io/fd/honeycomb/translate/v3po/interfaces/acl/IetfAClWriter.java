@@ -43,14 +43,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.access.lists.Acl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelTable;
-import org.openvpp.jvpp.core.dto.ClassifyAddDelTableReply;
-import org.openvpp.jvpp.core.dto.ClassifyTableByInterface;
-import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
-import org.openvpp.jvpp.core.dto.InputAclSetInterface;
-import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

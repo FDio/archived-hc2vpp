@@ -25,8 +25,8 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.dto.JVppReply;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.dto.JVppReply;
 
 /**
  * Trait providing logic for consuming reply's to jvpp api calls

@@ -41,11 +41,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.GreBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.core.dto.GreTunnelDetails;
-import org.openvpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.GreTunnelDump;
-import org.openvpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.GreTunnelDetails;
+import io.fd.vpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.GreTunnelDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
 

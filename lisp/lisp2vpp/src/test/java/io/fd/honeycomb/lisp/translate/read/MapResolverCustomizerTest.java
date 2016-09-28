@@ -19,8 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolverBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolverKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.LispMapResolverDetails;
-import org.openvpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 
 
 public class MapResolverCustomizerTest

@@ -30,8 +30,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.openvpp.jvpp.core.dto.IpDetails;
-import org.openvpp.jvpp.core.dto.IpDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.IpDetails;
+import io.fd.vpp.jvpp.core.dto.IpDetailsReplyDump;
 
 public class DumpCacheManagerTest {
 

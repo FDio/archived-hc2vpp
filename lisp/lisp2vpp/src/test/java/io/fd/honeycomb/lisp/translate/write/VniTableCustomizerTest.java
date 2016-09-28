@@ -15,8 +15,8 @@ import org.mockito.Captor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTableBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.LispEidTableAddDelMap;
-import org.openvpp.jvpp.core.dto.LispEidTableAddDelMapReply;
+import io.fd.vpp.jvpp.core.dto.LispEidTableAddDelMap;
+import io.fd.vpp.jvpp.core.dto.LispEidTableAddDelMapReply;
 
 
 public class VniTableCustomizerTest extends WriterCustomizerTest {

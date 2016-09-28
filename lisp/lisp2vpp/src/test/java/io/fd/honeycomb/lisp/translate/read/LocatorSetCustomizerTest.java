@@ -19,8 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSetKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.LispLocatorSetDetails;
-import org.openvpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 
 
 public class LocatorSetCustomizerTest

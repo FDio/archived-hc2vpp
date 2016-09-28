@@ -22,8 +22,8 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 
 /**
  * Writer responsible for translation of ietf-acl model ACEs to VPP's classify tables and sessions.

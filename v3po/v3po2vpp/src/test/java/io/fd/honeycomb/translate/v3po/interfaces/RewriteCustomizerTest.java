@@ -40,10 +40,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.RewriteBuilder;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
-import org.openvpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
+import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
 
 public class RewriteCustomizerTest extends WriterCustomizerTest {
 

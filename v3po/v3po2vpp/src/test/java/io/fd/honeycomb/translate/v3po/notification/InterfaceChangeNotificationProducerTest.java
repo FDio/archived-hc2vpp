@@ -33,12 +33,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceStateChange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceStatus;
-import org.openvpp.jvpp.core.callback.SwInterfaceSetFlagsNotificationCallback;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetFlagsNotification;
-import org.openvpp.jvpp.core.dto.WantInterfaceEvents;
-import org.openvpp.jvpp.core.dto.WantInterfaceEventsReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
-import org.openvpp.jvpp.core.notification.CoreNotificationRegistry;
+import io.fd.vpp.jvpp.core.callback.SwInterfaceSetFlagsNotificationCallback;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsNotification;
+import io.fd.vpp.jvpp.core.dto.WantInterfaceEvents;
+import io.fd.vpp.jvpp.core.dto.WantInterfaceEventsReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.notification.CoreNotificationRegistry;
 
 public class InterfaceChangeNotificationProducerTest implements FutureProducer, NamingContextHelper {
 

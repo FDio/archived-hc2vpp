@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispStateBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.ShowLispStatusReply;
+import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
 
 public class LispStateCustomizerTest extends ReaderCustomizerTest<LispState, LispStateBuilder> {
 

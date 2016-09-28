@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import org.openvpp.jvpp.core.dto.IpAddressDetails;
-import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 
 /**
  * Utility class providing Ipv4 read support.

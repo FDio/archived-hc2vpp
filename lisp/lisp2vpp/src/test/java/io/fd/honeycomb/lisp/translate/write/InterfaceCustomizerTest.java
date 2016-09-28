@@ -39,8 +39,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.LispAddDelLocator;
-import org.openvpp.jvpp.core.dto.LispAddDelLocatorReply;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocator;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorReply;
 
 public class InterfaceCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 

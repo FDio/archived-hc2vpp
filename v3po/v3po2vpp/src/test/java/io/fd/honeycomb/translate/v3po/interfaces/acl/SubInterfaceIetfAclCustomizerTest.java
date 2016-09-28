@@ -43,10 +43,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.IetfAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.IetfAclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.ClassifyTableByInterface;
-import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
-import org.openvpp.jvpp.core.dto.InputAclSetInterface;
-import org.openvpp.jvpp.core.dto.InputAclSetInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 
 public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
 

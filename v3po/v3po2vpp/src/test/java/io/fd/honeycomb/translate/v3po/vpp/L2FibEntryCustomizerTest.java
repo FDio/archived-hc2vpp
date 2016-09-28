@@ -39,10 +39,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.core.dto.L2FibAddDel;
-import org.openvpp.jvpp.core.dto.L2FibAddDelReply;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.L2FibAddDel;
+import io.fd.vpp.jvpp.core.dto.L2FibAddDelReply;
 
 public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
     private static final String BD_CTX_NAME = "bd-test-instance";

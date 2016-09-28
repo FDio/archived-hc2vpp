@@ -55,11 +55,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.TagBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.TagKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.CreateSubif;
-import org.openvpp.jvpp.core.dto.CreateSubifReply;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetFlags;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.CreateSubif;
+import io.fd.vpp.jvpp.core.dto.CreateSubifReply;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
 
 public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
 

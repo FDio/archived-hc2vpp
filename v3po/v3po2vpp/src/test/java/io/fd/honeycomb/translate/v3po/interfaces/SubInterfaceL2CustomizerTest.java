@@ -36,8 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2Builder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
 
 public class SubInterfaceL2CustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
     private static final String IFACE_CTX_NAME = "interface-ctx";

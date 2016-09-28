@@ -36,12 +36,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.TapBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.TapConnect;
-import org.openvpp.jvpp.core.dto.TapConnectReply;
-import org.openvpp.jvpp.core.dto.TapDelete;
-import org.openvpp.jvpp.core.dto.TapDeleteReply;
-import org.openvpp.jvpp.core.dto.TapModify;
-import org.openvpp.jvpp.core.dto.TapModifyReply;
+import io.fd.vpp.jvpp.core.dto.TapConnect;
+import io.fd.vpp.jvpp.core.dto.TapConnectReply;
+import io.fd.vpp.jvpp.core.dto.TapDelete;
+import io.fd.vpp.jvpp.core.dto.TapDeleteReply;
+import io.fd.vpp.jvpp.core.dto.TapModify;
+import io.fd.vpp.jvpp.core.dto.TapModifyReply;
 
 public class TapCustomizerTest extends WriterCustomizerTest {
 

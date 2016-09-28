@@ -24,10 +24,10 @@ import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTime
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.LispLocatorSetDump;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 public class LocatorSetsDumpExecutor extends AbstractDumpExecutor

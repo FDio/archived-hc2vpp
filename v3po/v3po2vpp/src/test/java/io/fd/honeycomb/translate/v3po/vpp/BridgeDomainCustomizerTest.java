@@ -35,9 +35,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.openvpp.jvpp.VppInvocationException;
-import org.openvpp.jvpp.core.dto.BridgeDomainAddDel;
-import org.openvpp.jvpp.core.dto.BridgeDomainAddDelReply;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDel;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDelReply;
 
 public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 

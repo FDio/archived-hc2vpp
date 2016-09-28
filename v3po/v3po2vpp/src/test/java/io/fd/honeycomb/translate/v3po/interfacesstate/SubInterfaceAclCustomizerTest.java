@@ -41,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.AclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 
 public class SubInterfaceAclCustomizerTest extends ReaderCustomizerTest<Acl, AclBuilder> {
     private static final String IFC_CTX_NAME = "ifc-test-instance";

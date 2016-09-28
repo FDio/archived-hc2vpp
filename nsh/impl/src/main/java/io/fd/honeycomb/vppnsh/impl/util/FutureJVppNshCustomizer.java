@@ -18,7 +18,7 @@ package io.fd.honeycomb.vppnsh.impl.util;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
-import org.openvpp.jvpp.nsh.future.FutureJVppNsh;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import javax.annotation.Nonnull;
 
 /**

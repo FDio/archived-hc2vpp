@@ -28,10 +28,10 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.GetNextIndex;
-import org.openvpp.jvpp.core.dto.GetNextIndexReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.GetNextIndex;
+import io.fd.vpp.jvpp.core.dto.GetNextIndexReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 abstract class VppNodeWriter extends FutureJVppCustomizer implements JvppReplyConsumer {
 

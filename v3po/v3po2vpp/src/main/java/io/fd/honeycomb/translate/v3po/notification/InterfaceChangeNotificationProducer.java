@@ -39,11 +39,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceStateChangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceStatus;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.SwInterfaceSetFlagsNotification;
-import org.openvpp.jvpp.core.dto.WantInterfaceEvents;
-import org.openvpp.jvpp.core.dto.WantInterfaceEventsReply;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsNotification;
+import io.fd.vpp.jvpp.core.dto.WantInterfaceEvents;
+import io.fd.vpp.jvpp.core.dto.WantInterfaceEventsReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

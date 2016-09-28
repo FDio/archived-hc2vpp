@@ -46,9 +46,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.VxlanGpeAddDelTunnel;
-import org.openvpp.jvpp.core.dto.VxlanGpeAddDelTunnelReply;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnelReply;
 
 public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
 

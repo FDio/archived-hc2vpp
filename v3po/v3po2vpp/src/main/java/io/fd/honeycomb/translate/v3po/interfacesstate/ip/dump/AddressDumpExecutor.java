@@ -12,10 +12,10 @@ import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.openvpp.jvpp.VppBaseCallException;
-import org.openvpp.jvpp.core.dto.IpAddressDetailsReplyDump;
-import org.openvpp.jvpp.core.dto.IpAddressDump;
-import org.openvpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.IpAddressDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public class AddressDumpExecutor
         implements EntityDumpExecutor<IpAddressDetailsReplyDump, AddressDumpParams>, ByteDataTranslator,
