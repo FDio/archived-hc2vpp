@@ -86,6 +86,9 @@ public final class InterfacesWriterFactory implements WriterFactory {
     public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.Ingress>
         INGRESS_IETF_ACL_ID = IETF_ACL_ID.child(
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.Ingress.class);
+    public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.Egress>
+        EGRESS_IETF_ACL_ID = IETF_ACL_ID.child(
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.Egress.class);
 
     private final FutureJVppCore jvpp;
     private final IetfAClWriter aclWriter;
@@ -188,20 +191,33 @@ public final class InterfacesWriterFactory implements WriterFactory {
         final InstanceIdentifier<Ingress> ingressId = InstanceIdentifier.create(Ingress.class);
         registry
             .subtreeAddAfter(
-                Sets.newHashSet(ingressId.child(L2Acl.class), ingressId.child(Ip4Acl.class), ingressId.child(Ip6Acl.class)),
+                Sets.newHashSet(ingressId.child(L2Acl.class), ingressId.child(Ip4Acl.class),
+                    ingressId.child(Ip6Acl.class)),
                 new GenericWriter<>(INGRESS_ACL_ID,
                     new AclCustomizer(jvpp, ifcNamingContext, classifyTableContext)),
                 Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
 
         // Ingress IETF-ACL, also handles AccessLists and Acl:
-        final InstanceIdentifier<AccessLists> accessListsID = InstanceIdentifier.create(
+        final InstanceIdentifier<AccessLists> accessListsIdIngress = InstanceIdentifier.create(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.Ingress.class)
             .child(AccessLists.class);
-        final InstanceIdentifier<?> aclListId = accessListsID.child(
+        final InstanceIdentifier<?> aclIdIngress = accessListsIdIngress.child(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.access.lists.Acl.class);
         registry.subtreeAdd(
-            Sets.newHashSet(accessListsID, aclListId),
+            Sets.newHashSet(accessListsIdIngress, aclIdIngress),
             new GenericWriter<>(INGRESS_IETF_ACL_ID, new IetfAclCustomizer(aclWriter, ifcNamingContext)));
+
+        // Ingress IETF-ACL, also handles AccessLists and Acl:
+        final InstanceIdentifier<AccessLists> accessListsIdEgress = InstanceIdentifier.create(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.Egress.class)
+            .child(AccessLists.class);
+        final InstanceIdentifier<?> aclIdEgress = accessListsIdEgress.child(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.access.lists.Acl.class);
+        registry.subtreeAdd(
+            Sets.newHashSet(accessListsIdEgress, aclIdEgress),
+            new GenericWriter<>(EGRESS_IETF_ACL_ID,
+                new io.fd.honeycomb.translate.v3po.interfaces.acl.egress.IetfAclCustomizer(aclWriter,
+                    ifcNamingContext)));
     }
 
 
