@@ -92,10 +92,10 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         LispAddDelAdjacency request = new LispAddDelAdjacency();
 
         request.isAdd = booleanToByte(add);
-        request.seid = getEidAsByteArray(data.getLocalEid());
-        request.seidLen = getPrefixLength(data.getLocalEid());
-        request.deid = getEidAsByteArray(data.getRemoteEid());
-        request.deidLen = getPrefixLength(data.getRemoteEid());
+        request.leid = getEidAsByteArray(data.getLocalEid());
+        request.leidLen = getPrefixLength(data.getLocalEid());
+        request.reid = getEidAsByteArray(data.getRemoteEid());
+        request.reidLen = getPrefixLength(data.getRemoteEid());
         request.eidType = (byte) localEidType.getValue();
         request.vni = vni;
 

@@ -113,15 +113,16 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest {
                 32, IPV4.getValue(), 2);
     }
 
-    private static void verifyRequest(final LispAddDelAdjacency request, final int isAdd, final byte[] seid,
-                                      final int seidLen, final byte[] deid, final int deidLen, final int eidType,
+    private static void verifyRequest(final LispAddDelAdjacency request, final int isAdd, final byte[] leid,
+                                      final int leidLen, final byte[] reid, final int reidLen, final int eidType,
                                       final int vni) {
 
         assertNotNull(request);
         assertEquals(isAdd, request.isAdd);
-        assertArrayEquals(seid, request.seid);
-        assertEquals(seidLen, request.seidLen);
-        assertArrayEquals(deid, request.deid);
+        assertArrayEquals(leid, request.leid);
+        assertEquals(leidLen, request.leidLen);
+        assertArrayEquals(reid, request.reid);
+        assertEquals(reidLen, request.reidLen);
         assertEquals(eidType, request.eidType);
         assertEquals(vni, request.vni);
 
