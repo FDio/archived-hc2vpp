@@ -160,11 +160,21 @@ module vpp-vlan {
     }
 
     container acl {
-      uses v3po:acl-base-attributes;
+      container ingress {
+        uses v3po:acl-base-attributes;
+      }
+      container egress {
+        uses v3po:acl-base-attributes;
+      }
     }
 
     container ietf-acl {
-      uses v3po:ietf-acl-base-attributes;
+      container ingress {
+        uses v3po:ietf-acl-base-attributes;
+      }
+      container egress {
+        uses v3po:ietf-acl-base-attributes;
+      }
     }
   }
 

@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory;
  *
  * ACLs that are currently assigned to an interface cannot be updated/deleted.
  */
-public class AclWriter implements ListWriterCustomizer<Acl, AclKey> {
+public class IetfAclWriter implements ListWriterCustomizer<Acl, AclKey> {
 
     public static final InstanceIdentifier<AccessLists> ACL_ID =
         InstanceIdentifier.create(AccessLists.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(AclWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IetfAclWriter.class);
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final Acl dataAfter,
@@ -93,7 +93,8 @@ public class AclWriter implements ListWriterCustomizer<Acl, AclKey> {
         return interfaces.getInterface().stream()
             .map(i -> Optional.ofNullable(i.getAugmentation(VppInterfaceAugmentation.class))
                 .map(aug -> aug.getIetfAcl())
-                .map(ietfAcl -> ietfAcl.getAccessLists())
+                .map(ietfAcl -> ietfAcl.getIngress())
+                .map(ingress -> ingress.getAccessLists())
                 .map(accessLists -> accessLists.getAcl())
             )
             .flatMap(iacl -> iacl.isPresent()

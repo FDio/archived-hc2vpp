@@ -531,11 +531,21 @@ module v3po {
     }
 
     container acl {
-      uses acl-base-attributes;
+      container ingress {
+        uses acl-base-attributes;
+      }
+      container egress {
+        uses acl-base-attributes;
+      }
     }
 
     container ietf-acl {
-      uses ietf-acl-base-attributes;
+      container ingress {
+        uses ietf-acl-base-attributes;
+      }
+      container egress {
+        uses ietf-acl-base-attributes;
+      }
     }
   }
 
@@ -611,11 +621,21 @@ module v3po {
     }
 
     container acl {
-      uses acl-base-attributes;
+      container ingress {
+        uses acl-base-attributes;
+      }
+      container egress {
+        uses acl-base-attributes;
+      }
     }
 
     container ietf-acl {
-      uses ietf-acl-base-attributes;
+      container ingress {
+        uses ietf-acl-base-attributes;
+      }
+      container egress {
+        uses ietf-acl-base-attributes;
+      }
     }
   }
 

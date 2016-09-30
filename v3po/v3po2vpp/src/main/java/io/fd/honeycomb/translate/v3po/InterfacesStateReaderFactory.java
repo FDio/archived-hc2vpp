@@ -23,9 +23,9 @@ import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.honeycomb.translate.v3po.interfacesstate.AclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.GreCustomizer;
+import io.fd.honeycomb.translate.v3po.interfacesstate.acl.ingress.AclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.L2Customizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ProxyArpCustomizer;
@@ -37,8 +37,9 @@ import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv4Customizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.Ipv6Customizer;
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -54,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.Ip6Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.L2;
@@ -62,8 +64,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.acl.Ingress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public final class InterfacesStateReaderFactory implements ReaderFactory {
 
@@ -74,7 +76,7 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
     private final FutureJVppCore jvpp;
 
     static final InstanceIdentifier<InterfacesState> IFC_STATE_ID =
-            InstanceIdentifier.create(InterfacesState.class);
+        InstanceIdentifier.create(InterfacesState.class);
     static final InstanceIdentifier<Interface> IFC_ID = IFC_STATE_ID.child(Interface.class);
 
     @Inject
@@ -127,30 +129,40 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
     private void initVppIfcAugmentationReaders(final ModifiableReaderRegistryBuilder registry,
                                                final InstanceIdentifier<Interface> ifcId) {
         //   VppInterfaceStateAugmentation
-        final InstanceIdentifier<VppInterfaceStateAugmentation> vppIfcAugId = ifcId.augmentation(VppInterfaceStateAugmentation.class);
+        final InstanceIdentifier<VppInterfaceStateAugmentation> vppIfcAugId =
+            ifcId.augmentation(VppInterfaceStateAugmentation.class);
         registry.addStructuralReader(vppIfcAugId, VppInterfaceStateAugmentationBuilder.class);
         //    Ethernet
-        registry.add(new GenericReader<>(vppIfcAugId.child(Ethernet.class), new EthernetCustomizer(jvpp, ifcNamingCtx)));
+        registry
+            .add(new GenericReader<>(vppIfcAugId.child(Ethernet.class), new EthernetCustomizer(jvpp, ifcNamingCtx)));
         //    Tap
         registry.add(new GenericReader<>(vppIfcAugId.child(Tap.class), new TapCustomizer(jvpp, ifcNamingCtx)));
         //    VhostUser
-        registry.add(new GenericReader<>(vppIfcAugId.child(VhostUser.class), new VhostUserCustomizer(jvpp, ifcNamingCtx)));
+        registry
+            .add(new GenericReader<>(vppIfcAugId.child(VhostUser.class), new VhostUserCustomizer(jvpp, ifcNamingCtx)));
         //    Vxlan
         registry.add(new GenericReader<>(vppIfcAugId.child(Vxlan.class), new VxlanCustomizer(jvpp, ifcNamingCtx)));
         //    VxlanGpe
-        registry.add(new GenericReader<>(vppIfcAugId.child(VxlanGpe.class), new VxlanGpeCustomizer(jvpp, ifcNamingCtx)));
+        registry
+            .add(new GenericReader<>(vppIfcAugId.child(VxlanGpe.class), new VxlanGpeCustomizer(jvpp, ifcNamingCtx)));
         //    Gre
         registry.add(new GenericReader<>(vppIfcAugId.child(Gre.class), new GreCustomizer(jvpp, ifcNamingCtx)));
         //    L2
-        registry.add(new GenericReader<>(vppIfcAugId.child(L2.class), new L2Customizer(jvpp, ifcNamingCtx, bdNamingCtx)));
-        //    Acl(Subtree)
-        final InstanceIdentifier<Acl> aclIdRelative = InstanceIdentifier.create(Acl.class);
+        registry
+            .add(new GenericReader<>(vppIfcAugId.child(L2.class), new L2Customizer(jvpp, ifcNamingCtx, bdNamingCtx)));
+        //    Acl(Structural)
+        final InstanceIdentifier<Acl> aclIid = vppIfcAugId.child(Acl.class);
+        registry.addStructuralReader(aclIid, AclBuilder.class);
+        //    Ingress(Subtree)
+        final InstanceIdentifier<Ingress> ingressIdRelative = InstanceIdentifier.create(Ingress.class);
         registry.subtreeAdd(
-                Sets.newHashSet(aclIdRelative.child(L2Acl.class), aclIdRelative.child(Ip4Acl.class), aclIdRelative.child(Ip6Acl.class)),
-                new GenericReader<>(vppIfcAugId.child(Acl.class), new AclCustomizer(jvpp, ifcNamingCtx,
+            Sets.newHashSet(ingressIdRelative.child(L2Acl.class), ingressIdRelative.child(Ip4Acl.class),
+                ingressIdRelative.child(Ip6Acl.class)),
+            new GenericReader<>(aclIid.child(Ingress.class),
+                new AclCustomizer(jvpp, ifcNamingCtx,
                     classifyContext)));
         //   Proxy ARP
         registry.add(new GenericReader<>(vppIfcAugId.child(ProxyArp.class), new ProxyArpCustomizer(jvpp,
-                ifcNamingCtx)));
+            ifcNamingCtx)));
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -24,6 +24,13 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import java.util.Collections;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AclBase;
@@ -42,34 +49,28 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.AccessListsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.access.lists.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.IetfAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.IetfAclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.IngressBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 
 public class IetfAclCustomizerTest extends WriterCustomizerTest {
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 1;
-    private static final InstanceIdentifier<IetfAcl> IID = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME)).augmentation(
-        VppInterfaceAugmentation.class).child(IetfAcl.class);
+    private static final InstanceIdentifier<Ingress> IID = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME)).augmentation(
+        VppInterfaceAugmentation.class).child(IetfAcl.class).child(Ingress.class);
     private static final String ACL_NAME = "acl1";
     private static final Class<? extends AclBase> ACL_TYPE = EthAcl.class;
 
     private IetfAclCustomizer customizer;
-    private IetfAcl acl;
+    private Ingress acl;
 
     @Override
     protected void setUp() {
         customizer = new IetfAclCustomizer(new IetfAClWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
-        acl = new IetfAclBuilder().setAccessLists(
+        acl = new IngressBuilder().setAccessLists(
             new AccessListsBuilder().setAcl(
                 Collections.singletonList(new AclBuilder()
                     .setName(ACL_NAME)

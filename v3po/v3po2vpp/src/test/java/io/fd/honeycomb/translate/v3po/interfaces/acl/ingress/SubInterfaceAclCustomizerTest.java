@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -38,10 +40,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.IngressBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 
 public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
@@ -53,10 +54,10 @@ public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
     private static final String TABLE_NAME = "table0";
     private static final int TABLE_INDEX = 123;
 
-    private static final InstanceIdentifier<Acl> IID =
+    private static final InstanceIdentifier<Ingress> IID =
         InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME)).augmentation(
             SubinterfaceAugmentation.class).child(SubInterfaces.class)
-            .child(SubInterface.class, new SubInterfaceKey(SUBIF_ID)).child(Acl.class);
+            .child(SubInterface.class, new SubInterfaceKey(SUBIF_ID)).child(Acl.class).child(Ingress.class);
 
     @Mock
     private VppClassifierContextManager classifyTableContext;
@@ -103,8 +104,8 @@ public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
         customizer.deleteCurrentAttributes(IID, ip4Acl(), writeContext);
     }
 
-    private Acl ip4Acl() {
-        final AclBuilder builder = new AclBuilder();
+    private Ingress ip4Acl() {
+        final IngressBuilder builder = new IngressBuilder();
         final Ip4Acl acl = new Ip4AclBuilder().setClassifyTable(TABLE_NAME).build();
         builder.setIp4Acl(acl);
         return builder.build();
@@ -120,8 +121,8 @@ public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
         return request;
     }
 
-    private Acl ip6Acl() {
-        final AclBuilder builder = new AclBuilder();
+    private Ingress ip6Acl() {
+        final IngressBuilder builder = new IngressBuilder();
         final Ip6Acl acl = new Ip6AclBuilder().setClassifyTable(TABLE_NAME).build();
         builder.setIp6Acl(acl);
         return builder.build();

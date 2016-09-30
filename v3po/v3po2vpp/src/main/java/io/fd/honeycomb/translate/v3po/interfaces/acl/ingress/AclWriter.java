@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

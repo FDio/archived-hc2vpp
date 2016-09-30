@@ -21,7 +21,7 @@ import static io.fd.honeycomb.translate.v3po.SubinterfaceAugmentationWriterFacto
 
 import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.AclWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
@@ -48,7 +48,7 @@ public final class AclWriterFactory implements WriterFactory {
         final InstanceIdentifier<Matches> matchesId = aceId.child(Matches.class);
 
         registry.subtreeAddBefore(Sets.newHashSet(aceId, actionsId, matchesId),
-            new GenericListWriter<>(ACL_ID, new AclWriter()),
+            new GenericListWriter<>(ACL_ID, new IetfAclWriter()),
             Sets.newHashSet(IETF_ACL_ID, SUBIF_IETF_ACL_ID));
     }
 }

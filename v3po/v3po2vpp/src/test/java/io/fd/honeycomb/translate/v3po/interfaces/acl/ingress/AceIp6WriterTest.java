@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
-import static io.fd.honeycomb.translate.v3po.interfaces.acl.AbstractAceWriter.VLAN_TAG_LEN;
-import static io.fd.honeycomb.translate.v3po.interfaces.acl.AceIpWriterTestUtils.assertArrayEqualsWithOffset;
+import static io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.AbstractAceWriter.VLAN_TAG_LEN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -28,36 +27,39 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.DenyBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6FlowLabel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
-public class AceIp4WriterTest {
+public class AceIp6WriterTest {
 
     @Mock
     private FutureJVppCore jvpp;
-    private AceIp4Writer writer;
+    private AceIp6Writer writer;
     private PacketHandling action;
     private AceIp aceIp;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        writer = new AceIp4Writer(jvpp);
+        writer = new AceIp6Writer(jvpp);
         action = new DenyBuilder().setDeny(true).build();
         aceIp = new AceIpBuilder()
-            .setProtocol((short) 4)
+            .setProtocol((short) 6)
             .setDscp(new Dscp((short) 11))
-            .setAceIpVersion(new AceIpv4Builder()
-                .setSourceIpv4Network(new Ipv4Prefix("1.2.3.4/32"))
-                .setDestinationIpv4Network(new Ipv4Prefix("1.2.4.5/24"))
+            .setAceIpVersion(new AceIpv6Builder()
+                .setFlowLabel(new Ipv6FlowLabel(123L))
+                .setSourceIpv6Network(new Ipv6Prefix("2001:db8:85a3:8d3:1319:8a2e:370:7348/128"))
+                .setDestinationIpv6Network(new Ipv6Prefix("fe80:1234:5678:abcd:ef01::/64"))
                 .build())
             .build();
     }
+
 
     private static void verifyTableRequest(final ClassifyAddDelTable request, final int nextTableIndex,
                                            final int vlanTags) {
@@ -67,15 +69,25 @@ public class AceIp4WriterTest {
         assertEquals(-1, request.missNextIndex);
         assertEquals(nextTableIndex, request.nextTableIndex);
         assertEquals(0, request.skipNVectors);
-        assertEquals(AceIp4Writer.MATCH_N_VECTORS, request.matchNVectors);
-        assertEquals(AceIp4Writer.TABLE_MEM_SIZE, request.memorySize);
+        assertEquals(AceIp6Writer.MATCH_N_VECTORS, request.matchNVectors);
+        assertEquals(AceIp6Writer.TABLE_MEM_SIZE, request.memorySize);
 
         byte[] expectedMask = new byte[] {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0xf0, (byte) 0xfc,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1,
-            -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            // L2:
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            // version, dscp, flow:
+            (byte) 0xff, (byte) 0xcf, (byte) 0xff, (byte) 0xff,
+            0, 0, 0, 0,
+            // source address:
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            // destination address:
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            // padding to multiple of 16B:
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
-        assertArrayEqualsWithOffset(expectedMask, request.mask, vlanTags * VLAN_TAG_LEN);
+        AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMask, request.mask, vlanTags * VLAN_TAG_LEN);
 
     }
 
@@ -86,11 +98,21 @@ public class AceIp4WriterTest {
         assertEquals(0, request.hitNextIndex);
 
         byte[] expectedMatch = new byte[] {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0x40, (byte) 0x2c,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 1, 2,
-            4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            // L2:
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            // version(6), dscp(11), flow(123):
+            (byte) 0x62, (byte) 0xc0, (byte) 0x00, (byte) 0x7b,
+            0, 0, 0, 0,
+            // source address:
+            (byte) 0x20, (byte) 0x01, (byte) 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, (byte) 0x08, (byte) 0xd3,
+            (byte) 0x13, (byte) 0x19, (byte) 0x8a, (byte) 0x2e, (byte) 0x03, (byte) 0x70, (byte) 0x73, (byte) 0x48,
+            // destination address:
+            (byte) 0xfe, (byte) 0x80, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0xab, (byte) 0xcd,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            // padding to multiple of 16B:
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
-        assertArrayEqualsWithOffset(expectedMatch, request.match, vlanTags * VLAN_TAG_LEN);
+        AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMatch, request.match, vlanTags * VLAN_TAG_LEN);
 
     }
 
@@ -110,7 +132,7 @@ public class AceIp4WriterTest {
     }
 
     @Test
-    public void testGetClassifyAddDelTableRequest2VlanTags() throws Exception {
+    public void testGetClassifyAddDelTableRequest2VlanTag() throws Exception {
         final int nextTableIndex = 42;
         final int vlanTags = 2;
         final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, nextTableIndex, vlanTags);
@@ -133,11 +155,10 @@ public class AceIp4WriterTest {
     }
 
     @Test
-    public void testGetClassifyAddDelSessionRequest2VlanTags() throws Exception {
+    public void testGetClassifyAddDelSessionRequest2VlanTag() throws Exception {
         final int tableIndex = 123;
         final int vlanTags = 2;
         final ClassifyAddDelSession request = writer.createClassifySession(action, aceIp, tableIndex, vlanTags);
-
         verifySessionRequest(request, tableIndex, vlanTags);
     }
 
@@ -146,6 +167,6 @@ public class AceIp4WriterTest {
         final int tableIndex = 321;
         final InputAclSetInterface request = new InputAclSetInterface();
         writer.setClassifyTable(request, tableIndex);
-        assertEquals(tableIndex, request.ip4TableIndex);
+        assertEquals(tableIndex, request.ip6TableIndex);
     }
 }

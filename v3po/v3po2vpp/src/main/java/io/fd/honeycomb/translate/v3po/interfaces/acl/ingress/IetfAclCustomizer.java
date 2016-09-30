@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -23,23 +23,23 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.AccessLists;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.IetfAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.Ingress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Customizer for enabling/disabling ACLs for given interface (as defined in ietf-acl model).
+ * Customizer for enabling/disabling ingress ACLs for given interface (as defined in ietf-acl model).
  *
  * The customizer assumes it owns classify table management for interfaces where ietf-acl container is present. Using
  * low level classifier model or direct changes to classify tables in combination with ietf-acls are not supported and
  * can result in unpredictable behaviour.
  */
-public class IetfAclCustomizer implements WriterCustomizer<IetfAcl> {
+public class IetfAclCustomizer implements WriterCustomizer<Ingress> {
 
     private static final Logger LOG = LoggerFactory.getLogger(IetfAclCustomizer.class);
     private final IetfAClWriter aclWriter;
@@ -52,7 +52,7 @@ public class IetfAclCustomizer implements WriterCustomizer<IetfAcl> {
     }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<IetfAcl> id, @Nonnull final IetfAcl dataAfter,
+    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id, @Nonnull final Ingress dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         final String ifName = id.firstKeyOf(Interface.class).getName();
         final int ifIndex = interfaceContext.getIndex(ifName, writeContext.getMappingContext());
@@ -70,8 +70,8 @@ public class IetfAclCustomizer implements WriterCustomizer<IetfAcl> {
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<IetfAcl> id,
-                                        @Nonnull final IetfAcl dataBefore, @Nonnull final IetfAcl dataAfter,
+    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id,
+                                        @Nonnull final Ingress dataBefore, @Nonnull final Ingress dataAfter,
                                         @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
         LOG.debug("ACLs update: removing previously configured ACLs");
@@ -82,8 +82,8 @@ public class IetfAclCustomizer implements WriterCustomizer<IetfAcl> {
     }
 
     @Override
-    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<IetfAcl> id,
-                                        @Nonnull final IetfAcl dataBefore,
+    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id,
+                                        @Nonnull final Ingress dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         final String ifName = id.firstKeyOf(Interface.class).getName();
         final int ifIndex = interfaceContext.getIndex(ifName, writeContext.getMappingContext());

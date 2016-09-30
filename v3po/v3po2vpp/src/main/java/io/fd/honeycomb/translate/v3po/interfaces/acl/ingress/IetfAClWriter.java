@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclWriter;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -75,7 +76,7 @@ public final class IetfAClWriter implements JvppReplyConsumer {
 
         // ietf-acl updates are handled first, so we use writeContext.readAfter
         final Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl>
-                aclOptional = writeContext.readAfter(AclWriter.ACL_ID.child(
+                aclOptional = writeContext.readAfter(IetfAclWriter.ACL_ID.child(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
                 new AclKey(aclName, aclType)));
         checkArgument(aclOptional.isPresent(), "Acl lists not configured");

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfacesstate;
+package io.fd.honeycomb.translate.v3po.interfacesstate.acl.ingress;
 
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;

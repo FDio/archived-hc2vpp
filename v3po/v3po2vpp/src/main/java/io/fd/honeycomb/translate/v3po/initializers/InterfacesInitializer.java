@@ -55,6 +55,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VhostUserBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.acl.EgressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.acl.IngressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Gre;
@@ -63,6 +65,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.VxlanGpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.acl.Egress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
@@ -220,9 +224,24 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
 
     private static void setAcl(final VppInterfaceAugmentationBuilder augmentBuilder, final Acl acl) {
         final AclBuilder aclBuilder = new AclBuilder();
-        aclBuilder.setL2Acl(acl.getL2Acl());
-        aclBuilder.setIp4Acl(acl.getIp4Acl());
-        aclBuilder.setIp6Acl(acl.getIp6Acl());
+
+        final Ingress ingress = acl.getIngress();
+        if (ingress != null) {
+            final IngressBuilder builder = new IngressBuilder();
+            builder.setL2Acl(ingress.getL2Acl());
+            builder.setIp4Acl(ingress.getIp4Acl());
+            builder.setIp6Acl(ingress.getIp6Acl());
+            aclBuilder.setIngress(builder.build());
+        }
+
+        final Egress egress = acl.getEgress();
+        if (egress != null) {
+            final EgressBuilder builder = new EgressBuilder();
+            builder.setL2Acl(egress.getL2Acl());
+            builder.setIp4Acl(egress.getIp4Acl());
+            builder.setIp6Acl(egress.getIp6Acl());
+            aclBuilder.setEgress(builder.build());
+        }
         augmentBuilder.setAcl(aclBuilder.build());
     }
 

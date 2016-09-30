@@ -22,10 +22,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.AclCustomizer;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -35,11 +39,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.acl.base.attributes.L2AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.acl.IngressBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 
 public class AclCustomizerTest extends WriterCustomizerTest {
 
@@ -62,13 +64,13 @@ public class AclCustomizerTest extends WriterCustomizerTest {
             classifyTableContext);
     }
 
-    private InstanceIdentifier<Acl> getAclId(final String name) {
+    private InstanceIdentifier<Ingress> getAclId(final String name) {
         return InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(name)).augmentation(
-            VppInterfaceAugmentation.class).child(Acl.class);
+            VppInterfaceAugmentation.class).child(Acl.class).child(Ingress.class);
     }
 
-    private Acl generateAcl(final String tableName) {
-        final AclBuilder builder = new AclBuilder();
+    private Ingress generateAcl(final String tableName) {
+        final IngressBuilder builder = new IngressBuilder();
         final L2Acl l2Acl = new L2AclBuilder().setClassifyTable(tableName).build();
         builder.setL2Acl(l2Acl);
         return builder.build();
@@ -96,8 +98,8 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testCreate() throws Exception {
-        final Acl acl = generateAcl(ACL_TABLE_NAME);
-        final InstanceIdentifier<Acl> id = getAclId(IF_NAME);
+        final Ingress acl = generateAcl(ACL_TABLE_NAME);
+        final InstanceIdentifier<Ingress> id = getAclId(IF_NAME);
 
         whenInputAclSetInterfaceThenSuccess();
 
@@ -108,8 +110,8 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testCreateFailed() throws Exception {
-        final Acl acl = generateAcl(ACL_TABLE_NAME);
-        final InstanceIdentifier<Acl> id = getAclId(IF_NAME);
+        final Ingress acl = generateAcl(ACL_TABLE_NAME);
+        final InstanceIdentifier<Ingress> id = getAclId(IF_NAME);
 
         whenInputAclSetInterfaceThenFailure();
 
@@ -125,8 +127,8 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDelete() throws Exception {
-        final Acl acl = generateAcl(ACL_TABLE_NAME);
-        final InstanceIdentifier<Acl> id = getAclId(IF_NAME);
+        final Ingress acl = generateAcl(ACL_TABLE_NAME);
+        final InstanceIdentifier<Ingress> id = getAclId(IF_NAME);
 
         whenInputAclSetInterfaceThenSuccess();
 
@@ -137,8 +139,8 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDeleteFailed() throws Exception {
-        final Acl acl = generateAcl(ACL_TABLE_NAME);
-        final InstanceIdentifier<Acl> id = getAclId(IF_NAME);
+        final Ingress acl = generateAcl(ACL_TABLE_NAME);
+        final InstanceIdentifier<Ingress> id = getAclId(IF_NAME);
 
         whenInputAclSetInterfaceThenFailure();
 

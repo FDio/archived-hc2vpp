@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfacesstate;
+package io.fd.honeycomb.translate.v3po.interfacesstate.acl.ingress;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -23,33 +23,33 @@ import static io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils.getSubInterfa
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.AclBuilder;
-import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
 import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.IngressBuilder;
+import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Customizer for reading ACLs enabled on given sub-interface.
+ * Customizer for reading ingress ACLs enabled on given sub-interface.
  */
 public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<Acl, AclBuilder>, AclReader, JvppReplyConsumer {
+        implements ReaderCustomizer<Ingress, IngressBuilder>, AclReader, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceAclCustomizer.class);
     private final NamingContext interfaceContext;
@@ -63,18 +63,18 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final Acl readValue) {
-        ((SubInterfaceBuilder) parentBuilder).setAcl(readValue);
+    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final Ingress readValue) {
+        ((AclBuilder) parentBuilder).setIngress(readValue);
     }
 
     @Nonnull
     @Override
-    public AclBuilder getBuilder(@Nonnull final InstanceIdentifier<Acl> id) {
-        return new AclBuilder();
+    public IngressBuilder getBuilder(@Nonnull final InstanceIdentifier<Ingress> id) {
+        return new IngressBuilder();
     }
 
     @Override
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final AclBuilder builder,
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id, @Nonnull final IngressBuilder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         LOG.debug("Reading attributes for sub-interface ACL: {}", id);
         final InterfaceKey parentInterfacekey = id.firstKeyOf(Interface.class);

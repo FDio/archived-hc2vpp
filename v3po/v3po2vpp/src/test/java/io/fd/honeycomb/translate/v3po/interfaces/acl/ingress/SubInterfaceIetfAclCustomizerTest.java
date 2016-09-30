@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclWriter;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import java.util.Collections;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AclBase;
@@ -41,12 +46,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.IetfAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.IetfAclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.ietf.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.ietf.acl.IngressBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 
 public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
 
@@ -56,15 +58,15 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
     private static final String SUBIF_NAME = "local0.123";
     private static final int SUBIF_INDEX = 2;
     private static final long SUB_IF_ID = 123;
-    private static final InstanceIdentifier<IetfAcl> IID =
+    private static final InstanceIdentifier<Ingress> IID =
         InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME)).augmentation(
             SubinterfaceAugmentation.class).child(SubInterfaces.class)
-            .child(SubInterface.class, new SubInterfaceKey(SUB_IF_ID)).child(IetfAcl.class);
+            .child(SubInterface.class, new SubInterfaceKey(SUB_IF_ID)).child(IetfAcl.class).child(Ingress.class);
     private static final String ACL_NAME = "acl1";
     private static final Class<? extends AclBase> ACL_TYPE = EthAcl.class;
 
     private SubInterfaceIetfAclCustomizer customizer;
-    private IetfAcl acl;
+    private Ingress acl;
 
     @Override
     protected void setUp() {
@@ -72,7 +74,7 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
             new SubInterfaceIetfAclCustomizer(new IetfAClWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
 
-        acl = new IetfAclBuilder().setAccessLists(
+        acl = new IngressBuilder().setAccessLists(
             new AccessListsBuilder().setAcl(
                 Collections.singletonList(new AclBuilder()
                     .setName(ACL_NAME)
@@ -132,7 +134,7 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
             new SubInterfaceBuilder().build()
         ));
 
-        when(writeContext.readAfter(AclWriter.ACL_ID.child(
+        when(writeContext.readAfter(IetfAclWriter.ACL_ID.child(
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
             new AclKey(ACL_NAME, ACL_TYPE)))).thenReturn(Optional.of(
             new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclBuilder()

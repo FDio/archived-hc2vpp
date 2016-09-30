@@ -23,11 +23,11 @@ import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.RewriteCustomizer;
-import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceAclCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceL2Customizer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAClWriter;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.SubInterfaceIetfAclCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAClWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.SubInterfaceIetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.Tags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.Tag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.ip4.attributes.Ipv4;
@@ -70,7 +71,10 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
     public static final InstanceIdentifier<L2> L2_ID = SUB_IFC_ID.child(
             L2.class);
     public static final InstanceIdentifier<Acl> SUBIF_ACL_ID = SUB_IFC_ID.child(Acl.class);
+    public static final InstanceIdentifier<Ingress> SUBIF_INGRESS_ACL_ID = SUBIF_ACL_ID.child(Ingress.class);
     public static final InstanceIdentifier<IetfAcl> SUBIF_IETF_ACL_ID = SUB_IFC_ID.child(IetfAcl.class);
+    public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.ietf.acl.Ingress> SUBIF_INGRESS_IETF_ACL_ID = SUBIF_IETF_ACL_ID.child(
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.ietf.acl.Ingress.class);
 
     public SubinterfaceAugmentationWriterFactory(final FutureJVppCore jvpp,
                                                  final IetfAClWriter aclWriter,
@@ -115,22 +119,23 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
                 new SubInterfaceIpv4AddressCustomizer(jvpp, ifcContext)),
                 rewriteId);
 
-        // ACL (execute after classify table and session writers)
+        // Ingress (execute after classify table and session writers)
         // also handles L2Acl, Ip4Acl and Ip6Acl:
-        final InstanceIdentifier<Acl> aclId = InstanceIdentifier.create(Acl.class);
+        final InstanceIdentifier<Ingress> aclId = InstanceIdentifier.create(Ingress.class);
         registry
             .subtreeAddAfter(
                 Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
-                new GenericWriter<>(SUBIF_ACL_ID, new SubInterfaceAclCustomizer(jvpp, ifcContext, classifyTableContext)),
+                new GenericWriter<>(SUBIF_INGRESS_ACL_ID, new SubInterfaceAclCustomizer(jvpp, ifcContext, classifyTableContext)),
                 Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
 
-        // IETF-ACL, also handles IetfAcl, AccessLists and Acl:
-        final InstanceIdentifier<AccessLists> accessListsID = InstanceIdentifier.create(IetfAcl.class)
+        // Ingress IETF-ACL, also handles AccessLists and Acl:
+        final InstanceIdentifier<AccessLists> accessListsID = InstanceIdentifier.create(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.ietf.acl.Ingress.class)
             .child(AccessLists.class);
         final InstanceIdentifier<?> aclListId = accessListsID.child(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.access.lists.Acl.class);
         registry.subtreeAdd(
             Sets.newHashSet(accessListsID, aclListId),
-            new GenericWriter<>(SUBIF_IETF_ACL_ID, new SubInterfaceIetfAclCustomizer(aclWriter, ifcContext)));
+            new GenericWriter<>(SUBIF_INGRESS_IETF_ACL_ID, new SubInterfaceIetfAclCustomizer(aclWriter, ifcContext)));
     }
 }

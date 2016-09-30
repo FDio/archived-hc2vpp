@@ -25,6 +25,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.Egress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.EgressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.acl.IngressBuilder;
 
 /**
  * Utility class for sub interface initialization
@@ -80,9 +84,23 @@ final class SubInterfaceInitializationUtils {
 
         if (operationalData.getAcl() != null) {
             final AclBuilder aclBuilder = new AclBuilder();
-            aclBuilder.setL2Acl(operationalData.getAcl().getL2Acl());
-            aclBuilder.setIp4Acl(operationalData.getAcl().getIp4Acl());
-            aclBuilder.setIp6Acl(operationalData.getAcl().getIp6Acl());
+            final Ingress ingress = operationalData.getAcl().getIngress();
+            if (ingress != null) {
+                final IngressBuilder builder = new IngressBuilder();
+                builder.setL2Acl(ingress.getL2Acl());
+                builder.setIp4Acl(ingress.getIp4Acl());
+                builder.setIp6Acl(ingress.getIp6Acl());
+                aclBuilder.setIngress(builder.build());
+            }
+
+            final Egress egress = operationalData.getAcl().getEgress();
+            if (egress != null) {
+                final EgressBuilder builder = new EgressBuilder();
+                builder.setL2Acl(egress.getL2Acl());
+                builder.setIp4Acl(egress.getIp4Acl());
+                builder.setIp6Acl(egress.getIp6Acl());
+                aclBuilder.setEgress(builder.build());
+            }
             subInterfaceCfgBuilder.setAcl(aclBuilder.build());
         }
 

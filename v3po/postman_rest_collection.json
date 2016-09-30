@@ -381,7 +381,7 @@
 		{
 			"id": "17b4b10b-83da-7cdd-d291-16f8367b7783",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/v3po:ietf-acl/access-lists/acl/ietf-access-control-list:ipv4-acl/acl3",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/ietf-acl/ingress/access-lists/acl/ietf-access-control-list:ipv4-acl/acl3",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -465,7 +465,7 @@
 		{
 			"id": "24ac98f0-1556-e623-ec87-1c2d7f4f089c",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/v3po:acl",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/acl/ingress",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -481,7 +481,7 @@
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
 			"folder": "d47d6b3b-4c3f-7671-5bba-447d6c59ea3b",
-			"rawModeData": "{\n    \"v3po:acl\": {\n      \"l2-acl\": {\n        \"classify-table\": \"table0\"\n      },\n      \"ip4-acl\": {\n        \"classify-table\": \"table0\"\n      }\n    }\n}"
+			"rawModeData": "{\n    \"ingress\": {\n      \"l2-acl\": {\n        \"classify-table\": \"table0\"\n      },\n      \"ip4-acl\": {\n        \"classify-table\": \"table0\"\n      }\n    }\n}"
 		},
 		{
 			"id": "24fdd76e-e90b-d552-c0d1-87a745a5ac6f",
@@ -803,7 +803,7 @@
 		{
 			"id": "46c3bf20-4abd-07f8-3d74-7fd573ebb970",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/v3po:ietf-acl",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/ietf-acl/ingress",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -818,7 +818,7 @@
 			"description": "Creates chain of classfy tabless/sessions in VPP and assigns them to local0 interface.\n\nCan be verified with:\nvppctl show classify table verbose\n\nthen:\nvppctl show inacl type l2",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\n    \"v3po:ietf-acl\": {\n      \"access-lists\": {\n        \"acl\": [\n            {\n                \"type\" : \"ietf-access-control-list:eth-acl\",\n                \"name\" : \"acl1\"\n            },\n            {\n                \"type\" : \"ietf-access-control-list:eth-acl\",\n                \"name\" : \"acl2\"\n            }\n        ]\n      }\n    }\n}",
+			"rawModeData": "{\n    \"ingress\": {\n      \"access-lists\": {\n        \"acl\": [\n            {\n                \"type\" : \"ietf-access-control-list:eth-acl\",\n                \"name\" : \"acl1\"\n            },\n            {\n                \"type\" : \"ietf-access-control-list:eth-acl\",\n                \"name\" : \"acl2\"\n            }\n        ]\n      }\n    }\n}",
 			"folder": "c05d7211-11b0-5688-2079-afa51196045c"
 		},
 		{
@@ -971,7 +971,7 @@
 		{
 			"id": "52d38df8-8d85-d6f0-dccd-cbd8544631f9",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/v3po:ietf-acl/access-lists/acl/ietf-access-control-list:ipv6-acl/acl4",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/ietf-acl/ingress/access-lists/acl/ietf-access-control-list:ipv6-acl/acl4",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",

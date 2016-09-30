@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.vpp.util.MacTranslator;

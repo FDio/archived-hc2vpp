@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.AccessListsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.access.lists.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.IetfAclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ietf.acl.IngressBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AclWriterTest extends WriterCustomizerTest {
@@ -51,11 +52,11 @@ public class AclWriterTest extends WriterCustomizerTest {
 
     @Mock
     private Acl acl;
-    private AclWriter customizer;
+    private IetfAclWriter customizer;
 
     @Override
     public void setUp() {
-        customizer = new AclWriter();
+        customizer = new IetfAclWriter();
         when(acl.getAclName()).thenReturn(ACL_NAME);
         doReturn(ACL_TYPE).when(acl).getAclType();
     }
@@ -87,9 +88,11 @@ public class AclWriterTest extends WriterCustomizerTest {
     public void testDeleteFailed() throws WriteFailedException {
         final Interface iface = new InterfaceBuilder().addAugmentation(VppInterfaceAugmentation.class,
             new VppInterfaceAugmentationBuilder().setIetfAcl(
-                new IetfAclBuilder().setAccessLists(
-                    new AccessListsBuilder().setAcl(
-                        Collections.singletonList(new AclBuilder().setName(ACL_NAME).setType(ACL_TYPE).build())
+                new IetfAclBuilder().setIngress(
+                    new IngressBuilder().setAccessLists(
+                        new AccessListsBuilder().setAcl(
+                            Collections.singletonList(new AclBuilder().setName(ACL_NAME).setType(ACL_TYPE).build())
+                        ).build()
                     ).build()
                 ).build()
             ).build()
