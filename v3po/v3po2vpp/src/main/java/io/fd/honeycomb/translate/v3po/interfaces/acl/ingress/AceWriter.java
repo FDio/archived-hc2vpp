@@ -21,6 +21,7 @@ import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
@@ -34,12 +35,12 @@ interface AceWriter {
      * Translates list of ACEs to chain of classify tables. Each ACE is translated into one classify table with single
      * classify session. Also initializes input_acl_set_interface request message DTO with first classify table of the
      * chain that was created.
-     *
-     * @param id      uniquely identifies ietf-acl container
+     *  @param id      uniquely identifies ietf-acl container
      * @param aces    list of access control entries
+     * @param mode
      * @param request input_acl_set_interface request DTO
      */
     void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
-               @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
+               final InterfaceMode mode, @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
         throws VppBaseCallException, WriteTimeoutException;
 }

@@ -82,7 +82,7 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
         final SubInterface subInterface = subInterfaceOptional.get();
 
         try {
-            aclWriter.write(id, subInterfaceIndex, accessLists.getAcl(), writeContext,
+            aclWriter.write(id, subInterfaceIndex, accessLists.getMode(), accessLists.getAcl(), writeContext,
                 getNumberOfTags(subInterface.getTags()));
         } catch (VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);

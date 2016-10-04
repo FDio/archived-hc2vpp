@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.BitSet;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6;
@@ -31,6 +32,7 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +44,8 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
     private static final int TABLE_MASK_LENGTH = 64;
     private static final int IP6_MASK_BIT_LENGTH = 128;
 
-    private static final int IP_VERSION_OFFSET = 14; // first 14 bytes represent L2 header (2x6 + etherType(2))
+    private static final int ETHER_TYPE_OFFSET = 12; // first 14 bytes represent L2 header (2x6)
+    private static final int IP_VERSION_OFFSET = ETHER_TYPE_OFFSET+2;
     private static final int IP_VERSION_MASK = 0xf0;
     private static final int DSCP_MASK1 = 0x0f;
     private static final int DSCP_MASK2 = 0xc0;
@@ -91,6 +94,7 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
     @Override
     public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
                                                    @Nonnull final AceIp aceIp,
+                                                   @Nullable final InterfaceMode mode,
                                                    final int nextTableIndex,
                                                    final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv6, "Expected AceIpv6 version, but was %", aceIp);
@@ -104,6 +108,12 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
         request.mask = new byte[TABLE_MASK_LENGTH];
 
         final int baseOffset = getVlanTagsLen(vlanTags);
+
+        if (InterfaceMode.L2.equals(mode)) {
+            // in L2 mode we need to match ether type
+            request.mask[baseOffset + ETHER_TYPE_OFFSET] = (byte) 0xff;
+            request.mask[baseOffset + ETHER_TYPE_OFFSET + 1] = (byte) 0xff;
+        }
 
         if (aceIp.getProtocol() != null) {
             aceIsEmpty = false;
@@ -157,6 +167,7 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
     @Override
     public ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
                                                        @Nonnull final AceIp aceIp,
+                                                       @Nullable final InterfaceMode mode,
                                                        final int tableIndex,
                                                        final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv6, "Expected AceIpv6 version, but was %", aceIp);
@@ -167,6 +178,12 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
         boolean noMatch = true;
 
         final int baseOffset = getVlanTagsLen(vlanTags);
+
+        if (InterfaceMode.L2.equals(mode)) {
+            // match IP6 etherType (0x86dd)
+            request.match[baseOffset + ETHER_TYPE_OFFSET] = (byte) 0x86;
+            request.match[baseOffset + ETHER_TYPE_OFFSET + 1] = (byte) 0xdd;
+        }
 
         if (aceIp.getProtocol() != null) {
             noMatch = false;

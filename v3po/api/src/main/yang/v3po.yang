@@ -130,6 +130,13 @@ module v3po {
     }
   }
 
+  typedef interface-mode {
+    type enumeration {
+      enum "l2";
+      enum "l3";
+    }
+  }
+
   grouping bridge-domain-attributes {
     leaf flood {
       type boolean;
@@ -453,11 +460,21 @@ module v3po {
         ACL lists are merged into 3 type of acls (eth0, ip4 and ip6) that are supported by vpp.
         Then corresponding tables and sessions are created and assigned to the interface.
 
+        All ACEs for all assigned ACLs have to use the same packet-handling action (either deny or parmit).
+
         Assignment update/delete removes all created tables and sessions and repeats process described above.
         Update/delete of ACL lists referenced here is not permitted (assignment needs to be removed first).
 
         Read is supported only for acls that were created and assigned by Honeycomb agent
-        (corresponding metadata are present).";
+        (corresponding metadata are present).
+
+        Limitations (due to vpp limitations):
+        - egress rules are currently ignored (HONEYCOMB-234)
+        - L4 rules are currently not supported (limited support will by provided by HONEYCOMB-218)
+        - mixing L2/L3/L4 rules is currently not supported (limited support will by provided by HONEYCOMB-233)
+        - L2 only rules on L3 interfaces are not supported (not allowed by vpp,
+          in the future defining L2/L3 pairs should be partially supported)
+        - vlan tags are supported only for sub-interfaces defined as exact-match";
       list acl {
         key "type name";
 
@@ -468,6 +485,20 @@ module v3po {
         leaf name {
           type acl:access-control-list-ref;
         }
+      }
+
+      leaf mode {
+        type interface-mode;
+        default l3;
+        description
+          "The way ACLs are translated depends on the interface mode.
+           In case of L2 interfaces (bridge/interconnection)
+           classify tables are assigned as l2_table using input_acl_set_interface (ether type matching is automatically
+           added in case of L3 rules).
+           In case of L3 interfaces, classify tables are assigned as ip4/ip6 tables.
+
+           It is the user responsibility to choose mode that matches target interface.
+           ";
       }
     }
   }

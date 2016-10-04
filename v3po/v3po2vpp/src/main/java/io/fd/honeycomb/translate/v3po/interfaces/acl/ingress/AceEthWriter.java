@@ -16,16 +16,20 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.vpp.util.MacTranslator;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +43,18 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> implements MacTransla
         super(futureJVppCore);
     }
 
+    private static void checkInterfaceMode(@Nullable final InterfaceMode mode) {
+        checkArgument(InterfaceMode.L2.equals(mode), "L2 rules are not allowed for interface in L3 mode");
+    }
+
     @Override
     public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
                                                    @Nonnull final AceEth aceEth,
-                                                   @Nonnull final int nextTableIndex,
+                                                   @Nullable final InterfaceMode mode,
+                                                   final int nextTableIndex,
                                                    final int vlanTags) {
+        checkInterfaceMode(mode);
+
         final ClassifyAddDelTable request = createClassifyTable(action, nextTableIndex);
 
         request.mask = new byte[16];
@@ -98,8 +109,11 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> implements MacTransla
     @Override
     public ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
                                                        @Nonnull final AceEth aceEth,
-                                                       @Nonnull final int tableIndex,
+                                                       @Nullable final InterfaceMode mode,
+                                                       final int tableIndex,
                                                        final int vlanTags) {
+        checkInterfaceMode(mode);
+
         final ClassifyAddDelSession request = createClassifySession(action, tableIndex);
 
         request.match = new byte[16];

@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEthBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
 
 public class AceEthWriterTest {
 
@@ -42,7 +43,7 @@ public class AceEthWriterTest {
     private AceEth aceEth;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initMocks(this);
         writer = new AceEthWriter(jvpp);
         action = new DenyBuilder().setDeny(true).build();
@@ -55,9 +56,9 @@ public class AceEthWriterTest {
     }
 
     @Test
-    public void testGetClassifyAddDelTableRequest() throws Exception {
+    public void testCreateClassifyTable() {
         final int nextTableIndex = 42;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceEth, nextTableIndex, 0);
+        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceEth, InterfaceMode.L2, nextTableIndex, 0);
 
         assertEquals(1, request.isAdd);
         assertEquals(-1, request.tableIndex);
@@ -78,10 +79,15 @@ public class AceEthWriterTest {
         assertArrayEquals(expectedMask, request.mask);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateClassifyTableForL3Interface() {
+        writer.createClassifyTable(action, aceEth, InterfaceMode.L3, 42, 0);
+    }
+
     @Test
-    public void testGetClassifyAddDelSessionRequest() throws Exception {
+    public void testCreateClassifySession() {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createClassifySession(action, aceEth, tableIndex, 0);
+        final ClassifyAddDelSession request = writer.createClassifySession(action, aceEth, InterfaceMode.L2, tableIndex, 0);
 
         assertEquals(1, request.isAdd);
         assertEquals(tableIndex, request.tableIndex);
@@ -97,8 +103,13 @@ public class AceEthWriterTest {
         assertArrayEquals(expectedMatch, request.match);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateClassifySessionForL3Interface() {
+        writer.createClassifySession(action, aceEth, InterfaceMode.L3, 42, 0);
+    }
+
     @Test
-    public void testSetClassifyTable() throws Exception {
+    public void testSetClassifyTable() {
         final int tableIndex = 321;
         final InputAclSetInterface request = new InputAclSetInterface();
         writer.setClassifyTable(request, tableIndex);

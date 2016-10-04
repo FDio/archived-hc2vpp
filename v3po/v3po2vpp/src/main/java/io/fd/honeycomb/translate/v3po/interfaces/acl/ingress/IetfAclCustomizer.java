@@ -63,7 +63,7 @@ public class IetfAclCustomizer implements WriterCustomizer<Ingress> {
             "ietf-acl container does not define acl list");
 
         try {
-            aclWriter.write(id, ifIndex, accessLists.getAcl(), writeContext);
+            aclWriter.write(id, ifIndex, accessLists.getAcl(), accessLists.getMode(), writeContext);
         } catch (VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }

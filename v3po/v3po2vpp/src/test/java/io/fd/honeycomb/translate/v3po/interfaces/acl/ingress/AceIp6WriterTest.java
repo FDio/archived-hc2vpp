@@ -35,6 +35,7 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
 
 public class AceIp6WriterTest {
 
@@ -45,7 +46,7 @@ public class AceIp6WriterTest {
     private AceIp aceIp;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initMocks(this);
         writer = new AceIp6Writer(jvpp);
         action = new DenyBuilder().setDeny(true).build();
@@ -62,7 +63,7 @@ public class AceIp6WriterTest {
 
 
     private static void verifyTableRequest(final ClassifyAddDelTable request, final int nextTableIndex,
-                                           final int vlanTags) {
+                                           final int vlanTags, final boolean isL2) {
         assertEquals(1, request.isAdd);
         assertEquals(-1, request.tableIndex);
         assertEquals(1, request.nbuckets);
@@ -87,12 +88,16 @@ public class AceIp6WriterTest {
             // padding to multiple of 16B:
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
-        AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMask, request.mask, vlanTags * VLAN_TAG_LEN);
 
+        if (isL2) {
+            expectedMask[12] = (byte) 0xff;
+            expectedMask[13] = (byte) 0xff;
+        }
+        AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMask, request.mask, vlanTags * VLAN_TAG_LEN);
     }
 
     private static void verifySessionRequest(final ClassifyAddDelSession request, final int tableIndex,
-                                             final int vlanTags) {
+                                             final int vlanTags, final boolean isL2) {
         assertEquals(1, request.isAdd);
         assertEquals(tableIndex, request.tableIndex);
         assertEquals(0, request.hitNextIndex);
@@ -112,58 +117,85 @@ public class AceIp6WriterTest {
             // padding to multiple of 16B:
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
+
+        if (isL2) {
+            expectedMatch[12] = (byte) 0x86;
+            expectedMatch[13] = (byte) 0xdd;
+        }
         AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMatch, request.match, vlanTags * VLAN_TAG_LEN);
 
     }
 
     @Test
-    public void testGetClassifyAddDelTableRequest() throws Exception {
+    public void testCreateClassifyTable() {
         final int nextTableIndex = 42;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, nextTableIndex, 0);
-        verifyTableRequest(request, nextTableIndex, 0);
+        final ClassifyAddDelTable request =
+            writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, 0);
+        verifyTableRequest(request, nextTableIndex, 0, false);
     }
 
     @Test
-    public void testGetClassifyAddDelTableRequest1VlanTag() throws Exception {
+    public void testCreateClassifyTableForL2Interface() {
+        final int nextTableIndex = 42;
+        final ClassifyAddDelTable request =
+            writer.createClassifyTable(action, aceIp, InterfaceMode.L2, nextTableIndex, 0);
+        verifyTableRequest(request, nextTableIndex, 0, true);
+    }
+
+    @Test
+    public void testCreateClassifyTable1VlanTag() {
         final int nextTableIndex = 42;
         final int vlanTags = 1;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, nextTableIndex, vlanTags);
-        verifyTableRequest(request, nextTableIndex, vlanTags);
+        final ClassifyAddDelTable request =
+            writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
+        verifyTableRequest(request, nextTableIndex, vlanTags, false);
     }
 
     @Test
-    public void testGetClassifyAddDelTableRequest2VlanTag() throws Exception {
+    public void testCreateClassifyTable2VlanTags() {
         final int nextTableIndex = 42;
         final int vlanTags = 2;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, nextTableIndex, vlanTags);
-        verifyTableRequest(request, nextTableIndex, vlanTags);
+        final ClassifyAddDelTable request =
+            writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
+        verifyTableRequest(request, nextTableIndex, vlanTags, false);
     }
 
     @Test
-    public void testGetClassifyAddDelSessionRequest() throws Exception {
+    public void testCreateClassifySession() {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createClassifySession(action, aceIp, tableIndex, 0);
-        verifySessionRequest(request, tableIndex, 0);
+        final ClassifyAddDelSession request =
+            writer.createClassifySession(action, aceIp, InterfaceMode.L3, tableIndex, 0);
+        verifySessionRequest(request, tableIndex, 0, false);
     }
 
     @Test
-    public void testGetClassifyAddDelSessionRequest1VlanTag() throws Exception {
+    public void testCreateClassifySessionForL2Interface() {
+        final int tableIndex = 123;
+        final ClassifyAddDelSession request =
+            writer.createClassifySession(action, aceIp, InterfaceMode.L2, tableIndex, 0);
+        verifySessionRequest(request, tableIndex, 0, true);
+    }
+
+    @Test
+    public void testCreateClassifySession1VlanTag() {
         final int tableIndex = 123;
         final int vlanTags = 1;
-        final ClassifyAddDelSession request = writer.createClassifySession(action, aceIp, tableIndex, vlanTags);
-        verifySessionRequest(request, tableIndex, vlanTags);
+        final ClassifyAddDelSession request =
+            writer.createClassifySession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags);
+        verifySessionRequest(request, tableIndex, vlanTags, false);
     }
 
     @Test
-    public void testGetClassifyAddDelSessionRequest2VlanTag() throws Exception {
+    public void testCreateClassifySession2VlanTags() {
         final int tableIndex = 123;
         final int vlanTags = 2;
-        final ClassifyAddDelSession request = writer.createClassifySession(action, aceIp, tableIndex, vlanTags);
-        verifySessionRequest(request, tableIndex, vlanTags);
+        final ClassifyAddDelSession request =
+            writer.createClassifySession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags);
+        verifySessionRequest(request, tableIndex, vlanTags, false);
     }
 
     @Test
-    public void testSetClassifyTable() throws Exception {
+    public void testSetClassifyTable() {
         final int tableIndex = 321;
         final InputAclSetInterface request = new InputAclSetInterface();
         writer.setClassifyTable(request, tableIndex);

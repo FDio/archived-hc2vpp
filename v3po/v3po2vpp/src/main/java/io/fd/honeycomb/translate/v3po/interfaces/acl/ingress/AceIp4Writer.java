@@ -22,6 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.Ints;
 import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
@@ -30,6 +31,7 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,8 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
     private static final int TABLE_MASK_LENGTH = 48;
     private static final int IP4_MASK_BIT_LENGTH = 32;
 
-    private static final int IP_VERSION_OFFSET = 14; // first 14 bytes represent L2 header (2x6 + etherType(2))
+    private static final int ETHER_TYPE_OFFSET = 12; // first 14 bytes represent L2 header (2x6)
+    private static final int IP_VERSION_OFFSET = ETHER_TYPE_OFFSET+2;
     private static final int IP_VERSION_MASK = 0xf0;
     private static final int DSCP_OFFSET = 15;
     private static final int DSCP_MASK = 0xfc;
@@ -77,6 +80,7 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
     @Override
     public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
                                                    @Nonnull final AceIp aceIp,
+                                                   @Nullable final InterfaceMode mode,
                                                    final int nextTableIndex,
                                                    final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv4, "Expected AceIpv4 version, but was %", aceIp);
@@ -90,6 +94,12 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
         request.mask = new byte[TABLE_MASK_LENGTH];
 
         final int baseOffset = getVlanTagsLen(vlanTags);
+
+        if (InterfaceMode.L2.equals(mode)) {
+            // in L2 mode we need to match ether type
+            request.mask[baseOffset + ETHER_TYPE_OFFSET] = (byte) 0xff;
+            request.mask[baseOffset + ETHER_TYPE_OFFSET + 1] = (byte) 0xff;
+        }
 
         // First 14 bytes represent l2 header (2x6 + etherType(2))
         if (aceIp.getProtocol() != null) { // Internet Protocol number
@@ -134,6 +144,7 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
     @Override
     public ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
                                                        @Nonnull final AceIp aceIp,
+                                                       @Nullable final InterfaceMode mode,
                                                        final int tableIndex,
                                                        final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv4, "Expected AceIpv4 version, but was %", aceIp);
@@ -145,6 +156,12 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
         boolean noMatch = true;
 
         final int baseOffset = getVlanTagsLen(vlanTags);
+
+        if (InterfaceMode.L2.equals(mode)) {
+            // match IP4 etherType (0x0800)
+            request.match[baseOffset + ETHER_TYPE_OFFSET] = 0x08;
+            request.match[baseOffset + ETHER_TYPE_OFFSET + 1] = 0x00;
+        }
 
         if (aceIp.getProtocol() != null) {
             request.match[baseOffset + IP_VERSION_OFFSET] =

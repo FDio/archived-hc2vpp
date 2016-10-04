@@ -23,16 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
-import java.util.List;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collector;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.AceType;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
@@ -40,11 +30,22 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.List;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collector;
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.AceType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Base writer for translation of ietf-acl model ACEs to VPP's classify tables and sessions.
- * <p/>
- * Creates one classify table with single session per ACE.
+ * Base writer for translation of ietf-acl model ACEs to VPP's classify tables and sessions. <p/> Creates one classify
+ * table with single session per ACE.
  *
  * @param <T> type of access control list entry
  */
@@ -60,7 +61,7 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
     static final int VLAN_TAG_LEN = 4;
 
     private static final Collector<PacketHandling, ?, PacketHandling> SINGLE_ITEM_COLLECTOR =
-            RWUtils.singleItemCollector();
+        RWUtils.singleItemCollector();
 
     private final FutureJVppCore futureJVppCore;
 
@@ -73,12 +74,14 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
      *
      * @param action         packet handling action (permit/deny)
      * @param ace            ACE to be translated
+     * @param mode           interface mode
      * @param nextTableIndex classify table index
      * @param vlanTags       number of vlan tags
      * @return classify table that represents given ACE
      */
     protected abstract ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
                                                                @Nonnull final T ace,
+                                                               @Nullable final InterfaceMode mode,
                                                                final int nextTableIndex,
                                                                final int vlanTags);
 
@@ -87,12 +90,14 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
      *
      * @param action     packet handling action (permit/deny)
      * @param ace        ACE to be translated
+     * @param mode           interface mode
      * @param tableIndex classify table index for the given session
      * @param vlanTags   number of vlan tags
      * @return classify session that represents given ACE
      */
     protected abstract ClassifyAddDelSession createClassifySession(@Nonnull final PacketHandling action,
                                                                    @Nonnull final T ace,
+                                                                   @Nullable final InterfaceMode mode,
                                                                    final int tableIndex,
                                                                    final int vlanTags);
 
@@ -106,29 +111,29 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
 
     @Override
     public final void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
-                            @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
-            throws VppBaseCallException, WriteTimeoutException {
+                            final InterfaceMode mode, @Nonnull final InputAclSetInterface request,
+                            @Nonnegative final int vlanTags)
+        throws VppBaseCallException, WriteTimeoutException {
         final PacketHandling action = aces.stream().map(ace -> ace.getActions().getPacketHandling()).distinct()
-                .collect(SINGLE_ITEM_COLLECTOR);
+            .collect(SINGLE_ITEM_COLLECTOR);
 
         checkArgument(vlanTags >= 0 && vlanTags <= 2, "Number of vlan tags %s is not in [0,2] range");
-
         int nextTableIndex = -1;
         for (final Ace ace : aces) {
             // Create table + session per entry
 
             final ClassifyAddDelTable ctRequest =
-                    createClassifyTable(action, (T) ace.getMatches().getAceType(), nextTableIndex, vlanTags);
+                createClassifyTable(action, (T) ace.getMatches().getAceType(), mode, nextTableIndex, vlanTags);
             nextTableIndex = createClassifyTable(id, ctRequest);
             createClassifySession(id,
-                    createClassifySession(action, (T) ace.getMatches().getAceType(), nextTableIndex, vlanTags));
+                createClassifySession(action, (T) ace.getMatches().getAceType(), mode, nextTableIndex, vlanTags));
         }
         setClassifyTable(request, nextTableIndex);
     }
 
     private int createClassifyTable(@Nonnull final InstanceIdentifier<?> id,
                                     @Nonnull final ClassifyAddDelTable request)
-            throws VppBaseCallException, WriteTimeoutException {
+        throws VppBaseCallException, WriteTimeoutException {
         final CompletionStage<ClassifyAddDelTableReply> cs = futureJVppCore.classifyAddDelTable(request);
 
         final ClassifyAddDelTableReply reply = getReplyForWrite(cs.toCompletableFuture(), id);
@@ -137,7 +142,7 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
 
     private void createClassifySession(@Nonnull final InstanceIdentifier<?> id,
                                        @Nonnull final ClassifyAddDelSession request)
-            throws VppBaseCallException, WriteTimeoutException {
+        throws VppBaseCallException, WriteTimeoutException {
         final CompletionStage<ClassifyAddDelSessionReply> cs = futureJVppCore.classifyAddDelSession(request);
 
         getReplyForWrite(cs.toCompletableFuture(), id);
