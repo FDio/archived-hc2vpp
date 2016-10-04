@@ -19,64 +19,87 @@ package io.fd.honeycomb.lisp.context.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
+import io.fd.honeycomb.lisp.util.EidMappingContextHelper;
 import io.fd.honeycomb.translate.MappingContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.MappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.MappingId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.EidBuilder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.local.mapping.Eid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.local.mapping.EidBuilder;
 
-public class EidMappingContextTest {
+public class EidMappingContextTest implements EidMappingContextHelper {
 
-    private EidMappingContext eidMappingContext;
+    private static final String EID_MAPPING_CONTEXT_NAME = "eidMappingContext";
 
     @Mock
     private MappingContext mappingContext;
 
+    private EidMappingContext eidMappingContext;
+    private Eid localEid;
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.Eid
+            remoteEid;
+    private org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
+            mappingEid;
+    private MappingId mappingId;
+
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        eidMappingContext = new EidMappingContext("eid-eidMappingContext");
+        eidMappingContext = new EidMappingContext(EID_MAPPING_CONTEXT_NAME);
+
+        localEid =
+                new EidBuilder().setAddress(new Ipv4Builder().setIpv4(new Ipv4Address("192.168.2.1")).build()).build();
+        remoteEid = fromLocalToRemoteEid(localEid);
+        mappingEid = fromLocalToMappingEid(localEid);
+        mappingId = new MappingId("mapping");
+
+        defineMapping(mappingContext, mappingEid, mappingId, EID_MAPPING_CONTEXT_NAME);
     }
 
     @Test
-    public void testStoreAndGet() {
-        Eid eid =
-                new EidBuilder().setAddress(new Ipv4Builder().setIpv4(new Ipv4Address("192.168.2.1")).build()).build();
-        MappingId id = new MappingId("first");
-
-        eidMappingContext.addEid(id, eid, mappingContext);
-        when(mappingContext.read(Mockito.any(InstanceIdentifier.class)))
-                .thenReturn(Optional.of(
-                        new MappingBuilder().setId(id).setEid(copyEid(eid)).build()
-                ));
-
-        Eid sameEid =
-                new EidBuilder().setAddress(new Ipv4Builder().setIpv4(new Ipv4Address("192.168.2.1")).build()).build();
-        MappingId sameId = new MappingId("first");
-
-        assertTrue(eidMappingContext.containsEid(sameId, mappingContext));
-
+    public void testContainsEid() {
+        assertTrue(eidMappingContext.containsEid(mappingId, mappingContext));
         org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid
-                loadedEid = eidMappingContext.getEid(sameId, mappingContext);
+                loadedEid = eidMappingContext.getEid(mappingId, mappingContext);
 
         assertEquals("192.168.2.1", ((Ipv4) (loadedEid.getAddress())).getIpv4().getValue());
     }
 
-    private org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid copyEid(
+    @Test
+    public void testContainsId() {
+        assertTrue(eidMappingContext.containsId(localEid, mappingContext));
+        assertTrue(eidMappingContext.containsId(remoteEid, mappingContext));
+    }
+
+    @Test
+    public void testGetEid() {
+        assertEquals(mappingEid, eidMappingContext.getEid(mappingId, mappingContext));
+    }
+
+    @Test
+    public void testGetId() {
+        assertEquals(mappingId, eidMappingContext.getId(localEid, mappingContext));
+        assertEquals(mappingId, eidMappingContext.getId(remoteEid, mappingContext));
+    }
+
+    private org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid fromLocalToMappingEid(
             Eid eid) {
         return new org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.EidBuilder()
+                .setAddress(eid.getAddress())
+                .setAddressType(eid.getAddressType())
+                .setVirtualNetworkId(eid.getVirtualNetworkId())
+                .build();
+    }
+
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.Eid fromLocalToRemoteEid(
+            Eid eid) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
                 .setAddress(eid.getAddress())
                 .setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId())

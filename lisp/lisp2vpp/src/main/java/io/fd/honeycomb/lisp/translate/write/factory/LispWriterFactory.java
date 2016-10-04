@@ -17,6 +17,7 @@
 package io.fd.honeycomb.lisp.translate.write.factory;
 
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.INTERFACE_CONTEXT;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.LOCAL_MAPPING_CONTEXT;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.LOCATOR_SET_CONTEXT;
@@ -31,11 +32,12 @@ import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
@@ -43,26 +45,32 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
  */
 public final class LispWriterFactory extends AbstractLispWriterFactoryBase implements WriterFactory {
 
+    private final NamingContext bridgeDomainContext;
+
     @Inject
     public LispWriterFactory(final FutureJVppCore vppApi,
                              @Named(INTERFACE_CONTEXT) final NamingContext interfaceContext,
                              @Named(LOCATOR_SET_CONTEXT) final NamingContext locatorSetContext,
+                             @Named("bridge-domain-context") final NamingContext bridgeDomainContext,
                              @Named(LOCAL_MAPPING_CONTEXT) final EidMappingContext localMappingContext,
                              @Named(REMOTE_MAPPING_CONTEXT) final EidMappingContext remoteMappingContext) {
         super(InstanceIdentifier.create(Lisp.class), vppApi, interfaceContext, locatorSetContext, localMappingContext,
                 remoteMappingContext);
+        this.bridgeDomainContext = checkNotNull(bridgeDomainContext, "Bridge domain context cannot be null");
     }
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         registry.add(new GenericWriter<>(lispInstanceIdentifier, new LispCustomizer(vppApi)));
 
-        VniTableWriterFactory.newInstance(lispInstanceIdentifier, vppApi, localMappingContext, remoteMappingContext)
+        VniTableWriterFactory.newInstance(lispInstanceIdentifier, vppApi, localMappingContext, remoteMappingContext,
+                bridgeDomainContext)
                 .init(registry);
         LocatorSetsWriterFactory.newInstance(lispInstanceIdentifier, vppApi, interfaceContext, locatorSetContext)
                 .init(registry);
         MapResolversWriterFactory.newInstance(lispInstanceIdentifier, vppApi).init(registry);
 
-        registry.add(new GenericWriter<>(lispInstanceIdentifier.child(PitrCfg.class), new PitrCfgCustomizer(vppApi)));
+        registry.add(new GenericWriter<>(lispInstanceIdentifier.child(LispFeatureData.class).child(PitrCfg.class),
+                new PitrCfgCustomizer(vppApi)));
     }
 }

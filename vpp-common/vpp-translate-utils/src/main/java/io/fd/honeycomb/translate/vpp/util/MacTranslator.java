@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import javax.annotation.Nonnull;
@@ -64,17 +65,17 @@ public interface MacTranslator {
      * Converts byte array to address string ,not separated with ":"
      */
     default String byteArrayToMacUnseparated(byte[] address) {
-        checkArgument(address.length == 6, "Illegal array length");
-        return Hex.encodeHexString(address);
+        checkArgument(address.length >= 6, "Illegal array length");
+        return Hex.encodeHexString(Arrays.copyOf(address, 6));
     }
 
     /**
      * Converts byte array to address string ,separated with ":"
      */
     default String byteArrayToMacSeparated(byte[] address) {
-        checkArgument(address.length == 6, "Illegal array length");
+        checkArgument(address.length >= 6, "Illegal array length");
 
-        String unseparatedAddress = Hex.encodeHexString(address);
+        String unseparatedAddress = Hex.encodeHexString(Arrays.copyOf(address, 6));
         String separated = "";
 
         for (int i = 0; i < unseparatedAddress.length(); i = i + 2) {

@@ -23,10 +23,12 @@ import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.LOCATOR_SET_CONTEX
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.REMOTE_MAPPING_CONTEXT;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.lisp.cfgattrs.LispConfiguration;
+import io.fd.honeycomb.lisp.context.util.ContextsReaderFactoryProvider;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.initializers.LispInitializer;
 import io.fd.honeycomb.lisp.translate.read.factory.LispStateReaderFactory;
@@ -44,10 +46,8 @@ public class LispModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        LOG.info("Installing configuration module");
+        LOG.info("Configuring module Lisp");
         install(ConfigurationModule.create());
-
-        LOG.info("Injecting Lisp configuration");
         requestInjection(LispConfiguration.class);
 
         LOG.info("Binding Naming context[{}]", LOCATOR_SET_CONTEXT);
@@ -67,25 +67,22 @@ public class LispModule extends AbstractModule {
 
         LOG.info("Binding reader factories");
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
-
-        LOG.info("Binding [{}]", LispStateReaderFactory.class.getName());
         readerFactoryBinder.addBinding().to(LispStateReaderFactory.class);
         LOG.info("Reader factories binded");
 
         LOG.info("Binding writer factories");
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
-
-        LOG.info("Binding [{}]", LispWriterFactory.class.getName());
         writerFactoryBinder.addBinding().to(LispWriterFactory.class);
         LOG.info("Writer factories binded");
 
         LOG.info("Binding initializers");
         final Multibinder<DataTreeInitializer> initializerBinder =
                 Multibinder.newSetBinder(binder(), DataTreeInitializer.class);
-
-        LOG.info("Binding [{}]", LispInitializer.class.getName());
         initializerBinder.addBinding().to(LispInitializer.class);
         LOG.info("Initializers binded");
+
+        final Multibinder<ReaderFactory> readerBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
+        readerBinder.addBinding().toProvider(ContextsReaderFactoryProvider.class).in(Singleton.class);
 
         LOG.info("Module Lisp successfully configured");
     }

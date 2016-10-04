@@ -23,13 +23,13 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
- * Abstract holder for jvpp refference
+ * Abstract holder for jvpp reference
  */
-public abstract class AbstractDumpExecutor {
+public abstract class AbstractJvppDumpExecutor {
 
     protected final FutureJVppCore vppApi;
 
-    protected AbstractDumpExecutor(@Nonnull final FutureJVppCore vppApi) {
-        this.vppApi = checkNotNull(vppApi, "VPP Api refference cannot be null");
+    public AbstractJvppDumpExecutor(@Nonnull final FutureJVppCore vppApi) {
+        this.vppApi = checkNotNull(vppApi, "VPP Api reference cannot be null");
     }
 }

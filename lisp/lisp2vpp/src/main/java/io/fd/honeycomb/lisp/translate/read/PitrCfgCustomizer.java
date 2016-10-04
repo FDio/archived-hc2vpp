@@ -24,7 +24,7 @@ import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import java.util.concurrent.TimeoutException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.lisp.feature.data.grouping.LispFeatureDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfgBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -74,7 +74,7 @@ public class PitrCfgCustomizer extends FutureJVppCustomizer
 
     @Override
     public void merge(Builder<? extends DataObject> parentBuilder, PitrCfg readValue) {
-        ((LispStateBuilder) parentBuilder).setPitrCfg(readValue);
+        ((LispFeatureDataBuilder) parentBuilder).setPitrCfg(readValue);
     }
 
     public ShowLispPitrReply getPitrStatus() throws TimeoutException, VppBaseCallException {

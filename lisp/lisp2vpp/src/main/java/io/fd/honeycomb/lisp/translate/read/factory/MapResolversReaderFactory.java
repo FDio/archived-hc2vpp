@@ -23,6 +23,7 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.MapResolvers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.MapResolversBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolver;
@@ -47,7 +48,8 @@ public class MapResolversReaderFactory extends AbstractLispReaderFactoryBase imp
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
 
-        InstanceIdentifier<MapResolvers> mapResolversInstanceIdentifier = lispStateId.child(MapResolvers.class);
+        InstanceIdentifier<MapResolvers> mapResolversInstanceIdentifier =
+                lispStateId.child(LispFeatureData.class).child(MapResolvers.class);
 
         registry.addStructuralReader(mapResolversInstanceIdentifier, MapResolversBuilder.class);
         registry.add(new GenericListReader<>(mapResolversInstanceIdentifier.child(MapResolver.class),

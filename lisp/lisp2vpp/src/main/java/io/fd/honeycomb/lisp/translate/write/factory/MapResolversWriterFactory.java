@@ -23,6 +23,7 @@ import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.MapResolvers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolver;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -47,7 +48,8 @@ final class MapResolversWriterFactory extends AbstractLispWriterFactoryBase impl
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
-        registry.add(new GenericListWriter<>(lispInstanceIdentifier.child(MapResolvers.class).child(MapResolver.class),
+        registry.add(new GenericListWriter<>(
+                lispInstanceIdentifier.child(LispFeatureData.class).child(MapResolvers.class).child(MapResolver.class),
                 new MapResolverCustomizer(vppApi)));
     }
 }

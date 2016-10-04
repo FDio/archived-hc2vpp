@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSetKey;
@@ -58,6 +59,7 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
         defineMapping(mappingContext, interfaceName, 5, ifcCtxName);
 
         id = InstanceIdentifier.builder(Lisp.class)
+                .child(LispFeatureData.class)
                 .child(LocatorSets.class)
                 .child(LocatorSet.class, new LocatorSetKey("Locator"))
             .child(Interface.class, new InterfaceKey(interfaceName))

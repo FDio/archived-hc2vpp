@@ -47,6 +47,10 @@ public class LispModuleTest {
     @Bind
     private NamingContext interfaceContext;
 
+    @Named("bridge-domain-context")
+    @Bind
+    private NamingContext bridgeDomainContext;
+
     @Named("honeycomb-context")
     @Bind
     @Mock
@@ -71,6 +75,7 @@ public class LispModuleTest {
     public void setUp() throws Exception {
         initMocks(this);
         interfaceContext = new NamingContext("interfaceContext", "interfaceContext");
+        bridgeDomainContext = new NamingContext("bridgeDomainContext", "bridgeDomainContext");
         Guice.createInjector(new LispModule(), BoundFieldModule.of(this)).injectMembers(this);
     }
 

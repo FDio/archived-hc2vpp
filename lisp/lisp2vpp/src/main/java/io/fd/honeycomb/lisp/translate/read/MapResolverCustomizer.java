@@ -28,6 +28,10 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.AddressTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,9 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,17 +84,21 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
         }
 
         final MapResolverKey key = id.firstKeyOf(MapResolver.class);
-        //revert searched key to match vpp's reversed order ip's
-        final IpAddress address = reverseAddress(key.getIpAddress());
         final LispMapResolverDetails mapResolverDetails =
                 dumpOptional.get().lispMapResolverDetails.stream()
-                        .filter(a -> address
-                                .equals(arrayToIpAddress(byteToBoolean(a.isIpv6), a.ipAddress)))
+                        .filter(a -> addressesEqual(key.getIpAddress(),
+                                arrayToIpAddressReversed(byteToBoolean(a.isIpv6), a.ipAddress)))
                         .collect(RWUtils.singleItemCollector());
 
         builder.setKey(key);
         builder.setIpAddress(
                 arrayToIpAddress(byteToBoolean(mapResolverDetails.isIpv6), mapResolverDetails.ipAddress));
+    }
+
+    // safest way to compare addresses - prevents returning false while using different types from hierarchy
+    // Ex. Key for MapResolver contains Ipv4Address as value but we translate addresses from binary data to Ipv4AddressNoZone
+    private boolean addressesEqual(final IpAddress left, final IpAddress right) {
+        return Arrays.equals(left.getValue(), right.getValue());
     }
 
     @Override
@@ -114,7 +119,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
 
         return dumpOptional.get().lispMapResolverDetails.stream()
                 .map(resolver -> new MapResolverKey(
-                        arrayToIpAddress(byteToBoolean(resolver.isIpv6), resolver.ipAddress)))
+                        arrayToIpAddressReversed(byteToBoolean(resolver.isIpv6), resolver.ipAddress)))
                 .collect(Collectors.toList());
     }
 

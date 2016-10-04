@@ -53,11 +53,6 @@ public class LispConfiguration {
     public static final String HONEYCOMB_INITIALIZER = "honeycomb-initializer";
 
     /**
-     * Unique prefix for naming context of interfaces.
-     **/
-    public static final String INTERFACE_CONTEXT_PREFIX = "interface-";
-
-    /**
      * Unique prefix for naming context of locator sets.
      **/
     public static final String LOCATOR_SET_CONTEXT_PREFIX = "locator-set-";

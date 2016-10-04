@@ -30,7 +30,7 @@ import io.fd.vpp.jvpp.core.dto.LispMapResolverDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
-public class MapResolversDumpExecutor extends AbstractDumpExecutor
+public class MapResolversDumpExecutor extends AbstractJvppDumpExecutor
         implements EntityDumpExecutor<LispMapResolverDetailsReplyDump, Void>, JvppReplyConsumer {
 
     public MapResolversDumpExecutor(@Nonnull FutureJVppCore api) {

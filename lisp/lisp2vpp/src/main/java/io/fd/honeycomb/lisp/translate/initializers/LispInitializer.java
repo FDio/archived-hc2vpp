@@ -58,11 +58,7 @@ public class LispInitializer extends AbstractDataTreeConverter<LispState, Lisp> 
         // configuration can fail)
 
         return lispBuilder.setEnable(operationalData.isEnable())
-                .setEidTable(operationalData.getEidTable())
-                .setLocatorSets(operationalData.getLocatorSets())
-                .setMapResolvers(operationalData.getMapResolvers())
-                .setPitrCfg(operationalData.getPitrCfg())
+                .setLispFeatureData(operationalData.getLispFeatureData())
                 .build();
     }
-
 }

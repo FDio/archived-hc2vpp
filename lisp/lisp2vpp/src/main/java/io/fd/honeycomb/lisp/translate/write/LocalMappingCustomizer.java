@@ -23,6 +23,7 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
+import io.fd.honeycomb.lisp.translate.read.trait.MappingProducer;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
@@ -34,9 +35,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.MappingId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.LocalMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.LocalMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.LocalMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.LocalMappingKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEid;
@@ -48,7 +49,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
  */
 public class LocalMappingCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<LocalMapping, LocalMappingKey>, ByteDataTranslator, EidTranslator,
-        JvppReplyConsumer {
+        JvppReplyConsumer, MappingProducer {
 
     private final EidMappingContext localMappingsContext;
 
@@ -64,9 +65,10 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
         checkNotNull(dataAfter.getEid(), "Eid is null");
         checkNotNull(dataAfter.getLocatorSet(), "Locator set is null");
         checkState(id.firstKeyOf(VniTable.class) != null, "Parent vni table not found");
+        checkAllowedCombination(id, dataAfter);
 
         //checks whether value with specified mapping-id does not exist in mapping allready
-        MappingId mappingId = id.firstKeyOf(LocalMapping.class).getId();
+        final MappingId mappingId = id.firstKeyOf(LocalMapping.class).getId();
         checkState(!localMappingsContext
                         .containsEid(mappingId, writeContext.getMappingContext()),
                 "Local mapping with id %s already defined", id);

@@ -25,6 +25,7 @@ import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
@@ -57,7 +58,7 @@ public class LocatorSetsReaderFactory extends AbstractLispReaderFactoryBase impl
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        InstanceIdentifier<LocatorSets> locatorSetsInstanceIdentifier = lispStateId.child(LocatorSets.class);
+        InstanceIdentifier<LocatorSets> locatorSetsInstanceIdentifier = lispStateId.child(LispFeatureData.class).child(LocatorSets.class);
         InstanceIdentifier<LocatorSet> locatorSetInstanceIdentifier =
                 locatorSetsInstanceIdentifier.child(LocatorSet.class);
 

@@ -12,6 +12,8 @@ import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecut
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.vpp.test.read.JvppDumpExecutorTest;
+import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
 import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,28 +24,27 @@ import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
 
 public class VniTableDumpExecutorTest extends JvppDumpExecutorTest<VniTableDumpExecutor> {
 
-    private LispEidTableMapDetailsReplyDump validDump;
+    private LispEidTableVniDetailsReplyDump validDump;
 
     @Before
     public void init() {
-        validDump = new LispEidTableMapDetailsReplyDump();
-        LispEidTableMapDetails detail = new LispEidTableMapDetails();
-        detail.dpTable = 1;
+        validDump = new LispEidTableVniDetailsReplyDump();
+        LispEidTableVniDetails detail = new LispEidTableVniDetails();
         detail.vni = 2;
         detail.context = 4;
-        validDump.lispEidTableMapDetails = ImmutableList.of(detail);
+        validDump.lispEidTableVniDetails = ImmutableList.of(detail);
     }
 
     @Test(expected = DumpCallFailedException.class)
     public void testExecuteDumpFail() throws DumpExecutionFailedException {
-        doThrowFailExceptionWhen().lispEidTableMapDump(Mockito.any());
+        doThrowFailExceptionWhen().lispEidTableVniDump(Mockito.any());
         getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
     }
 
 
     @Test
     public void testExecuteDumpTimeout() throws Exception {
-        doThrowTimeoutExceptionWhen().lispEidTableMapDump(Mockito.any());
+        doThrowTimeoutExceptionWhen().lispEidTableVniDump(Mockito.any());
         try {
             getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
         } catch (Exception e) {
@@ -57,15 +58,14 @@ public class VniTableDumpExecutorTest extends JvppDumpExecutorTest<VniTableDumpE
     @Test
     public void testExecuteDump() throws DumpExecutionFailedException {
 
-        doReturnResponseWhen(validDump).lispEidTableMapDump(Mockito.any());
-        final LispEidTableMapDetailsReplyDump reply = getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
+        doReturnResponseWhen(validDump).lispEidTableVniDump(Mockito.any());
+        final LispEidTableVniDetailsReplyDump reply = getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
 
         assertNotNull(reply);
-        assertEquals(1, reply.lispEidTableMapDetails.size());
-        final LispEidTableMapDetails detail = reply.lispEidTableMapDetails.get(0);
+        assertEquals(1, reply.lispEidTableVniDetails.size());
+        final LispEidTableVniDetails detail = reply.lispEidTableVniDetails.get(0);
 
         assertEquals(4, detail.context);
-        assertEquals(1, detail.dpTable);
         assertEquals(2, detail.vni);
     }
 

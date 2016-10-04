@@ -2,6 +2,7 @@ package io.fd.honeycomb.lisp.translate.read;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,11 @@ import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,19 +25,22 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.MapReplyAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.MappingId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.RemoteMappings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.RemoteMappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.RemoteMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.RemoteMappingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.RemoteMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.Eid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.NegativeMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.PositiveMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.Locator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.EidTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTableKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.RemoteMappings;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.RemoteMappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.RemoteMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.RemoteMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.RemoteMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.VrfSubtable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 
 public class RemoteMappingCustomizerTest
         extends ListReaderCustomizerTest<RemoteMapping, RemoteMappingKey, RemoteMappingBuilder>
@@ -43,7 +52,6 @@ public class RemoteMappingCustomizerTest
     @Mock
     private EidMappingContext eidMappingContext;
 
-    private InstanceIdentifier<RemoteMapping> emptyId;
     private InstanceIdentifier<RemoteMapping> validId;
 
     public RemoteMappingCustomizerTest() {
@@ -53,22 +61,16 @@ public class RemoteMappingCustomizerTest
     @Before
     public void init() {
 
-        emptyId = InstanceIdentifier.create(EidTable.class)
-                .child(VniTable.class, new VniTableKey(12L))
-                .child(RemoteMappings.class)
-                .child(RemoteMapping.class);
-
         validId = InstanceIdentifier.create(EidTable.class)
                 .child(VniTable.class, new VniTableKey(12L))
+                .child(VrfSubtable.class)
                 .child(RemoteMappings.class)
                 .child(RemoteMapping.class, new RemoteMappingKey(new MappingId("remote-mapping")));
-
-        mockDumpData();
         mockMappings();
     }
 
 
-    private void mockDumpData() {
+    private void mockDumpDataActionZero() {
         LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
         LispEidTableDetails detail = new LispEidTableDetails();
         detail.action = 0;
@@ -84,7 +86,59 @@ public class RemoteMappingCustomizerTest
         replyDump.lispEidTableDetails = ImmutableList.of(detail);
 
         when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+
+        LispLocatorDetailsReplyDump rlocs = new LispLocatorDetailsReplyDump();
+        rlocs.lispLocatorDetails = Collections.emptyList();
+        when(api.lispLocatorDump(any())).thenReturn(future(rlocs));
     }
+
+    private void mockDumpDataActionOne() {
+        LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
+        LispEidTableDetails detail = new LispEidTableDetails();
+        detail.action = 1;
+        detail.authoritative = 1;
+        detail.context = 4;
+        detail.eid = new byte[]{-64, -88, 2, 1};
+        detail.eidPrefixLen = 32;
+        detail.isLocal = 0;
+        detail.locatorSetIndex = 1;
+        detail.ttl = 7;
+        detail.vni = 12;
+
+        replyDump.lispEidTableDetails = ImmutableList.of(detail);
+
+        when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+    }
+
+    private void mockDumpDataActionZeroWithRemotes() {
+        LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
+        LispEidTableDetails detail = new LispEidTableDetails();
+        detail.action = 0;
+        detail.authoritative = 1;
+        detail.context = 4;
+        detail.eid = new byte[]{-64, -88, 2, 1};
+        detail.eidPrefixLen = 32;
+        detail.isLocal = 0;
+        detail.locatorSetIndex = 1;
+        detail.ttl = 7;
+        detail.vni = 12;
+
+        replyDump.lispEidTableDetails = ImmutableList.of(detail);
+
+        when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+
+        LispLocatorDetailsReplyDump rlocs = new LispLocatorDetailsReplyDump();
+        LispLocatorDetails rloc = new LispLocatorDetails();
+        rloc.ipAddress = new byte[]{-64, -88, 2, 1};
+        rloc.isIpv6 = 0;
+        rloc.priority = 1;
+        rloc.weight = 2;
+
+        rlocs.lispLocatorDetails = ImmutableList.of(rloc);
+
+        when(api.lispLocatorDump(any())).thenReturn(future(rlocs));
+    }
+
 
     private void mockMappings() {
 
@@ -96,7 +150,8 @@ public class RemoteMappingCustomizerTest
     }
 
     @Test
-    public void readCurrentAttributes() throws Exception {
+    public void readCurrentAttributesNegativeMappingOne() throws Exception {
+        mockDumpDataActionOne();
         RemoteMappingBuilder builder = new RemoteMappingBuilder();
         getCustomizer().readCurrentAttributes(validId, builder, ctx);
 
@@ -106,11 +161,53 @@ public class RemoteMappingCustomizerTest
         assertEquals(true, compareAddresses(EID_ADDRESS, mapping.getEid().getAddress()));
         assertEquals(true, mapping.getAuthoritative().isA());
         assertEquals(7L, mapping.getTtl().longValue());
+        assertTrue(mapping.getLocatorList() instanceof NegativeMapping);
+        assertEquals(MapReplyAction.NativelyForward,
+                ((NegativeMapping) mapping.getLocatorList()).getMapReply().getMapReplyAction());
+    }
+
+    @Test
+    public void readCurrentAttributesNegativeMappingZero() throws Exception {
+        mockDumpDataActionZero();
+        RemoteMappingBuilder builder = new RemoteMappingBuilder();
+        getCustomizer().readCurrentAttributes(validId, builder, ctx);
+
+        RemoteMapping mapping = builder.build();
+
+        assertNotNull(mapping);
+        assertEquals(true, compareAddresses(EID_ADDRESS, mapping.getEid().getAddress()));
+        assertEquals(true, mapping.getAuthoritative().isA());
+        assertEquals(7L, mapping.getTtl().longValue());
+        assertEquals(MapReplyAction.NoAction,
+                ((NegativeMapping) mapping.getLocatorList()).getMapReply().getMapReplyAction());
+    }
+
+    @Test
+    public void readCurrentAttributesPositiveMapping() throws Exception {
+        mockDumpDataActionZeroWithRemotes();
+        RemoteMappingBuilder builder = new RemoteMappingBuilder();
+        getCustomizer().readCurrentAttributes(validId, builder, ctx);
+
+        RemoteMapping mapping = builder.build();
+
+        assertNotNull(mapping);
+        assertEquals(true, compareAddresses(EID_ADDRESS, mapping.getEid().getAddress()));
+        assertEquals(true, mapping.getAuthoritative().isA());
+        assertEquals(7L, mapping.getTtl().longValue());
+        assertTrue(mapping.getLocatorList() instanceof PositiveMapping);
+
+        final List<Locator> locators = ((PositiveMapping) mapping.getLocatorList()).getRlocs().getLocator();
+        assertEquals(1, locators.size());
+        final Locator locator = locators.get(0);
+        assertEquals("192.168.2.1", locator.getAddress().getIpv4Address().getValue());
+        assertEquals(1, locator.getPriority().shortValue());
+        assertEquals(2, locator.getWeight().shortValue());
     }
 
 
     @Test
     public void getAllIds() throws Exception {
+        mockDumpDataActionOne();
         final List<RemoteMappingKey> keys = getCustomizer().getAllIds(validId, ctx);
 
         assertNotNull(keys);

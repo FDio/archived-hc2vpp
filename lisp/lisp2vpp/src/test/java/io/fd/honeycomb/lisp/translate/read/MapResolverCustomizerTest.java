@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,14 +21,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolverBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolverKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 
 
 public class MapResolverCustomizerTest
         extends ListReaderCustomizerTest<MapResolver, MapResolverKey, MapResolverBuilder> {
 
-    private static final IpAddress IP_ADDRESS = new IpAddress(new Ipv4AddressNoZone("192.168.2.1"));
     private static final IpAddress IP_ADDRESS_REVERTED =
             new IpAddress(new Ipv4AddressNoZone("1.2.168.192"));
 
@@ -64,7 +63,7 @@ public class MapResolverCustomizerTest
 
         final MapResolverKey key = keys.get(0);
         assertNotNull(key);
-        assertEquals("192.168.2.1", new String(key.getIpAddress().getValue()));
+        assertEquals("1.2.168.192", new String(key.getIpAddress().getValue()));
 
     }
 

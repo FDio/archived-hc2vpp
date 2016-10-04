@@ -18,9 +18,10 @@ package io.fd.honeycomb.lisp.translate.write;
 
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType;
 
+import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
@@ -28,23 +29,33 @@ import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.adjacencies.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.adjacencies.AdjacencyKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelAdjacency;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-
+import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.adjacencies.grouping.adjacencies.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.adjacencies.grouping.adjacencies.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.adjacencies.grouping.adjacencies.adjacency.LocalEid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.adjacencies.grouping.adjacencies.adjacency.RemoteEid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTable;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AdjacencyCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<Adjacency, AdjacencyKey>, ByteDataTranslator, EidTranslator,
         JvppReplyConsumer {
 
-    public AdjacencyCustomizer(@Nonnull final FutureJVppCore futureJvpp) {
+    private final EidMappingContext localEidsMappingContext;
+    private final EidMappingContext remoteEidsMappingContext;
+
+    public AdjacencyCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                               @Nonnull EidMappingContext localEidsMappingContext,
+                               @Nonnull EidMappingContext remoteEidsMappingContext) {
         super(futureJvpp);
+        this.localEidsMappingContext =
+                checkNotNull(localEidsMappingContext, "Eid context for local eid's cannot be null");
+        this.remoteEidsMappingContext =
+                checkNotNull(remoteEidsMappingContext, "Eid context for remote eid's cannot be null");
     }
 
     @Override
@@ -53,7 +64,7 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
             throws WriteFailedException {
 
         try {
-            addDelAdjacency(true, id, dataAfter);
+            addDelAdjacency(true, id, dataAfter, writeContext);
         } catch (TimeoutException | VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
@@ -71,20 +82,31 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
                                         @Nonnull final Adjacency dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         try {
-            addDelAdjacency(false, id, dataBefore);
+            addDelAdjacency(false, id, dataBefore, writeContext);
         } catch (TimeoutException | VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataBefore, e);
         }
     }
 
-    private void addDelAdjacency(boolean add, final InstanceIdentifier<Adjacency> id, Adjacency data)
+    private void addDelAdjacency(boolean add, final InstanceIdentifier<Adjacency> id, final Adjacency data,
+                                 final WriteContext writeContext)
             throws TimeoutException, VppBaseCallException {
 
-        checkState(id.firstKeyOf(VniTable.class) != null, "Unable to find parent VNI for {}", id);
-        final int vni = id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier().intValue();
+        final int vni = checkNotNull(id.firstKeyOf(VniTable.class), "Unable to find parent VNI for {}", id)
+                .getVirtualNetworkIdentifier().intValue();
 
-        EidType localEidType = getEidType(data.getLocalEid());
-        EidType remoteEidType = getEidType(data.getRemoteEid());
+        // both local and remote eids must be referenced to have respective mapping,
+        // if there is an attempt to add adjacency.
+        // In our case its enough to check if local/remote mapping exist for respective eid,
+        // because such mappings are created while creating mappings
+        final LocalEid localEid = add
+                ? verifiedLocalEid(data.getLocalEid(), writeContext)
+                : data.getLocalEid();
+        final RemoteEid remoteEid = add
+                ? verifiedRemoteEid(data.getRemoteEid(), writeContext)
+                : data.getRemoteEid();
+        final EidType localEidType = getEidType(localEid);
+        final EidType remoteEidType = getEidType(data.getRemoteEid());
 
         checkArgument(localEidType ==
                 remoteEidType, "Local[%s] and Remote[%s] eid types must be the same", localEidType, remoteEidType);
@@ -92,13 +114,43 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         LispAddDelAdjacency request = new LispAddDelAdjacency();
 
         request.isAdd = booleanToByte(add);
-        request.leid = getEidAsByteArray(data.getLocalEid());
-        request.leidLen = getPrefixLength(data.getLocalEid());
-        request.reid = getEidAsByteArray(data.getRemoteEid());
-        request.reidLen = getPrefixLength(data.getRemoteEid());
+        request.leid = getEidAsByteArray(localEid);
+        request.leidLen = getPrefixLength(localEid);
+        request.reid = getEidAsByteArray(remoteEid);
+        request.reidLen = getPrefixLength(remoteEid);
         request.eidType = (byte) localEidType.getValue();
         request.vni = vni;
 
         getReply(getFutureJVpp().lispAddDelAdjacency(request).toCompletableFuture());
+    }
+
+    private LocalEid verifiedLocalEid(final LocalEid localEid, final WriteContext writeContext) {
+        if (localEidsMappingContext.containsId(toLocalEid(localEid), writeContext.getMappingContext())) {
+            return localEid;
+        }
+        throw new IllegalStateException(
+                "Referenced Local Eid[" + localEid +
+                        "] doesn't have local mapping defined, therefore it can't be used in adjacency");
+    }
+
+    private RemoteEid verifiedRemoteEid(final RemoteEid remoteEid, final WriteContext writeContext) {
+        if (remoteEidsMappingContext.containsId(toRemoteEid(remoteEid), writeContext.getMappingContext())) {
+            return remoteEid;
+        }
+        throw new IllegalStateException(
+                "Referenced Remote Eid[" + remoteEid +
+                        "] doesn't have remote mapping defined, therefore it can't be used in adjacency");
+    }
+
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.Eid toRemoteEid(
+            final RemoteEid remoteEid) {
+        return newRemoteEidBuilder(remoteEid.getAddressType(), remoteEid.getVirtualNetworkId().getValue().intValue())
+                .setAddress(remoteEid.getAddress()).build();
+    }
+
+    private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.local.mapping.Eid toLocalEid(
+            LocalEid localEid) {
+        return newLocalEidBuilder(localEid.getAddressType(), localEid.getVirtualNetworkId().getValue().intValue())
+                .setAddress(localEid.getAddress()).build();
     }
 }

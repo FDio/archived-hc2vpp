@@ -17,6 +17,7 @@
 package io.fd.honeycomb.lisp.context.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
@@ -35,12 +36,15 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.MappingId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class allowing {@link MappingId} to {@link Eid} mapping
  */
 public class EidMappingContext implements EidTranslator {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EidMappingContext.class);
     private static final Collector<Mapping, ?, Mapping> SINGLE_ITEM_COLLECTOR = RWUtils.singleItemCollector();
 
     private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.EidMappingContext, EidMappingContextKey>
@@ -60,22 +64,22 @@ public class EidMappingContext implements EidTranslator {
     /**
      * Retrieve name for mapping stored provided mappingContext instance.
      *
-     * @param eid            eid of a mapped item
+     * @param remoteEid      eid of a mapped item
      * @param mappingContext mapping context providing context data for current transaction
      * @return name mapped to provided index
      */
     @Nonnull
     public synchronized MappingId getId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.Eid remoteEid,
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
+        checkState(read.isPresent(), "Mapping for eid: %s is not present. But should be", remoteEid);
 
-        //dont create artificial name as naming context, to not create refference to some artificial(in vpp non-existing)eid
-        checkArgument(read.isPresent(), "No mapping stored for eid: %s", eid);
-
-        return read.get().getMapping().stream()
-                .filter(mapping -> compareEids(mapping.getEid(), eid))
+        return read.get().getMapping()
+                .stream()
+                //cannot split to map + filtering,because its collecting mappings,not eid's
+                .filter(mapping -> compareEids(mapping.getEid(), remoteEid))
                 .collect(SINGLE_ITEM_COLLECTOR).getId();
     }
 
@@ -88,21 +92,13 @@ public class EidMappingContext implements EidTranslator {
      */
     @Nonnull
     public synchronized MappingId getId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
+        //don't create artificial name as naming context, to not create reference to some artificial(in vpp non-existing)eid
+        checkState(read.isPresent(), "Mapping for eid: %s is not present. But should be", eid);
 
-        //dont create artificial name as naming context, to not create refference to some artificial(in vpp non-existing)eid
-        checkArgument(read.isPresent(), "No mapping stored for eid: %s", eid);
-
-        //this kind of comparing is needed ,because yang generated containers does not override equals,unless they are defined as types
-        //in this hierarchy the first that define proper equals is Ipv4Address/Ipv6Address/MacAddress
-        //
-        // From official javadoc
-        //  The equals method for class Object implements the most discriminating possible equivalence relation on objects;
-        //  that is, for any non-null reference values x and y, this method returns true if and only if x and y refer to the same object
-        //  (x == y has the value true).
         return read.get().getMapping().stream()
                 .filter(mapping -> compareEids(mapping.getEid(), eid))
                 .collect(SINGLE_ITEM_COLLECTOR).getId();
@@ -116,16 +112,14 @@ public class EidMappingContext implements EidTranslator {
      * @return true if present, false otherwise
      */
     public synchronized boolean containsId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
 
-        //dont create artificial name as naming context, to not create refference to some artificial(in vpp non-existing)eid
-        checkArgument(read.isPresent(), "No mapping stored for eid: %s", eid);
-
-        return read.isPresent()
-                ? read.get().getMapping().stream().anyMatch(mapping -> compareEids(mapping.getEid(), eid))
-                : false;
+        return read.isPresent() &&
+                read.get().getMapping()
+                        .stream()
+                        .anyMatch(mapping -> compareEids(mapping.getEid(), eid));
     }
 
     /**
@@ -136,15 +130,14 @@ public class EidMappingContext implements EidTranslator {
      * @return true if present, false otherwise
      */
     public synchronized boolean containsId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
 
-        checkArgument(read.isPresent(), "No mapping stored for eid: %s", eid);
-
-        return read.isPresent()
-                ? read.get().getMapping().stream().anyMatch(mapping -> compareEids(mapping.getEid(), eid))
-                : false;
+        return read.isPresent() &&
+                read.get().getMapping()
+                        .stream()
+                        .anyMatch(mapping -> compareEids(mapping.getEid(), eid));
     }
 
 
@@ -157,11 +150,10 @@ public class EidMappingContext implements EidTranslator {
      */
     public synchronized void addEid(
             @Nonnull final MappingId index,
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             final MappingContext mappingContext) {
 
         final KeyedInstanceIdentifier<Mapping, MappingKey> mappingIid = getMappingIid(index);
-        //this copy is needed (type of eid in mapping is different that in local mapping,they only have same ancestor)
         mappingContext.put(mappingIid, new MappingBuilder().setId(index).setEid(copyEid(eid)).build());
     }
 
@@ -174,7 +166,7 @@ public class EidMappingContext implements EidTranslator {
      */
     public synchronized void addEid(
             @Nonnull final MappingId index,
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
             final MappingContext mappingContext) {
 
         final KeyedInstanceIdentifier<Mapping, MappingKey> mappingIid = getMappingIid(index);
@@ -186,13 +178,13 @@ public class EidMappingContext implements EidTranslator {
     }
 
     private Eid copyEid(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.local.mapping.Eid eid) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.local.mapping.Eid eid) {
         return new EidBuilder().setAddress(eid.getAddress()).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }
 
     private Eid copyEid(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.Eid eid) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid) {
         return new EidBuilder().setAddress(eid.getAddress()).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }
@@ -218,7 +210,7 @@ public class EidMappingContext implements EidTranslator {
     public synchronized Eid getEid(@Nonnull final MappingId index, final MappingContext mappingContext) {
         final Optional<Mapping> read = mappingContext.read(getMappingIid(index));
         checkArgument(read.isPresent(), "No mapping stored for index: %s", index);
-        return mappingContext.read(getMappingIid(index)).get().getEid();
+        return read.get().getEid();
     }
 
     /**

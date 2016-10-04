@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.lisp.feature.data.grouping.LispFeatureDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.pitr.cfg.grouping.PitrCfgBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -22,16 +23,14 @@ public class PitrCfgCustomizerTest extends ReaderCustomizerTest<PitrCfg, PitrCfg
     private static final byte[] LOC_SET_NAME_BYTES = "loc-set".getBytes(StandardCharsets.UTF_8);
 
     private InstanceIdentifier<PitrCfg> emptyId;
-    private PitrCfg validData;
 
     public PitrCfgCustomizerTest() {
-        super(PitrCfg.class, LispStateBuilder.class);
+        super(PitrCfg.class, LispFeatureDataBuilder.class);
     }
 
     @Before
     public void init() {
         emptyId = InstanceIdentifier.create(PitrCfg.class);
-        validData = new PitrCfgBuilder().setLocatorSet("loc-set").build();
 
         mockDumpData();
     }

@@ -28,6 +28,11 @@ import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,9 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,16 +56,16 @@ public class VniTableCustomizer extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
     private static final String LISP_TABLE_ID_DUMP = VniTableCustomizer.class.getName();
-    private final DumpCacheManager<LispEidTableMapDetailsReplyDump, Void> dumpManager;
+    private final DumpCacheManager<LispEidTableVniDetailsReplyDump, Void> dumpManager;
 
     public VniTableCustomizer(@Nonnull final FutureJVppCore futureJvpp) {
         super(futureJvpp);
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, Void>()
+        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableVniDetailsReplyDump, Void>()
                 .withExecutor(new VniTableDumpExecutor(futureJvpp))
                 .build();
     }
 
-    private static VniTableKey detailsToKey(final LispEidTableMapDetails lispEidTableMapDetails) {
+    private static VniTableKey detailsToKey(final LispEidTableVniDetails lispEidTableMapDetails) {
         return new VniTableKey(Integer.valueOf(lispEidTableMapDetails.vni).longValue());
 
     }
@@ -86,18 +88,18 @@ public class VniTableCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
         LOG.trace("Reading all IDS...");
 
-        Optional<LispEidTableMapDetailsReplyDump> optionalReply;
+        Optional<LispEidTableVniDetailsReplyDump> optionalReply;
         try {
             optionalReply = dumpManager.getDump(LISP_TABLE_ID_DUMP, context.getModificationCache(), NO_PARAMS);
         } catch (DumpExecutionFailedException e) {
             throw new ReadFailedException(id, e);
         }
 
-        if (!optionalReply.isPresent() || optionalReply.get().lispEidTableMapDetails.isEmpty()) {
+        if (!optionalReply.isPresent() || optionalReply.get().lispEidTableVniDetails.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return optionalReply.get().lispEidTableMapDetails.stream().map(VniTableCustomizer::detailsToKey)
+        return optionalReply.get().lispEidTableVniDetails.stream().map(VniTableCustomizer::detailsToKey)
                 .collect(Collectors.toList());
     }
 
@@ -109,23 +111,25 @@ public class VniTableCustomizer extends FutureJVppCustomizer
         checkState(id.firstKeyOf(VniTable.class) != null, "No VNI present");
         VniTableKey key = new VniTableKey(id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier());
 
-        Optional<LispEidTableMapDetailsReplyDump> optionalReply;
+        Optional<LispEidTableVniDetailsReplyDump> optionalReply;
         try {
             optionalReply = dumpManager.getDump(LISP_TABLE_ID_DUMP, ctx.getModificationCache(), NO_PARAMS);
         } catch (DumpExecutionFailedException e) {
             throw new ReadFailedException(id, e);
         }
 
-        if (!optionalReply.isPresent() || optionalReply.get().lispEidTableMapDetails.isEmpty()) {
+        if (!optionalReply.isPresent() || optionalReply.get().lispEidTableVniDetails.isEmpty()) {
             return;
         }
 
         //transforming right away to single detail(specific request should do the magic)
-        final LispEidTableMapDetails details =
-                optionalReply.get().lispEidTableMapDetails.stream().filter(a -> detailsToKey(a).equals(key))
-                        .collect(RWUtils.singleItemCollector());
+        final LispEidTableVniDetails details = optionalReply.get()
+                .lispEidTableVniDetails
+                .stream()
+                .filter(a -> a.vni == key.getVirtualNetworkIdentifier().intValue())
+                .collect(RWUtils.singleItemCollector());
 
         builder.setVirtualNetworkIdentifier((long) details.vni);
-        builder.setTableId((long) details.dpTable);
+        builder.setKey(new VniTableKey(Long.valueOf(details.vni)));
     }
 }

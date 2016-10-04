@@ -24,6 +24,7 @@ import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.Interface;
@@ -54,7 +55,7 @@ final class LocatorSetsWriterFactory extends AbstractLispWriterFactoryBase imple
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         InstanceIdentifier<LocatorSet> locatorSetId =
-                lispInstanceIdentifier.child(LocatorSets.class).child(LocatorSet.class);
+                lispInstanceIdentifier.child(LispFeatureData.class).child(LocatorSets.class).child(LocatorSet.class);
 
         registry.add(new GenericListWriter<>(locatorSetId, new LocatorSetCustomizer(vppApi, locatorSetContext)));
         registry.add(new GenericListWriter<>(locatorSetId.child(Interface.class),

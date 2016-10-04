@@ -36,7 +36,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 /**
  * Common dump executor for both local and remote mappings
  */
-public class MappingsDumpExecutor extends AbstractDumpExecutor
+public class MappingsDumpExecutor extends AbstractJvppDumpExecutor
         implements EntityDumpExecutor<LispEidTableDetailsReplyDump, MappingsDumpParams>, JvppReplyConsumer {
 
     public MappingsDumpExecutor(@Nonnull FutureJVppCore vppApi) {

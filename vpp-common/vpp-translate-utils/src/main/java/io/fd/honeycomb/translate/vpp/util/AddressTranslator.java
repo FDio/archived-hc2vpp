@@ -39,7 +39,7 @@ public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTr
     }
 
     /**
-     * Converts array bytes to {@link IpAddress}
+     * Converts array bytes to {@link IpAddress}.
      */
     @Nonnull
     default IpAddress arrayToIpAddress(boolean isIpv6, byte[] ip) {
@@ -47,6 +47,18 @@ public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTr
             return new IpAddress(arrayToIpv6AddressNoZone(ip));
         } else {
             return new IpAddress(arrayToIpv4AddressNoZone(ip));
+        }
+    }
+
+    /**
+     * Converts array bytes to {@link IpAddress}
+     */
+    @Nonnull
+    default IpAddress arrayToIpAddressReversed(boolean isIpv6, byte[] ip) {
+        if (isIpv6) {
+            return new IpAddress(arrayToIpv6AddressNoZoneReversed(ip));
+        } else {
+            return new IpAddress(arrayToIpv4AddressNoZoneReversed(ip));
         }
     }
 

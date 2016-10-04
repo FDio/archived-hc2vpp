@@ -30,7 +30,7 @@ import io.fd.vpp.jvpp.core.dto.LispLocatorSetDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
-public class LocatorSetsDumpExecutor extends AbstractDumpExecutor
+public class LocatorSetsDumpExecutor extends AbstractJvppDumpExecutor
         implements EntityDumpExecutor<LispLocatorSetDetailsReplyDump, Void>, JvppReplyConsumer {
 
     public LocatorSetsDumpExecutor(@Nonnull FutureJVppCore api) {

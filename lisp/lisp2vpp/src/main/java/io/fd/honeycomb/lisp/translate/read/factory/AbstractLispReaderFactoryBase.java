@@ -35,6 +35,7 @@ abstract class AbstractLispReaderFactoryBase {
     protected final FutureJVppCore vppApi;
     protected NamingContext interfaceContext;
     protected NamingContext locatorSetContext;
+    protected NamingContext bridgeDomainContext;
     protected EidMappingContext localMappingContext;
     protected EidMappingContext remoteMappingContext;
 
@@ -71,6 +72,27 @@ abstract class AbstractLispReaderFactoryBase {
                 "Interface naming context is null,for readers that don't need this dependency,use different constructor");
         this.locatorSetContext = checkNotNull(locatorSetContext,
                 "Locator set naming context is null,for readers that don't need this dependency,use different constructor");
+        this.localMappingContext = checkNotNull(localMappingContext,
+                "Local mappings reference is null,for readers that don't need this dependency use different constructor");
+        this.remoteMappingContext = checkNotNull(remoteMappingContext,
+                "Remote mappings reference is null,for readers that don't need this dependency use different constructor");
+    }
+
+    protected AbstractLispReaderFactoryBase(@Nonnull final InstanceIdentifier<LispState> lispStateId,
+                                            @Nonnull final FutureJVppCore vppApi,
+                                            @Nonnull final NamingContext interfaceContext,
+                                            @Nonnull final NamingContext locatorSetContext,
+                                            @Nonnull final NamingContext bridgeDomainContext,
+                                            @Nonnull final EidMappingContext localMappingContext,
+                                            @Nonnull final EidMappingContext remoteMappingContext) {
+        this.lispStateId = checkNotNull(lispStateId, "Lisp state identifier is null");
+        this.vppApi = checkNotNull(vppApi, "VPP api reference is null");
+        this.interfaceContext = checkNotNull(interfaceContext,
+                "Interface naming context is null,for readers that don't need this dependency,use different constructor");
+        this.locatorSetContext = checkNotNull(locatorSetContext,
+                "Locator set naming context is null,for readers that don't need this dependency,use different constructor");
+        this.bridgeDomainContext = checkNotNull(bridgeDomainContext,
+                "Bridge domain naming context is null,for readers that don't need this dependency,use different constructor");
         this.localMappingContext = checkNotNull(localMappingContext,
                 "Local mappings reference is null,for readers that don't need this dependency use different constructor");
         this.remoteMappingContext = checkNotNull(remoteMappingContext,

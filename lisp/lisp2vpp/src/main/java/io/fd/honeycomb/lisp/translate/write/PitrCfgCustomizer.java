@@ -39,6 +39,8 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 public class PitrCfgCustomizer extends FutureJVppCustomizer
         implements WriterCustomizer<PitrCfg>, JvppReplyConsumer, ByteDataTranslator {
 
+    private static final String DEFAULT_LOCATOR_SET_NAME = "N/A";
+
     public PitrCfgCustomizer(FutureJVppCore futureJvpp) {
         super(futureJvpp);
     }
@@ -84,6 +86,13 @@ public class PitrCfgCustomizer extends FutureJVppCustomizer
 
     private void addDelPitrSetLocatorSetAndReply(boolean add, PitrCfg data)
             throws VppBaseCallException, TimeoutException {
+
+        if (DEFAULT_LOCATOR_SET_NAME.equals(data.getLocatorSet())) {
+            // ignores attempts to write default locator set
+            // therefore even while its loaded to config data of honeycomb while starting
+            // you can still enable/disable Lisp without having to define N/A as default pitr-set
+            return;
+        }
 
         LispPitrSetLocatorSet request = new LispPitrSetLocatorSet();
         request.isAdd = booleanToByte(add);

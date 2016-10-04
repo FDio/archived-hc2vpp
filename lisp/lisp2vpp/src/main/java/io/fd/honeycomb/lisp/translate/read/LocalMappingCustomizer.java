@@ -27,6 +27,7 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.MappingsDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
+import io.fd.honeycomb.lisp.translate.read.trait.MappingFilterProvider;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -36,23 +37,24 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.MappingId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.LocalMappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.LocalMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.LocalMappingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.LocalMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.LocalMappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.LocalMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.LocalMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.local.mappings.LocalMappingKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +63,12 @@ import org.slf4j.LoggerFactory;
  */
 public class LocalMappingCustomizer
         extends FutureJVppCustomizer
-        implements ListReaderCustomizer<LocalMapping, LocalMappingKey, LocalMappingBuilder>, EidTranslator {
+        implements ListReaderCustomizer<LocalMapping, LocalMappingKey, LocalMappingBuilder>, EidTranslator,
+        MappingFilterProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalMappingCustomizer.class);
     private static final String KEY = LocalMappingCustomizer.class.getName();
+
 
     private final DumpCacheManager<LispEidTableDetailsReplyDump, MappingsDumpParams> dumpManager;
     private final MappingsDumpExecutor dumpExecutor;
@@ -82,7 +86,6 @@ public class LocalMappingCustomizer
                         .withExecutor(dumpExecutor)
                         .build();
     }
-
 
     @Override
     public LocalMappingBuilder getBuilder(InstanceIdentifier<LocalMapping> id) {
@@ -128,17 +131,20 @@ public class LocalMappingCustomizer
         }
 
         LispEidTableDetails details = replyOptional.get().lispEidTableDetails.stream()
-                .filter(a -> compareAddresses(eid.getAddress(),
-                        getArrayAsEidLocal(valueOf(a.eidType), a.eid).getAddress()))
-                .collect(
-                        RWUtils.singleItemCollector());
+                .filter(subtableFilterForLocalMappings(id))
+                .filter(detail -> compareAddresses(eid.getAddress(), getAddressFromDumpDetail(detail)))
+                .collect(RWUtils.singleItemCollector());
 
         //in case of local mappings,locator_set_index stands for interface index
         checkState(locatorSetContext.containsName(details.locatorSetIndex, ctx.getMappingContext()),
                 "No Locator Set name found for index %s", details.locatorSetIndex);
         builder.setLocatorSet(locatorSetContext.getName(details.locatorSetIndex, ctx.getMappingContext()));
         builder.setKey(new LocalMappingKey(new MappingId(id.firstKeyOf(LocalMapping.class).getId())));
-        builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid));
+        builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid, details.vni));
+    }
+
+    private Address getAddressFromDumpDetail(final LispEidTableDetails detail) {
+        return getArrayAsEidLocal(valueOf(detail.eidType), detail.eid, detail.vni).getAddress();
     }
 
     @Override
@@ -173,14 +179,14 @@ public class LocalMappingCustomizer
             return Collections.emptyList();
         }
 
+
         return replyOptional.get().lispEidTableDetails.stream()
-                //filtering with vni to skip help local mappings that are created in vpp to handle remote mappings(vpp feature)
                 .filter(a -> a.vni == vni)
-                .map(a -> new LocalMappingKey(
-                        new MappingId(
-                                localMappingContext.getId(
-                                        getArrayAsEidLocal(valueOf(a.eidType), a.eid),
-                                        context.getMappingContext()))))
+                .filter(subtableFilterForLocalMappings(id))
+                .map(detail -> getArrayAsEidLocal(valueOf(detail.eidType), detail.eid, detail.vni))
+                .map(localEid -> localMappingContext.getId(localEid, context.getMappingContext()))
+                .map(MappingId::new)
+                .map(LocalMappingKey::new)
                 .collect(Collectors.toList());
     }
 
@@ -192,4 +198,5 @@ public class LocalMappingCustomizer
     private static String bindKey(String prefix) {
         return prefix + "_" + KEY;
     }
+
 }

@@ -35,7 +35,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 /**
  * Executor for dumping of locators
  */
-public class LocatorDumpExecutor extends AbstractDumpExecutor
+public class LocatorDumpExecutor extends AbstractJvppDumpExecutor
         implements EntityDumpExecutor<LispLocatorDetailsReplyDump, LocatorDumpParams>, JvppReplyConsumer {
 
 

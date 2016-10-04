@@ -31,7 +31,7 @@ module lisp {
 
   typedef locator-set-ref {
     type leafref {
-      path "/lisp/locator-sets/locator-set/name";
+      path "/lisp/lisp-feature-data/locator-sets/locator-set/name";
     }
     description "Locator-set reference";
   }
@@ -91,7 +91,6 @@ module lisp {
     // lisp_add_del_locator locator-set <ls_name> iface <iface_name>
     //                                  p <val> w <val> [del]
     container locator-sets {
-      when "../lisp:enable = 'true'";
       list locator-set {
         key "name";
         leaf name {
@@ -114,126 +113,147 @@ module lisp {
     description "Grouping for locator-sets";
   }
 
+  grouping adjacencies-grouping {
+    container adjacencies {
+      list adjacency {
+        key "id";
+        leaf id {
+          type string;
+          description "Adjacency id";
+        }
+        container local-eid {
+          uses lisp-types:lisp-address;
+          description "Local EID that must have a local mapping";
+        }
+        container remote-eid {
+          uses lisp-types:lisp-address;
+          description "Remote EID that must have a remote mapping";
+        }
+        description "List of adjacencies";
+      }
+      description "Adjacencies programmed into the data plane";
+    }
+    description "Adjacencies grouping";
+  }
+
+  grouping dp-subtable-grouping {
+    // Once both vni and table-id are set:
+    // lisp_eid_table_add_del_map <vni> <dp_table>
+    container local-mappings {
+      list local-mapping {
+        key "id";
+        leaf id {
+          type mapping-id;
+          description "Id that uniquely identifies a mapping";
+        }
+        container eid {
+          uses lisp-types:lisp-address;
+          description "EID address";
+        }
+        leaf locator-set {
+          type locator-set-ref;
+          description "Locator-set";
+        }
+        description "Local mapping";
+      }
+      description "Local EID to locator-set mappings";
+    }
+    // lisp_add_del_local_eid eid <ip-address/mask> locator-set
+    //                            <ls-name> [del]
+    // lisp_add_del_remote_mapping vni <vni> eid <eid> seid
+    //                             <seid> [action <action>] rloc
+    //                             <ip-addr> [rloc <ip-addr> ..]
+    // NOTE: 1.lisp_add_del_remote_mapping seid is used to build
+    //         src/dst mappings. Rlocs have p/w in them
+    container remote-mappings {
+      list remote-mapping {
+        key "id";
+        leaf id {
+          type mapping-id;
+          description "Id that uniquely identifies a mapping";
+        }
+        container eid {
+            description "Remote EID address";
+            uses lisp-types:lisp-address;
+        }
+        leaf ttl {
+          type uint32;
+          description "Mapping validity period.";
+        }
+        leaf authoritative {
+          type bits {
+            bit A {
+              description "Authoritative bit.";
+            }
+          }
+          description
+            "Bit that indicates if mapping comes from an
+             authoritative source.";
+        }
+        choice locator-list {
+          description
+            "list of locators are either negative, or positive.";
+          case negative-mapping {
+            //NOTE - Wrapped in container to prevent leaf map-reply-action enforcing impresence of rlocs
+            container map-reply{
+                leaf map-reply-action {
+                  type map-reply-action;
+                  description
+                    "Forwarding action for a negative mapping.";
+                }
+            }
+          }
+          case positive-mapping {
+            // NOTE if container is not needed to encapsulate
+            // locator list, remove it
+            container rlocs {
+              list locator {
+                 key "address";
+                 leaf address {
+                   type inet:ip-address;
+                   description "Locator address";
+                 }
+                 uses locator-properties-grouping;
+                 description "Remote locator";
+              }
+              description
+                "List of locators for a positive mapping.";
+            }
+          }
+        }
+        uses adjacencies-grouping;
+        description "List of remote mappings";
+      }
+      description "Map-cache/remote mappings cache";
+    }
+    description "Data path subtable (VRF/bridge domain) grouping";
+  }
+
   grouping eid-table-grouping {
     container eid-table {
-      when "../lisp:enable = 'true'";
       list vni-table {
         key "virtual-network-identifier";
         leaf virtual-network-identifier {
             type uint32;
             description "vni";
         }
-        leaf table-id {
-            type uint32;
-            description "table-id/vrf";
-        }
-        // Once both vni and table-id are set:
-        // lisp_eid_table_add_del_map <vni> <vrf>
-        container local-mappings {
-          list local-mapping {
-            key "id";
-            leaf id {
-              type mapping-id;
-              description "Id that uniquely identifies a mapping";
-            }
-            container eid {
-              uses lisp-types:lisp-address;
-              description "EID address";
-            }
-            leaf locator-set {
-              type locator-set-ref;
-              description "Locator-set";
-            }
-            description "Local mapping";
+        container vrf-subtable {
+          leaf table-id {
+             type uint32;
+             description "table-id";
           }
-          description "Local EID to locator-set mappings";
-        }
-    // lisp_add_del_local_eid eid <ip-address/mask> locator-set
-    //                            <ls-name> [del]
-    // lisp_add_del_remote_mapping vni <vni> eid <ip-pref> seid
-    //                             <ip-pref> [action <action>] rloc
-    //                             <ip-addr> [rloc <ip-addr> ..]
-    // NOTE: 1.lisp_add_del_remote_mapping needs updating, right now
-    //         it expects both seid and deid, but this will be
-    //         simplified to just eid
-    //       2.priority/weight not yet part of API, patch under
-    //         review
-        container remote-mappings {
-          list remote-mapping {
-            key "id";
-            leaf id {
-              type mapping-id;
-              description "Id that uniquely identifies a mapping";
-            }
-            container eid {
-                description "Remote EID address";
-                uses lisp-types:lisp-address;
-            }
-            leaf ttl {
-              type uint32;
-              description "Mapping validity period.";
-            }
-            leaf authoritative {
-              type bits {
-                bit A {
-                  description "Authoritative bit.";
-                }
-              }
-              description
-                "Bit that indicates if mapping comes from an
-                 authoritative source.";
-            }
-            choice locator-list {
-              description
-                "list of locators are either negative, or positive.";
-              case negative-mapping {
-                //NOTE if this is enclosed in container,there can be a dedicated writer/reader
-                //for setting/reading this node
-                leaf map-reply-action {
-                  type map-reply-action;
-                  description
-                    "Forwarding action for a negative mapping.";
-                }
-              }
-              case positive-mapping {
-                container rlocs {
-                  list locator {
-                     key "address";
-                     leaf address {
-                       type inet:ip-address;
-                       description "Locator address";
-                     }
-                     uses locator-properties-grouping;
-                     description "Remote locator";
-                  }
-                  description
-                    "List of locators for a positive mapping.";
-                }
-              }
-            }
-            description "List of remote mappings";
-          }
-          description "Map-cache/remote mappings cache";
-        }
 
-        container adjacencies {
-          list adjacency {
-            key "id";
-            leaf id {
-              type string;
-              description "Adjacency id";
-            }
-            container local-eid {
-              uses lisp-types:lisp-address;
-              description "Local EID that must have a local mapping";
-            }
-            container remote-eid {
-              uses lisp-types:lisp-address;
-              description "Remote EID that must have a remote mapping";
-            }
-            description "List of adjacencies";
+          uses dp-subtable-grouping;
+          description "VRF subtable";
+        }
+        container bridge-domain-subtable {
+          leaf bridge-domain-ref {
+            type string;
+            description "Name reference to existing bridge domain";
           }
-          description "Adjacencies programmed into the data plane";
+
+          uses dp-subtable-grouping;
+          description "Bridge domain subtable";
         }
         description "VNI tables";
       }
@@ -244,7 +264,6 @@ module lisp {
   grouping map-resolvers-grouping {
     container map-resolvers {
       // lisp_add_del_map_resolver <ip>
-      when "../lisp:enable = 'true'";
       list map-resolver {
         key ip-address;
         leaf ip-address {
@@ -260,52 +279,60 @@ module lisp {
   grouping pitr-cfg-grouping {
     // lisp_pitr_set_locator_set <ip>
     container pitr-cfg {
-      when "../lisp:enable = 'true'";
       leaf locator-set {
         type locator-set-ref;
         description "Locator-set reference";
       }
       description "Proxy-ITR configuration";
     }
-    description "";
+    description "PITR configuration grouping";
+  }
+
+  grouping itr-remote-locator-sets-grouping{
+    container itr-remote-locator-set{
+    // lisp_add_del_map_request_itr_rlocs add/del <ls_name>
+    // lisp_get_map_request_itr_rlocs
+        leaf remote-locator-set-name{
+            type locator-set-ref;
+            description "Locators to be used in map-requests";
+        }
+    }
+  }
+
+  grouping lisp-feature-data-grouping{
+    //aggregation of all lisp data, restricted by Lisp beeing enabled
+
+    container lisp-feature-data{
+        when "../lisp:enable = 'true'";
+
+        uses locator-sets-grouping;
+        uses eid-table-grouping;
+        uses map-resolvers-grouping;
+        uses pitr-cfg-grouping;
+        uses itr-remote-locator-sets-grouping;
+    }
   }
 
   // ref https://wiki.fd.io/view/ONE/Command-line_Interface_CLI_Guide
   container lisp {
+
     // lisp_enable_disable / lisp_enable_disable_status_dump
     leaf enable {
       type boolean;
       description "Enable/disable LISP feature";
     }
-    // lisp_add_del_map_request_itr_rlocs add/del <ls_name>
-    leaf itr-rlocs {
-      type locator-set-ref;
-      description "Locators to be used in map-requests";
-    }
-    uses locator-sets-grouping;
-    uses eid-table-grouping;
-    uses map-resolvers-grouping;
-    uses pitr-cfg-grouping;
-
-    // lisp_pitr_set_locator_set <ip>
+    uses lisp-feature-data-grouping;
     description "LISP configuration";
   }
 
   container lisp-state {
-    config false;
+
+    // lisp_enable_disable / lisp_enable_disable_status_dump
     leaf enable {
       type boolean;
-      description "LISP status";
+      description "Enable/disable LISP feature";
     }
-    leaf itr-rlocs {
-      type locator-set-ref;
-      description "Locators to be used in map-requests";
-    }
-    uses locator-sets-grouping;
-    uses eid-table-grouping;
-    uses map-resolvers-grouping;
-    uses pitr-cfg-grouping;
-
+    uses lisp-feature-data-grouping;
     description "LISP state";
   }
 }

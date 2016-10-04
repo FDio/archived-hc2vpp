@@ -16,30 +16,28 @@
 
 package io.fd.honeycomb.lisp.translate.write;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.util.RWUtils;
+
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.TimeoutException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispEidTableAddDelMap;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * Customizer for {@code TableId}
+ * This customizer serves only as a check if user is not trying to define VniTable <br>
+ * without mapping to vrf/bd
  */
-public class VniTableCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<VniTable, VniTableKey>, ByteDataTranslator, JvppReplyConsumer {
+public class VniTableCustomizer extends FutureJVppCustomizer implements ListWriterCustomizer<VniTable, VniTableKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
@@ -50,19 +48,7 @@ public class VniTableCustomizer extends FutureJVppCustomizer
     @Override
     public void writeCurrentAttributes(InstanceIdentifier<VniTable> id, VniTable dataAfter, WriteContext writeContext)
             throws WriteFailedException {
-
-        checkNotNull(dataAfter.getTableId(), "VRF cannot be null");
-        checkNotNull(dataAfter.getVirtualNetworkIdentifier(), "VNI cannot be null");
-
-        LOG.debug("Writing {}", id);
-
-        try {
-            addDelMap(true, dataAfter.getVirtualNetworkIdentifier().intValue(), dataAfter.getTableId().intValue());
-        } catch (TimeoutException | VppBaseCallException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
-
-        LOG.debug("Write of {} successful", id);
+        checkAtLeastOnChildExists(id, writeContext, false);
     }
 
     @Override
@@ -74,29 +60,24 @@ public class VniTableCustomizer extends FutureJVppCustomizer
     @Override
     public void deleteCurrentAttributes(InstanceIdentifier<VniTable> id, VniTable dataBefore, WriteContext writeContext)
             throws WriteFailedException {
-        checkNotNull(dataBefore.getTableId(), "VRF cannot be null");
-        checkNotNull(dataBefore.getVirtualNetworkIdentifier(), "VNI cannot be null");
-
-        LOG.debug("Removing {}", id);
-
-        try {
-            addDelMap(false, dataBefore.getVirtualNetworkIdentifier().intValue(), dataBefore.getTableId().intValue());
-        } catch (TimeoutException | VppBaseCallException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataBefore, e);
-        }
-
-        LOG.debug("Remove  of {} successful", id);
+        checkAtLeastOnChildExists(id, writeContext, true);
     }
 
-    private void addDelMap(boolean isAdd, int vni, int vrf) throws TimeoutException, VppBaseCallException {
+    private void checkAtLeastOnChildExists(final InstanceIdentifier<VniTable> id, final WriteContext writeContext,
+                                           final boolean before) {
 
-        LispEidTableAddDelMap request = new LispEidTableAddDelMap();
+        Optional<VniTable> optData;
+        final InstanceIdentifier<VniTable> trimmedId = RWUtils.cutId(id, InstanceIdentifier.create(VniTable.class));
+        if (before) {
+            optData = writeContext.readBefore(trimmedId);
+        } else {
+            optData = writeContext.readAfter(trimmedId);
+        }
 
-        request.isAdd = booleanToByte(isAdd);
-        request.vni = vni;
-        request.dpTable = vrf;
-        request.isL2 = 0;
+        checkState(optData.isPresent(), "Illegal after-write state");
 
-        getReply(getFutureJVpp().lispEidTableAddDelMap(request).toCompletableFuture());
+        final VniTable dataAfter = optData.get();
+        checkState(dataAfter.getVrfSubtable() != null || dataAfter.getBridgeDomainSubtable() != null,
+                "At least one of VrfSubtable/BridgeDomainSubtable must be defined");
     }
 }

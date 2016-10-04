@@ -25,6 +25,7 @@ import static io.fd.honeycomb.lisp.translate.write.RemoteMappingCustomizer.Locat
 
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
+import io.fd.honeycomb.lisp.translate.read.trait.MappingProducer;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.AddressTranslator;
@@ -43,14 +44,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.MapReplyAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.MappingId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.RemoteMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.RemoteMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.LocatorList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.NegativeMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.PositiveMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.Rlocs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.Locator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.VniTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.RemoteMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.RemoteMappingKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.LocatorList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.locator.list.NegativeMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.locator.list.PositiveMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.locator.list.positive.mapping.Rlocs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.Locator;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMapping;
@@ -62,7 +63,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
  */
 public class RemoteMappingCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<RemoteMapping, RemoteMappingKey>, EidTranslator,
-        AddressTranslator, JvppReplyConsumer {
+        AddressTranslator, JvppReplyConsumer, MappingProducer {
 
     private final EidMappingContext remoteMappingContext;
 
@@ -78,6 +79,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         checkNotNull(dataAfter, "Mapping is null");
         checkNotNull(dataAfter.getEid(), "Eid is null");
         checkState(id.firstKeyOf(VniTable.class) != null, "Parent vni table not found");
+        checkAllowedCombination(id, dataAfter);
 
         //checks whether mapping not already contains such key
         MappingId mappingId = id.firstKeyOf(RemoteMapping.class).getId();
@@ -167,7 +169,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         Preconditions.checkArgument(NEGATIVE.equals(resolveType(locatorList)),
                 "Action can be extracted only from Negative Mapping");
 
-        return ((NegativeMapping) locatorList).getMapReplyAction();
+        return ((NegativeMapping) locatorList).getMapReply().getMapReplyAction();
     }
 
     private static Rlocs extractRemoteLocators(LocatorList locatorList) {
