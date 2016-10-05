@@ -34,6 +34,7 @@
     <lisp.version>1.16.12-SNAPSHOT</lisp.version>
     <vpp.common.integration.version>1.16.12-SNAPSHOT</vpp.common.integration.version>
     <vppnsh.version>1.16.12-SNAPSHOT</vppnsh.version>
+    <nat.version>1.16.12-SNAPSHOT</nat.version>
 
     <distribution.modules>
       io.fd.honeycomb.vpp.common.integration.VppCommonModule,
@@ -87,6 +88,11 @@
       <groupId>io.fd.honeycomb.vppnsh</groupId>
       <artifactId>vppnsh-impl</artifactId>
       <version>${vppnsh.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.honeycomb.nat</groupId>
+      <artifactId>nat2vpp</artifactId>
+      <version>${nat.version}</version>
     </dependency>
   </dependencies>
 </project>

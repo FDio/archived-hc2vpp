@@ -41,7 +41,7 @@ public final class VppNshModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        LOG.info("Configuring VppNsh module");
+        LOG.debug("Installing NSH module");
 
         // Naming contexts
         bind(NamingContext.class)
@@ -59,6 +59,6 @@ public final class VppNshModule extends AbstractModule {
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(VppNshWriterFactory.class);
         Multibinder.newSetBinder(binder(), ReaderFactory.class).addBinding().to(VppNshReaderFactory.class);
         Multibinder.newSetBinder(binder(), DataTreeInitializer.class).addBinding().to(VppNshInitializer.class);
-        LOG.info("NSH module successfully configured");
+        LOG.info("Module NSH successfully configured");
     }
 }

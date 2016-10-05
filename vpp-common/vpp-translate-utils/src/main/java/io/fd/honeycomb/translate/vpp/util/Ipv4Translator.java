@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 
 /**
- * Trait providing logic for translation of ipv4-related data
+ * Trait providing logic for translation of ipv4-related data.
  */
 public interface Ipv4Translator extends ByteDataTranslator {
 

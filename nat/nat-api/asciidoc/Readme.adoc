@@ -1,0 +1,11 @@
+= nat-api
+
+The APIs are based on ietf-nat YANG model draft:
+https://tools.ietf.org/html/draft-sivakumar-yang-nat-05
+
+== Notes on model
+* Nat-instances map to VRF in VPP (nat-instance/id mapps to VRF-ID)
+
+== Deviations
+* nat-state/nat-instances/nat-instance/id type changed to uint32 from int32
+* "mandatory true" statements commented to support partial model implementation

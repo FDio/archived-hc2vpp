@@ -35,11 +35,16 @@ import io.fd.honeycomb.translate.write.WriterFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import net.jmob.guice.conf.core.ConfigurationModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class V3poModule extends AbstractModule {
 
+    private static final Logger LOG = LoggerFactory.getLogger(V3poModule.class);
+
     @Override
     protected void configure() {
+        LOG.debug("Installing V3PO module");
         install(ConfigurationModule.create());
         requestInjection(V3poConfiguration.class);
 
@@ -91,5 +96,6 @@ public class V3poModule extends AbstractModule {
         final Multibinder<ManagedNotificationProducer> notifiersBinder =
                 Multibinder.newSetBinder(binder(), ManagedNotificationProducer.class);
         notifiersBinder.addBinding().to(InterfaceChangeNotificationProducer.class);
+        LOG.info("Module V3PO successfully configured");
     }
 }

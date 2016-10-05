@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
  Copyright (c) 2015 Cisco and/or its affiliates.
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,39 +17,40 @@
 
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>impl-parent</artifactId>
+    <artifactId>honeycomb-parent</artifactId>
     <version>1.16.12-SNAPSHOT</version>
-    <relativePath>../../common/impl-parent</relativePath>
+    <relativePath>../common/honeycomb-parent</relativePath>
   </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>io.fd.honeycomb.vpp</groupId>
-  <artifactId>vpp-impl-parent</artifactId>
-  <name>${project.artifactId}</name>
+  <groupId>io.fd.honeycomb.nat</groupId>
+  <artifactId>nat-aggregator</artifactId>
   <version>1.16.12-SNAPSHOT</version>
+  <name>nat-aggregator</name>
   <packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
 
-  <properties>
-    <jvpp.version>16.12-SNAPSHOT</jvpp.version>
-  </properties>
+  <modules>
+    <module>nat-api</module>
+    <module>nat2vpp</module>
+  </modules>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.fd.vpp</groupId>
-        <artifactId>jvpp-core</artifactId>
-        <version>${jvpp.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.fd.vpp</groupId>
-        <artifactId>jvpp-registry</artifactId>
-        <version>${jvpp.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.fd.honeycomb.vpp</groupId>
-        <artifactId>vpp-translate-utils</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+  <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

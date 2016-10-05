@@ -35,7 +35,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
  * Utility adapter on top of {@link MappingContext} storing integer to string mappings according to naming-context yang
- * model
+ * model.
  */
 public final class NamingContext implements AutoCloseable {
 

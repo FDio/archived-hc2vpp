@@ -1,0 +1,12 @@
+= SNAT
+
+Support fot VPP's SNAT plugin:
+https://docs.fd.io/vpp/16.12/plugins_snat-plugin_snat.html
+
+== Supported features
+
+=== 1:1 NAT
+- Create/Read/Delete static 1:1 IPv4 (no port) mappings
+
+=== Interface NAT feature
+- Enable/Disable NAT feature for interface
