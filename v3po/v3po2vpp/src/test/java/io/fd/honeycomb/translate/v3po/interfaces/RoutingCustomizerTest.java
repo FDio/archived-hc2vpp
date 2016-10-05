@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTable;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTableReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -32,16 +34,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.RoutingBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTable;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTableReply;
 
 public class RoutingCustomizerTest extends WriterCustomizerTest {
     private static final String IFACE_CTX_NAME = "interface-ctx";
     private static final String IF_NAME = "eth1";
     private static final int IF_INDEX = 1;
     private static final InstanceIdentifier<Routing> IID =
-        InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME))
-            .augmentation(VppInterfaceAugmentation.class).child(Routing.class);
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME))
+                    .augmentation(VppInterfaceAugmentation.class).child(Routing.class);
 
     private RoutingCustomizer customizer;
 
@@ -80,8 +80,15 @@ public class RoutingCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDelete() throws WriteFailedException {
+        when(api.swInterfaceSetTable(any())).thenReturn(future(new SwInterfaceSetTableReply()));
         customizer.deleteCurrentAttributes(IID, routing(123), writeContext);
-        verifyZeroInteractions(api);
+        verify(api).swInterfaceSetTable(expectedRequest(0));
+    }
+
+    @Test(expected = WriteFailedException.DeleteFailedException.class)
+    public void testDeleteFailed() throws WriteFailedException {
+        when(api.swInterfaceSetTable(any())).thenReturn(failedFuture());
+        customizer.deleteCurrentAttributes(IID, routing(123), writeContext);
     }
 
     private Routing routing(final long vrfId) {

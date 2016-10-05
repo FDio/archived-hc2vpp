@@ -23,15 +23,15 @@ import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTable;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTableReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTable;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTableReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,8 +76,15 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> id,
-                                        @Nonnull final Routing dataBefore, @Nonnull final WriteContext writeContext) {
-        // TODO HONEYCOMB-176 implement delete
+                                        @Nonnull final Routing dataBefore, @Nonnull final WriteContext writeContext)
+            throws WriteFailedException {
+        final String ifName = id.firstKeyOf(Interface.class).getName();
+        try {
+            disableRouting(id, ifName, writeContext);
+        } catch (VppBaseCallException e) {
+            LOG.warn("Failed to disable routing for interface: {}, {}", ifName, writeContext);
+            throw new WriteFailedException.DeleteFailedException(id, e);
+        }
     }
 
     private void setRouting(final InstanceIdentifier<Routing> id, final String name, final Routing rt,
@@ -96,6 +103,21 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
             getReplyForWrite(swInterfaceSetTableReplyCompletionStage.toCompletableFuture(), id);
             LOG.debug("Routing set successfully for interface: {}, {}, routing: {}", name, swIfc, rt);
         }
+    }
+
+    /**
+     * In this case, there is no such thing as delete routing,only thing that can be done is to disable it by setting
+     * default value 0
+     */
+    private void disableRouting(final InstanceIdentifier<Routing> id, final String name,
+                                final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+        final int swIfc = interfaceContext.getIndex(name, writeContext.getMappingContext());
+        LOG.debug("Disabling routing for interface: {}, {}.", name, swIfc);
+
+        getReplyForWrite(getFutureJVpp()
+                .swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, 0)).toCompletableFuture(), id);
+        LOG.debug("Routing for interface: {}, {} successfully disabled", name, swIfc);
+
     }
 
     private SwInterfaceSetTable getInterfaceSetTableRequest(final int swIfc, final byte isIpv6, final int vrfId) {
