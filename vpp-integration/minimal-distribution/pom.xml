@@ -75,10 +75,10 @@
       <artifactId>lisp2vpp</artifactId>
       <version>${lisp.version}</version>
     </dependency>
-    <!--<dependency>-->
-      <!--<groupId>io.fd.honeycomb.vppnsh</groupId>-->
-      <!--<artifactId>vppnsh-impl</artifactId>-->
-      <!--<version>${vppnsh.version}</version>-->
-    <!--</dependency>-->
+    <dependency>
+      <groupId>io.fd.honeycomb.vppnsh</groupId>
+      <artifactId>vppnsh-impl</artifactId>
+      <version>${vppnsh.version}</version>
+    </dependency>
   </dependencies>
 </project>
