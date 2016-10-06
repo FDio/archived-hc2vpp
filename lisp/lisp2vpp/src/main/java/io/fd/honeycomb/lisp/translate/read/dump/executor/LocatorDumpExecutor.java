@@ -19,17 +19,14 @@ package io.fd.honeycomb.lisp.translate.read.dump.executor;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 /**
@@ -44,7 +41,10 @@ public class LocatorDumpExecutor extends AbstractJvppDumpExecutor
     }
 
     @Override
-    public LispLocatorDetailsReplyDump executeDump(final LocatorDumpParams params) throws DumpExecutionFailedException {
+    @Nonnull
+    public LispLocatorDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier,
+                                                   final LocatorDumpParams params) throws
+            ReadFailedException {
         checkNotNull(params, "Params for dump request not present");
 
         LispLocatorDump request = new LispLocatorDump();
@@ -52,14 +52,6 @@ public class LocatorDumpExecutor extends AbstractJvppDumpExecutor
         //flag that lsIndex is set
         request.isIndexSet = (byte) 1;
 
-        try {
-            return getReply(vppApi.lispLocatorDump(request).toCompletableFuture());
-        } catch (TimeoutException e) {
-            throw DumpTimeoutException
-                    .wrapTimeoutException("Locator dump ended in timeout with params" + params.toString(), e);
-        } catch (VppBaseCallException e) {
-            throw DumpCallFailedException
-                    .wrapFailedCallException("Locator dump failed with params" + params.toString(), e);
-        }
+        return getReplyForRead(vppApi.lispLocatorDump(request).toCompletableFuture(), identifier);
     }
 }

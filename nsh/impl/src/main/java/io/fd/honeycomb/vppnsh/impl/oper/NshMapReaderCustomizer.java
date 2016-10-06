@@ -26,6 +26,10 @@ import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
+import io.fd.vpp.jvpp.nsh.dto.NshMapDetails;
+import io.fd.vpp.jvpp.nsh.dto.NshMapDetailsReplyDump;
+import io.fd.vpp.jvpp.nsh.dto.NshMapDump;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,11 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.nsh.dto.NshMapDetails;
-import io.fd.vpp.jvpp.nsh.dto.NshMapDetailsReplyDump;
-import io.fd.vpp.jvpp.nsh.dto.NshMapDump;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,60 +82,55 @@ public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
                                       @Nonnull final NshMapBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("Reading attributes for nsh map: {}", id);
-        try {
-            final NshMapKey key = id.firstKeyOf(NshMap.class);
-            checkArgument(key != null, "could not find NshMap key in {}", id);
-            final NshMapDump request = new NshMapDump();
+        final NshMapKey key = id.firstKeyOf(NshMap.class);
+        checkArgument(key != null, "could not find NshMap key in {}", id);
+        final NshMapDump request = new NshMapDump();
 
-            final String mapName = key.getName();
-            if (!nshMapContext.containsIndex(mapName, ctx.getMappingContext())) {
-                LOG.debug("Could not find nsh map {} in the naming context", mapName);
+        final String mapName = key.getName();
+        if (!nshMapContext.containsIndex(mapName, ctx.getMappingContext())) {
+            LOG.debug("Could not find nsh map {} in the naming context", mapName);
+            return;
+        }
+        request.mapIndex = nshMapContext.getIndex(mapName, ctx.getMappingContext());
+
+        final CompletionStage<NshMapDetailsReplyDump> nshMapDetailsReplyDumpCompletionStage =
+                getFutureJVppNsh().nshMapDump(request);
+        final NshMapDetailsReplyDump reply =
+                getReplyForRead(nshMapDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
+
+        if (reply == null || reply.nshMapDetails == null || reply.nshMapDetails.isEmpty()) {
+            LOG.debug("Has no Nsh Map {} in VPP. ", key.getName());
+            return;
+        }
+
+        LOG.trace("Nsh Map : {} attributes returned from VPP: {}", key.getName(), reply);
+
+        final NshMapDetails nshMapDetails = reply.nshMapDetails.get(0);
+        builder.setName(mapName);
+        builder.setKey(key);
+
+        builder.setNsp((long) ((nshMapDetails.nspNsi >> 8) & 0xFFFFFF));
+        builder.setNsi((short) (nshMapDetails.nspNsi & 0xFF));
+
+        builder.setMappedNsp((long) ((nshMapDetails.mappedNspNsi >> 8) & 0xFFFFFF));
+        builder.setMappedNsi((short) (nshMapDetails.mappedNspNsi & 0xFF));
+
+        switch (nshMapDetails.nextNode) {
+            case 2:
+                builder.setEncapType(VxlanGpe.class);
+                break;
+            default:
+                LOG.trace("Unsupported encap type for nsh map: {}", nshMapDetails.nextNode);
                 return;
-            }
-            request.mapIndex = nshMapContext.getIndex(mapName, ctx.getMappingContext());
+        }
 
-            final CompletionStage<NshMapDetailsReplyDump> nshMapDetailsReplyDumpCompletionStage =
-                    getFutureJVppNsh().nshMapDump(request);
-            final NshMapDetailsReplyDump reply =
-                    getReplyForRead(nshMapDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
+        checkState(interfaceContext.containsName(nshMapDetails.swIfIndex, ctx.getMappingContext()),
+                "Mapping does not contains mapping for provider interface Index ");
+        final String interfaceName = interfaceContext.getName(nshMapDetails.swIfIndex, ctx.getMappingContext());
+        builder.setEncapIfName(interfaceName);
 
-            if (reply == null || reply.nshMapDetails == null || reply.nshMapDetails.isEmpty()) {
-                LOG.debug("Has no Nsh Map {} in VPP. ", key.getName());
-                return;
-            }
-
-            LOG.trace("Nsh Map : {} attributes returned from VPP: {}", key.getName(), reply);
-
-            final NshMapDetails nshMapDetails = reply.nshMapDetails.get(0);
-            builder.setName(mapName);
-            builder.setKey(key);
-
-            builder.setNsp((long) ((nshMapDetails.nspNsi >> 8) & 0xFFFFFF));
-            builder.setNsi((short) (nshMapDetails.nspNsi & 0xFF));
-
-            builder.setMappedNsp((long) ((nshMapDetails.mappedNspNsi >> 8) & 0xFFFFFF));
-            builder.setMappedNsi((short) (nshMapDetails.mappedNspNsi & 0xFF));
-
-            switch (nshMapDetails.nextNode) {
-                case 2:
-                    builder.setEncapType(VxlanGpe.class);
-                    break;
-                default:
-                    LOG.trace("Unsupported encap type for nsh map: {}", nshMapDetails.nextNode);
-                    return;
-            }
-
-            checkState(interfaceContext.containsName(nshMapDetails.swIfIndex, ctx.getMappingContext()),
-                    "Mapping does not contains mapping for provider interface Index ");
-            final String interfaceName = interfaceContext.getName(nshMapDetails.swIfIndex, ctx.getMappingContext());
-            builder.setEncapIfName(interfaceName);
-
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Attributes for nsh map {} successfully read: {}", id, builder.build());
-            }
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to readCurrentAttributes for: {}", id);
-            throw new ReadFailedException(id, e);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Attributes for nsh map {} successfully read: {}", id, builder.build());
         }
     }
 

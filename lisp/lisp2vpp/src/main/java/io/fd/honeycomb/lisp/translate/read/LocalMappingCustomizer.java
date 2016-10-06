@@ -34,7 +34,6 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
@@ -117,14 +116,8 @@ public class LocalMappingCustomizer
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
-        Optional<LispEidTableDetailsReplyDump> replyOptional;
-
-        try {
-            replyOptional =
-                    dumpManager.getDump(bindKey("SPECIFIC_" + localMappingId), ctx.getModificationCache(), dumpParams);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispEidTableDetailsReplyDump> replyOptional =
+                dumpManager.getDump(id, bindKey("SPECIFIC_" + localMappingId), ctx.getModificationCache(), dumpParams);
 
         if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return;
@@ -168,12 +161,8 @@ public class LocalMappingCustomizer
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
-        Optional<LispEidTableDetailsReplyDump> replyOptional;
-        try {
-            replyOptional = dumpManager.getDump(bindKey("ALL_LOCAL"), context.getModificationCache(), dumpParams);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispEidTableDetailsReplyDump> replyOptional =
+                dumpManager.getDump(id, bindKey("ALL_LOCAL"), context.getModificationCache(), dumpParams);
 
         if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return Collections.emptyList();

@@ -4,22 +4,18 @@ package io.fd.honeycomb.lisp.translate.read;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import io.fd.vpp.jvpp.VppCallbackException;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -61,11 +57,11 @@ public class VniTableCustomizerTest extends ListReaderCustomizerTest<VniTable, V
         try {
             getCustomizer().getAllIds(validId, ctx);
         } catch (ReadFailedException e) {
-            assertTrue(e instanceof ReadFailedException);
-            assertTrue(e.getCause() instanceof DumpCallFailedException);
-            assertTrue(e.getCause().getCause() instanceof VppCallbackException);
+            assertTrue(e.getCause() instanceof VppCallbackException);
+            return;
         }
 
+        fail("Test should have thrown ReadFailedException");
     }
 
     @Test
@@ -99,13 +95,7 @@ public class VniTableCustomizerTest extends ListReaderCustomizerTest<VniTable, V
 
     private void whenLispEidTableVniDumpThrowException() {
         when(api.lispEidTableVniDump(Mockito.any()))
-                .thenReturn(new CompletableFuture<LispEidTableVniDetailsReplyDump>() {
-                    @Override
-                    public LispEidTableVniDetailsReplyDump get(final long l, final TimeUnit timeUnit)
-                            throws InterruptedException, ExecutionException, TimeoutException {
-                        throw new ExecutionException(new VppCallbackException("lispEidTableVniDump", 1, -2));
-                    }
-                });
+                .thenReturn(failedFuture());
     }
 
     @Override

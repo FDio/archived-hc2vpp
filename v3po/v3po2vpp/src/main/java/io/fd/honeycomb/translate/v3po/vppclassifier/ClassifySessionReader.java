@@ -29,6 +29,10 @@ import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.vpp.jvpp.core.dto.ClassifySessionDetails;
+import io.fd.vpp.jvpp.core.dto.ClassifySessionDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.ClassifySessionDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -48,11 +52,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.ClassifySessionDetails;
-import io.fd.vpp.jvpp.core.dto.ClassifySessionDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.ClassifySessionDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,21 +154,18 @@ public class ClassifySessionReader extends FutureJVppCustomizer
         final int tableId = classifyTableContext.getTableIndex(tableName, ctx.getMappingContext());
         LOG.debug("Dumping classify sessions for classify table id={}", tableId);
 
-        try {
-            final ClassifySessionDump dumpRequest = new ClassifySessionDump();
-            dumpRequest.tableId = tableId;
-            classifySessionDump =
-                    getReplyForRead(getFutureJVpp().classifySessionDump(dumpRequest).toCompletableFuture(), id);
 
-            if (classifySessionDump != null) {
-                // update the cache:
-                ctx.getModificationCache().put(cacheKey, classifySessionDump);
-            }
+        final ClassifySessionDump dumpRequest = new ClassifySessionDump();
+        dumpRequest.tableId = tableId;
+        classifySessionDump =
+                getReplyForRead(getFutureJVpp().classifySessionDump(dumpRequest).toCompletableFuture(), id);
 
-            return classifySessionDump;
-        } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id, e);
+        if (classifySessionDump != null) {
+            // update the cache:
+            ctx.getModificationCache().put(cacheKey, classifySessionDump);
         }
+
+        return classifySessionDump;
     }
 
     private static Optional<ClassifySessionDetails> findClassifySessionDetailsByMatch(

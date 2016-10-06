@@ -18,15 +18,18 @@ package io.fd.honeycomb.translate.vpp.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.dto.JVppReply;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.dto.JVppReply;
 
 /**
  * Trait providing logic for consuming reply's to jvpp api calls
@@ -35,18 +38,112 @@ public interface JvppReplyConsumer {
 
     int DEFAULT_TIMEOUT_IN_SECONDS = 5;
 
+    /**
+     * Consumes reply for jvpp call representing any write operation
+     * Should be used in case of calls where it's not clear which write crud operation respective
+     * call represents, for ex. setRouting
+     */
     default <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
                                                             @Nonnull final InstanceIdentifier<?> replyType)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         return getReplyForWrite(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
     }
 
+    /**
+     * Consumes reply for jvpp call representing any write operation
+     * Should be used in case of calls where it's not clear which write crud operation respective
+     * call represents, for ex. setRouting
+     */
     default <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
                                                             @Nonnull final InstanceIdentifier<?> replyType,
                                                             @Nonnegative final int timeoutInSeconds)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         try {
             return getReply(future, timeoutInSeconds);
+        } catch (TimeoutException e) {
+            throw new WriteTimeoutException(replyType, e);
+        } catch (VppBaseCallException e) {
+            throw new WriteFailedException(replyType, e);
+        }
+
+    }
+
+    /**
+     * Consumes reply for jvpp call representing create operation
+     */
+    default <REP extends JVppReply<?>> REP getReplyForCreate(@Nonnull Future<REP> future,
+                                                             @Nonnull final InstanceIdentifier<?> replyType,
+                                                             @Nonnull final DataObject data)
+            throws WriteFailedException {
+        return getReplyForCreate(future, replyType, data, DEFAULT_TIMEOUT_IN_SECONDS);
+    }
+
+    /**
+     * Consumes reply for jvpp call representing create operation
+     */
+    default <REP extends JVppReply<?>> REP getReplyForCreate(@Nonnull Future<REP> future,
+                                                             @Nonnull final InstanceIdentifier<?> replyType,
+                                                             @Nonnull final DataObject data,
+                                                             @Nonnegative final int timeoutInSeconds)
+            throws WriteFailedException {
+        try {
+            return getReply(future, timeoutInSeconds);
+        } catch (VppBaseCallException e) {
+            throw new WriteFailedException.CreateFailedException(replyType, data, e);
+        } catch (TimeoutException e) {
+            throw new WriteTimeoutException(replyType, e);
+        }
+    }
+
+    /**
+     * Consumes reply for jvpp call representing update operation
+     */
+    default <REP extends JVppReply<?>> REP getReplyForUpdate(@Nonnull Future<REP> future,
+                                                             @Nonnull final InstanceIdentifier<?> replyType,
+                                                             @Nonnull final DataObject dataBefore,
+                                                             @Nonnull final DataObject dataAfter)
+            throws WriteFailedException {
+        return getReplyForUpdate(future, replyType, dataBefore, dataAfter, DEFAULT_TIMEOUT_IN_SECONDS);
+    }
+
+    /**
+     * Consumes reply for jvpp call representing update operation
+     */
+    default <REP extends JVppReply<?>> REP getReplyForUpdate(@Nonnull Future<REP> future,
+                                                             @Nonnull final InstanceIdentifier<?> replyType,
+                                                             @Nonnull final DataObject dataBefore,
+                                                             @Nonnull final DataObject dataAfter,
+                                                             @Nonnegative final int timeoutInSeconds)
+            throws WriteFailedException {
+        try {
+            return getReply(future, timeoutInSeconds);
+        } catch (VppBaseCallException e) {
+            throw new WriteFailedException.UpdateFailedException(replyType, dataBefore, dataAfter, e);
+        } catch (TimeoutException e) {
+            throw new WriteTimeoutException(replyType, e);
+        }
+    }
+
+    /**
+     * Consumes reply for jvpp call representing delete operation
+     */
+    default <REP extends JVppReply<?>> REP getReplyForDelete(@Nonnull Future<REP> future,
+                                                             @Nonnull final InstanceIdentifier<?> replyType)
+            throws WriteFailedException {
+        return getReplyForDelete(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
+    }
+
+    /**
+     * Consumes reply for jvpp call representing delete operation
+     */
+    default <REP extends JVppReply<?>> REP getReplyForDelete(@Nonnull Future<REP> future,
+                                                             @Nonnull final InstanceIdentifier<?> replyType,
+                                                             @Nonnegative final int timeoutInSeconds)
+            throws WriteFailedException {
+        try {
+            return getReply(future, timeoutInSeconds);
+        } catch (VppBaseCallException e) {
+            throw new WriteFailedException.DeleteFailedException(replyType, e);
         } catch (TimeoutException e) {
             throw new WriteTimeoutException(replyType, e);
         }
@@ -54,18 +151,20 @@ public interface JvppReplyConsumer {
 
     default <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
                                                            @Nonnull final InstanceIdentifier<?> replyType)
-            throws VppBaseCallException, ReadTimeoutException {
+            throws ReadFailedException {
         return getReplyForRead(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
     }
 
     default <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
                                                            @Nonnull final InstanceIdentifier<?> replyType,
                                                            @Nonnegative final int timeoutInSeconds)
-            throws VppBaseCallException, ReadTimeoutException {
+            throws ReadFailedException {
         try {
             return getReply(future, timeoutInSeconds);
         } catch (TimeoutException e) {
             throw new ReadTimeoutException(replyType, e);
+        } catch (VppBaseCallException e) {
+            throw new ReadFailedException(replyType, e);
         }
     }
 

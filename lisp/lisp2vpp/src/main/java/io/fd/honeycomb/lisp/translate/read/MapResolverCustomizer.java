@@ -25,7 +25,6 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.AddressTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
@@ -71,12 +70,8 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
         LOG.debug("Reading attributes...");
 
-        Optional<LispMapResolverDetailsReplyDump> dumpOptional = null;
-        try {
-            dumpOptional = dumpManager.getDump(MAP_RESOLVERS_CACHE_ID, ctx.getModificationCache(), NO_PARAMS);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispMapResolverDetailsReplyDump> dumpOptional =
+                dumpManager.getDump(id, MAP_RESOLVERS_CACHE_ID, ctx.getModificationCache(), NO_PARAMS);
 
         if (!dumpOptional.isPresent() || dumpOptional.get().lispMapResolverDetails.isEmpty()) {
             LOG.warn("No data dumped");
@@ -106,12 +101,8 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
         LOG.debug("Dumping MapResolver...");
 
-        Optional<LispMapResolverDetailsReplyDump> dumpOptional;
-        try {
-            dumpOptional = dumpManager.getDump(MAP_RESOLVERS_CACHE_ID, context.getModificationCache(), NO_PARAMS);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispMapResolverDetailsReplyDump> dumpOptional =
+                dumpManager.getDump(id, MAP_RESOLVERS_CACHE_ID, context.getModificationCache(), NO_PARAMS);
 
         if (!dumpOptional.isPresent() || dumpOptional.get().lispMapResolverDetails.isEmpty()) {
             return Collections.emptyList();

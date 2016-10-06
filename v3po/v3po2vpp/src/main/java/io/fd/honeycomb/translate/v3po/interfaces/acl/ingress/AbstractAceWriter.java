@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
@@ -113,7 +114,7 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
     public final void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
                             final InterfaceMode mode, @Nonnull final InputAclSetInterface request,
                             @Nonnegative final int vlanTags)
-        throws VppBaseCallException, WriteTimeoutException {
+        throws WriteFailedException {
         final PacketHandling action = aces.stream().map(ace -> ace.getActions().getPacketHandling()).distinct()
             .collect(SINGLE_ITEM_COLLECTOR);
 
@@ -133,7 +134,7 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
 
     private int createClassifyTable(@Nonnull final InstanceIdentifier<?> id,
                                     @Nonnull final ClassifyAddDelTable request)
-        throws VppBaseCallException, WriteTimeoutException {
+        throws WriteFailedException {
         final CompletionStage<ClassifyAddDelTableReply> cs = futureJVppCore.classifyAddDelTable(request);
 
         final ClassifyAddDelTableReply reply = getReplyForWrite(cs.toCompletableFuture(), id);
@@ -142,7 +143,7 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
 
     private void createClassifySession(@Nonnull final InstanceIdentifier<?> id,
                                        @Nonnull final ClassifyAddDelSession request)
-        throws VppBaseCallException, WriteTimeoutException {
+        throws WriteFailedException {
         final CompletionStage<ClassifyAddDelSessionReply> cs = futureJVppCore.classifyAddDelSession(request);
 
         getReplyForWrite(cs.toCompletableFuture(), id);

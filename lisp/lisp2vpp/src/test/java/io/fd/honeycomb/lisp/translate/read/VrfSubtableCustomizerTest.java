@@ -11,7 +11,6 @@ import static org.junit.Assert.fail;
 import io.fd.honeycomb.lisp.translate.read.trait.SubtableReaderTestCase;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
 import io.fd.vpp.jvpp.VppCallbackException;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,8 +69,7 @@ public class VrfSubtableCustomizerTest extends SubtableReaderTestCase<VrfSubtabl
         try {
             customizer.readCurrentAttributes(validId, builder, ctx);
         } catch (ReadFailedException e) {
-            assertTrue(e.getCause() instanceof DumpCallFailedException);
-            assertTrue(e.getCause().getCause() instanceof VppCallbackException);
+            assertTrue(e.getCause() instanceof VppCallbackException);
             assertTrue(builder.getTableId() == null);
             verifyLispEidTableMapDumpNotCalled();
 

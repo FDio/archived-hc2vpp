@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
 import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
 import io.fd.vpp.jvpp.VppCallbackException;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
@@ -85,8 +84,7 @@ public class ItrRemoteLocatorSetCustomizerTest
         try {
             getCustomizer().readCurrentAttributes(validId, builder, ctx);
         } catch (ReadFailedException e) {
-            assertTrue(e.getCause() instanceof DumpCallFailedException);
-            assertTrue(e.getCause().getCause() instanceof VppCallbackException);
+            assertTrue(e.getCause() instanceof VppCallbackException);
             assertNotNull(builder);
             assertNull(builder.getRemoteLocatorSetName());
 

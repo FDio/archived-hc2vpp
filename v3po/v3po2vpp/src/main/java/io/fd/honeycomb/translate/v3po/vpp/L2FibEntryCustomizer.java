@@ -24,9 +24,11 @@ import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.MacTranslator;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.L2FibAddDel;
+import io.fd.vpp.jvpp.core.dto.L2FibAddDelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.L2FibFilter;
@@ -34,10 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.L2FibAddDel;
-import io.fd.vpp.jvpp.core.dto.L2FibAddDelReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,14 +63,10 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                        @Nonnull final L2FibEntry dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        try {
-            LOG.debug("Creating L2 FIB entry: {} {}", id, dataAfter);
-            l2FibAddDel(id, dataAfter, writeContext, true);
-            LOG.debug("L2 FIB entry created successfully: {} {}", id, dataAfter);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to create L2 FIB entry: {} {}", id, dataAfter);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+
+        LOG.debug("Creating L2 FIB entry: {} {}", id, dataAfter);
+        l2FibAddDel(id, dataAfter, writeContext, true);
+        LOG.debug("L2 FIB entry created successfully: {} {}", id, dataAfter);
     }
 
     @Override
@@ -87,19 +81,14 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                         @Nonnull final L2FibEntry dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        try {
-            LOG.debug("Deleting L2 FIB entry: {} {}", id, dataBefore);
-            l2FibAddDel(id, dataBefore, writeContext, false);
-            LOG.debug("L2 FIB entry deleted successfully: {} {}", id, dataBefore);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to delete L2 FIB entry: {} {}", id, dataBefore);
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+
+        LOG.debug("Deleting L2 FIB entry: {} {}", id, dataBefore);
+        l2FibAddDel(id, dataBefore, writeContext, false);
+        LOG.debug("L2 FIB entry deleted successfully: {} {}", id, dataBefore);
     }
 
     private void l2FibAddDel(@Nonnull final InstanceIdentifier<L2FibEntry> id, @Nonnull final L2FibEntry entry,
-                             final WriteContext writeContext, boolean isAdd)
-            throws VppBaseCallException, WriteTimeoutException {
+                             final WriteContext writeContext, boolean isAdd) throws WriteFailedException {
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
         final int bdId = bdContext.getIndex(bdName, writeContext.getMappingContext());
 

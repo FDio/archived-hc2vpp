@@ -21,9 +21,13 @@ import static java.util.Objects.requireNonNull;
 
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
@@ -31,12 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.XconnectBased;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,51 +60,40 @@ final class InterconnectionWriteUtils implements JvppReplyConsumer {
     void setInterconnection(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                             final String ifcName, final Interconnection ic, final WriteContext writeContext)
             throws WriteFailedException {
-        try {
-            if (ic == null) { // TODO in case of update we should delete interconnection
-                LOG.trace("Interconnection is not set. Skipping");
-            } else if (ic instanceof XconnectBased) {
-                setXconnectBasedL2(id, swIfIndex, ifcName, (XconnectBased) ic, writeContext, (byte) 1 /*enable*/);
-            } else if (ic instanceof BridgeBased) {
-                setBridgeBasedL2(id, swIfIndex, ifcName, (BridgeBased) ic, writeContext, (byte) 1 /*enable*/);
-            } else {
-                // Choices&cases are not data objects, so they cannot have a dedicated Reader/Writer
-                // This choice is already from augment, so its not possible to augment augmented choice
-                LOG.error("Unable to handle Interconnection of type {}", ic.getClass());
-                throw new WriteFailedException(id, "Unable to handle Interconnection of type " + ic.getClass());
-            }
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to update bridge/xconnect based interconnection flags for: {}, interconnection: {}",
-                    ifcName, ic);
-            throw new WriteFailedException(id, "Unable to handle Interconnection of type " + ic.getClass(), e);
+
+        if (ic == null) { // TODO in case of update we should delete interconnection
+            LOG.trace("Interconnection is not set. Skipping");
+        } else if (ic instanceof XconnectBased) {
+            setXconnectBasedL2(id, swIfIndex, ifcName, (XconnectBased) ic, writeContext, (byte) 1 /*enable*/);
+        } else if (ic instanceof BridgeBased) {
+            setBridgeBasedL2(id, swIfIndex, ifcName, (BridgeBased) ic, writeContext, (byte) 1 /*enable*/);
+        } else {
+            // Choices&cases are not data objects, so they cannot have a dedicated Reader/Writer
+            // This choice is already from augment, so its not possible to augment augmented choice
+            LOG.error("Unable to handle Interconnection of type {}", ic.getClass());
+            throw new WriteFailedException(id, "Unable to handle Interconnection of type " + ic.getClass());
         }
     }
 
     void deleteInterconnection(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                                final String ifcName, final Interconnection ic, final WriteContext writeContext)
             throws WriteFailedException {
-        try {
-            if (ic == null) { // TODO in case of update we should delete interconnection
-                LOG.trace("Interconnection is not set. Skipping");
-            } else if (ic instanceof XconnectBased) {
-                setXconnectBasedL2(id, swIfIndex, ifcName, (XconnectBased) ic, writeContext, (byte) 0 /*disable*/);
-            } else if (ic instanceof BridgeBased) {
-                setBridgeBasedL2(id, swIfIndex, ifcName, (BridgeBased) ic, writeContext, (byte) 0 /*disable*/);
-            } else {
-                LOG.error("Unable to delete Interconnection of type {}", ic.getClass());
-                throw new WriteFailedException(id, "Unable to delete Interconnection of type " + ic.getClass());
-            }
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to delete bridge/xconnect based interconnection flags for: {}, interconnection: {}",
-                    ifcName, ic);
-            throw new WriteFailedException(id, "Unable to delete Interconnection of type " + ic.getClass(), e);
+
+        if (ic == null) { // TODO in case of update we should delete interconnection
+            LOG.trace("Interconnection is not set. Skipping");
+        } else if (ic instanceof XconnectBased) {
+            setXconnectBasedL2(id, swIfIndex, ifcName, (XconnectBased) ic, writeContext, (byte) 0 /*disable*/);
+        } else if (ic instanceof BridgeBased) {
+            setBridgeBasedL2(id, swIfIndex, ifcName, (BridgeBased) ic, writeContext, (byte) 0 /*disable*/);
+        } else {
+            LOG.error("Unable to delete Interconnection of type {}", ic.getClass());
+            throw new WriteFailedException(id, "Unable to delete Interconnection of type " + ic.getClass());
         }
     }
 
     private void setBridgeBasedL2(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                                   final String ifcName, final BridgeBased bb,
-                                  final WriteContext writeContext, final byte enabled)
-            throws VppBaseCallException, WriteTimeoutException {
+                                  final WriteContext writeContext, final byte enabled) throws WriteFailedException {
         LOG.debug("Setting bridge based interconnection(bridge-domain={}) for interface: {}", bb.getBridgeDomain(),
                 ifcName);
 
@@ -144,8 +131,7 @@ final class InterconnectionWriteUtils implements JvppReplyConsumer {
 
     private void setXconnectBasedL2(final InstanceIdentifier<? extends DataObject> id, final int swIfIndex,
                                     final String ifcName, final XconnectBased ic,
-                                    final WriteContext writeContext, final byte enabled)
-            throws VppBaseCallException, WriteTimeoutException {
+                                    final WriteContext writeContext, final byte enabled) throws WriteFailedException {
         String outSwIfName = ic.getXconnectOutgoingInterface();
         LOG.debug("Setting xconnect based interconnection(outgoing ifc={}) for interface: {}", outSwIfName, ifcName);
 

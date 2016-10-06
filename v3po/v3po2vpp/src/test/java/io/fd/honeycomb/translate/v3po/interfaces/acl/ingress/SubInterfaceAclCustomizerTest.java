@@ -55,9 +55,9 @@ public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
     private static final int TABLE_INDEX = 123;
 
     private static final InstanceIdentifier<Ingress> IID =
-        InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME)).augmentation(
-            SubinterfaceAugmentation.class).child(SubInterfaces.class)
-            .child(SubInterface.class, new SubInterfaceKey(SUBIF_ID)).child(Acl.class).child(Ingress.class);
+            InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME)).augmentation(
+                    SubinterfaceAugmentation.class).child(SubInterfaces.class)
+                    .child(SubInterface.class, new SubInterfaceKey(SUBIF_ID)).child(Acl.class).child(Ingress.class);
 
     @Mock
     private VppClassifierContextManager classifyTableContext;
@@ -67,7 +67,7 @@ public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
     @Override
     protected void setUp() throws Exception {
         customizer = new SubInterfaceAclCustomizer(api, new NamingContext("prefix", IFC_TEST_INSTANCE),
-            classifyTableContext);
+                classifyTableContext);
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
         defineMapping(mappingContext, SUBIF_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
         when(classifyTableContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);
@@ -80,7 +80,7 @@ public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
         verify(api).inputAclSetInterface(expectedIp4AclRequest());
     }
 
-    @Test(expected = WriteFailedException.CreateFailedException.class)
+    @Test(expected = WriteFailedException.class)
     public void testCreateFailed() throws WriteFailedException {
         when(api.inputAclSetInterface(any())).thenReturn(failedFuture());
         customizer.writeCurrentAttributes(IID, ip4Acl(), writeContext);
@@ -98,7 +98,7 @@ public class SubInterfaceAclCustomizerTest extends WriterCustomizerTest {
         verify(api).inputAclSetInterface(expectedIp6AclRequest());
     }
 
-    @Test(expected = WriteFailedException.DeleteFailedException.class)
+    @Test(expected = WriteFailedException.class)
     public void testDeleteFailed() throws WriteFailedException {
         when(api.inputAclSetInterface(any())).thenReturn(failedFuture());
         customizer.deleteCurrentAttributes(IID, ip4Acl(), writeContext);

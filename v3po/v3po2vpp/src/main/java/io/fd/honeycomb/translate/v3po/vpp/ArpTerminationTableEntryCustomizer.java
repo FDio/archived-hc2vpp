@@ -23,9 +23,11 @@ import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
+import io.fd.vpp.jvpp.core.dto.BdIpMacAddDelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -34,10 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
-import io.fd.vpp.jvpp.core.dto.BdIpMacAddDelReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,14 +62,9 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
                                        @Nonnull final ArpTerminationTableEntry dataAfter,
                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        try {
-            LOG.debug("Creating ARP termination table entry: {} {}", id, dataAfter);
-            bdIpMacAddDel(id, dataAfter, writeContext, true);
-            LOG.debug("L2 ARP termination table entry created successfully: {} {}", id, dataAfter);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to create ARP termination table entry: {} {}", id, dataAfter);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        LOG.debug("Creating ARP termination table entry: {} {}", id, dataAfter);
+        bdIpMacAddDel(id, dataAfter, writeContext, true);
+        LOG.debug("L2 ARP termination table entry created successfully: {} {}", id, dataAfter);
     }
 
     @Override
@@ -88,20 +81,14 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
                                         @Nonnull final ArpTerminationTableEntry dataBefore,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        try {
-            LOG.debug("Deleting ARP termination table entry entry: {} {}", id, dataBefore);
-            bdIpMacAddDel(id, dataBefore, writeContext, false);
-            LOG.debug("ARP termination table entry deleted successfully: {} {}", id, dataBefore);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to delete ARP termination table entry: {} {}", id, dataBefore);
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        LOG.debug("Deleting ARP termination table entry entry: {} {}", id, dataBefore);
+        bdIpMacAddDel(id, dataBefore, writeContext, false);
+        LOG.debug("ARP termination table entry deleted successfully: {} {}", id, dataBefore);
     }
 
     private void bdIpMacAddDel(@Nonnull final InstanceIdentifier<ArpTerminationTableEntry> id,
                                @Nonnull final ArpTerminationTableEntry entry,
-                               final WriteContext writeContext, boolean isAdd)
-            throws VppBaseCallException, WriteTimeoutException {
+                               final WriteContext writeContext, boolean isAdd) throws WriteFailedException {
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
         final int bdId = bdContext.getIndex(bdName, writeContext.getMappingContext());
 

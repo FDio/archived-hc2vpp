@@ -22,6 +22,10 @@ import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -38,11 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,63 +74,59 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<VhostUser> id,
                                       @Nonnull final VhostUserBuilder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        try {
-            final InterfaceKey key = id.firstKeyOf(Interface.class);
-            final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-            if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index,
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class,
-                    LOG)) {
-                return;
-            }
 
-            LOG.debug("Reading attributes for vhpost user interface: {}", key.getName());
-
-            @SuppressWarnings("unchecked")
-            Map<Integer, SwInterfaceVhostUserDetails> mappedVhostUsers =
-                    (Map<Integer, SwInterfaceVhostUserDetails>) ctx.getModificationCache()
-                            .get(DUMPED_VHOST_USERS_CONTEXT_KEY);
-
-            if (mappedVhostUsers == null) {
-                // Full VhostUser dump has to be performed here, no filter or anything is here to help so at least we cache it
-                final SwInterfaceVhostUserDump request = new SwInterfaceVhostUserDump();
-                final CompletionStage<SwInterfaceVhostUserDetailsReplyDump>
-                        swInterfaceVhostUserDetailsReplyDumpCompletionStage =
-                        getFutureJVpp().swInterfaceVhostUserDump(request);
-                final SwInterfaceVhostUserDetailsReplyDump reply =
-                        getReplyForRead(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
-
-                if (null == reply || null == reply.swInterfaceVhostUserDetails) {
-                    mappedVhostUsers = Collections.emptyMap();
-                } else {
-                    final List<SwInterfaceVhostUserDetails> swInterfaceVhostUserDetails =
-                            reply.swInterfaceVhostUserDetails;
-                    // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-                    mappedVhostUsers = swInterfaceVhostUserDetails.stream()
-                            .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails));
-                }
-
-                ctx.getModificationCache().put(DUMPED_VHOST_USERS_CONTEXT_KEY, mappedVhostUsers);
-            }
-
-            // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping
-            final SwInterfaceVhostUserDetails swInterfaceVhostUserDetails = mappedVhostUsers.get(index);
-            LOG.trace("Vhost user interface: {} attributes returned from VPP: {}", key.getName(),
-                    swInterfaceVhostUserDetails);
-
-            builder.setRole(swInterfaceVhostUserDetails.isServer == 1
-                    ? VhostUserRole.Server
-                    : VhostUserRole.Client);
-            builder.setFeatures(BigInteger.valueOf(swInterfaceVhostUserDetails.features));
-            builder.setNumMemoryRegions((long) swInterfaceVhostUserDetails.numRegions);
-            builder.setSocket(toString(swInterfaceVhostUserDetails.sockFilename));
-            builder.setVirtioNetHdrSize((long) swInterfaceVhostUserDetails.virtioNetHdrSz);
-            // TODO: map error code to meaningful message after VPP-436 is done
-            builder.setConnectError(Integer.toString(swInterfaceVhostUserDetails.sockErrno));
-
-            LOG.debug("Vhost user interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to readCurrentAttributes for: {}", id, e);
-            throw new ReadFailedException(id, e);
+        final InterfaceKey key = id.firstKeyOf(Interface.class);
+        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
+        if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index,
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VhostUser.class,
+                LOG)) {
+            return;
         }
+
+        LOG.debug("Reading attributes for vhpost user interface: {}", key.getName());
+
+        @SuppressWarnings("unchecked")
+        Map<Integer, SwInterfaceVhostUserDetails> mappedVhostUsers =
+                (Map<Integer, SwInterfaceVhostUserDetails>) ctx.getModificationCache()
+                        .get(DUMPED_VHOST_USERS_CONTEXT_KEY);
+
+        if (mappedVhostUsers == null) {
+            // Full VhostUser dump has to be performed here, no filter or anything is here to help so at least we cache it
+            final SwInterfaceVhostUserDump request = new SwInterfaceVhostUserDump();
+            final CompletionStage<SwInterfaceVhostUserDetailsReplyDump>
+                    swInterfaceVhostUserDetailsReplyDumpCompletionStage =
+                    getFutureJVpp().swInterfaceVhostUserDump(request);
+            final SwInterfaceVhostUserDetailsReplyDump reply =
+                    getReplyForRead(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
+
+            if (null == reply || null == reply.swInterfaceVhostUserDetails) {
+                mappedVhostUsers = Collections.emptyMap();
+            } else {
+                final List<SwInterfaceVhostUserDetails> swInterfaceVhostUserDetails =
+                        reply.swInterfaceVhostUserDetails;
+                // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
+                mappedVhostUsers = swInterfaceVhostUserDetails.stream()
+                        .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails));
+            }
+
+            ctx.getModificationCache().put(DUMPED_VHOST_USERS_CONTEXT_KEY, mappedVhostUsers);
+        }
+
+        // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping
+        final SwInterfaceVhostUserDetails swInterfaceVhostUserDetails = mappedVhostUsers.get(index);
+        LOG.trace("Vhost user interface: {} attributes returned from VPP: {}", key.getName(),
+                swInterfaceVhostUserDetails);
+
+        builder.setRole(swInterfaceVhostUserDetails.isServer == 1
+                ? VhostUserRole.Server
+                : VhostUserRole.Client);
+        builder.setFeatures(BigInteger.valueOf(swInterfaceVhostUserDetails.features));
+        builder.setNumMemoryRegions((long) swInterfaceVhostUserDetails.numRegions);
+        builder.setSocket(toString(swInterfaceVhostUserDetails.sockFilename));
+        builder.setVirtioNetHdrSize((long) swInterfaceVhostUserDetails.virtioNetHdrSz);
+        // TODO: map error code to meaningful message after VPP-436 is done
+        builder.setConnectError(Integer.toString(swInterfaceVhostUserDetails.sockErrno));
+
+        LOG.debug("Vhost user interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
 }

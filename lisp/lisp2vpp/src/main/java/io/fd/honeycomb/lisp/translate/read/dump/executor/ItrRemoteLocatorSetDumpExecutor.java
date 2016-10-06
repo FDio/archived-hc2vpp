@@ -16,17 +16,14 @@
 
 package io.fd.honeycomb.lisp.translate.read.dump.executor;
 
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ItrRemoteLocatorSetDumpExecutor extends AbstractJvppDumpExecutor
         implements EntityDumpExecutor<LispGetMapRequestItrRlocsReply, Void>, JvppReplyConsumer {
@@ -36,13 +33,9 @@ public class ItrRemoteLocatorSetDumpExecutor extends AbstractJvppDumpExecutor
     }
 
     @Override
-    public LispGetMapRequestItrRlocsReply executeDump(final Void params) throws DumpExecutionFailedException {
-        try {
-            return getReply(vppApi.lispGetMapRequestItrRlocs(new LispGetMapRequestItrRlocs()).toCompletableFuture());
-        } catch (TimeoutException e) {
-            throw DumpTimeoutException.wrapTimeoutException("Dumping of Itr Remote Locator Sets ended in timeout", e);
-        } catch (VppBaseCallException e) {
-            throw DumpCallFailedException.wrapFailedCallException("Dumping of Itr Remote Locator Sets failed", e);
-        }
+    public LispGetMapRequestItrRlocsReply executeDump(final InstanceIdentifier<?> identifier, final Void params) throws
+            ReadFailedException {
+        return getReplyForRead(vppApi.lispGetMapRequestItrRlocs(new LispGetMapRequestItrRlocs()).toCompletableFuture(),
+                identifier);
     }
 }

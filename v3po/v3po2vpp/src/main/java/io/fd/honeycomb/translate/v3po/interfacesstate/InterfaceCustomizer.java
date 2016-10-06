@@ -25,6 +25,10 @@ import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -42,11 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,71 +135,66 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     @Override
     public List<InterfaceKey> getAllIds(@Nonnull final InstanceIdentifier<Interface> id,
                                         @Nonnull final ReadContext context) throws ReadFailedException {
-        try {
-            final List<InterfaceKey> interfacesKeys;
-            LOG.trace("Dumping all interfaces to get all IDs");
+        final List<InterfaceKey> interfacesKeys;
+        LOG.trace("Dumping all interfaces to get all IDs");
 
-            final SwInterfaceDump request = new SwInterfaceDump();
-            request.nameFilter = "".getBytes();
-            request.nameFilterValid = 0;
+        final SwInterfaceDump request = new SwInterfaceDump();
+        request.nameFilter = "".getBytes();
+        request.nameFilterValid = 0;
 
-            final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
-                    getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
-            final SwInterfaceDetailsReplyDump ifaces =
-                    getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
+        final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
+                getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
+        final SwInterfaceDetailsReplyDump ifaces =
+                getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
 
-            if (null == ifaces || null == ifaces.swInterfaceDetails) {
-                LOG.debug("No interfaces for :{} found in VPP", id);
-                return Collections.emptyList();
-            }
-
-            // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-            context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-                    .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
-
-            final MappingContext mappingCtx = context.getMappingContext();
-            final Set<Integer> interfacesIdxs = ifaces.swInterfaceDetails.stream()
-                    .filter(elt -> elt != null)
-                    // Filter out disabled interfaces, dont read them
-                    // This also prevents child readers in being invoked such as vxlan (which relies on disabling interfaces)
-                    .filter(elt -> !interfaceDisableContext
-                            .isInterfaceDisabled(elt.swIfIndex, mappingCtx))
-                    .map((elt) -> {
-                        // Store interface name from VPP in context if not yet present
-                        if (!interfaceNamingContext.containsName(elt.swIfIndex, mappingCtx)) {
-                            interfaceNamingContext.addName(elt.swIfIndex, toString(elt.interfaceName),
-                                    mappingCtx);
-                        }
-                        LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
-                                interfaceNamingContext.getName(elt.swIfIndex, mappingCtx),
-                                elt.interfaceName,
-                                elt.swIfIndex);
-
-                        return elt;
-                    })
-                    // filter out sub-interfaces
-                    .filter(InterfaceCustomizer::isRegularInterface)
-                    .map(elt -> elt.swIfIndex)
-                    .collect(Collectors.toSet());
-
-            // Clean disabled interfaces list
-            interfaceDisableContext.getDisabledInterfaces(mappingCtx).stream()
-                    // Find indices not currently in VPP
-                    .filter(interfacesIdxs::contains)
-                    // Remove from disabled list ... not disabled if not existing
-                    .forEach(idx -> interfaceDisableContext.removeDisabledInterface(idx, mappingCtx));
-
-            // Transform indices to keys
-            interfacesKeys = interfacesIdxs.stream()
-                    .map(index -> new InterfaceKey(interfaceNamingContext.getName(index, context.getMappingContext())))
-                    .collect(Collectors.toList());
-
-            LOG.debug("Interfaces found in VPP: {}", interfacesKeys);
-            return interfacesKeys;
-        } catch (VppBaseCallException e) {
-            LOG.warn("getAllIds for id :{} failed with exception ", id, e);
-            throw new ReadFailedException(id, e);
+        if (null == ifaces || null == ifaces.swInterfaceDetails) {
+            LOG.debug("No interfaces for :{} found in VPP", id);
+            return Collections.emptyList();
         }
+
+        // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
+        context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
+                .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+
+        final MappingContext mappingCtx = context.getMappingContext();
+        final Set<Integer> interfacesIdxs = ifaces.swInterfaceDetails.stream()
+                .filter(elt -> elt != null)
+                // Filter out disabled interfaces, dont read them
+                // This also prevents child readers in being invoked such as vxlan (which relies on disabling interfaces)
+                .filter(elt -> !interfaceDisableContext
+                        .isInterfaceDisabled(elt.swIfIndex, mappingCtx))
+                .map((elt) -> {
+                    // Store interface name from VPP in context if not yet present
+                    if (!interfaceNamingContext.containsName(elt.swIfIndex, mappingCtx)) {
+                        interfaceNamingContext.addName(elt.swIfIndex, toString(elt.interfaceName),
+                                mappingCtx);
+                    }
+                    LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
+                            interfaceNamingContext.getName(elt.swIfIndex, mappingCtx),
+                            elt.interfaceName,
+                            elt.swIfIndex);
+
+                    return elt;
+                })
+                // filter out sub-interfaces
+                .filter(InterfaceCustomizer::isRegularInterface)
+                .map(elt -> elt.swIfIndex)
+                .collect(Collectors.toSet());
+
+        // Clean disabled interfaces list
+        interfaceDisableContext.getDisabledInterfaces(mappingCtx).stream()
+                // Find indices not currently in VPP
+                .filter(interfacesIdxs::contains)
+                // Remove from disabled list ... not disabled if not existing
+                .forEach(idx -> interfaceDisableContext.removeDisabledInterface(idx, mappingCtx));
+
+        // Transform indices to keys
+        interfacesKeys = interfacesIdxs.stream()
+                .map(index -> new InterfaceKey(interfaceNamingContext.getName(index, context.getMappingContext())))
+                .collect(Collectors.toList());
+
+        LOG.debug("Interfaces found in VPP: {}", interfacesKeys);
+        return interfacesKeys;
     }
 
     @Override

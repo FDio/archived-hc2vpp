@@ -23,17 +23,21 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorSetsDumpExecutor;
 import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -42,10 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
@@ -82,7 +82,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
                 "Creating empty locator-sets is not allowed");
         // TODO VPP-323 check and fill mapping when api returns index of created locator set
         // checkState(!locatorSetContext.containsIndex(locatorSetName, writeContext.getMappingContext()),
-        //         "Locator set with name %s allready defined", locatorSetName);
+        //         "Locator set with name %s already defined", locatorSetName);
 
         try {
             addDelLocatorSetAndReply(true, dataAfter.getName());
@@ -93,9 +93,9 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         //TODO - REMOVE FROM MASTER AFTER VPP-323
         try {
             locatorSetContext
-                    .addName(getLocatorSetIndex(locatorSetName, writeContext.getModificationCache()), locatorSetName,
-                            writeContext.getMappingContext());
-        } catch (DumpExecutionFailedException e) {
+                    .addName(getLocatorSetIndex(id, locatorSetName, writeContext.getModificationCache()),
+                            locatorSetName, writeContext.getMappingContext());
+        } catch (ReadFailedException e) {
             throw new WriteFailedException(id,
                     new IllegalStateException("Unable to create mapping for locator set " + locatorSetName, e));
         }
@@ -148,11 +148,13 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
 
     //TODO - REMOVE FROM MASTER AFTER VPP-323
     // total hack
-    public int getLocatorSetIndex(final String name, final ModificationCache cache)
-            throws DumpExecutionFailedException {
+    public int getLocatorSetIndex(final InstanceIdentifier<LocatorSet> identifier, final String name,
+                                  final ModificationCache cache)
+            throws ReadFailedException {
 
         Optional<LispLocatorSetDetailsReplyDump> reply = dumpManager
-                .getDump(io.fd.honeycomb.lisp.translate.read.LocatorSetCustomizer.LOCATOR_SETS_CACHE_ID, cache,
+                .getDump(identifier, io.fd.honeycomb.lisp.translate.read.LocatorSetCustomizer.LOCATOR_SETS_CACHE_ID,
+                        cache,
                         EntityDumpExecutor.NO_PARAMS);
 
         if (reply.isPresent()) {

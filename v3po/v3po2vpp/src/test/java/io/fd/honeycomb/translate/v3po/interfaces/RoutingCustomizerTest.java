@@ -59,7 +59,7 @@ public class RoutingCustomizerTest extends WriterCustomizerTest {
         verify(api).swInterfaceSetTable(expectedRequest(vrfId));
     }
 
-    @Test(expected = WriteFailedException.CreateFailedException.class)
+    @Test(expected = WriteFailedException.class)
     public void testWriteFailed() throws WriteFailedException {
         when(api.swInterfaceSetTable(any())).thenReturn(failedFuture());
         customizer.writeCurrentAttributes(IID, routing(213), writeContext);
@@ -72,7 +72,7 @@ public class RoutingCustomizerTest extends WriterCustomizerTest {
         verifyZeroInteractions(api);
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = WriteFailedException.class)
     public void testUpdateFailed() throws WriteFailedException {
         when(api.swInterfaceSetTable(any())).thenReturn(failedFuture());
         customizer.updateCurrentAttributes(IID, routing(123L), routing(321L), writeContext);

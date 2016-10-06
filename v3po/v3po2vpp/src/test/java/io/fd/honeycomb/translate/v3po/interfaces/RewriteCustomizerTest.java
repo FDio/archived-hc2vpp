@@ -26,6 +26,10 @@ import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.vpp.util.TagRewriteOperation;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
+import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -40,10 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.RewriteBuilder;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
-import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
 
 public class RewriteCustomizerTest extends WriterCustomizerTest {
 
@@ -68,10 +68,10 @@ public class RewriteCustomizerTest extends WriterCustomizerTest {
     private static InstanceIdentifier<Rewrite> getVlanTagRewriteId(final String name, final long index) {
         final Class<ChildOf<? super SubInterface>> child = (Class) Rewrite.class;
         final InstanceIdentifier id =
-            InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(name)).augmentation(
-                SubinterfaceAugmentation.class).child(SubInterfaces.class)
-                .child(SubInterface.class, new SubInterfaceKey(index))
-                .child(child);
+                InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(name)).augmentation(
+                        SubinterfaceAugmentation.class).child(SubInterfaces.class)
+                        .child(SubInterface.class, new SubInterfaceKey(index))
+                        .child(child);
         return id;
     }
 
@@ -96,7 +96,7 @@ public class RewriteCustomizerTest extends WriterCustomizerTest {
      */
     private void whenL2InterfaceVlanTagRewriteThenSuccess() {
         doReturn(future(new L2InterfaceVlanTagRewriteReply())).when(api)
-            .l2InterfaceVlanTagRewrite(any(L2InterfaceVlanTagRewrite.class));
+                .l2InterfaceVlanTagRewrite(any(L2InterfaceVlanTagRewrite.class));
     }
 
     /**
@@ -133,7 +133,7 @@ public class RewriteCustomizerTest extends WriterCustomizerTest {
 
         try {
             customizer.writeCurrentAttributes(VLAN_IID, vlanTagRewrite, writeContext);
-        } catch (WriteFailedException.CreateFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).l2InterfaceVlanTagRewrite(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, op));
             return;
@@ -151,7 +151,7 @@ public class RewriteCustomizerTest extends WriterCustomizerTest {
         customizer.updateCurrentAttributes(VLAN_IID, before, after, writeContext);
 
         verify(api)
-            .l2InterfaceVlanTagRewrite(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, TagRewriteOperation.pop_1));
+                .l2InterfaceVlanTagRewrite(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, TagRewriteOperation.pop_1));
     }
 
     @Test
@@ -163,10 +163,11 @@ public class RewriteCustomizerTest extends WriterCustomizerTest {
 
         try {
             customizer.updateCurrentAttributes(VLAN_IID, before, after, writeContext);
-        } catch (WriteFailedException.UpdateFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api)
-                .l2InterfaceVlanTagRewrite(generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, TagRewriteOperation.pop_1));
+                    .l2InterfaceVlanTagRewrite(
+                            generateL2InterfaceVlanTagRewrite(VLAN_IF_INDEX, TagRewriteOperation.pop_1));
             return;
         }
         fail("WriteFailedException.UpdateFailedException was expected");
@@ -187,7 +188,7 @@ public class RewriteCustomizerTest extends WriterCustomizerTest {
 
         try {
             customizer.deleteCurrentAttributes(VLAN_IID, null, writeContext);
-        } catch (WriteFailedException.DeleteFailedException e) {
+        } catch (WriteFailedException e) {
             Assert.assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2InterfaceVlanTagRewriteDeleteWasInvoked();
             return;

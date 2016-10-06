@@ -22,16 +22,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Utility class providing Ipv4 CUD support.
@@ -46,7 +45,7 @@ public interface Ipv4Writer extends ByteDataTranslator, Ipv4Translator, JvppRepl
                                final InstanceIdentifier<?> id,
                                @Nonnegative final int ifaceId,
                                @Nonnull final Ipv4AddressNoZone address, @Nonnegative final byte prefixLength)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         checkArgument(prefixLength > 0, "Invalid prefix length");
         checkNotNull(address, "address should not be null");
 

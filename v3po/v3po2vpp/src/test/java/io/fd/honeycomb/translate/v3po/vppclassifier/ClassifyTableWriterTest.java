@@ -26,6 +26,9 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
@@ -37,9 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 
 public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
@@ -71,7 +71,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
     private static InstanceIdentifier<ClassifyTable> getClassifyTableId(final String name) {
         return InstanceIdentifier.create(VppClassifier.class)
-            .child(ClassifyTable.class, new ClassifyTableKey(name));
+                .child(ClassifyTable.class, new ClassifyTableKey(name));
     }
 
     private void whenClassifyAddDelTableThenSuccess() {
@@ -99,8 +99,8 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
         request.nextTableIndex = ~0;
         request.missNextIndex = ~0;
         request.mask =
-            new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
-                (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00};
+                new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+                        (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00};
         return request;
     }
 
@@ -115,7 +115,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
         verify(api).classifyAddDelTable(generateClassifyAddDelTable((byte) 1));
         verify(classifierContext)
-            .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), mappingContext);
+                .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), mappingContext);
     }
 
     @Test
@@ -127,11 +127,11 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
         try {
             customizer.writeCurrentAttributes(id, classifyTable, writeContext);
-        } catch (WriteFailedException.CreateFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).classifyAddDelTable(generateClassifyAddDelTable((byte) 1));
             verify(classifierContext, times(0))
-                .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), mappingContext);
+                    .addTable(TABLE_INDEX, classifyTable.getName(), classifyTable.getClassifierNode(), mappingContext);
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");
@@ -162,7 +162,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
         try {
             customizer.deleteCurrentAttributes(id, classifyTable, writeContext);
-        } catch (WriteFailedException.DeleteFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).classifyAddDelTable(generateClassifyAddDelTable((byte) 0, TABLE_INDEX));
             return;

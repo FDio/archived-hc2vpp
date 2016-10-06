@@ -22,9 +22,11 @@ import com.google.common.net.InetAddresses;
 import io.fd.honeycomb.translate.vpp.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.GreAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.GreAddDelTunnelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -34,10 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.GreTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Gre;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.GreAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.GreAddDelTunnelReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,12 +70,8 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
-        try {
-            createGreTunnel(id, swIfName, dataAfter, writeContext);
-        } catch (VppBaseCallException | IllegalInterfaceTypeException e) {
-            LOG.warn("Failed to set gre tunnel for interface: {}, gre: {}", swIfName, dataAfter, e);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+
+        createGreTunnel(id, swIfName, dataAfter, writeContext);
     }
 
     @Override
@@ -93,16 +87,11 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
-        try {
-            deleteGreTunnel(id, swIfName, dataBefore, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.debug("Failed to delete gre tunnel for interface: {}, gre: {}", swIfName, dataBefore);
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        deleteGreTunnel(id, swIfName, dataBefore, writeContext);
     }
 
     private void createGreTunnel(final InstanceIdentifier<Gre> id, final String swIfName, final Gre gre,
-                                 final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+                                 final WriteContext writeContext) throws WriteFailedException {
         final byte isIpv6 = (byte) (isIpv6(gre)
                 ? 1
                 : 0);
@@ -117,7 +106,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
                         dstAddress.getAddress(), outerFibId, isIpv6));
 
         final GreAddDelTunnelReply reply =
-                getReplyForWrite(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForCreate(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id, gre);
         LOG.debug("Gre tunnel set successfully for: {}, gre: {}", swIfName, gre);
         if (interfaceContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
             // VPP keeps gre tunnels present even after they are delete(reserving ID for next tunnel)
@@ -155,7 +144,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
     }
 
     private void deleteGreTunnel(final InstanceIdentifier<Gre> id, final String swIfName, final Gre gre,
-                                 final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+                                 final WriteContext writeContext) throws WriteFailedException {
         final byte isIpv6 = (byte) (isIpv6(gre)
                 ? 1
                 : 0);
@@ -169,7 +158,7 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
                 getFutureJVpp().greAddDelTunnel(getGreTunnelRequest((byte) 0 /* is add */, srcAddress.getAddress(),
                         dstAddress.getAddress(), outerFibId, isIpv6));
 
-        getReplyForWrite(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForDelete(greAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Gre tunnel deleted successfully for: {}, gre: {}", swIfName, gre);
         // Remove interface from our interface context
         interfaceContext.removeName(swIfName, writeContext.getMappingContext());

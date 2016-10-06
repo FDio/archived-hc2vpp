@@ -27,7 +27,6 @@ import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -62,7 +61,7 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
         final InterfaceKey parentInterfacekey = id.firstKeyOf(Interface.class);
         final SubInterfaceKey subInterfacekey = id.firstKeyOf(SubInterface.class);
         return SubInterfaceUtils
-            .getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
+                .getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
     }
 
     @Override
@@ -74,19 +73,15 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
 
         final AccessLists accessLists = dataAfter.getAccessLists();
         checkArgument(accessLists != null && accessLists.getAcl() != null,
-            "ietf-acl container does not define acl list");
+                "ietf-acl container does not define acl list");
 
         final Optional<SubInterface> subInterfaceOptional =
-            writeContext.readAfter(id.firstIdentifierOf(SubInterface.class));
+                writeContext.readAfter(id.firstIdentifierOf(SubInterface.class));
         checkState(subInterfaceOptional.isPresent(), "Could not read SubInterface data object for %s", id);
         final SubInterface subInterface = subInterfaceOptional.get();
 
-        try {
-            aclWriter.write(id, subInterfaceIndex, accessLists.getMode(), accessLists.getAcl(), writeContext,
+        aclWriter.write(id, subInterfaceIndex, accessLists.getMode(), accessLists.getAcl(), writeContext,
                 getNumberOfTags(subInterface.getTags()));
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
     }
 
     @Override
@@ -103,7 +98,7 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id,
                                         @Nonnull final Ingress dataBefore, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
         LOG.debug("Removing ACLs for sub-interface={}(id={}): {}", subInterfaceName, subInterfaceIndex, dataBefore);

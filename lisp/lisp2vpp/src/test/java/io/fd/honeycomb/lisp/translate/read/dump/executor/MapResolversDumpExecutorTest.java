@@ -8,25 +8,29 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.vpp.test.read.JvppDumpExecutorTest;
+import io.fd.vpp.jvpp.VppCallbackException;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
+import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.map.resolvers.grouping.map.resolvers.MapResolver;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public class MapResolversDumpExecutorTest extends JvppDumpExecutorTest<MapResolversDumpExecutor> {
 
     private LispMapResolverDetailsReplyDump validDump;
 
+    private InstanceIdentifier identifier;
+
     @Before
     public void init() {
+        identifier = InstanceIdentifier.create(MapResolver.class);
         validDump = new LispMapResolverDetailsReplyDump();
         final LispMapResolverDetails details = new LispMapResolverDetails();
         details.isIpv6 = 0;
@@ -40,25 +44,33 @@ public class MapResolversDumpExecutorTest extends JvppDumpExecutorTest<MapResolv
     public void testExecuteDumpTimeout() throws Exception {
         doThrowTimeoutExceptionWhen().lispMapResolverDump(Mockito.any());
         try {
-            getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
-        } catch (Exception e) {
-            assertTrue(e instanceof DumpTimeoutException);
+            getExecutor().executeDump(identifier, EntityDumpExecutor.NO_PARAMS);
+        } catch (ReadFailedException e) {
             assertTrue(e.getCause() instanceof TimeoutException);
+            assertEquals(identifier, ((ReadFailedException) e).getFailedId());
             return;
         }
-        fail("Test should have thrown exception");
-    }
-
-    @Test(expected = DumpCallFailedException.class)
-    public void testExecuteDumpHalted() throws DumpExecutionFailedException {
-        doThrowFailExceptionWhen().lispMapResolverDump(Mockito.any());
-        getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
+        fail("Test should have thrown ReadFailedException");
     }
 
     @Test
-    public void testExecuteDump() throws DumpExecutionFailedException {
+    public void testExecuteDumpHalted() throws ReadFailedException {
+        doThrowFailExceptionWhen().lispMapResolverDump(Mockito.any());
+        try {
+            getExecutor().executeDump(identifier, EntityDumpExecutor.NO_PARAMS);
+        } catch (ReadFailedException e) {
+            assertTrue(e.getCause() instanceof VppCallbackException);
+            assertEquals(identifier, ((ReadFailedException) e).getFailedId());
+            return;
+        }
+        fail("Test should have thrown ReadFailedException");
+    }
+
+    @Test
+    public void testExecuteDump() throws ReadFailedException {
         doReturnResponseWhen(validDump).lispMapResolverDump(Mockito.any());
-        final LispMapResolverDetailsReplyDump reply = getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
+        final LispMapResolverDetailsReplyDump reply =
+                getExecutor().executeDump(identifier, EntityDumpExecutor.NO_PARAMS);
 
         assertNotNull(reply);
         assertEquals(1, reply.lispMapResolverDetails.size());

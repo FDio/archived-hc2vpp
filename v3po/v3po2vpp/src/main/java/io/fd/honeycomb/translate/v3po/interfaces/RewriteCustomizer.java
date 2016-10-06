@@ -24,9 +24,11 @@ import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.vpp.util.TagRewriteOperation;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
+import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -37,10 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.l2.RewriteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
-import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewriteReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,12 +63,7 @@ public class RewriteCustomizer extends FutureJVppCustomizer
                                        final WriteContext writeContext)
             throws WriteFailedException {
         final String subifName = getSubInterfaceName(id);
-        try {
-            setTagRewrite(id, subifName, dataAfter, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to write interface {}(id=): {}", subifName, writeContext, dataAfter);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        setTagRewrite(id, subifName, dataAfter, writeContext);
     }
 
     private static String getSubInterfaceName(final InstanceIdentifier<Rewrite> id) {
@@ -79,8 +72,7 @@ public class RewriteCustomizer extends FutureJVppCustomizer
     }
 
     private void setTagRewrite(final InstanceIdentifier<Rewrite> id, final String ifname, final Rewrite rewrite,
-                               final WriteContext writeContext)
-            throws VppBaseCallException, WriteTimeoutException {
+                               final WriteContext writeContext) throws WriteFailedException {
         final int swIfIndex = interfaceContext.getIndex(ifname, writeContext.getMappingContext());
         LOG.debug("Setting tag rewrite for interface {}(id=): {}", ifname, swIfIndex, rewrite);
 
@@ -128,12 +120,7 @@ public class RewriteCustomizer extends FutureJVppCustomizer
                                         @Nonnull final Rewrite dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String subifName = getSubInterfaceName(id);
-        try {
-            setTagRewrite(id, subifName, dataAfter, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to update interface {}(id=): {}", subifName, writeContext, dataAfter);
-            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
-        }
+        setTagRewrite(id, subifName, dataAfter, writeContext);
     }
 
     @Override
@@ -141,13 +128,9 @@ public class RewriteCustomizer extends FutureJVppCustomizer
                                         @Nonnull final Rewrite dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String subifName = getSubInterfaceName(id);
-        try {
-            LOG.debug("Disabling tag rewrite for interface {}", subifName);
-            final Rewrite rewrite = new RewriteBuilder().build(); // rewrite without push and pops will cause delete
-            setTagRewrite(id, subifName, rewrite, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to delete interface {}(id=): {}", subifName, writeContext, dataBefore);
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+
+        LOG.debug("Disabling tag rewrite for interface {}", subifName);
+        final Rewrite rewrite = new RewriteBuilder().build(); // rewrite without push and pops will cause delete
+        setTagRewrite(id, subifName, rewrite, writeContext);
     }
 }

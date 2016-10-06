@@ -17,17 +17,14 @@
 package io.fd.honeycomb.lisp.translate.read.dump.executor;
 
 
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public class MapResolversDumpExecutor extends AbstractJvppDumpExecutor
@@ -38,14 +35,9 @@ public class MapResolversDumpExecutor extends AbstractJvppDumpExecutor
     }
 
     @Override
-    public LispMapResolverDetailsReplyDump executeDump(final Void params) throws DumpExecutionFailedException {
-        try {
-            return getReply(vppApi.lispMapResolverDump(new LispMapResolverDump()).toCompletableFuture());
-        } catch (TimeoutException e) {
-            throw DumpTimeoutException
-                    .wrapTimeoutException("Map resolver dump execution ended in timeout", e);
-        } catch (VppBaseCallException e) {
-            throw DumpCallFailedException.wrapFailedCallException("Map resolver dump execution failed", e);
-        }
+    @Nonnull
+    public LispMapResolverDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, final Void params) throws
+            ReadFailedException {
+        return getReplyForRead(vppApi.lispMapResolverDump(new LispMapResolverDump()).toCompletableFuture(), identifier);
     }
 }

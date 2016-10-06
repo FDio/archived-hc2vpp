@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -31,8 +33,6 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Generic test for implementation of {@link EntityDumpExecutor}
@@ -78,9 +78,7 @@ public abstract class JvppDumpExecutorTest<T extends EntityDumpExecutor<?, ?>> i
      * while performing desired method
      */
     protected FutureJVppCore doThrowFailExceptionWhen() {
-        return doReturn(failedFuture(
-                new VppInvocationException("Exception invoked by " + JvppDumpExecutorTest.class.getName(), -1)))
-                .when(api);
+        return doReturn(failedFuture()).when(api);
     }
 
     /**

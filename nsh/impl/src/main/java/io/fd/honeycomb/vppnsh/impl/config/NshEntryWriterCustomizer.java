@@ -24,10 +24,12 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
+import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntry;
+import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntryReply;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ethernet;
@@ -38,10 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntry;
-import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntryReply;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,16 +63,11 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
                                        @Nonnull final NshEntry dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         LOG.debug("Creating nsh entry: iid={} dataAfter={}", id, dataAfter);
-        try {
-            final int newEntryIndex =
-                    nshAddDelEntry(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
-
-            // Add nsh entry name <-> vpp index mapping to the naming context:
-            nshEntryContext.addName(newEntryIndex, dataAfter.getName(), writeContext.getMappingContext());
-            LOG.debug("Successfully created nsh entry(id={]): iid={} dataAfter={}", newEntryIndex, id, dataAfter);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        final int newEntryIndex =
+                nshAddDelEntry(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
+        // Add nsh entry name <-> vpp index mapping to the naming context:
+        nshEntryContext.addName(newEntryIndex, dataAfter.getName(), writeContext.getMappingContext());
+        LOG.debug("Successfully created nsh entry(id={]): iid={} dataAfter={}", newEntryIndex, id, dataAfter);
     }
 
     @Override
@@ -94,20 +87,16 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
                 "Removing nsh entry {}, but index could not be found in the nsh entry context", entryName);
 
         final int entryIndex = nshEntryContext.getIndex(entryName, writeContext.getMappingContext());
-        try {
-            nshAddDelEntry(false, id, dataBefore, entryIndex, writeContext.getMappingContext());
+        nshAddDelEntry(false, id, dataBefore, entryIndex, writeContext.getMappingContext());
 
-            // Remove deleted interface from interface context:
-            nshEntryContext.removeName(dataBefore.getName(), writeContext.getMappingContext());
-            LOG.debug("Successfully removed nsh entry(id={]): iid={} dataAfter={}", entryIndex, id, dataBefore);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        // Remove deleted interface from interface context:
+        nshEntryContext.removeName(dataBefore.getName(), writeContext.getMappingContext());
+        LOG.debug("Successfully removed nsh entry(id={]): iid={} dataAfter={}", entryIndex, id, dataBefore);
     }
 
     private int nshAddDelEntry(final boolean isAdd, @Nonnull final InstanceIdentifier<NshEntry> id,
                                @Nonnull final NshEntry entry, final int entryId, final MappingContext ctx)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         final CompletionStage<NshAddDelEntryReply> createNshEntryReplyCompletionStage =
                 getFutureJVppNsh().nshAddDelEntry(getNshAddDelEntryRequest(isAdd, entryId, entry, ctx));
 

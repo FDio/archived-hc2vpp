@@ -15,18 +15,19 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.vpp.test.read.JvppDumpExecutorTest;
+import io.fd.vpp.jvpp.VppCallbackException;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDump;
 import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDump;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.local.mappings.LocalMapping;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MappingsDumpExecutorTest extends JvppDumpExecutorTest<MappingsDumpExecutor> {
 
@@ -35,12 +36,15 @@ public class MappingsDumpExecutorTest extends JvppDumpExecutorTest<MappingsDumpE
     @Captor
     private ArgumentCaptor<LispEidTableDump> requestCaptor;
 
+    private InstanceIdentifier identifier;
+
     private LispEidTableDetailsReplyDump validDump;
     private MappingsDumpParams emptyParams;
     private MappingsDumpParams validParams;
 
     @Before
     public void init() {
+        identifier = InstanceIdentifier.create(LocalMapping.class);
         validDump = new LispEidTableDetailsReplyDump();
 
         LispEidTableDetails detail = new LispEidTableDetails();
@@ -67,25 +71,33 @@ public class MappingsDumpExecutorTest extends JvppDumpExecutorTest<MappingsDumpE
     public void testExecuteDumpTimeout() throws Exception {
         doThrowTimeoutExceptionWhen().lispEidTableDump(any());
         try {
-            getExecutor().executeDump(emptyParams);
+            getExecutor().executeDump(identifier, emptyParams);
         } catch (Exception e) {
-            assertTrue(e instanceof DumpTimeoutException);
+            assertTrue(e instanceof ReadFailedException);
             assertTrue(e.getCause() instanceof TimeoutException);
+            assertEquals(identifier, ((ReadFailedException) e).getFailedId());
             return;
         }
         fail("Test should have thrown exception");
     }
 
-    @Test(expected = DumpCallFailedException.class)
-    public void testExecuteDumpHalted() throws DumpExecutionFailedException {
+    @Test
+    public void testExecuteDumpHalted() throws Exception {
         doThrowFailExceptionWhen().lispEidTableDump(any());
-        getExecutor().executeDump(emptyParams);
+        try {
+            getExecutor().executeDump(identifier, emptyParams);
+        } catch (ReadFailedException e) {
+            assertTrue(e.getCause() instanceof VppCallbackException);
+            assertEquals(identifier, ((ReadFailedException) e).getFailedId());
+            return;
+        }
+        fail("Test should have thrown ReadFailedException");
     }
 
     @Test
-    public void testExecuteDump() throws DumpExecutionFailedException {
+    public void testExecuteDump() throws ReadFailedException {
         doReturnResponseWhen(validDump).lispEidTableDump(any());
-        final LispEidTableDetailsReplyDump reply = getExecutor().executeDump(validParams);
+        final LispEidTableDetailsReplyDump reply = getExecutor().executeDump(identifier, validParams);
         verify(api, times(1)).lispEidTableDump(requestCaptor.capture());
 
         final LispEidTableDump request = requestCaptor.getValue();

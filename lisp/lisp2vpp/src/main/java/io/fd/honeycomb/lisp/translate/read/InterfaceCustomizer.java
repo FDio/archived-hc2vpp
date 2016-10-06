@@ -29,9 +29,11 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,11 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -58,7 +55,6 @@ public class InterfaceCustomizer
         extends FutureJVppCustomizer
         implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceCustomizer.class);
     private static final String KEY_BASE = InterfaceCustomizer.class.getName();
 
     private final NamingContext interfaceContext;
@@ -102,12 +98,8 @@ public class InterfaceCustomizer
         final LocatorDumpParams params =
                 new LocatorDumpParamsBuilder().setLocatorSetIndex(locatorSetIndexIndex).build();
 
-        Optional<LispLocatorDetailsReplyDump> reply;
-        try {
-            reply = dumpCacheManager.getDump(KEY_BASE, ctx.getModificationCache(), params);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispLocatorDetailsReplyDump> reply =
+                dumpCacheManager.getDump(id, KEY_BASE, ctx.getModificationCache(), params);
 
         if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
             return;
@@ -138,13 +130,8 @@ public class InterfaceCustomizer
         final LocatorDumpParams params = new LocatorDumpParamsBuilder()
                 .setLocatorSetIndex(locatorSetContext.getIndex(name, context.getMappingContext())).build();
 
-
-        Optional<LispLocatorDetailsReplyDump> reply;
-        try {
-            reply = dumpCacheManager.getDump(KEY_BASE, context.getModificationCache(), params);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispLocatorDetailsReplyDump> reply =
+                dumpCacheManager.getDump(id, KEY_BASE, context.getModificationCache(), params);
 
         if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
             return Collections.emptyList();

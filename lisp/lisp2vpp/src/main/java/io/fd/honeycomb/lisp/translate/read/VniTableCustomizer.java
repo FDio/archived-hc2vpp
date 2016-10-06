@@ -26,10 +26,7 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -88,12 +85,8 @@ public class VniTableCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
         LOG.trace("Reading all IDS...");
 
-        Optional<LispEidTableVniDetailsReplyDump> optionalReply;
-        try {
-            optionalReply = dumpManager.getDump(LISP_TABLE_ID_DUMP, context.getModificationCache(), NO_PARAMS);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispEidTableVniDetailsReplyDump> optionalReply =
+                dumpManager.getDump(id, LISP_TABLE_ID_DUMP, context.getModificationCache(), NO_PARAMS);
 
         if (!optionalReply.isPresent() || optionalReply.get().lispEidTableVniDetails.isEmpty()) {
             return Collections.emptyList();
@@ -111,12 +104,8 @@ public class VniTableCustomizer extends FutureJVppCustomizer
         checkState(id.firstKeyOf(VniTable.class) != null, "No VNI present");
         VniTableKey key = new VniTableKey(id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier());
 
-        Optional<LispEidTableVniDetailsReplyDump> optionalReply;
-        try {
-            optionalReply = dumpManager.getDump(LISP_TABLE_ID_DUMP, ctx.getModificationCache(), NO_PARAMS);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispEidTableVniDetailsReplyDump> optionalReply =
+                dumpManager.getDump(id, LISP_TABLE_ID_DUMP, ctx.getModificationCache(), NO_PARAMS);
 
         if (!optionalReply.isPresent() || optionalReply.get().lispEidTableVniDetails.isEmpty()) {
             return;

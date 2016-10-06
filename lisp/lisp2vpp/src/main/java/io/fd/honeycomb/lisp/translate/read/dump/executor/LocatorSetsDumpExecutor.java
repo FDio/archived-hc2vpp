@@ -17,17 +17,14 @@
 package io.fd.honeycomb.lisp.translate.read.dump.executor;
 
 
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public class LocatorSetsDumpExecutor extends AbstractJvppDumpExecutor
@@ -38,18 +35,14 @@ public class LocatorSetsDumpExecutor extends AbstractJvppDumpExecutor
     }
 
     @Override
-    public LispLocatorSetDetailsReplyDump executeDump(final Void params) throws DumpExecutionFailedException {
+    @Nonnull
+    public LispLocatorSetDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, final Void params)
+            throws ReadFailedException {
 
         LispLocatorSetDump request = new LispLocatorSetDump();
         //only local
         request.filter = 1;
 
-        try {
-            return getReply(vppApi.lispLocatorSetDump(request).toCompletableFuture());
-        } catch (TimeoutException e) {
-            throw DumpTimeoutException.wrapTimeoutException("Locator sets dump ended in timeout", e);
-        } catch (VppBaseCallException e) {
-            throw DumpCallFailedException.wrapFailedCallException("Locator sets dump failed", e);
-        }
+        return getReplyForRead(vppApi.lispLocatorSetDump(request).toCompletableFuture(), identifier);
     }
 }

@@ -24,20 +24,18 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
+import io.fd.vpp.jvpp.nsh.dto.NshAddDelMap;
+import io.fd.vpp.jvpp.nsh.dto.NshAddDelMapReply;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.nsh.dto.NshAddDelMap;
-import io.fd.vpp.jvpp.nsh.dto.NshAddDelMapReply;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,16 +62,12 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
                                        @Nonnull final NshMap dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         LOG.debug("Creating nsh map: iid={} dataAfter={}", id, dataAfter);
-        try {
-            final int newMapIndex =
-                    nshAddDelMap(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
+        final int newMapIndex =
+                nshAddDelMap(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
 
-            // Add nsh map name <-> vpp index mapping to the naming context:
-            nshMapContext.addName(newMapIndex, dataAfter.getName(), writeContext.getMappingContext());
-            LOG.debug("Successfully created nsh map(id={]): iid={} dataAfter={}", newMapIndex, id, dataAfter);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        // Add nsh map name <-> vpp index mapping to the naming context:
+        nshMapContext.addName(newMapIndex, dataAfter.getName(), writeContext.getMappingContext());
+        LOG.debug("Successfully created nsh map(id={]): iid={} dataAfter={}", newMapIndex, id, dataAfter);
     }
 
     @Override
@@ -93,20 +87,16 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
                 "Removing nsh map {}, but index could not be found in the nsh map context", mapName);
 
         final int mapIndex = nshMapContext.getIndex(mapName, writeContext.getMappingContext());
-        try {
-            nshAddDelMap(false, id, dataBefore, mapIndex, writeContext.getMappingContext());
+        nshAddDelMap(false, id, dataBefore, mapIndex, writeContext.getMappingContext());
 
-            // Remove deleted interface from interface context:
-            nshMapContext.removeName(dataBefore.getName(), writeContext.getMappingContext());
-            LOG.debug("Successfully removed nsh map(id={]): iid={} dataAfter={}", mapIndex, id, dataBefore);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        // Remove deleted interface from interface context:
+        nshMapContext.removeName(dataBefore.getName(), writeContext.getMappingContext());
+        LOG.debug("Successfully removed nsh map(id={]): iid={} dataAfter={}", mapIndex, id, dataBefore);
     }
 
     private int nshAddDelMap(final boolean isAdd, @Nonnull final InstanceIdentifier<NshMap> id,
                              @Nonnull final NshMap map, final int mapId, final MappingContext ctx)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         final CompletionStage<NshAddDelMapReply> createNshMapReplyCompletionStage =
                 getFutureJVppNsh().nshAddDelMap(getNshAddDelMapRequest(isAdd, mapId, map, ctx));
 

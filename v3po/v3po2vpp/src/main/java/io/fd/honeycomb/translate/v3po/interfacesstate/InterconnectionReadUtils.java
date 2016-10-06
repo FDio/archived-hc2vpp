@@ -22,6 +22,12 @@ import static java.util.Objects.requireNonNull;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainSwIfDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
@@ -29,13 +35,6 @@ import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.l2.base.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainSwIfDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,18 +111,15 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
 
     private BridgeDomainDetailsReplyDump getDumpReply(@Nonnull final InstanceIdentifier<?> id)
             throws ReadFailedException {
-        try {
-            // We need to perform full bd dump, because there is no way
-            // to ask VPP for BD details given interface id/name (TODO HONEYCOMB-190 add it to vpp.api?)
-            // TODO HONEYCOMB-190 cache dump result
-            final BridgeDomainDump request = new BridgeDomainDump();
-            request.bdId = -1;
+        // We need to perform full bd dump, because there is no way
+        // to ask VPP for BD details given interface id/name (TODO HONEYCOMB-190 add it to vpp.api?)
+        // TODO HONEYCOMB-190 cache dump result
+        final BridgeDomainDump request = new BridgeDomainDump();
+        request.bdId = -1;
 
-            final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
-                    futureJVppCore.bridgeDomainSwIfDump(request).toCompletableFuture();
-            return getReplyForRead(bdCompletableFuture, id);
-        } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
+                futureJVppCore.bridgeDomainSwIfDump(request).toCompletableFuture();
+        return getReplyForRead(bdCompletableFuture, id);
+
     }
 }

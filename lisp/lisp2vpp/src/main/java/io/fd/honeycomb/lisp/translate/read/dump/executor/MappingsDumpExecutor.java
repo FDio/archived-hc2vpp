@@ -20,17 +20,14 @@ package io.fd.honeycomb.lisp.translate.read.dump.executor;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 /**
@@ -45,8 +42,10 @@ public class MappingsDumpExecutor extends AbstractJvppDumpExecutor
 
 
     @Override
-    public LispEidTableDetailsReplyDump executeDump(final MappingsDumpParams params)
-            throws DumpExecutionFailedException {
+    @Nonnull
+    public LispEidTableDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier,
+                                                    final MappingsDumpParams params)
+            throws ReadFailedException {
         checkNotNull(params, "Params for dump request not present");
 
         LispEidTableDump request = new LispEidTableDump();
@@ -57,14 +56,6 @@ public class MappingsDumpExecutor extends AbstractJvppDumpExecutor
         request.vni = params.getVni();
         request.filter = params.getFilter();
 
-        try {
-            return getReply(vppApi.lispEidTableDump(request).toCompletableFuture());
-        } catch (TimeoutException e) {
-            throw DumpTimeoutException
-                    .wrapTimeoutException("Mappings dump execution timed out with params " + params.toString(), e);
-        } catch (VppBaseCallException e) {
-            throw DumpCallFailedException
-                    .wrapFailedCallException("Mappings dump execution failed with params " + params.toString(), e);
-        }
+        return getReplyForRead(vppApi.lispEidTableDump(request).toCompletableFuture(), identifier);
     }
 }

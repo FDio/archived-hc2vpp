@@ -22,10 +22,8 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -53,40 +51,33 @@ public class AclCustomizer extends FutureJVppCustomizer implements WriterCustomi
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id, @Nonnull final Ingress dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        try {
-            setAcl(true, id, dataAfter, writeContext);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        setAcl(true, id, dataAfter, writeContext);
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id, @Nonnull final Ingress dataBefore,
+    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id,
+                                        @Nonnull final Ingress dataBefore,
                                         @Nonnull final Ingress dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         throw new UnsupportedOperationException("Acl update is not supported. Please delete Acl container first.");
     }
 
     @Override
-    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id, @Nonnull final Ingress dataBefore,
+    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id,
+                                        @Nonnull final Ingress dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        try {
-            setAcl(false, id, dataBefore, writeContext);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        setAcl(false, id, dataBefore, writeContext);
     }
 
     private void setAcl(final boolean isAdd, @Nonnull final InstanceIdentifier<Ingress> id, @Nonnull final Ingress acl,
-                        @Nonnull final WriteContext writeContext)
-        throws VppBaseCallException, WriteTimeoutException {
+                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         final String ifName = id.firstKeyOf(Interface.class).getName();
         final int ifIndex = interfaceContext.getIndex(ifName, writeContext.getMappingContext());
 
         LOG.debug("Setting ACL(isAdd={}) on interface={}(id={}): {}", isAdd, ifName, ifIndex, acl);
 
         inputAclSetInterface(getFutureJVpp(), isAdd, id, acl, ifIndex, classifyTableContext,
-            writeContext.getMappingContext());
+                writeContext.getMappingContext());
         LOG.debug("Successfully set ACL(isAdd={}) on interface={}(id={}): {}", isAdd, ifName, ifIndex, acl);
     }
 }

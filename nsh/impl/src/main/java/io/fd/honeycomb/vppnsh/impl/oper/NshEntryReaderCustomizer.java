@@ -25,6 +25,10 @@ import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
+import io.fd.vpp.jvpp.nsh.dto.NshEntryDetails;
+import io.fd.vpp.jvpp.nsh.dto.NshEntryDetailsReplyDump;
+import io.fd.vpp.jvpp.nsh.dto.NshEntryDump;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,11 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.nsh.dto.NshEntryDetails;
-import io.fd.vpp.jvpp.nsh.dto.NshEntryDetailsReplyDump;
-import io.fd.vpp.jvpp.nsh.dto.NshEntryDump;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,75 +94,70 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
                                       @Nonnull final NshEntryBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("Reading attributes for nsh entry: {}", id);
-        try {
-            final NshEntryKey key = id.firstKeyOf(NshEntry.class);
-            checkArgument(key != null, "could not find NshEntry key in {}", id);
-            final NshEntryDump request = new NshEntryDump();
+        final NshEntryKey key = id.firstKeyOf(NshEntry.class);
+        checkArgument(key != null, "could not find NshEntry key in {}", id);
+        final NshEntryDump request = new NshEntryDump();
 
-            final String entryName = key.getName();
-            if (!nshEntryContext.containsIndex(entryName, ctx.getMappingContext())) {
-                LOG.debug("Could not find nsh entry {} in the naming context", entryName);
+        final String entryName = key.getName();
+        if (!nshEntryContext.containsIndex(entryName, ctx.getMappingContext())) {
+            LOG.debug("Could not find nsh entry {} in the naming context", entryName);
+            return;
+        }
+        request.entryIndex = nshEntryContext.getIndex(entryName, ctx.getMappingContext());
+
+        final CompletionStage<NshEntryDetailsReplyDump> nshEntryDetailsReplyDumpCompletionStage =
+                getFutureJVppNsh().nshEntryDump(request);
+        final NshEntryDetailsReplyDump reply =
+                getReplyForRead(nshEntryDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
+
+        if (reply == null || reply.nshEntryDetails == null || reply.nshEntryDetails.isEmpty()) {
+            LOG.debug("Has no Nsh Entry {} in VPP. ", key.getName());
+            return;
+        }
+
+        LOG.trace("Nsh Entry : {} attributes returned from VPP: {}", key.getName(), reply);
+
+        final NshEntryDetails nshEntryDetails = reply.nshEntryDetails.get(0);
+        builder.setName(entryName);
+        builder.setKey(key);
+        builder.setVersion((short) nshEntryDetails.verOC);
+        builder.setLength((short) nshEntryDetails.length);
+
+        switch (nshEntryDetails.nextProtocol) {
+            case 1:
+                builder.setNextProtocol(Ipv4.class);
+                break;
+            case 2:
+                builder.setNextProtocol(Ipv6.class);
+                break;
+            case 3:
+                builder.setNextProtocol(Ethernet.class);
+                break;
+            default:
+                LOG.trace("Unsupported next protocol for nsh entry: {}", nshEntryDetails.nextProtocol);
                 return;
+        }
+
+        switch (nshEntryDetails.mdType) {
+            case 1: {
+                builder.setMdType(MdType1.class);
+                setNshEntryMdType1Augment(builder, nshEntryDetails);
+                break;
             }
-            request.entryIndex = nshEntryContext.getIndex(entryName, ctx.getMappingContext());
-
-            final CompletionStage<NshEntryDetailsReplyDump> nshEntryDetailsReplyDumpCompletionStage =
-                    getFutureJVppNsh().nshEntryDump(request);
-            final NshEntryDetailsReplyDump reply =
-                    getReplyForRead(nshEntryDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
-
-            if (reply == null || reply.nshEntryDetails == null || reply.nshEntryDetails.isEmpty()) {
-                LOG.debug("Has no Nsh Entry {} in VPP. ", key.getName());
+            case 2: {
+                builder.setMdType(MdType1.class);
+                break;
+            }
+            default:
+                LOG.trace("Unsupported Mdtype for nsh entry: {}", nshEntryDetails.mdType);
                 return;
-            }
+        }
 
-            LOG.trace("Nsh Entry : {} attributes returned from VPP: {}", key.getName(), reply);
+        builder.setNsp((long) ((nshEntryDetails.nspNsi >> 8) & 0xFFFFFF));
+        builder.setNsi((short) (nshEntryDetails.nspNsi & 0xFF));
 
-            final NshEntryDetails nshEntryDetails = reply.nshEntryDetails.get(0);
-            builder.setName(entryName);
-            builder.setKey(key);
-            builder.setVersion((short) nshEntryDetails.verOC);
-            builder.setLength((short) nshEntryDetails.length);
-
-            switch (nshEntryDetails.nextProtocol) {
-                case 1:
-                    builder.setNextProtocol(Ipv4.class);
-                    break;
-                case 2:
-                    builder.setNextProtocol(Ipv6.class);
-                    break;
-                case 3:
-                    builder.setNextProtocol(Ethernet.class);
-                    break;
-                default:
-                    LOG.trace("Unsupported next protocol for nsh entry: {}", nshEntryDetails.nextProtocol);
-                    return;
-            }
-
-            switch (nshEntryDetails.mdType) {
-                case 1: {
-                    builder.setMdType(MdType1.class);
-                    setNshEntryMdType1Augment(builder, nshEntryDetails);
-                    break;
-                }
-                case 2: {
-                    builder.setMdType(MdType1.class);
-                    break;
-                }
-                default:
-                    LOG.trace("Unsupported Mdtype for nsh entry: {}", nshEntryDetails.mdType);
-                    return;
-            }
-
-            builder.setNsp((long) ((nshEntryDetails.nspNsi >> 8) & 0xFFFFFF));
-            builder.setNsi((short) (nshEntryDetails.nspNsi & 0xFF));
-
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Attributes for nsh entry {} successfully read: {}", id, builder.build());
-            }
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to readCurrentAttributes for: {}", id);
-            throw new ReadFailedException(id, e);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Attributes for nsh entry {} successfully read: {}", id, builder.build());
         }
     }
 

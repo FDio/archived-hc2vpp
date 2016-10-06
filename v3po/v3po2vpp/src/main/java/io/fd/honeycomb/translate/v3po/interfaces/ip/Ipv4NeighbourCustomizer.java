@@ -27,18 +27,16 @@ import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.IpNeighborAddDel;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.IpNeighborAddDel;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,13 +73,9 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
                 "Mapping does not contains mapping for provider interface name ".concat(interfaceName));
 
         LOG.debug("Parent interface index found");
-        try {
-            addDelNeighbourAndReply(id, true,
-                    interfaceContext.getIndex(interfaceName, mappingContext), dataAfter);
-            LOG.info("Neighbour successfully written");
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        addDelNeighbourAndReply(id, true,
+                interfaceContext.getIndex(interfaceName, mappingContext), dataAfter);
+        LOG.info("Neighbour successfully written");
     }
 
     @Override
@@ -107,18 +101,14 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
                 "Mapping does not contains mapping for provider interface name %s", interfaceName);
 
         LOG.debug("Parent interface[{}] index found", interfaceName);
-        try {
-            addDelNeighbourAndReply(id, false,
-                    interfaceContext.getIndex(interfaceName, mappingContext), dataBefore);
-            LOG.info("Neighbour {} successfully deleted", id);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+
+        addDelNeighbourAndReply(id, false,
+                interfaceContext.getIndex(interfaceName, mappingContext), dataBefore);
+        LOG.info("Neighbour {} successfully deleted", id);
     }
 
     private void addDelNeighbourAndReply(InstanceIdentifier<Neighbor> id, boolean add, int parentInterfaceIndex,
-                                         Neighbor data)
-            throws VppBaseCallException, WriteTimeoutException {
+                                         Neighbor data) throws WriteFailedException {
 
         IpNeighborAddDel request = new IpNeighborAddDel();
 

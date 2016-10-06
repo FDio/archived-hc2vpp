@@ -26,6 +26,10 @@ import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,11 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,47 +109,43 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
     @Override
     public List<SubInterfaceKey> getAllIds(@Nonnull final InstanceIdentifier<SubInterface> id,
                                            @Nonnull final ReadContext context) throws ReadFailedException {
-        try {
-            // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
-            // to fill in the context with initial ifc mapping
-            final InterfaceKey key = id.firstKeyOf(Interface.class);
-            final String ifaceName = key.getName();
-            final int ifaceId = interfaceContext.getIndex(ifaceName, context.getMappingContext());
+        // Relying here that parent InterfaceCustomizer was invoked first (PREORDER)
+        // to fill in the context with initial ifc mapping
+        final InterfaceKey key = id.firstKeyOf(Interface.class);
+        final String ifaceName = key.getName();
+        final int ifaceId = interfaceContext.getIndex(ifaceName, context.getMappingContext());
 
-            // TODO HONEYCOMB-189 if we know that full dump was already performed we could use cache
-            // (checking if getCachedInterfaceDump() returns non empty map is not enough, because
-            // we could be part of particular iface state read
-            final SwInterfaceDump request = new SwInterfaceDump();
-            request.nameFilter = "".getBytes();
-            request.nameFilterValid = 0;
+        // TODO HONEYCOMB-189 if we know that full dump was already performed we could use cache
+        // (checking if getCachedInterfaceDump() returns non empty map is not enough, because
+        // we could be part of particular iface state read
+        final SwInterfaceDump request = new SwInterfaceDump();
+        request.nameFilter = "".getBytes();
+        request.nameFilterValid = 0;
 
-            final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
-                    getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
-            final SwInterfaceDetailsReplyDump ifaces =
-                    getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
+        final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
+                getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
+        final SwInterfaceDetailsReplyDump ifaces =
+                getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
 
-            if (null == ifaces || null == ifaces.swInterfaceDetails) {
-                LOG.warn("Looking for sub-interfaces, but no interfaces found in VPP");
-                return Collections.emptyList();
-            }
-
-            // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-            context.getModificationCache()
-                    .put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-                            .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
-
-            final List<SubInterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
-                    .filter(elt -> elt != null)
-                    // accept only sub-interfaces for current iface:
-                    .filter(elt -> elt.subId != 0 && elt.supSwIfIndex == ifaceId)
-                    .map(details -> new SubInterfaceKey(new Long(details.subId)))
-                    .collect(Collectors.toList());
-
-            LOG.debug("Sub-interfaces of {} found in VPP: {}", ifaceName, interfacesKeys);
-            return interfacesKeys;
-        } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id, e);
+        if (null == ifaces || null == ifaces.swInterfaceDetails) {
+            LOG.warn("Looking for sub-interfaces, but no interfaces found in VPP");
+            return Collections.emptyList();
         }
+
+        // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
+        context.getModificationCache()
+                .put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
+                        .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+
+        final List<SubInterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
+                .filter(elt -> elt != null)
+                // accept only sub-interfaces for current iface:
+                .filter(elt -> elt.subId != 0 && elt.supSwIfIndex == ifaceId)
+                .map(details -> new SubInterfaceKey(new Long(details.subId)))
+                .collect(Collectors.toList());
+
+        LOG.debug("Sub-interfaces of {} found in VPP: {}", ifaceName, interfacesKeys);
+        return interfacesKeys;
     }
 
     @Override

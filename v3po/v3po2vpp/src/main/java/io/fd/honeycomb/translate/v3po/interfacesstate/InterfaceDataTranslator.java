@@ -24,6 +24,10 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
@@ -41,11 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 
 public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyConsumer {
@@ -195,32 +194,28 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
         }
 
         SwInterfaceDetailsReplyDump ifaces;
-        try {
-            CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJVppCore.swInterfaceDump(request);
+
+        CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJVppCore.swInterfaceDump(request);
+        ifaces = getReplyForRead(requestFuture.toCompletableFuture(), id);
+        if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
+            request.nameFilterValid = 0;
+
+            callerLogger.warn("VPP returned null instead of interface by key {} and its not cached", name);
+            callerLogger.warn("Iterating through all the interfaces to find interface: {}", name);
+
+            // Or else just perform full dump and do inefficient filtering
+            requestFuture = futureJVppCore.swInterfaceDump(request);
             ifaces = getReplyForRead(requestFuture.toCompletableFuture(), id);
-            if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
-                request.nameFilterValid = 0;
 
-                callerLogger.warn("VPP returned null instead of interface by key {} and its not cached", name);
-                callerLogger.warn("Iterating through all the interfaces to find interface: {}", name);
+            // Update the cache
+            allInterfaces.clear();
+            allInterfaces
+                    .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
 
-                // Or else just perform full dump and do inefficient filtering
-                requestFuture = futureJVppCore.swInterfaceDump(request);
-                ifaces = getReplyForRead(requestFuture.toCompletableFuture(), id);
-
-                // Update the cache
-                allInterfaces.clear();
-                allInterfaces
-                        .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
-
-                if (allInterfaces.containsKey(index)) {
-                    return allInterfaces.get(index);
-                }
-                throw new IllegalArgumentException("Unable to find interface " + name);
+            if (allInterfaces.containsKey(index)) {
+                return allInterfaces.get(index);
             }
-        } catch (VppBaseCallException e) {
-            callerLogger.warn("getVppInterfaceDetails for id :{} and name :{} failed with exception :", id, name, e);
-            throw new ReadFailedException(id, e);
+            throw new IllegalArgumentException("Unable to find interface " + name);
         }
 
         // SwInterfaceDump's name filter does prefix match, so we need additional filtering:
@@ -263,8 +258,8 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
 
     /**
      * Check interface type. Uses interface details from VPP to determine. Uses {@link
-     * #getVppInterfaceDetails(FutureJVppCore, InstanceIdentifier, String, int, ModificationCache, Logger)} internally so
-     * tries to utilize cache before asking VPP.
+     * #getVppInterfaceDetails(FutureJVppCore, InstanceIdentifier, String, int, ModificationCache, Logger)} internally
+     * so tries to utilize cache before asking VPP.
      */
     default boolean isInterfaceOfType(@Nonnull final FutureJVppCore jvpp,
                                       @Nonnull final ModificationCache cache,

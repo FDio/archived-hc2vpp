@@ -28,6 +28,11 @@ import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.MacTranslator;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableIds;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableIdsReply;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableInfo;
+import io.fd.vpp.jvpp.core.dto.ClassifyTableInfoReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -42,12 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableIds;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableIdsReply;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableInfo;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableInfoReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,39 +98,36 @@ public class ClassifyTableReader extends FutureJVppCustomizer
         }
         request.tableId = classifyTableContext.getTableIndex(tableName, ctx.getMappingContext());
 
-        try {
-            final ClassifyTableInfoReply reply =
-                    getReplyForRead(getFutureJVpp().classifyTableInfo(request).toCompletableFuture(), id);
 
-            // mandatory values:
-            builder.setName(tableName);
-            builder.setKey(key);
-            builder.setNbuckets(UnsignedInts.toLong(reply.nbuckets));
-            builder.setSkipNVectors(UnsignedInts.toLong(reply.skipNVectors));
+        final ClassifyTableInfoReply reply =
+                getReplyForRead(getFutureJVpp().classifyTableInfo(request).toCompletableFuture(), id);
 
-            // optional value read from context
-            final Optional<String> tableBaseNode =
-                    classifyTableContext.getTableBaseNode(tableName, ctx.getMappingContext());
-            if (tableBaseNode.isPresent()) {
-                builder.setClassifierNode(new VppNodeName(tableBaseNode.get()));
-            }
+        // mandatory values:
+        builder.setName(tableName);
+        builder.setKey(key);
+        builder.setNbuckets(UnsignedInts.toLong(reply.nbuckets));
+        builder.setSkipNVectors(UnsignedInts.toLong(reply.skipNVectors));
 
-            builder.setMissNext(
-                    readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext(), LOG)
-                            .get());
-            builder.setMask(new HexString(printHexBinary(reply.mask)));
-            builder.setActiveSessions(UnsignedInts.toLong(reply.activeSessions));
+        // optional value read from context
+        final Optional<String> tableBaseNode =
+                classifyTableContext.getTableBaseNode(tableName, ctx.getMappingContext());
+        if (tableBaseNode.isPresent()) {
+            builder.setClassifierNode(new VppNodeName(tableBaseNode.get()));
+        }
 
-            if (reply.nextTableIndex != ~0) {
-                // next table index is present:
-                builder.setNextTable(classifyTableContext.getTableName(reply.nextTableIndex, ctx.getMappingContext()));
-            }
+        builder.setMissNext(
+                readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext(), LOG)
+                        .get());
+        builder.setMask(new HexString(printHexBinary(reply.mask)));
+        builder.setActiveSessions(UnsignedInts.toLong(reply.activeSessions));
 
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Attributes for classify table {} successfully read: {}", id, builder.build());
-            }
-        } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id, e);
+        if (reply.nextTableIndex != ~0) {
+            // next table index is present:
+            builder.setNextTable(classifyTableContext.getTableName(reply.nextTableIndex, ctx.getMappingContext()));
+        }
+
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Attributes for classify table {} successfully read: {}", id, builder.build());
         }
     }
 
@@ -140,21 +136,18 @@ public class ClassifyTableReader extends FutureJVppCustomizer
     public List<ClassifyTableKey> getAllIds(@Nonnull final InstanceIdentifier<ClassifyTable> id,
                                             @Nonnull final ReadContext context) throws ReadFailedException {
         LOG.debug("Reading list of keys for classify tables: {}", id);
-        try {
-            final ClassifyTableIdsReply classifyTableIdsReply =
-                    getReplyForRead(getFutureJVpp().classifyTableIds(new ClassifyTableIds()).toCompletableFuture(),
-                            id);
-            if (classifyTableIdsReply.ids != null) {
-                return Arrays.stream(classifyTableIdsReply.ids).mapToObj(i -> {
-                    final String tableName = classifyTableContext.getTableName(i, context.getMappingContext());
-                    LOG.trace("Classify table with name: {} and index: {} found in VPP", tableName, i);
-                    return new ClassifyTableKey(tableName);
-                }).collect(Collectors.toList());
-            } else {
-                return Collections.emptyList();
-            }
-        } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id, e);
+
+        final ClassifyTableIdsReply classifyTableIdsReply =
+                getReplyForRead(getFutureJVpp().classifyTableIds(new ClassifyTableIds()).toCompletableFuture(),
+                        id);
+        if (classifyTableIdsReply.ids != null) {
+            return Arrays.stream(classifyTableIdsReply.ids).mapToObj(i -> {
+                final String tableName = classifyTableContext.getTableName(i, context.getMappingContext());
+                LOG.trace("Classify table with name: {} and index: {} found in VPP", tableName, i);
+                return new ClassifyTableKey(tableName);
+            }).collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
         }
     }
 }

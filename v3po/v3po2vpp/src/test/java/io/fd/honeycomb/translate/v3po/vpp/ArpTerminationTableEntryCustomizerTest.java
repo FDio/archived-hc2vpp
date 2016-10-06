@@ -28,6 +28,10 @@ import static org.mockito.Mockito.verify;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
+import io.fd.vpp.jvpp.core.dto.BdIpMacAddDelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -41,10 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
-import io.fd.vpp.jvpp.core.dto.BdIpMacAddDelReply;
 
 public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest {
     private static final String BD_CTX_NAME = "bd-test-instance";
@@ -66,8 +66,8 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     public void setUp() throws Exception {
         customizer = new ArpTerminationTableEntryCustomizer(api, new NamingContext("generatedBdName", BD_CTX_NAME));
 
-        ipAddressRaw = new byte[] {1, 2, 3, 4};
-        physAddressRaw = new byte[] {1, 2, 3, 4, 5, 6};
+        ipAddressRaw = new byte[]{1, 2, 3, 4};
+        physAddressRaw = new byte[]{1, 2, 3, 4, 5, 6};
         physAddress = new PhysAddress("01:02:03:04:05:06");
 
         ipAddress = new IpAddress(Ipv4AddressNoZone.getDefaultInstance("1.2.3.4"));
@@ -81,8 +81,8 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     private static InstanceIdentifier<ArpTerminationTableEntry> getArpEntryId(final IpAddress ipAddress,
                                                                               final PhysAddress physAddress) {
         return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(BD_NAME))
-            .child(ArpTerminationTable.class)
-            .child(ArpTerminationTableEntry.class, new ArpTerminationTableEntryKey(ipAddress, physAddress));
+                .child(ArpTerminationTable.class)
+                .child(ArpTerminationTableEntry.class, new ArpTerminationTableEntryKey(ipAddress, physAddress));
     }
 
     private void whenBdIpMacAddDelThenSuccess() {
@@ -112,7 +112,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     }
 
     private void verifyBdIpMacAddDelWasInvoked(final BdIpMacAddDel expected) throws
-        VppInvocationException {
+            VppInvocationException {
         ArgumentCaptor<BdIpMacAddDel> argumentCaptor = ArgumentCaptor.forClass(BdIpMacAddDel.class);
         verify(api).bdIpMacAddDel(argumentCaptor.capture());
         final BdIpMacAddDel actual = argumentCaptor.getValue();
@@ -134,7 +134,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         whenBdIpMacAddDelThenFailure();
         try {
             customizer.writeCurrentAttributes(id, entry, writeContext);
-        } catch (WriteFailedException.CreateFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyBdIpMacAddDelWasInvoked(generateBdIpMacAddDelRequest(ipAddressRaw, physAddressRaw, (byte) 1));
             return;
@@ -145,8 +145,8 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws Exception {
         customizer.updateCurrentAttributes(InstanceIdentifier.create(ArpTerminationTableEntry.class),
-            mock(ArpTerminationTableEntry.class),
-            mock(ArpTerminationTableEntry.class), writeContext);
+                mock(ArpTerminationTableEntry.class),
+                mock(ArpTerminationTableEntry.class), writeContext);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         whenBdIpMacAddDelThenFailure();
         try {
             customizer.deleteCurrentAttributes(id, entry, writeContext);
-        } catch (WriteFailedException.DeleteFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyBdIpMacAddDelWasInvoked(generateBdIpMacAddDelRequest(ipAddressRaw, physAddressRaw, (byte) 0));
             return;

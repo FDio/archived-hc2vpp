@@ -26,9 +26,10 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.itr.remote.locator.sets.grouping.ItrRemoteLocatorSetBuilder;
@@ -36,8 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
         implements ReaderCustomizer<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder>, ByteDataTranslator {
@@ -63,13 +62,8 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
                                       @Nonnull final ItrRemoteLocatorSetBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
 
-        Optional<LispGetMapRequestItrRlocsReply> reply;
-        try {
-            reply = dumpCacheManager.getDump(CACHE_KEY, ctx.getModificationCache(), NO_PARAMS);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
-
+        final Optional<LispGetMapRequestItrRlocsReply> reply =
+                dumpCacheManager.getDump(id, CACHE_KEY, ctx.getModificationCache(), NO_PARAMS);
         if (!reply.isPresent() || reply.get().locatorSetName == null) {
             return;
         }

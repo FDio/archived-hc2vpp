@@ -27,6 +27,9 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
@@ -41,9 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
 
 public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
@@ -81,13 +81,13 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
     private static InstanceIdentifier<ClassifySession> getClassifySessionId(final String tableName,
                                                                             final String match) {
         return InstanceIdentifier.create(VppClassifier.class)
-            .child(ClassifyTable.class, new ClassifyTableKey(tableName))
-            .child(ClassifySession.class, new ClassifySessionKey(new HexString(match)));
+                .child(ClassifyTable.class, new ClassifyTableKey(tableName))
+                .child(ClassifySession.class, new ClassifySessionKey(new HexString(match)));
     }
 
     private void whenClassifyAddDelSessionThenSuccess() {
         doReturn(future(new ClassifyAddDelSessionReply())).when(api)
-            .classifyAddDelSession(any(ClassifyAddDelSession.class));
+                .classifyAddDelSession(any(ClassifyAddDelSession.class));
     }
 
     private void whenClassifyAddDelSessionThenFailure() {
@@ -103,8 +103,8 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
         request.hitNextIndex = 0;
         request.advance = 123;
         request.match =
-            new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
-                (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00};
+                new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+                        (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00};
         return request;
     }
 
@@ -131,7 +131,7 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
         try {
             customizer.writeCurrentAttributes(id, classifySession, writeContext);
-        } catch (WriteFailedException.CreateFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).classifyAddDelSession(generateClassifyAddDelSession((byte) 1, TABLE_INDEX, SESSION_INDEX));
             return;
@@ -154,8 +154,7 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
         customizer.deleteCurrentAttributes(id, classifySession, writeContext);
 
-        verify(api).classifyAddDelSession(
-            generateClassifyAddDelSession((byte) 0, TABLE_INDEX, SESSION_INDEX));
+        verify(api).classifyAddDelSession(generateClassifyAddDelSession((byte) 0, TABLE_INDEX, SESSION_INDEX));
     }
 
     @Test
@@ -168,10 +167,9 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
         try {
             customizer.deleteCurrentAttributes(id, classifySession, writeContext);
-        } catch (WriteFailedException.DeleteFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
-            verify(api).classifyAddDelSession(
-                generateClassifyAddDelSession((byte) 0, TABLE_INDEX, SESSION_INDEX));
+            verify(api).classifyAddDelSession(generateClassifyAddDelSession((byte) 0, TABLE_INDEX, SESSION_INDEX));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

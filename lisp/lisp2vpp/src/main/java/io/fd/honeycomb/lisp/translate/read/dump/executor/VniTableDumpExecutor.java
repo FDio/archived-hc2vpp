@@ -17,17 +17,14 @@
 package io.fd.honeycomb.lisp.translate.read.dump.executor;
 
 
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public class VniTableDumpExecutor extends AbstractJvppDumpExecutor
@@ -38,13 +35,8 @@ public class VniTableDumpExecutor extends AbstractJvppDumpExecutor
     }
 
     @Override
-    public LispEidTableVniDetailsReplyDump executeDump(Void params) throws DumpExecutionFailedException {
-        try {
-            return getReply(vppApi.lispEidTableVniDump(new LispEidTableVniDump()).toCompletableFuture());
-        } catch (TimeoutException e) {
-            throw DumpTimeoutException.wrapTimeoutException("Eid table map dump ended in timeout", e);
-        } catch (VppBaseCallException e) {
-            throw DumpCallFailedException.wrapFailedCallException("Eid table map dump failed", e);
-        }
+    public LispEidTableVniDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, Void params)
+            throws ReadFailedException {
+        return getReplyForRead(vppApi.lispEidTableVniDump(new LispEidTableVniDump()).toCompletableFuture(), identifier);
     }
 }

@@ -25,10 +25,12 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,9 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,13 +74,9 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
         LOG.debug("Reading attributes for Locator Set {}", id);
 
-        Optional<LispLocatorSetDetailsReplyDump> dumpOptional;
+        final Optional<LispLocatorSetDetailsReplyDump> dumpOptional =
+                dumpManager.getDump(id, LOCATOR_SETS_CACHE_ID, ctx.getModificationCache(), NO_PARAMS);
 
-        try {
-            dumpOptional = dumpManager.getDump(LOCATOR_SETS_CACHE_ID, ctx.getModificationCache(), NO_PARAMS);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
         if (!dumpOptional.isPresent() || dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
             return;
         }
@@ -108,13 +103,8 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
         LOG.debug("Dumping Locator Set {}", id);
 
-        Optional<LispLocatorSetDetailsReplyDump> dumpOptional = null;
-        try {
-            dumpOptional = dumpManager.getDump(LOCATOR_SETS_CACHE_ID, context.getModificationCache(), NO_PARAMS);
-        } catch (DumpExecutionFailedException e) {
-            LOG.error("Error dumping Locator Set {}", e, id);
-            return Collections.emptyList();
-        }
+        final Optional<LispLocatorSetDetailsReplyDump> dumpOptional =
+                dumpManager.getDump(id, LOCATOR_SETS_CACHE_ID, context.getModificationCache(), NO_PARAMS);
 
         if (!dumpOptional.isPresent() || dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
             return Collections.emptyList();

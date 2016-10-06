@@ -117,7 +117,7 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
         try {
             customizer.writeCurrentAttributes(id, acl, writeContext);
-        } catch (WriteFailedException.CreateFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).inputAclSetInterface(generateInputAclSetInterface((byte) 1, IF_INDEX, ACL_TABLE_INDEX));
             return;
@@ -146,7 +146,7 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
         try {
             customizer.deleteCurrentAttributes(id, acl, writeContext);
-        } catch (WriteFailedException.DeleteFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verify(api).inputAclSetInterface(generateInputAclSetInterface((byte) 0, IF_INDEX, ACL_TABLE_INDEX));
             return;

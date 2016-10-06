@@ -12,19 +12,20 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.vpp.test.read.JvppDumpExecutorTest;
+import io.fd.vpp.jvpp.VppCallbackException;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispLocatorDump;
 import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDump;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public class LocatorDumpExecutorTest extends JvppDumpExecutorTest<LocatorDumpExecutor> {
@@ -32,10 +33,12 @@ public class LocatorDumpExecutorTest extends JvppDumpExecutorTest<LocatorDumpExe
     @Captor
     private ArgumentCaptor<LispLocatorDump> requestCaptor;
 
+    private InstanceIdentifier identifier;
     private LispLocatorDetailsReplyDump validDump;
 
     @Before
     public void init() {
+        identifier = InstanceIdentifier.create(LocatorSet.class);
         validDump = new LispLocatorDetailsReplyDump();
         LispLocatorDetails detail = new LispLocatorDetails();
 
@@ -54,28 +57,36 @@ public class LocatorDumpExecutorTest extends JvppDumpExecutorTest<LocatorDumpExe
     public void testExecuteDumpTimeout() throws Exception {
         doThrowTimeoutExceptionWhen().lispLocatorDump(Mockito.any());
         try {
-            getExecutor().executeDump(new LocatorDumpParamsBuilder().build());
+            getExecutor().executeDump(identifier, new LocatorDumpParamsBuilder().build());
         } catch (Exception e) {
-            assertTrue(e instanceof DumpTimeoutException);
+            assertTrue(e instanceof ReadFailedException);
             assertTrue(e.getCause() instanceof TimeoutException);
+            assertEquals(identifier, ((ReadFailedException) e).getFailedId());
             return;
         }
         fail("Test should have thrown exception");
     }
 
-    @Test(expected = DumpCallFailedException.class)
-    public void testExecuteDumpHalted() throws DumpExecutionFailedException {
+    @Test
+    public void testExecuteDumpHalted() throws ReadFailedException {
         doThrowFailExceptionWhen().lispLocatorDump(Mockito.any());
-        getExecutor().executeDump(new LocatorDumpParamsBuilder().build());
+        try {
+            getExecutor().executeDump(identifier, new LocatorDumpParamsBuilder().build());
+        } catch (ReadFailedException e) {
+            assertTrue(e.getCause() instanceof VppCallbackException);
+            assertEquals(identifier, ((ReadFailedException) e).getFailedId());
+            return;
+        }
+        fail("Test should have thrown ReadFailedException");
     }
 
     @Test
-    public void testExecuteDump() throws DumpExecutionFailedException {
+    public void testExecuteDump() throws ReadFailedException {
         doReturnResponseWhen(validDump).lispLocatorDump(Mockito.any());
 
         final LocatorDumpParams params = new LocatorDumpParamsBuilder().setLocatorSetIndex(5).build();
 
-        final LispLocatorDetailsReplyDump reply = getExecutor().executeDump(params);
+        final LispLocatorDetailsReplyDump reply = getExecutor().executeDump(identifier, params);
         verify(api, times(1)).lispLocatorDump(requestCaptor.capture());
 
         final LispLocatorDump request = requestCaptor.getValue();

@@ -17,6 +17,7 @@
 package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -42,5 +43,5 @@ interface AceWriter {
      */
     void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
                final InterfaceMode mode, @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
-        throws VppBaseCallException, WriteTimeoutException;
+        throws WriteFailedException;
 }

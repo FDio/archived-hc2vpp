@@ -20,18 +20,16 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,12 +53,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
 
-        try {
-            setInterface(id, dataAfter, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Update of VppInterfaceAugment failed", e);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        setInterface(id, dataAfter, writeContext);
     }
 
     @Override
@@ -69,13 +62,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                                         @Nonnull final Interface dataAfter,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-
-        try {
-            updateInterface(id, dataBefore, dataAfter, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Update of VppInterfaceAugment failed", e);
-            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
-        }
+        updateInterface(id, dataBefore, dataAfter, writeContext);
     }
 
     @Override
@@ -86,15 +73,14 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     }
 
     private void setInterface(final InstanceIdentifier<Interface> id, final Interface swIf,
-                              final WriteContext writeContext)
-            throws VppBaseCallException, WriteTimeoutException {
+                              final WriteContext writeContext) throws WriteFailedException {
         LOG.debug("Setting interface: {} to: {}", id, swIf);
         setInterfaceAttributes(id, swIf, swIf.getName(), writeContext);
     }
 
     private void setInterfaceAttributes(final InstanceIdentifier<Interface> id, final Interface swIf,
                                         final String swIfName, final WriteContext writeContext)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
 
         setInterfaceFlags(id, swIfName, interfaceContext.getIndex(swIfName, writeContext.getMappingContext()),
                 swIf.isEnabled()
@@ -105,14 +91,13 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     private void updateInterface(final InstanceIdentifier<Interface> id,
                                  final Interface dataBefore,
                                  final Interface dataAfter, final WriteContext writeContext)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         LOG.debug("Updating interface:{} to: {}", id, dataAfter);
         setInterfaceAttributes(id, dataAfter, dataAfter.getName(), writeContext);
     }
 
     private void setInterfaceFlags(final InstanceIdentifier<Interface> id, final String swIfName, final int swIfIndex,
-                                   final byte enabled)
-            throws VppBaseCallException, WriteTimeoutException {
+                                   final byte enabled) throws WriteFailedException {
         final CompletionStage<SwInterfaceSetFlagsReply> swInterfaceSetFlagsReplyFuture =
                 getFutureJVpp().swInterfaceSetFlags(
                         getSwInterfaceSetFlagsInput(swIfIndex, enabled, (byte) 0 /* deleted */));

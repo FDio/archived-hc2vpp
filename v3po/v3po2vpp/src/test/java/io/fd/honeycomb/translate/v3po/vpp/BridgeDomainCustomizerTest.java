@@ -27,6 +27,9 @@ import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDel;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDelReply;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.BridgeDomains;
@@ -35,9 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDel;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDelReply;
 
 public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 
@@ -155,7 +155,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
 
         try {
             customizer.writeCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
-        } catch (WriteFailedException.CreateFailedException e) {
+        } catch (WriteFailedException e) {
             verifyBridgeDomainAddOrUpdateWasInvoked(bd, bdId);
             return;
         }
@@ -202,7 +202,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
 
         try {
             customizer.deleteCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
-        } catch (WriteFailedException.DeleteFailedException e) {
+        } catch (WriteFailedException e) {
             verifyBridgeDomainDeleteWasInvoked(bdId);
             return;
         }
@@ -265,10 +265,8 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         whenBridgeDomainAddDelThenFailure();
 
         try {
-            customizer
-                    .updateCurrentAttributes(bdIdentifierForName(bdName), bdBefore, bdAfter,
-                            writeContext);
-        } catch (WriteFailedException.UpdateFailedException e) {
+            customizer.updateCurrentAttributes(bdIdentifierForName(bdName), bdBefore, bdAfter, writeContext);
+        } catch (WriteFailedException e) {
             verifyBridgeDomainAddOrUpdateWasInvoked(bdAfter, bdId);
             return;
         }

@@ -23,6 +23,7 @@ import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -42,8 +43,7 @@ interface AclWriter extends ByteDataTranslator, JvppReplyConsumer {
                                       @Nonnull final InstanceIdentifier<?> id, @Nonnull final AclBaseAttributes acl,
                                       @Nonnegative final int ifIndex,
                                       @Nonnull final VppClassifierContextManager classifyTableContext,
-                                      @Nonnull final MappingContext mappingContext)
-            throws VppBaseCallException, WriteTimeoutException {
+                                      @Nonnull final MappingContext mappingContext) throws WriteFailedException {
         final InputAclSetInterface request = new InputAclSetInterface();
         request.isAdd = booleanToByte(isAdd);
         request.swIfIndex = ifIndex;

@@ -27,7 +27,6 @@ import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
 import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -74,7 +73,8 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id, @Nonnull final IngressBuilder builder,
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id,
+                                      @Nonnull final IngressBuilder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         LOG.debug("Reading attributes for sub-interface ACL: {}", id);
         final InterfaceKey parentInterfacekey = id.firstKeyOf(Interface.class);
@@ -86,19 +86,16 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
 
         final ClassifyTableByInterface request = new ClassifyTableByInterface();
         request.swIfIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
-        try {
-            final ClassifyTableByInterfaceReply reply =
-                    getReplyForRead(getFutureJVpp().classifyTableByInterface(request).toCompletableFuture(), id);
 
-            builder.setL2Acl(readL2Acl(reply.l2TableId, classifyTableContext, ctx.getMappingContext()));
-            builder.setIp4Acl(readIp4Acl(reply.ip4TableId, classifyTableContext, ctx.getMappingContext()));
-            builder.setIp6Acl(readIp6Acl(reply.ip6TableId, classifyTableContext, ctx.getMappingContext()));
+        final ClassifyTableByInterfaceReply reply =
+                getReplyForRead(getFutureJVpp().classifyTableByInterface(request).toCompletableFuture(), id);
 
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Attributes for ACL {} successfully read: {}", id, builder.build());
-            }
-        } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id, e);
+        builder.setL2Acl(readL2Acl(reply.l2TableId, classifyTableContext, ctx.getMappingContext()));
+        builder.setIp4Acl(readIp4Acl(reply.ip4TableId, classifyTableContext, ctx.getMappingContext()));
+        builder.setIp6Acl(readIp6Acl(reply.ip6TableId, classifyTableContext, ctx.getMappingContext()));
+
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Attributes for ACL {} successfully read: {}", id, builder.build());
         }
     }
 }

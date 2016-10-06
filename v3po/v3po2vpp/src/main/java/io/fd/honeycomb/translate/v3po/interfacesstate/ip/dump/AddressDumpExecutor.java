@@ -3,19 +3,16 @@ package io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpAddressDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AddressDumpExecutor
         implements EntityDumpExecutor<IpAddressDetailsReplyDump, AddressDumpParams>, ByteDataTranslator,
@@ -28,20 +25,15 @@ public class AddressDumpExecutor
     }
 
     @Override
-    public IpAddressDetailsReplyDump executeDump(final AddressDumpParams params) throws DumpExecutionFailedException {
+    @Nonnull
+    public IpAddressDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, final AddressDumpParams params)
+            throws ReadFailedException {
         checkNotNull(params, "Address dump params cannot be null");
 
         IpAddressDump dumpRequest = new IpAddressDump();
         dumpRequest.isIpv6 = booleanToByte(params.isIpv6());
         dumpRequest.swIfIndex = params.getInterfaceIndex();
 
-        try {
-            return getReply(vppApi.ipAddressDump(dumpRequest).toCompletableFuture());
-        } catch (TimeoutException e) {
-            throw DumpTimeoutException
-                    .wrapTimeoutException("Dumping or addresses ended in timeout[params : ]" + params, e);
-        } catch (VppBaseCallException e) {
-            throw DumpCallFailedException.wrapFailedCallException("Dumping of addresses failed[params : ]" + params, e);
-        }
+        return getReplyForRead(vppApi.ipAddressDump(dumpRequest).toCompletableFuture(), identifier);
     }
 }

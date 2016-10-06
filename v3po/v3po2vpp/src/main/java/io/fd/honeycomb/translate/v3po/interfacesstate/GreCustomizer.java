@@ -23,6 +23,10 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.GreTunnelDetails;
+import io.fd.vpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.GreTunnelDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -40,11 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.GreTunnelDetails;
-import io.fd.vpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.GreTunnelDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,60 +74,55 @@ public class GreCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Gre> id,
                                       @Nonnull final GreBuilder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        try {
-            final InterfaceKey key = id.firstKeyOf(Interface.class);
-            final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-            if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index, GreTunnel.class, LOG)) {
-                return;
-            }
-
-            LOG.debug("Reading attributes for gre tunnel: {}", key.getName());
-            // Dump just a single
-            final GreTunnelDump request = new GreTunnelDump();
-            request.swIfIndex = index;
-
-            final CompletionStage<GreTunnelDetailsReplyDump> swInterfaceGreDetailsReplyDumpCompletionStage =
-                    getFutureJVpp().greTunnelDump(request);
-            final GreTunnelDetailsReplyDump reply =
-                    getReplyForRead(swInterfaceGreDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
-
-            // VPP keeps gre tunnel interfaces even after they were deleted (optimization)
-            // However there ar no longer any gre tunnel specific fields assigned to it and this call
-            // returns nothing
-            if (reply == null || reply.greTunnelDetails == null || reply.greTunnelDetails.isEmpty()) {
-                LOG.debug(
-                        "Gre tunnel {}, id {} has no attributes assigned in VPP. Probably is a leftover interface placeholder" +
-                                "after delete", key.getName(), index);
-                return;
-            }
-
-            checkState(reply.greTunnelDetails.size() == 1,
-                    "Unexpected number of returned gre tunnels: {} for tunnel: {}", reply.greTunnelDetails,
-                    key.getName());
-            LOG.trace("Gre tunnel: {} attributes returned from VPP: {}", key.getName(), reply);
-
-            final GreTunnelDetails swInterfaceGreDetails = reply.greTunnelDetails.get(0);
-            if (swInterfaceGreDetails.isIpv6 == 1) {
-                final Ipv6Address dstIpv6 =
-                        new Ipv6Address(parseAddress(swInterfaceGreDetails.dstAddress).getHostAddress());
-                builder.setDst(new IpAddress(dstIpv6));
-                final Ipv6Address srcIpv6 =
-                        new Ipv6Address(parseAddress(swInterfaceGreDetails.srcAddress).getHostAddress());
-                builder.setSrc(new IpAddress(srcIpv6));
-            } else {
-                final byte[] dstBytes = Arrays.copyOfRange(swInterfaceGreDetails.dstAddress, 0, 4);
-                final Ipv4Address dstIpv4 = new Ipv4Address(parseAddress(dstBytes).getHostAddress());
-                builder.setDst(new IpAddress(dstIpv4));
-                final byte[] srcBytes = Arrays.copyOfRange(swInterfaceGreDetails.srcAddress, 0, 4);
-                final Ipv4Address srcIpv4 = new Ipv4Address(parseAddress(srcBytes).getHostAddress());
-                builder.setSrc(new IpAddress(srcIpv4));
-            }
-            builder.setOuterFibId((long) swInterfaceGreDetails.outerFibId);
-            LOG.debug("Gre tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to readCurrentAttributes for: {}", id, e);
-            throw new ReadFailedException(id, e);
+        final InterfaceKey key = id.firstKeyOf(Interface.class);
+        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
+        if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index, GreTunnel.class, LOG)) {
+            return;
         }
+
+        LOG.debug("Reading attributes for gre tunnel: {}", key.getName());
+        // Dump just a single
+        final GreTunnelDump request = new GreTunnelDump();
+        request.swIfIndex = index;
+
+        final CompletionStage<GreTunnelDetailsReplyDump> swInterfaceGreDetailsReplyDumpCompletionStage =
+                getFutureJVpp().greTunnelDump(request);
+        final GreTunnelDetailsReplyDump reply =
+                getReplyForRead(swInterfaceGreDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
+
+        // VPP keeps gre tunnel interfaces even after they were deleted (optimization)
+        // However there ar no longer any gre tunnel specific fields assigned to it and this call
+        // returns nothing
+        if (reply == null || reply.greTunnelDetails == null || reply.greTunnelDetails.isEmpty()) {
+            LOG.debug(
+                    "Gre tunnel {}, id {} has no attributes assigned in VPP. Probably is a leftover interface placeholder" +
+                            "after delete", key.getName(), index);
+            return;
+        }
+
+        checkState(reply.greTunnelDetails.size() == 1,
+                "Unexpected number of returned gre tunnels: {} for tunnel: {}", reply.greTunnelDetails,
+                key.getName());
+        LOG.trace("Gre tunnel: {} attributes returned from VPP: {}", key.getName(), reply);
+
+        final GreTunnelDetails swInterfaceGreDetails = reply.greTunnelDetails.get(0);
+        if (swInterfaceGreDetails.isIpv6 == 1) {
+            final Ipv6Address dstIpv6 =
+                    new Ipv6Address(parseAddress(swInterfaceGreDetails.dstAddress).getHostAddress());
+            builder.setDst(new IpAddress(dstIpv6));
+            final Ipv6Address srcIpv6 =
+                    new Ipv6Address(parseAddress(swInterfaceGreDetails.srcAddress).getHostAddress());
+            builder.setSrc(new IpAddress(srcIpv6));
+        } else {
+            final byte[] dstBytes = Arrays.copyOfRange(swInterfaceGreDetails.dstAddress, 0, 4);
+            final Ipv4Address dstIpv4 = new Ipv4Address(parseAddress(dstBytes).getHostAddress());
+            builder.setDst(new IpAddress(dstIpv4));
+            final byte[] srcBytes = Arrays.copyOfRange(swInterfaceGreDetails.srcAddress, 0, 4);
+            final Ipv4Address srcIpv4 = new Ipv4Address(parseAddress(srcBytes).getHostAddress());
+            builder.setSrc(new IpAddress(srcIpv4));
+        }
+        builder.setOuterFibId((long) swInterfaceGreDetails.outerFibId);
+        LOG.debug("Gre tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
 
     @Nonnull

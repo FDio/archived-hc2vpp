@@ -26,7 +26,10 @@ import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.ReadTimeoutException;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDump;
+import io.fd.vpp.jvpp.core.dto.L2FibTableEntry;
+import io.fd.vpp.jvpp.core.dto.L2FibTableEntryReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -45,11 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.L2FibTableDump;
-import io.fd.vpp.jvpp.core.dto.L2FibTableEntry;
-import io.fd.vpp.jvpp.core.dto.L2FibTableEntryReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +104,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
 
     @Nonnull
     private List<L2FibTableEntry> dumpL2Fibs(final InstanceIdentifier<L2FibEntry> id, final int bdId)
-            throws VppBaseCallException, ReadTimeoutException {
+            throws ReadFailedException {
         final L2FibTableDump l2FibRequest = new L2FibTableDump();
         l2FibRequest.bdId = bdId;
 
@@ -130,14 +128,10 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
         final int bdId = bdContext.getIndex(bridgeDomainKey.getName(), ctx.getMappingContext());
 
         LOG.debug("Reading L2 FIB for bridge domain {} (bdId={})", bridgeDomainKey, bdId);
-        try {
-            return dumpL2Fibs(id, bdId).stream()
-                    .map(entry -> new L2FibEntryKey(
-                            new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(entry.mac), 2))))
-                    .collect(Collectors.toList());
-        } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id, e);
-        }
+        return dumpL2Fibs(id, bdId).stream()
+                .map(entry -> new L2FibEntryKey(
+                        new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(entry.mac), 2))))
+                .collect(Collectors.toList());
     }
 
     @Override

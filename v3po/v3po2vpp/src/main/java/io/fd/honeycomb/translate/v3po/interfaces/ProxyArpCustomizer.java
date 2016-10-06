@@ -22,17 +22,16 @@ import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
+import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
-import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.ProxyArp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
-import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +47,7 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<ProxyArp> id, @Nonnull ProxyArp dataAfter,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
-
-        try {
-            setProxyArp(id, swIfName, dataAfter, (byte) 1 /* 1 is add */);
-        } catch (VppBaseCallException e) {
-            LOG.error("Failed to set Proxy ARP settings: {}, for interface: {}", dataAfter, swIfName);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        createProxyArp(getProxyArpRequestFuture(id, swIfName, dataAfter, (byte) 1 /* 1 is add */), id, dataAfter);
     }
 
     @Override
@@ -70,27 +63,32 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
 
         final String swIfName = id.firstKeyOf(Interface.class).getName();
-        try {
-            setProxyArp(id, swIfName, dataBefore, (byte) 0 /* 0 is delete */);
-        } catch (VppBaseCallException e) {
-            LOG.debug("Failed to delete Proxy ARP settings: {}, for interface: {}", dataBefore, swIfName);
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        deleteProxyArp(getProxyArpRequestFuture(id, swIfName, dataBefore, (byte) 0 /* 0 is delete */), id);
     }
 
-    private void setProxyArp(InstanceIdentifier<ProxyArp> id, String swIfName, ProxyArp proxyArp, byte operation)
-        throws VppBaseCallException, WriteFailedException {
+    private Future<ProxyArpAddDelReply> getProxyArpRequestFuture(InstanceIdentifier<ProxyArp> id, String swIfName,
+                                                                 ProxyArp proxyArp, byte operation)
+            throws WriteFailedException {
         LOG.debug("Setting Proxy ARP settings for interface: {}", swIfName);
         final InetAddress srcAddress = InetAddresses.forString(getv4AddressString(proxyArp.getLowAddr()));
         final InetAddress dstAddress = InetAddresses.forString(getv4AddressString(proxyArp.getHighAddr()));
         final int vrfId = proxyArp.getVrfId().intValue();
-        final CompletionStage<ProxyArpAddDelReply> proxyArpAddDelReplyCompletionStage =
-                getFutureJVpp().proxyArpAddDel(getProxyArpConfRequest(operation, srcAddress.getAddress(),
-                        dstAddress.getAddress(), vrfId));
+        return getFutureJVpp().proxyArpAddDel(
+                getProxyArpConfRequest(operation, srcAddress.getAddress(), dstAddress.getAddress(), vrfId))
+                .toCompletableFuture();
+    }
 
-        final ProxyArpAddDelReply reply =
-                getReplyForWrite(proxyArpAddDelReplyCompletionStage.toCompletableFuture(), id);
-        LOG.debug("Proxy ARP setting applied, with reply context:", reply.context);
+    private void createProxyArp(final Future<ProxyArpAddDelReply> future, final InstanceIdentifier<ProxyArp> identifier,
+                                final ProxyArp data)
+            throws WriteFailedException {
+        final ProxyArpAddDelReply reply = getReplyForCreate(future, identifier, data);
+        LOG.debug("Proxy ARP setting create successful, with reply context:", reply.context);
+    }
+
+    private void deleteProxyArp(final Future<ProxyArpAddDelReply> future, final InstanceIdentifier<ProxyArp> identifier)
+            throws WriteFailedException {
+        final ProxyArpAddDelReply reply = getReplyForDelete(future, identifier);
+        LOG.debug("Proxy ARP setting delete successful, with reply context:", reply.context);
     }
 
     private static ProxyArpAddDel getProxyArpConfRequest(final byte isAdd, final byte[] lAddr, final byte[] hAddr,

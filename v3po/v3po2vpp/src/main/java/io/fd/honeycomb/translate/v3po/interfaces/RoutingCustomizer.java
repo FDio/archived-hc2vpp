@@ -20,10 +20,8 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTable;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetTableReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -51,12 +49,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
             throws WriteFailedException {
 
         final String ifName = id.firstKeyOf(Interface.class).getName();
-        try {
-            setRouting(id, ifName, dataAfter, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to set routing for interface: {}, {}, vxlan: {}", ifName, writeContext, dataAfter);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        setRouting(id, ifName, dataAfter, writeContext);
     }
 
     @Override
@@ -66,12 +59,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
             throws WriteFailedException {
 
         final String ifName = id.firstKeyOf(Interface.class).getName();
-        try {
-            setRouting(id, ifName, dataAfter, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to update routing for interface: {}, {}, vxlan: {}", ifName, writeContext, dataAfter);
-            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
-        }
+        setRouting(id, ifName, dataAfter, writeContext);
     }
 
     @Override
@@ -79,16 +67,11 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
                                         @Nonnull final Routing dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String ifName = id.firstKeyOf(Interface.class).getName();
-        try {
-            disableRouting(id, ifName, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to disable routing for interface: {}, {}", ifName, writeContext);
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        disableRouting(id, ifName, writeContext);
     }
 
     private void setRouting(final InstanceIdentifier<Routing> id, final String name, final Routing rt,
-                            final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+                            final WriteContext writeContext) throws WriteFailedException {
         final int swIfc = interfaceContext.getIndex(name, writeContext.getMappingContext());
         LOG.debug("Setting routing for interface: {}, {}. Routing: {}", name, swIfc, rt);
 
@@ -110,11 +93,11 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
      * default value 0
      */
     private void disableRouting(final InstanceIdentifier<Routing> id, final String name,
-                                final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+                                final WriteContext writeContext) throws WriteFailedException {
         final int swIfc = interfaceContext.getIndex(name, writeContext.getMappingContext());
         LOG.debug("Disabling routing for interface: {}, {}.", name, swIfc);
 
-        getReplyForWrite(getFutureJVpp()
+        getReplyForDelete(getFutureJVpp()
                 .swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, 0)).toCompletableFuture(), id);
         LOG.debug("Routing for interface: {}, {} successfully disabled", name, swIfc);
 

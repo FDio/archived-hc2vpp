@@ -22,10 +22,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclWriter;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
@@ -92,30 +90,26 @@ public final class IetfAClWriter implements JvppReplyConsumer {
     }
 
     void deleteAcl(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex)
-            throws WriteTimeoutException, WriteFailedException.DeleteFailedException {
+            throws WriteFailedException {
         final ClassifyTableByInterface request = new ClassifyTableByInterface();
         request.swIfIndex = swIfIndex;
 
-        try {
-            final CompletionStage<ClassifyTableByInterfaceReply> cs = jvpp.classifyTableByInterface(request);
-            final ClassifyTableByInterfaceReply reply = getReplyForWrite(cs.toCompletableFuture(), id);
+        final CompletionStage<ClassifyTableByInterfaceReply> cs = jvpp.classifyTableByInterface(request);
+        final ClassifyTableByInterfaceReply reply = getReplyForDelete(cs.toCompletableFuture(), id);
 
-            // We unassign and remove all ACL-related classify tables for given interface (we assume we are the only
-            // classify table manager)
+        // We unassign and remove all ACL-related classify tables for given interface (we assume we are the only
+        // classify table manager)
 
-            unassignClassifyTables(id, reply);
+        unassignClassifyTables(id, reply);
 
-            removeClassifyTable(id, reply.l2TableId);
-            removeClassifyTable(id, reply.ip4TableId);
-            removeClassifyTable(id, reply.ip6TableId);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        removeClassifyTable(id, reply.l2TableId);
+        removeClassifyTable(id, reply.ip4TableId);
+        removeClassifyTable(id, reply.ip6TableId);
     }
 
     private void unassignClassifyTables(@Nonnull final InstanceIdentifier<?> id,
                                         final ClassifyTableByInterfaceReply currentState)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         final InputAclSetInterface request = new InputAclSetInterface();
         request.isAdd = 0;
         request.swIfIndex = currentState.swIfIndex;
@@ -124,11 +118,11 @@ public final class IetfAClWriter implements JvppReplyConsumer {
         request.ip6TableIndex = currentState.ip6TableId;
         final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
                 jvpp.inputAclSetInterface(request);
-        getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForDelete(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
     }
 
     private void removeClassifyTable(@Nonnull final InstanceIdentifier<?> id, final int tableIndex)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
 
         if (tableIndex == -1) {
             return; // classify table id is absent
@@ -136,19 +130,19 @@ public final class IetfAClWriter implements JvppReplyConsumer {
         final ClassifyAddDelTable request = new ClassifyAddDelTable();
         request.tableIndex = tableIndex;
         final CompletionStage<ClassifyAddDelTableReply> cs = jvpp.classifyAddDelTable(request);
-        getReplyForWrite(cs.toCompletableFuture(), id);
+        getReplyForDelete(cs.toCompletableFuture(), id);
     }
 
     void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, @Nonnull final List<Acl> acls,
                @Nullable final InterfaceMode mode, @Nonnull final WriteContext writeContext)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         write(id, swIfIndex, mode, acls, writeContext, 0);
     }
 
     void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, final InterfaceMode mode,
                @Nonnull final List<Acl> acls,
                @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
 
         // filter ACE entries and group by AceType
         final Map<AclType, List<Ace>> acesByType = acls.stream()

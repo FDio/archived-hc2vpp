@@ -19,19 +19,16 @@ package io.fd.honeycomb.lisp.translate.read.dump.executor;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.SubtableDumpParams;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.VrfSubtable;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispEidTableMapDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.eid.table.grouping.eid.table.vni.table.VrfSubtable;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Dump executor for {@link VrfSubtable}/{@link BridgeDomainSubtable}
@@ -39,30 +36,18 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 public final class SubtableDumpExecutor extends AbstractJvppDumpExecutor
         implements EntityDumpExecutor<LispEidTableMapDetailsReplyDump, SubtableDumpParams>, JvppReplyConsumer {
 
-    private SubtableDumpParams params;
-    private LispEidTableMapDump request;
-
     public SubtableDumpExecutor(@Nonnull final FutureJVppCore vppApi) {
         super(vppApi);
     }
 
     @Override
-    public LispEidTableMapDetailsReplyDump executeDump(final SubtableDumpParams params)
-            throws DumpExecutionFailedException {
-        this.params = checkNotNull(params, "Cannot bind null params");
-
+    public LispEidTableMapDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier,
+                                                       final SubtableDumpParams params)
+            throws ReadFailedException {
         LispEidTableMapDump request = new LispEidTableMapDump();
-        request.isL2 = params.isL2();
+        request.isL2 = checkNotNull(params, "Cannot bind null params").isL2();
 
-        try {
-            return getReply(vppApi.lispEidTableMapDump(request).toCompletableFuture());
-        } catch (TimeoutException e) {
-            throw DumpTimeoutException
-                    .wrapTimeoutException("Dumping subtable with params " + params + " timed out", e);
-        } catch (VppBaseCallException e) {
-            throw DumpCallFailedException
-                    .wrapFailedCallException("Dumping subtable with params " + params + " timed out", e);
-        }
+        return getReplyForRead(vppApi.lispEidTableMapDump(request).toCompletableFuture(), identifier);
     }
 
 }

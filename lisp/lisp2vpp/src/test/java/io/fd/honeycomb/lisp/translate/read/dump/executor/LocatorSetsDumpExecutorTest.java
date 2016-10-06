@@ -10,20 +10,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableList;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpCallFailedException;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.i.DumpTimeoutException;
 import io.fd.honeycomb.vpp.test.read.JvppDumpExecutorTest;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDump;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDump;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.locator.sets.grouping.locator.sets.LocatorSet;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public class LocatorSetsDumpExecutorTest extends JvppDumpExecutorTest<LocatorSetsDumpExecutor> {
@@ -35,8 +35,11 @@ public class LocatorSetsDumpExecutorTest extends JvppDumpExecutorTest<LocatorSet
     @Captor
     private ArgumentCaptor<LispLocatorSetDump> requestCaptor;
 
+    private InstanceIdentifier identifier;
+
     @Before
     public void init() {
+        identifier = InstanceIdentifier.create(LocatorSet.class);
         validDump = new LispLocatorSetDetailsReplyDump();
         LispLocatorSetDetails detail = new LispLocatorSetDetails();
         detail.lsIndex = 2;
@@ -50,26 +53,27 @@ public class LocatorSetsDumpExecutorTest extends JvppDumpExecutorTest<LocatorSet
     public void testExecuteDumpTimeout() throws Exception {
         doThrowTimeoutExceptionWhen().lispLocatorSetDump(any());
         try {
-            getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
+            getExecutor().executeDump(identifier, EntityDumpExecutor.NO_PARAMS);
         } catch (Exception e) {
-            assertTrue(e instanceof DumpTimeoutException);
+            assertTrue(e instanceof ReadFailedException);
             assertTrue(e.getCause() instanceof TimeoutException);
             return;
         }
         fail("Test should have thrown exception");
     }
 
-    @Test(expected = DumpCallFailedException.class)
-    public void testExecuteDumpHalted() throws DumpExecutionFailedException {
+    @Test(expected = ReadFailedException.class)
+    public void testExecuteDumpHalted() throws ReadFailedException {
         doThrowFailExceptionWhen().lispLocatorSetDump(any());
-        getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
+        getExecutor().executeDump(identifier, EntityDumpExecutor.NO_PARAMS);
     }
 
     @Test
-    public void testExecuteDump() throws DumpExecutionFailedException {
+    public void testExecuteDump() throws ReadFailedException {
         doReturnResponseWhen(validDump).lispLocatorSetDump(any());
 
-        final LispLocatorSetDetailsReplyDump replyDump = getExecutor().executeDump(EntityDumpExecutor.NO_PARAMS);
+        final LispLocatorSetDetailsReplyDump replyDump =
+                getExecutor().executeDump(identifier, EntityDumpExecutor.NO_PARAMS);
         verify(api, times(1)).lispLocatorSetDump(requestCaptor.capture());
 
         final LispLocatorSetDump request = requestCaptor.getValue();

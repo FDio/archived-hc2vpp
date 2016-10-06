@@ -22,6 +22,9 @@ import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.vpp.jvpp.core.dto.ShowVersion;
+import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppStateBuilder;
@@ -30,10 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.ShowVersion;
-import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public final class VersionCustomizer
         extends FutureJVppCustomizer
@@ -57,18 +56,15 @@ public final class VersionCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<Version> id, @Nonnull final VersionBuilder builder,
                                       @Nonnull final ReadContext context) throws ReadFailedException {
-        try {
-            // Execute with timeout
-            final CompletionStage<ShowVersionReply> showVersionFuture = getFutureJVpp().showVersion(new ShowVersion());
-            final ShowVersionReply reply = getReplyForRead(showVersionFuture.toCompletableFuture(), id);
 
-            builder.setBranch(toString(reply.version));
-            builder.setName(toString(reply.program));
-            builder.setBuildDate(toString(reply.buildDate));
-            builder.setBuildDirectory(toString(reply.buildDirectory));
-        } catch (VppBaseCallException e) {
-            throw new ReadFailedException(id, e);
-        }
+        // Execute with timeout
+        final CompletionStage<ShowVersionReply> showVersionFuture = getFutureJVpp().showVersion(new ShowVersion());
+        final ShowVersionReply reply = getReplyForRead(showVersionFuture.toCompletableFuture(), id);
+
+        builder.setBranch(toString(reply.version));
+        builder.setName(toString(reply.program));
+        builder.setBuildDate(toString(reply.buildDate));
+        builder.setBuildDirectory(toString(reply.buildDirectory));
     }
 
 }

@@ -23,12 +23,14 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.AddressDumpExecutor;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -41,9 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
-import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,14 +81,8 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
 
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
-        final Optional<IpAddressDetailsReplyDump> dumpOptional;
-        try {
-            dumpOptional = dumpManager
-                    .getDump(CACHE_KEY, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
-
+        final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
+                .getDump(id, CACHE_KEY, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
 
         final Optional<IpAddressDetails> ipAddressDetails =
                 findIpAddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
@@ -113,13 +106,8 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
 
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
-        final Optional<IpAddressDetailsReplyDump> dumpOptional;
-        try {
-            dumpOptional = dumpManager
-                    .getDump(CACHE_KEY, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
+                .getDump(id, CACHE_KEY, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
 
         return getAllIpv4AddressIds(dumpOptional, AddressKey::new);
     }

@@ -23,9 +23,11 @@ import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.vpp.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -35,10 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.VxlanGpe;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnelReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,12 +65,7 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
-        try {
-            createVxlanGpeTunnel(id, swIfName, dataAfter, writeContext);
-        } catch (VppBaseCallException | IllegalInterfaceTypeException e) {
-            LOG.warn("Failed to set VxlanGpe tunnel for interface: {}, VxlanGpe: {}", swIfName, dataAfter);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        createVxlanGpeTunnel(id, swIfName, dataAfter, writeContext);
     }
 
     @Override
@@ -90,17 +83,12 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
-        try {
-            deleteVxlanGpeTunnel(id, swIfName, dataBefore, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to delete VxlanGpe tunnel for interface: {}, VxlanGpe: {}", swIfName, dataBefore);
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        deleteVxlanGpeTunnel(id, swIfName, dataBefore, writeContext);
     }
 
     private void createVxlanGpeTunnel(final InstanceIdentifier<VxlanGpe> id, final String swIfName,
                                       final VxlanGpe vxlanGpe, final WriteContext writeContext)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         final byte isIpv6 = (byte) (isIpv6(vxlanGpe)
                 ? 1
                 : 0);
@@ -118,7 +106,7 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
                         Remote.getAddress(), vni, protocol, encapVrfId, decapVrfId, isIpv6));
 
         final VxlanGpeAddDelTunnelReply reply =
-                getReplyForWrite(VxlanGpeAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForCreate(VxlanGpeAddDelTunnelReplyCompletionStage.toCompletableFuture(), id, vxlanGpe);
         LOG.debug("VxlanGpe tunnel set successfully for: {}, VxlanGpe: {}", swIfName, vxlanGpe);
         if (interfaceNamingContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
             final String formerName = interfaceNamingContext.getName(reply.swIfIndex, writeContext.getMappingContext());
@@ -160,7 +148,7 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
 
     private void deleteVxlanGpeTunnel(final InstanceIdentifier<VxlanGpe> id, final String swIfName,
                                       final VxlanGpe vxlanGpe, final WriteContext writeContext)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         final byte isIpv6 = (byte) (isIpv6(vxlanGpe)
                 ? 1
                 : 0);
@@ -177,9 +165,7 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
                 getFutureJVpp()
                         .vxlanGpeAddDelTunnel(getVxlanGpeTunnelRequest((byte) 0 /* is delete */, local.getAddress(),
                                 remote.getAddress(), vni, protocol, encapVrfId, decapVrfId, isIpv6));
-
-        getReplyForWrite(VxlanGpeAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
-
+        getReplyForDelete(VxlanGpeAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         final int index = interfaceNamingContext.getIndex(swIfName, writeContext.getMappingContext());
         // Mark this interface as disabled to not include it in operational reads
         // because VPP will keep the interface there

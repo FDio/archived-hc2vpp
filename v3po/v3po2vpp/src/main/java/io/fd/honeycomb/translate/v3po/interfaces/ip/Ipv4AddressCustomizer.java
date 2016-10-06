@@ -27,6 +27,7 @@ import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
@@ -37,8 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.DottedQuad;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,39 +124,28 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                                   @Nonnull final String interfaceName, final int interfaceIndex,
                                   @Nonnull final Address address, @Nonnull final Netmask subnet)
             throws WriteFailedException {
-        try {
-            LOG.debug("Setting Subnet(subnet-mask) for interface: {}(id={}). Subnet: {}, address: {}",
-                    interfaceName, interfaceIndex, subnet, address);
 
-            final DottedQuad netmask = subnet.getNetmask();
-            checkNotNull(netmask, "netmask value should not be null");
+        LOG.debug("Setting Subnet(subnet-mask) for interface: {}(id={}). Subnet: {}, address: {}",
+                interfaceName, interfaceIndex, subnet, address);
 
-            final byte subnetLength = getSubnetMaskLength(netmask.getValue());
-            addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(), subnetLength);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to set Subnet(subnet-mask) for interface: {}(id={}). Subnet: {}, address: {}",
-                    interfaceName, interfaceIndex, subnet, address);
-            throw new WriteFailedException(id, "Unable to handle subnet of type " + subnet.getClass(), e);
-        }
+        final DottedQuad netmask = subnet.getNetmask();
+        checkNotNull(netmask, "netmask value should not be null");
+
+        final byte subnetLength = getSubnetMaskLength(netmask.getValue());
+        addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(), subnetLength);
     }
 
     private void setPrefixLengthSubnet(final boolean add, @Nonnull final InstanceIdentifier<Address> id,
                                        @Nonnull final String interfaceName, final int interfaceIndex,
                                        @Nonnull final Address address, @Nonnull final PrefixLength subnet)
             throws WriteFailedException {
-        try {
-            LOG.debug("Setting Subnet(prefix-length) for interface: {}(id={}). Subnet: {}, address: {}",
-                    interfaceName, interfaceIndex, subnet, address);
+        LOG.debug("Setting Subnet(prefix-length) for interface: {}(id={}). Subnet: {}, address: {}",
+                interfaceName, interfaceIndex, subnet, address);
 
-            addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(),
-                    subnet.getPrefixLength().byteValue());
+        addDelAddress(getFutureJVpp(), add, id, interfaceIndex, address.getIp(),
+                subnet.getPrefixLength().byteValue());
 
-            LOG.debug("Subnet(prefix-length) set successfully for interface: {}(id={}). Subnet: {}, address: {}",
-                    interfaceName, interfaceIndex, subnet, address);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to set Subnet(prefix-length) for interface: {}(id={}). Subnet: {}, address: {}",
-                    interfaceName, interfaceIndex, subnet, address);
-            throw new WriteFailedException(id, "Unable to handle subnet of type " + subnet.getClass(), e);
-        }
+        LOG.debug("Subnet(prefix-length) set successfully for interface: {}(id={}). Subnet: {}, address: {}",
+                interfaceName, interfaceIndex, subnet, address);
     }
 }

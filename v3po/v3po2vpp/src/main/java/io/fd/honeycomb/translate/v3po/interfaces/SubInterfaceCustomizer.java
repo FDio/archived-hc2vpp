@@ -26,9 +26,13 @@ import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.CreateSubif;
+import io.fd.vpp.jvpp.core.dto.CreateSubifReply;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,12 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.match.attributes.match.type.vlan.tagged.VlanTagged;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev150527.sub._interface.base.attributes.tags.Tag;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.CreateSubif;
-import io.fd.vpp.jvpp.core.dto.CreateSubifReply;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,24 +73,18 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
                                        @Nonnull final SubInterface dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String superIfName = id.firstKeyOf(Interface.class).getName();
-        try {
-            createSubInterface(id, superIfName, dataAfter, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to create sub interface for: {}, subInterface: {}", superIfName, dataAfter);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        createSubInterface(id, superIfName, dataAfter, writeContext);
     }
 
     private void createSubInterface(final InstanceIdentifier<SubInterface> id, @Nonnull final String superIfName,
-                                    @Nonnull final SubInterface subInterface,
-                                    final WriteContext writeContext) throws VppBaseCallException,
-            WriteTimeoutException {
+                                    @Nonnull final SubInterface subInterface, final WriteContext writeContext)
+            throws WriteFailedException {
         final int superIfIndex = interfaceContext.getIndex(superIfName, writeContext.getMappingContext());
         final CompletionStage<CreateSubifReply> createSubifReplyCompletionStage =
                 getFutureJVpp().createSubif(getCreateSubifRequest(subInterface, superIfIndex));
 
         final CreateSubifReply reply =
-                getReplyForWrite(createSubifReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForCreate(createSubifReplyCompletionStage.toCompletableFuture(), id, subInterface);
 
         setInterfaceState(id, reply.swIfIndex, booleanToByte(subInterface.isEnabled()));
         interfaceContext.addName(reply.swIfIndex,
@@ -170,18 +162,12 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
             throws WriteFailedException {
         final String subIfaceName = getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
                 Math.toIntExact(dataAfter.getIdentifier()));
-        try {
-            setInterfaceState(id, interfaceContext.getIndex(subIfaceName, writeContext.getMappingContext()),
-                    booleanToByte(dataAfter.isEnabled()));
-        } catch (VppBaseCallException e) {
-            LOG.warn("Failed to update interface state for: interface if={}, enabled: {}",
-                    subIfaceName, booleanToByte(dataAfter.isEnabled()));
-            throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, e);
-        }
+        setInterfaceState(id, interfaceContext.getIndex(subIfaceName, writeContext.getMappingContext()),
+                booleanToByte(dataAfter.isEnabled()));
     }
 
     private void setInterfaceState(final InstanceIdentifier<SubInterface> id, final int swIfIndex, final byte enabled)
-            throws VppBaseCallException, WriteTimeoutException {
+            throws WriteFailedException {
         final SwInterfaceSetFlags swInterfaceSetFlags = new SwInterfaceSetFlags();
         swInterfaceSetFlags.swIfIndex = swIfIndex;
         swInterfaceSetFlags.adminUpDown = enabled;

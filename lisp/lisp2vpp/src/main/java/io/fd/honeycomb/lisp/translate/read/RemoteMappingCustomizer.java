@@ -39,7 +39,6 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.exceptions.execution.DumpExecutionFailedException;
 import io.fd.honeycomb.translate.vpp.util.AddressTranslator;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
@@ -139,13 +138,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
-        Optional<LispEidTableDetailsReplyDump> replyOptional;
-        try {
-            replyOptional =
-                    dumpManager.getDump(bindKey("SPECIFIC_" + remoteMappingId), ctx.getModificationCache(), dumpParams);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispEidTableDetailsReplyDump> replyOptional =
+                dumpManager.getDump(id, bindKey("SPECIFIC_" + remoteMappingId), ctx.getModificationCache(), dumpParams);
 
         if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return;
@@ -184,7 +178,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
         if (vni == 0) {
             // ignoring default vni mapping
-            // its not relevant for us and we also don't store mapping for such eid's
+            // it's not relevant for us and we also don't store mapping for such eid's
             // such mapping is used to create helper local mappings to process remote ones
             return Collections.emptyList();
         }
@@ -196,12 +190,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
-        Optional<LispEidTableDetailsReplyDump> replyOptional;
-        try {
-            replyOptional = dumpManager.getDump(bindKey("ALL_REMOTE"), context.getModificationCache(), dumpParams);
-        } catch (DumpExecutionFailedException e) {
-            throw new ReadFailedException(id, e);
-        }
+        final Optional<LispEidTableDetailsReplyDump> replyOptional =
+                dumpManager.getDump(id, bindKey("ALL_REMOTE"), context.getModificationCache(), dumpParams);
 
         if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return Collections.emptyList();
@@ -242,11 +232,12 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             // cache key needs to have locator set scope to not mix with cached data
             final Optional<LispLocatorDetailsReplyDump> reply;
             try {
-                reply = locatorsDumpManager.getDump(KEY + "_locator_set_" + details.locatorSetIndex, cache,
+                reply = locatorsDumpManager.getDump(id, KEY + "_locator_set_" + details.locatorSetIndex, cache,
                         new LocatorDumpParamsBuilder().setLocatorSetIndex(details.locatorSetIndex).build());
-            } catch (DumpExecutionFailedException e) {
+            } catch (ReadFailedException e) {
                 throw new ReadFailedException(id,
-                        new IllegalStateException("Unable to resolve Positive/Negative mapping for RemoteMapping", e));
+                        new IllegalStateException("Unable to resolve Positive/Negative mapping for RemoteMapping",
+                                e.getCause()));
             }
 
             if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {

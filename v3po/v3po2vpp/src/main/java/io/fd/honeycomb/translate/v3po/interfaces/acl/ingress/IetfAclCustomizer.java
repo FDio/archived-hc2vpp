@@ -23,7 +23,6 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.ietf.acl.base.attributes.AccessLists;
@@ -60,20 +59,16 @@ public class IetfAclCustomizer implements WriterCustomizer<Ingress> {
 
         final AccessLists accessLists = dataAfter.getAccessLists();
         checkArgument(accessLists != null && accessLists.getAcl() != null,
-            "ietf-acl container does not define acl list");
+                "ietf-acl container does not define acl list");
 
-        try {
-            aclWriter.write(id, ifIndex, accessLists.getAcl(), accessLists.getMode(), writeContext);
-        } catch (VppBaseCallException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        aclWriter.write(id, ifIndex, accessLists.getAcl(), accessLists.getMode(), writeContext);
     }
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id,
                                         @Nonnull final Ingress dataBefore, @Nonnull final Ingress dataAfter,
                                         @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
+            throws WriteFailedException {
         LOG.debug("ACLs update: removing previously configured ACLs");
         deleteCurrentAttributes(id, dataBefore, writeContext);
         LOG.debug("ACLs update: adding updated ACLs");

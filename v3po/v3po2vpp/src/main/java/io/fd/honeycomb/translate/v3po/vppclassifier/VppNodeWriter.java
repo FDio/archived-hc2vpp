@@ -19,19 +19,19 @@ package io.fd.honeycomb.translate.v3po.vppclassifier;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
-import io.fd.honeycomb.translate.vpp.util.ReadTimeoutException;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.GetNextIndex;
+import io.fd.vpp.jvpp.core.dto.GetNextIndexReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.vpp.classifier.ClassifyTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.GetNextIndex;
-import io.fd.vpp.jvpp.core.dto.GetNextIndexReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 abstract class VppNodeWriter extends FutureJVppCustomizer implements JvppReplyConsumer {
 
@@ -54,7 +54,7 @@ abstract class VppNodeWriter extends FutureJVppCustomizer implements JvppReplyCo
     private int nodeNameToIndex(@Nonnull final ClassifyTable classifyTable, @Nonnull final String nextNodeName,
                                 @Nonnull final VppClassifierContextManager vppClassifierContextManager,
                                 @Nonnull final MappingContext ctx, @Nonnull final InstanceIdentifier<?> id)
-            throws VppBaseCallException, WriteFailedException {
+            throws WriteFailedException {
         checkArgument(classifyTable != null && classifyTable.getClassifierNode() != null,
                 "to use relative node names, table classifier node needs to be provided");
         final GetNextIndex request = new GetNextIndex();
@@ -70,7 +70,7 @@ abstract class VppNodeWriter extends FutureJVppCustomizer implements JvppReplyCo
             // vpp does not provide relative node index to node name conversion (https://jira.fd.io/browse/VPP-219)
             // as a workaround we need to add mapping to vpp-classfier-context
             vppClassifierContextManager.addNodeName(classifyTable.getName(), reply.nextIndex, nextNodeName, ctx);
-        } catch (ReadTimeoutException e) {
+        } catch (ReadFailedException e) {
             throw new WriteFailedException(id, String.format("Failed to get node index for %s relative to %s",
                     nextNodeName, classifyTable.getClassifierNode()), e);
         }

@@ -27,6 +27,10 @@ import static org.mockito.Mockito.verify;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.L2FibAddDel;
+import io.fd.vpp.jvpp.core.dto.L2FibAddDelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -39,10 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.L2FibAddDel;
-import io.fd.vpp.jvpp.core.dto.L2FibAddDelReply;
 
 public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
     private static final String BD_CTX_NAME = "bd-test-instance";
@@ -141,7 +141,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
         try {
             customizer.writeCurrentAttributes(id, entry, writeContext);
-        } catch (WriteFailedException.CreateFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2FibAddDelWasInvoked(generateL2FibAddDelRequest(address_vpp, (byte) 1));
             return;
@@ -180,7 +180,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
         try {
             customizer.deleteCurrentAttributes(id, entry, writeContext);
-        } catch (WriteFailedException.DeleteFailedException e) {
+        } catch (WriteFailedException e) {
             assertTrue(e.getCause() instanceof VppBaseCallException);
             verifyL2FibAddDelWasInvoked(generateL2FibAddDelRequest(address_vpp, (byte) 0));
             return;

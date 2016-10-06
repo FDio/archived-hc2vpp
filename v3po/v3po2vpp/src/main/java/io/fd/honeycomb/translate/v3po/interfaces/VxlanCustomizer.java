@@ -23,9 +23,11 @@ import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.vpp.util.AbstractInterfaceTypeCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
@@ -35,10 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VxlanTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces._interface.Vxlan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,12 +65,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
-        try {
-            createVxlanTunnel(id, swIfName, dataAfter, writeContext);
-        } catch (VppBaseCallException | IllegalInterfaceTypeException e) {
-            LOG.debug("Failed to set vxlan tunnel for interface: {}, vxlan: {}", swIfName, dataAfter);
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
+        createVxlanTunnel(id, swIfName, dataAfter, writeContext);
     }
 
     @Override
@@ -88,16 +81,12 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
-        try {
-            deleteVxlanTunnel(id, swIfName, dataBefore, writeContext);
-        } catch (VppBaseCallException e) {
-            LOG.debug("Failed to delete vxlan tunnel for interface: {}, vxlan: {}", swIfName, dataBefore);
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
+        deleteVxlanTunnel(id, swIfName, dataBefore, writeContext);
     }
 
     private void createVxlanTunnel(final InstanceIdentifier<Vxlan> id, final String swIfName, final Vxlan vxlan,
-                                   final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+                                   final WriteContext writeContext)
+            throws WriteFailedException {
         final byte isIpv6 = (byte) (isIpv6(vxlan)
                 ? 1
                 : 0);
@@ -113,7 +102,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
                         dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
 
         final VxlanAddDelTunnelReply reply =
-                getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+                getReplyForCreate(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id, vxlan);
         LOG.debug("Vxlan tunnel set successfully for: {}, vxlan: {}", swIfName, vxlan);
         if (interfaceNamingContext.containsName(reply.swIfIndex, writeContext.getMappingContext())) {
             // VPP keeps vxlan tunnels present even after they are delete(reserving ID for next tunnel)
@@ -160,7 +149,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
     }
 
     private void deleteVxlanTunnel(final InstanceIdentifier<Vxlan> id, final String swIfName, final Vxlan vxlan,
-                                   final WriteContext writeContext) throws VppBaseCallException, WriteTimeoutException {
+                                   final WriteContext writeContext) throws WriteFailedException {
         final byte isIpv6 = (byte) (isIpv6(vxlan)
                 ? 1
                 : 0);
@@ -175,7 +164,7 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
                 getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 0 /* is add */, srcAddress.getAddress(),
                         dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
 
-        getReplyForWrite(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
+        getReplyForDelete(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Vxlan tunnel deleted successfully for: {}, vxlan: {}", swIfName, vxlan);
 
         final int index = interfaceNamingContext.getIndex(swIfName, writeContext.getMappingContext());
