@@ -80,8 +80,8 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
         checkState(subInterfaceOptional.isPresent(), "Could not read SubInterface data object for %s", id);
         final SubInterface subInterface = subInterfaceOptional.get();
 
-        aclWriter.write(id, subInterfaceIndex, accessLists.getMode(), accessLists.getAcl(), writeContext,
-                getNumberOfTags(subInterface.getTags()));
+        aclWriter.write(id, subInterfaceIndex, accessLists.getMode(), accessLists.getAcl(),
+            accessLists.getDefaultAction(), writeContext, getNumberOfTags(subInterface.getTags()));
     }
 
     @Override

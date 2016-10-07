@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
@@ -30,8 +29,8 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collector;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.AceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.InterfaceMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -59,8 +59,8 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
     @VisibleForTesting
     static final int VLAN_TAG_LEN = 4;
 
-    private static final Collector<PacketHandling, ?, PacketHandling> SINGLE_ITEM_COLLECTOR =
-        RWUtils.singleItemCollector();
+    private static final int PERMIT = -1;
+    private static final int DENY = 0;
 
     private final FutureJVppCore futureJVppCore;
 
@@ -71,15 +71,13 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
     /**
      * Creates classify table for given ACE.
      *
-     * @param action         packet handling action (permit/deny)
      * @param ace            ACE to be translated
      * @param mode           interface mode
      * @param nextTableIndex classify table index
      * @param vlanTags       number of vlan tags
      * @return classify table that represents given ACE
      */
-    protected abstract ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
-                                                               @Nonnull final T ace,
+    protected abstract ClassifyAddDelTable createClassifyTable(@Nonnull final T ace,
                                                                @Nullable final InterfaceMode mode,
                                                                final int nextTableIndex,
                                                                final int vlanTags);
@@ -110,24 +108,39 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
 
     @Override
     public final void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
-                            final InterfaceMode mode, @Nonnull final InputAclSetInterface request,
+                            final InterfaceMode mode, final AccessLists.DefaultAction defaultAction,
+                            @Nonnull final InputAclSetInterface request,
                             @Nonnegative final int vlanTags)
         throws WriteFailedException {
-        final PacketHandling action = aces.stream().map(ace -> ace.getActions().getPacketHandling()).distinct()
-            .collect(SINGLE_ITEM_COLLECTOR);
 
         checkArgument(vlanTags >= 0 && vlanTags <= 2, "Number of vlan tags %s is not in [0,2] range");
-        int nextTableIndex = -1;
-        for (final Ace ace : aces) {
-            // Create table + session per entry
+        int nextTableIndex = configureDefaltAction(id, defaultAction);
 
-            final ClassifyAddDelTable ctRequest =
-                createClassifyTable(action, (T) ace.getMatches().getAceType(), mode, nextTableIndex, vlanTags);
+        final ListIterator<Ace> iterator = aces.listIterator(aces.size());
+        while (iterator.hasPrevious()) {
+            // Create table + session per entry
+            final Ace ace = iterator.previous();
+            final PacketHandling action = ace.getActions().getPacketHandling();
+            final T type = (T)ace.getMatches().getAceType();
+            final ClassifyAddDelTable ctRequest = createClassifyTable(type, mode, nextTableIndex, vlanTags);
             nextTableIndex = createClassifyTable(id, ctRequest);
-            createClassifySession(id,
-                createClassifySession(action, (T) ace.getMatches().getAceType(), mode, nextTableIndex, vlanTags));
+            createClassifySession(id, createClassifySession(action, type, mode, nextTableIndex, vlanTags));
         }
         setClassifyTable(request, nextTableIndex);
+    }
+
+    private int configureDefaltAction(@Nonnull final InstanceIdentifier<?> id, final AccessLists.DefaultAction defaultAction)
+        throws WriteFailedException {
+        ClassifyAddDelTable ctRequest = createClassifyTable(-1);
+        if (AccessLists.DefaultAction.Permit.equals(defaultAction)) {
+            ctRequest.missNextIndex = PERMIT;
+        } else {
+            ctRequest.missNextIndex = DENY;
+        }
+        ctRequest.mask = new byte[16];
+        ctRequest.skipNVectors = 0;
+        ctRequest.matchNVectors = 1;
+        return createClassifyTable(id, ctRequest);
     }
 
     private int createClassifyTable(@Nonnull final InstanceIdentifier<?> id,
@@ -147,22 +160,14 @@ abstract class AbstractAceWriter<T extends AceType> implements AceWriter, JvppRe
         getReplyForWrite(cs.toCompletableFuture(), id);
     }
 
-    protected ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action, final int nextTableIndex) {
+    protected ClassifyAddDelTable createClassifyTable(final int nextTableIndex) {
         final ClassifyAddDelTable request = new ClassifyAddDelTable();
         request.isAdd = 1;
         request.tableIndex = -1; // value not present
-
         request.nbuckets = 1; // we expect exactly one session per table
-
-        if (action instanceof Permit) {
-            request.missNextIndex = 0; // for list of permit rules, deny (0) should be default action
-        } else { // deny is default value
-            request.missNextIndex = -1; // for list of deny rules, permit (-1) should be default action
-        }
-
         request.nextTableIndex = nextTableIndex;
         request.memorySize = TABLE_MEM_SIZE;
-
+        request.missNextIndex = -1; // value not set, but anyway it is ignored for tables in chain
         return request;
     }
 

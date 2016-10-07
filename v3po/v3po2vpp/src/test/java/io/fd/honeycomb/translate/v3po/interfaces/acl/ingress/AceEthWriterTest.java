@@ -58,12 +58,11 @@ public class AceEthWriterTest {
     @Test
     public void testCreateClassifyTable() {
         final int nextTableIndex = 42;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceEth, InterfaceMode.L2, nextTableIndex, 0);
+        final ClassifyAddDelTable request = writer.createClassifyTable(aceEth, InterfaceMode.L2, nextTableIndex, 0);
 
         assertEquals(1, request.isAdd);
         assertEquals(-1, request.tableIndex);
         assertEquals(1, request.nbuckets);
-        assertEquals(-1, request.missNextIndex);
         assertEquals(nextTableIndex, request.nextTableIndex);
         assertEquals(0, request.skipNVectors);
         assertEquals(AceEthWriter.MATCH_N_VECTORS, request.matchNVectors);
@@ -81,7 +80,7 @@ public class AceEthWriterTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateClassifyTableForL3Interface() {
-        writer.createClassifyTable(action, aceEth, InterfaceMode.L3, 42, 0);
+        writer.createClassifyTable(aceEth, InterfaceMode.L3, 42, 0);
     }
 
     @Test

@@ -61,7 +61,8 @@ public class IetfAclCustomizer implements WriterCustomizer<Ingress> {
         checkArgument(accessLists != null && accessLists.getAcl() != null,
                 "ietf-acl container does not define acl list");
 
-        aclWriter.write(id, ifIndex, accessLists.getAcl(), accessLists.getMode(), writeContext);
+        aclWriter.write(id, ifIndex, accessLists.getAcl(), accessLists.getDefaultAction(), accessLists.getMode(),
+            writeContext);
     }
 
     @Override

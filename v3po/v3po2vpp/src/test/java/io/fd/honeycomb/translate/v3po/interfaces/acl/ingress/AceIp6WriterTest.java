@@ -67,7 +67,6 @@ public class AceIp6WriterTest {
         assertEquals(1, request.isAdd);
         assertEquals(-1, request.tableIndex);
         assertEquals(1, request.nbuckets);
-        assertEquals(-1, request.missNextIndex);
         assertEquals(nextTableIndex, request.nextTableIndex);
         assertEquals(0, request.skipNVectors);
         assertEquals(AceIp6Writer.MATCH_N_VECTORS, request.matchNVectors);
@@ -130,7 +129,7 @@ public class AceIp6WriterTest {
     public void testCreateClassifyTable() {
         final int nextTableIndex = 42;
         final ClassifyAddDelTable request =
-            writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, 0);
+            writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, 0);
         verifyTableRequest(request, nextTableIndex, 0, false);
     }
 
@@ -138,7 +137,7 @@ public class AceIp6WriterTest {
     public void testCreateClassifyTableForL2Interface() {
         final int nextTableIndex = 42;
         final ClassifyAddDelTable request =
-            writer.createClassifyTable(action, aceIp, InterfaceMode.L2, nextTableIndex, 0);
+            writer.createClassifyTable(aceIp, InterfaceMode.L2, nextTableIndex, 0);
         verifyTableRequest(request, nextTableIndex, 0, true);
     }
 
@@ -147,7 +146,7 @@ public class AceIp6WriterTest {
         final int nextTableIndex = 42;
         final int vlanTags = 1;
         final ClassifyAddDelTable request =
-            writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
+            writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
         verifyTableRequest(request, nextTableIndex, vlanTags, false);
     }
 
@@ -156,7 +155,7 @@ public class AceIp6WriterTest {
         final int nextTableIndex = 42;
         final int vlanTags = 2;
         final ClassifyAddDelTable request =
-            writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
+            writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
         verifyTableRequest(request, nextTableIndex, vlanTags, false);
     }
 

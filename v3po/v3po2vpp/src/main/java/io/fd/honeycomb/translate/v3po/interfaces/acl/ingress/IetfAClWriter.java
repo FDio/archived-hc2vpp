@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.AceIpVersion;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.InterfaceMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.ietf.acl.base.attributes.access.lists.Acl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -134,13 +135,13 @@ public final class IetfAClWriter implements JvppReplyConsumer {
     }
 
     void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, @Nonnull final List<Acl> acls,
-               @Nullable final InterfaceMode mode, @Nonnull final WriteContext writeContext)
+               final AccessLists.DefaultAction defaultAction, @Nullable final InterfaceMode mode, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        write(id, swIfIndex, mode, acls, writeContext, 0);
+        write(id, swIfIndex, mode, acls, defaultAction, writeContext, 0);
     }
 
     void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, final InterfaceMode mode,
-               @Nonnull final List<Acl> acls,
+               @Nonnull final List<Acl> acls, final AccessLists.DefaultAction defaultAction,
                @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags)
             throws WriteFailedException {
 
@@ -166,7 +167,7 @@ public final class IetfAClWriter implements JvppReplyConsumer {
             if (aceWriter == null) {
                 LOG.warn("AceProcessor for {} not registered. Skipping ACE.", aceType);
             } else {
-                aceWriter.write(id, aces, mode, request, numberOfTags);
+                aceWriter.write(id, aces, mode, defaultAction, request, numberOfTags);
             }
         }
 

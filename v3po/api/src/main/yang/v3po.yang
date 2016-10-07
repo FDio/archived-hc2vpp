@@ -7,7 +7,7 @@ module v3po {
     description
       "This revision adds the following new features:
        - ingress/egress ACLs support
-       - interface-mode type as a part of ietf-acl configuration";
+       - default-action and interface-mode type as a part of ietf-acl configuration";
   }
 
   revision "2015-01-05" {
@@ -464,10 +464,10 @@ module v3po {
     container access-lists {
       description
         "Defines references to ietf-acl lists. Before assignment to interface,
-        ACL lists are merged into 3 type of acls (eth0, ip4 and ip6) that are supported by vpp.
-        Then corresponding tables and sessions are created and assigned to the interface.
-
-        All ACEs for all assigned ACLs have to use the same packet-handling action (either deny or parmit).
+        ACL lists are merged into 3 type of acls (l2, ip4 and ip6) that are supported by vpp.
+        Then 3 corresponding chains of tables and sessions are created and assigned to the interface
+        as l2, ip4 and ip6 classify table chains.
+        User ordering is preserved in each group separately.
 
         Assignment update/delete removes all created tables and sessions and repeats process described above.
         Update/delete of ACL lists referenced here is not permitted (assignment needs to be removed first).
@@ -484,6 +484,7 @@ module v3po {
         - vlan tags are supported only for sub-interfaces defined as exact-match";
       list acl {
         key "type name";
+        ordered-by user;
 
         leaf type {
           type acl:acl-type;
@@ -492,6 +493,17 @@ module v3po {
         leaf name {
           type acl:access-control-list-ref;
         }
+      }
+
+      leaf default-action {
+        type enumeration {
+          enum "deny";
+          enum "permit";
+         }
+         default "deny";
+        description
+          "Default action applied to packet that does not match any of rules defined in assigned ACLs.
+           It is translated to single classify table and applied at the end of assigned chains.";
       }
 
       leaf mode {

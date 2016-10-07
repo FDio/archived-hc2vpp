@@ -92,15 +92,14 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
     }
 
     @Override
-    public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
-                                                   @Nonnull final AceIp aceIp,
+    public ClassifyAddDelTable createClassifyTable(@Nonnull final AceIp aceIp,
                                                    @Nullable final InterfaceMode mode,
                                                    final int nextTableIndex,
                                                    final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv6, "Expected AceIpv6 version, but was %", aceIp);
         final AceIpv6 ipVersion = (AceIpv6) aceIp.getAceIpVersion();
 
-        final ClassifyAddDelTable request = createClassifyTable(action, nextTableIndex);
+        final ClassifyAddDelTable request = createClassifyTable(nextTableIndex);
         request.skipNVectors = 0; // match entire L2 and L3 header
         request.matchNVectors = MATCH_N_VECTORS;
 
@@ -160,7 +159,7 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
                 String.format("Ace %s does not define packet field match values", aceIp.toString()));
         }
 
-        LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceIp, request);
+        LOG.debug("ACE rule={} translated to table={}.", aceIp, request);
         return request;
     }
 

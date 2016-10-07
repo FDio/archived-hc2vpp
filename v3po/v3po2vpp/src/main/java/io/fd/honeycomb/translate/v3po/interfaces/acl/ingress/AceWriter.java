@@ -17,13 +17,14 @@
 package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.InterfaceMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 
 /**
  * Writer responsible for translation of ietf-acl model ACEs to VPP's classify tables and sessions.
@@ -34,12 +35,15 @@ interface AceWriter {
      * Translates list of ACEs to chain of classify tables. Each ACE is translated into one classify table with single
      * classify session. Also initializes input_acl_set_interface request message DTO with first classify table of the
      * chain that was created.
-     *  @param id      uniquely identifies ietf-acl container
-     * @param aces    list of access control entries
-     * @param mode
-     * @param request input_acl_set_interface request DTO
+     *
+     * @param id            uniquely identifies ietf-acl container
+     * @param aces          list of access control entries
+     * @param mode          interface mode (L2/L3)
+     * @param defaultAction to be taken when packet that does not match any of rules defined in
+     * @param request       input_acl_set_interface request DTO
      */
     void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
-               final InterfaceMode mode, @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
+               final InterfaceMode mode, final AccessLists.DefaultAction defaultAction,
+               @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
         throws WriteFailedException;
 }

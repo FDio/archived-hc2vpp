@@ -48,14 +48,13 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> implements MacTransla
     }
 
     @Override
-    public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
-                                                   @Nonnull final AceEth aceEth,
+    public ClassifyAddDelTable createClassifyTable(@Nonnull final AceEth aceEth,
                                                    @Nullable final InterfaceMode mode,
                                                    final int nextTableIndex,
                                                    final int vlanTags) {
         checkInterfaceMode(mode);
 
-        final ClassifyAddDelTable request = createClassifyTable(action, nextTableIndex);
+        final ClassifyAddDelTable request = createClassifyTable(nextTableIndex);
 
         request.mask = new byte[16];
         boolean aceIsEmpty = true;
@@ -102,7 +101,7 @@ final class AceEthWriter extends AbstractAceWriter<AceEth> implements MacTransla
         request.skipNVectors = 0;
         request.matchNVectors = MATCH_N_VECTORS;
 
-        LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceEth, request);
+        LOG.debug("ACE rule={} translated to table={}.", aceEth, request);
         return request;
     }
 

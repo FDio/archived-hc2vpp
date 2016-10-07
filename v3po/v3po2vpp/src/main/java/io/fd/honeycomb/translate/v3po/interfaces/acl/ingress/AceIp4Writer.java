@@ -78,15 +78,14 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
     }
 
     @Override
-    public ClassifyAddDelTable createClassifyTable(@Nonnull final PacketHandling action,
-                                                   @Nonnull final AceIp aceIp,
+    public ClassifyAddDelTable createClassifyTable(@Nonnull final AceIp aceIp,
                                                    @Nullable final InterfaceMode mode,
                                                    final int nextTableIndex,
                                                    final int vlanTags) {
         checkArgument(aceIp.getAceIpVersion() instanceof AceIpv4, "Expected AceIpv4 version, but was %", aceIp);
         final AceIpv4 ipVersion = (AceIpv4) aceIp.getAceIpVersion();
 
-        final ClassifyAddDelTable request = createClassifyTable(action, nextTableIndex);
+        final ClassifyAddDelTable request = createClassifyTable(nextTableIndex);
         request.skipNVectors = 0; // match entire L2 and L3 header
         request.matchNVectors = MATCH_N_VECTORS;
 
@@ -137,7 +136,7 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
                     String.format("Ace %s does not define packet field match values", aceIp.toString()));
         }
 
-        LOG.debug("ACE action={}, rule={} translated to table={}.", action, aceIp, request);
+        LOG.debug("ACE rule={} translated to table={}.", aceIp, request);
         return request;
     }
 

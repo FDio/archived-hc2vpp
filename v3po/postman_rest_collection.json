@@ -912,7 +912,7 @@
 			"description": "Creates chain of classfy tabless/sessions in VPP and assigns them to local0 interface.\n\nCan be verified with:\nvppctl show classify table verbose\n\nthen:\nvppctl show inacl type l2",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\n    \"ingress\": {\n      \"access-lists\": {\n        \"acl\": [\n            {\n                \"type\" : \"ietf-access-control-list:eth-acl\",\n                \"name\" : \"acl1\"\n            },\n            {\n                \"type\" : \"ietf-access-control-list:eth-acl\",\n                \"name\" : \"acl2\"\n            }\n        ]\n      }\n    }\n}",
+			"rawModeData": "{\n    \"ingress\": {\n      \"access-lists\": {\n        \"acl\": [\n            {\n                \"type\" : \"ietf-access-control-list:eth-acl\",\n                \"name\" : \"acl1\"\n            },\n            {\n                \"type\" : \"ietf-access-control-list:eth-acl\",\n                \"name\" : \"acl2\"\n            }\n        ],\n        \"default-action\": \"permit\",\n        \"mode\": \"l2\"\n      }\n    }\n}",
 			"folder": "c05d7211-11b0-5688-2079-afa51196045c"
 		},
 		{

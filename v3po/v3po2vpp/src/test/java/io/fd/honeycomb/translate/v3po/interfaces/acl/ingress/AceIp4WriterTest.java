@@ -64,7 +64,6 @@ public class AceIp4WriterTest {
         assertEquals(1, request.isAdd);
         assertEquals(-1, request.tableIndex);
         assertEquals(1, request.nbuckets);
-        assertEquals(-1, request.missNextIndex);
         assertEquals(nextTableIndex, request.nextTableIndex);
         assertEquals(0, request.skipNVectors);
         assertEquals(AceIp4Writer.MATCH_N_VECTORS, request.matchNVectors);
@@ -107,14 +106,14 @@ public class AceIp4WriterTest {
     @Test
     public void testCreateClassifyTable() throws Exception {
         final int nextTableIndex = 42;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, 0);
+        final ClassifyAddDelTable request = writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, 0);
         verifyTableRequest(request, nextTableIndex, 0, false);
     }
 
     @Test
     public void testCreateClassifyTableForL2Interface() throws Exception {
         final int nextTableIndex = 42;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, InterfaceMode.L2, nextTableIndex, 0);
+        final ClassifyAddDelTable request = writer.createClassifyTable(aceIp, InterfaceMode.L2, nextTableIndex, 0);
         verifyTableRequest(request, nextTableIndex, 0, true);
     }
 
@@ -122,7 +121,7 @@ public class AceIp4WriterTest {
     public void testCreateClassifyTable1VlanTag() throws Exception {
         final int nextTableIndex = 42;
         final int vlanTags = 1;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
+        final ClassifyAddDelTable request = writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
         verifyTableRequest(request, nextTableIndex, vlanTags, false);
     }
 
@@ -130,7 +129,7 @@ public class AceIp4WriterTest {
     public void testCreateClassifyTable2VlanTags() throws Exception {
         final int nextTableIndex = 42;
         final int vlanTags = 2;
-        final ClassifyAddDelTable request = writer.createClassifyTable(action, aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
+        final ClassifyAddDelTable request = writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
         verifyTableRequest(request, nextTableIndex, vlanTags, false);
     }
 
