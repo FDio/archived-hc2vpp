@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.LispState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispState;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 

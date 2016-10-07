@@ -3,6 +3,12 @@ module vpp-vlan {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:vlan";
   prefix "vpp-vlan";
 
+  revision "2016-12-14" {
+    description
+      "This revision adds the following new features:
+       - ingress/egress ACLs support";
+  }
+
   revision "2015-05-27" {
     description
     "Initial revision of vlan model for VPP.

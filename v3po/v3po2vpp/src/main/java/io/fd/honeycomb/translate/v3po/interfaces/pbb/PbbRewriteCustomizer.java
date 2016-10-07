@@ -31,7 +31,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev160410.interfaces._interface.PbbRewrite;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewrite;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class PbbRewriteCustomizer extends FutureJVppCustomizer

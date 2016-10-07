@@ -16,15 +16,13 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
-import io.fd.honeycomb.translate.vpp.util.WriteTimeoutException;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.InterfaceMode;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 
 /**

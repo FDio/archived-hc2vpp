@@ -24,8 +24,8 @@ import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.ProxyArp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.ProxyArp;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class ProxyArpCustomizer extends FutureJVppCustomizer
         implements ReaderCustomizer<ProxyArp,
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.ProxyArpBuilder> {
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.ProxyArpBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProxyArpCustomizer.class);
     private final NamingContext interfaceContext;
@@ -47,7 +47,7 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer
 
     @Override
     public void merge(@Nonnull Builder<? extends DataObject> parentBuilder,
-                      @Nonnull org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105
+                      @Nonnull org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214
                               .interfaces.state._interface.ProxyArp readValue) {
 
         ((VppInterfaceStateAugmentationBuilder) parentBuilder).setProxyArp(readValue);
@@ -55,20 +55,20 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer
 
     @Nonnull
     @Override
-    public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces.state
+    public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state
             ._interface.ProxyArpBuilder getBuilder(
             @Nonnull InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight
-                    .params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.ProxyArp> id) {
+                    .params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.ProxyArp> id) {
 
-        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.interfaces
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces
                 .state._interface.ProxyArpBuilder();
     }
 
     @Override
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight
-            .params.xml.ns.yang.v3po.rev150105.interfaces.state._interface.ProxyArp> id,
+            .params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.ProxyArp> id,
                                       @Nonnull org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po
-                                              .rev150105.interfaces.state._interface.ProxyArpBuilder builder,
+                                              .rev161214.interfaces.state._interface.ProxyArpBuilder builder,
                                       @Nonnull ReadContext ctx) throws ReadFailedException {
 
         //TODO: VPP-225 Implement fully when VPP Proxy ARP read API is available

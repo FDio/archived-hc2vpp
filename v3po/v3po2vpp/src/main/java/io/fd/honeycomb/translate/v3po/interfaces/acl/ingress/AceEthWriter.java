@@ -29,7 +29,7 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev150105.InterfaceMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.InterfaceMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

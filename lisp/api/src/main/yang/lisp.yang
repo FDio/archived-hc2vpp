@@ -22,6 +22,14 @@ module lisp {
   description
     "This YANG module defines the generic configuration and
     operational data for LISP in VPP";
+
+  revision 2016-12-14 {
+    description
+     "This revision adds support for L2 features";
+    reference
+      "https://tools.ietf.org/html/rfc6830";
+  }
+
   revision "2016-05-20" {
     description
       "Initial revision of LISP model";

@@ -3,6 +3,13 @@ module v3po {
   namespace "urn:opendaylight:params:xml:ns:yang:v3po";
   prefix "v3po";
 
+  revision "2016-12-14" {
+    description
+      "This revision adds the following new features:
+       - ingress/egress ACLs support
+       - interface-mode type as a part of ietf-acl configuration";
+  }
+
   revision "2015-01-05" {
     description "Initial revision of v3po model";
   }

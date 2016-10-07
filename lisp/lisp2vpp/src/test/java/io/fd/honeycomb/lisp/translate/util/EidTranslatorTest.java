@@ -18,7 +18,7 @@ public class EidTranslatorTest implements EidTranslator {
     @Test
     public void testGetEidType() {
         assertEquals(IPV4, getEidType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
                         .setAddress(
                                 new Ipv4Builder().setIpv4(
                                         new Ipv4Address("192.168.2.1"))
@@ -26,7 +26,7 @@ public class EidTranslatorTest implements EidTranslator {
                         .build()));
 
         assertEquals(IPV6, getEidType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
                         .setAddress(
                                 new Ipv6Builder().setIpv6(
                                         new Ipv6Address("2001:0db8:0a0b:12f0:0000:0000:0000:0001"))
@@ -34,7 +34,7 @@ public class EidTranslatorTest implements EidTranslator {
                         .build()));
 
         assertEquals(MAC, getEidType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder()
                         .setAddress(
                                 new MacBuilder().setMac(
                                         new MacAddress("aa:bb:cc:dd:ee:ff"))

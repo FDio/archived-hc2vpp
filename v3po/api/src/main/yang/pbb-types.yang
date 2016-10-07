@@ -5,7 +5,7 @@ module pbb-types {
 
   description "Common types used for defining Pbb based subinterfaces";
 
-  revision "2016-07-04" {
+  revision "2016-12-14" {
           description
               "Initial revision.";
   }
@@ -25,15 +25,15 @@ module pbb-types {
   typedef operation {
       type enumeration {
         // NOTE - Does not specify disabled enum value(0), because its used internally to delete/disable rewrite
-        enum "push-2"{
+        enum "push-2" {
             value 2;
         }
 
-        enum "pop-2"{
+        enum "pop-2" {
             value 4;
             description "Encapsulate/Decapsulate pbb packet according to incoming/outcoming direction";
         }
-        enum "translate-2-1"{
+        enum "translate-2-1" {
             value 7;
         }
       }
@@ -42,22 +42,22 @@ module pbb-types {
   grouping pbb-rewrite-attributes {
     description "Provider Backbone Bridge attributes";
 
-    leaf destination-address{
+    leaf destination-address {
       type yang:mac-address;
       description "backbone destination address";
     }
 
-    leaf source-address{
+    leaf source-address {
       type yang:mac-address;
       description "backbone source address";
     }
 
-    leaf outer-tag{
+    leaf outer-tag {
         type uint16;
     }
 
-    leaf b-vlan-tag-vlan-id{
-        type uint16{
+    leaf b-vlan-tag-vlan-id {
+        type uint16 {
             //12 bit range
             range "1..4095";
         }
@@ -65,7 +65,7 @@ module pbb-types {
     }
 
     leaf i-tag-isid {
-        type uint32{
+        type uint32 {
           //24 bit range
           range "1..16777215";
         }

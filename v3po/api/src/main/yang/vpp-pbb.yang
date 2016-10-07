@@ -3,11 +3,11 @@ module vpp-pbb {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp-pbb";
   prefix "vpp-pbb";
 
-  revision "2016-04-10" {
+  revision "2016-12-14" {
     description "Initial revision of pbb model";
   }
 
-  import pbb-types{
+  import pbb-types {
     prefix "pbb-types";
   }
 

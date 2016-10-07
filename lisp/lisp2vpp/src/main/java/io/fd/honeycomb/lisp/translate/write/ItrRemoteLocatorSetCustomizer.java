@@ -26,7 +26,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev160520.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelMapRequestItrRlocs;
