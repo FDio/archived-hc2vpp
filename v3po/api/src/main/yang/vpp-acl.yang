@@ -16,12 +16,27 @@ module vpp-acl {
     prefix "vpp-classifier";
   }
 
+  import yang-ext {
+    prefix "ext";
+  }
+
+  import ietf-packet-fields {
+    prefix packet-fields;
+  }
+
+  identity mixed-acl {
+    base acl:acl-base;
+    description
+      "ACL that can match on any of L2/L3/L4 fields.";
+  }
+
   typedef interface-mode {
     type enumeration {
       enum "l2";
       enum "l3";
     }
   }
+
   grouping acl-base-attributes {
     description
       "Defines references to classify tables.
@@ -111,6 +126,27 @@ module vpp-acl {
            It is the user responsibility to choose mode that matches target interface.
            ";
       }
+    }
+  }
+
+  augment /acl:access-lists/acl:acl/acl:access-list-entries/acl:ace/acl:matches/acl:ace-type {
+    ext:augment-identifier "vpp-acl-type-augmentation";
+    case ace-ip-and-eth {
+      description
+        "Access List entry that can define both ip and eth rules.";
+      choice ace-ip-version {
+        description
+          "IP version used in this Access List Entry.";
+        mandatory true;
+        case ace-ipv4 {
+          uses packet-fields:acl-ipv4-header-fields;
+        }
+        case ace-ipv6 {
+          uses packet-fields:acl-ipv6-header-fields;
+        }
+      }
+      uses packet-fields:acl-ip-header-fields;
+      uses packet-fields:acl-eth-header-fields;
     }
   }
 }
