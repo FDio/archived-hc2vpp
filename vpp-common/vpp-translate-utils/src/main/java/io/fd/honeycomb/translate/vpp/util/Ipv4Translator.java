@@ -30,6 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public interface Ipv4Translator extends ByteDataTranslator {
 
+    /**
+     * Make available also from static context.
+     */
     Ipv4Translator INSTANCE = new Ipv4Translator() {};
 
     /**
