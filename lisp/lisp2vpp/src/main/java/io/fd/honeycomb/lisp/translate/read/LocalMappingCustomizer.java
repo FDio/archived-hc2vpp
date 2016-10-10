@@ -25,9 +25,8 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.MappingsDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
-import io.fd.honeycomb.lisp.translate.read.trait.MappingFilterProvider;
+import io.fd.honeycomb.lisp.translate.read.trait.MappingReader;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -63,14 +62,12 @@ import org.slf4j.LoggerFactory;
 public class LocalMappingCustomizer
         extends FutureJVppCustomizer
         implements ListReaderCustomizer<LocalMapping, LocalMappingKey, LocalMappingBuilder>, EidTranslator,
-        MappingFilterProvider {
+        MappingReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalMappingCustomizer.class);
     private static final String KEY = LocalMappingCustomizer.class.getName();
 
-
     private final DumpCacheManager<LispEidTableDetailsReplyDump, MappingsDumpParams> dumpManager;
-    private final MappingsDumpExecutor dumpExecutor;
     private final NamingContext locatorSetContext;
     private final EidMappingContext localMappingContext;
 
@@ -79,10 +76,9 @@ public class LocalMappingCustomizer
         super(futureJvpp);
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator Set Mapping Context cannot be null");
         this.localMappingContext = checkNotNull(localMappingsContext, "Local mappings context cannot be null");
-        this.dumpExecutor = new MappingsDumpExecutor(futureJvpp);
         this.dumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
-                        .withExecutor(dumpExecutor)
+                        .withExecutor(createMappingDumpExecutor(futureJvpp))
                         .build();
     }
 

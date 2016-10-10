@@ -23,7 +23,6 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.AddressDumpExecutor;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -63,7 +62,7 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         super(futureJVppCore);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
-                .withExecutor(new AddressDumpExecutor(futureJVppCore))
+                .withExecutor(createExecutor(futureJVppCore))
                 .build();
     }
 

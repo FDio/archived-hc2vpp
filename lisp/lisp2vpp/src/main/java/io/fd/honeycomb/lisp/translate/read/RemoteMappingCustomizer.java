@@ -25,13 +25,12 @@ import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.l
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorDumpExecutor;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.MappingsDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams.LocatorDumpParamsBuilder;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.QuantityType;
-import io.fd.honeycomb.lisp.translate.read.trait.MappingFilterProvider;
+import io.fd.honeycomb.lisp.translate.read.trait.LocatorReader;
+import io.fd.honeycomb.lisp.translate.read.trait.MappingReader;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -79,7 +78,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoteMappingCustomizer extends FutureJVppCustomizer
         implements ListReaderCustomizer<RemoteMapping, RemoteMappingKey, RemoteMappingBuilder>,
-        EidTranslator, AddressTranslator, ByteDataTranslator, MappingFilterProvider {
+        EidTranslator, AddressTranslator, ByteDataTranslator, MappingReader, LocatorReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(RemoteMappingCustomizer.class);
     private static final String KEY = RemoteMappingCustomizer.class.getName();
@@ -94,11 +93,11 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         this.remoteMappingContext = checkNotNull(remoteMappingContext, "Remote mappings not present");
         this.dumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
-                        .withExecutor(new MappingsDumpExecutor(futureJvpp))
+                        .withExecutor(createMappingDumpExecutor(futureJvpp))
                         .build();
         this.locatorsDumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorDetailsReplyDump, LocatorDumpParams>()
-                        .withExecutor(new LocatorDumpExecutor(futureJvpp))
+                        .withExecutor(createLocatorDumpExecutor(futureJvpp))
                         .build();
     }
 

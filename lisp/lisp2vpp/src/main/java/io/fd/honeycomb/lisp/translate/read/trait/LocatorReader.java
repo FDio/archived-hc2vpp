@@ -14,44 +14,33 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.lisp.translate.read.dump.executor;
+package io.fd.honeycomb.lisp.translate.read.trait;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 
 /**
- * Executor for dumping of locators
+ * Provides common logic for reading of locators
  */
-public class LocatorDumpExecutor extends AbstractJvppDumpExecutor
-        implements EntityDumpExecutor<LispLocatorDetailsReplyDump, LocatorDumpParams>, JvppReplyConsumer {
+public interface LocatorReader extends JvppReplyConsumer {
 
+    default EntityDumpExecutor<LispLocatorDetailsReplyDump, LocatorDumpParams> createLocatorDumpExecutor(
+            @Nonnull final FutureJVppCore vppApi) {
+        return (identifier, params) -> {
+            checkNotNull(params, "Params for dump request not present");
+            final LispLocatorDump request = new LispLocatorDump();
+            request.lsIndex = params.getLocatorSetIndex();
+            //flag that lsIndex is set
+            request.isIndexSet = (byte) 1;
 
-    public LocatorDumpExecutor(@Nonnull final FutureJVppCore vppApi) {
-        super(vppApi);
-    }
-
-    @Override
-    @Nonnull
-    public LispLocatorDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier,
-                                                   final LocatorDumpParams params) throws
-            ReadFailedException {
-        checkNotNull(params, "Params for dump request not present");
-
-        LispLocatorDump request = new LispLocatorDump();
-        request.lsIndex = params.getLocatorSetIndex();
-        //flag that lsIndex is set
-        request.isIndexSet = (byte) 1;
-
-        return getReplyForRead(vppApi.lispLocatorDump(request).toCompletableFuture(), identifier);
+            return getReplyForRead(vppApi.lispLocatorDump(request).toCompletableFuture(), identifier);
+        };
     }
 }

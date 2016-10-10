@@ -20,8 +20,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.vpp.jvpp.core.dto.IpAddressDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -65,4 +69,16 @@ interface Ipv4Reader extends Ipv4Translator, JvppReplyConsumer {
         return Optional.absent();
     }
 
+    default EntityDumpExecutor<IpAddressDetailsReplyDump, AddressDumpParams> createExecutor(
+            @Nonnull final FutureJVppCore vppApi) {
+        return (identifier, params) -> {
+            checkNotNull(params, "Address dump params cannot be null");
+
+            final IpAddressDump dumpRequest = new IpAddressDump();
+            dumpRequest.isIpv6 = booleanToByte(params.isIpv6());
+            dumpRequest.swIfIndex = params.getInterfaceIndex();
+
+            return getReplyForRead(vppApi.ipAddressDump(dumpRequest).toCompletableFuture(), identifier);
+        };
+    }
 }

@@ -13,7 +13,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.VrfSubtable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class MappingFilterProviderTest implements MappingFilterProvider {
+public class MappingReaderTest implements MappingReader {
 
     private InstanceIdentifier<LocalMapping> validVrfLocal;
     private InstanceIdentifier<LocalMapping> validBdLocal;

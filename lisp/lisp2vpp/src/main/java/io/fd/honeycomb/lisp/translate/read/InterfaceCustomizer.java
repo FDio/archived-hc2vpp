@@ -21,9 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams.LocatorDumpParamsBuilder;
+import io.fd.honeycomb.lisp.translate.read.trait.LocatorReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
@@ -53,7 +53,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public class InterfaceCustomizer
         extends FutureJVppCustomizer
-        implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder> {
+        implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder>, LocatorReader {
 
     private static final String KEY_BASE = InterfaceCustomizer.class.getName();
 
@@ -61,16 +61,14 @@ public class InterfaceCustomizer
     private final NamingContext locatorSetContext;
     private final DumpCacheManager<LispLocatorDetailsReplyDump, LocatorDumpParams> dumpCacheManager;
 
-    public InterfaceCustomizer(
-            @Nonnull final FutureJVppCore futureJvpp,
-            @Nonnull final NamingContext interfaceContext,
-            @Nonnull final NamingContext locatorSetContext) {
+    public InterfaceCustomizer(@Nonnull final FutureJVppCore futureJvpp, @Nonnull final NamingContext interfaceContext,
+                               @Nonnull final NamingContext locatorSetContext) {
         super(futureJvpp);
         this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator set context cannot be null");
         this.dumpCacheManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorDetailsReplyDump, LocatorDumpParams>()
-                        .withExecutor(new LocatorDumpExecutor(futureJvpp))
+                        .withExecutor(createLocatorDumpExecutor(futureJvpp))
                         .build();
     }
 

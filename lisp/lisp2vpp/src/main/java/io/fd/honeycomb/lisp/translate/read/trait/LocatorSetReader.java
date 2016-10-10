@@ -14,35 +14,28 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.lisp.translate.read.dump.executor;
+package io.fd.honeycomb.lisp.translate.read.trait;
 
-
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSet;
 
+/**
+ * Provides common logic for reading {@link LocatorSet}
+ */
+public interface LocatorSetReader extends JvppReplyConsumer {
 
-public class LocatorSetsDumpExecutor extends AbstractJvppDumpExecutor
-        implements EntityDumpExecutor<LispLocatorSetDetailsReplyDump, Void>, JvppReplyConsumer {
-
-    public LocatorSetsDumpExecutor(@Nonnull FutureJVppCore api) {
-        super(api);
-    }
-
-    @Override
-    @Nonnull
-    public LispLocatorSetDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, final Void params)
-            throws ReadFailedException {
-
-        LispLocatorSetDump request = new LispLocatorSetDump();
-        //only local
-        request.filter = 1;
-
-        return getReplyForRead(vppApi.lispLocatorSetDump(request).toCompletableFuture(), identifier);
+    default EntityDumpExecutor<LispLocatorSetDetailsReplyDump, Void> createExecutor(
+            @Nonnull final FutureJVppCore vppApi) {
+        return (identifier, params) -> {
+            final LispLocatorSetDump request = new LispLocatorSetDump();
+            //only local
+            request.filter = 1;
+            return getReplyForRead(vppApi.lispLocatorSetDump(request).toCompletableFuture(), identifier);
+        };
     }
 }

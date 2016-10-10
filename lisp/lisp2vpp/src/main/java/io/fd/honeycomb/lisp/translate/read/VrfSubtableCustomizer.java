@@ -19,14 +19,17 @@ package io.fd.honeycomb.lisp.translate.read;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.SubtableDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.SubtableDumpParams;
 import io.fd.honeycomb.lisp.translate.read.trait.SubtableReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -37,9 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,15 +50,12 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
     private static final String CACHE_KEY = VrfSubtableCustomizer.class.getName();
 
     private final DumpCacheManager<LispEidTableMapDetailsReplyDump, SubtableDumpParams> dumpManager;
-    private final SubtableDumpExecutor dumpExecutor;
 
     public VrfSubtableCustomizer(@Nonnull final FutureJVppCore futureJvpp) {
         super(futureJvpp);
-        dumpExecutor = new SubtableDumpExecutor(futureJvpp);
-        dumpManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
-                        .withExecutor(dumpExecutor)
-                        .build();
+        dumpManager = new DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
+                .withExecutor(createExecutor(futureJvpp))
+                .build();
     }
 
     @Nonnull

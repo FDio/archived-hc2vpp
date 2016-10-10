@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorSetsDumpExecutor;
+import io.fd.honeycomb.lisp.translate.read.trait.LocatorSetReader;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
@@ -30,7 +30,6 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
-import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -55,7 +54,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public class LocatorSetCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<LocatorSet, LocatorSetKey>, ByteDataTranslator,
-        JvppReplyConsumer {
+        LocatorSetReader {
 
     private final NamingContext locatorSetContext;
     private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
@@ -65,7 +64,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator set context cannot be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
-                .withExecutor(new LocatorSetsDumpExecutor(futureJvpp))
+                .withExecutor(createExecutor(futureJvpp))
                 .build();
     }
 

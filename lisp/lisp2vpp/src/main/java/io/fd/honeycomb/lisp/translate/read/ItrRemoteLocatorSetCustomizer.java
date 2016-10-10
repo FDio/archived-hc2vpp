@@ -20,7 +20,6 @@ package io.fd.honeycomb.lisp.translate.read;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.ItrRemoteLocatorSetDumpExecutor;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
@@ -28,6 +27,8 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
@@ -39,7 +40,8 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder>, ByteDataTranslator {
+        implements ReaderCustomizer<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder>, ByteDataTranslator,
+        JvppReplyConsumer {
 
     private static final String CACHE_KEY = ItrRemoteLocatorSetCustomizer.class.getName();
 
@@ -48,7 +50,10 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
     public ItrRemoteLocatorSetCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
         super(futureJVppCore);
         dumpCacheManager = new DumpCacheManagerBuilder<LispGetMapRequestItrRlocsReply, Void>()
-                .withExecutor(new ItrRemoteLocatorSetDumpExecutor(futureJVppCore)).build();
+                .withExecutor(((identifier, params) -> getReplyForRead(
+                        futureJVppCore.lispGetMapRequestItrRlocs(new LispGetMapRequestItrRlocs()).toCompletableFuture(),
+                        identifier)))
+                .build();
     }
 
     @Nonnull

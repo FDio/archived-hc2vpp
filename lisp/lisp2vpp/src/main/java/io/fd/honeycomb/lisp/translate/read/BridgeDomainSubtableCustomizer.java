@@ -19,13 +19,13 @@ package io.fd.honeycomb.lisp.translate.read;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.SubtableDumpExecutor;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.SubtableDumpParams;
 import io.fd.honeycomb.lisp.translate.read.trait.SubtableReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
@@ -51,17 +51,14 @@ public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer impleme
     private static final String CACHE_KEY = BridgeDomainSubtableCustomizer.class.getName();
 
     private final DumpCacheManager<LispEidTableMapDetailsReplyDump, SubtableDumpParams> dumpManager;
-    private final SubtableDumpExecutor dumpExecutor;
     private final NamingContext bridgeDomainContext;
 
     public BridgeDomainSubtableCustomizer(@Nonnull final FutureJVppCore futureJvppCore,
                                           @Nonnull final NamingContext bridgeDomainContext) {
         super(futureJvppCore);
-        dumpExecutor = new SubtableDumpExecutor(futureJvppCore);
-        dumpManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
-                        .withExecutor(dumpExecutor)
-                        .build();
+        dumpManager = new DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
+                .withExecutor(createExecutor(futureJvppCore))
+                .build();
         this.bridgeDomainContext = checkNotNull(bridgeDomainContext, "Bridge domain context cannot be null");
     }
 

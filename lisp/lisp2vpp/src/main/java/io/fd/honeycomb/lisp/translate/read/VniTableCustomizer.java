@@ -20,15 +20,16 @@ import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.VniTableDumpExecutor;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableVniDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * Handles the reads of {@link VniTable} nodes
  */
 public class VniTableCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<VniTable, VniTableKey, VniTableBuilder> {
+        implements ListReaderCustomizer<VniTable, VniTableKey, VniTableBuilder>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
@@ -58,7 +59,8 @@ public class VniTableCustomizer extends FutureJVppCustomizer
     public VniTableCustomizer(@Nonnull final FutureJVppCore futureJvpp) {
         super(futureJvpp);
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableVniDetailsReplyDump, Void>()
-                .withExecutor(new VniTableDumpExecutor(futureJvpp))
+                .withExecutor(((identifier, params) -> getReplyForRead(
+                        futureJvpp.lispEidTableVniDump(new LispEidTableVniDump()).toCompletableFuture(), identifier)))
                 .build();
     }
 

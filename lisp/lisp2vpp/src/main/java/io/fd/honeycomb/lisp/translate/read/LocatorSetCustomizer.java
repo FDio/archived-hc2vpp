@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.lisp.translate.read.dump.executor.LocatorSetsDumpExecutor;
+import io.fd.honeycomb.lisp.translate.read.trait.LocatorSetReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
@@ -46,7 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocatorSetCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<LocatorSet, LocatorSetKey, LocatorSetBuilder>, ByteDataTranslator {
+        implements ListReaderCustomizer<LocatorSet, LocatorSetKey, LocatorSetBuilder>, ByteDataTranslator,
+        LocatorSetReader {
 
     //TODO - temporary as public because of hack in write customizer in *.write.LocatorSetCustomizer
     public static final String LOCATOR_SETS_CACHE_ID = LocatorSetCustomizer.class.getName();
@@ -60,7 +61,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator Set mapping context cannot be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
-                .withExecutor(new LocatorSetsDumpExecutor(futureJvpp))
+                .withExecutor(createExecutor(futureJvpp))
                 .build();
     }
 

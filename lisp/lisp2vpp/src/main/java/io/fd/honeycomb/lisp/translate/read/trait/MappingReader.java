@@ -1,9 +1,17 @@
 package io.fd.honeycomb.lisp.translate.read.trait;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV4;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV6;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.MAC;
 
+import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.LocalMapping;
@@ -11,12 +19,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.VrfSubtable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
 
 /**
  * Trait providing predicates to filter mappings to respective subtables
  */
-public interface MappingFilterProvider {
+public interface MappingReader extends JvppReplyConsumer {
 
     Predicate<LispEidTableDetails> BRIDGE_DOMAIN_MAPPINGS_ONLY =
             (LispEidTableDetails detail) -> detail.eidType == MAC.getValue();
@@ -46,5 +53,22 @@ public interface MappingFilterProvider {
         } else {
             throw new IllegalArgumentException("Cannot determine mappings predicate for " + identifier);
         }
+    }
+
+    default EntityDumpExecutor<LispEidTableDetailsReplyDump, MappingsDumpParams> createMappingDumpExecutor(
+            @Nonnull final FutureJVppCore vppApi) {
+        return (identifier, params) -> {
+            checkNotNull(params, "Params for dump request not present");
+
+            LispEidTableDump request = new LispEidTableDump();
+            request.eid = params.getEid();
+            request.eidSet = params.getEidSet();
+            request.eidType = params.getEidType();
+            request.prefixLength = params.getPrefixLength();
+            request.vni = params.getVni();
+            request.filter = params.getFilter();
+
+            return getReplyForRead(vppApi.lispEidTableDump(request).toCompletableFuture(), identifier);
+        };
     }
 }

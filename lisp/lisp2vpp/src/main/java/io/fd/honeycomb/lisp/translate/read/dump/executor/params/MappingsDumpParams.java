@@ -16,11 +16,10 @@
 
 package io.fd.honeycomb.lisp.translate.read.dump.executor.params;
 
-import io.fd.honeycomb.lisp.translate.read.dump.executor.MappingsDumpExecutor;
 import java.util.Arrays;
 
 /**
- * Parameters for executing {@link MappingsDumpExecutor}
+ * Parameters for executing dump of mappings
  */
 public final class MappingsDumpParams {
 
