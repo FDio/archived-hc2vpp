@@ -40,10 +40,11 @@ import org.slf4j.LoggerFactory;
 final class NatInstanceCustomizer implements ListReaderCustomizer<NatInstance, NatInstanceKey, NatInstanceBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInstanceCustomizer.class);
+    static final NatInstanceKey DEFAULT_VRF_ID = new NatInstanceKey(0L);
 
     private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager;
 
-    public NatInstanceCustomizer(final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager) {
+    NatInstanceCustomizer(final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager) {
         this.dumpCacheManager = dumpCacheManager;
     }
 
@@ -66,12 +67,19 @@ final class NatInstanceCustomizer implements ListReaderCustomizer<NatInstance, N
     public List<NatInstanceKey> getAllIds(@Nonnull final InstanceIdentifier<NatInstance> id,
                                           @Nonnull final ReadContext context) throws ReadFailedException {
         LOG.trace("Listing IDs for all nat-instances");
+
+        // Find the nat instance IDs (vrf-ids) by listing all static mappings and their VRF assignment
         final List<NatInstanceKey> vrfIds =
                 dumpCacheManager.getDump(id, getClass().getName(), context.getModificationCache(), null)
                         .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails.stream()
                         .map(detail -> detail.vrfId)
                         .map(vrfId -> new NatInstanceKey((long)vrfId))
                         .collect(Collectors.toList());
+
+        // Add default vrf id if not present
+        if (!vrfIds.contains(DEFAULT_VRF_ID)) {
+            vrfIds.add(0, DEFAULT_VRF_ID);
+        }
 
         LOG.debug("List of nat-instance keys (vrf-ids): {}", vrfIds);
         return vrfIds;

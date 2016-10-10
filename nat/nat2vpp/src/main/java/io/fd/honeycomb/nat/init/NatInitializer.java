@@ -48,6 +48,9 @@ public final class NatInitializer extends AbstractDataTreeConverter<NatState, Na
                         .setNatInstance(operationalData.getNatInstances().getNatInstance().stream()
                                 .map(operNatInstance -> new NatInstanceBuilder()
                                         .setId(operNatInstance.getId())
+                                        // Ext IP pools
+                                        .setExternalIpAddressPool(operNatInstance.getNatCurrentConfig().getExternalIpAddressPool())
+                                        // Mapping entries
                                         .setMappingTable(new MappingTableBuilder()
                                                 .setMappingEntry(
                                                         operNatInstance.getMappingTable().getMappingEntry().stream()
@@ -58,6 +61,7 @@ public final class NatInitializer extends AbstractDataTreeConverter<NatState, Na
                                 .collect(Collectors.toList()))
                         .build())
                 .build();
+
         // TODO implement initialization for nat inbound/outbound NAT feature after VPP-459
     }
 }

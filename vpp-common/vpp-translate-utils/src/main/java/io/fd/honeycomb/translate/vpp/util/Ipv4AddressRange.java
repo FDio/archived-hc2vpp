@@ -20,16 +20,22 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * IPv4 address range representation.
  */
 public final class Ipv4AddressRange {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressRange.class);
+
     private final Ipv4AddressNoZone start;
     private final Ipv4AddressNoZone end;
 
-    private Ipv4AddressRange(@Nonnull final Ipv4AddressNoZone start, @Nonnull final Ipv4AddressNoZone end) {
+    private Ipv4AddressRange(
+                             @Nonnull final Ipv4AddressNoZone start,
+                             @Nonnull final Ipv4AddressNoZone end) {
         this.start = start;
         this.end = end;
     }
@@ -71,9 +77,9 @@ public final class Ipv4AddressRange {
     /**
      * Create address range from prefix.
      */
-    public static Ipv4AddressRange fromPrefix(final Ipv4Prefix externalIpPool) {
-        final String addressString = externalIpPool.getValue().split("/")[0];
-        byte prefixLength = Ipv4Translator.INSTANCE.extractPrefix(externalIpPool);
+    public static Ipv4AddressRange fromPrefix(@Nonnull final Ipv4Prefix prefix) {
+        final String addressString = prefix.getValue().split("/")[0];
+        byte prefixLength = Ipv4Translator.INSTANCE.extractPrefix(prefix);
 
         if (prefixLength == 32) {
             // 32 Prefix can be handled instantly
@@ -108,7 +114,8 @@ public final class Ipv4AddressRange {
             prefixAddrBytesF[i] = (byte) 255;
         }
 
-        return new Ipv4AddressRange(Ipv4Translator.INSTANCE.arrayToIpv4AddressNoZoneReversed(prefixAddrBytes0),
+        return new Ipv4AddressRange(
+                Ipv4Translator.INSTANCE.arrayToIpv4AddressNoZoneReversed(prefixAddrBytes0),
                 Ipv4Translator.INSTANCE.arrayToIpv4AddressNoZoneReversed(prefixAddrBytesF));
     }
 }

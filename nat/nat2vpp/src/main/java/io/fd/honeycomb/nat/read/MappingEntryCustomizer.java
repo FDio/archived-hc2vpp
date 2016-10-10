@@ -47,7 +47,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MappingEntryCustomizer implements Ipv4Translator,
+final class MappingEntryCustomizer implements Ipv4Translator,
         ListReaderCustomizer<MappingEntry, MappingEntryKey, MappingEntryBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingEntryCustomizer.class);
@@ -55,8 +55,8 @@ public class MappingEntryCustomizer implements Ipv4Translator,
     private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager;
     private final MappingEntryContext mappingEntryContext;
 
-    public MappingEntryCustomizer(final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager,
-                                  final MappingEntryContext mappingEntryContext) {
+    MappingEntryCustomizer(final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager,
+                           final MappingEntryContext mappingEntryContext) {
         this.dumpCacheManager = dumpCacheManager;
         this.mappingEntryContext = mappingEntryContext;
     }

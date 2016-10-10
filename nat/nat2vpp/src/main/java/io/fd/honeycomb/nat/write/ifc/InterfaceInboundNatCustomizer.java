@@ -28,7 +28,7 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceInboundNatCustomizer.class);
 
     InterfaceInboundNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
-                                         @Nonnull final NamingContext ifcContext) {
+                                  @Nonnull final NamingContext ifcContext) {
         super(jvppSnat, ifcContext);
     }
 
