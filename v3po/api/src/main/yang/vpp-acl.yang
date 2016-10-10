@@ -1,0 +1,116 @@
+module vpp-acl {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:vpp:acl";
+  prefix "vpp-acl";
+
+  revision "2016-12-14" {
+    description
+      "Initial revision of vpp-acl model.";
+  }
+
+  import ietf-access-control-list {
+    prefix "acl";
+  }
+
+  import vpp-classifier {
+    prefix "vpp-classifier";
+  }
+
+  typedef interface-mode {
+    type enumeration {
+      enum "l2";
+      enum "l3";
+    }
+  }
+  grouping acl-base-attributes {
+    description
+      "Defines references to classify tables.
+       At least one table reference should be specified.";
+    container l2-acl {
+      leaf classify-table {
+        type vpp-classifier:classify-table-ref;
+        description
+          "An L2 ACL table";
+      }
+    }
+    container ip4-acl {
+      leaf classify-table {
+        type vpp-classifier:classify-table-ref;
+        description
+          "An IPv4 ACL table";
+      }
+    }
+    container ip6-acl {
+      leaf classify-table {
+        type vpp-classifier:classify-table-ref;
+        description
+          "An IPv6 ACL table";
+      }
+    }
+  }
+
+  grouping ietf-acl-base-attributes {
+    description
+      "Provides limited support for ietf-acl model.";
+
+    container access-lists {
+      description
+        "Defines references to ietf-acl lists. Before assignment to interface,
+        ACL lists are merged into 3 type of acls (l2, ip4 and ip6) that are supported by vpp.
+        Then 3 corresponding chains of tables and sessions are created and assigned to the interface
+        as l2, ip4 and ip6 classify table chains.
+        User ordering is preserved in each group separately.
+
+        Assignment update/delete removes all created tables and sessions and repeats process described above.
+        Update/delete of ACL lists referenced here is not permitted (assignment needs to be removed first).
+
+        Read is supported only for acls that were created and assigned by Honeycomb agent
+        (corresponding metadata are present).
+
+        Limitations (due to vpp limitations):
+        - egress rules are currently ignored (HONEYCOMB-234)
+        - L4 rules are currently not supported (limited support will by provided by HONEYCOMB-218)
+        - mixing L2/L3/L4 rules is currently not supported (limited support will by provided by HONEYCOMB-233)
+        - L2 only rules on L3 interfaces are not supported (not allowed by vpp,
+          in the future defining L2/L3 pairs should be partially supported)
+        - vlan tags are supported only for sub-interfaces defined as exact-match";
+      list acl {
+        key "type name";
+        ordered-by user;
+
+        leaf type {
+          type acl:acl-type;
+        }
+
+        leaf name {
+          type acl:access-control-list-ref;
+        }
+      }
+
+      leaf default-action {
+        type enumeration {
+          enum "deny";
+          enum "permit";
+         }
+         default "deny";
+        description
+          "Default action applied to packet that does not match any of rules defined in assigned ACLs.
+           It is translated to single classify table and applied at the end of assigned chains.";
+      }
+
+      leaf mode {
+        type interface-mode;
+        default l3;
+        description
+          "The way ACLs are translated depends on the interface mode.
+           In case of L2 interfaces (bridge/interconnection)
+           classify tables are assigned as l2_table using input_acl_set_interface (ether type matching is automatically
+           added in case of L3 rules).
+           In case of L3 interfaces, classify tables are assigned as ip4/ip6 tables.
+
+           It is the user responsibility to choose mode that matches target interface.
+           ";
+      }
+    }
+  }
+}

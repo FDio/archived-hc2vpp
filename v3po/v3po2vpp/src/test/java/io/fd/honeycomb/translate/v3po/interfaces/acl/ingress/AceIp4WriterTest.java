@@ -20,6 +20,10 @@ import static io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.AbstractAceW
 import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -30,11 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.InterfaceMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
 
 public class AceIp4WriterTest {
 
