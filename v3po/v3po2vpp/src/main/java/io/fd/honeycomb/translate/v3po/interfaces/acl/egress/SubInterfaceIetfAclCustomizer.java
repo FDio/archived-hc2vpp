@@ -19,7 +19,7 @@ package io.fd.honeycomb.translate.v3po.interfaces.acl.egress;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAClWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclWriter;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
 
 public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Egress> {
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIetfAclCustomizer.class);
-    private final IetfAClWriter aclWriter;
+    private final IetfAclWriter aclWriter;
     private final NamingContext interfaceContext;
 
-    public SubInterfaceIetfAclCustomizer(final IetfAClWriter aclWriter, final NamingContext interfaceContext) {
+    public SubInterfaceIetfAclCustomizer(final IetfAclWriter aclWriter, final NamingContext interfaceContext) {
         this.aclWriter = checkNotNull(aclWriter, "aclWriter should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
     }

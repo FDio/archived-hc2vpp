@@ -16,34 +16,38 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
-import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
-import java.util.List;
-import javax.annotation.Nonnegative;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
+import javax.annotation.Nullable;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.AceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessLists;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Writer responsible for translation of ietf-acl model ACEs to VPP's classify tables and sessions.
+ *
+ * @param <T> type of access control list entry
  */
-interface AceWriter {
+interface AceWriter<T extends AceType> {
+    /**
+     * @param ace            access list entry
+     * @param mode           interface mode (L2/L3)
+     * @param nextTableIndex index of the next classify table in chain
+     * @param vlanTags       number of vlan tags
+     */
+    @Nonnull
+    ClassifyAddDelTable createTable(@Nonnull final T ace, @Nullable final InterfaceMode mode, final int nextTableIndex,
+                                    final int vlanTags);
 
     /**
-     * Translates list of ACEs to chain of classify tables. Each ACE is translated into one classify table with single
-     * classify session. Also initializes input_acl_set_interface request message DTO with first classify table of the
-     * chain that was created.
-     *
-     * @param id            uniquely identifies ietf-acl container
-     * @param aces          list of access control entries
-     * @param mode          interface mode (L2/L3)
-     * @param defaultAction to be taken when packet that does not match any of rules defined in
-     * @param request       input_acl_set_interface request DTO
+     * @param action     to be taken when packet does match the specified ace
+     * @param ace        access list entry
+     * @param mode       interface mode (L2/L3)
+     * @param tableIndex index of corresponding classify table
+     * @param vlanTags   number of vlan tags
      */
-    void write(@Nonnull final InstanceIdentifier<?> id, @Nonnull final List<Ace> aces,
-               final InterfaceMode mode, final AccessLists.DefaultAction defaultAction,
-               @Nonnull final InputAclSetInterface request, @Nonnegative final int vlanTags)
-        throws WriteFailedException;
+    @Nonnull
+    ClassifyAddDelSession createSession(@Nonnull final PacketHandling action, @Nonnull T ace,
+                                        @Nullable final InterfaceMode mode, final int tableIndex, final int vlanTags);
 }

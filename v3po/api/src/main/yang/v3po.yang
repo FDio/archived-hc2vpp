@@ -7,7 +7,7 @@ module v3po {
     description
       "This revision adds the following new features:
        - ingress/egress ACLs support
-       - default-action and interface-mode type as a part of ietf-acl configuration";
+       - moved ACL definitions to vpp-acl module";
   }
 
   revision "2015-01-05" {

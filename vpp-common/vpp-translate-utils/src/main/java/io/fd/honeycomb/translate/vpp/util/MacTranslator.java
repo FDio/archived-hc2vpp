@@ -28,7 +28,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 
 /**
- * Trait providing logic for translation of ipv4-related data
+ * Trait providing logic for translation of MAC address data
  */
 public interface MacTranslator {
 

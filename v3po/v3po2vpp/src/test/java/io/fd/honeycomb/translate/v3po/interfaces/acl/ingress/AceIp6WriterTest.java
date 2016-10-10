@@ -16,17 +16,14 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
-import static io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.AbstractAceWriter.VLAN_TAG_LEN;
+import static io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.AclTranslator.VLAN_TAG_LEN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.DenyBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
@@ -39,8 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 
 public class AceIp6WriterTest {
 
-    @Mock
-    private FutureJVppCore jvpp;
     private AceIp6Writer writer;
     private PacketHandling action;
     private AceIp aceIp;
@@ -48,7 +43,7 @@ public class AceIp6WriterTest {
     @Before
     public void setUp() {
         initMocks(this);
-        writer = new AceIp6Writer(jvpp);
+        writer = new AceIp6Writer();
         action = new DenyBuilder().setDeny(true).build();
         aceIp = new AceIpBuilder()
             .setProtocol((short) 132)
@@ -128,36 +123,36 @@ public class AceIp6WriterTest {
     }
 
     @Test
-    public void testCreateClassifyTable() {
+    public void testCreateTable() {
         final int nextTableIndex = 42;
         final ClassifyAddDelTable request =
-            writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, 0);
+            writer.createTable(aceIp, InterfaceMode.L3, nextTableIndex, 0);
         verifyTableRequest(request, nextTableIndex, 0, false);
     }
 
     @Test
-    public void testCreateClassifyTableForL2Interface() {
+    public void testCreateTableForL2Interface() {
         final int nextTableIndex = 42;
         final ClassifyAddDelTable request =
-            writer.createClassifyTable(aceIp, InterfaceMode.L2, nextTableIndex, 0);
+            writer.createTable(aceIp, InterfaceMode.L2, nextTableIndex, 0);
         verifyTableRequest(request, nextTableIndex, 0, true);
     }
 
     @Test
-    public void testCreateClassifyTable1VlanTag() {
+    public void testCreateTable1VlanTag() {
         final int nextTableIndex = 42;
         final int vlanTags = 1;
         final ClassifyAddDelTable request =
-            writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
+            writer.createTable(aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
         verifyTableRequest(request, nextTableIndex, vlanTags, false);
     }
 
     @Test
-    public void testCreateClassifyTable2VlanTags() {
+    public void testCreateTable2VlanTags() {
         final int nextTableIndex = 42;
         final int vlanTags = 2;
         final ClassifyAddDelTable request =
-            writer.createClassifyTable(aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
+            writer.createTable(aceIp, InterfaceMode.L3, nextTableIndex, vlanTags);
         verifyTableRequest(request, nextTableIndex, vlanTags, false);
     }
 
@@ -165,7 +160,7 @@ public class AceIp6WriterTest {
     public void testCreateClassifySession() {
         final int tableIndex = 123;
         final ClassifyAddDelSession request =
-            writer.createClassifySession(action, aceIp, InterfaceMode.L3, tableIndex, 0);
+            writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, 0);
         verifySessionRequest(request, tableIndex, 0, false);
     }
 
@@ -173,7 +168,7 @@ public class AceIp6WriterTest {
     public void testCreateClassifySessionForL2Interface() {
         final int tableIndex = 123;
         final ClassifyAddDelSession request =
-            writer.createClassifySession(action, aceIp, InterfaceMode.L2, tableIndex, 0);
+            writer.createSession(action, aceIp, InterfaceMode.L2, tableIndex, 0);
         verifySessionRequest(request, tableIndex, 0, true);
     }
 
@@ -182,7 +177,7 @@ public class AceIp6WriterTest {
         final int tableIndex = 123;
         final int vlanTags = 1;
         final ClassifyAddDelSession request =
-            writer.createClassifySession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags);
+            writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags);
         verifySessionRequest(request, tableIndex, vlanTags, false);
     }
 
@@ -191,15 +186,7 @@ public class AceIp6WriterTest {
         final int tableIndex = 123;
         final int vlanTags = 2;
         final ClassifyAddDelSession request =
-            writer.createClassifySession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags);
+            writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags);
         verifySessionRequest(request, tableIndex, vlanTags, false);
-    }
-
-    @Test
-    public void testSetClassifyTable() {
-        final int tableIndex = 321;
-        final InputAclSetInterface request = new InputAclSetInterface();
-        writer.setClassifyTable(request, tableIndex);
-        assertEquals(tableIndex, request.ip6TableIndex);
     }
 }

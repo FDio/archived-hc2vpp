@@ -48,10 +48,10 @@ import org.slf4j.LoggerFactory;
 public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIetfAclCustomizer.class);
-    private final IetfAClWriter aclWriter;
+    private final IetfAclWriter aclWriter;
     private final NamingContext interfaceContext;
 
-    public SubInterfaceIetfAclCustomizer(@Nonnull final IetfAClWriter aclWriter,
+    public SubInterfaceIetfAclCustomizer(@Nonnull final IetfAclWriter aclWriter,
                                          @Nonnull final NamingContext interfaceContext) {
         this.aclWriter = checkNotNull(aclWriter, "aclWriter should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");

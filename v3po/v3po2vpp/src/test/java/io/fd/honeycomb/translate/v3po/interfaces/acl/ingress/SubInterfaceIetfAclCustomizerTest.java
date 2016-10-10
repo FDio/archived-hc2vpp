@@ -21,7 +21,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclWriter;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
@@ -71,7 +70,7 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
     @Override
     protected void setUp() {
         customizer =
-            new SubInterfaceIetfAclCustomizer(new IetfAClWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
+            new SubInterfaceIetfAclCustomizer(new IetfAclWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
 
         acl = new IngressBuilder().setAccessLists(
@@ -134,7 +133,7 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
             new SubInterfaceBuilder().build()
         ));
 
-        when(writeContext.readAfter(IetfAclWriter.ACL_ID.child(
+        when(writeContext.readAfter(io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclWriter.ACL_ID.child(
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
             new AclKey(ACL_NAME, ACL_TYPE)))).thenReturn(Optional.of(
             new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclBuilder()

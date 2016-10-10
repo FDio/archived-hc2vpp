@@ -18,10 +18,10 @@ package io.fd.honeycomb.translate.v3po;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAClWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclWriter;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
-class IetfAClWriterProvider implements Provider<IetfAClWriter> {
+class IetfAClWriterProvider implements Provider<IetfAclWriter> {
 
     private final FutureJVppCore jvpp;
 
@@ -31,7 +31,7 @@ class IetfAClWriterProvider implements Provider<IetfAClWriter> {
     }
 
     @Override
-    public IetfAClWriter get() {
-        return new IetfAClWriter(jvpp);
+    public IetfAclWriter get() {
+        return new IetfAclWriter(jvpp);
     }
 }

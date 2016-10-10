@@ -35,7 +35,7 @@ import io.fd.honeycomb.translate.v3po.interfaces.VhostUserCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VxlanCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VxlanGpeCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.AclCustomizer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAClWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4Customizer;
@@ -94,7 +94,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Egress.class);
 
     private final FutureJVppCore jvpp;
-    private final IetfAClWriter aclWriter;
+    private final IetfAclWriter aclWriter;
     private final NamingContext bdNamingContext;
     private final NamingContext ifcNamingContext;
     private final VppClassifierContextManager classifyTableContext;
@@ -102,7 +102,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
 
     @Inject
     public InterfacesWriterFactory(final FutureJVppCore vppJvppIfcDependency,
-                                   final IetfAClWriter aclWriter,
+                                   final IetfAclWriter aclWriter,
                                    @Named("bridge-domain-context") final NamingContext bridgeDomainContextDependency,
                                    @Named("interface-context") final NamingContext interfaceContextDependency,
                                    @Named("classify-table-context") final VppClassifierContextManager classifyTableContext,

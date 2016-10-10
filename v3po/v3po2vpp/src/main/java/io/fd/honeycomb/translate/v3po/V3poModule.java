@@ -26,7 +26,7 @@ import io.fd.honeycomb.translate.v3po.cfgattrs.V3poConfiguration;
 import io.fd.honeycomb.translate.v3po.initializers.InterfacesInitializer;
 import io.fd.honeycomb.translate.v3po.initializers.VppClassifierInitializer;
 import io.fd.honeycomb.translate.v3po.initializers.VppInitializer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAClWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclWriter;
 import io.fd.honeycomb.translate.v3po.notification.InterfaceChangeNotificationProducer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
@@ -59,7 +59,7 @@ public class V3poModule extends AbstractModule {
         bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
 
         // Utils
-        bind(IetfAClWriter.class).toProvider(IetfAClWriterProvider.class);
+        bind(IetfAclWriter.class).toProvider(IetfAClWriterProvider.class);
         // Context utility for deleted interfaces
         bind(DisabledInterfacesManager.class).toInstance(new DisabledInterfacesManager());
 

@@ -84,7 +84,7 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
 
     @Override
     protected void setUp() {
-        customizer = new IetfAclCustomizer(new IetfAClWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
+        customizer = new IetfAclCustomizer(new IetfAclWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
         acl = new IngressBuilder().setAccessLists(
             new AccessListsBuilder().setAcl(

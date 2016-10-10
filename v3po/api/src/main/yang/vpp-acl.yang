@@ -70,11 +70,13 @@ module vpp-acl {
 
     container access-lists {
       description
-        "Defines references to ietf-acl lists. Before assignment to interface,
-        ACL lists are merged into 3 type of acls (l2, ip4 and ip6) that are supported by vpp.
-        Then 3 corresponding chains of tables and sessions are created and assigned to the interface
-        as l2, ip4 and ip6 classify table chains.
-        User ordering is preserved in each group separately.
+        "Defines references to ietf-acl lists.
+        ACLs are translated into classify tables and sessions when assigned to interface.
+
+        In case of L2 interfaces, acls are translated into a chain of classify tables and assigned as L2 table.
+        In case of L3 interfaces, acls are translated into ip4 and ip6 chains (eth only rules go to both chains,
+        rest - depending on ip-version).
+        User ordering is preserved in both cases.
 
         Assignment update/delete removes all created tables and sessions and repeats process described above.
         Update/delete of ACL lists referenced here is not permitted (assignment needs to be removed first).
@@ -85,10 +87,11 @@ module vpp-acl {
         Limitations (due to vpp limitations):
         - egress rules are currently ignored (HONEYCOMB-234)
         - L4 rules are currently not supported (limited support will by provided by HONEYCOMB-218)
-        - mixing L2/L3/L4 rules is currently not supported (limited support will by provided by HONEYCOMB-233)
-        - L2 only rules on L3 interfaces are not supported (not allowed by vpp,
-          in the future defining L2/L3 pairs should be partially supported)
+        - mixing L2 and L3 rules is possible only if ace-ip-version is provided
+          (vpp classfier api limitation: common header fields for IP4/IP6 have different offsets)
+        - L2 rules on L3 interfaces only to IP traffic (vpp classfier limitation)
         - vlan tags are supported only for sub-interfaces defined as exact-match";
+
       list acl {
         key "type name";
         ordered-by user;

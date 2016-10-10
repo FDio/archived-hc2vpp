@@ -26,7 +26,7 @@ import io.fd.honeycomb.translate.v3po.interfaces.RewriteCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceL2Customizer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAClWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.SubInterfaceIetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -59,7 +59,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 public final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
 
     private final FutureJVppCore jvpp;
-    private final IetfAClWriter aclWriter;
+    private final IetfAclWriter aclWriter;
     private final NamingContext ifcContext;
     private final NamingContext bdContext;
     private final VppClassifierContextManager classifyTableContext;
@@ -79,7 +79,7 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.ietf.acl.Egress.class);
 
     public SubinterfaceAugmentationWriterFactory(final FutureJVppCore jvpp,
-                                                 final IetfAClWriter aclWriter,
+                                                 final IetfAclWriter aclWriter,
             final NamingContext ifcContext, final NamingContext bdContext, final VppClassifierContextManager classifyTableContext) {
         this.jvpp = jvpp;
         this.aclWriter = aclWriter;
