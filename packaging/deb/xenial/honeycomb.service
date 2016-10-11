@@ -1,0 +1,10 @@
+[Unit]
+Description=honeycomb agent for VPP
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -ec "exec /opt/honeycomb/honeycomb"
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
