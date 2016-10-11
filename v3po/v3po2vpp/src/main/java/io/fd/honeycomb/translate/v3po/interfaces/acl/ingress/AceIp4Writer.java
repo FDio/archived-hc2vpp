@@ -45,9 +45,10 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
 
     private static final int ETHER_TYPE_OFFSET = 12; // first 14 bytes represent L2 header (2x6)
     private static final int IP_VERSION_OFFSET = ETHER_TYPE_OFFSET+2;
-    private static final int IP_VERSION_MASK = 0xf0;
     private static final int DSCP_OFFSET = 15;
     private static final int DSCP_MASK = 0xfc;
+    private static final int IP_PROTOCOL_OFFSET = IP_VERSION_OFFSET+9;
+    private static final int IP_PROTOCOL_MASK = 0xff;
     private static final int IP4_LEN = 4;
     private static final int SRC_IP_OFFSET = IP_VERSION_OFFSET + 12;
     private static final int DST_IP_OFFSET = SRC_IP_OFFSET + IP4_LEN;
@@ -100,14 +101,13 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
             request.mask[baseOffset + ETHER_TYPE_OFFSET + 1] = (byte) 0xff;
         }
 
-        // First 14 bytes represent l2 header (2x6 + etherType(2))
-        if (aceIp.getProtocol() != null) { // Internet Protocol number
-            request.mask[baseOffset + IP_VERSION_OFFSET] = (byte) IP_VERSION_MASK; // first 4 bits
-        }
-
         if (aceIp.getDscp() != null) {
             aceIsEmpty = false;
             request.mask[baseOffset + DSCP_OFFSET] = (byte) DSCP_MASK; // first 6 bits
+        }
+
+        if (aceIp.getProtocol() != null) { // Internet Protocol number
+            request.mask[baseOffset + IP_PROTOCOL_OFFSET] = (byte) IP_PROTOCOL_MASK;
         }
 
         if (aceIp.getSourcePortRange() != null) {
@@ -163,8 +163,7 @@ final class AceIp4Writer extends AbstractAceWriter<AceIp> implements Ipv4Transla
         }
 
         if (aceIp.getProtocol() != null) {
-            request.match[baseOffset + IP_VERSION_OFFSET] =
-                    (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
+            request.match[baseOffset + IP_PROTOCOL_OFFSET] = (byte) (IP_PROTOCOL_MASK & aceIp.getProtocol());
         }
 
         if (aceIp.getDscp() != null) {

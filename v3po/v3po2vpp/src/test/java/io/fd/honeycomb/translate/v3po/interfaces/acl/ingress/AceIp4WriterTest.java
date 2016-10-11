@@ -50,7 +50,7 @@ public class AceIp4WriterTest {
         writer = new AceIp4Writer(jvpp);
         action = new DenyBuilder().setDeny(true).build();
         aceIp = new AceIpBuilder()
-            .setProtocol((short) 4)
+            .setProtocol((short) 132)
             .setDscp(new Dscp((short) 11))
             .setAceIpVersion(new AceIpv4Builder()
                 .setSourceIpv4Network(new Ipv4Prefix("1.2.3.4/32"))
@@ -70,9 +70,17 @@ public class AceIp4WriterTest {
         assertEquals(AceIp4Writer.TABLE_MEM_SIZE, request.memorySize);
 
         byte[] expectedMask = new byte[] {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0xf0, (byte) 0xfc,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1,
-            -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            // L2:
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            // dscp:
+            (byte) 0x00, (byte) 0xfc,
+            // protocol:
+            0, 0, 0, 0, 0, 0, 0, (byte) 0xff, 0, 0,
+            // source address:
+            -1, -1, -1, -1,
+            // destination address:
+            -1, -1, -1, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
         if (isL2) {
@@ -90,9 +98,17 @@ public class AceIp4WriterTest {
         assertEquals(0, request.hitNextIndex);
 
         byte[] expectedMatch = new byte[] {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0x40, (byte) 0x2c,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 1, 2,
-            4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            // L2:
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            // dscp:
+            0, (byte) 0x2c,
+            // protocol (132):
+            0, 0, 0, 0, 0, 0, 0, (byte) 132, 0, 0,
+            // source address:
+            1, 2, 3, 4,
+            // destination address:
+            1, 2, 4, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
         if (isL2) {

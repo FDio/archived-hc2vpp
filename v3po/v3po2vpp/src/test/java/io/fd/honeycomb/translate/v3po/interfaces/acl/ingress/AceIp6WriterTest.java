@@ -51,7 +51,7 @@ public class AceIp6WriterTest {
         writer = new AceIp6Writer(jvpp);
         action = new DenyBuilder().setDeny(true).build();
         aceIp = new AceIpBuilder()
-            .setProtocol((short) 6)
+            .setProtocol((short) 132)
             .setDscp(new Dscp((short) 11))
             .setAceIpVersion(new AceIpv6Builder()
                 .setFlowLabel(new Ipv6FlowLabel(123L))
@@ -75,9 +75,10 @@ public class AceIp6WriterTest {
         byte[] expectedMask = new byte[] {
             // L2:
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            // version, dscp, flow:
-            (byte) 0xff, (byte) 0xcf, (byte) 0xff, (byte) 0xff,
-            0, 0, 0, 0,
+            // dscp, flow:
+            (byte) 0x0f, (byte) 0xcf, (byte) 0xff, (byte) 0xff,
+            // protocol:
+            0, 0, (byte) 0xff, 0,
             // source address:
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -104,9 +105,10 @@ public class AceIp6WriterTest {
         byte[] expectedMatch = new byte[] {
             // L2:
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            // version(6), dscp(11), flow(123):
-            (byte) 0x62, (byte) 0xc0, (byte) 0x00, (byte) 0x7b,
-            0, 0, 0, 0,
+            // dscp(11), flow(123):
+            (byte) 0x02, (byte) 0xc0, (byte) 0x00, (byte) 0x7b,
+            // protocol (132):
+            0, 0, (byte) 132, 0,
             // source address:
             (byte) 0x20, (byte) 0x01, (byte) 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, (byte) 0x08, (byte) 0xd3,
             (byte) 0x13, (byte) 0x19, (byte) 0x8a, (byte) 0x2e, (byte) 0x03, (byte) 0x70, (byte) 0x73, (byte) 0x48,

@@ -46,9 +46,10 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
 
     private static final int ETHER_TYPE_OFFSET = 12; // first 14 bytes represent L2 header (2x6)
     private static final int IP_VERSION_OFFSET = ETHER_TYPE_OFFSET+2;
-    private static final int IP_VERSION_MASK = 0xf0;
     private static final int DSCP_MASK1 = 0x0f;
     private static final int DSCP_MASK2 = 0xc0;
+    private static final int IP_PROTOCOL_OFFSET = IP_VERSION_OFFSET+6;
+    private static final int IP_PROTOCOL_MASK = 0xff;
     private static final int IP6_LEN = 16;
     private static final int SRC_IP_OFFSET = IP_VERSION_OFFSET + 8;
     private static final int DST_IP_OFFSET = SRC_IP_OFFSET + IP6_LEN;
@@ -114,16 +115,16 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
             request.mask[baseOffset + ETHER_TYPE_OFFSET + 1] = (byte) 0xff;
         }
 
-        if (aceIp.getProtocol() != null) {
-            aceIsEmpty = false;
-            request.mask[baseOffset + IP_VERSION_OFFSET] |= IP_VERSION_MASK;
-        }
-
         if (aceIp.getDscp() != null) {
             aceIsEmpty = false;
             // DCSP (bits 4-9 of IP6 header)
             request.mask[baseOffset + IP_VERSION_OFFSET] |= DSCP_MASK1;
             request.mask[baseOffset + IP_VERSION_OFFSET + 1] |= DSCP_MASK2;
+        }
+
+        if (aceIp.getProtocol() != null) {
+            aceIsEmpty = false;
+            request.mask[baseOffset + IP_PROTOCOL_OFFSET] = (byte) IP_PROTOCOL_MASK;
         }
 
         if (aceIp.getSourcePortRange() != null) {
@@ -184,18 +185,17 @@ final class AceIp6Writer extends AbstractAceWriter<AceIp> {
             request.match[baseOffset + ETHER_TYPE_OFFSET + 1] = (byte) 0xdd;
         }
 
-        if (aceIp.getProtocol() != null) {
-            noMatch = false;
-            request.match[baseOffset + IP_VERSION_OFFSET] |=
-                (byte) (IP_VERSION_MASK & (aceIp.getProtocol().intValue() << 4));
-        }
-
         if (aceIp.getDscp() != null) {
             noMatch = false;
             final int dscp = aceIp.getDscp().getValue();
             // set bits 4-9 of IP6 header:
             request.match[baseOffset + IP_VERSION_OFFSET] |= (byte) (DSCP_MASK1 & (dscp >> 2));
             request.match[baseOffset + IP_VERSION_OFFSET + 1] |= (byte) (DSCP_MASK2 & (dscp << 6));
+        }
+
+        if (aceIp.getProtocol() != null) {
+            noMatch = false;
+            request.match[baseOffset + IP_PROTOCOL_OFFSET] = (byte) (IP_PROTOCOL_MASK & aceIp.getProtocol());
         }
 
         if (aceIp.getSourcePortRange() != null) {
