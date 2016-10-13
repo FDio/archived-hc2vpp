@@ -30,10 +30,13 @@
 
   <properties>
     <exec.parameters>-Xms128m -Xmx128m</exec.parameters>
-    <main.class>io.fd.honeycomb.samples.distro.Main</main.class>
+    <main.class>io.fd.honeycomb.infra.distro.Main</main.class>
     <interfaces.mapping.version>1.16.12-SNAPSHOT</interfaces.mapping.version>
     <honeycomb.min.distro.version>1.16.12-SNAPSHOT</honeycomb.min.distro.version>
     <sonar.skip>true</sonar.skip>
+    <distribution.modules>
+      io.fd.honeycomb.samples.interfaces.mapping.SampleInterfaceModule
+    </distribution.modules>
   </properties>
 
   <build>

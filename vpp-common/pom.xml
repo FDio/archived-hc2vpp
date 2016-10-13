@@ -34,7 +34,7 @@
     <module>vpp-translate-utils</module>
     <module>naming-context-api</module>
     <module>naming-context-impl</module>
-    <module>minimal-distribution</module>
+    <module>vpp-common-integration</module>
     <module>vpp-impl-parent</module>
     <module>vpp-translate-test</module>
   </modules>

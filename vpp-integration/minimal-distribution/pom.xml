@@ -29,11 +29,19 @@
   <version>1.16.12-SNAPSHOT</version>
 
   <properties>
-    <main.class>io.fd.honeycomb.vpp.integration.distro.Main</main.class>
+    <main.class>io.fd.honeycomb.infra.distro.Main</main.class>
     <v3po.version>1.16.12-SNAPSHOT</v3po.version>
     <lisp.version>1.16.12-SNAPSHOT</lisp.version>
-    <vpp.common.min.distro.version>1.16.12-SNAPSHOT</vpp.common.min.distro.version>
+    <vpp.common.integration.version>1.16.12-SNAPSHOT</vpp.common.integration.version>
     <vppnsh.version>1.16.12-SNAPSHOT</vppnsh.version>
+
+    <distribution.modules>
+      io.fd.honeycomb.vpp.common.integration.VppCommonModule,
+      io.fd.honeycomb.lisp.LispModule,
+      io.fd.honeycomb.translate.v3po.V3poModule,
+      // io.fd.honeycomb.vppnsh.impl.VppNshModule
+      <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
+    </distribution.modules>
   </properties>
 
   <build>
@@ -62,8 +70,8 @@
   <dependencies>
     <dependency>
       <groupId>io.fd.honeycomb.vpp</groupId>
-      <artifactId>minimal-distribution</artifactId>
-      <version>${vpp.common.min.distro.version}</version>
+      <artifactId>vpp-common-integration</artifactId>
+      <version>${vpp.common.integration.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb.v3po</groupId>

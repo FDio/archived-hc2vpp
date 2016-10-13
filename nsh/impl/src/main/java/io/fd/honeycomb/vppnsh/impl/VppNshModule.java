@@ -17,8 +17,6 @@
 package io.fd.honeycomb.vppnsh.impl;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
@@ -26,12 +24,10 @@ import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import io.fd.honeycomb.vppnsh.impl.cfgattrs.VppNshConfiguration;
 import io.fd.honeycomb.vppnsh.impl.config.VppNshWriterFactory;
 import io.fd.honeycomb.vppnsh.impl.init.VppNshInitializer;
 import io.fd.honeycomb.vppnsh.impl.oper.VppNshReaderFactory;
 import io.fd.honeycomb.vppnsh.impl.util.JVppNshProvider;
-import net.jmob.guice.conf.core.ConfigurationModule;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +41,6 @@ public final class VppNshModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        // TODO HONEYCOMB-207 workaround:
-        if (!isEnabled()) {
-            LOG.info("VppNshModule is disabled. Skipping module configuration.");
-            return;
-        }
         LOG.info("Configuring VppNsh module");
 
         // Naming contexts
@@ -69,20 +60,5 @@ public final class VppNshModule extends AbstractModule {
         Multibinder.newSetBinder(binder(), ReaderFactory.class).addBinding().to(VppNshReaderFactory.class);
         Multibinder.newSetBinder(binder(), DataTreeInitializer.class).addBinding().to(VppNshInitializer.class);
         LOG.info("NSH module successfully configured");
-    }
-
-    private static boolean isEnabled() {
-        final Injector injector = Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {
-                // These are plugin specific config attributes
-                install(ConfigurationModule.create());
-                requestInjection(VppNshConfiguration.class);
-            }
-        });
-
-        final VppNshConfiguration cfgAttributes = injector.getInstance(VppNshConfiguration.class);
-        LOG.debug("Configuration for VppNsh module: {}", cfgAttributes);
-        return cfgAttributes.isNshEnabled();
     }
 }
