@@ -17,19 +17,24 @@
 package io.fd.honeycomb.translate.v3po.interfacesstate.ip;
 
 
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.IpAddressDump;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -47,10 +52,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.AddressKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
-import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.IpAddressDump;
 
 public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address, AddressKey, AddressBuilder> implements
         Ipv4Translator {
@@ -62,6 +65,8 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     private static final String IFC_CTX_NAME = "ifc-test-instance";
 
     private NamingContext interfacesContext;
+    private InstanceIdentifier<Address> ifaceOneAddressOneIdentifier;
+    private InstanceIdentifier<Address> ifaceTwoAddressOneIdentifier;
 
     public Ipv4AddressCustomizerTest() {
         super(Address.class, Ipv4Builder.class);
@@ -72,6 +77,19 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         defineMapping(mappingContext, IFACE_2_NAME, IFACE_2_ID, IFC_CTX_NAME);
+
+        ifaceOneAddressOneIdentifier =
+                InstanceIdentifier.create(InterfacesState.class)
+                        .child(Interface.class, new InterfaceKey(IFACE_NAME))
+                        .augmentation(Interface2.class)
+                        .child(Ipv4.class)
+                        .child(Address.class, new AddressKey(new Ipv4AddressNoZone("192.168.2.1")));
+        ifaceTwoAddressOneIdentifier =
+                InstanceIdentifier.create(InterfacesState.class)
+                        .child(Interface.class, new InterfaceKey(IFACE_2_NAME))
+                        .augmentation(Interface2.class)
+                        .child(Ipv4.class)
+                        .child(Address.class, new AddressKey(new Ipv4AddressNoZone("192.168.2.1")));
     }
 
     @Override
@@ -91,7 +109,6 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     @Test
     public void testReadCurrentAttributesFor2Ifcs() throws ReadFailedException {
         //changed to mock to not store first dumped data(otherwise that double thenReturn on line 118 is not gonna work)
-        ModificationCache cache = mock(ModificationCache.class);
 
         IpAddressDetails detail1 = new IpAddressDetails();
         IpAddressDetails detail2 = new IpAddressDetails();
@@ -138,8 +155,6 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
 
     @Test
     public void testReadCurrentAttributesSuccessfull() throws ReadFailedException {
-        ModificationCache cache = new ModificationCache();
-
         IpAddressDetails detail1 = new IpAddressDetails();
         IpAddressDetails detail2 = new IpAddressDetails();
         IpAddressDetails detail3 = new IpAddressDetails();
@@ -166,8 +181,6 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
 
     @Test
     public void testGetAllIdsFromSuccessfull() throws ReadFailedException {
-        ModificationCache cache = new ModificationCache();
-
         IpAddressDetails detail1 = new IpAddressDetails();
         IpAddressDetails detail2 = new IpAddressDetails();
         IpAddressDetails detail3 = new IpAddressDetails();
@@ -194,5 +207,71 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         assertEquals(true, "192.168.2.1".equals(ids.get(0).getValue()));
         assertEquals(true, "192.168.2.2".equals(ids.get(1).getValue()));
         assertEquals(true, "192.168.2.3".equals(ids.get(2).getValue()));
+    }
+
+    @Test
+    public void testCachingScopeSpecificRequest() throws ReadFailedException {
+        fillCacheForTwoIfaces();
+        final AddressBuilder ifaceOneAddressBuilder = new AddressBuilder();
+        final AddressBuilder ifaceTwoAddressBuilder = new AddressBuilder();
+
+        getCustomizer().readCurrentAttributes(ifaceOneAddressOneIdentifier, ifaceOneAddressBuilder, ctx);
+        getCustomizer().readCurrentAttributes(ifaceTwoAddressOneIdentifier, ifaceTwoAddressBuilder, ctx);
+
+        // addresses have caching scope of parent interface, so returned address should have respective prefix lengths
+        assertEquals("192.168.2.1", ifaceOneAddressBuilder.getIp().getValue());
+        assertTrue(ifaceOneAddressBuilder.getSubnet() instanceof PrefixLength);
+        assertEquals(22, PrefixLength.class.cast(ifaceOneAddressBuilder.getSubnet()).getPrefixLength().intValue());
+
+        assertEquals("192.168.2.1", ifaceTwoAddressBuilder.getIp().getValue());
+        assertTrue(ifaceTwoAddressBuilder.getSubnet() instanceof PrefixLength);
+        assertEquals(23, PrefixLength.class.cast(ifaceTwoAddressBuilder.getSubnet()).getPrefixLength().intValue());
+    }
+
+    @Test
+    public void testCachingScopeGetAll() throws ReadFailedException {
+        fillCacheForFirstIfaceSecondEmpty();
+
+        final List<AddressKey> keysForIfaceOne = getCustomizer().getAllIds(ifaceOneAddressOneIdentifier, ctx);
+        assertThat(keysForIfaceOne, hasSize(1));
+        final AddressKey keyIfaceOne = keysForIfaceOne.get(0);
+        assertEquals("192.168.2.1", keyIfaceOne.getIp().getValue());
+
+        final List<AddressKey> keysForIfaceTwo = getCustomizer().getAllIds(ifaceTwoAddressOneIdentifier, ctx);
+        assertThat(keysForIfaceTwo, is(empty()));
+    }
+
+    private void fillCacheForTwoIfaces() {
+        IpAddressDetails detailIfaceOneAddressOne = new IpAddressDetails();
+        IpAddressDetails detailIfaceTwoAddressOne = new IpAddressDetails();
+        IpAddressDetailsReplyDump replyIfaceOne = new IpAddressDetailsReplyDump();
+        IpAddressDetailsReplyDump replyIfaceTwo = new IpAddressDetailsReplyDump();
+
+        replyIfaceOne.ipAddressDetails = Arrays.asList(detailIfaceOneAddressOne);
+        replyIfaceTwo.ipAddressDetails = Arrays.asList(detailIfaceTwoAddressOne);
+
+        detailIfaceOneAddressOne.ip = reverseBytes(
+                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceOneAddressOne.prefixLength = 22;
+
+        detailIfaceTwoAddressOne.ip = reverseBytes(
+                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceTwoAddressOne.prefixLength = 23;
+
+        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_NAME, replyIfaceOne);
+        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_2_NAME, replyIfaceTwo);
+    }
+
+    private void fillCacheForFirstIfaceSecondEmpty() {
+        IpAddressDetails detailIfaceOneAddressOne = new IpAddressDetails();
+        IpAddressDetailsReplyDump replyIfaceOne = new IpAddressDetailsReplyDump();
+        replyIfaceOne.ipAddressDetails = Arrays.asList(detailIfaceOneAddressOne);
+
+        detailIfaceOneAddressOne.ip = reverseBytes(
+                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceOneAddressOne.prefixLength = 22;
+
+        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_NAME, replyIfaceOne);
+        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_2_NAME, new IpAddressDetailsReplyDump());
     }
 }

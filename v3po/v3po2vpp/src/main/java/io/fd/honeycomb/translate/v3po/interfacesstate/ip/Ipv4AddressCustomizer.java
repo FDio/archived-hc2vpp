@@ -78,8 +78,10 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
+        // Key needs to contain interface ID to distinguish dumps between interfaces
+        final String cacheKey = CACHE_KEY + interfaceName;
         final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, CACHE_KEY, ctx.getModificationCache(), new AddressDumpParams(interfaceIndex, false));
+                .getDump(id, cacheKey, ctx.getModificationCache(), new AddressDumpParams(interfaceIndex, false));
 
         if (!dumpOptional.isPresent() || dumpOptional.get().ipAddressDetails.isEmpty()) {
             return;
