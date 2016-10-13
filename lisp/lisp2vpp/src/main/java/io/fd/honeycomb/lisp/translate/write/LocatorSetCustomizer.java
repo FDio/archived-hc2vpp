@@ -20,26 +20,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.common.base.Optional;
 import io.fd.honeycomb.lisp.translate.read.trait.LocatorSetReader;
-import io.fd.honeycomb.translate.ModificationCache;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSetKey;
@@ -72,32 +64,14 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
                                        @Nonnull LocatorSet dataAfter,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-
-        checkNotNull(dataAfter, "LocatorSet is null");
-
-        final String locatorSetName = dataAfter.getName();
-        checkNotNull(locatorSetName, "LocatorSet name is null");
         checkState(isNonEmptyLocatorSet(writeContext.readAfter(id).get()),
                 "Creating empty locator-sets is not allowed");
-        // TODO VPP-323 check and fill mapping when api returns index of created locator set
-        // checkState(!locatorSetContext.containsIndex(locatorSetName, writeContext.getMappingContext()),
-        //         "Locator set with name %s already defined", locatorSetName);
+        final String locatorSetName = dataAfter.getName();
+        checkState(!locatorSetContext.containsIndex(locatorSetName, writeContext.getMappingContext()),
+                "Locator set with name %s already defined", locatorSetName);
 
-        try {
-            addDelLocatorSetAndReply(true, dataAfter.getName());
-        } catch (VppBaseCallException | TimeoutException | UnsupportedEncodingException e) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
-        }
-
-        //TODO - REMOVE FROM MASTER AFTER VPP-323
-        try {
-            locatorSetContext
-                    .addName(getLocatorSetIndex(id, locatorSetName, writeContext.getModificationCache()),
-                            locatorSetName, writeContext.getMappingContext());
-        } catch (ReadFailedException e) {
-            throw new WriteFailedException(id,
-                    new IllegalStateException("Unable to create mapping for locator set " + locatorSetName, e));
-        }
+        final int locatorSetIndex = addDelLocatorSetAndReply(true, dataAfter.getName(), id);
+        locatorSetContext.addName(locatorSetIndex, locatorSetName, writeContext.getMappingContext());
     }
 
     private boolean isNonEmptyLocatorSet(final LocatorSet locatorSet) {
@@ -110,61 +84,28 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
                                         @Nonnull LocatorSet dataBefore,
                                         @Nonnull LocatorSet dataAfter,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
+        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
+                new UnsupportedOperationException("Operation not supported"));
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
                                         @Nonnull LocatorSet dataBefore,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
-
-        checkNotNull(dataBefore, "LocatorSet is null");
-
         final String locatorSetName = dataBefore.getName();
-        checkNotNull(locatorSetName, "LocatorSet name is null");
-
-        try {
-            addDelLocatorSetAndReply(false, dataBefore.getName());
-        } catch (VppBaseCallException | TimeoutException | UnsupportedEncodingException e) {
-            throw new WriteFailedException.DeleteFailedException(id, e);
-        }
-
+        addDelLocatorSetAndReply(false, dataBefore.getName(), id);
         //removes mapping after successful delete
         locatorSetContext.removeName(locatorSetName, writeContext.getMappingContext());
     }
 
-    private void addDelLocatorSetAndReply(boolean add, String name)
-            throws VppBaseCallException, TimeoutException, UnsupportedEncodingException {
+    private int addDelLocatorSetAndReply(final boolean add, final String name, final InstanceIdentifier<LocatorSet> id)
+            throws WriteFailedException {
 
         LispAddDelLocatorSet addDelSet = new LispAddDelLocatorSet();
 
         addDelSet.isAdd = booleanToByte(add);
         addDelSet.locatorSetName = name.getBytes(UTF_8);
 
-
-        getReply(getFutureJVpp().lispAddDelLocatorSet(addDelSet).toCompletableFuture());
+        return getReplyForWrite(getFutureJVpp().lispAddDelLocatorSet(addDelSet).toCompletableFuture(), id).lsIndex;
     }
-
-    //TODO - REMOVE FROM MASTER AFTER VPP-323
-    // total hack
-    public int getLocatorSetIndex(final InstanceIdentifier<LocatorSet> identifier, final String name,
-                                  final ModificationCache cache)
-            throws ReadFailedException {
-
-        Optional<LispLocatorSetDetailsReplyDump> reply = dumpManager
-                .getDump(identifier, io.fd.honeycomb.lisp.translate.read.LocatorSetCustomizer.LOCATOR_SETS_CACHE_ID,
-                        cache,
-                        EntityDumpExecutor.NO_PARAMS);
-
-        if (reply.isPresent()) {
-            return reply.get().lispLocatorSetDetails.stream()
-                    .filter(a -> name.equals(toString(a.lsName)))
-                    .collect(RWUtils.singleItemCollector())
-                    .lsIndex;
-        } else {
-            throw new IllegalStateException("Unable to find index of locator set " + name);
-        }
-    }
-
-
 }

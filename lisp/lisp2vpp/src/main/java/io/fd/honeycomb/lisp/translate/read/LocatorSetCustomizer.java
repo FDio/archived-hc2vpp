@@ -49,8 +49,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         implements ListReaderCustomizer<LocatorSet, LocatorSetKey, LocatorSetBuilder>, ByteDataTranslator,
         LocatorSetReader {
 
-    //TODO - temporary as public because of hack in write customizer in *.write.LocatorSetCustomizer
-    public static final String LOCATOR_SETS_CACHE_ID = LocatorSetCustomizer.class.getName();
+    private static final String LOCATOR_SETS_CACHE_ID = LocatorSetCustomizer.class.getName();
     private static final Logger LOG = LoggerFactory.getLogger(LocatorSetCustomizer.class);
 
     private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;

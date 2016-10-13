@@ -18,6 +18,8 @@ package io.fd.honeycomb.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -29,6 +31,10 @@ import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSetReply;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -40,10 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSetReply;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 
 public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
@@ -51,21 +53,22 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
     @Override
     public void setUp() {
-        customizer = new LocatorSetCustomizer(api, new NamingContext("locator-set", "instance"));
+        customizer = new LocatorSetCustomizer(api, new NamingContext("locator-set", "locator-set-context"));
     }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
-        customizer.writeCurrentAttributes(null, null, null);
+        customizer.writeCurrentAttributes(null, null, writeContext);
     }
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesBadData() throws WriteFailedException {
-        customizer.writeCurrentAttributes(null, mock(LocatorSet.class), null);
+        customizer.writeCurrentAttributes(null, mock(LocatorSet.class), writeContext);
     }
 
     @Test
     public void testWriteCurrentAttributes() throws WriteFailedException, InterruptedException, ExecutionException {
+        noMappingDefined(mappingContext, "Locator", "locator-set-context");
         LocatorSet locatorSet = new LocatorSetBuilder()
                 .setName("Locator")
                 .setInterface(Arrays.asList(new InterfaceBuilder().build()))
@@ -77,15 +80,14 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
         ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
 
-        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(future(new LispAddDelLocatorSetReply()));
+        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class)))
+                .thenReturn(future(new LispAddDelLocatorSetReply()));
         when(writeContext.readAfter(validId)).thenReturn(Optional.of(locatorSet));
 
         final LispLocatorSetDetailsReplyDump reply = new LispLocatorSetDetailsReplyDump();
         LispLocatorSetDetails details = new LispLocatorSetDetails();
         details.lsName = "Locator".getBytes(StandardCharsets.UTF_8);
         reply.lispLocatorSetDetails = ImmutableList.of(details);
-
-        cache.put(io.fd.honeycomb.lisp.translate.read.LocatorSetCustomizer.LOCATOR_SETS_CACHE_ID, reply);
 
         customizer.writeCurrentAttributes(validId, locatorSet, writeContext);
 
@@ -98,19 +100,28 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
         assertEquals(1, request.isAdd);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testUpdateCurrentAttributes() throws WriteFailedException {
-        customizer.updateCurrentAttributes(null, null, null, null);
+        final InstanceIdentifier<LocatorSet> identifier = InstanceIdentifier.create(LocatorSet.class);
+        try {
+            customizer
+                    .updateCurrentAttributes(identifier, mock(LocatorSet.class), mock(LocatorSet.class), writeContext);
+        } catch (WriteFailedException e) {
+            assertTrue(e.getCause() instanceof UnsupportedOperationException);
+            assertEquals(identifier, e.getFailedId());
+            return;
+        }
+        fail("Test should have failed");
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesNullData() throws WriteFailedException {
-        customizer.deleteCurrentAttributes(null, null, null);
+        customizer.deleteCurrentAttributes(null, null, writeContext);
     }
 
     @Test(expected = NullPointerException.class)
     public void testDeleteCurrentAttributesBadData() throws WriteFailedException {
-        customizer.deleteCurrentAttributes(null, mock(LocatorSet.class), null);
+        customizer.deleteCurrentAttributes(null, mock(LocatorSet.class), writeContext);
     }
 
     @Test
@@ -121,7 +132,8 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
         ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
 
-        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class))).thenReturn(future(new LispAddDelLocatorSetReply()));
+        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class)))
+                .thenReturn(future(new LispAddDelLocatorSetReply()));
 
         customizer.deleteCurrentAttributes(null, locatorSet, writeContext);
 
