@@ -20,6 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
@@ -36,12 +38,14 @@ final class AceIpAndEthWriter
 
     private static final Logger LOG = LoggerFactory.getLogger(AceIpAndEthWriter.class);
 
-    private static int maskLength(@Nonnull final AceIpAndEth ace) {
+    private static int maskLength(@Nonnull final AceIpAndEth ace, final int vlanTags) {
         if (ace.getAceIpVersion() != null) {
             if (ace.getAceIpVersion() instanceof AceIpv4) {
                 return 48;
             } else {
-                return 64;
+                return vlanTags == 2
+                    ? 80
+                    : 64;
             }
         }
         return 16;
@@ -50,8 +54,9 @@ final class AceIpAndEthWriter
     @Override
     public ClassifyAddDelTable createTable(@Nonnull final AceIpAndEth ace, @Nullable final InterfaceMode mode,
                                            final int nextTableIndex, final int vlanTags) {
-        final ClassifyAddDelTable request = createTable(nextTableIndex);
-        final int maskLength = maskLength(ace);
+        final int numberOfSessions = PortPair.fromRange(ace.getSourcePortRange(), ace.getDestinationPortRange()).size();
+        final ClassifyAddDelTable request = createTable(nextTableIndex, numberOfSessions);
+        final int maskLength = maskLength(ace, vlanTags);
         request.mask = new byte[maskLength];
         request.skipNVectors = 0;
         request.matchNVectors = maskLength / 16;
@@ -67,10 +72,10 @@ final class AceIpAndEthWriter
         final int baseOffset = getVlanTagsLen(vlanTags);
         if (aceIpVersion instanceof AceIpv4) {
             final AceIpv4 ipVersion = (AceIpv4) aceIpVersion;
-            aceIsEmpty &= ip4Mask(baseOffset, mode, ace, ipVersion, request, LOG);
+            aceIsEmpty &= ip4Mask(baseOffset, mode, ace, ipVersion, request);
         } else if (aceIpVersion instanceof AceIpv6) {
             final AceIpv6 ipVersion = (AceIpv6) aceIpVersion;
-            aceIsEmpty &= ip6Mask(baseOffset, mode, ace, ipVersion, request, LOG);
+            aceIsEmpty &= ip6Mask(baseOffset, mode, ace, ipVersion, request);
         } else {
             throw new IllegalArgumentException(String.format("Unsupported IP version %s", aceIpVersion));
         }
@@ -85,36 +90,40 @@ final class AceIpAndEthWriter
     }
 
     @Override
-    public ClassifyAddDelSession createSession(@Nonnull final PacketHandling action,
-                                               @Nonnull final AceIpAndEth ace,
-                                               @Nullable final InterfaceMode mode, final int tableIndex,
-                                               final int vlanTags) {
-        final ClassifyAddDelSession request = createSession(action, tableIndex);
-        request.match = new byte[maskLength(ace)];
+    public List<ClassifyAddDelSession> createSession(@Nonnull final PacketHandling action,
+                                                     @Nonnull final AceIpAndEth ace,
+                                                     @Nullable final InterfaceMode mode, final int tableIndex,
+                                                     final int vlanTags) {
+        final List<PortPair> portPairs = PortPair.fromRange(ace.getSourcePortRange(), ace.getDestinationPortRange());
+        final List<ClassifyAddDelSession> requests = new ArrayList<>(portPairs.size());
+        for (final PortPair pair : portPairs) {
+            final ClassifyAddDelSession request = createSession(action, tableIndex);
+            request.match = new byte[maskLength(ace, vlanTags)];
 
-        boolean noMatch = destinationMacAddressMatch(ace.getDestinationMacAddress(), request);
-        noMatch &= sourceMacAddressMatch(ace.getSourceMacAddress(), request);
+            boolean noMatch = destinationMacAddressMatch(ace.getDestinationMacAddress(), request);
+            noMatch &= sourceMacAddressMatch(ace.getSourceMacAddress(), request);
 
-        final AceIpVersion aceIpVersion = ace.getAceIpVersion();
-        checkArgument(aceIpVersion != null, "AceIpAndEth have to define IpVersion");
+            final AceIpVersion aceIpVersion = ace.getAceIpVersion();
+            checkArgument(aceIpVersion != null, "AceIpAndEth have to define IpVersion");
 
-        final int baseOffset = getVlanTagsLen(vlanTags);
-        if (aceIpVersion instanceof AceIpv4) {
-            final AceIpv4 ipVersion = (AceIpv4) aceIpVersion;
-            noMatch &= ip4Match(baseOffset, mode, ace, ipVersion, request, LOG);
-        } else if (aceIpVersion instanceof AceIpv6) {
-            final AceIpv6 ipVersion = (AceIpv6) aceIpVersion;
-            noMatch &= ip6Match(baseOffset, mode, ace, ipVersion, request, LOG);
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupported IP version %s", aceIpVersion));
+            final int baseOffset = getVlanTagsLen(vlanTags);
+            if (aceIpVersion instanceof AceIpv4) {
+                final AceIpv4 ipVersion = (AceIpv4) aceIpVersion;
+                noMatch &= ip4Match(baseOffset, mode, ace, ipVersion, pair.getSrc(), pair.getDst(), request);
+            } else if (aceIpVersion instanceof AceIpv6) {
+                final AceIpv6 ipVersion = (AceIpv6) aceIpVersion;
+                noMatch &= ip6Match(baseOffset, mode, ace, ipVersion, pair.getSrc(), pair.getDst(), request);
+            } else {
+                throw new IllegalArgumentException(String.format("Unsupported IP version %s", aceIpVersion));
+            }
+
+            if (noMatch) {
+                throw new IllegalArgumentException(
+                    String.format("Ace %s does not define packet field match values", ace.toString()));
+            }
+            LOG.debug("ACE action={}, rule={} translated to session={}.", action, ace, request);
+            requests.add(request);
         }
-
-        if (noMatch) {
-            throw new IllegalArgumentException(
-                String.format("Ace %s does not define packet field match values", ace.toString()));
-        }
-
-        LOG.debug("ACE action={}, rule={} translated to session={}.", action, ace, request);
-        return request;
+        return requests;
     }
 }

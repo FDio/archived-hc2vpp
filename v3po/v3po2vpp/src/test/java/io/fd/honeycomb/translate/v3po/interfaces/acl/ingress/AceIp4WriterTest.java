@@ -31,6 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
 
 public class AceIp4WriterTest {
@@ -51,6 +54,8 @@ public class AceIp4WriterTest {
                 .setSourceIpv4Network(new Ipv4Prefix("1.2.3.4/32"))
                 .setDestinationIpv4Network(new Ipv4Prefix("1.2.4.5/24"))
                 .build())
+            .setSourcePortRange(new SourcePortRangeBuilder().setLowerPort(new PortNumber(0x1111)).build())
+            .setDestinationPortRange(new DestinationPortRangeBuilder().setLowerPort(new PortNumber(0x2222)).build())
             .build();
     }
 
@@ -75,14 +80,17 @@ public class AceIp4WriterTest {
             -1, -1, -1, -1,
             // destination address:
             -1, -1, -1, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            // source and destination port:
+            -1, -1, -1, -1,
+            // padding:
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
         if (isL2) {
             expectedMask[12] = (byte) 0xff;
             expectedMask[13] = (byte) 0xff;
         }
-        AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMask, request.mask, vlanTags * VLAN_TAG_LEN);
+        AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMask, expectedMask.length, request.mask, vlanTags * VLAN_TAG_LEN);
 
     }
 
@@ -103,14 +111,17 @@ public class AceIp4WriterTest {
             1, 2, 3, 4,
             // destination address:
             1, 2, 4, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            // source and destination port:
+            0x11, 0x11, 0x22, 0x22,
+            // padding:
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
 
         if (isL2) {
             expectedMatch[12] = (byte) 0x08;
             expectedMatch[13] = (byte) 0x00;
         }
-        AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMatch, request.match, vlanTags * VLAN_TAG_LEN);
+        AceIpWriterTestUtils.assertArrayEqualsWithOffset(expectedMatch, expectedMatch.length, request.match, vlanTags * VLAN_TAG_LEN);
 
     }
 
@@ -147,14 +158,14 @@ public class AceIp4WriterTest {
     @Test
     public void testCreateClassifySession() throws Exception {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, 0);
+        final ClassifyAddDelSession request = writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, 0).get(0);
         verifySessionRequest(request, tableIndex, 0, false);
     }
 
     @Test
     public void testCreateClassifySessionForL2Interface() throws Exception {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createSession(action, aceIp, InterfaceMode.L2, tableIndex, 0);
+        final ClassifyAddDelSession request = writer.createSession(action, aceIp, InterfaceMode.L2, tableIndex, 0).get(0);
         verifySessionRequest(request, tableIndex, 0, true);
     }
 
@@ -162,7 +173,7 @@ public class AceIp4WriterTest {
     public void testCreateClassifySession1VlanTag() throws Exception {
         final int tableIndex = 123;
         final int vlanTags = 1;
-        final ClassifyAddDelSession request = writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags);
+        final ClassifyAddDelSession request = writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags).get(0);
         verifySessionRequest(request, tableIndex, vlanTags, false);
     }
 
@@ -170,7 +181,7 @@ public class AceIp4WriterTest {
     public void testCreateClassifySession2VlanTags() throws Exception {
         final int tableIndex = 123;
         final int vlanTags = 2;
-        final ClassifyAddDelSession request = writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags);
+        final ClassifyAddDelSession request = writer.createSession(action, aceIp, InterfaceMode.L3, tableIndex, vlanTags).get(0);
 
         verifySessionRequest(request, tableIndex, vlanTags, false);
     }

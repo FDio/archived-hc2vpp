@@ -31,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRange;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRange;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class AclWriterFactory implements WriterFactory {
@@ -46,8 +48,10 @@ public final class AclWriterFactory implements WriterFactory {
         final InstanceIdentifier<Ace> aceId = aclIdRelative.child(AccessListEntries.class).child(Ace.class);
         final InstanceIdentifier<Actions> actionsId = aceId.child(Actions.class);
         final InstanceIdentifier<Matches> matchesId = aceId.child(Matches.class);
+        final InstanceIdentifier<SourcePortRange> srcPortId = matchesId.child((Class)SourcePortRange.class);
+        final InstanceIdentifier<DestinationPortRange> dstPortId = matchesId.child((Class)DestinationPortRange.class);
 
-        registry.subtreeAddBefore(Sets.newHashSet(aceId, actionsId, matchesId),
+        registry.subtreeAddBefore(Sets.newHashSet(aceId, actionsId, matchesId, srcPortId, dstPortId),
             new GenericListWriter<>(ACL_ID, new IetfAclWriter()),
             Sets.newHashSet(IETF_ACL_ID, SUBIF_IETF_ACL_ID));
     }

@@ -25,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpHeaderFields;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv6HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
-import org.slf4j.Logger;
 
 public interface Ip6AclTranslator {
 
@@ -38,9 +37,11 @@ public interface Ip6AclTranslator {
     int IP6_LEN = 16;
     int SRC_IP_OFFSET = IP_VERSION_OFFSET + 8;
     int DST_IP_OFFSET = SRC_IP_OFFSET + IP6_LEN;
+    int SRC_PORT_OFFSET = DST_IP_OFFSET + IP6_LEN;
+    int DST_PORT_OFFSET = SRC_PORT_OFFSET + 2;
 
     default boolean ip6Mask(final int baseOffset, final InterfaceMode mode, final AclIpHeaderFields header,
-                            final AclIpv6HeaderFields ip6, final ClassifyAddDelTable request, final Logger log) {
+                            final AclIpv6HeaderFields ip6, final ClassifyAddDelTable request) {
         boolean aceIsEmpty = true;
         if (InterfaceMode.L2.equals(mode)) {
             // in L2 mode we need to match ether type
@@ -65,10 +66,16 @@ public interface Ip6AclTranslator {
             request.mask[baseOffset + IP_VERSION_OFFSET + 3] = (byte) 0xff;
         }
         if (header.getSourcePortRange() != null) {
-            log.warn("L4 Header fields are not supported. Ignoring {}", header.getSourcePortRange());
+            // TODO (HONEYCOMB-253): port matching will not work correctly if Options are present
+            aceIsEmpty = false;
+            request.mask[baseOffset + SRC_PORT_OFFSET] = (byte) 0xff;
+            request.mask[baseOffset + SRC_PORT_OFFSET + 1] = (byte) 0xff;
         }
         if (header.getDestinationPortRange() != null) {
-            log.warn("L4 Header fields are not supported. Ignoring {}", header.getDestinationPortRange());
+            // TODO (HONEYCOMB-253): port matching will not work correctly if Options are present
+            aceIsEmpty = false;
+            request.mask[baseOffset + DST_PORT_OFFSET] = (byte) 0xff;
+            request.mask[baseOffset + DST_PORT_OFFSET + 1] = (byte) 0xff;
         }
         if (ip6.getSourceIpv6Network() != null) {
             aceIsEmpty = false;
@@ -84,7 +91,7 @@ public interface Ip6AclTranslator {
     }
 
     default boolean ip6Match(final int baseOffset, final InterfaceMode mode, final AclIpHeaderFields header,
-                             final AclIpv6HeaderFields ip6, final ClassifyAddDelSession request, final Logger log) {
+                             final AclIpv6HeaderFields ip6, final Integer srcPort, final Integer dstPort, final ClassifyAddDelSession request) {
         boolean noMatch = true;
         if (InterfaceMode.L2.equals(mode)) {
             // match IP6 etherType (0x86dd)
@@ -111,10 +118,16 @@ public interface Ip6AclTranslator {
             request.match[baseOffset + IP_VERSION_OFFSET + 3] = (byte) (0xff & flowLabel);
         }
         if (header.getSourcePortRange() != null) {
-            log.warn("L4 Header fields are not supported. Ignoring {}", header.getSourcePortRange());
+            // TODO (HONEYCOMB-253): port matching will not work correctly if Options are present
+            noMatch = false;
+            request.match[baseOffset + SRC_PORT_OFFSET] = (byte) (0xff & srcPort >> 8);
+            request.match[baseOffset + SRC_PORT_OFFSET + 1] = (byte) (0xff & srcPort);
         }
         if (header.getDestinationPortRange() != null) {
-            log.warn("L4 Header fields are not supported. Ignoring {}", header.getDestinationPortRange());
+            // TODO (HONEYCOMB-253): port matching will not work correctly if Options are present
+            noMatch = false;
+            request.match[baseOffset + DST_PORT_OFFSET] = (byte) (0xff & dstPort >> 8);
+            request.match[baseOffset + DST_PORT_OFFSET + 1] = (byte) (0xff & dstPort);
         }
         if (ip6.getSourceIpv6Network() != null) {
             noMatch = false;

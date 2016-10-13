@@ -24,10 +24,10 @@ final class AceIpWriterTestUtils {
         throw new UnsupportedOperationException("This utility class cannot be instantiated");
     }
 
-    protected static void assertArrayEqualsWithOffset(final byte[] baseExpected, final byte[] actual,
+    protected static void assertArrayEqualsWithOffset(final byte[] baseExpected, final int expectedLength, final byte[] actual,
                                                       final int offset) {
-        byte[] expected = new byte[baseExpected.length];
-        System.arraycopy(baseExpected, 0, expected, offset, expected.length - offset);
+        byte[] expected = new byte[expectedLength];
+        System.arraycopy(baseExpected, 0, expected, offset, Math.min(baseExpected.length, expectedLength-offset));
 
         assertArrayEquals(expected, actual);
     }

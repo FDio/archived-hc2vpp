@@ -27,6 +27,9 @@ import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.DenyBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEth;
@@ -49,6 +52,8 @@ public class AceIpAndEthWriterTest {
             .setSourceMacAddress(new MacAddress("aa:bb:cc:dd:ee:ff"))
             .setAceIpVersion(new AceIpv4Builder()
                 .setSourceIpv4Network(new Ipv4Prefix("1.2.3.4/32")).build())
+            .setSourcePortRange(new SourcePortRangeBuilder().setLowerPort(new PortNumber(0x1111)).build())
+            .setDestinationPortRange(new DestinationPortRangeBuilder().setLowerPort(new PortNumber(0x2222)).build())
             .build();
     }
 
@@ -78,8 +83,10 @@ public class AceIpAndEthWriterTest {
             -1, -1, -1, -1,
             // destination address:
             0, 0, 0, 0,
+            // source and destination port:
+            -1, -1, -1, -1,
             // padding:
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
         assertArrayEquals(expectedMask, request.mask);
     }
@@ -87,7 +94,7 @@ public class AceIpAndEthWriterTest {
     @Test
     public void testCreateClassifySession() {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createSession(action, ace, InterfaceMode.L2, tableIndex, 0);
+        final ClassifyAddDelSession request = writer.createSession(action, ace, InterfaceMode.L2, tableIndex, 0).get(0);
 
         assertEquals(1, request.isAdd);
         assertEquals(tableIndex, request.tableIndex);
@@ -106,8 +113,10 @@ public class AceIpAndEthWriterTest {
             1, 2, 3, 4,
             // destination address:
             0, 0, 0, 0,
+            // source and destination port:
+            0x11, 0x11, 0x22, 0x22,
             // padding:
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         };
         assertArrayEquals(expectedMatch, request.match);
     }

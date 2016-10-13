@@ -157,8 +157,10 @@ public class ClassifySessionReader extends FutureJVppCustomizer
 
         final ClassifySessionDump dumpRequest = new ClassifySessionDump();
         dumpRequest.tableId = tableId;
+        final int timeOut = 30; // there can be many session with current ietf-acl implementation (could be probably
+        // removed after fixing HONEYCOMB-247)
         classifySessionDump =
-                getReplyForRead(getFutureJVpp().classifySessionDump(dumpRequest).toCompletableFuture(), id);
+                getReplyForRead(getFutureJVpp().classifySessionDump(dumpRequest).toCompletableFuture(), id, timeOut);
 
         if (classifySessionDump != null) {
             // update the cache:

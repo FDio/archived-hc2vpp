@@ -76,7 +76,7 @@ public class AceEthWriterTest {
     @Test
     public void testCreateClassifySession() {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createSession(action, aceEth, InterfaceMode.L2, tableIndex, 0);
+        final ClassifyAddDelSession request = writer.createSession(action, aceEth, InterfaceMode.L2, tableIndex, 0).get(0);
 
         assertEquals(1, request.isAdd);
         assertEquals(tableIndex, request.tableIndex);

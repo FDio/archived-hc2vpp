@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpHeaderFields;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv4HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
-import org.slf4j.Logger;
 
 public interface Ip4AclTranslator extends Ipv4Translator {
     int ETHER_TYPE_OFFSET = 12; // first 14 bytes represent L2 header (2x6)
@@ -38,9 +37,11 @@ public interface Ip4AclTranslator extends Ipv4Translator {
     int IP4_MASK_BIT_LENGTH = 32;
     int SRC_IP_OFFSET = ETHER_TYPE_OFFSET + 14;
     int DST_IP_OFFSET = SRC_IP_OFFSET + IP4_LEN;
+    int SRC_PORT_OFFSET = DST_IP_OFFSET + IP4_LEN;
+    int DST_PORT_OFFSET = SRC_PORT_OFFSET + 2;
 
     default boolean ip4Mask(final int baseOffset, final InterfaceMode mode, final AclIpHeaderFields header,
-                            final AclIpv4HeaderFields ip4, final ClassifyAddDelTable request, final Logger log) {
+                            final AclIpv4HeaderFields ip4, final ClassifyAddDelTable request) {
         boolean aceIsEmpty = true;
         if (InterfaceMode.L2.equals(mode)) {
             // in L2 mode we need to match ether type
@@ -56,10 +57,16 @@ public interface Ip4AclTranslator extends Ipv4Translator {
             request.mask[baseOffset + IP_PROTOCOL_OFFSET] = (byte) IP_PROTOCOL_MASK;
         }
         if (header.getSourcePortRange() != null) {
-            log.warn("L4 Header fields are not supported. Ignoring {}", header.getSourcePortRange());
+            // TODO (HONEYCOMB-253): port matching will not work correctly if Options are present
+            aceIsEmpty = false;
+            request.mask[baseOffset + SRC_PORT_OFFSET] = (byte) 0xff;
+            request.mask[baseOffset + SRC_PORT_OFFSET + 1] = (byte) 0xff;
         }
         if (header.getDestinationPortRange() != null) {
-            log.warn("L4 Header fields are not supported. Ignoring {}", header.getDestinationPortRange());
+            // TODO (HONEYCOMB-253): port matching will not work correctly if Options are present
+            aceIsEmpty = false;
+            request.mask[baseOffset + DST_PORT_OFFSET] = (byte) 0xff;
+            request.mask[baseOffset + DST_PORT_OFFSET + 1] = (byte) 0xff;
         }
         if (ip4.getSourceIpv4Network() != null) {
             aceIsEmpty = false;
@@ -75,7 +82,8 @@ public interface Ip4AclTranslator extends Ipv4Translator {
     }
 
     default boolean ip4Match(final int baseOffset, final InterfaceMode mode, final AclIpHeaderFields header,
-                             final AclIpv4HeaderFields ip4, final ClassifyAddDelSession request, final Logger log) {
+                             final AclIpv4HeaderFields ip4, final Integer srcPort,
+                             final Integer dstPort, final ClassifyAddDelSession request) {
         boolean noMatch = true;
         if (InterfaceMode.L2.equals(mode)) {
             // match IP4 etherType (0x0800)
@@ -90,11 +98,17 @@ public interface Ip4AclTranslator extends Ipv4Translator {
             noMatch = false;
             request.match[baseOffset + IP_PROTOCOL_OFFSET] = (byte) (IP_PROTOCOL_MASK & header.getProtocol());
         }
-        if (header.getSourcePortRange() != null) {
-            log.warn("L4 Header fields are not supported. Ignoring {}", header.getSourcePortRange());
+        if (srcPort != null) {
+            // TODO (HONEYCOMB-253): port matching will not work correctly if Options are present
+            noMatch = false;
+            request.match[baseOffset + SRC_PORT_OFFSET] = (byte) (0xff & srcPort >> 8);
+            request.match[baseOffset + SRC_PORT_OFFSET + 1] = (byte) (0xff & srcPort);
         }
         if (header.getDestinationPortRange() != null) {
-            log.warn("L4 Header fields are not supported. Ignoring {}", header.getDestinationPortRange());
+            // TODO (HONEYCOMB-253): port matching will not work correctly if Options are present
+            noMatch = false;
+            request.match[baseOffset + DST_PORT_OFFSET] = (byte) (0xff & dstPort >> 8);
+            request.match[baseOffset + DST_PORT_OFFSET + 1] = (byte) (0xff & dstPort);
         }
         if (ip4.getSourceIpv4Network() != null) {
             noMatch = false;

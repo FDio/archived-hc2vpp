@@ -85,9 +85,10 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
 
         // ietf-acl updates are handled first, so we use writeContext.readAfter
         final Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl>
-            aclOptional = writeContext.readAfter(io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclWriter.ACL_ID.child(
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
-            new AclKey(aclName, aclType)));
+            aclOptional =
+            writeContext.readAfter(io.fd.honeycomb.translate.v3po.interfaces.acl.IetfAclWriter.ACL_ID.child(
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl.class,
+                new AclKey(aclName, aclType)));
         checkArgument(aclOptional.isPresent(), "Acl lists not configured");
         final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl
             acl = aclOptional.get();
@@ -157,7 +158,8 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
         if (aceType instanceof AceEth) {
             return true;  // L2 only rules are possible for IP4 traffic
         }
-        if (aceType instanceof AceIpAndEth && ((AceIpAndEth)aceType).getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv4) {
+        if (aceType instanceof AceIpAndEth && ((AceIpAndEth) aceType)
+            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv4) {
             return true;
         }
         return false;
@@ -171,7 +173,8 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
         if (aceType instanceof AceEth) {
             return true; // L2 only rules are possible for IP6 traffic
         }
-        if (aceType instanceof AceIpAndEth && ((AceIpAndEth)aceType).getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv6) {
+        if (aceType instanceof AceIpAndEth && ((AceIpAndEth) aceType)
+            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv6) {
             return true;
         }
         return false;
@@ -206,7 +209,7 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
     }
 
     private static List<Ace> getACEs(@Nonnull final List<Acl> acls, @Nonnull final WriteContext writeContext,
-                                           final Predicate<? super Ace> filter) {
+                                     final Predicate<? super Ace> filter) {
         return acls.stream().flatMap(acl -> aclToAceStream(acl, writeContext)).filter(filter)
             .collect(Collectors.toList());
     }
@@ -233,9 +236,11 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
                 final PacketHandling action = ace.getActions().getPacketHandling();
                 final ClassifyAddDelTable ctRequest = aceWriter.createTable(aceType, mode, nextTableIndex, vlanTags);
                 nextTableIndex = createClassifyTable(id, ctRequest);
-                final ClassifyAddDelSession csRequest =
+                final List<ClassifyAddDelSession> sessionRequests =
                     aceWriter.createSession(action, aceType, mode, nextTableIndex, vlanTags);
-                createClassifySession(id, csRequest);
+                for (ClassifyAddDelSession csRequest : sessionRequests) {
+                    createClassifySession(id, csRequest);
+                }
             }
         }
         return nextTableIndex;

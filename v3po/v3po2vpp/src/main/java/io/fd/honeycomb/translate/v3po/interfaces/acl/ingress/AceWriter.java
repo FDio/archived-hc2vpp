@@ -18,6 +18,7 @@ package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
@@ -48,6 +49,6 @@ interface AceWriter<T extends AceType> {
      * @param vlanTags   number of vlan tags
      */
     @Nonnull
-    ClassifyAddDelSession createSession(@Nonnull final PacketHandling action, @Nonnull T ace,
-                                        @Nullable final InterfaceMode mode, final int tableIndex, final int vlanTags);
+    List<ClassifyAddDelSession> createSession(@Nonnull final PacketHandling action, @Nonnull T ace,
+                                              @Nullable final InterfaceMode mode, final int tableIndex, final int vlanTags);
 }

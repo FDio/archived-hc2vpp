@@ -16,8 +16,11 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
@@ -26,21 +29,28 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
  * Utility that helps translating of ietf-acl model ACEs to VPP's classify tables and sessions.
  */
 interface AclTranslator {
-
-    // TODO: HONEYCOMB-181 minimise memory used by classify tables (we create a lot of them to make ietf-acl model
-    // mapping more convenient):
-    // according to https://wiki.fd.io/view/VPP/Introduction_To_N-tuple_Classifiers#Creating_a_classifier_table,
-    // classify table needs 16*(1 + match_n_vectors) bytes, but this does not quite work, so setting 8K for now
     int TABLE_MEM_SIZE = 8 * 1024;
     int VLAN_TAG_LEN = 4;
 
     default ClassifyAddDelTable createTable(final int nextTableIndex) {
+        return createTable(nextTableIndex, 1);
+    }
+
+    default ClassifyAddDelTable createTable(final int nextTableIndex, @Nonnegative final int numberOfSessions) {
         final ClassifyAddDelTable request = new ClassifyAddDelTable();
         request.isAdd = 1;
         request.tableIndex = -1; // value not present
-        request.nbuckets = 1; // we expect exactly one session per table
+        request.nbuckets = numberOfSessions;
         request.nextTableIndex = nextTableIndex;
-        request.memorySize = TABLE_MEM_SIZE;
+
+
+        // TODO: HONEYCOMB-181 minimise memory used by classify tables (we create a lot of them to make ietf-acl model
+        // mapping more convenient):
+        // according to https://wiki.fd.io/view/VPP/Introduction_To_N-tuple_Classifiers#Creating_a_classifier_table,
+        // classify table needs 16*(1 + match_n_vectors) bytes, but this does not quite work,
+        // so setting 8K +1k*numberOfSessions for now
+        checkArgument(numberOfSessions>0, "negative numberOfSessions %s", numberOfSessions);
+        request.memorySize = TABLE_MEM_SIZE+1024*(numberOfSessions-1);
         request.missNextIndex = -1; // value not set, but anyway it is ignored for tables in chain
         return request;
     }

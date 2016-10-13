@@ -19,6 +19,8 @@ package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 import com.google.common.annotations.VisibleForTesting;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
@@ -60,11 +62,11 @@ final class AceEthWriter implements AceWriter<AceEth>, AclTranslator, L2AclTrans
     }
 
     @Override
-    public ClassifyAddDelSession createSession(@Nonnull final PacketHandling action,
-                                               @Nonnull final AceEth aceEth,
-                                               @Nullable final InterfaceMode mode,
-                                               final int tableIndex,
-                                               final int vlanTags) {
+    public List<ClassifyAddDelSession> createSession(@Nonnull final PacketHandling action,
+                                                     @Nonnull final AceEth aceEth,
+                                                     @Nullable final InterfaceMode mode,
+                                                     final int tableIndex,
+                                                     final int vlanTags) {
         final ClassifyAddDelSession request = createSession(action, tableIndex);
 
         request.match = new byte[16];
@@ -78,6 +80,6 @@ final class AceEthWriter implements AceWriter<AceEth>, AclTranslator, L2AclTrans
         }
 
         LOG.debug("ACE action={}, rule={} translated to session={}.", action, aceEth, request);
-        return request;
+        return Collections.singletonList(request);
     }
 }
