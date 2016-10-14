@@ -17,6 +17,7 @@
 package io.fd.honeycomb.vppnsh.impl.util;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
 import java.io.IOException;
 import io.fd.vpp.jvpp.JVppRegistry;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * Provides future API for jvpp-nsh plugin. Must be a singleton due to shutdown hook usage.
  * Registers shutdown hook to free plugin's resources on shutdown.
  */
-public final class JVppNshProvider extends ProviderTrait<FutureJVppNsh> {
+public final class JVppNshProvider extends ProviderTrait<FutureJVppNshFacade> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JVppNshProvider.class);
 

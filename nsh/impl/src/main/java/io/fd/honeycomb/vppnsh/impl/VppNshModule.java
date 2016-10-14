@@ -16,10 +16,12 @@
 
 package io.fd.honeycomb.vppnsh.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import com.google.inject.Provider;
 import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -29,6 +31,7 @@ import io.fd.honeycomb.vppnsh.impl.init.VppNshInitializer;
 import io.fd.honeycomb.vppnsh.impl.oper.VppNshReaderFactory;
 import io.fd.honeycomb.vppnsh.impl.util.JVppNshProvider;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +41,15 @@ import org.slf4j.LoggerFactory;
 public final class VppNshModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppNshModule.class);
+    private final Class<? extends Provider<FutureJVppNshFacade>> jvppNshProviderClass;
+
+    public VppNshModule() {
+        this(JVppNshProvider.class);
+    }
+    @VisibleForTesting
+    VppNshModule(Class<? extends Provider<FutureJVppNshFacade>> jvppNshProvider) {
+        this.jvppNshProviderClass = jvppNshProvider;
+    }
 
     @Override
     protected void configure() {
@@ -53,7 +65,7 @@ public final class VppNshModule extends AbstractModule {
             .toInstance(new NamingContext("nsh-map-", "nsh-map-context"));
 
         // Bind to Plugin's JVPP.
-        bind(FutureJVppNsh.class).toProvider(JVppNshProvider.class).in(Singleton.class);
+        bind(FutureJVppNsh.class).toProvider(jvppNshProviderClass).in(Singleton.class);
 
         // Below are classes picked up by HC framework
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(VppNshWriterFactory.class);

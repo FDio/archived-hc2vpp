@@ -55,6 +55,16 @@
       <artifactId>guice-multibindings</artifactId>
       <version>${guice.version}</version>
     </dependency>
+    <dependency>
+        <groupId>com.google.inject.extensions</groupId>
+        <artifactId>guice-testlib</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-all</artifactId>
+        <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
