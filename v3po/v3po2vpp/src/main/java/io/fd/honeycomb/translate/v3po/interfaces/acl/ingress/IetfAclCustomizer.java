@@ -25,8 +25,8 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +41,10 @@ import org.slf4j.LoggerFactory;
 public class IetfAclCustomizer implements WriterCustomizer<Ingress> {
 
     private static final Logger LOG = LoggerFactory.getLogger(IetfAclCustomizer.class);
-    private final IetfAclWriter aclWriter;
+    private final IngressIetfAclWriter aclWriter;
     private final NamingContext interfaceContext;
 
-    public IetfAclCustomizer(@Nonnull final IetfAclWriter aclWriter,
+    public IetfAclCustomizer(@Nonnull final IngressIetfAclWriter aclWriter,
                              @Nonnull final NamingContext interfaceContext) {
         this.aclWriter = checkNotNull(aclWriter, "aclWriter should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
 import io.fd.honeycomb.translate.vpp.util.MacTranslator;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
@@ -22,7 +22,7 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 
-public interface L2AclTranslator extends MacTranslator {
+interface L2AclTranslator extends MacTranslator {
 
     default boolean destinationMacAddressMask(final MacAddress dstMask, final MacAddress dstAddress,
                                               final ClassifyAddDelTable request) {

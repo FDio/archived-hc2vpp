@@ -48,10 +48,10 @@ import org.slf4j.LoggerFactory;
 public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIetfAclCustomizer.class);
-    private final IetfAclWriter aclWriter;
+    private final IngressIetfAclWriter aclWriter;
     private final NamingContext interfaceContext;
 
-    public SubInterfaceIetfAclCustomizer(@Nonnull final IetfAclWriter aclWriter,
+    public SubInterfaceIetfAclCustomizer(@Nonnull final IngressIetfAclWriter aclWriter,
                                          @Nonnull final NamingContext interfaceContext) {
         this.aclWriter = checkNotNull(aclWriter, "aclWriter should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
@@ -61,7 +61,7 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
         final InterfaceKey parentInterfacekey = id.firstKeyOf(Interface.class);
         final SubInterfaceKey subInterfacekey = id.firstKeyOf(SubInterface.class);
         return SubInterfaceUtils
-                .getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
+            .getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
     }
 
     @Override
@@ -73,15 +73,16 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
 
         final AccessLists accessLists = dataAfter.getAccessLists();
         checkArgument(accessLists != null && accessLists.getAcl() != null,
-                "ietf-acl container does not define acl list");
+            "ietf-acl container does not define acl list");
 
         final Optional<SubInterface> subInterfaceOptional =
-                writeContext.readAfter(id.firstIdentifierOf(SubInterface.class));
+            writeContext.readAfter(id.firstIdentifierOf(SubInterface.class));
         checkState(subInterfaceOptional.isPresent(), "Could not read SubInterface data object for %s", id);
         final SubInterface subInterface = subInterfaceOptional.get();
 
-        aclWriter.write(id, subInterfaceIndex, accessLists.getMode(), accessLists.getAcl(),
-            accessLists.getDefaultAction(), writeContext, getNumberOfTags(subInterface.getTags()));
+        aclWriter
+            .write(id, subInterfaceIndex, accessLists.getAcl(), accessLists.getDefaultAction(), accessLists.getMode(),
+                writeContext, getNumberOfTags(subInterface.getTags()));
     }
 
     @Override
@@ -98,7 +99,7 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ingress> id,
                                         @Nonnull final Ingress dataBefore, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
+        throws WriteFailedException {
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
         LOG.debug("Removing ACLs for sub-interface={}(id={}): {}", subInterfaceName, subInterfaceIndex, dataBefore);

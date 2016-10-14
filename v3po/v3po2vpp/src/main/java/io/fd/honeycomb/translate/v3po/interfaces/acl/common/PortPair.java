@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
 import java.util.ArrayList;
 import java.util.List;

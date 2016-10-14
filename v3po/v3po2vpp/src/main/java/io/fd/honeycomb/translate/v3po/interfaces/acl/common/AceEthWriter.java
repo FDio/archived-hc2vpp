@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;

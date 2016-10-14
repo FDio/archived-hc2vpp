@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -26,67 +26,49 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.DenyBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEthBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEthBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv4Builder;
 
-public class AceIpAndEthWriterTest {
+public class AceEthWriterTest {
 
-    private AceIpAndEthWriter writer;
+    private AceEthWriter writer;
     private PacketHandling action;
-    private AceIpAndEth ace;
+    private AceEth aceEth;
 
     @Before
     public void setUp() {
         initMocks(this);
-        writer = new AceIpAndEthWriter();
+        writer = new AceEthWriter();
         action = new DenyBuilder().setDeny(true).build();
-        ace = new AceIpAndEthBuilder()
+        aceEth = new AceEthBuilder()
             .setDestinationMacAddress(new MacAddress("11:22:33:44:55:66"))
+            .setDestinationMacAddressMask(new MacAddress("ff:ff:ff:ff:ff:ff"))
             .setSourceMacAddress(new MacAddress("aa:bb:cc:dd:ee:ff"))
-            .setAceIpVersion(new AceIpv4Builder()
-                .setSourceIpv4Network(new Ipv4Prefix("1.2.3.4/32")).build())
-            .setSourcePortRange(new SourcePortRangeBuilder().setLowerPort(new PortNumber(0x1111)).build())
-            .setDestinationPortRange(new DestinationPortRangeBuilder().setLowerPort(new PortNumber(0x2222)).build())
+            .setSourceMacAddressMask(new MacAddress("ff:ff:ff:00:00:00"))
             .build();
     }
 
     @Test
     public void testCreateTable() {
         final int nextTableIndex = 42;
-        final ClassifyAddDelTable request = writer.createTable(ace, InterfaceMode.L2, nextTableIndex, 0);
+        final ClassifyAddDelTable request = writer.createTable(aceEth, InterfaceMode.L2, nextTableIndex, 0);
 
         assertEquals(1, request.isAdd);
         assertEquals(-1, request.tableIndex);
         assertEquals(1, request.nbuckets);
         assertEquals(nextTableIndex, request.nextTableIndex);
         assertEquals(0, request.skipNVectors);
-        assertEquals(3, request.matchNVectors);
+        assertEquals(AceEthWriter.MATCH_N_VECTORS, request.matchNVectors);
         assertEquals(AceEthWriter.TABLE_MEM_SIZE, request.memorySize);
 
         byte[] expectedMask = new byte[] {
             // destination MAC:
-            -1, -1, -1, -1, -1, -1,
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             // source MAC:
-            -1, -1, -1, -1, -1, -1,
-            // ether type:
-            -1, -1,
-            // IP header
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            // source address:
-            -1, -1, -1, -1,
-            // destination address:
-            0, 0, 0, 0,
-            // source and destination port:
-            -1, -1, -1, -1,
-            // padding:
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, 0, 0, 0,
+            0, 0, 0, 0
         };
         assertArrayEquals(expectedMask, request.mask);
     }
@@ -94,7 +76,7 @@ public class AceIpAndEthWriterTest {
     @Test
     public void testCreateClassifySession() {
         final int tableIndex = 123;
-        final ClassifyAddDelSession request = writer.createSession(action, ace, InterfaceMode.L2, tableIndex, 0).get(0);
+        final ClassifyAddDelSession request = writer.createSession(action, aceEth, InterfaceMode.L2, tableIndex, 0).get(0);
 
         assertEquals(1, request.isAdd);
         assertEquals(tableIndex, request.tableIndex);
@@ -105,18 +87,7 @@ public class AceIpAndEthWriterTest {
             (byte) 0x11, (byte) 0x22, (byte) 0x33, (byte) 0x44, (byte) 0x55, (byte) 0x66,
             // source MAC:
             (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff,
-            // ether type (IP4):
-            0x08, 0,
-            // IP header
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            // source address:
-            1, 2, 3, 4,
-            // destination address:
-            0, 0, 0, 0,
-            // source and destination port:
-            0x11, 0x11, 0x22, 0x22,
-            // padding:
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            0, 0, 0, 0
         };
         assertArrayEquals(expectedMatch, request.match);
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class AceIpAndEthWriter
+public final class AceIpAndEthWriter
     implements AceWriter<AceIpAndEth>, AclTranslator, L2AclTranslator, Ip4AclTranslator, Ip6AclTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(AceIpAndEthWriter.class);

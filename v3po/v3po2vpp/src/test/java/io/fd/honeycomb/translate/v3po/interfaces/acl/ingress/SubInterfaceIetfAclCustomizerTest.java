@@ -70,7 +70,7 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
     @Override
     protected void setUp() {
         customizer =
-            new SubInterfaceIetfAclCustomizer(new IetfAclWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
+            new SubInterfaceIetfAclCustomizer(new IngressIetfAclWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
 
         acl = new IngressBuilder().setAccessLists(

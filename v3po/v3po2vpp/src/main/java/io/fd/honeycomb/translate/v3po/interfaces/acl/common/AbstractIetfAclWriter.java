@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -27,10 +27,6 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
-import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +36,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AclBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.AccessListEntries;
@@ -62,15 +56,15 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
+public abstract class AbstractIetfAclWriter implements IetfAclWriter, JvppReplyConsumer, AclTranslator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IetfAclWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractIetfAclWriter.class);
     private static final int NOT_DEFINED = -1;
-    private final FutureJVppCore jvpp;
+    protected final FutureJVppCore jvpp;
 
     private Map<AclType, AceWriter<? extends AceType>> aceWriters = new HashMap<>();
 
-    public IetfAclWriter(@Nonnull final FutureJVppCore futureJVppCore) {
+    public AbstractIetfAclWriter(@Nonnull final FutureJVppCore futureJVppCore) {
         this.jvpp = Preconditions.checkNotNull(futureJVppCore, "futureJVppCore should not be null");
         aceWriters.put(AclType.ETH, new AceEthWriter());
         aceWriters.put(AclType.IP4, new AceIp4Writer());
@@ -99,39 +93,7 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
         return accessListEntries.getAce().stream();
     }
 
-    void deleteAcl(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex)
-        throws WriteFailedException {
-        final ClassifyTableByInterface request = new ClassifyTableByInterface();
-        request.swIfIndex = swIfIndex;
-
-        final CompletionStage<ClassifyTableByInterfaceReply> cs = jvpp.classifyTableByInterface(request);
-        final ClassifyTableByInterfaceReply reply = getReplyForDelete(cs.toCompletableFuture(), id);
-
-        // We unassign and remove all ACL-related classify tables for given interface (we assume we are the only
-        // classify table manager)
-
-        unassignClassifyTables(id, reply);
-
-        removeClassifyTable(id, reply.l2TableId);
-        removeClassifyTable(id, reply.ip4TableId);
-        removeClassifyTable(id, reply.ip6TableId);
-    }
-
-    private void unassignClassifyTables(@Nonnull final InstanceIdentifier<?> id,
-                                        final ClassifyTableByInterfaceReply currentState)
-        throws WriteFailedException {
-        final InputAclSetInterface request = new InputAclSetInterface();
-        request.isAdd = 0;
-        request.swIfIndex = currentState.swIfIndex;
-        request.l2TableIndex = currentState.l2TableId;
-        request.ip4TableIndex = currentState.ip4TableId;
-        request.ip6TableIndex = currentState.ip6TableId;
-        final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
-            jvpp.inputAclSetInterface(request);
-        getReplyForDelete(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
-    }
-
-    private void removeClassifyTable(@Nonnull final InstanceIdentifier<?> id, final int tableIndex)
+    protected void removeClassifyTable(@Nonnull final InstanceIdentifier<?> id, final int tableIndex)
         throws WriteFailedException {
 
         if (tableIndex == -1) {
@@ -143,14 +105,7 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
         getReplyForDelete(cs.toCompletableFuture(), id);
     }
 
-    void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, @Nonnull final List<Acl> acls,
-               final AccessLists.DefaultAction defaultAction, @Nullable final InterfaceMode mode,
-               @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
-        write(id, swIfIndex, mode, acls, defaultAction, writeContext, 0);
-    }
-
-    private static boolean appliesToIp4Path(final Ace ace) {
+    protected static boolean appliesToIp4Path(final Ace ace) {
         final AceType aceType = ace.getMatches().getAceType();
         final AclType aclType = AclType.fromAce(ace);
         if (aclType == AclType.IP4) {
@@ -166,7 +121,7 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
         return false;
     }
 
-    private static boolean appliesToIp6Path(final Ace ace) {
+    protected static boolean appliesToIp6Path(final Ace ace) {
         final AceType aceType = ace.getMatches().getAceType();
         final AclType aclType = AclType.fromAce(ace);
         if (aclType == AclType.IP6) {
@@ -182,43 +137,15 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
         return false;
     }
 
-    void write(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex, final InterfaceMode mode,
-               @Nonnull final List<Acl> acls, final AccessLists.DefaultAction defaultAction,
-               @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags)
-        throws WriteFailedException {
-        checkArgument(numberOfTags >= 0 && numberOfTags <= 2, "Number of vlan tags %s is not in [0,2] range");
-
-        final InputAclSetInterface request = new InputAclSetInterface();
-        request.isAdd = 1;
-        request.swIfIndex = swIfIndex;
-        request.l2TableIndex = NOT_DEFINED;
-        request.ip4TableIndex = NOT_DEFINED;
-        request.ip6TableIndex = NOT_DEFINED;
-
-        if (InterfaceMode.L2.equals(mode)) {
-            final List<Ace> aces = getACEs(acls, writeContext, ace -> true);
-            request.l2TableIndex = writeAces(id, aces, defaultAction, mode, numberOfTags);
-        } else {
-            final List<Ace> ip4Aces = getACEs(acls, writeContext, (IetfAclWriter::appliesToIp4Path));
-            request.ip4TableIndex = writeAces(id, ip4Aces, defaultAction, mode, numberOfTags);
-            final List<Ace> ip6Aces = getACEs(acls, writeContext, (IetfAclWriter::appliesToIp6Path));
-            request.ip6TableIndex = writeAces(id, ip6Aces, defaultAction, mode, numberOfTags);
-        }
-
-        final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
-            jvpp.inputAclSetInterface(request);
-        getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
-    }
-
-    private static List<Ace> getACEs(@Nonnull final List<Acl> acls, @Nonnull final WriteContext writeContext,
-                                     final Predicate<? super Ace> filter) {
+    protected static List<Ace> getACEs(@Nonnull final List<Acl> acls, @Nonnull final WriteContext writeContext,
+                                       final Predicate<? super Ace> filter) {
         return acls.stream().flatMap(acl -> aclToAceStream(acl, writeContext)).filter(filter)
             .collect(Collectors.toList());
     }
 
-    private int writeAces(final InstanceIdentifier<?> id, final List<Ace> aces,
-                          final AccessLists.DefaultAction defaultAction, final InterfaceMode mode,
-                          final int vlanTags) throws WriteFailedException {
+    protected int writeAces(final InstanceIdentifier<?> id, final List<Ace> aces,
+                            final AccessLists.DefaultAction defaultAction, final InterfaceMode mode,
+                            final int vlanTags) throws WriteFailedException {
         if (aces.isEmpty()) {
             return NOT_DEFINED;
         }

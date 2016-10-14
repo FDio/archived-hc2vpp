@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
 import com.google.common.primitives.Ints;
 import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fiel
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv4HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
 
-public interface Ip4AclTranslator extends Ipv4Translator {
+interface Ip4AclTranslator extends Ipv4Translator {
     int ETHER_TYPE_OFFSET = 12; // first 14 bytes represent L2 header (2x6)
     int DSCP_OFFSET = 15;
     int DSCP_MASK = 0xfc;

@@ -23,16 +23,18 @@ import com.google.common.collect.Sets;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.RewriteCustomizer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.SubInterfaceL2Customizer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.egress.EgressIetfAclWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.SubInterfaceIetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.Ip6Acl;
@@ -54,12 +56,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public final class SubinterfaceAugmentationWriterFactory implements WriterFactory {
 
     private final FutureJVppCore jvpp;
-    private final IetfAclWriter aclWriter;
+    private final IngressIetfAclWriter ingressAclWriter;
+    private final EgressIetfAclWriter egressAclWriter;
     private final NamingContext ifcContext;
     private final NamingContext bdContext;
     private final VppClassifierContextManager classifyTableContext;
@@ -79,10 +81,12 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.ietf.acl.Egress.class);
 
     public SubinterfaceAugmentationWriterFactory(final FutureJVppCore jvpp,
-                                                 final IetfAclWriter aclWriter,
+                                                 final IngressIetfAclWriter ingressAclWriter,
+                                                 final EgressIetfAclWriter egressAclWriter,
             final NamingContext ifcContext, final NamingContext bdContext, final VppClassifierContextManager classifyTableContext) {
         this.jvpp = jvpp;
-        this.aclWriter = aclWriter;
+        this.ingressAclWriter = ingressAclWriter;
+        this.egressAclWriter = egressAclWriter;
         this.ifcContext = ifcContext;
         this.bdContext = bdContext;
         this.classifyTableContext = classifyTableContext;
@@ -138,7 +142,7 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.access.lists.Acl.class);
         registry.subtreeAdd(
             Sets.newHashSet(accessListsIdIngress, aclIdIngress),
-            new GenericWriter<>(SUBIF_INGRESS_IETF_ACL_ID, new SubInterfaceIetfAclCustomizer(aclWriter, ifcContext)));
+            new GenericWriter<>(SUBIF_INGRESS_IETF_ACL_ID, new SubInterfaceIetfAclCustomizer(ingressAclWriter, ifcContext)));
 
         // Egress IETF-ACL, also handles AccessLists and Acl:
         final InstanceIdentifier<AccessLists> accessListsIdEgress = InstanceIdentifier.create(
@@ -148,6 +152,7 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.access.lists.Acl.class);
         registry.subtreeAdd(
             Sets.newHashSet(accessListsIdEgress, aclIdEgress),
-            new GenericWriter<>(SUBIF_EGRESS_IETF_ACL_ID, new io.fd.honeycomb.translate.v3po.interfaces.acl.egress.SubInterfaceIetfAclCustomizer(aclWriter, ifcContext)));
+            new GenericWriter<>(SUBIF_EGRESS_IETF_ACL_ID, new io.fd.honeycomb.translate.v3po.interfaces.acl.egress.SubInterfaceIetfAclCustomizer(
+                egressAclWriter, ifcContext)));
     }
 }

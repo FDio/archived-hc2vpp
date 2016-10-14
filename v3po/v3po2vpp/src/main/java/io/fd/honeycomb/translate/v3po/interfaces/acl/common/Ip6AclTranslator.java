@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
+package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fiel
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv6HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
 
-public interface Ip6AclTranslator {
+interface Ip6AclTranslator {
 
     int ETHER_TYPE_OFFSET = 12; // first 14 bytes represent L2 header (2x6)
     int IP_VERSION_OFFSET = ETHER_TYPE_OFFSET + 2;

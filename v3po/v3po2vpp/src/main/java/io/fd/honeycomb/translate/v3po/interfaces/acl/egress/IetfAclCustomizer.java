@@ -16,26 +16,28 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl.egress;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclWriter;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Egress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IetfAclCustomizer implements WriterCustomizer<Egress> {
     private static final Logger LOG = LoggerFactory.getLogger(IetfAclCustomizer.class);
-    private final IetfAclWriter aclWriter;
+    private final EgressIetfAclWriter aclWriter;
     private final NamingContext interfaceContext;
 
-
-    public IetfAclCustomizer(final IetfAclWriter aclWriter, final NamingContext interfaceContext) {
+    public IetfAclCustomizer(final EgressIetfAclWriter aclWriter, final NamingContext interfaceContext) {
         this.aclWriter = checkNotNull(aclWriter, "aclWriter should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
@@ -43,20 +45,40 @@ public class IetfAclCustomizer implements WriterCustomizer<Egress> {
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Egress> id, @Nonnull final Egress dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        LOG.debug("Writing attributes for id={} dataAfter={}: NOT IMPLEMENTED YET", id, dataAfter);
+        final String ifName = id.firstKeyOf(Interface.class).getName();
+        final int ifIndex = interfaceContext.getIndex(ifName, writeContext.getMappingContext());
+        LOG.debug("Adding egress ACLs for interface={}(id={}): {}", ifName, ifIndex, dataAfter);
+
+        final AccessLists accessLists = dataAfter.getAccessLists();
+        checkArgument(accessLists != null && accessLists.getAcl() != null,
+            "ietf-acl container does not define acl list");
+
+        if (!InterfaceMode.L2.equals(accessLists.getMode())) {
+            LOG.debug("Writing egress Acls is supported only in L2 mode. Ignoring config: {}", dataAfter);
+            return;
+        }
+
+        aclWriter.write(id, ifIndex, accessLists.getAcl(), accessLists.getDefaultAction(), accessLists.getMode(),
+            writeContext);
     }
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Egress> id, @Nonnull final Egress dataBefore,
                                         @Nonnull final Egress dataAfter, @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
-        LOG.debug("Updating attributes for id={} dataBefore={} dataAfter={}: NOT IMPLEMENTED YET", id, dataBefore, dataAfter);
-
+        LOG.debug("ACLs update: removing previously configured ACLs");
+        deleteCurrentAttributes(id, dataBefore, writeContext);
+        LOG.debug("ACLs update: adding updated ACLs");
+        writeCurrentAttributes(id, dataAfter, writeContext);
+        LOG.debug("ACLs update was successful");
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Egress> id, @Nonnull final Egress dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        LOG.debug("Deleting attributes for id={} dataBefore={}: NOT IMPLEMENTED YET", id, dataBefore);
+        final String ifName = id.firstKeyOf(Interface.class).getName();
+        final int ifIndex = interfaceContext.getIndex(ifName, writeContext.getMappingContext());
+        LOG.debug("Removing ACLs for interface={}(id={}): {}", ifName, ifIndex, dataBefore);
+        aclWriter.deleteAcl(id, ifIndex);
     }
 }
