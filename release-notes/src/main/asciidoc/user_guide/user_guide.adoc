@@ -1,0 +1,48 @@
+== User guide
+
+=== Running Honeycomb
+link:user_running_honeycomb.html[Running Honeycomb]
+
+=== Troubleshooting
+link:user_troubleshooting.html[Troubleshooting]
+
+=== Honeycomb and ODL
+link:user_honeycomb_and_ODL.html[Mounting Honeycomb in ODL]
+
+=== Configuration files
+Honeycomb's configuration files present within its distribution:
+
+* Honeycomb infra:
+** {project-git-web}/infra/minimal-distribution/src/main/resources/honeycomb-minimal-resources/config/honeycomb.json?h={project-branch}[Honeycomb base configuration]
+* Honeycomb vpp plugins commons:
+** {project-git-web}/vpp-common/minimal-distribution/src/main/resources/honeycomb-minimal-resources/config/jvpp.json?h={project-branch}[VPP plugins common configuration]
+* V3PO plugin:
+** {project-git-web}/v3po/v3po2vpp/src/main/resources/honeycomb-minimal-resources/config/v3po.json?h={project-branch}[V3PO plugin for Honeycomb configuration]
+* LISP plugin
+** {project-git-web}/lisp/lisp2vpp/src/main/resources/honeycomb-minimal-resources/config/lisp.json?h={project-branch}[LISP plugin for Honeycomb configuration]
+* NSH plugin:
+** {project-git-web}/nsh/impl/src/main/resources/honeycomb-minimal-resources/config/vppnsh.json?h={project-branch}[NSH_SFC plugin for Honeycomb configuration]
+
+=== YANG models
+
+* V3PO plugin
+** {project-git-web}/v3po/api/src/main/yang?h={project-branch}[V3PO YANG models]
+* LISP plugin
+** {project-git-web}/lisp/api/src/main/yang?h={project-branch}[LISP YANG models]
+* NSH plugin
+** {project-git-web}/nsh/api/src/main/yang?h={project-branch}[NSH YANG models]
+* NAT plugin
+** {project-git-web}/nat/nat-api/src/main/yang?h={project-branch}[NAT YANG models]
+* Context models
+** {project-git-web}/vpp-common/naming-context-api/src/main/yang?h={project-branch}[Context YANG models]
+
+=== POSTMAN collections
+
+* V3PO plugin
+** {project-git-web}/v3po/postman_rest_collection.json?h={project-branch}[V3PO postman collection]
+* LISP plugin
+** {project-git-web}/lisp/lisp_postman_rest_collection.json?h={project-branch}[LISP postman collection]
+* NSH plugin
+** {project-git-web}/nsh/nsh_postman_rest_collection.json?h={project-branch}[NSH postman collection]
+* NAT plugin
+** {project-git-web}/nat/postman_rest_collection.json?h={project-branch}[NAT postman collection]

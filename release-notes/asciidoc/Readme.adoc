@@ -1,0 +1,3 @@
+= release-notes-aggregator
+
+This module contains only release notes related documentation

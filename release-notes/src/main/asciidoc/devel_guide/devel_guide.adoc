@@ -1,0 +1,13 @@
+== Devel guide
+
+Honeycomb plugin development guide.
+
+=== Tutorials
+* link:devel_plugin_overview.html[Honeycomb plugin overview]
+* link:devel_plugin_tutorial.html[How to write Honeycomb plugins]
+* link:devel_plugin_vpp_tutorial.html[How to write Honeycomb plugins for VPP]
+
+=== Samples
+* {project-git-web}/samples?h={project-branch}[Interface managmenet sample from Honeycomb]
+** Generic(non-VPP) plugin with a custom distribution containing lots of useful information about Honeycomb and its plugins.
+

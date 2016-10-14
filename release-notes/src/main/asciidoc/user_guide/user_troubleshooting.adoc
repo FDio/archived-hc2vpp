@@ -1,0 +1,20 @@
+= Troubleshooting
+
+link:release_notes.html[< Home]
+
+CAUTION:  Trying to fix any Honeycomb issue should start with looking at honeycomb log file (default location: /var/log/honeycomb/)
+
+== Unable to open SSH session
+If following warning is shown when invoking ssh command: WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!. Just invoke (as suggested by the warning):
+
+ ssh-keygen -f ...
+
+== Honeycomb fails to start properly
+First thing to do is to take a look at Honeycomb logs(default location: /var/log/honeycomb/).
+
+If following log message is present: VPP-ERROR: VPP api client connection failed java.io.IOException: Connection returned error -1. Make sure VPP is installed in the system and it's running.
+
+NOTE: If the VPP-ERROR also contains message stating vpp japi out of sync. It indicates incompatible versions of VPP and Honeycomb.
+
+== Honeycomb does not respond
+Check suggestions from previous item: Honeycomb fails to start properly

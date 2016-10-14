@@ -1,0 +1,30 @@
+= Honeycomb {project-version} Release notes
+
+Release notes for honeycomb {project-version}. Based on VPP {project-vpp-snapshot-version}
+
+== Release plan
+https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-version}[Release plan]
+
+== Features
+Adding to the list of existing features: https://wiki.fd.io/view/Honeycomb/Releases/1609#Features[1609 feature list]:
+
+=== New features
+* NAT management
+
+=== Removed features
+
+=== Modified features
+* ACL management improvements
+
+=== Deprecated features
+
+== Backlog
+
+* https://jira.fd.io/projects/HONEYCOMB/versions/{project-version-in-jira}[JIRA]
+* https://jira.fd.io/jira/secure/ReleaseNote.jspa?projectId=10001&version={project-version-in-jira}[Release notes]
+
+include::install_guide/install_guide.adoc[]
+
+include::user_guide/user_guide.adoc[]
+
+include::devel_guide/devel_guide.adoc[]

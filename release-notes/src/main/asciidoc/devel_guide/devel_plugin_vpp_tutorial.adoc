@@ -1,0 +1,615 @@
+= Developing plugins for VPP
+
+link:release_notes.html[< Home]
+
+Honeycomb's primary use case is to provide an agent for VPP. This section provides a tutorial for how to develop a Honeycomb plugin that translates YANG modeled data into VPP binary API invocation.
+
+== Analyzing VPP's API
+For this tutorial, VPP's VXLAN management API. Honeycomb already contains VXLAN management translation code inside V3PO plugin. This will be a simplified version.
+
+Looking at VPP's API definition file, there are 3 calls related to VXLAN:
+
+vxlan_add_del_tunnel - Creates and Deletes VXLAN tunnel (Update not supported)
+vxlan_tunnel_dump - Reads all VXLAN tunnels
+These are the shared-memory, binary APIs of VPP that would be difficult to use from Java. But VPP contains a jvpp component, that's completely generated from VPP's API definition file and allows Java applications to manage VPP in plain Java using JNI in the background. Honeycomb provides a component that can be included in a distribution.
+
+== Updating sample-plugin to manage VPP
+
+This tutorial starts where the previous one left and will continue to modify the sample plugin in order to be able to manage VPP's VXLAN tunnels.
+
+=== Updating YANG models
+YANG models need to reflect the intent of managing VXLAN tunnels in VPP. As mentioned before, VPP exposes 2 calls to manage VXLAN tunnels. Each vxlan tunnel has a set of attributes, but for simplicity, only 2 of them will be exposed in YANG : source IP address and destination IP address. Rest of attributes will be set to default values in the code.
+
+So let's update the sample-plugin-params grouping to:
+
+[source,yang]
+----
+grouping sample-plugin-params {
+    container vxlans {
+        list vxlan-tunnel {
+
+            key id;
+            leaf id {
+                type string;
+            }
+
+            leaf src {
+              type inet:ip-address;
+            }
+            leaf dst {
+              type inet:ip-address;
+            }
+        }
+    }
+}
+----
+
+Since ietf-inet-types YANG model is used for the ip-address type, it needs to be imported (after the prefix statement):
+
+[source,yang]
+----
+import ietf-inet-types { prefix "inet"; }
+----
+
+NOTE: The reason this works is that there are some general YANG models such as ietf-inet-types added to *-api module in its pom.xml.
+
+Now rebuild the *-api module.
+
+=== JVpp dependency
+Another important thing that the plugin needs is dependency to VPP's JVpp (Java APIs). To do so, just update *-impl's pom.xml with:
+
+[source,xml]
+----
+<!-- VPP's core Java APIs -->
+<dependency>
+    <groupId>io.fd.vpp</groupId>
+    <artifactId>jvpp-core</artifactId>
+    <version>{project-vpp-snapshot-version}</version>
+</dependency>
+----
+
+Also add vpp-translate-utils dependency so that writing translation code is easier:
+
+[source,xml]
+----
+<dependency>
+    <groupId>io.fd.honeycomb.vpp</groupId>
+    <artifactId>vpp-translate-utils</artifactId>
+    <version>{project-version}</version>
+</dependency>
+----
+
+Do not rebuild yet, since the APIs for this plugin have changed and the compilation would fail. But make sure to update the project if using an IDE to pick up the Jvpp dependency.
+
+=== Updating the customizers
+
+First of all, remove CrudService interface and ElementCrudService class. Will not be needed now.
+
+==== Changes to ElementStateCustomizer
+
+Rename it to VxlanReadCustomzier. Update the code to:
+
+[source,java]
+----
+package io.fd.honeycomb.tutorial.read;
+
+import com.google.common.base.Preconditions;
+import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.VxlansBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.vxlans.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.vxlans.VxlanTunnelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.vxlans.VxlanTunnelKey;
+import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.core.dto.VxlanTunnelDetails;
+import org.openvpp.jvpp.core.dto.VxlanTunnelDetailsReplyDump;
+import org.openvpp.jvpp.core.dto.VxlanTunnelDump;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
+
+/**
+ * Reader for {@link VxlanTunnel} list node from our YANG model.
+ */
+public final class VxlanReadCustomizer implements
+        ListReaderCustomizer<VxlanTunnel, VxlanTunnelKey, VxlanTunnelBuilder> {
+
+    // JVpp core. This is the Java API for VPP's core API.
+    private final FutureJVppCore jVppCore;
+    // Naming context for interfaces
+    // Honeycomb provides a "context" storage for plugins. This storage is used for storing metadata required during
+    // data translation (just like in this plugin). An example of such metadata would be interface identifier. In Honeycomb
+    // we use string names for interfaces, however VPP uses only indices (that are created automatically).
+    // This means that translation layer has to store the mapping between HC interface name <-> VPP' interface index.
+    // And since vxlan tunnel is a type of interface in VPP, the same applies here
+    //
+    // Honeycomb provides a couple utilities on top of context storage such as NamingContext. It is just a map
+    // backed by context storage that makes the lookup and storing easier.
+    private final NamingContext vxlanNamingContext;
+
+    public VxlanReadCustomizer(final FutureJVppCore jVppCore, final NamingContext vxlanNamingContext) {
+        this.jVppCore = jVppCore;
+        this.vxlanNamingContext = vxlanNamingContext;
+    }
+
+    /**
+     * Provide a list of IDs for all VXLANs in VPP
+     */
+    @Nonnull
+    @Override
+    public List<VxlanTunnelKey> getAllIds(@Nonnull final InstanceIdentifier<VxlanTunnel> id,
+                                          @Nonnull final ReadContext context)
+            throws ReadFailedException {
+        // Create Dump request
+        final VxlanTunnelDump vxlanTunnelDump = new VxlanTunnelDump();
+        // Set Dump request attributes
+        // Set interface index to 0, so all interfaces are dumped and we can get the list of all IDs
+        vxlanTunnelDump.swIfIndex = 0;
+        final VxlanTunnelDetailsReplyDump reply;
+        try {
+            reply = TranslateUtils.getReplyForRead(jVppCore.vxlanTunnelDump(vxlanTunnelDump).toCompletableFuture(), id);
+        } catch (VppBaseCallException e) {
+            throw new ReadFailedException(id, e);
+        }
+
+        // Check for empty response (no vxlan tunnels to read)
+        if (reply == null || reply.vxlanTunnelDetails == null) {
+            return Collections.emptyList();
+        }
+
+        return reply.vxlanTunnelDetails.stream()
+                // Need a name of an interface here. Use context to look it up from index
+                // In case the naming context does not contain such mapping, it creates an artificial one
+                .map(a -> new VxlanTunnelKey(vxlanNamingContext.getName(a.swIfIndex, context.getMappingContext())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<VxlanTunnel> readData) {
+        // Just set the readValue into parent builder
+        // The cast has to be performed here
+        ((VxlansBuilder) builder).setVxlanTunnel(readData);
+    }
+
+    @Nonnull
+    @Override
+    public VxlanTunnelBuilder getBuilder(@Nonnull final InstanceIdentifier<VxlanTunnel> id) {
+        // Setting key from id is not necessary, builder will take care of that
+        return new VxlanTunnelBuilder();
+    }
+
+    /**
+     * Read all the attributes of a single VXLAN tunnel
+     */
+    @Override
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanTunnel> id,
+                                      @Nonnull final VxlanTunnelBuilder builder,
+                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
+        // The ID received here contains the name of a particular interface that should be read
+        // It was either requested directly by HC users or is one of the IDs from getAllIds that could have been invoked
+        // just before this method invocation
+
+        // Create Dump request
+        final VxlanTunnelDump vxlanTunnelDump = new VxlanTunnelDump();
+        // Set Dump request attributes
+        // Set the vxlan index from naming context
+        // Naming context must contain the mapping because:
+        // 1. The vxlan tunnel was created in VPP using HC + this plugin meaning we stored the mapping in write customizer
+        // 2. The vxlan tunnel was already present in VPP, but HC reconciliation mechanism took care of that (as long as proper Initializer is provided by this plugin)
+        final String vxlanName = id.firstKeyOf(VxlanTunnel.class).getId();
+        vxlanTunnelDump.swIfIndex = vxlanNamingContext.getIndex(vxlanName, ctx.getMappingContext());
+
+        final VxlanTunnelDetailsReplyDump reply;
+        try {
+            reply = TranslateUtils.getReplyForRead(jVppCore.vxlanTunnelDump(vxlanTunnelDump).toCompletableFuture(), id);
+        } catch (VppBaseCallException e) {
+            throw new ReadFailedException(id, e);
+        }
+
+        Preconditions.checkState(reply != null && reply.vxlanTunnelDetails != null);
+        final VxlanTunnelDetails singleVxlanDetail = reply.vxlanTunnelDetails.stream().findFirst().get();
+
+        // Now translate all attributes into provided builder
+        final Boolean isIpv6 = TranslateUtils.byteToBoolean(singleVxlanDetail.isIpv6);
+        builder.setSrc(TranslateUtils.arrayToIpAddress(isIpv6, singleVxlanDetail.srcAddress));
+        builder.setDst(TranslateUtils.arrayToIpAddress(isIpv6, singleVxlanDetail.dstAddress));
+        // There are additional attributes of a vxlan tunnel that wont be used here
+    }
+}
+----
+
+The '"ReaderFactory also needs to be updated:
+
+[source,java]
+----
+package io.fd.honeycomb.tutorial.read;
+
+import com.google.inject.Inject;
+import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.SamplePluginState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.SamplePluginStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.Vxlans;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.VxlansBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.vxlans.VxlanTunnel;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
+
+/**
+ * Factory producing readers for sample-plugin plugin's data.
+ */
+public final class ModuleStateReaderFactory implements ReaderFactory {
+
+    public static final InstanceIdentifier<SamplePluginState> ROOT_STATE_CONTAINER_ID =
+            InstanceIdentifier.create(SamplePluginState.class);
+
+    /**
+     * Injected vxlan naming context shared with writer, provided by this plugin
+     */
+    @Inject
+    private NamingContext vxlanNamingContext;
+    /**
+     * Injected jvpp core APIs, provided by Honeycomb's infrastructure
+     */
+    @Inject
+    private FutureJVppCore jvppCore;
+
+    @Override
+    public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
+        // register reader that only delegate read's to its children
+        registry.addStructuralReader(ROOT_STATE_CONTAINER_ID, SamplePluginStateBuilder.class);
+        // register reader that only delegate read's to its children
+        registry.addStructuralReader(ROOT_STATE_CONTAINER_ID.child(Vxlans.class), VxlansBuilder.class);
+
+        // just adds reader to the structure
+        // use addAfter/addBefore if you want to add specific order to readers on the same level of tree
+        // use subtreeAdd if you want to handle multiple nodes in single customizer/subtreeAddAfter/subtreeAddBefore if you also want to add order
+        // be aware that instance identifier passes to subtreeAdd/subtreeAddAfter/subtreeAddBefore should define subtree,
+        // therefore it should be relative from handled node down - InstanceIdentifier.create(HandledNode), not parent.child(HandledNode.class)
+        registry.add(new GenericListReader<>(
+                // What part of subtree this reader handles is identified by an InstanceIdentifier
+                ROOT_STATE_CONTAINER_ID.child(Vxlans.class).child(VxlanTunnel.class),
+                // Customizer (the actual translation code to do the heavy lifting)
+                new VxlanReadCustomizer(jvppCore, vxlanNamingContext)));
+    }
+}
+----
+
+==== Changes to ElementCustomizer
+
+Rename to VxlanWriteCustomizer. Update the code to:
+
+[source,java]
+----
+package io.fd.honeycomb.tutorial.write;
+
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.v3po.util.TranslateUtils;
+import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.vxlans.VxlanTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.vxlans.VxlanTunnelKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.VppBaseCallException;
+import org.openvpp.jvpp.core.dto.VxlanAddDelTunnel;
+import org.openvpp.jvpp.core.dto.VxlanAddDelTunnelReply;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
+
+/**
+ * Writer for {@link VxlanTunnel} list node from our YANG model.
+ */
+public final class VxlanWriteCustomizer implements ListWriterCustomizer<VxlanTunnel, VxlanTunnelKey> {
+
+    /**
+     * JVpp APIs
+     */
+    private final FutureJVppCore jvppCore;
+    /**
+     * Shared vxlan tunnel naming context
+     */
+    private final NamingContext vxlanTunnelNamingContext;
+
+    public VxlanWriteCustomizer(final FutureJVppCore jvppCore, final NamingContext vxlanTunnelNamingContext) {
+        this.jvppCore = jvppCore;
+        this.vxlanTunnelNamingContext = vxlanTunnelNamingContext;
+    }
+
+    @Override
+    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanTunnel> id,
+                                       @Nonnull final VxlanTunnel dataAfter,
+                                       @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        // Create and set vxlan tunnel add request
+        final VxlanAddDelTunnel vxlanAddDelTunnel = new VxlanAddDelTunnel();
+        // 1 for add, 0 for delete
+        vxlanAddDelTunnel.isAdd = 1;
+        // dataAfter is the new vxlanTunnel configuration
+        final boolean isIpv6 = dataAfter.getSrc().getIpv6Address() != null;
+        vxlanAddDelTunnel.isIpv6 = TranslateUtils.booleanToByte(isIpv6);
+        vxlanAddDelTunnel.srcAddress = TranslateUtils.ipAddressToArray(isIpv6, dataAfter.getSrc());
+        vxlanAddDelTunnel.dstAddress = TranslateUtils.ipAddressToArray(isIpv6, dataAfter.getDst());
+        // There are other input parameters that are not exposed by our YANG model, default values will be used
+
+        try {
+            final VxlanAddDelTunnelReply replyForWrite = TranslateUtils
+                    .getReplyForWrite(jvppCore.vxlanAddDelTunnel(vxlanAddDelTunnel).toCompletableFuture(), id);
+
+            // VPP returns the index of new vxlan tunnel
+            final int newVxlanTunnelIndex = replyForWrite.swIfIndex;
+            // It's important to store it in context so that reader knows to which name a vxlan tunnel is mapped
+            vxlanTunnelNamingContext.addName(newVxlanTunnelIndex, dataAfter.getId(), writeContext.getMappingContext());
+        } catch (VppBaseCallException e) {
+            throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
+        }
+    }
+
+    @Override
+    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanTunnel> id,
+                                        @Nonnull final VxlanTunnel dataBefore,
+                                        @Nonnull final VxlanTunnel dataAfter, @Nonnull final WriteContext writeContext)
+            throws WriteFailedException {
+        // Not supported at VPP API level, throw exception
+        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
+                new UnsupportedOperationException("Vxlan tunnel update is not supported by VPP"));
+    }
+
+    @Override
+    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanTunnel> id,
+                                        @Nonnull final VxlanTunnel dataBefore,
+                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        // Create and set vxlan tunnel add request
+        final VxlanAddDelTunnel vxlanAddDelTunnel = new VxlanAddDelTunnel();
+        // 1 for add, 0 for delete
+        vxlanAddDelTunnel.isAdd = 0;
+        // Vxlan tunnel is identified by its attributes when deleting, not index, so set all attributes
+        // dataBefore is the vxlan tunnel that's being deleted
+        final boolean isIpv6 = dataBefore.getSrc().getIpv6Address() != null;
+        vxlanAddDelTunnel.isIpv6 = TranslateUtils.booleanToByte(isIpv6);
+        vxlanAddDelTunnel.srcAddress = TranslateUtils.ipAddressToArray(isIpv6, dataBefore.getSrc());
+        vxlanAddDelTunnel.dstAddress = TranslateUtils.ipAddressToArray(isIpv6, dataBefore.getDst());
+        // There are other input parameters that are not exposed by our YANG model, default values will be used
+
+        try {
+            final VxlanAddDelTunnelReply replyForWrite = TranslateUtils
+                    .getReplyForWrite(jvppCore.vxlanAddDelTunnel(vxlanAddDelTunnel).toCompletableFuture(), id);
+            // It's important to remove the mapping from context
+            vxlanTunnelNamingContext.removeName(dataBefore.getId(), writeContext.getMappingContext());
+        } catch (VppBaseCallException e) {
+            throw new WriteFailedException.DeleteFailedException(id, e);
+        }
+    }
+}
+----
+
+The '"WriterFactory also needs to be updated:
+
+[source,java]
+----
+package io.fd.honeycomb.tutorial.write;
+
+import com.google.inject.Inject;
+import io.fd.honeycomb.translate.impl.write.GenericWriter;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.SamplePlugin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.Vxlans;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.sample.plugin.rev160918.sample.plugin.params.vxlans.VxlanTunnel;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.openvpp.jvpp.core.future.FutureJVppCore;
+
+/**
+ * Factory producing writers for sample-plugin plugin's data.
+ */
+public final class ModuleWriterFactory implements WriterFactory {
+
+    private static final InstanceIdentifier<SamplePlugin> ROOT_CONTAINER_ID = InstanceIdentifier.create(SamplePlugin.class);
+
+    /**
+     * Injected vxlan naming context shared with writer, provided by this plugin
+     */
+    @Inject
+    private NamingContext vxlanNamingContext;
+    /**
+     * Injected jvpp core APIs, provided by Honeycomb's infrastructure
+     */
+    @Inject
+    private FutureJVppCore jvppCore;
+
+    @Override
+    public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
+        // Unlike ReaderFactory, there's no need to add structural writers, just the writers that actually do something
+
+        // register writer for vxlan tunnel
+        registry.add(new GenericWriter<>(
+                // What part of subtree this writer handles is identified by an InstanceIdentifier
+                ROOT_CONTAINER_ID.child(Vxlans.class).child(VxlanTunnel.class),
+                // Customizer (the actual translation code to do the heavy lifting)
+                new VxlanWriteCustomizer(jvppCore, vxlanNamingContext)));
+    }
+}
+----
+
+==== Changes to Module
+The module needs to be updated to:
+
+* Include new instance of naming context
+* Remove crud service
+
+and the code needs to look like:
+
+[source,java]
+----
+package io.fd.honeycomb.tutorial;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
+import io.fd.honeycomb.data.init.DataTreeInitializer;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.v3po.util.NamingContext;
+import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.honeycomb.tutorial.init.ConfigDataInitializer;
+import io.fd.honeycomb.tutorial.read.ModuleStateReaderFactory;
+import io.fd.honeycomb.tutorial.write.ModuleWriterFactory;
+import net.jmob.guice.conf.core.ConfigurationModule;
+
+/**
+ * Module class instantiating sample-plugin plugin components.
+ */
+public final class Module extends AbstractModule {
+
+    @Override
+    protected void configure() {
+        // requests injection of properties
+        install(ConfigurationModule.create());
+        requestInjection(ModuleConfiguration.class);
+
+        // bind naming context instance for reader and writer factories
+        // the first parameter is artificial name prefix in cases a name needs to be reconstructed for a vxlan tunnel
+        // that is present in VPP but not in Honeycomb (could be extracted into configuration)
+        // the second parameter is just the naming context ID (could be extracted into configuration)
+        binder().bind(NamingContext.class).toInstance(new NamingContext("vxlan-tunnel", "vxlan-tunnel-context"));
+
+        // creates reader factory binding
+        // can hold multiple binding for separate yang modules
+        final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
+        readerFactoryBinder.addBinding().to(ModuleStateReaderFactory.class);
+
+        // create writer factory binding
+        // can hold multiple binding for separate yang modules
+        final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
+        writerFactoryBinder.addBinding().to(ModuleWriterFactory.class);
+
+        // create initializer binding
+        // can hold multiple binding for separate yang modules
+        final Multibinder<DataTreeInitializer> initializerBinder =
+                Multibinder.newSetBinder(binder(), DataTreeInitializer.class);
+        initializerBinder.addBinding().to(ConfigDataInitializer.class);
+
+        // Disable notification producer for now
+//        Multibinder.newSetBinder(binder(), ManagedNotificationProducer.class).addBinding()
+//                .to(SampleNotificationProducer.class);
+    }
+}
+----
+*Now it's time to rebuild the plugin using mvn clean install to make the jars available for integrating them with vpp-integration distribution in next sections*
+
+== Integrating with vpp-integration distribution
+The vxlan tunnel management plugin can now be integrated with any honeycomb distribution. Honeycomb provides a vpp-integration distribution, where all VPP related plugins integrate to create a distribution with all available VPP related features.
+
+This distribution comes with honeycomb infrastructure + common components for VPP Honeycomb plugins (e.g. Java APIs for VPP).
+
+In order to add this new plugin into vpp-integration:
+
+* clone honeycomb codebase (since that's the home of vpp-integration distribution)
+* add a dependency for this sample plugin in vpp-integration distribution (honeycomb/vpp-integration/minimal-distribution/pom.xml):
+[source,xml]
+----
+<dependency>
+  <groupId>io.fd.honeycomb.tutorial</groupId>
+  <artifactId>sample-plugin-impl</artifactId>
+  <version>{project-version}</version>
+</dependency>
+----
+* modify Main of vpp-integration distribution to include sample-plugin (/home/mmarsale/Projects/honeycomb/vpp-integration/minimal-distribution/src/main/java/io/fd/honeycomb/vpp/integration/distro/Main.java):
+[source,java]
+----
+package io.fd.honeycomb.vpp.integration.distro;
+
+import com.google.common.collect.Lists;
+import com.google.inject.Module;
+import io.fd.honeycomb.vpp.distro.VppCommonModule;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+        final List<Module> sampleModules = Lists.newArrayList(io.fd.honeycomb.infra.distro.Main.BASE_MODULES);
+
+        // All the plugins should be listed here
+        sampleModules.add(new VppCommonModule());
+//        Comment out V3po and Lisp module for the time being, since V3po and sample-plugin are in conflict over vxlan tunnel management
+//         a plugin implementing VPP's API that's not yet covered by V3po or LISP plugin would not have to do this
+//        sampleModules.add(new V3poModule());
+//        sampleModules.add(new LispModule());
+        sampleModules.add(new io.fd.honeycomb.tutorial.Module());
+
+        io.fd.honeycomb.infra.distro.Main.init(sampleModules);
+    }
+}
+----
+
+Now just rebuild the honeycomb project.
+
+== Verifying distribution
+At this point, the vpp-integration distribution with sample-plugin can now be started. But first, make sure that a compatible version of VPP is installed and running. Next, start honeycomb with:
+
+ sudo vpp-integration/minimal-distribution/target/vpp-integration-distribution-1.16.9-hc/vpp-integration-distribution-1.16.9/honeycomb
+
+=== Testing over RESTCONF
+Reading vxlans operational data (should return empty vxlans container at first):
+
+ curl -u admin:admin  http://localhost:8181/restconf/operational/sample-plugin:sample-plugin-state
+
+Adding a vxlan tunnel:
+
+ curl -H 'Content-Type: application/json' -H 'Accept: application/json' -u admin:admin -X PUT -d '{"vxlans":{"vxlan-tunnel": [{"id":"vxlan-test-tunnel", "src":"10.0.0.1", "dst":"10.0.0.2"}]}}' http://localhost:8181/restconf/config/sample-plugin:sample-plugin/vxlans
+
+Reading vxlans config data (data that we posted to Honeycomb):
+
+ curl -u admin:admin  http://localhost:8181/restconf/config/sample-plugin:sample-plugin
+
+Reading vxlans operational data (data coming from VPP being transformed by ReaderCustomizer on the fly):
+
+ curl -u admin:admin  http://localhost:8181/restconf/operational/sample-plugin:sample-plugin-state
+
+Verifying vxlan tunnel existence in VPP:
+
+ telnet 0 5002
+ show interface
+
+should show:
+
+[source]
+----
+Name                             Idx       State          Counter          Count
+local0                            0        down
+vxlan_tunnel0                     1         up
+----
+
+Deleting a vxlan tunnel:
+
+ curl -u admin:admin -X DELETE http://localhost:8181/restconf/config/sample-plugin:sample-plugin/vxlans/vxlan-tunnel/vxlan-test-tunnel
+
+Disclaimer: The vxlan tunnel will be removed from Honeycomb, and delete command will be executed on VPP, but VPP will just disable that interface and keep it as some sort of placeholder for next vxlan tunnel (that's VPPs behavior, so a vxlan tunnel cant be really deleted). So that's why you would still see the tunnel in VPP's CLI after delete.
+
+==== Testing over NETCONF
+Netconf testing guide including Notifications, can be found in Honeycomb/Running_Honeycomb.
+
+NOTE: Netconf and Restconf are equivalent interfaces to Honeycomb, being capable of providing the same APIs. The only difference is with notifications. Only NETCONF is capable of emitting the notifications.
+
+== Full working sample
+
+Full working sample on github: https://github.com/marosmars/honeycomb-samples/tree/vpp-plugin
+
+[NOTE]
+====
+just a note on what further work for this plugin might contain:
+
+* unit tests
+* POSTMAN REST collection with sample requests
+* logging
+====

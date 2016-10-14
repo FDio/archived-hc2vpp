@@ -1,0 +1,26 @@
+= Plugin overview
+
+link:release_notes.html[< Home]
+
+Honeycomb provides a framework for plugins to participate in the data handling. The plugins use YANG modeling language to describe what:
+
+* *data* they can handle (Create, Read, Update, Delete operations)
+* *notifications* do they emit
+
+NOTE: RPCs are not supported in this release.
+
+A plugin usually consists of:
+
+* *YANG models* - These models contain data and notification definitions that are implemented by the plugin. ODL's Yangtools project is used to generate Java APIs from those models (called Binding Aware APIs in ODL) and are later used in the translation code.
+* *Set of readers* - Readers provide operational/state data from plugin or its underlying layer. This means that operational/state data is current state of the plugin or its underlying layer. Readers return these operational data by e.g. reading from underlying layer and transforming it into YANG modeled data.
+* *Set of writers* - Writers handle configuration data for the plugin or its underlying layer This means that configuration data is the intent being sent to Honeycomb, that should be passed to plugins or their underlying layers. Writers handle these configuration data by transforming YANG modeled data into e.g. underlying layer calls.
+* *Set of initializers* - Initializers are invoked right after Honeycomb starts. The gould here is to read current operational/state data of the plugin or its underlying layer and then transform the operational data into configuration data. This enables reconciliation in cases when Honeycomb looses it's persisted data, or is started fresh while the underlying layer already contains some configuration that is manifested as operational/state data
+* *Plugin configuration* - Usually configuration in json format + it's Java equivalent.
+* *Set of notification producers* - If there are any notifications, the producers transform the data into YANG model notifications and emit them.
+* *Module* - Small class instantiating & exposing plugin's components
+
+What's good to add:
+
+* *Unit tests*
+* *Documentation* (as Readme.adoc + update global release notes if the plugin is included into honeycomb integration distribution)
+* *Sample REST or NETCONF requests* (as POSTMAN request collection)

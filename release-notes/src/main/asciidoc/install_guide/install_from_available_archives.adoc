@@ -1,0 +1,14 @@
+= Installing from available archives
+
+link:release_notes.html[< Home]
+
+Honeycomb provides zip and tar.gz archives that can be downloaded and extracted to provide Honeycomb VPP distribution.
+
+== Downloading archives
+In https://nexus.fd.io/#nexus-search;quick~vpp-integration-distribution[Honeycomb's nexus] look for vpp-integration-distribution artifact with version {project-version} and download either zip or tar.gz. After Extracting the archive, a folder vpp-integration-distribution-<version> will be created.
+
+== Running extracted distribution[edit]
+In the new folder, locate honeycomb executable shell script and run it.
+
+Note: sudo privileges are necessary with default configuration.
+

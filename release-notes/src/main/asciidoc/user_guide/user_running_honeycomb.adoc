@@ -1,0 +1,118 @@
+= Running Honeycomb
+
+link:release_notes.html[< Home]
+
+== Starting Honeycomb agent
+The zipped vpp-integration distribution can be started by invoking:
+
+ sudo ./vpp-integration-distribution-{project-version}/honeycomb
+
+This will start Honeycomb with all ODL dependencies and VPP translation code. It will automatically initialize vpp-jvpp to create interface between VPP and Honeycomb.
+
+If Honeycomb was installed from the RPM or DEB packages, it can be started by (make sure you start vpp first):
+
+ sudo service vpp start
+ sudo service honeycomb start
+
+The location of installed honeycomb is at /opt/honeycomb
+
+== Testing Honeycomb agent
+There are multiple ways of testing Honeycomb agent, depending on e.g. which northbound interface will be used
+
+=== Using NETCONF Northbound
+
+Netconf northbound can be easily tested manually using CLI SSH client. Initialize SSH connection by invoking:
+
+ ssh admin@localhost -p 2831 -s netconf
+
+NOTE: Using default credentials admin/admin, default port 2831 and netconf SSH channel Note: "Are you sure you want to continue connecting (yes/no)?" Answer yes
+
+Next thing to do is to provide client hello message to initialize netconf session. Following content must be copy&pasted into SSH session + hit enter:
+
+[source,xml]
+----
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <capabilities>
+        <capability>urn:ietf:params:netconf:base:1.0</capability>
+    </capabilities>
+</hello>
+]]>]]>
+----
+
+This initializes netconf session silently. No response from Honeycomb will be provided
+
+Next step is to get all the configuration data from VPP using Honeycomb's netconf northbound interface. Following content must be copy&pasted into SSH session + hit enter:
+
+[source,xml]
+----
+<rpc xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="101">
+    <get-config>
+        <source>
+            <running/>
+        </source>
+    </get-config>
+</rpc>
+]]>]]>
+----
+
+Honeycomb will respond will all the data currently configured in Honeycomb + VPP
+
+Next step is to get all the operational data from VPP using Honeycomb's netconf northbound interface. Following content must be copy&pasted into SSH session + hit enter:
+
+[source,xml]
+----
+<rpc xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="101">
+    <get/>
+</rpc>
+]]>]]>
+----
+
+Honeycomb will respond will all operational data present in VPP.
+
+==== Listening for notifications
+
+Notifications over NETCONF are supported by Honeycomb. To test it out, open ssh NETCONF session and send hello message. Exactly as detailed above.
+
+Next thing to do is to activate honeycomb notification stream over NETCONF. So just send this rpc over ssh session:
+
+[source,xml]
+----
+<netconf:rpc netconf:message-id="101" xmlns:netconf="urn:ietf:params:xml:ns:netconf:base:1.0">
+<create-subscription xmlns="urn:ietf:params:xml:ns:netconf:notification:1.0">
+   <stream>honeycomb</stream>
+</create-subscription>
+</netconf:rpc>
+]]>]]>
+----
+
+From now on, all notifications from honeycomb will appear in the netconf session. To verify, VPP's interface state can be changed over CLI:
+
+ telnet 0 5002
+ set interface state local0 up
+
+A notification should appear in opened NETCONF session.
+
+=== Using RESTCONF northbound
+
+[TIP]
+====
+Testing over RESTCONF is easier, and common calls can be found in this postman collection:
+
+*{project-git-web}/v3po/postman_rest_collection.json?h={project-branch}[V3PO postman collection][Honeycomb V3PO POSTMAN collection]*
+
+Each request in the collection contains equivalent VPP command (over CLI or VAT, whichever works) in the description.
+====
+
+To use:
+
+* POSTMAN is a google chrome application
+* Clicking the collection link above is not CORRECT
+* Open POSTMAN and select Import https://www.dropbox.com/s/v2odj4gih5if99d/Screenshot%202016-05-19%2008.51.45.png?dl=0
+* Select import from link https://www.dropbox.com/s/s6wsqzf7h4yhesh/Screenshot%202016-05-19%2008.52.54.png?dl=0
+* Copy the link above into the dialogue https://www.dropbox.com/s/3qc3bbndhy6rr1g/Screenshot%202016-05-19%2008.53.30.png?dl=0
+* PROFIT! https://www.dropbox.com/s/lrdtua7zziqyqc3/Screenshot%202016-05-19%2008.53.51.png?dl=0
+
+NOTE: All POSTMAN collections are listed under User Guide.
+
+==== Listening for notifications
+Notifications over RESTCONF are not supported due to ODL's RESTCONF limitations.

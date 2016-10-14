@@ -1,0 +1,196 @@
+= Manual build
+
+link:release_notes.html[< Home]
+
+== Prerequisites
+Building Honeycomb project requires:
+
+* Java 8
+* Maven (version 3.2.5 and above should be fine)
+* Properly set maven settings(displayed below) to access nexus.fd.io
+
+== Obtain the honeycomb source code
+TIP: Make sure you have https://wiki.fd.io/view/DEV/Setting_up_Gerrit[registered your ssh key with gerrit].
+
+ git clone ssh://[username]@gerrit.fd.io:29418/honeycomb
+ cd honeycomb
+ git checkout {project-branch}
+
+== Building the code
+Make sure all the prerequisites are installed.
+
+NOTE: To make sure fresh Honeycomb build is compatible with VPP, building VPP is also required to make sure the same JVpp version is used preventing out-of-sync exceptions. In case only Honeycomb needs to be built, skip Building VPP section.
+
+=== Building VPP
+Clone VPP according to: https://gerrit.fd.io/r/#/admin/projects/vpp and checkout {project-branch} branch
+
+Dive into VPP's build-root folder:
+
+ cd vpp/build-root/
+
+Build VPP:
+
+ make distclean && ./bootstrap.sh && make V=0 PLATFORM=vpp TAG=vpp install-deb
+
+Install VPP:
+
+ sudo dpkg -i *.deb
+
+Start VPP:
+
+ sudo start vpp
+
+Install JVpp into local maven repository to make Honeycomb pick up the same JVpp version
+
+ cd build-vpp-native/vpp-api/java/
+ mvn install:install-file -Dfile=jvpp-registry-{project-vpp-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-registry -Dversion={project-vpp-snapshot-version} -Dpackaging=jar
+ mvn install:install-file -Dfile=jvpp-core-{project-vpp-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-core -Dversion={project-vpp-snapshot-version}-Dpackaging=jar
+ cd ../../plugins/snat-plugin/
+ mvn install:install-file -Dfile=jvpp-snat-{project-snat-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-snat -Dversion={project-snat-snapshot-version} -Dpackaging=jar
+
+Now current Vpp is up and running and prepared for integration with HC.
+
+=== Building Honeycomb
+Now Honeycomb can be built and it will use latest JVpp produced during VPP build.
+
+==== Setup settings.xml
+Put the following in your ~/.m2/settings.xml:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=2 tabstop=2: -->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <profiles>
+    <profile>
+      <id>fd.io-release</id>
+      <repositories>
+        <repository>
+          <id>fd.io-mirror</id>
+          <name>fd.io-mirror</name>
+          <url>https://nexus.fd.io/content/groups/public/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>fd.io-mirror</id>
+          <name>fd.io-mirror</name>
+          <url>https://nexus.fd.io/content/repositories/public/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+
+    <profile>
+      <id>fd.io-snapshots</id>
+      <repositories>
+        <repository>
+          <id>fd.io-snapshot</id>
+          <name>fd.io-snapshot</name>
+          <url>https://nexus.fd.io/content/repositories/fd.io.snapshot/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>fd.io-snapshot</id>
+          <name>fd.io-snapshot</name>
+          <url>https://nexus.fd.io/content/repositories/fd.io.snapshot/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+    <profile>
+      <id>opendaylight-snapshots</id>
+      <repositories>
+        <repository>
+          <id>opendaylight-snapshot</id>
+          <name>opendaylight-snapshot</name>
+          <url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>opendaylight-shapshot</id>
+          <name>opendaylight-snapshot</name>
+          <url>https://nexus.opendaylight.org/content/repositories/opendaylight.snapshot/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>fd.io-release</activeProfile>
+    <activeProfile>fd.io-snapshots</activeProfile>
+    <activeProfile>opendaylight-snapshots</activeProfile>
+  </activeProfiles>
+</settings>
+----
+
+==== Building Honeycomb
+cd honeycomb/
+
+ mvn clean install
+
+Now Honeycomb can be run with:
+
+ sudo sh vpp-integration/minimal-distribution/target/vpp-integration-distribution-1.16.9-SNAPSHOT-hc/vpp-integration-distribution-1.16.9-SNAPSHOT/honeycomb
+
+=== Building packages
+After the code has been built, you can build an RPM or DEB package for honeycomb.
+
+==== RPM
+Export build number variable:
+
+ export BUILD_NUMBER=33
+
+Run package building script from:
+
+ packaging/rpm/rpmbuild.sh
+
+==== DEB
+Export build number variable:
+
+ export BUILD_NUMBER=33
+
+Run package building script from:
+
+ packaging/deb/debuild.sh

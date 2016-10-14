@@ -1,0 +1,76 @@
+= Honeycomb and ODL
+
+link:release_notes.html[< Home]
+
+Honeycomb can be managed using ODL as any NETCONF-enabled device. Please follow https://wiki.opendaylight.org/view/OpenDaylight_Controller:Config:Examples:Netconf for detailed instructions how to mount and connect to a NETCONF device
+
+== Troubleshooting
+
+Issues with Honeycomb and ODL integration
+
+=== Unable to open SSH session due to invalid crypto configuration
+
+If ODL fails to open ssh session due to InvalidAlgorithmParameterException, e.g.:
+
+[srouce]
+====
+2016-09-13 13:52:34,852 | WARN  | NioProcessor-3   | ClientSessionImpl | 180 -
+org.apache.sshd.core - 0.14.0 | Exception caught
+java.security.InvalidAlgorithmParameterException: Prime size must be multiple of 64,
+and can only range from 512 to 2048 (inclusive)
+ at com.sun.crypto.provider.DHKeyPairGenerator.initialize(DHKeyPairGenerator.java:120)
+   [sunjce_provider.jar:1.8.0_45]
+ at java.security.KeyPairGenerator$Delegate.initialize(KeyPairGenerator.java:674)
+   [:1.8.0_45-internal]
+ at java.security.KeyPairGenerator.initialize(KeyPairGenerator.java:411)
+   [:1.8.0_45-internal]
+ at org.apache.sshd.common.kex.DH.getE(DH.java:65)[180:org.apache.sshd.core:0.14.0]
+
+...
+
+2016-09-13 13:52:34,852 | DEBUG | NioProcessor-3   | ClientSessionImpl | 180 -
+org.apache.sshd.core - 0.14.0 | Closing ClientSessionImpl[admin@/127.0.0.1:2835] immediately
+====
+
+It probably means BouncyCastle provider is not properly configured/loaded on the ODL side.
+
+There are 2 solutions to this problem:
+
+==== Solution 1, HC side, less secure:
+
+First solution is to not use BouncyCastle in Honeycomb. This limits its capabilities in terms of security (using just default Java stuff), but makes it compatible with Opendaylight:
+
+As a workaround start honeycomb with (must be placed into Honeycomb's startup script)
+
+ -Dorg.apache.sshd.registerBouncyCastle=false
+
+As a result 1024 bit DH group will be used for SSH key exchange.
+
+==== Solution 2, ODL side, more secure
+Second solution is to locate mina sshd jar in ODL distribution's system folder. For Boron it is:
+
+ system/org/apache/sshd/sshd-core/0.14.0/sshd-core-0.14.0.jar
+
+Open the jar (it's just a zip archive), locate META-INF/MANIFEST.MF file, open it and update the Import-Package section. Find this piece:
+
+ org.bouncycast.openssl;version="[1.51,2)";resolution:=optional
+
+and replace it with:
+
+ org.bouncycast.openssl;version="[1.51,2)"
+
+This needs to be done before ODL is started the first time or it needs to be started with "clean" parameter.
+
+=== Background
+This issue is caused by a couple of reasons:
+
+* ODL and HC both use mina-sshd 0.14 for SSH
+* mina-sshd relies partially on bouncy-castle as a security provider
+* mina-sshd only defines bouncy-castle dependencies as optional for OSGi environment (which is not correct since there are bugs in the mina-sshd where missing bouncy-castle is just not expected, causing various problems... but that's a different topic)
+* netconf features in ODL make sure to first load bouncy-castle bundles and only then mina-sshd (in addition, bouncy-castle provider is placed in karaf's lib/ext and marked to be a security provider in karaf's etc/custom.properties)
+* however, when loading netconf features as initial features, there seems to be some sort of race condition in karaf and mina is started without bouncy-castle available, making it work only partially
+* but so far so good, everything loads and mina should just use less secure provider from Java
+* however when an SSH connection is started from ODL to e.g. Honeycomb. Mina-sshd is picking key size that's only supported by bouncy-castle (not by plain JDK) during negotiation
+* this means that if remote supports such size, mina-sshd in ODL subsequently fails, since it finds out bouncy-castle is not present and Java is unable to handle it
+
+NOTE: If loading netconf post karaf startup manually, the issue does not appear

@@ -1,0 +1,23 @@
+== Install guide
+
+Installing binaries:
+
+* link:install_from_available_binary_packages.html[Installing from available binary packages]
+* link:install_from_available_archives.html[Installing from available archives]
+
+=== Manual build
+
+* link:install_manual_build.html[Manual build]
+
+=== Distribution notes
+Honeycomb is packaged as a static set of jars, that are loaded by Honeycomb Main class, where pre-configured plugins are then started.
+
+=== Footprint
+
+Minimal footprint for Honeycomb infrastructure (without any plugins) at rest below 100Mb. For Honeycomb distribution with VPP related plugins, minimal footprint was observed below 150Mb.
+The footprint varies depending on:
+
+* VM load. Under heavier load, JVM tends to release some unused memory used during Honeycomb initialization.
+* Northbound interface configuration (4 interfaces started by default: Restconf HTTP, HTTPS, Netconf TCP, SSH). Minimal footprint can be achieved by using only a single interface.
+* JVM configuration. Even lower footprint numbers can be achieved by using aggressive JVM memory options: -client -Xms20m -Xmx32m -XX:MetaspaceSize=5m -XX:MaxMetaspaceSize=32m -XX:MaxMetaspaceExpansion=1m -Xss512k -XX:+UseSerialGC -Djava.compiler=NONE -Xverify:none -noverify
+* Amount of data stored by Honeycomb.

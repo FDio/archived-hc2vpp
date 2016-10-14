@@ -1,0 +1,66 @@
+= Installing from available binary packages
+
+link:release_notes.html[< Home]
+
+== Centos
+=== CentOS 7.2 - Honeycomb Release RPMs
+==== Add fd.io repo
+Create a file /etc/yum.repos.d/honeycomb-release.repo with contents:
+
+ [honeycomb-release]
+ name=honeycomb release branch latest merge
+ baseurl=https://nexus.fd.io/content/repositories/fd.io.centos7/
+ enabled=1
+ gpgcheck=0
+
+==== Install honeycomb packages
+
+ sudo yum install honeycomb
+
+== Ubuntu
+=== Ubuntu 14.04 - Honeycomb Release DEB
+
+[CAUTION]
+====
+Add openjdk-8 repository. 1404 does not provide openjdk-8 by default
+
+ According to http://stackoverflow.com/questions/32942023/ubuntu-openjdk-8-unable-to-locate-package
+====
+
+Pick Ubuntu version:
+
+ export UBUNTU="trusty"
+
+Then run:
+
+ sudo rm /etc/apt/sources.list.d/99fd.io.list
+ echo "deb [trusted=yes] https://nexus.fd.io/content/repositories/fd.io.ubuntu.$UBUNTU.main/ ./" | sudo tee -a /etc/apt/sources.list.d/99fd.io.list
+ sudo apt-get update
+ sudo apt-get install honeycomb
+
+[CAUTION]
+====
+Uninstall previously installed java 7
+
+ look for packages e.g. openjdk-7-* and uninstall them
+====
+
+=== Ubuntu 16.04 - Honeycomb Release DEB
+
+Pick Ubuntu version:
+
+ export UBUNTU="xenial"
+
+Then run:
+
+  sudo rm /etc/apt/sources.list.d/99fd.io.list
+  echo "deb [trusted=yes] https://nexus.fd.io/content/repositories/fd.io.ubuntu.$UBUNTU.main/ ./" | sudo tee -a /etc/apt/sources.list.d/99fd.io.list
+  sudo apt-get update
+  sudo apt-get install honeycomb
+
+== SNAPSHOT versions
+
+For SNAPSHOT versions, SNAPSHOT repositories have to be used.
+Each branch has its own repository at: https://nexus.fd.io/content/repositories/.
+In case SNAPSHOT versions needs to be used, update the URL pointing to the repository from previous steps
+according to the repository names listed at provided link.
