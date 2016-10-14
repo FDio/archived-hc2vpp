@@ -89,6 +89,7 @@ public class NshEntryReaderCustomizerTest extends
     public void setUp() throws VppBaseCallException {
         nshContext = new NamingContext("nsh_entry", ENTRY_CTX_NAME);
         defineMapping(mappingContext, ENTRY_NAME_1, ENTRY_INDEX_1, ENTRY_CTX_NAME);
+        defineMapping(mappingContext, ENTRY_NAME_2, ENTRY_INDEX_2, ENTRY_CTX_NAME);
 
         final NshEntryDetailsReplyDump reply = new NshEntryDetailsReplyDump();
         final NshEntryDetails nshEntryDetails = new NshEntryDetails();
@@ -123,5 +124,43 @@ public class NshEntryReaderCustomizerTest extends
         assertEquals(4, builder.getAugmentation(NshMdType1StateAugment.class).getC4().intValue());
 
         verify(jvppNsh).nshEntryDump(any(NshEntryDump.class));
+    }
+
+    @Test
+    public void testGetAllIds() throws ReadFailedException {
+        final NshEntryDetailsReplyDump reply = new NshEntryDetailsReplyDump();
+
+        final NshEntryDetails nshEntryDetails_1 = new NshEntryDetails();
+        nshEntryDetails_1.entryIndex = ENTRY_INDEX_1;
+        nshEntryDetails_1.verOC = 0;
+        nshEntryDetails_1.length = 6;
+        nshEntryDetails_1.mdType = 1;
+        nshEntryDetails_1.nextProtocol = 3;
+        nshEntryDetails_1.nspNsi = (123<<8 | 4);
+        nshEntryDetails_1.c1 = 1;
+        nshEntryDetails_1.c2 = 2;
+        nshEntryDetails_1.c3 = 3;
+        nshEntryDetails_1.c4 = 4;
+        reply.nshEntryDetails = Lists.newArrayList(nshEntryDetails_1);
+
+        final NshEntryDetails nshEntryDetails_2 = new NshEntryDetails();
+        nshEntryDetails_2.entryIndex = ENTRY_INDEX_2;
+        nshEntryDetails_2.verOC = 0;
+        nshEntryDetails_2.length = 6;
+        nshEntryDetails_2.mdType = 1;
+        nshEntryDetails_2.nextProtocol = 2;
+        nshEntryDetails_2.nspNsi = (223<<8 | 24);
+        nshEntryDetails_2.c1 = 21;
+        nshEntryDetails_2.c2 = 22;
+        nshEntryDetails_2.c3 = 23;
+        nshEntryDetails_2.c4 = 24;
+        reply.nshEntryDetails = Lists.newArrayList(nshEntryDetails_2);
+
+        doReturn(future(reply)).when(jvppNsh).nshEntryDump(any(NshEntryDump.class));
+
+        final List<NshEntryKey> allIds = getCustomizer().getAllIds(getNshEntryId(ENTRY_NAME_1), ctx);
+
+        assertEquals(reply.nshEntryDetails.size(), allIds.size());
+
     }
 }
