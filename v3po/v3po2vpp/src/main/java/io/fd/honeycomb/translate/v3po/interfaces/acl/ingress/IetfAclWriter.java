@@ -152,13 +152,14 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
 
     private static boolean appliesToIp4Path(final Ace ace) {
         final AceType aceType = ace.getMatches().getAceType();
-        if (aceType instanceof AceIp && ((AceIp) aceType).getAceIpVersion() instanceof AceIpv4) {
+        final AclType aclType = AclType.fromAce(ace);
+        if (aclType == AclType.IP4) {
             return true;
         }
-        if (aceType instanceof AceEth) {
+        if (aclType == AclType.ETH) {
             return true;  // L2 only rules are possible for IP4 traffic
         }
-        if (aceType instanceof AceIpAndEth && ((AceIpAndEth) aceType)
+        if (aclType == AclType.ETH_AND_IP && ((AceIpAndEth) aceType)
             .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv4) {
             return true;
         }
@@ -167,13 +168,14 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
 
     private static boolean appliesToIp6Path(final Ace ace) {
         final AceType aceType = ace.getMatches().getAceType();
-        if (aceType instanceof AceIp && ((AceIp) aceType).getAceIpVersion() instanceof AceIpv6) {
+        final AclType aclType = AclType.fromAce(ace);
+        if (aclType == AclType.IP6) {
             return true;
         }
-        if (aceType instanceof AceEth) {
-            return true; // L2 only rules are possible for IP6 traffic
+        if (aclType == AclType.ETH) {
+            return true;  // L2 only rules are possible for IP6 traffic
         }
-        if (aceType instanceof AceIpAndEth && ((AceIpAndEth) aceType)
+        if (aclType == AclType.ETH_AND_IP && ((AceIpAndEth) aceType)
             .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv6) {
             return true;
         }
@@ -291,9 +293,12 @@ public final class IetfAclWriter implements JvppReplyConsumer, AclTranslator {
                     result = ETH;
                 } else if (aceType instanceof AceIp) {
                     final AceIpVersion aceIpVersion = ((AceIp) aceType).getAceIpVersion();
+                    if (aceIpVersion == null) {
+                        throw new IllegalArgumentException("Incomplete ACE (ip-version was not provided): " + ace);
+                    }
                     if (aceIpVersion instanceof AceIpv4) {
                         result = IP4;
-                    } else {
+                    } else if (aceIpVersion instanceof AceIpv6) {
                         result = IP6;
                     }
                 } else if (aceType instanceof AceIpAndEth) {

@@ -82,14 +82,19 @@ module vpp-acl {
         Update/delete of ACL lists referenced here is not permitted (assignment needs to be removed first).
 
         Read is supported only for acls that were created and assigned by Honeycomb agent
-        (corresponding metadata are present).
+        (corresponding metadata is present).
+
+        Extensions:
+        - mixing ACEs of different type in one list is permited
+        - mixing L2/L3/L4 rules in one ACE is permited
 
         Limitations (due to vpp limitations):
         - egress rules are currently ignored (HONEYCOMB-234)
-        - L4 rules are currently not supported (limited support will by provided by HONEYCOMB-218)
-        - mixing L2 and L3 rules is possible only if ace-ip-version is provided
-          (vpp classfier api limitation: common header fields for IP4/IP6 have different offsets)
-        - L2 rules on L3 interfaces only to IP traffic (vpp classfier limitation)
+        - L4 rules support is limited (every <src,dst> port pair from provided ranges is translated to single classify
+        session; which can very slow or even crash vpp if ranges are big, see HONEYCOMB-260)
+        - ace-ip-version needs to be provided for all aces (consequence of posibility to mix ACEs of different types,
+          and vpp classfier api limitation: common header fields for IP4/IP6 have different offsets)
+        - L2 rules on L3 interfaces are applied only to IP traffic (vpp classfier limitation)
         - vlan tags are supported only for sub-interfaces defined as exact-match";
 
       list acl {
