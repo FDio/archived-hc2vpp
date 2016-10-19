@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.common.IetfAclWriter;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -34,10 +35,10 @@ import org.slf4j.LoggerFactory;
 
 public class IetfAclCustomizer implements WriterCustomizer<Egress> {
     private static final Logger LOG = LoggerFactory.getLogger(IetfAclCustomizer.class);
-    private final EgressIetfAclWriter aclWriter;
+    private final IetfAclWriter aclWriter;
     private final NamingContext interfaceContext;
 
-    public IetfAclCustomizer(final EgressIetfAclWriter aclWriter, final NamingContext interfaceContext) {
+    public IetfAclCustomizer(final IetfAclWriter aclWriter, final NamingContext interfaceContext) {
         this.aclWriter = checkNotNull(aclWriter, "aclWriter should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
@@ -59,7 +60,7 @@ public class IetfAclCustomizer implements WriterCustomizer<Egress> {
         }
 
         aclWriter.write(id, ifIndex, accessLists.getAcl(), accessLists.getDefaultAction(), accessLists.getMode(),
-            writeContext);
+            writeContext, writeContext.getMappingContext());
     }
 
     @Override
@@ -79,6 +80,6 @@ public class IetfAclCustomizer implements WriterCustomizer<Egress> {
         final String ifName = id.firstKeyOf(Interface.class).getName();
         final int ifIndex = interfaceContext.getIndex(ifName, writeContext.getMappingContext());
         LOG.debug("Removing ACLs for interface={}(id={}): {}", ifName, ifIndex, dataBefore);
-        aclWriter.deleteAcl(id, ifIndex);
+        aclWriter.deleteAcl(id, ifIndex, writeContext.getMappingContext());
     }
 }

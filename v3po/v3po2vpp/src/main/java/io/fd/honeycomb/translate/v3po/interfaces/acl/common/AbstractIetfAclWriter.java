@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.AceIpVersion;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev161214.mapping.entry.context.attributes.acl.mapping.entry.context.mapping.table.MappingEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessLists;
@@ -59,7 +60,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractIetfAclWriter implements IetfAclWriter, JvppReplyConsumer, AclTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIetfAclWriter.class);
-    private static final int NOT_DEFINED = -1;
+    protected static final int NOT_DEFINED = -1;
     protected final FutureJVppCore jvpp;
 
     private Map<AclType, AceWriter<? extends AceType>> aceWriters = new HashMap<>();
@@ -93,7 +94,14 @@ public abstract class AbstractIetfAclWriter implements IetfAclWriter, JvppReplyC
         return accessListEntries.getAce().stream();
     }
 
-    protected void removeClassifyTable(@Nonnull final InstanceIdentifier<?> id, final int tableIndex)
+    protected void removeClassifyTables(@Nonnull final InstanceIdentifier<?> id, @Nonnull final MappingEntry entry)
+        throws WriteFailedException {
+        removeClassifyTable(id, entry.getL2TableId());
+        removeClassifyTable(id, entry.getIp4TableId());
+        removeClassifyTable(id, entry.getIp6TableId());
+    }
+
+    private void removeClassifyTable(@Nonnull final InstanceIdentifier<?> id, final int tableIndex)
         throws WriteFailedException {
 
         if (tableIndex == -1) {

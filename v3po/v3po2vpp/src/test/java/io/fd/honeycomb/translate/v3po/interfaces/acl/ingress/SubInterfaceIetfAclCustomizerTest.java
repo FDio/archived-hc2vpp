@@ -21,15 +21,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.common.AclTableContextManager;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import java.util.Collections;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AclBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.EthAcl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclKey;
@@ -37,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev161214.mapping.entry.context.attributes.acl.mapping.entry.context.mapping.table.MappingEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessListsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.access.lists.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.SubinterfaceAugmentation;
@@ -67,10 +69,13 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
     private SubInterfaceIetfAclCustomizer customizer;
     private Ingress acl;
 
+    @Mock
+    private AclTableContextManager aclCtx;
+
     @Override
     protected void setUp() {
         customizer =
-            new SubInterfaceIetfAclCustomizer(new IngressIetfAclWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
+            new SubInterfaceIetfAclCustomizer(new IngressIetfAclWriter(api, aclCtx), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
 
         acl = new IngressBuilder().setAccessLists(
@@ -97,27 +102,25 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
     public void testDelete() throws WriteFailedException {
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
         defineMapping(mappingContext, SUBIF_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
-        when(api.classifyTableByInterface(any())).thenReturn(future(noClassifyTablesAssigned()));
         when(api.inputAclSetInterface(any())).thenReturn(future(new InputAclSetInterfaceReply()));
+        when(aclCtx.getEntry(SUBIF_INDEX, mappingContext)).thenReturn(Optional.of(
+            new MappingEntryBuilder()
+                .setIndex(SUBIF_INDEX)
+                .setL2TableId(-1)
+                .setIp4TableId(-1)
+                .setIp6TableId(-1)
+                .build()));
 
         customizer.deleteCurrentAttributes(IID, acl, writeContext);
 
         final ClassifyTableByInterface expectedRequest = new ClassifyTableByInterface();
         expectedRequest.swIfIndex = SUBIF_INDEX;
-        verify(api).classifyTableByInterface(expectedRequest);
         verify(api).inputAclSetInterface(inputAclSetInterfaceDeleteRequest());
-    }
-
-    private static ClassifyTableByInterfaceReply noClassifyTablesAssigned() {
-        final ClassifyTableByInterfaceReply reply = new ClassifyTableByInterfaceReply();
-        reply.l2TableId = -1;
-        reply.ip4TableId = -1;
-        reply.ip6TableId = -1;
-        return reply;
     }
 
     private static InputAclSetInterface inputAclSetInterfaceDeleteRequest() {
         final InputAclSetInterface request = new InputAclSetInterface();
+        request.swIfIndex = SUBIF_INDEX;
         request.l2TableIndex = -1;
         request.ip4TableIndex = -1;
         request.ip6TableIndex = -1;

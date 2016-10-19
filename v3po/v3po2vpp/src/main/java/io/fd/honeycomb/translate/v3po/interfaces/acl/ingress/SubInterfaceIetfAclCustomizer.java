@@ -82,7 +82,7 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
 
         aclWriter
             .write(id, subInterfaceIndex, accessLists.getAcl(), accessLists.getDefaultAction(), accessLists.getMode(),
-                writeContext, getNumberOfTags(subInterface.getTags()));
+                writeContext, getNumberOfTags(subInterface.getTags()), writeContext.getMappingContext());
     }
 
     @Override
@@ -103,6 +103,6 @@ public class SubInterfaceIetfAclCustomizer implements WriterCustomizer<Ingress> 
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, writeContext.getMappingContext());
         LOG.debug("Removing ACLs for sub-interface={}(id={}): {}", subInterfaceName, subInterfaceIndex, dataBefore);
-        aclWriter.deleteAcl(id, subInterfaceIndex);
+        aclWriter.deleteAcl(id, subInterfaceIndex, writeContext.getMappingContext());
     }
 }

@@ -18,8 +18,10 @@ package io.fd.honeycomb.translate.v3po;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.common.AclTableContextManagerImpl;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev161214.mapping.entry.context.attributes.acl.mapping.entry.context.MappingTable;
 
 class IngressIetfAClWriterProvider implements Provider<IngressIetfAclWriter> {
 
@@ -32,6 +34,6 @@ class IngressIetfAClWriterProvider implements Provider<IngressIetfAclWriter> {
 
     @Override
     public IngressIetfAclWriter get() {
-        return new IngressIetfAclWriter(jvpp);
+        return new IngressIetfAclWriter(jvpp, new AclTableContextManagerImpl(MappingTable.Direction.Ingress));
     }
 }

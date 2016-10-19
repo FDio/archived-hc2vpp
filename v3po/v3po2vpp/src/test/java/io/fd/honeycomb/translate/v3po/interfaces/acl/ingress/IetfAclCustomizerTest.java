@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.common.AclTableContextManager;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
@@ -30,7 +31,6 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import java.util.Arrays;
@@ -40,6 +40,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AclBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.EthAcl;
@@ -59,11 +60,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessListsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.access.lists.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.IetfAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.IngressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev161214.mapping.entry.context.attributes.acl.mapping.entry.context.mapping.table.MappingEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessListsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.access.lists.AclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class IetfAclCustomizerTest extends WriterCustomizerTest {
@@ -77,6 +79,9 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
     private static final String ACL_NAME = "acl1";
     private static final Class<? extends AclBase> ACL_TYPE = EthAcl.class;
 
+    @Mock
+    private AclTableContextManager aclCtx;
+
     private IetfAclCustomizer customizer;
     private Ingress acl;
     private int DENY = 0;
@@ -84,7 +89,7 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
 
     @Override
     protected void setUp() {
-        customizer = new IetfAclCustomizer(new IngressIetfAclWriter(api), new NamingContext("prefix", IFC_TEST_INSTANCE));
+        customizer = new IetfAclCustomizer(new IngressIetfAclWriter(api, aclCtx), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
         acl = new IngressBuilder().setAccessLists(
             new AccessListsBuilder().setAcl(
@@ -186,15 +191,20 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDelete() throws WriteFailedException {
-        when(api.classifyTableByInterface(any())).thenReturn(future(classifyTableByInterfaceReply()));
         when(api.inputAclSetInterface(any())).thenReturn(future(new InputAclSetInterfaceReply()));
         when(api.classifyAddDelTable(any())).thenReturn(future(new ClassifyAddDelTableReply()));
+        when(aclCtx.getEntry(IF_INDEX, mappingContext)).thenReturn(Optional.of(
+            new MappingEntryBuilder()
+                .setIndex(IF_INDEX)
+                .setL2TableId(1)
+                .setIp4TableId(2)
+                .setIp6TableId(3)
+                .build()));
 
         customizer.deleteCurrentAttributes(IID, acl, writeContext);
 
         final ClassifyTableByInterface expectedRequest = new ClassifyTableByInterface();
         expectedRequest.swIfIndex = IF_INDEX;
-        verify(api).classifyTableByInterface(expectedRequest);
         verify(api).inputAclSetInterface(inputAclSetInterfaceDeleteRequest());
         verify(api).classifyAddDelTable(classifyAddDelTable(1));
         verify(api).classifyAddDelTable(classifyAddDelTable(2));
@@ -203,6 +213,7 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
 
     private static InputAclSetInterface inputAclSetInterfaceDeleteRequest() {
         final InputAclSetInterface request = new InputAclSetInterface();
+        request.swIfIndex = IF_INDEX;
         request.l2TableIndex = 1;
         request.ip4TableIndex = 2;
         request.ip6TableIndex = 3;
@@ -212,14 +223,6 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
     private static ClassifyAddDelTable classifyAddDelTable(final int tableIndex) {
         final ClassifyAddDelTable reply = new ClassifyAddDelTable();
         reply.tableIndex = tableIndex;
-        return reply;
-    }
-
-    private static ClassifyTableByInterfaceReply classifyTableByInterfaceReply() {
-        final ClassifyTableByInterfaceReply reply = new ClassifyTableByInterfaceReply();
-        reply.l2TableId = 1;
-        reply.ip4TableId = 2;
-        reply.ip6TableId = 3;
         return reply;
     }
 

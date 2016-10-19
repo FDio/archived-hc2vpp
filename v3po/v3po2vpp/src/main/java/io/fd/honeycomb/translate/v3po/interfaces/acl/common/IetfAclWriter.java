@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces.acl.common;
 
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.List;
@@ -30,15 +31,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public interface IetfAclWriter {
     default void write(@Nonnull final InstanceIdentifier<?> id, final int ifIndex, @Nonnull final List<Acl> acls,
                        final AccessLists.DefaultAction defaultAction, @Nullable final InterfaceMode mode,
-                       @Nonnull final WriteContext writeContext)
+                       @Nonnull final WriteContext writeContext, @Nonnull final MappingContext mappingContext)
         throws WriteFailedException {
-        write(id, ifIndex, acls, defaultAction, mode, writeContext, 0);
+        write(id, ifIndex, acls, defaultAction, mode, writeContext, 0, mappingContext);
     }
 
     void write(@Nonnull final InstanceIdentifier<?> id, int ifIndex, @Nonnull final List<Acl> acls,
                final AccessLists.DefaultAction defaultAction, @Nullable InterfaceMode mode,
-               @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags)
+               @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags,
+               @Nonnull final MappingContext mappingContext)
         throws WriteFailedException;
 
-    void deleteAcl(InstanceIdentifier<?> id, int ifIndex) throws WriteFailedException;
+    void deleteAcl(@Nonnull final InstanceIdentifier<?> id, int ifIndex, @Nonnull final MappingContext mappingContext)
+        throws WriteFailedException;
 }

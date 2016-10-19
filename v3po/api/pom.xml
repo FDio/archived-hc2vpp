@@ -49,5 +49,10 @@
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>yang-ext</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.fd.honeycomb.vpp</groupId>
+      <artifactId>naming-context-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>

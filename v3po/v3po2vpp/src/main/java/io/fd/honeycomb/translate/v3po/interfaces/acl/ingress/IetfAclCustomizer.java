@@ -62,7 +62,7 @@ public class IetfAclCustomizer implements WriterCustomizer<Ingress> {
                 "ietf-acl container does not define acl list");
 
         aclWriter.write(id, ifIndex, accessLists.getAcl(), accessLists.getDefaultAction(), accessLists.getMode(),
-            writeContext);
+            writeContext, writeContext.getMappingContext());
     }
 
     @Override
@@ -84,6 +84,6 @@ public class IetfAclCustomizer implements WriterCustomizer<Ingress> {
         final String ifName = id.firstKeyOf(Interface.class).getName();
         final int ifIndex = interfaceContext.getIndex(ifName, writeContext.getMappingContext());
         LOG.debug("Removing ACLs for interface={}(id={}): {}", ifName, ifIndex, dataBefore);
-        aclWriter.deleteAcl(id, ifIndex);
+        aclWriter.deleteAcl(id, ifIndex, writeContext.getMappingContext());
     }
 }

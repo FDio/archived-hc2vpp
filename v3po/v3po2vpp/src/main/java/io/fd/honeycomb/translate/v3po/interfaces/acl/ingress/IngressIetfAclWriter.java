@@ -17,12 +17,15 @@
 package io.fd.honeycomb.translate.v3po.interfaces.acl.ingress;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.base.Optional;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.common.AbstractIetfAclWriter;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.common.AclTableContextManager;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
-import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterfaceReply;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -32,47 +35,42 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev161214.mapping.entry.context.attributes.acl.mapping.entry.context.mapping.table.MappingEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev161214.mapping.entry.context.attributes.acl.mapping.entry.context.mapping.table.MappingEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.InterfaceMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.ietf.acl.base.attributes.access.lists.Acl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class IngressIetfAclWriter extends AbstractIetfAclWriter {
+    private final AclTableContextManager aclCtx;
 
-    private static final int NOT_DEFINED = -1;
-
-    public IngressIetfAclWriter(@Nonnull final FutureJVppCore futureJVppCore) {
+    public IngressIetfAclWriter(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull AclTableContextManager aclCtx) {
         super(futureJVppCore);
+        this.aclCtx = checkNotNull(aclCtx, "aclCtx should not be null");
     }
 
     @Override
-    public void deleteAcl(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex)
+    public void deleteAcl(@Nonnull final InstanceIdentifier<?> id, final int swIfIndex,
+                          @Nonnull final MappingContext mappingContext)
         throws WriteFailedException {
-        final ClassifyTableByInterface request = new ClassifyTableByInterface();
-        request.swIfIndex = swIfIndex;
-
-        final CompletionStage<ClassifyTableByInterfaceReply> cs = jvpp.classifyTableByInterface(request);
-        final ClassifyTableByInterfaceReply reply = getReplyForDelete(cs.toCompletableFuture(), id);
-
-        // We unassign and remove all ACL-related classify tables for given interface (we assume we are the only
-        // classify table manager)
-
-        unassignClassifyTables(id, reply);
-
-        removeClassifyTable(id, reply.l2TableId);
-        removeClassifyTable(id, reply.ip4TableId);
-        removeClassifyTable(id, reply.ip6TableId);
+        Optional<MappingEntry> optional = aclCtx.getEntry(swIfIndex, mappingContext);
+        checkState(optional.isPresent(), "Removing ACL id=%s, but acl mapping entry is not present", id);
+        final MappingEntry entry = optional.get();
+        unassignClassifyTables(id, entry);
+        removeClassifyTables(id, entry);
+        aclCtx.removeEntry(swIfIndex, mappingContext);
     }
 
     private void unassignClassifyTables(@Nonnull final InstanceIdentifier<?> id,
-                                        final ClassifyTableByInterfaceReply currentState)
+                                        @Nonnull final MappingEntry entry)
         throws WriteFailedException {
         final InputAclSetInterface request = new InputAclSetInterface();
         request.isAdd = 0;
-        request.swIfIndex = currentState.swIfIndex;
-        request.l2TableIndex = currentState.l2TableId;
-        request.ip4TableIndex = currentState.ip4TableId;
-        request.ip6TableIndex = currentState.ip6TableId;
+        request.swIfIndex = entry.getIndex();
+        request.l2TableIndex = entry.getL2TableId();
+        request.ip4TableIndex = entry.getIp4TableId();
+        request.ip6TableIndex = entry.getIp6TableId();
         final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
             jvpp.inputAclSetInterface(request);
         getReplyForDelete(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
@@ -80,8 +78,9 @@ public final class IngressIetfAclWriter extends AbstractIetfAclWriter {
 
     @Override
     public void write(@Nonnull final InstanceIdentifier<?> id, int swIfIndex, @Nonnull final List<Acl> acls,
-                      final AccessLists.DefaultAction defaultAction, @Nullable InterfaceMode mode,
-                      @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags)
+                      @Nonnull final AccessLists.DefaultAction defaultAction, @Nullable final InterfaceMode mode,
+                      @Nonnull final WriteContext writeContext, @Nonnegative final int numberOfTags,
+                      @Nonnull final MappingContext mappingContext)
         throws WriteFailedException {
         checkArgument(numberOfTags >= 0 && numberOfTags <= 2, "Number of vlan tags %s is not in [0,2] range");
 
@@ -102,8 +101,18 @@ public final class IngressIetfAclWriter extends AbstractIetfAclWriter {
             request.ip6TableIndex = writeAces(id, ip6Aces, defaultAction, mode, numberOfTags);
         }
 
-        final CompletionStage<InputAclSetInterfaceReply> inputAclSetInterfaceReplyCompletionStage =
-            jvpp.inputAclSetInterface(request);
-        getReplyForWrite(inputAclSetInterfaceReplyCompletionStage.toCompletableFuture(), id);
+        final MappingEntry entry = new MappingEntryBuilder().setIndex(swIfIndex)
+            .setIp4TableId(request.ip4TableIndex)
+            .setIp6TableId(request.ip6TableIndex)
+            .setL2TableId(request.l2TableIndex)
+            .build();
+        aclCtx.addEntry(entry, mappingContext);
+
+        try {
+            getReplyForWrite(jvpp.inputAclSetInterface(request).toCompletableFuture(), id);
+        } catch (WriteFailedException e) {
+            removeClassifyTables(id, entry);
+            throw e;
+        }
     }
 }
