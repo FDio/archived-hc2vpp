@@ -3,6 +3,12 @@ module vpp-classifier {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier";
   prefix "vpp-classifier";
 
+  revision "2016-12-14" {
+    description
+      "This revision adds the following new features:
+        - updates order of union types for opaque-index";
+  }
+
   revision "2015-06-03" {
     description
       "Initial revision of model for VPP packet classifier.
@@ -54,8 +60,8 @@ module vpp-classifier {
 
   typedef opaque-index {
     type union {
-      type vpp-node;
       type uint32;
+      type vpp-node;
     }
     description
       "Defines opaque-index type - metadata that can be attached to session-hit packets.

@@ -20,7 +20,7 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603.VppNodeName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppNodeName;
 
 /**
  * Manages metadata for vpp-classifier

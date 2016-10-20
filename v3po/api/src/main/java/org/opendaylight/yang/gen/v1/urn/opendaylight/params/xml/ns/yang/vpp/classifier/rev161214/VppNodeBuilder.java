@@ -1,4 +1,4 @@
-package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev150603;
+package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214;
 
 
 /**
@@ -13,13 +13,7 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.cla
 public class VppNodeBuilder {
 
     public static VppNode getDefaultInstance(java.lang.String defaultValue) {
-        if (PacketHandlingAction.Deny.toString().equalsIgnoreCase(defaultValue)) {
-            return new VppNode(PacketHandlingAction.Deny);
-        } else if (PacketHandlingAction.Permit.toString().equalsIgnoreCase(defaultValue)) {
-            return new VppNode(PacketHandlingAction.Permit);
-        } else {
-            return new VppNode(new VppNodeName(defaultValue));
-        }
+        throw new java.lang.UnsupportedOperationException("Not yet implemented");
     }
 
 }
