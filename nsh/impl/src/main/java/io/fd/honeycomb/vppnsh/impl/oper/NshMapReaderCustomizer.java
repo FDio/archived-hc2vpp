@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VxlanGpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Swap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Push;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Pop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshMapsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.maps.NshMapBuilder;
@@ -114,6 +117,21 @@ public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
 
         builder.setMappedNsp((long) ((nshMapDetails.mappedNspNsi >> 8) & 0xFFFFFF));
         builder.setMappedNsi((short) (nshMapDetails.mappedNspNsi & 0xFF));
+
+        switch (nshMapDetails.nshAction) {
+        case 0:
+            builder.setNshAction(Swap.class);
+            break;
+        case 1:
+            builder.setNshAction(Push.class);
+            break;
+        case 2:
+            builder.setNshAction(Pop.class);
+            break;
+        default:
+            LOG.trace("Unsupported nsh_action for nsh map: {}", nshMapDetails.nshAction);
+            return;
+    }
 
         switch (nshMapDetails.nextNode) {
             case 2:

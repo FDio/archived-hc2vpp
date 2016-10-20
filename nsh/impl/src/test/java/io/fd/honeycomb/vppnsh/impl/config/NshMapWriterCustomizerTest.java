@@ -33,6 +33,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.honeycomb.translate.MappingContext;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VxlanGpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Swap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Push;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Pop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.NshMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.NshMapsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMap;
@@ -81,6 +84,7 @@ public class NshMapWriterCustomizerTest extends WriterCustomizerTest {
         builder.setNsi((short) 255);
         builder.setMappedNsp(183L);
         builder.setMappedNsi((short) 254);
+        builder.setNshAction(Swap.class);
         builder.setEncapType(VxlanGpe.class);
         builder.setEncapIfName("vxlanGpeTun3");
 
@@ -107,6 +111,7 @@ public class NshMapWriterCustomizerTest extends WriterCustomizerTest {
         request.isAdd = isAdd;
         request.nspNsi = 184<<8 | 255;
         request.mappedNspNsi = 183<<8 | 254;
+        request.nshAction = 0;
         request.swIfIndex = ITF_INDEX;
         request.nextNode = 2;
 

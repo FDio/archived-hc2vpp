@@ -33,6 +33,9 @@ import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VxlanGpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Swap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Push;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Pop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -113,6 +116,14 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
 
         request.nspNsi = (map.getNsp().intValue() << 8) | map.getNsi();
         request.mappedNspNsi = (map.getMappedNsp().intValue() << 8) | map.getMappedNsi();
+
+        if (map.getNshAction() == Swap.class) {
+            request.nshAction = 0;
+        } else if (map.getNshAction() == Push.class) {
+            request.nshAction = 1;
+        } else if (map.getNshAction() == Pop.class) {
+            request.nshAction = 2;
+        }
 
         if (map.getEncapType() == VxlanGpe.class) {
             request.nextNode = 2;

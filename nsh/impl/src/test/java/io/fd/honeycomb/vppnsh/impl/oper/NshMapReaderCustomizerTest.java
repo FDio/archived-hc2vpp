@@ -37,6 +37,9 @@ import org.mockito.Mock;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VxlanGpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Swap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Push;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Pop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNshState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNshStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshMaps;
@@ -104,6 +107,7 @@ public class NshMapReaderCustomizerTest extends
         final NshMapDetails nshMapDetails = new NshMapDetails();
         nshMapDetails.nspNsi = (184<<8 | 255);
         nshMapDetails.mappedNspNsi = (183<<8 | 254);
+        nshMapDetails.nshAction = 0;
         nshMapDetails.swIfIndex = ITF_INDEX;
         nshMapDetails.nextNode = 2;
         reply.nshMapDetails = Lists.newArrayList(nshMapDetails);
@@ -120,6 +124,7 @@ public class NshMapReaderCustomizerTest extends
         assertEquals(255, builder.getNsi().intValue());
         assertEquals(183, builder.getMappedNsp().intValue());
         assertEquals(254, builder.getMappedNsi().intValue());
+        assertEquals(Swap.class, builder.getNshAction());
         assertEquals(VxlanGpe.class, builder.getEncapType());
         assertEquals("vxlanGpeTun3", builder.getEncapIfName());
 
