@@ -21,7 +21,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.data.init.AbstractDataTreeConverter;
-import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -36,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.Subnet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder;
@@ -181,22 +179,23 @@ public class InterfacesInitializer extends AbstractDataTreeConverter<InterfacesS
 
             final Ipv4 ipv4 = ietfIpAugmentation.getIpv4();
             if (ipv4 != null) {
-                final List<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address>
-                    collect =
-                    ipv4.getAddress().stream()
-                        .map(
-                            address -> new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressBuilder()
-                                .setIp(address.getIp())
-                                .setSubnet(getSubnet(address))
-                                .build())
-                        .collect(Collectors.toList());
+                final Ipv4Builder ipv4Builder = new Ipv4Builder();
+                ipv4Builder.setAddress(
+                        ipv4.getAddress().stream()
+                                .map(address -> new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressBuilder()
+                                                .setIp(address.getIp())
+                                                .setSubnet(getSubnet(address))
+                                                .build())
+                                .collect(Collectors.toList()));
 
-                final List<Neighbor> neighbors = ipv4.getNeighbor().stream()
-                    .map(neighbor -> new NeighborBuilder().setIp(neighbor.getIp())
-                        .setLinkLayerAddress(neighbor.getLinkLayerAddress()).build())
-                    .collect(Collectors.toList());
+                if (ipv4.getNeighbor() != null) {
+                    ipv4Builder.setNeighbor(ipv4.getNeighbor().stream()
+                            .map(neighbor -> new NeighborBuilder().setIp(neighbor.getIp())
+                                    .setLinkLayerAddress(neighbor.getLinkLayerAddress()).build())
+                            .collect(Collectors.toList()));
+                }
 
-                augmentBuilder.setIpv4(new Ipv4Builder().setAddress(collect).setNeighbor(neighbors).build());
+                augmentBuilder.setIpv4(ipv4Builder.build());
             }
 
             builder.addAugmentation(Interface1.class, augmentBuilder.build());
