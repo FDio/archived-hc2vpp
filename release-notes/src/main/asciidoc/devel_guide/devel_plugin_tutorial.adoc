@@ -8,10 +8,12 @@ Since Honeycomb is a generic agent. Any plugin (translation code) can be injecte
 
 Honeycomb provides a maven archetype to generate a plugin skeleton. To use that archetype, run maven:
 
+[subs="+attributes"]
  mvn -X archetype:generate -DarchetypeGroupId=io.fd.honeycomb.tools -DarchetypeArtifactId=honeycomb-plugin-archetype -DarchetypeVersion={project-version}
 
 Fill in the parameters e.g.
 
+[subs="+attributes"]
  groupId: io.fd.honeycomb.tutorial
  artifactId: sample-plugin
  version: {project-version}
@@ -202,7 +204,7 @@ A new maven module needs to be created. So in sample-plugin folder:
 
 Then create the pom:
 
-[source,xml]
+[source,xml,subs="+attributes"]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -330,8 +332,10 @@ tar.gz archive
 folder
 The distribution can be started by:
 
+[subs="attributes"]
  sudo ./sample-distribution/target/sample-distribution-{project-version}-hc/sample-distribution-{project-version}/honeycomb
-Note: honeycomb-start script is the background alternative
+
+NOTE: honeycomb-start script is the background alternative
 
 Honeycomb will display following message in the log:
 

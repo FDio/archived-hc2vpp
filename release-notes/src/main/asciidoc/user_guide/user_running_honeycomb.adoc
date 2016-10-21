@@ -5,6 +5,7 @@ link:release_notes.html[< Home]
 == Starting Honeycomb agent
 The zipped vpp-integration distribution can be started by invoking:
 
+[subs="+attributes"]
  sudo ./vpp-integration-distribution-{project-version}/honeycomb
 
 This will start Honeycomb with all ODL dependencies and VPP translation code. It will automatically initialize vpp-jvpp to create interface between VPP and Honeycomb.
@@ -98,7 +99,7 @@ A notification should appear in opened NETCONF session.
 ====
 Testing over RESTCONF is easier, and common calls can be found in this postman collection:
 
-*{project-git-web}/v3po/postman_rest_collection.json?h={project-branch}[V3PO postman collection][Honeycomb V3PO POSTMAN collection]*
+* {project-git-web}/v3po/postman_rest_collection.json?h={project-branch}[V3PO postman collection][Honeycomb V3PO POSTMAN collection]*
 
 Each request in the collection contains equivalent VPP command (over CLI or VAT, whichever works) in the description.
 ====

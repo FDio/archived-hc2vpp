@@ -12,6 +12,7 @@ Building Honeycomb project requires:
 == Obtain the honeycomb source code
 TIP: Make sure you have https://wiki.fd.io/view/DEV/Setting_up_Gerrit[registered your ssh key with gerrit].
 
+[subs="+attributes"]
  git clone ssh://[username]@gerrit.fd.io:29418/honeycomb
  cd honeycomb
  git checkout {project-branch}
@@ -42,6 +43,7 @@ Start VPP:
 
 Install JVpp into local maven repository to make Honeycomb pick up the same JVpp version
 
+[subs="+attributes"]
  cd build-vpp-native/vpp-api/java/
  mvn install:install-file -Dfile=jvpp-registry-{project-vpp-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-registry -Dversion={project-vpp-snapshot-version} -Dpackaging=jar
  mvn install:install-file -Dfile=jvpp-core-{project-vpp-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-core -Dversion={project-vpp-snapshot-version}-Dpackaging=jar
@@ -172,7 +174,8 @@ cd honeycomb/
 
 Now Honeycomb can be run with:
 
- sudo sh vpp-integration/minimal-distribution/target/vpp-integration-distribution-1.16.9-SNAPSHOT-hc/vpp-integration-distribution-1.16.9-SNAPSHOT/honeycomb
+[subs="+attributes"]
+ sudo sh vpp-integration/minimal-distribution/target/vpp-integration-distribution-{project-version}-hc/vpp-integration-distribution-{project-version}/honeycomb
 
 === Building packages
 After the code has been built, you can build an RPM or DEB package for honeycomb.

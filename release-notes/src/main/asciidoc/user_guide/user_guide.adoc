@@ -15,7 +15,7 @@ Honeycomb's configuration files present within its distribution:
 * Honeycomb infra:
 ** {project-git-web}/infra/minimal-distribution/src/main/resources/honeycomb-minimal-resources/config/honeycomb.json?h={project-branch}[Honeycomb base configuration]
 * Honeycomb vpp plugins commons:
-** {project-git-web}/vpp-common/minimal-distribution/src/main/resources/honeycomb-minimal-resources/config/jvpp.json?h={project-branch}[VPP plugins common configuration]
+** {project-git-web}/vpp-common/vpp-common-integration/src/main/resources/honeycomb-minimal-resources/config/jvpp.json?h={project-branch}[VPP plugins common configuration]
 * V3PO plugin:
 ** {project-git-web}/v3po/v3po2vpp/src/main/resources/honeycomb-minimal-resources/config/v3po.json?h={project-branch}[V3PO plugin for Honeycomb configuration]
 * LISP plugin

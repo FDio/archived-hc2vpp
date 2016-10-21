@@ -58,7 +58,7 @@ Now rebuild the *-api module.
 === JVpp dependency
 Another important thing that the plugin needs is dependency to VPP's JVpp (Java APIs). To do so, just update *-impl's pom.xml with:
 
-[source,xml]
+[source,xml,subs="+attributes"]
 ----
 <!-- VPP's core Java APIs -->
 <dependency>
@@ -70,7 +70,7 @@ Another important thing that the plugin needs is dependency to VPP's JVpp (Java 
 
 Also add vpp-translate-utils dependency so that writing translation code is easier:
 
-[source,xml]
+[source,xml,subs="+attributes"]
 ----
 <dependency>
     <groupId>io.fd.honeycomb.vpp</groupId>
@@ -516,7 +516,8 @@ In order to add this new plugin into vpp-integration:
 
 * clone honeycomb codebase (since that's the home of vpp-integration distribution)
 * add a dependency for this sample plugin in vpp-integration distribution (honeycomb/vpp-integration/minimal-distribution/pom.xml):
-[source,xml]
+
+[source,xml,subs="+attributes"]
 ----
 <dependency>
   <groupId>io.fd.honeycomb.tutorial</groupId>
@@ -524,6 +525,7 @@ In order to add this new plugin into vpp-integration:
   <version>{project-version}</version>
 </dependency>
 ----
+
 * modify Main of vpp-integration distribution to include sample-plugin (/home/mmarsale/Projects/honeycomb/vpp-integration/minimal-distribution/src/main/java/io/fd/honeycomb/vpp/integration/distro/Main.java):
 [source,java]
 ----

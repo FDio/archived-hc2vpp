@@ -1,3 +1,5 @@
 = release-notes-aggregator
 
-This module contains only release notes related documentation
+This module contains only release notes related documentation.
+
+Full release notes can be found at link:release_notes.html[Release Notes]
