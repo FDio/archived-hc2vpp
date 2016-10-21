@@ -16,8 +16,6 @@
 
 package io.fd.honeycomb.translate.v3po.initializers;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.honeycomb.data.init.AbstractDataTreeConverter;
@@ -55,14 +53,17 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
         LOG.debug("VppInitializer.convert()");
 
         VppBuilder vppBuilder = new VppBuilder();
-        BridgeDomainsBuilder bdsBuilder = new BridgeDomainsBuilder();
-        bdsBuilder.setBridgeDomain(Lists.transform(operationalData.getBridgeDomains().getBridgeDomain(), CONVERT_BD));
-        vppBuilder.setBridgeDomains(bdsBuilder.build());
+        if (operationalData.getBridgeDomains() != null) {
+            BridgeDomainsBuilder bdsBuilder = new BridgeDomainsBuilder();
+            bdsBuilder.setBridgeDomain(operationalData.getBridgeDomains().getBridgeDomain().stream().map(VppInitializer::convert)
+                .collect(Collectors.toList()));
+            vppBuilder.setBridgeDomains(bdsBuilder.build());
+        }
         return vppBuilder.build();
     }
 
-    private static final Function<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.bridge.domains.BridgeDomain, BridgeDomain>
-            CONVERT_BD = input -> {
+    private static BridgeDomain convert(
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.bridge.domains.BridgeDomain input) {
         final BridgeDomainBuilder builder = new BridgeDomainBuilder();
         builder.setLearn(input.isLearn());
         builder.setUnknownUnicastFlood(input.isUnknownUnicastFlood());
@@ -73,7 +74,7 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
         builder.setName(input.getName());
         setL2FibTable(builder, input.getL2FibTable());
         return builder.build();
-    };
+    }
 
     private static void setL2FibTable(@Nonnull final BridgeDomainBuilder builder,
                                       @Nullable final L2FibTable l2FibTable) {
@@ -81,11 +82,11 @@ public class VppInitializer extends AbstractDataTreeConverter<VppState, Vpp> {
             return;
         }
         final L2FibTableBuilder tableBuilder = new L2FibTableBuilder()
-                .setL2FibEntry(
-                        l2FibTable.getL2FibEntry().stream()
-                                // Convert operational object to config. VPP does not support setting BVI (see v3po.yang)
-                                .map(oper -> new L2FibEntryBuilder(oper).setBridgedVirtualInterface(null).build())
-                                .collect(Collectors.toList()));
+            .setL2FibEntry(
+                l2FibTable.getL2FibEntry().stream()
+                    // Convert operational object to config. VPP does not support setting BVI (see v3po.yang)
+                    .map(oper -> new L2FibEntryBuilder(oper).setBridgedVirtualInterface(null).build())
+                    .collect(Collectors.toList()));
         builder.setL2FibTable(tableBuilder.build());
     }
 
