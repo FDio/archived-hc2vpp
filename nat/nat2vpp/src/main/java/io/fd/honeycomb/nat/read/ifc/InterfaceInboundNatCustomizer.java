@@ -17,39 +17,127 @@
 package io.fd.honeycomb.nat.read.ifc;
 
 import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214.NatInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.Nat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.NatBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.nat.Inbound;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.nat.InboundBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.yang.binding.Augmentation;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class InterfaceInboundNatCustomizer implements ReaderCustomizer<Inbound, InboundBuilder> {
+final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer<Inbound, InboundBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceInboundNatCustomizer.class);
+
+    InterfaceInboundNatCustomizer(
+            @Nonnull final DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> dumpMgr,
+            @Nonnull final NamingContext ifcContext) {
+        super(dumpMgr, ifcContext);
+    }
+
+    @Override
+    protected Logger getLog() {
+        return LOG;
+    }
+
+    @Override
+    void setBuilderPresence(@Nonnull final InboundBuilder builder) {
+        ((PresenceInboundBuilder) builder).setPresent(true);
+    }
+
+    @Override
+    boolean isExpectedNatType(final SnatInterfaceDetails snatInterfaceDetails) {
+        return snatInterfaceDetails.isInside == 1;
+    }
 
     @Nonnull
     @Override
     public InboundBuilder getBuilder(@Nonnull final InstanceIdentifier<Inbound> id) {
-        return new InboundBuilder();
-    }
-
-    @Override
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Inbound> id,
-                                      @Nonnull final InboundBuilder builder,
-                                      @Nonnull final ReadContext ctx)
-            throws ReadFailedException {
-        // FIXME HONEYCOMB-248 VPP-459 Implement when read is available in VPP/Snat
-        LOG.debug("Unable to read Inbound NAT feature state for an interface");
+        // Return not present value by default
+        return new PresenceInboundBuilder(false);
     }
 
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final Inbound readValue) {
         ((NatBuilder) parentBuilder).setInbound(readValue);
+    }
+
+    @Nonnull
+    @Override
+    public Initialized<? extends DataObject> init(@Nonnull final InstanceIdentifier<Inbound> id,
+                                                  @Nonnull final Inbound readValue,
+                                                  @Nonnull final ReadContext ctx) {
+        final InstanceIdentifier<Inbound> cfgId =
+                InstanceIdentifier.create(Interfaces.class)
+                .child(Interface.class,
+                        new InterfaceKey(id.firstKeyOf(
+                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class).getName()))
+                .augmentation(NatInterfaceAugmentation.class)
+                .child(Nat.class)
+                .child(Inbound.class);
+        return Initialized.create(cfgId, readValue);
+    }
+
+    // TODO HONEYCOMB-270, make this better, having to fake a builder + value is just exploitation.
+
+    /**
+     * Special Builder to also propagate empty container into the resulting data.
+     */
+    private static final class PresenceInboundBuilder extends InboundBuilder {
+
+        private volatile boolean isPresent = false;
+
+        PresenceInboundBuilder(final boolean isPresent) {
+            this.isPresent = isPresent;
+        }
+
+        void setPresent(final boolean present) {
+            this.isPresent = present;
+        }
+
+        @Override
+        public Inbound build() {
+            return isPresent
+                    ? super.build()
+                    : NotPresentInbound.NOT_PRESENT_INBOUND;
+        }
+    }
+
+    /**
+     * Fake container that returns false on equals.
+     */
+    private static final class NotPresentInbound implements Inbound {
+
+        private static final NotPresentInbound NOT_PRESENT_INBOUND = new NotPresentInbound();
+
+        @Override
+        public <E extends Augmentation<Inbound>> E getAugmentation(final Class<E> augmentationType) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Class<? extends DataContainer> getImplementedInterface() {
+            return Inbound.class;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            // This is necessary to fake this.equals(something)
+            return obj == NOT_PRESENT_INBOUND;
+        }
     }
 }

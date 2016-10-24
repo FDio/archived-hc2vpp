@@ -17,9 +17,19 @@
 package io.fd.honeycomb.nat.read.ifc;
 
 
-import io.fd.honeycomb.translate.impl.read.GenericReader;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import io.fd.honeycomb.translate.impl.read.GenericInitReader;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDump;
+import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -42,14 +52,45 @@ public final class IfcNatReaderFactory implements ReaderFactory {
             IFC_ID.augmentation(NatInterfaceStateAugmentation.class);
     private static final InstanceIdentifier<Nat> NAT_AUG_CONTAINER_ID = NAT_AUG_ID.child(Nat.class);
 
+    private final DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> snatIfcDumpMgr;
+    private final NamingContext ifcContext;
+
+    @Inject
+    public IfcNatReaderFactory(final FutureJVppSnatFacade jvppSnat,
+                               @Named("interface-context") final NamingContext ifcContext) {
+        this.snatIfcDumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatInterfaceDetailsReplyDump, Void>()
+                .withExecutor(new SnatInterfaceExecutor(jvppSnat))
+                .build();
+        this.ifcContext = ifcContext;
+    }
+
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
         registry.addStructuralReader(NAT_AUG_ID, NatInterfaceStateAugmentationBuilder.class);
         registry.addStructuralReader(NAT_AUG_CONTAINER_ID, NatBuilder.class);
 
-        registry.addAfter(
-                new GenericReader<>(NAT_AUG_CONTAINER_ID.child(Inbound.class), new InterfaceInboundNatCustomizer()), IFC_ID);
-        registry.addAfter(
-                new GenericReader<>(NAT_AUG_CONTAINER_ID.child(Outbound.class), new InterfaceOutboundNatCustomizer()), IFC_ID);
+        registry.addAfter(new GenericInitReader<>(NAT_AUG_CONTAINER_ID.child(Inbound.class),
+                        new InterfaceInboundNatCustomizer(snatIfcDumpMgr, ifcContext)), IFC_ID);
+        registry.addAfter(new GenericInitReader<>(NAT_AUG_CONTAINER_ID.child(Outbound.class),
+                        new InterfaceOutboundNatCustomizer(snatIfcDumpMgr, ifcContext)), IFC_ID);
+    }
+
+    private static final class SnatInterfaceExecutor implements
+            EntityDumpExecutor<SnatInterfaceDetailsReplyDump, Void>,
+            JvppReplyConsumer {
+
+        private final FutureJVppSnatFacade jvppSnat;
+
+        SnatInterfaceExecutor(final FutureJVppSnatFacade jvppSnat) {
+            this.jvppSnat = jvppSnat;
+        }
+
+        @Nonnull
+        @Override
+        public SnatInterfaceDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, final Void params)
+                throws ReadFailedException {
+            return getReplyForRead(
+                    jvppSnat.snatInterfaceDump(new SnatInterfaceDump()).toCompletableFuture(), identifier);
+        }
     }
 }
