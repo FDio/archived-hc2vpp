@@ -71,7 +71,7 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer
                                               .rev161214.interfaces.state._interface.ProxyArpBuilder builder,
                                       @Nonnull ReadContext ctx) throws ReadFailedException {
 
-        //TODO: VPP-225 Implement fully when VPP Proxy ARP read API is available
+        //TODO: VPP-225 Implement fully when VPP Proxy ARP read API is available + add initializing
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
         LOG.warn("Reading of ARP data not (yet) supported by VPP API");

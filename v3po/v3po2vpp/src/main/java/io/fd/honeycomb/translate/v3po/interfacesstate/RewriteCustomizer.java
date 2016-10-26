@@ -58,6 +58,9 @@ import org.slf4j.LoggerFactory;
 public class RewriteCustomizer extends FutureJVppCustomizer
         implements ReaderCustomizer<Rewrite, RewriteBuilder>, InterfaceDataTranslator {
 
+    // No initialization necessary since its parent Subinterface L2 customzier sets the entire subtree during
+    // initialization
+
     private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
     private final NamingContext interfaceContext;
 

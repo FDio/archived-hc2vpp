@@ -20,7 +20,9 @@ import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.GreTunnelDetails;
@@ -38,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.GreTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.GreBuilder;
@@ -48,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GreCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<Gre, GreBuilder>, InterfaceDataTranslator {
+        implements InitializingReaderCustomizer<Gre, GreBuilder>, InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(GreCustomizer.class);
     private NamingContext interfaceContext;
@@ -132,5 +135,23 @@ public class GreCustomizer extends FutureJVppCustomizer
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("Cannot create InetAddress from " + Arrays.toString(addr), e);
         }
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Gre> init(
+            @Nonnull final InstanceIdentifier<Gre> id, @Nonnull final Gre readValue, @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.GreBuilder()
+                        .setDst(readValue.getDst())
+                        .setSrc(readValue.getSrc())
+                        .setOuterFibId(readValue.getOuterFibId())
+                        .build());
+    }
+
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Gre> getCfgId(
+            final InstanceIdentifier<Gre> id) {
+        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
+                .augmentation(VppInterfaceAugmentation.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Gre.class);
     }
 }

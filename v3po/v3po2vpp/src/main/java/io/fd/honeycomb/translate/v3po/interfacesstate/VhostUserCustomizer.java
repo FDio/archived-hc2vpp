@@ -18,7 +18,9 @@ package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -36,6 +38,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VhostUserRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VhostUserBuilder;
@@ -47,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class VhostUserCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<VhostUser, VhostUserBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
+        implements InitializingReaderCustomizer<VhostUser, VhostUserBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
 
     public static final String DUMPED_VHOST_USERS_CONTEXT_KEY =
             VhostUserCustomizer.class.getName() + "dumpedVhostUsersDuringGetAllIds";
@@ -128,5 +131,24 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         builder.setConnectError(Integer.toString(swInterfaceVhostUserDetails.sockErrno));
 
         LOG.debug("Vhost user interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUser> init(
+            @Nonnull final InstanceIdentifier<VhostUser> id,
+            @Nonnull final VhostUser readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUserBuilder()
+                        .setRole(readValue.getRole())
+                        .setSocket(readValue.getSocket())
+                        .build());
+    }
+
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUser> getCfgId(
+            final InstanceIdentifier<VhostUser> id) {
+        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
+                .augmentation(VppInterfaceAugmentation.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUser.class);
     }
 }

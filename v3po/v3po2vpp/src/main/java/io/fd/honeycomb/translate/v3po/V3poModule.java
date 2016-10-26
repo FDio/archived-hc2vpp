@@ -19,13 +19,9 @@ package io.fd.honeycomb.translate.v3po;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.v3po.cfgattrs.V3poConfiguration;
-import io.fd.honeycomb.translate.v3po.initializers.InterfacesInitializer;
-import io.fd.honeycomb.translate.v3po.initializers.VppClassifierInitializer;
-import io.fd.honeycomb.translate.v3po.initializers.VppInitializer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.egress.EgressIetfAclWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
 import io.fd.honeycomb.translate.v3po.notification.InterfaceChangeNotificationProducer;
@@ -86,13 +82,6 @@ public class V3poModule extends AbstractModule {
         writerFactoryBinder.addBinding().to(VppHoneycombWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppClassifierHoneycombWriterFactory.class);
         writerFactoryBinder.addBinding().to(AclWriterFactory.class);
-
-        // Initializers
-        final Multibinder<DataTreeInitializer> initializerBinder =
-                Multibinder.newSetBinder(binder(), DataTreeInitializer.class);
-        initializerBinder.addBinding().to(InterfacesInitializer.class);
-        initializerBinder.addBinding().to(VppClassifierInitializer.class);
-        initializerBinder.addBinding().to(VppInitializer.class);
 
         // Notifications
         final Multibinder<ManagedNotificationProducer> notifiersBinder =

@@ -23,7 +23,8 @@ import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInts;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppClassifierStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.state.ClassifyTable;
@@ -55,9 +57,8 @@ import org.slf4j.LoggerFactory;
  * class table} command.
  */
 public class ClassifyTableReader extends FutureJVppCustomizer
-        implements ListReaderCustomizer<ClassifyTable, ClassifyTableKey, ClassifyTableBuilder>, VppNodeReader,
-        MacTranslator,
-        InterfaceDataTranslator, JvppReplyConsumer {
+        implements InitializingListReaderCustomizer<ClassifyTable, ClassifyTableKey, ClassifyTableBuilder>, VppNodeReader,
+        MacTranslator, InterfaceDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableReader.class);
     private final VppClassifierContextManager classifyTableContext;
@@ -149,5 +150,22 @@ public class ClassifyTableReader extends FutureJVppCustomizer
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.ClassifyTable> init(
+            @Nonnull final InstanceIdentifier<ClassifyTable> id, @Nonnull final ClassifyTable readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.ClassifyTableBuilder(readValue)
+                        .setName(readValue.getName())
+                        .build());
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.ClassifyTable> getCfgId(
+            final InstanceIdentifier<ClassifyTable> id) {
+        return InstanceIdentifier.create(VppClassifier.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.ClassifyTable.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.ClassifyTableKey(id.firstKeyOf(ClassifyTable.class).getName()));
     }
 }

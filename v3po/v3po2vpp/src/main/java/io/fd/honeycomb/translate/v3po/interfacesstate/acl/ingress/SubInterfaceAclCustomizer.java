@@ -22,7 +22,10 @@ import static io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils.getSubInterfa
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
@@ -35,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.acl.IngressBuilder;
@@ -48,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading ingress ACLs enabled on given sub-interface.
  */
 public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<Ingress, IngressBuilder>, AclReader, JvppReplyConsumer {
+        implements InitializingReaderCustomizer<Ingress, IngressBuilder>, AclReader, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceAclCustomizer.class);
     private final NamingContext interfaceContext;
@@ -97,5 +101,20 @@ public class SubInterfaceAclCustomizer extends FutureJVppCustomizer
         if (LOG.isTraceEnabled()) {
             LOG.trace("Attributes for ACL {} successfully read: {}", id, builder.build());
         }
+    }
+
+    @Override
+    public Initialized<Ingress> init(
+            @Nonnull final InstanceIdentifier<Ingress> id,
+            @Nonnull final Ingress readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id), readValue);
+    }
+
+    static InstanceIdentifier<Ingress> getCfgId(
+            final InstanceIdentifier<Ingress> id) {
+        return SubInterfaceCustomizer.getCfgId(RWUtils.cutId(id, SubInterface.class))
+                .child(Acl.class)
+                .child(Ingress.class);
     }
 }

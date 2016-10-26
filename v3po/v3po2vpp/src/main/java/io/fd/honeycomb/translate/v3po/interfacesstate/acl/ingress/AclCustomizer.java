@@ -21,7 +21,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
@@ -32,6 +35,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.acl.IngressBuilder;
@@ -45,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading ingress ACLs enabled on given interface.
  */
 public class AclCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<Ingress, IngressBuilder>, AclReader, JvppReplyConsumer {
+        implements InitializingReaderCustomizer<Ingress, IngressBuilder>, AclReader, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclCustomizer.class);
     private final NamingContext interfaceContext;
@@ -90,5 +94,25 @@ public class AclCustomizer extends FutureJVppCustomizer
         if (LOG.isTraceEnabled()) {
             LOG.trace("Attributes for ACL {} successfully read: {}", id, builder.build());
         }
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.acl.Ingress> init(
+            @Nonnull final InstanceIdentifier<Ingress> id, @Nonnull final Ingress readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.acl.IngressBuilder()
+                        .setL2Acl(readValue.getL2Acl())
+                        .setIp4Acl(readValue.getIp4Acl())
+                        .setIp6Acl(readValue.getIp6Acl())
+                        .build());
+    }
+
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.acl.Ingress> getCfgId(
+            final InstanceIdentifier<Ingress> id) {
+        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
+                .augmentation(VppInterfaceAugmentation.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Acl.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.acl.Ingress.class);
     }
 }

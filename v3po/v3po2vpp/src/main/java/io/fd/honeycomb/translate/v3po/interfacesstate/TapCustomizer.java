@@ -7,7 +7,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or aTaped to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -18,10 +18,13 @@ package io.fd.honeycomb.translate.v3po.interfacesstate;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDump;
@@ -34,6 +37,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.TapBuilder;
@@ -45,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class TapCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<Tap, TapBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
+        implements InitializingReaderCustomizer<Tap, TapBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(TapCustomizer.class);
     public static final String DUMPED_TAPS_CONTEXT_KEY = TapCustomizer.class.getName() + "dumpedTapsDuringGetAllIds";
@@ -110,5 +115,29 @@ public class TapCustomizer extends FutureJVppCustomizer
 
         builder.setTapName(toString(swInterfaceTapDetails.devName));
         LOG.debug("Tap interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Tap> init(
+            @Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap readValue, @Nonnull final ReadContext ctx) {
+        // The MAC address is set from interface details, those details are retrieved from cache
+        final InterfaceKey key = id.firstKeyOf(Interface.class);
+        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
+        final SwInterfaceDetails ifcDetails =
+                InterfaceCustomizer.getCachedInterfaceDump(ctx.getModificationCache()).get(index);
+
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.TapBuilder()
+                        .setMac(new PhysAddress(vppPhysAddrToYang(ifcDetails.l2Address)))
+                        .setTapName(readValue.getTapName())
+//                            tapBuilder.setDeviceInstance();
+                        .build());
+    }
+
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Tap> getCfgId(
+            final InstanceIdentifier<Tap> id) {
+        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
+                .augmentation(VppInterfaceAugmentation.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Tap.class);
     }
 }

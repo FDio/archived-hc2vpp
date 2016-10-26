@@ -31,7 +31,7 @@ public class PbbRewriteStateCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<PbbRewriteState> id,
                                       @Nonnull final PbbRewriteStateBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
-        //TODO implement read after https://jira.fd.io/browse/VPP-468
+        //TODO implement read after https://jira.fd.io/browse/VPP-468 + init
     }
 
     @Override

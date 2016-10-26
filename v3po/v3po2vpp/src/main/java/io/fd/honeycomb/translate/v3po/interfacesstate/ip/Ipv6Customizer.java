@@ -53,7 +53,7 @@ public class Ipv6Customizer extends FutureJVppCustomizer implements ReaderCustom
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv6> id, @Nonnull final Ipv6Builder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        // TODO HONEYCOMB-102 implement
+        // TODO HONEYCOMB-102 implement + init
 //        final IpAddressDump dumpRequest = new IpAddressDump();
 //        dumpRequest.isIpv6 = 1;
 //        dumpRequest.swIfIndex = interfaceContext.getIndex(id.firstKeyOf(Interface.class).getName(),

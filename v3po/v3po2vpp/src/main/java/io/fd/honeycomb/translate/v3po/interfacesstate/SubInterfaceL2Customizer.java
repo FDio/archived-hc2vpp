@@ -20,9 +20,12 @@ import static io.fd.honeycomb.translate.vpp.util.SubInterfaceUtils.getSubInterfa
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -34,14 +37,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Customizer for reading vlan sub interface L2 operational state
  */
-public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements ReaderCustomizer<L2, L2Builder> {
+public class SubInterfaceL2Customizer extends FutureJVppCustomizer
+        implements InitializingReaderCustomizer<L2, L2Builder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceL2Customizer.class);
     private final InterconnectionReadUtils icReadUtils;
@@ -73,5 +76,18 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer implements Re
         final String subInterfaceName = getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
 
         builder.setInterconnection(icReadUtils.readInterconnection(id, subInterfaceName, ctx));
+    }
+
+    @Override
+    public Initialized<L2> init(
+            @Nonnull final InstanceIdentifier<L2> id,
+            @Nonnull final L2 readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id), readValue);
+    }
+
+    static InstanceIdentifier<L2> getCfgId(final InstanceIdentifier<L2> id) {
+        return SubInterfaceCustomizer.getCfgId(RWUtils.cutId(id, SubInterface.class))
+                .child(L2.class);
     }
 }

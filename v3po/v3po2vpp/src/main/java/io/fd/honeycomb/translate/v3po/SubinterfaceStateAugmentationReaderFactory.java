@@ -17,14 +17,15 @@
 package io.fd.honeycomb.translate.v3po;
 
 import com.google.common.collect.Sets;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.v3po.interfacesstate.RewriteCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceCustomizer;
-import io.fd.honeycomb.translate.v3po.interfacesstate.acl.ingress.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceL2Customizer;
+import io.fd.honeycomb.translate.v3po.interfacesstate.acl.ingress.SubInterfaceAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -86,10 +87,10 @@ final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory 
             InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class).child(Dot1qTag.class),
             InstanceIdentifier.create(SubInterface.class).child(Match.class),
             InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
-            new GenericListReader<>(subIfcId, new SubInterfaceCustomizer(jvpp, ifcCtx)));
+            new GenericInitListReader<>(subIfcId, new SubInterfaceCustomizer(jvpp, ifcCtx)));
         //    L2
         final InstanceIdentifier<L2> l2Id = subIfcId.child(L2.class);
-        registry.add(new GenericReader<>(l2Id, new SubInterfaceL2Customizer(jvpp, ifcCtx, bdCtx)));
+        registry.add(new GenericInitReader<>(l2Id, new SubInterfaceL2Customizer(jvpp, ifcCtx, bdCtx)));
         //     Rewrite(Subtree)
         registry.subtreeAdd(Sets.newHashSet(
             InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
@@ -102,7 +103,7 @@ final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory 
         registry.addStructuralReader(ipv4Id, Ipv4Builder.class);
         //     Address
         registry.add(
-            new GenericListReader<>(ipv4Id.child(Address.class), new SubInterfaceIpv4AddressCustomizer(jvpp, ifcCtx)));
+            new GenericInitListReader<>(ipv4Id.child(Address.class), new SubInterfaceIpv4AddressCustomizer(jvpp, ifcCtx)));
         //    Acl(Structural)
         final InstanceIdentifier<Acl> aclIid = subIfcId.child(Acl.class);
         registry.addStructuralReader(aclIid, AclBuilder.class);
@@ -111,7 +112,7 @@ final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory 
         registry.subtreeAdd(
             Sets.newHashSet(ingressIdRelative.child(L2Acl.class), ingressIdRelative.child(Ip4Acl.class),
                 ingressIdRelative.child(Ip6Acl.class)),
-            new GenericReader<>(aclIid.child(Ingress.class),
+            new GenericInitReader<>(aclIid.child(Ingress.class),
                 new SubInterfaceAclCustomizer(jvpp, ifcCtx, classifyCtx)));
     }
 }

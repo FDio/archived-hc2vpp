@@ -18,17 +18,18 @@ package io.fd.honeycomb.translate.v3po;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.KeepaliveReaderWrapper;
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
-import io.fd.honeycomb.translate.vpp.util.ReadTimeoutException;
-import io.fd.honeycomb.translate.vpp.util.VppStatusListener;
 import io.fd.honeycomb.translate.v3po.vppstate.BridgeDomainCustomizer;
 import io.fd.honeycomb.translate.v3po.vppstate.L2FibEntryCustomizer;
 import io.fd.honeycomb.translate.v3po.vppstate.VersionCustomizer;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.honeycomb.translate.vpp.util.ReadTimeoutException;
+import io.fd.honeycomb.translate.vpp.util.VppStatusListener;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.ScheduledExecutorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppStateBuilder;
@@ -40,7 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.Version;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public final class VppStateHoneycombReaderFactory implements ReaderFactory {
 
@@ -79,12 +79,12 @@ public final class VppStateHoneycombReaderFactory implements ReaderFactory {
         registry.addStructuralReader(bridgeDomainsId, BridgeDomainsBuilder.class);
         //   BridgeDomain
         final InstanceIdentifier<BridgeDomain> bridgeDomainId = bridgeDomainsId.child(BridgeDomain.class);
-        registry.add(new GenericListReader<>(bridgeDomainId, new BridgeDomainCustomizer(jVpp, bdCtx)));
+        registry.add(new GenericInitListReader<>(bridgeDomainId, new BridgeDomainCustomizer(jVpp, bdCtx)));
         //    L2FibTable(Structural)
         final InstanceIdentifier<L2FibTable> l2FibTableId = bridgeDomainId.child(L2FibTable.class);
         registry.addStructuralReader(l2FibTableId, L2FibTableBuilder.class);
         //     L2FibEntry
-        registry.add(new GenericListReader<>(l2FibTableId.child(L2FibEntry.class),
+        registry.add(new GenericInitListReader<>(l2FibTableId.child(L2FibEntry.class),
                 new L2FibEntryCustomizer(jVpp, bdCtx, ifcCtx)));
     }
 }

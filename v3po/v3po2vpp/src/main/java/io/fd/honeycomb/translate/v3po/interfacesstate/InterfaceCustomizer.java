@@ -20,7 +20,8 @@ import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
@@ -37,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
@@ -53,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading ietf-interfaces:interfaces-state/interface.
  */
 public class InterfaceCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder>, ByteDataTranslator,
+        implements InitializingListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder>, ByteDataTranslator,
         InterfaceDataTranslator {
 
     public static final String DUMPED_IFCS_CONTEXT_KEY =
@@ -201,5 +203,26 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     public void merge(@Nonnull final org.opendaylight.yangtools.concepts.Builder<? extends DataObject> builder,
                       @Nonnull final List<Interface> readData) {
         ((InterfacesStateBuilder) builder).setInterface(readData);
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> init(
+            @Nonnull final InstanceIdentifier<Interface> id, @Nonnull final Interface readValue, @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder()
+                        .setName(readValue.getName())
+                        .setType(readValue.getType())
+                        .setEnabled(AdminStatus.Up.equals(readValue.getAdminStatus()))
+                        // Not present in interfaces-state
+                        // .setLinkUpDownTrapEnable()
+                        .build());
+    }
+
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> getCfgId(
+            final InstanceIdentifier<Interface> id) {
+        return InstanceIdentifier.create(Interfaces.class).child(
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class,
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey(
+                        id.firstKeyOf(Interface.class).getName()));
     }
 }

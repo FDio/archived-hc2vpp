@@ -21,8 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -34,6 +37,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.AddressBuilder;
@@ -49,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * Read customizer for sub-interface Ipv4 addresses.
  */
 public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<Address, AddressKey, AddressBuilder>, Ipv4Reader {
+        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder>, Ipv4Reader {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv4AddressCustomizer.class);
     private static final String CACHE_KEY = SubInterfaceIpv4AddressCustomizer.class.getName();
@@ -119,5 +123,18 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
     private static String getSubInterfaceName(@Nonnull final InstanceIdentifier<Address> id) {
         return SubInterfaceUtils.getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
                 Math.toIntExact(id.firstKeyOf(SubInterface.class).getIdentifier()));
+    }
+
+    @Override
+    public Initialized<Address> init(
+            @Nonnull final InstanceIdentifier<Address> id, @Nonnull final Address readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id), readValue);
+    }
+
+    private InstanceIdentifier<Address> getCfgId(final InstanceIdentifier<Address> id) {
+        return SubInterfaceCustomizer.getCfgId(RWUtils.cutId(id, SubInterface.class))
+                .child(Ipv4.class)
+                .child(Address.class, new AddressKey(id.firstKeyOf(Address.class)));
     }
 }

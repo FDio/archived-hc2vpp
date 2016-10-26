@@ -20,7 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
@@ -39,6 +40,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.L2FibFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.L2FibForward;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.fib.attributes.L2FibTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.fib.attributes.L2FibTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.fib.attributes.l2.fib.table.L2FibEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.fib.attributes.l2.fib.table.L2FibEntryBuilder;
@@ -52,7 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class L2FibEntryCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder>, ByteDataTranslator,
+        implements InitializingListReaderCustomizer<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder>, ByteDataTranslator,
         InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2FibEntryCustomizer.class);
@@ -143,5 +145,21 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
     @Override
     public L2FibEntryBuilder getBuilder(@Nonnull final InstanceIdentifier<L2FibEntry> id) {
         return new L2FibEntryBuilder();
+    }
+
+    @Override
+    public Initialized<L2FibEntry> init(
+            @Nonnull final InstanceIdentifier<L2FibEntry> id,
+            @Nonnull final L2FibEntry readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                // Convert operational object to config. VPP does not support setting BVI (see v3po.yang)
+                new L2FibEntryBuilder(readValue).setBridgedVirtualInterface(null).build());
+    }
+
+    static InstanceIdentifier<L2FibEntry> getCfgId(
+            final @Nonnull InstanceIdentifier<L2FibEntry> id) {
+        return BridgeDomainCustomizer.getCfgId(RWUtils.cutId(id, BridgeDomain.class)).child(
+                L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(id.firstKeyOf(L2FibEntry.class)));
     }
 }

@@ -20,14 +20,21 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.Vpp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.BridgeDomainsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.bridge.domains.BridgeDomainBuilder;
@@ -35,15 +42,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BridgeDomainCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder>, ByteDataTranslator {
+        implements InitializingListReaderCustomizer<BridgeDomain, BridgeDomainKey, BridgeDomainBuilder>, ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
     private final NamingContext bdContext;
@@ -150,5 +153,29 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
     public void merge(@Nonnull final Builder<? extends DataObject> builder,
                       @Nonnull final List<BridgeDomain> readData) {
         ((BridgeDomainsBuilder) builder).setBridgeDomain(readData);
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomain> init(
+            @Nonnull final InstanceIdentifier<BridgeDomain> id,
+            @Nonnull final BridgeDomain readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomainBuilder()
+                        .setName(readValue.getName())
+                        .setLearn(readValue.isLearn())
+                        .setUnknownUnicastFlood(readValue.isUnknownUnicastFlood())
+                        .setArpTermination(readValue.isArpTermination())
+                        .setFlood(readValue.isFlood())
+                        .setForward(readValue.isForward())
+                        .build());
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomain> getCfgId(
+            final InstanceIdentifier<BridgeDomain> id) {
+        return InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomain.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomainKey(
+                        id.firstKeyOf(BridgeDomain.class).getName()));
     }
 }

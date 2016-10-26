@@ -18,19 +18,20 @@ package io.fd.honeycomb.translate.v3po;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifySessionReader;
 import io.fd.honeycomb.translate.v3po.vppclassifier.ClassifyTableReader;
 import io.fd.honeycomb.translate.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppClassifierState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppClassifierStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.state.ClassifyTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public final class VppClassifierReaderFactory implements ReaderFactory {
 
@@ -51,7 +52,7 @@ public final class VppClassifierReaderFactory implements ReaderFactory {
         registry.addStructuralReader(vppStateId, VppClassifierStateBuilder.class);
         //  ClassifyTable
         final InstanceIdentifier<ClassifyTable> classTblId = vppStateId.child(ClassifyTable.class);
-        registry.add(new GenericListReader<>(classTblId, new ClassifyTableReader(jvpp, classifyCtx)));
+        registry.add(new GenericInitListReader<>(classTblId, new ClassifyTableReader(jvpp, classifyCtx)));
         //   ClassifySession
         final InstanceIdentifier<ClassifySession> classSesId = classTblId.child(ClassifySession.class);
         registry.add(new GenericListReader<>(classSesId, new ClassifySessionReader(jvpp, classifyCtx)));

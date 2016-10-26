@@ -21,7 +21,9 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -46,6 +48,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.SubInterfaceStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.SubinterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.SubInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
@@ -70,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading sub interfaces form the VPP.
  */
 public class SubInterfaceCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<SubInterface, SubInterfaceKey, SubInterfaceBuilder>, ByteDataTranslator,
+        implements InitializingListReaderCustomizer<SubInterface, SubInterfaceKey, SubInterfaceBuilder>, ByteDataTranslator,
         InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceCustomizer.class);
@@ -232,5 +236,29 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
                             .setVlanTagged(tagged.build()).build());
         }
         return match.build();
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces._interface.sub.interfaces.SubInterface> init(
+            @Nonnull final InstanceIdentifier<SubInterface> id, @Nonnull final SubInterface readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces._interface.sub.interfaces.SubInterfaceBuilder()
+                        .setEnabled(SubInterfaceStatus.Up.equals(readValue.getAdminStatus()))
+                        .setIdentifier(readValue.getIdentifier())
+                        .setMatch(readValue.getMatch())
+                        .setTags(readValue.getTags())
+                        .setVlanType(readValue.getVlanType())
+                        .build());
+    }
+
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces._interface.sub.interfaces.SubInterface> getCfgId(
+            final InstanceIdentifier<SubInterface> id) {
+        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
+                .augmentation(SubinterfaceAugmentation.class)
+                .child(SubInterfaces.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces._interface.sub.interfaces.SubInterface.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces._interface.sub.interfaces.SubInterfaceKey(
+                                id.firstKeyOf(SubInterface.class).getIdentifier()));
     }
 }
