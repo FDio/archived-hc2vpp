@@ -18,7 +18,9 @@ package io.fd.honeycomb.nat.read;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
@@ -46,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class ExternalIpPoolCustomizer implements
-        ListReaderCustomizer<ExternalIpAddressPool, ExternalIpAddressPoolKey, ExternalIpAddressPoolBuilder>,
+        InitializingListReaderCustomizer<ExternalIpAddressPool, ExternalIpAddressPoolKey, ExternalIpAddressPoolBuilder>,
         JvppReplyConsumer, Ipv4Translator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExternalIpPoolCustomizer.class);
@@ -114,6 +116,19 @@ final class ExternalIpPoolCustomizer implements
     public void merge(@Nonnull final Builder<? extends DataObject> builder,
                       @Nonnull final List<ExternalIpAddressPool> readData) {
         ((NatCurrentConfigBuilder) builder).setExternalIpAddressPool(readData);
+    }
+
+    @Override
+    public Initialized<ExternalIpAddressPool> init(
+            @Nonnull final InstanceIdentifier<ExternalIpAddressPool> id,
+            @Nonnull final ExternalIpAddressPool readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id), readValue);
+    }
+
+    static InstanceIdentifier<ExternalIpAddressPool> getCfgId(final @Nonnull InstanceIdentifier<ExternalIpAddressPool> id) {
+        return NatInstanceCustomizer.getCfgId(RWUtils.cutId(id, NatInstance.class))
+                .child(ExternalIpAddressPool.class, id.firstKeyOf(ExternalIpAddressPool.class));
     }
 
     static final class AddressRangeDumpExecutor implements EntityDumpExecutor<SnatAddressDetailsReplyDump, Void>,

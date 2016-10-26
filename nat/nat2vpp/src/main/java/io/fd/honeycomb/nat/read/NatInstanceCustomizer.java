@@ -18,12 +18,14 @@ package io.fd.honeycomb.nat.read;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatConfig;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstancesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceBuilder;
@@ -37,7 +39,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Nat instance ID is mapped to VRF-ID in VPP.
  */
-final class NatInstanceCustomizer implements ListReaderCustomizer<NatInstance, NatInstanceKey, NatInstanceBuilder> {
+final class NatInstanceCustomizer implements InitializingListReaderCustomizer<NatInstance, NatInstanceKey, NatInstanceBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInstanceCustomizer.class);
     static final NatInstanceKey DEFAULT_VRF_ID = new NatInstanceKey(0L);
@@ -88,5 +90,24 @@ final class NatInstanceCustomizer implements ListReaderCustomizer<NatInstance, N
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<NatInstance> readData) {
         ((NatInstancesBuilder) builder).setNatInstance(readData);
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance> init(@Nonnull final InstanceIdentifier<NatInstance> id,
+                                                                                                                                              @Nonnull final NatInstance readValue,
+                                                                                                                                              @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceBuilder()
+                        .setId(readValue.getId())
+                        .build());
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance> getCfgId(
+            @Nonnull final InstanceIdentifier<NatInstance> id) {
+        return InstanceIdentifier.create(NatConfig.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.NatInstances.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceKey(
+                                id.firstKeyOf(NatInstance.class).getId()));
     }
 }

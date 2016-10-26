@@ -19,7 +19,7 @@ package io.fd.honeycomb.nat.read;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import io.fd.honeycomb.nat.util.MappingEntryContext;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
@@ -71,15 +71,15 @@ public class NatReaderFactory implements ReaderFactory {
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
         registry.addStructuralReader(NAT_OPER_ID, NatStateBuilder.class);
         registry.addStructuralReader(NAT_INSTANCES_ID, NatInstancesBuilder.class);
-        registry.add(new GenericListReader<>(NAT_INSTANCE_ID, new NatInstanceCustomizer(mapEntryDumpMgr)));
+        registry.add(new GenericInitListReader<>(NAT_INSTANCE_ID, new NatInstanceCustomizer(mapEntryDumpMgr)));
         registry.addStructuralReader(MAP_TABLE_ID, MappingTableBuilder.class);
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(MappingEntry.class).child(ExternalSrcPort.class),
                 InstanceIdentifier.create(MappingEntry.class).child(InternalSrcPort.class)),
-                new GenericListReader<>(MAP_ENTRY_ID,
+                new GenericInitListReader<>(MAP_ENTRY_ID,
                         new MappingEntryCustomizer(mapEntryDumpMgr, mappingEntryContext)));
 
         registry.addStructuralReader(CURRENT_CONFIG, NatCurrentConfigBuilder.class);
-        registry.add(new GenericListReader<>(CURRENT_CONFIG.child(ExternalIpAddressPool.class),
+        registry.add(new GenericInitListReader<>(CURRENT_CONFIG.child(ExternalIpAddressPool.class),
                 new ExternalIpPoolCustomizer(addressRangeDumpMgr)));
     }
 }

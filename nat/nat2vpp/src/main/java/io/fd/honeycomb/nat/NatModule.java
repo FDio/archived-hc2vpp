@@ -21,8 +21,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import io.fd.honeycomb.data.init.DataTreeInitializer;
-import io.fd.honeycomb.nat.init.NatInitializer;
 import io.fd.honeycomb.nat.jvpp.JVppSnatProvider;
 import io.fd.honeycomb.nat.read.NatReaderFactory;
 import io.fd.honeycomb.nat.read.ifc.IfcNatReaderFactory;
@@ -69,9 +67,6 @@ public final class NatModule extends AbstractModule {
         final Multibinder<WriterFactory> writeBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writeBinder.addBinding().to(IfcNatWriterFactory.class).in(Singleton.class);
         writeBinder.addBinding().to(NatWriterFactory.class).in(Singleton.class);
-
-        Multibinder.newSetBinder(binder(), DataTreeInitializer.class)
-                .addBinding().to(NatInitializer.class).in(Singleton.class);
         LOG.info("Module NAT successfully configured");
     }
 }

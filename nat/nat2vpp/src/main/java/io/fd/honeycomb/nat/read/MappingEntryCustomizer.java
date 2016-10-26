@@ -19,7 +19,9 @@ package io.fd.honeycomb.nat.read;
 import io.fd.honeycomb.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
@@ -35,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.ExternalSrcPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.InternalSrcPortBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.MappingTable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.MappingTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.mapping.table.MappingEntry;
@@ -48,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class MappingEntryCustomizer implements Ipv4Translator,
-        ListReaderCustomizer<MappingEntry, MappingEntryKey, MappingEntryBuilder> {
+        InitializingListReaderCustomizer<MappingEntry, MappingEntryKey, MappingEntryBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingEntryCustomizer.class);
 
@@ -129,6 +132,22 @@ final class MappingEntryCustomizer implements Ipv4Translator,
     public void merge(@Nonnull final Builder<? extends DataObject> builder,
                       @Nonnull final List<MappingEntry> readData) {
         ((MappingTableBuilder) builder).setMappingEntry(readData);
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry> init(@Nonnull final InstanceIdentifier<MappingEntry> id,
+                                                                                                                                                                          @Nonnull final MappingEntry readValue,
+                                                                                                                                                                          @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id),
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntryBuilder(readValue)
+                        .build());
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry> getCfgId(final @Nonnull InstanceIdentifier<MappingEntry> id) {
+        return NatInstanceCustomizer.getCfgId(RWUtils.cutId(id, NatInstance.class))
+                .child(MappingTable.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntryKey(id.firstKeyOf(MappingEntry.class).getIndex()));
     }
 
     static final class MappingEntryDumpExecutor
