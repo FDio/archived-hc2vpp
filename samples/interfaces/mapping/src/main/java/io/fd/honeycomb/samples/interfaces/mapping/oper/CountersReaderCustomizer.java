@@ -44,7 +44,6 @@ public class CountersReaderCustomizer implements ReaderCustomizer<Counters, Coun
         this.access = access;
     }
 
-
     @Nonnull
     @Override
     public CountersBuilder getBuilder(@Nonnull final InstanceIdentifier<Counters> id) {

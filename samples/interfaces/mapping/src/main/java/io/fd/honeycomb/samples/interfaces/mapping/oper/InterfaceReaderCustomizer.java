@@ -19,11 +19,13 @@ package io.fd.honeycomb.samples.interfaces.mapping.oper;
 import io.fd.honeycomb.samples.interfaces.mapping.LowerLayerAccess;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.InterfaceId;
+import org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.Interfaces;
 import org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.interfaces.state.InterfaceBuilder;
@@ -37,7 +39,8 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a customizer responsible for reading Interface operational data
  */
-public class InterfaceReaderCustomizer implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder> {
+public class InterfaceReaderCustomizer implements
+        InitializingListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceReaderCustomizer.class);
     private final LowerLayerAccess access;
@@ -100,4 +103,18 @@ public class InterfaceReaderCustomizer implements ListReaderCustomizer<Interface
         // However its a good practice to provide a dedicated reader+customizer for every complex node
     }
 
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.interfaces.Interface> init(
+            @Nonnull final InstanceIdentifier<Interface> id,
+            @Nonnull final Interface readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(InstanceIdentifier.create(Interfaces.class)
+                        .child(org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.interfaces.Interface.class,
+                                new org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.interfaces.InterfaceKey(
+                                        id.firstKeyOf(Interface.class).getInterfaceId())),
+                new org.opendaylight.yang.gen.v1.io.fd.honeycomb.samples.interfaces.rev160810.interfaces.InterfaceBuilder()
+                        .setMtu(readValue.getMtu())
+                        .setInterfaceId(readValue.getInterfaceId())
+                        .build());
+    }
 }

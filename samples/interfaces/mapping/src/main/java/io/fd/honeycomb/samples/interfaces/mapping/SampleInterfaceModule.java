@@ -19,13 +19,11 @@ package io.fd.honeycomb.samples.interfaces.mapping;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
-import io.fd.honeycomb.samples.interfaces.mapping.config.InterfacesWriterFactory;
-import io.fd.honeycomb.samples.interfaces.mapping.oper.InterfacesReaderFactory;
 import io.fd.honeycomb.samples.interfaces.mapping.cfgattrs.InterfacesPluginConfiguration;
-import io.fd.honeycomb.samples.interfaces.mapping.init.InterfacesInitializer;
+import io.fd.honeycomb.samples.interfaces.mapping.config.InterfacesWriterFactory;
 import io.fd.honeycomb.samples.interfaces.mapping.notification.InterfaceUpNotificationProducer;
+import io.fd.honeycomb.samples.interfaces.mapping.oper.InterfacesReaderFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import net.jmob.guice.conf.core.ConfigurationModule;
@@ -47,7 +45,6 @@ public final class SampleInterfaceModule extends AbstractModule {
         // Below are classes picked up by HC framework
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(InterfacesWriterFactory.class);
         Multibinder.newSetBinder(binder(), ReaderFactory.class).addBinding().to(InterfacesReaderFactory.class);
-        Multibinder.newSetBinder(binder(), DataTreeInitializer.class).addBinding().to(InterfacesInitializer.class);
         Multibinder.newSetBinder(binder(), ManagedNotificationProducer.class).addBinding()
                 .to(InterfaceUpNotificationProducer.class);
     }
