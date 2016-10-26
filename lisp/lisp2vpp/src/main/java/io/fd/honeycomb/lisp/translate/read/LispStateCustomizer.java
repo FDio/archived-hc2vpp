@@ -19,21 +19,24 @@ package io.fd.honeycomb.lisp.translate.read;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.ShowLispStatus;
+import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispStateBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatus;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * Customizer that handles reads of {@code LispState}
  */
 public class LispStateCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<LispState, LispStateBuilder>, JvppReplyConsumer, ByteDataTranslator {
+        implements InitializingReaderCustomizer<LispState, LispStateBuilder>, JvppReplyConsumer, ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(LispStateCustomizer.class);
 
@@ -72,5 +75,26 @@ public class LispStateCustomizer extends FutureJVppCustomizer
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final LispState readValue) {
         LOG.warn("Merge is unsupported for data roots");
+    }
+
+    @Override
+    public Initialized<Lisp> init(
+            @Nonnull final InstanceIdentifier<LispState> id, @Nonnull final LispState readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(InstanceIdentifier.create(Lisp.class),
+
+                // set everything from LispState to LispBuilder
+                // this is necessary in cases, when HC connects to a running VPP with some LISP configuration. HC needs to
+                // reconstruct configuration based on what's present in VPP in order to support subsequent configuration changes
+                // without any issues
+
+                // the other reason this should work is HC persistence, so that HC after restart only performs diff (only push
+                // configuration that is not currently in VPP, but is persisted. If they are equal skip any VPP calls)
+                // updates to VPP. If this is not fully implemented (depending on VPP implementation, restoration of persisted
+                // configuration can fail)
+                new LispBuilder()
+                        .setEnable(readValue.isEnable())
+                        .setLispFeatureData(readValue.getLispFeatureData())
+                        .build());
     }
 }

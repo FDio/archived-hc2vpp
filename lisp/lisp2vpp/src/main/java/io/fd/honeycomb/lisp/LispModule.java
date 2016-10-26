@@ -26,11 +26,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.lisp.cfgattrs.LispConfiguration;
 import io.fd.honeycomb.lisp.context.util.ContextsReaderFactoryProvider;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.lisp.translate.initializers.LispInitializer;
 import io.fd.honeycomb.lisp.translate.read.factory.LispStateReaderFactory;
 import io.fd.honeycomb.lisp.translate.write.factory.LispWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
@@ -74,12 +72,6 @@ public class LispModule extends AbstractModule {
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writerFactoryBinder.addBinding().to(LispWriterFactory.class);
         LOG.info("Writer factories binded");
-
-        LOG.info("Binding initializers");
-        final Multibinder<DataTreeInitializer> initializerBinder =
-                Multibinder.newSetBinder(binder(), DataTreeInitializer.class);
-        initializerBinder.addBinding().to(LispInitializer.class);
-        LOG.info("Initializers binded");
 
         final Multibinder<ReaderFactory> readerBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readerBinder.addBinding().toProvider(ContextsReaderFactoryProvider.class).in(Singleton.class);
