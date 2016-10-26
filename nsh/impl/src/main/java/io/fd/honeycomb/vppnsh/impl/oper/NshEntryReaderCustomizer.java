@@ -21,7 +21,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NshMdType1StateAugment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NshMdType1StateAugmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNsh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshEntriesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.entries.NshEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.entries.NshEntryBuilder;
@@ -54,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * Reader customizer responsible for nsh entry read.<br> to VPP.
  */
 public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
-        implements ListReaderCustomizer<NshEntry, NshEntryKey, NshEntryBuilder>, JvppReplyConsumer {
+        implements InitializingListReaderCustomizer<NshEntry, NshEntryKey, NshEntryBuilder>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(NshEntryReaderCustomizer.class);
     private final NamingContext nshEntryContext;
@@ -64,7 +66,6 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
         super(futureJVppNsh);
         this.nshEntryContext = checkNotNull(nshEntryContext, "nshEntryContext should not be null");
     }
-
 
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder,
@@ -195,5 +196,19 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
         }
 
         return allIds;
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntry> init(
+            @Nonnull final InstanceIdentifier<NshEntry> id, @Nonnull final NshEntry readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(
+                InstanceIdentifier.create(VppNsh.class).child(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.NshEntries.class).child(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntry.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntryKey(id.firstKeyOf(NshEntry.class).getName())),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntryBuilder(readValue)
+                        .setName(readValue.getName())
+                        .build());
     }
 }

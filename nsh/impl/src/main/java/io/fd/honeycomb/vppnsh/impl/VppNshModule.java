@@ -18,16 +18,14 @@ package io.fd.honeycomb.vppnsh.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import com.google.inject.Provider;
-import io.fd.honeycomb.data.init.DataTreeInitializer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.vppnsh.impl.config.VppNshWriterFactory;
-import io.fd.honeycomb.vppnsh.impl.init.VppNshInitializer;
 import io.fd.honeycomb.vppnsh.impl.oper.VppNshReaderFactory;
 import io.fd.honeycomb.vppnsh.impl.util.JVppNshProvider;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
@@ -70,7 +68,6 @@ public final class VppNshModule extends AbstractModule {
         // Below are classes picked up by HC framework
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(VppNshWriterFactory.class);
         Multibinder.newSetBinder(binder(), ReaderFactory.class).addBinding().to(VppNshReaderFactory.class);
-        Multibinder.newSetBinder(binder(), DataTreeInitializer.class).addBinding().to(VppNshInitializer.class);
         LOG.info("Module NSH successfully configured");
     }
 }

@@ -17,13 +17,11 @@
 package io.fd.honeycomb.vppnsh.impl.util;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import java.io.IOException;
 import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
 import io.fd.vpp.jvpp.nsh.JVppNshImpl;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

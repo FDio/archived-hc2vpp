@@ -22,7 +22,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vppnsh.impl.util.FutureJVppNshCustomizer;
@@ -35,10 +36,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VxlanGpe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Swap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Push;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Pop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Push;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Swap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNsh;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshMapsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.maps.NshMapBuilder;
@@ -53,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * Reader customizer responsible for nsh map read.<br> to VPP.
  */
 public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
-        implements ListReaderCustomizer<NshMap, NshMapKey, NshMapBuilder>, JvppReplyConsumer {
+        implements InitializingListReaderCustomizer<NshMap, NshMapKey, NshMapBuilder>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(NshMapReaderCustomizer.class);
     private final NamingContext nshMapContext;
@@ -186,5 +188,18 @@ public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
         }
 
         return allIds;
+    }
+
+    @Override
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMap> init(
+            @Nonnull final InstanceIdentifier<NshMap> id,
+            @Nonnull final NshMap readValue,
+            @Nonnull final ReadContext ctx) {
+        return Initialized.create(
+                InstanceIdentifier.create(VppNsh.class).child(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.NshMaps.class).child(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMap.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMapKey(id.firstKeyOf(NshMap.class).getName())),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.maps.NshMapBuilder(readValue).setName(readValue.getName()).build());
     }
 }

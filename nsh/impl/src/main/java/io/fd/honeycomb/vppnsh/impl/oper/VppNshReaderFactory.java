@@ -18,21 +18,20 @@ package io.fd.honeycomb.vppnsh.impl.oper;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNshState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNshStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshEntriesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.entries.NshEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshMapsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.entries.NshEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.maps.NshMap;
-
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class VppNshReaderFactory implements ReaderFactory {
@@ -67,13 +66,13 @@ public class VppNshReaderFactory implements ReaderFactory {
         registry.addStructuralReader(nshEntriesId, NshEntriesBuilder.class);
         //  NshENtry
         final InstanceIdentifier<NshEntry> nshEntryId = nshEntriesId.child(NshEntry.class);
-        registry.add(new GenericListReader<>(nshEntryId, new NshEntryReaderCustomizer(jvppNsh, nshEntryContext)));
+        registry.add(new GenericInitListReader<>(nshEntryId, new NshEntryReaderCustomizer(jvppNsh, nshEntryContext)));
 
         //  NshMaps(Structural)
         final InstanceIdentifier<NshMaps> nshMapsId = vppNshStateId.child(NshMaps.class);
         registry.addStructuralReader(nshMapsId, NshMapsBuilder.class);
         //  NshMap
         final InstanceIdentifier<NshMap> nshMapId = nshMapsId.child(NshMap.class);
-        registry.add(new GenericListReader<>(nshMapId, new NshMapReaderCustomizer(jvppNsh, nshMapContext, interfaceContext)));
+        registry.add(new GenericInitListReader<>(nshMapId, new NshMapReaderCustomizer(jvppNsh, nshMapContext, interfaceContext)));
     }
 }

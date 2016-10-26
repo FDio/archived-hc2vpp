@@ -27,7 +27,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
@@ -36,30 +35,14 @@ import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuild
 import io.fd.honeycomb.translate.util.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.vpp.jvpp.JVppRegistry;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import io.fd.honeycomb.vppnsh.impl.config.VppNshWriterFactory;
-import io.fd.honeycomb.vppnsh.impl.init.VppNshInitializer;
-import io.fd.honeycomb.vppnsh.impl.oper.VppNshReaderFactory;
-import io.fd.honeycomb.vppnsh.impl.util.JVppNshProvider;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
-import io.fd.vpp.jvpp.JVppRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNshState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.VppNshStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshEntriesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.entries.NshEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshMaps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.NshMapsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.state.nsh.maps.NshMap;
-
 
 public class VppNshModuleTest {
 

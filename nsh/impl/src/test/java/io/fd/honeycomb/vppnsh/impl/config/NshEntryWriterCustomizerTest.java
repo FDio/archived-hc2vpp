@@ -20,20 +20,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntry;
+import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntryReply;
+import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ethernet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.MdType1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NshMdType1Augment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.NshMdType1AugmentBuilder;
@@ -41,11 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev160624.vpp.nsh.nsh.entries.NshEntryKey;
-
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntry;
-import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntryReply;
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class NshEntryWriterCustomizerTest extends WriterCustomizerTest {
 
