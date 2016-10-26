@@ -40,6 +40,7 @@
       io.fd.honeycomb.vpp.common.integration.VppCommonModule,
       io.fd.honeycomb.lisp.LispModule,
       io.fd.honeycomb.translate.v3po.V3poModule,
+      io.fd.honeycomb.nat.NatModule,
       // io.fd.honeycomb.vppnsh.impl.VppNshModule
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
     </distribution.modules>
