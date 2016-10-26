@@ -210,6 +210,7 @@ module vpp-nsh {
     }
     leaf nsh-action {
       type nsh-action-type;
+      default "swap";
     }
     leaf encap-type {
       type nsh-encap-type;
