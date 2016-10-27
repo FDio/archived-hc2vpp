@@ -1,0 +1,34 @@
+{
+	"id": "7d81e8b0-274e-1f22-de94-d40cb78a389d",
+	"name": "Honeycomb RESTCONF calls for iOAM Trace",
+	"description": "To enable iOAM trace on VPP management nodes.",
+	"order": [
+		"f5a5aaea-2d61-a57f-191a-7cc81286f605"
+	],
+	"folders": [],
+	"timestamp": 1478073563257,
+	"owner": 0,
+	"public": false,
+	"requests": [
+		{
+			"id": "f5a5aaea-2d61-a57f-191a-7cc81286f605",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8181/restconf/config/ioam-sb-trace:ioam-trace-config/",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1478077673476,
+			"name": "iaom trace",
+			"description": "",
+			"collectionId": "7d81e8b0-274e-1f22-de94-d40cb78a389d",
+			"responses": [],
+			"rawModeData": "{\n\"trace-config\":{\n        \"trace-config-name\":\"trace\",\n        \"acl-name\":\"testAcl\",\n        \"trace-type\":31,\n        \"trace-num-elt\":3,\n        \"trace-tsp\":\"milliseconds\",\n        \"trace-op\":\"add\",\n        \"trace-app-data\":1234,\n        \"data-export-profile-name\":\"dataProfileName\",\n        \"transport-encap-profile-name\":\"transProfileName\",\n        \"node-id\":1,\n        \"node-interfaces\":[\n            {\n                \"index\":5,\n                \"intf-name\":\"GigabitEthernetb/0/0\"\n            }\n        ]\n      }\n}\n"
+		}
+	]
+}

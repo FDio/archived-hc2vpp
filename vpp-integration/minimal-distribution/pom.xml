@@ -35,14 +35,17 @@
     <vpp.common.integration.version>1.16.12-SNAPSHOT</vpp.common.integration.version>
     <vppnsh.version>1.16.12-SNAPSHOT</vppnsh.version>
     <nat.version>1.16.12-SNAPSHOT</nat.version>
+    <ioam.version>1.16.12-SNAPSHOT</ioam.version>
 
     <distribution.modules>
       io.fd.honeycomb.vpp.common.integration.VppCommonModule,
       io.fd.honeycomb.lisp.LispModule,
       io.fd.honeycomb.translate.v3po.V3poModule,
       io.fd.honeycomb.nat.NatModule,
-      // io.fd.honeycomb.vppnsh.impl.VppNshModule
+      // io.fd.honeycomb.vppnsh.impl.VppNshModule,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
+      //io.fd.honeycomb.vppioam.impl.VppIoamModule
+      <!-- iOAM module by default disabled, because it needs ioam plugin (not part of vpp codebase.)-->
     </distribution.modules>
   </properties>
 
@@ -94,6 +97,11 @@
       <groupId>io.fd.honeycomb.nat</groupId>
       <artifactId>nat2vpp</artifactId>
       <version>${nat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.honeycomb.vppioam</groupId>
+      <artifactId>vppioam-impl</artifactId>
+      <version>${ioam.version}</version>
     </dependency>
   </dependencies>
 </project>

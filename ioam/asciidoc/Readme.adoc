@@ -1,0 +1,11 @@
+= ioam
+
+This is a Honeycomb plugin providing mapping code between HC and iOAM Plugin APIs.
+
+== Usage
+
+Refer to ioam_postman_collection.json for sample requests.
+
+In order to make HC iOAM plugin work, need to start vpp and load ioam plugin first.
+
+At this point in time, iOAM trace plugin configurations are supported.

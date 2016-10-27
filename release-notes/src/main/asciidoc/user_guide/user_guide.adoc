@@ -22,6 +22,8 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/lisp/lisp2vpp/src/main/resources/honeycomb-minimal-resources/config/lisp.json?h={project-branch}[LISP plugin for Honeycomb configuration]
 * NSH plugin:
 ** {project-git-web}/nsh/impl/src/main/resources/honeycomb-minimal-resources/config/vppnsh.json?h={project-branch}[NSH_SFC plugin for Honeycomb configuration]
+* iOAM plugin:
+** {project-git-web}/ioam/impl/src/main/resources/honeycomb-minimal-resources/config/vppioam.json?h={project-branch}[IOAM plugin for Honeycomb configuration]
 
 === YANG models
 
@@ -33,6 +35,8 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/nsh/api/src/main/yang?h={project-branch}[NSH YANG models]
 * NAT plugin
 ** {project-git-web}/nat/nat-api/src/main/yang?h={project-branch}[NAT YANG models]
+* iOAM plugin
+** {project-git-web}/ioam/api/src/main/yang?h={project-branch}[IOAM YANG models]
 * Context models
 ** {project-git-web}/vpp-common/naming-context-api/src/main/yang?h={project-branch}[Context YANG models]
 
@@ -46,3 +50,5 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/nsh/nsh_postman_rest_collection.json?h={project-branch}[NSH postman collection]
 * NAT plugin
 ** {project-git-web}/nat/postman_rest_collection.json?h={project-branch}[NAT postman collection]
+* iOAM plugin
+** {project-git-web}/ioam/ioam_trace_postman_collection.json?h={project-branch}[IOAM postman collection]
