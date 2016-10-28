@@ -35,10 +35,8 @@ import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
 import java.util.Arrays;
 import java.util.Collections;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -129,44 +127,13 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
         inOrder.verify(api).inputAclSetInterface(inputAclSetInterfaceWriteRequest()); // assignment
     }
 
-    private Matcher<ClassifyAddDelTable> actionOnMissEquals(final int action) {
-        return new BaseMatcher<ClassifyAddDelTable>() {
-            public Object item;
-
-            @Override
-            public void describeTo(final Description description) {
-                description.appendText("Expected ClassifyAddDelTable[missNextIndex=" + action + "] but was " + item);
-            }
-
-            @Override
-            public boolean matches(final Object item) {
-                this.item = item;
-                if (item instanceof ClassifyAddDelTable) {
-                    return ((ClassifyAddDelTable) item).missNextIndex == action;
-                }
-                return false;
-            }
-        };
+    private ArgumentMatcher<ClassifyAddDelTable> actionOnMissEquals(final int action) {
+        return table -> table.missNextIndex == action;
     }
 
-    private Matcher<ClassifyAddDelSession> actionOnHitEquals(final int action) {
-        return new BaseMatcher<ClassifyAddDelSession>() {
-            public Object item;
 
-            @Override
-            public void describeTo(final Description description) {
-                description.appendText("Expected ClassifyAddDelSession[hitNextIndex=" + action + "] but was " + item);
-            }
-
-            @Override
-            public boolean matches(final Object item) {
-                this.item = item;
-                if (item instanceof ClassifyAddDelSession) {
-                    return ((ClassifyAddDelSession) item).hitNextIndex == action;
-                }
-                return false;
-            }
-        };
+    private ArgumentMatcher<ClassifyAddDelSession> actionOnHitEquals(final int action) {
+        return session -> session.hitNextIndex == action;
     }
 
     private Deny deny() {

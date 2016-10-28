@@ -182,12 +182,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
 
     private static ArgumentMatcher<InstanceIdentifier<?>> matchInstanceIdentifier(
             Class<?> desiredClass) {
-        return new ArgumentMatcher<InstanceIdentifier<?>>() {
-            @Override
-            public boolean matches(final Object o) {
-                return o instanceof InstanceIdentifier && ((InstanceIdentifier) o).getTargetType().equals(desiredClass);
-            }
-        };
+        return o -> o instanceof InstanceIdentifier && (o.getTargetType().equals(desiredClass));
     }
 
     @Test(expected =  WriteFailedException.UpdateFailedException.class)
