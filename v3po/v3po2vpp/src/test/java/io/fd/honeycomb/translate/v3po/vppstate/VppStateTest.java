@@ -39,6 +39,8 @@ import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuild
 import io.fd.honeycomb.vpp.test.util.NamingContextHelper;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;
+import io.fd.vpp.jvpp.dto.ControlPing;
+import io.fd.vpp.jvpp.dto.ControlPingReply;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -131,6 +133,7 @@ public class VppStateTest implements FutureProducer, NamingContextHelper {
             .setBuildDirectory("1")
             .setBranch("2")
             .setBuildDate("3")
+            .setPid(0L)
             .build();
     }
 
@@ -141,6 +144,8 @@ public class VppStateTest implements FutureProducer, NamingContextHelper {
         reply.version = version.getBranch().getBytes();
         reply.buildDirectory = version.getBuildDirectory().getBytes();
         when(api.showVersion(any(ShowVersion.class))).thenReturn(future(reply));
+        // Version Customizer uses ControlPing to obtain PID
+        when(api.send(any(ControlPing.class))).thenReturn(future(new ControlPingReply()));
     }
 
     private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> entryList) {

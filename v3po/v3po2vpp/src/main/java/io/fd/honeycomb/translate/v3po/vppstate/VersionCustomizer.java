@@ -16,6 +16,7 @@
 
 package io.fd.honeycomb.translate.v3po.vppstate;
 
+import com.google.common.primitives.UnsignedInts;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
@@ -25,6 +26,9 @@ import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.ShowVersion;
 import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.dto.ControlPing;
+import io.fd.vpp.jvpp.dto.ControlPingReply;
+import io.fd.vpp.jvpp.dto.JVppReply;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppStateBuilder;
@@ -54,7 +58,7 @@ public final class VersionCustomizer
     }
 
     @Override
-    public void readCurrentAttributes(@Nonnull InstanceIdentifier<Version> id, @Nonnull final VersionBuilder builder,
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Version> id, @Nonnull final VersionBuilder builder,
                                       @Nonnull final ReadContext context) throws ReadFailedException {
 
         // Execute with timeout
@@ -65,6 +69,14 @@ public final class VersionCustomizer
         builder.setName(toString(reply.program));
         builder.setBuildDate(toString(reply.buildDate));
         builder.setBuildDirectory(toString(reply.buildDirectory));
+        builder.setPid(getPid(id));
     }
+
+    private Long getPid(@Nonnull final InstanceIdentifier<Version> id) throws ReadFailedException {
+        final CompletionStage<JVppReply<ControlPing>> request = getFutureJVpp().send(new ControlPing());
+        final ControlPingReply reply = (ControlPingReply)getReplyForRead(request.toCompletableFuture(), id);
+        return UnsignedInts.toLong(reply.vpePid);
+    }
+
 
 }

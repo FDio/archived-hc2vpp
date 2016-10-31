@@ -22,13 +22,15 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.vpp.test.read.ReaderCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.ShowVersion;
+import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
+import io.fd.vpp.jvpp.dto.ControlPing;
+import io.fd.vpp.jvpp.dto.ControlPingReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.Version;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.state.VersionBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.ShowVersion;
-import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
 
 public class VersionCustomizerTest extends ReaderCustomizerTest<Version, VersionBuilder> {
 
@@ -50,7 +52,9 @@ public class VersionCustomizerTest extends ReaderCustomizerTest<Version, Version
         reply.buildDirectory = new byte[] {};
 
         when(api.showVersion(any(ShowVersion.class))).thenReturn(future(reply));
+        when(api.send(any(ControlPing.class))).thenReturn(future(new ControlPingReply()));
         getCustomizer().readCurrentAttributes(InstanceIdentifier.create(Version.class), new VersionBuilder(), ctx);
         verify(api).showVersion(any(ShowVersion.class));
+        verify(api).send(any(ControlPing.class));
     }
 }

@@ -8,7 +8,8 @@ module v3po {
       "This revision adds the following new features:
        - ingress/egress ACLs support
        - moved ACL definitions to vpp-acl module
-       - updated l2 container constraint (permit IP address on BVI interface)";
+       - updated l2 container constraint (permit IP address on BVI interface)
+       - added PID of vpp process to vpp-state";
   }
 
   revision "2015-01-05" {
@@ -638,6 +639,11 @@ module v3po {
       }
       leaf branch {
         type string;
+      }
+      leaf pid {
+        type uint32;
+        description
+          "PID of the vpp process";
       }
       description
       "vlib version info";
