@@ -7,7 +7,8 @@ module v3po {
     description
       "This revision adds the following new features:
        - ingress/egress ACLs support
-       - moved ACL definitions to vpp-acl module";
+       - moved ACL definitions to vpp-acl module
+       - updated l2 container constraint (permit IP address on BVI interface)";
   }
 
   revision "2015-01-05" {
@@ -462,8 +463,9 @@ module v3po {
     }
 
     container l2 {
-      must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
-      "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
+      must "bridged-virtual-interface = 'true' or " +
+           "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
+           "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
 
       uses l2-base-attributes;
     }
@@ -558,8 +560,9 @@ module v3po {
     }
 
     container l2 {
-      must "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
-      "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
+      must "bridged-virtual-interface = 'true' or " +
+           "(not (../if:ipv4[if:enabled = 'true']/if:address/if:ip) and " +
+           "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
 
       uses l2-base-attributes;
     }
