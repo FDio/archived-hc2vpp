@@ -442,10 +442,15 @@ module v3po {
     }
 
     container routing {
-      leaf vrf-id { // todo no routing info for oper, is it possible to get it from the vpp?
+      // TODO (HONEYCOMB-127): add routing info for oper
+      leaf ipv4-vrf-id {
         type uint32;
-        default 0;
       }
+      leaf ipv6-vrf-id {
+        type uint32;
+      }
+      description
+        "Defines VRF tables used for ipv4 and ipv6 traffic";
     }
 
     container vhost-user {

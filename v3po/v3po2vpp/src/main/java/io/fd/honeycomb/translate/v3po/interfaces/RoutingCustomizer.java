@@ -16,7 +16,10 @@
 
 package io.fd.honeycomb.translate.v3po.interfaces;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
+import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.vpp.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -33,7 +36,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Routing>, JvppReplyConsumer {
+public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Routing>, JvppReplyConsumer,
+    ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingCustomizer.class);
     private final NamingContext interfaceContext;
@@ -70,22 +74,27 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
         disableRouting(id, ifName, writeContext);
     }
 
-    private void setRouting(final InstanceIdentifier<Routing> id, final String name, final Routing rt,
-                            final WriteContext writeContext) throws WriteFailedException {
+    private void setRouting(@Nonnull final InstanceIdentifier<Routing> id, @Nonnull final String name,
+                            @Nonnull final Routing rt,
+                            @Nonnull final WriteContext writeContext) throws WriteFailedException {
         final int swIfc = interfaceContext.getIndex(name, writeContext.getMappingContext());
         LOG.debug("Setting routing for interface: {}, {}. Routing: {}", name, swIfc, rt);
+        checkArgument(rt.getIpv4VrfId() != null || rt.getIpv6VrfId() != null, "No vrf-id given");
 
-        int vrfId = (rt != null)
-                ? rt.getVrfId().intValue()
-                : 0;
+        setVrfId(id, swIfc, rt.getIpv4VrfId(), false);
+        setVrfId(id, swIfc, rt.getIpv6VrfId(), true);
 
-        if (vrfId != 0) {
-            final CompletionStage<SwInterfaceSetTableReply> swInterfaceSetTableReplyCompletionStage =
-                    getFutureJVpp()
-                            .swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, /* isIpv6 */ vrfId));
-            getReplyForWrite(swInterfaceSetTableReplyCompletionStage.toCompletableFuture(), id);
-            LOG.debug("Routing set successfully for interface: {}, {}, routing: {}", name, swIfc, rt);
+        LOG.debug("Routing set successfully for interface: {}, {}, routing: {}", name, swIfc, rt);
+    }
+
+    private void setVrfId(final InstanceIdentifier<Routing> id, final int swIfc, final Long vrfId, boolean isIp6)
+        throws WriteFailedException {
+        if (vrfId == null) {
+            return;
         }
+        final CompletionStage<SwInterfaceSetTableReply> cs = getFutureJVpp()
+            .swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, booleanToByte(isIp6), vrfId.intValue()));
+        getReplyForWrite(cs.toCompletableFuture(), id);
     }
 
     /**
@@ -98,7 +107,7 @@ public class RoutingCustomizer extends FutureJVppCustomizer implements WriterCus
         LOG.debug("Disabling routing for interface: {}, {}.", name, swIfc);
 
         getReplyForDelete(getFutureJVpp()
-                .swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, 0)).toCompletableFuture(), id);
+            .swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, (byte) 0, 0)).toCompletableFuture(), id);
         LOG.debug("Routing for interface: {}, {} successfully disabled", name, swIfc);
 
     }

@@ -18,7 +18,6 @@ package io.fd.honeycomb.translate.v3po.interfaces;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -65,13 +64,6 @@ public class RoutingCustomizerTest extends WriterCustomizerTest {
         customizer.writeCurrentAttributes(IID, routing(213), writeContext);
     }
 
-    @Test
-    public void testUpdate() throws WriteFailedException {
-        when(api.swInterfaceSetTable(any())).thenReturn(future(new SwInterfaceSetTableReply()));
-        customizer.updateCurrentAttributes(IID, routing(123L), null, writeContext);
-        verifyZeroInteractions(api);
-    }
-
     @Test(expected = WriteFailedException.class)
     public void testUpdateFailed() throws WriteFailedException {
         when(api.swInterfaceSetTable(any())).thenReturn(failedFuture());
@@ -92,7 +84,7 @@ public class RoutingCustomizerTest extends WriterCustomizerTest {
     }
 
     private Routing routing(final long vrfId) {
-        return new RoutingBuilder().setVrfId(vrfId).build();
+        return new RoutingBuilder().setIpv4VrfId(vrfId).build();
     }
 
     private SwInterfaceSetTable expectedRequest(final int vrfId) {
