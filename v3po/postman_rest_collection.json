@@ -34,6 +34,17 @@
 			"collectionId": "e9ba4e80-fb4d-1eae-07e7-97b323164130"
 		},
 		{
+			"id": "f59ae95c-b691-1283-8b2b-539a00da0178",
+			"name": "Loopback",
+			"description": "",
+			"order": [
+				"3090675a-fb54-3cc8-71d7-0675b7b79eb8",
+				"9306bff2-f310-986e-44cf-7845ba82b980"
+			],
+			"owner": "45557",
+			"collectionId": "e9ba4e80-fb4d-1eae-07e7-97b323164130"
+		},
+		{
 			"id": "e742a44e-2e82-fe0c-d7c1-2f6b6bc1f0e9",
 			"name": "Bridge Domain management",
 			"description": "",
@@ -205,6 +216,46 @@
 	"public": false,
 	"published": false,
 	"requests": [
+		{
+			"id": "3090675a-fb54-3cc8-71d7-0675b7b79eb8",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/loop1",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1478080135790,
+			"name": "Add loopback ifc - cfg ",
+			"description": "create loop interface",
+			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
+			"responses": [],
+			"rawModeData": "{\r\n    \r\n    \"interface\": [\r\n        {\r\n            \"name\": \"loop1\",\r\n            \"description\": \"for testing purposes\",\r\n            \"type\": \"v3po:loopback\",\r\n            \"loopback\" :{\r\n                \"mac\" : \"00:ff:ff:ff:ff:ff\"\r\n            }\r\n        }\r\n    ]\r\n    \r\n}"
+		},
+		{
+			"id": "9306bff2-f310-986e-44cf-7845ba82b980",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/loop1",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1478085084456,
+			"name": "Delete loopback ifc - cfg ",
+			"description": "delete loop interface intfc loop1",
+			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
+			"responses": [],
+			"rawModeData": ""
+		},
 		{
 			"id": "4fd61184-7a23-f84a-6734-b2c96d10c908",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",

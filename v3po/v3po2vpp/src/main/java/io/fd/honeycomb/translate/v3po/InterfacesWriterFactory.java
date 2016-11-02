@@ -28,15 +28,16 @@ import io.fd.honeycomb.translate.v3po.interfaces.EthernetCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.GreCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.InterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.L2Customizer;
+import io.fd.honeycomb.translate.v3po.interfaces.LoopbackCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ProxyArpCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.RoutingCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.TapCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VhostUserCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VxlanCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.VxlanGpeCustomizer;
-import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.egress.EgressIetfAclWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.AclCustomizer;
+import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IetfAclCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4AddressCustomizer;
 import io.fd.honeycomb.translate.v3po.interfaces.ip.Ipv4Customizer;
@@ -62,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.IetfAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.L2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Loopback;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Tap;
@@ -172,6 +174,10 @@ public final class InterfacesWriterFactory implements WriterFactory {
         // Tap(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<Tap> tapId = VPP_IFC_AUG_ID.child(Tap.class);
         registry.addBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcNamingContext)),
+                ifcId);
+        // Loopback(Needs to be executed before Interface customizer) =
+        final InstanceIdentifier<Loopback> loopbackId = VPP_IFC_AUG_ID.child(Loopback.class);
+        registry.addBefore(new GenericWriter<>(loopbackId, new LoopbackCustomizer(jvpp, ifcNamingContext)),
                 ifcId);
 
         // Gre(Needs to be executed before Interface customizer) =

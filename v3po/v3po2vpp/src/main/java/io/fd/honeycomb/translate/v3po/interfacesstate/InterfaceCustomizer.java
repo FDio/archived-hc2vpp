@@ -72,6 +72,11 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         this.interfaceDisableContext = interfaceDisableContext;
     }
 
+    public static void cacheInterfaceDump(final @Nonnull ReadContext context, final SwInterfaceDetailsReplyDump ifaces) {
+        context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
+                .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+    }
+
     @Nonnull
     @SuppressWarnings("unchecked")
     public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(@Nonnull final ModificationCache ctx) {
@@ -155,8 +160,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         }
 
         // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-        context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-                .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
+        cacheInterfaceDump(context, ifaces);
 
         final MappingContext mappingCtx = context.getMappingContext();
         final Set<Integer> interfacesIdxs = ifaces.swInterfaceDetails.stream()
