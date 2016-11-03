@@ -53,7 +53,7 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
 
         // Cache dump for each interface under the same key since this is all ifc dump
         final Optional<SnatInterfaceDetailsReplyDump> dump =
-                dumpMgr.getDump(id, getClass().getName(), ctx.getModificationCache(), null);
+                dumpMgr.getDump(id, ctx.getModificationCache(), null);
 
         // Find entries for current ifc and if is marked as inside set the builder to return presence container
         dump.or(new SnatInterfaceDetailsReplyDump()).snatInterfaceDetails.stream()
