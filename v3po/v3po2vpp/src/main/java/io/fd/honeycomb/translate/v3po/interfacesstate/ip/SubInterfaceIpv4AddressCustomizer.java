@@ -19,12 +19,14 @@ package io.fd.honeycomb.translate.v3po.interfacesstate.ip;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
 import io.fd.honeycomb.translate.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
@@ -66,6 +68,8 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
                 .withExecutor(createExecutor(futureJVppCore))
+                //same as with ipv4 addresses for interfaces, these must have cache scope of their parent sub-interface
+                .withCacheKeyFactory(new IdentifierCacheKeyFactory(ImmutableSet.of(SubInterface.class)))
                 .build();
     }
 
