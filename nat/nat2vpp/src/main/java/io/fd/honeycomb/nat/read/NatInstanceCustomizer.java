@@ -46,7 +46,8 @@ final class NatInstanceCustomizer implements InitializingListReaderCustomizer<Na
 
     private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager;
 
-    NatInstanceCustomizer(final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager) {
+    NatInstanceCustomizer(
+            final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager) {
         this.dumpCacheManager = dumpCacheManager;
     }
 
@@ -72,10 +73,10 @@ final class NatInstanceCustomizer implements InitializingListReaderCustomizer<Na
 
         // Find the nat instance IDs (vrf-ids) by listing all static mappings and their VRF assignment
         final List<NatInstanceKey> vrfIds =
-                dumpCacheManager.getDump(id, getClass().getName(), context.getModificationCache(), null)
+                dumpCacheManager.getDump(id, context.getModificationCache(), null)
                         .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails.stream()
                         .map(detail -> detail.vrfId)
-                        .map(vrfId -> new NatInstanceKey((long)vrfId))
+                        .map(vrfId -> new NatInstanceKey((long) vrfId))
                         .collect(Collectors.toList());
 
         // Add default vrf id if not present

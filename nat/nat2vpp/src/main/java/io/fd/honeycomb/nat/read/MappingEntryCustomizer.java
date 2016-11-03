@@ -58,8 +58,9 @@ final class MappingEntryCustomizer implements Ipv4Translator,
     private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager;
     private final MappingEntryContext mappingEntryContext;
 
-    MappingEntryCustomizer(final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager,
-                           final MappingEntryContext mappingEntryContext) {
+    MappingEntryCustomizer(
+            final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager,
+            final MappingEntryContext mappingEntryContext) {
         this.dumpCacheManager = dumpCacheManager;
         this.mappingEntryContext = mappingEntryContext;
     }
@@ -79,7 +80,7 @@ final class MappingEntryCustomizer implements Ipv4Translator,
         final int idx = id.firstKeyOf(MappingEntry.class).getIndex().intValue();
         final int natInstanceId = id.firstKeyOf(NatInstance.class).getId().intValue();
         final List<SnatStaticMappingDetails> details =
-                dumpCacheManager.getDump(id, getClass().getName(), ctx.getModificationCache(), null)
+                dumpCacheManager.getDump(id, ctx.getModificationCache(), null)
                         .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails;
         final SnatStaticMappingDetails snatStaticMappingDetails =
                 mappingEntryContext.findDetails(details, natInstanceId, idx, ctx.getMappingContext());
@@ -116,7 +117,7 @@ final class MappingEntryCustomizer implements Ipv4Translator,
         LOG.trace("Listing IDs for all mapping-entries within nat-instance(vrf):{}", natInstanceId);
 
         final List<MappingEntryKey> entryKeys =
-                dumpCacheManager.getDump(id, getClass().getName(), context.getModificationCache(), null)
+                dumpCacheManager.getDump(id, context.getModificationCache(), null)
                         .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails.stream()
                         .filter(detail -> natInstanceId == detail.vrfId)
                         .map(detail -> mappingEntryContext

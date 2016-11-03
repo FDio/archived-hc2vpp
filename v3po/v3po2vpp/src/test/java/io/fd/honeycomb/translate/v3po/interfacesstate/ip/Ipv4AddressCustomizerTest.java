@@ -26,8 +26,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
+import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
 import io.fd.honeycomb.translate.vpp.util.Ipv4Translator;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
@@ -67,6 +70,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
     private NamingContext interfacesContext;
     private InstanceIdentifier<Address> ifaceOneAddressOneIdentifier;
     private InstanceIdentifier<Address> ifaceTwoAddressOneIdentifier;
+    private CacheKeyFactory cacheKeyFactory;
 
     public Ipv4AddressCustomizerTest() {
         super(Address.class, Ipv4Builder.class);
@@ -90,6 +94,9 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
                         .augmentation(Interface2.class)
                         .child(Ipv4.class)
                         .child(Address.class, new AddressKey(new Ipv4AddressNoZone("192.168.2.1")));
+
+        // to simulate complex key
+        cacheKeyFactory = new IdentifierCacheKeyFactory(ImmutableSet.of(Interface.class));
     }
 
     @Override
@@ -258,8 +265,8 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
                 ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
         detailIfaceTwoAddressOne.prefixLength = 23;
 
-        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_NAME, replyIfaceOne);
-        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_2_NAME, replyIfaceTwo);
+        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
+        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier), replyIfaceTwo);
     }
 
     private void fillCacheForFirstIfaceSecondEmpty() {
@@ -271,7 +278,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
                 ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
         detailIfaceOneAddressOne.prefixLength = 22;
 
-        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_NAME, replyIfaceOne);
-        cache.put(Ipv4AddressCustomizer.class.getName() + IFACE_2_NAME, new IpAddressDetailsReplyDump());
+        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
+        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier), new IpAddressDetailsReplyDump());
     }
 }

@@ -43,8 +43,6 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
         implements ReaderCustomizer<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder>, ByteDataTranslator,
         JvppReplyConsumer {
 
-    private static final String CACHE_KEY = ItrRemoteLocatorSetCustomizer.class.getName();
-
     private final DumpCacheManager<LispGetMapRequestItrRlocsReply, Void> dumpCacheManager;
 
     public ItrRemoteLocatorSetCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
@@ -68,7 +66,7 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
             throws ReadFailedException {
 
         final Optional<LispGetMapRequestItrRlocsReply> reply =
-                dumpCacheManager.getDump(id, CACHE_KEY, ctx.getModificationCache(), NO_PARAMS);
+                dumpCacheManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
         if (!reply.isPresent() || reply.get().locatorSetName == null) {
             return;
         }

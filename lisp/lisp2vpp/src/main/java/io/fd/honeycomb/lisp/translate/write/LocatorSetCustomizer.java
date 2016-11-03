@@ -49,15 +49,11 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         LocatorSetReader {
 
     private final NamingContext locatorSetContext;
-    private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
 
     public LocatorSetCustomizer(@Nonnull final FutureJVppCore futureJvpp,
                                 @Nonnull final NamingContext locatorSetContext) {
         super(futureJvpp);
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator set context cannot be null");
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
-                .withExecutor(createExecutor(futureJvpp))
-                .build();
     }
 
     @Override

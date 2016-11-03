@@ -24,6 +24,7 @@ import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsD
 import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.MapReplyAction.NoAction;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams;
 import io.fd.honeycomb.lisp.translate.read.dump.executor.params.LocatorDumpParams.LocatorDumpParamsBuilder;
@@ -32,15 +33,18 @@ import io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpPara
 import io.fd.honeycomb.lisp.translate.read.trait.LocatorReader;
 import io.fd.honeycomb.lisp.translate.read.trait.MappingReader;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
 import io.fd.honeycomb.translate.vpp.util.AddressTranslator;
 import io.fd.honeycomb.translate.vpp.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
@@ -67,6 +71,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.LocatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.LocatorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.VniTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.LocatorSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -81,23 +89,29 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         EidTranslator, AddressTranslator, ByteDataTranslator, MappingReader, LocatorReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(RemoteMappingCustomizer.class);
-    private static final String KEY = RemoteMappingCustomizer.class.getName();
 
     private final DumpCacheManager<LispEidTableDetailsReplyDump, MappingsDumpParams> dumpManager;
     private final DumpCacheManager<LispLocatorDetailsReplyDump, LocatorDumpParams> locatorsDumpManager;
+    private final NamingContext locatorSetContext;
     private final EidMappingContext remoteMappingContext;
 
-    public RemoteMappingCustomizer(@Nonnull FutureJVppCore futureJvpp,
-                                   @Nonnull EidMappingContext remoteMappingContext) {
+    public RemoteMappingCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                                   @Nonnull final NamingContext locatorSetContext,
+                                   @Nonnull final EidMappingContext remoteMappingContext) {
         super(futureJvpp);
+        this.locatorSetContext = checkNotNull(locatorSetContext, "Locator sets context not present");
         this.remoteMappingContext = checkNotNull(remoteMappingContext, "Remote mappings not present");
+        // this one should have default scope == RemoteMapping
         this.dumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
                         .withExecutor(createMappingDumpExecutor(futureJvpp))
                         .build();
+
+        // cache key needs to have locator set scope to not mix with cached data
         this.locatorsDumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorDetailsReplyDump, LocatorDumpParams>()
                         .withExecutor(createLocatorDumpExecutor(futureJvpp))
+                        .withCacheKeyFactory(new IdentifierCacheKeyFactory(ImmutableSet.of(LocatorSet.class)))
                         .build();
     }
 
@@ -138,7 +152,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
         final Optional<LispEidTableDetailsReplyDump> replyOptional =
-                dumpManager.getDump(id, bindKey("SPECIFIC_" + remoteMappingId), ctx.getModificationCache(), dumpParams);
+                dumpManager.getDump(id, ctx.getModificationCache(), dumpParams);
 
         if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return;
@@ -158,7 +172,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         builder.setTtl(resolveTtl(details.ttl));
         builder.setAuthoritative(
                 new RemoteMapping.Authoritative(byteToBoolean(details.authoritative)));
-        resolverMappings(id, builder, details, ctx.getModificationCache());
+        resolveMappings(id, builder, details, ctx.getModificationCache(), ctx.getMappingContext());
     }
 
     //compensate ~0 as default value of ttl
@@ -190,7 +204,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
         final Optional<LispEidTableDetailsReplyDump> replyOptional =
-                dumpManager.getDump(id, bindKey("ALL_REMOTE"), context.getModificationCache(), dumpParams);
+                dumpManager.getDump(id, context.getModificationCache(), dumpParams);
 
         if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return Collections.emptyList();
@@ -213,13 +227,10 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         ((RemoteMappingsBuilder) builder).setRemoteMapping(readData);
     }
 
-    private String bindKey(String prefix) {
-        return prefix + "_" + KEY;
-    }
-
-    private void resolverMappings(final InstanceIdentifier id, final RemoteMappingBuilder builder,
-                                  final LispEidTableDetails details,
-                                  final ModificationCache cache) throws ReadFailedException {
+    private void resolveMappings(final InstanceIdentifier id, final RemoteMappingBuilder builder,
+                                 final LispEidTableDetails details,
+                                 final ModificationCache cache,
+                                 final MappingContext mappingContext) throws ReadFailedException {
 
         if (details.action != 0) {
             // in this case ,negative action was defined
@@ -230,8 +241,14 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
             // cache key needs to have locator set scope to not mix with cached data
             final Optional<LispLocatorDetailsReplyDump> reply;
+
+            // this will serve to achieve that locators have locator set scope
+            final InstanceIdentifier<Interface> locatorIfaceIdentifier = InstanceIdentifier.create(LocatorSets.class)
+                    .child(LocatorSet.class,
+                            new LocatorSetKey(locatorSetContext.getName(details.locatorSetIndex, mappingContext)))
+                    .child(Interface.class);
             try {
-                reply = locatorsDumpManager.getDump(id, KEY + "_locator_set_" + details.locatorSetIndex, cache,
+                reply = locatorsDumpManager.getDump(locatorIfaceIdentifier, cache,
                         new LocatorDumpParamsBuilder().setLocatorSetIndex(details.locatorSetIndex).build());
             } catch (ReadFailedException e) {
                 throw new ReadFailedException(id,

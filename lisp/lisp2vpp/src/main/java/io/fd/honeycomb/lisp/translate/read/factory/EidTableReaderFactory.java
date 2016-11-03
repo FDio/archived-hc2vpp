@@ -149,14 +149,14 @@ final class EidTableReaderFactory extends AbstractLispReaderFactoryBase implemen
                 remoteMappingSubtreeId.child(Rlocs.class).child(Locator.class),
                 remoteMappingSubtreeId.child(MapReply.class)),
                 new GenericListReader<>(vrfTableRemoteMappingsInstanceIdentifier.child(RemoteMapping.class),
-                        new RemoteMappingCustomizer(vppApi, remoteMappingContext)));
+                        new RemoteMappingCustomizer(vppApi, locatorSetContext, remoteMappingContext)));
         registry.subtreeAdd(ImmutableSet.of(remoteMappingSubtreeId
                         .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
                 remoteMappingSubtreeId.child(Rlocs.class),
                 remoteMappingSubtreeId.child(Rlocs.class).child(Locator.class),
                 remoteMappingSubtreeId.child(MapReply.class)),
                 new GenericListReader<>(bridgeDomainRemoteMappingsInstanceIdentifier.child(RemoteMapping.class),
-                        new RemoteMappingCustomizer(vppApi, remoteMappingContext)));
+                        new RemoteMappingCustomizer(vppApi, locatorSetContext, remoteMappingContext)));
 
         registry.addStructuralReader(vrfTableAdjacenciesInstanceIdentifier, AdjacenciesBuilder.class);
         registry.addStructuralReader(bridgeDomainAdjacenciesInstanceIdentifier, AdjacenciesBuilder.class);

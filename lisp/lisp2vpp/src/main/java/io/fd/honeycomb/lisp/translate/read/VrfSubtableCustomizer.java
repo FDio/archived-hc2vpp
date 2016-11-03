@@ -47,7 +47,6 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
         implements ReaderCustomizer<VrfSubtable, VrfSubtableBuilder>, SubtableReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(VrfSubtableCustomizer.class);
-    private static final String CACHE_KEY = VrfSubtableCustomizer.class.getName();
 
     private final DumpCacheManager<LispEidTableMapDetailsReplyDump, SubtableDumpParams> dumpManager;
 
@@ -72,8 +71,7 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
         final int vni = checkNotNull(id.firstKeyOf(VniTable.class), "Cannot find parent VNI Table")
                 .getVirtualNetworkIdentifier().intValue();
 
-        final Optional<LispEidTableMapDetailsReplyDump> reply =
-                readSubtable(dumpManager, CACHE_KEY, ctx.getModificationCache(), id, L3_PARAMS);
+        final Optional<LispEidTableMapDetailsReplyDump> reply = dumpManager.getDump(id, ctx.getModificationCache(), L3_PARAMS);
 
         if (!reply.isPresent() || reply.get().lispEidTableMapDetails.isEmpty()) {
             return;

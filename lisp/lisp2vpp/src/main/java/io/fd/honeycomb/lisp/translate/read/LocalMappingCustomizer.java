@@ -65,7 +65,6 @@ public class LocalMappingCustomizer
         MappingReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalMappingCustomizer.class);
-    private static final String KEY = LocalMappingCustomizer.class.getName();
 
     private final DumpCacheManager<LispEidTableDetailsReplyDump, MappingsDumpParams> dumpManager;
     private final NamingContext locatorSetContext;
@@ -113,7 +112,7 @@ public class LocalMappingCustomizer
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
         final Optional<LispEidTableDetailsReplyDump> replyOptional =
-                dumpManager.getDump(id, bindKey("SPECIFIC_" + localMappingId), ctx.getModificationCache(), dumpParams);
+                dumpManager.getDump(id, ctx.getModificationCache(), dumpParams);
 
         if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return;
@@ -158,7 +157,7 @@ public class LocalMappingCustomizer
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
         final Optional<LispEidTableDetailsReplyDump> replyOptional =
-                dumpManager.getDump(id, bindKey("ALL_LOCAL"), context.getModificationCache(), dumpParams);
+                dumpManager.getDump(id, context.getModificationCache(), dumpParams);
 
         if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
             return Collections.emptyList();
@@ -179,9 +178,4 @@ public class LocalMappingCustomizer
     public void merge(Builder<? extends DataObject> builder, List<LocalMapping> readData) {
         ((LocalMappingsBuilder) builder).setLocalMapping(readData);
     }
-
-    private static String bindKey(String prefix) {
-        return prefix + "_" + KEY;
-    }
-
 }

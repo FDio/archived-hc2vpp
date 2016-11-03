@@ -47,7 +47,8 @@ public class NatReaderFactory implements ReaderFactory {
     private static final InstanceIdentifier<NatState> NAT_OPER_ID = InstanceIdentifier.create(NatState.class);
     private static final InstanceIdentifier<NatInstances> NAT_INSTANCES_ID = NAT_OPER_ID.child(NatInstances.class);
     private static final InstanceIdentifier<NatInstance> NAT_INSTANCE_ID = NAT_INSTANCES_ID.child(NatInstance.class);
-    private static final InstanceIdentifier<NatCurrentConfig> CURRENT_CONFIG = NAT_INSTANCE_ID.child(NatCurrentConfig.class);
+    private static final InstanceIdentifier<NatCurrentConfig> CURRENT_CONFIG =
+            NAT_INSTANCE_ID.child(NatCurrentConfig.class);
     private static final InstanceIdentifier<MappingTable> MAP_TABLE_ID = NAT_INSTANCE_ID.child(MappingTable.class);
     private static final InstanceIdentifier<MappingEntry> MAP_ENTRY_ID = MAP_TABLE_ID.child(MappingEntry.class);
 
@@ -55,16 +56,20 @@ public class NatReaderFactory implements ReaderFactory {
     private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> mapEntryDumpMgr;
     private final DumpCacheManager<SnatAddressDetailsReplyDump, Void> addressRangeDumpMgr;
 
+
     @Inject
     public NatReaderFactory(final FutureJVppSnatFacade jvppSnat,
                             final MappingEntryContext mappingEntryContext) {
         this.mappingEntryContext = mappingEntryContext;
-        this.mapEntryDumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatStaticMappingDetailsReplyDump, Void>()
-                .withExecutor(new MappingEntryCustomizer.MappingEntryDumpExecutor(jvppSnat))
-                .build();
-        this.addressRangeDumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatAddressDetailsReplyDump, Void>()
-                .withExecutor(new ExternalIpPoolCustomizer.AddressRangeDumpExecutor(jvppSnat))
-                .build();
+        this.mapEntryDumpMgr =
+                new DumpCacheManager.DumpCacheManagerBuilder<SnatStaticMappingDetailsReplyDump, Void>()
+                        .withExecutor(new MappingEntryCustomizer.MappingEntryDumpExecutor(jvppSnat))
+                        .build();
+
+        this.addressRangeDumpMgr =
+                new DumpCacheManager.DumpCacheManagerBuilder<SnatAddressDetailsReplyDump, Void>()
+                        .withExecutor(new ExternalIpPoolCustomizer.AddressRangeDumpExecutor(jvppSnat))
+                        .build();
     }
 
     @Override

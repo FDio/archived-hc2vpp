@@ -56,7 +56,6 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder>, Ipv4Reader {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv4AddressCustomizer.class);
-    private static final String CACHE_KEY = SubInterfaceIpv4AddressCustomizer.class.getName();
 
     private final NamingContext interfaceContext;
     private final DumpCacheManager<IpAddressDetailsReplyDump, AddressDumpParams> dumpManager;
@@ -85,7 +84,7 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
         final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, CACHE_KEY, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
+                .getDump(id, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
 
         final Optional<IpAddressDetails> ipAddressDetails =
                 findIpAddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
@@ -110,7 +109,7 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
         final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, CACHE_KEY, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
+                .getDump(id, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
 
         return getAllIpv4AddressIds(dumpOptional, AddressKey::new);
     }

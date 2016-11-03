@@ -34,6 +34,7 @@ import io.fd.vpp.jvpp.core.dto.LispEidTableMapDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.VniTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.VrfSubtable;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -44,15 +45,6 @@ public interface SubtableReader extends JvppReplyConsumer {
 
     SubtableDumpParams L2_PARAMS = new SubtableDumpParamsBuilder().setL2(L2).build();
     SubtableDumpParams L3_PARAMS = new SubtableDumpParamsBuilder().setL2(L3).build();
-
-    default Optional<LispEidTableMapDetailsReplyDump> readSubtable(
-            @Nonnull final DumpCacheManager<LispEidTableMapDetailsReplyDump, SubtableDumpParams> dumpManager,
-            @Nonnull final String cacheKey,
-            @Nonnull final ModificationCache cache,
-            @Nonnull final InstanceIdentifier<? extends ChildOf<VniTable>> id,
-            @Nonnull final SubtableDumpParams params) throws ReadFailedException {
-        return dumpManager.getDump(id, cacheKey, cache, params);
-    }
 
     default EntityDumpExecutor<LispEidTableMapDetailsReplyDump, SubtableDumpParams> createExecutor(
             @Nonnull final FutureJVppCore vppApi) {

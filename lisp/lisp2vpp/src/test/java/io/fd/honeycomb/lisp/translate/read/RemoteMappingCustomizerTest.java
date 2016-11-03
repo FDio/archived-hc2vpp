@@ -27,6 +27,7 @@ import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.read.ListReaderCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
@@ -83,6 +84,7 @@ public class RemoteMappingCustomizerTest
                 .child(RemoteMappings.class)
                 .child(RemoteMapping.class, new RemoteMappingKey(new MappingId("remote-mapping")));
         mockMappings();
+        defineMapping(mappingContext,"loc-set",1,"loc-set-context");
     }
 
 
@@ -163,6 +165,7 @@ public class RemoteMappingCustomizerTest
         when(eidMappingContext.containsEid(new MappingId("remote-mapping"), mappingContext)).thenReturn(true);
         when(eidMappingContext.getEid(new MappingId("remote-mapping"), mappingContext))
                 .thenReturn(new EidBuilder().setAddress(EID_ADDRESS).build());
+
     }
 
     @Test
@@ -233,6 +236,6 @@ public class RemoteMappingCustomizerTest
 
     @Override
     protected ReaderCustomizer<RemoteMapping, RemoteMappingBuilder> initCustomizer() {
-        return new RemoteMappingCustomizer(api, eidMappingContext);
+        return new RemoteMappingCustomizer(api, new NamingContext("loc-set", "loc-set-context"), eidMappingContext);
     }
 }

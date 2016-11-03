@@ -55,8 +55,6 @@ public class InterfaceCustomizer
         extends FutureJVppCustomizer
         implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder>, LocatorReader {
 
-    private static final String KEY_BASE = InterfaceCustomizer.class.getName();
-
     private final NamingContext interfaceContext;
     private final NamingContext locatorSetContext;
     private final DumpCacheManager<LispLocatorDetailsReplyDump, LocatorDumpParams> dumpCacheManager;
@@ -97,7 +95,7 @@ public class InterfaceCustomizer
                 new LocatorDumpParamsBuilder().setLocatorSetIndex(locatorSetIndexIndex).build();
 
         final Optional<LispLocatorDetailsReplyDump> reply =
-                dumpCacheManager.getDump(id, KEY_BASE, ctx.getModificationCache(), params);
+                dumpCacheManager.getDump(id, ctx.getModificationCache(), params);
 
         if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
             return;
@@ -129,7 +127,7 @@ public class InterfaceCustomizer
                 .setLocatorSetIndex(locatorSetContext.getIndex(name, context.getMappingContext())).build();
 
         final Optional<LispLocatorDetailsReplyDump> reply =
-                dumpCacheManager.getDump(id, KEY_BASE, context.getModificationCache(), params);
+                dumpCacheManager.getDump(id, context.getModificationCache(), params);
 
         if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
             return Collections.emptyList();

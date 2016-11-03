@@ -51,16 +51,17 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
         JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(MapResolverCustomizer.class);
-    private static final String MAP_RESOLVERS_CACHE_ID = MapResolverCustomizer.class.getName();
 
     private final DumpCacheManager<LispMapResolverDetailsReplyDump, Void> dumpManager;
 
     public MapResolverCustomizer(FutureJVppCore futureJvpp) {
         super(futureJvpp);
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispMapResolverDetailsReplyDump, Void>()
-                .withExecutor((identifier, params) -> getReplyForRead(
-                        futureJvpp.lispMapResolverDump(new LispMapResolverDump()).toCompletableFuture(), identifier))
-                .build();
+        this.dumpManager =
+                new DumpCacheManager.DumpCacheManagerBuilder<LispMapResolverDetailsReplyDump, Void>()
+                        .withExecutor((identifier, params) -> getReplyForRead(
+                                futureJvpp.lispMapResolverDump(new LispMapResolverDump()).toCompletableFuture(),
+                                identifier))
+                        .build();
     }
 
     @Override
@@ -74,7 +75,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
         LOG.debug("Reading attributes...");
 
         final Optional<LispMapResolverDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, MAP_RESOLVERS_CACHE_ID, ctx.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
 
         if (!dumpOptional.isPresent() || dumpOptional.get().lispMapResolverDetails.isEmpty()) {
             LOG.warn("No data dumped");
@@ -105,7 +106,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
         LOG.debug("Dumping MapResolver...");
 
         final Optional<LispMapResolverDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, MAP_RESOLVERS_CACHE_ID, context.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
 
         if (!dumpOptional.isPresent() || dumpOptional.get().lispMapResolverDetails.isEmpty()) {
             return Collections.emptyList();

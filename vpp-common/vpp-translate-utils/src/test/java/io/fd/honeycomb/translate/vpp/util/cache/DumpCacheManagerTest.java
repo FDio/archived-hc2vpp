@@ -23,31 +23,34 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpPostProcessingFunction;
+import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.IpDetails;
 import io.fd.vpp.jvpp.core.dto.IpDetailsReplyDump;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class DumpCacheManagerTest {
 
-    private static final String KEY = "cacheKey";
+    private interface DataObj extends DataObject {}
 
     @Mock
     private EntityDumpExecutor<IpDetailsReplyDump, Void> executor;
 
-    @Mock
-    private InstanceIdentifier identifier;
+    private InstanceIdentifier<DataObj> identifier;
 
     private DumpCacheManager<IpDetailsReplyDump, Void> managerPositive;
     private DumpCacheManager<IpDetailsReplyDump, Void> managerPositiveWithPostProcessing;
     private DumpCacheManager<IpDetailsReplyDump, Void> managerNegative;
     private ModificationCache cache;
+    private CacheKeyFactory cacheKeyFactory;
 
     @Before
     public void init() {
@@ -57,10 +60,11 @@ public class DumpCacheManagerTest {
                         .withExecutor(executor)
                         .build();
 
-        managerPositiveWithPostProcessing = new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
-                .withExecutor(executor)
-                .withPostProcessingFunction(createPostProcessor())
-                .build();
+        managerPositiveWithPostProcessing =
+                new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
+                        .withExecutor(executor)
+                        .withPostProcessingFunction(createPostProcessor())
+                        .build();
 
         managerNegative =
                 new DumpCacheManager.DumpCacheManagerBuilder<IpDetailsReplyDump, Void>()
@@ -68,6 +72,10 @@ public class DumpCacheManagerTest {
                         .build();
 
         cache = new ModificationCache();
+        identifier = InstanceIdentifier.create(DataObj.class);
+        //manager uses this implementation by default, so it can be used to test behaviour
+        cacheKeyFactory = new IdentifierCacheKeyFactory();
+
     }
 
     /**
@@ -76,24 +84,26 @@ public class DumpCacheManagerTest {
     @Test
     public void testCaching() throws ReadFailedException {
         final IpDetailsReplyDump stage1Data = new IpDetailsReplyDump();
+        final String key = cacheKeyFactory.createKey(identifier);
+
 
         // executor cant return null data
         when(executor.executeDump(identifier, NO_PARAMS)).thenReturn(new IpDetailsReplyDump());
 
-        final Optional<IpDetailsReplyDump> stage1Optional = managerNegative.getDump(identifier, KEY, cache, NO_PARAMS);
+        final Optional<IpDetailsReplyDump> stage1Optional = managerNegative.getDump(identifier, cache, NO_PARAMS);
 
         // this is first call so instance should be from executor
         // and it should be cached after calling executor
         assertEquals(true, stage1Optional.isPresent());
         assertEquals(stage1Data, stage1Optional.get());
-        assertEquals(true, cache.containsKey(KEY));
-        assertEquals(stage1Data, cache.get(KEY));
+        assertEquals(true, cache.containsKey(key));
+        assertEquals(stage1Data, cache.get(key));
 
         //rebind executor with other data
         IpDetailsReplyDump stage2LoadedDump = new IpDetailsReplyDump();
         when(executor.executeDump(identifier, NO_PARAMS)).thenReturn(stage2LoadedDump);
 
-        final Optional<IpDetailsReplyDump> stage2Optional = managerPositive.getDump(identifier, KEY, cache, NO_PARAMS);
+        final Optional<IpDetailsReplyDump> stage2Optional = managerPositive.getDump(identifier, cache, NO_PARAMS);
 
         assertEquals(true, stage2Optional.isPresent());
         assertEquals(stage2LoadedDump, stage2Optional.get());
@@ -102,7 +112,7 @@ public class DumpCacheManagerTest {
         IpDetailsReplyDump stage3LoadedDump = new IpDetailsReplyDump();
         when(executor.executeDump(identifier, NO_PARAMS)).thenReturn(stage3LoadedDump);
 
-        final Optional<IpDetailsReplyDump> stage3Optional = managerPositive.getDump(identifier, KEY, cache, NO_PARAMS);
+        final Optional<IpDetailsReplyDump> stage3Optional = managerPositive.getDump(identifier, cache, NO_PARAMS);
         assertEquals(true, stage3Optional.isPresent());
         //check if it returns instance cached from previous stage
         assertEquals(stage2LoadedDump, stage3Optional.get());
@@ -118,7 +128,7 @@ public class DumpCacheManagerTest {
         when(executor.executeDump(identifier, null)).thenReturn(dump);
 
         Optional<IpDetailsReplyDump> optionalDump =
-                managerPositiveWithPostProcessing.getDump(identifier, KEY, cache, NO_PARAMS);
+                managerPositiveWithPostProcessing.getDump(identifier, cache, NO_PARAMS);
 
         assertEquals(true, optionalDump.isPresent());
         assertEquals(1, optionalDump.get().ipDetails.size());

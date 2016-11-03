@@ -19,6 +19,7 @@ package io.fd.honeycomb.translate.v3po.interfacesstate.ip;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.base.Preconditions;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -26,6 +27,7 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
 import io.fd.honeycomb.translate.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.honeycomb.translate.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.vpp.util.FutureJVppCustomizer;
@@ -66,9 +68,12 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                                  @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
-                .withExecutor(createExecutor(futureJVppCore))
-                .build();
+        this.dumpManager =
+                new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
+                        .withExecutor(createExecutor(futureJVppCore))
+                        // Key needs to contain interface ID to distinguish dumps between interfaces
+                        .withCacheKeyFactory(new IdentifierCacheKeyFactory(ImmutableSet.of(Interface.class)))
+                        .build();
     }
 
     @Override
@@ -85,10 +90,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
-        // Key needs to contain interface ID to distinguish dumps between interfaces
-        final String cacheKey = CACHE_KEY + interfaceName;
-        final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, cacheKey, ctx.getModificationCache(), new AddressDumpParams(interfaceIndex, false));
+        final Optional<IpAddressDetailsReplyDump> dumpOptional =
+                dumpManager.getDump(id, ctx.getModificationCache(), new AddressDumpParams(interfaceIndex, false));
 
         if (!dumpOptional.isPresent() || dumpOptional.get().ipAddressDetails.isEmpty()) {
             return;
@@ -116,10 +119,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
-        // Key needs to contain interface ID to distinguish dumps between interfaces
-        final String cacheKey = CACHE_KEY + interfaceName;
-        final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, cacheKey, ctx.getModificationCache(), new AddressDumpParams(interfaceIndex, false));
+        final Optional<IpAddressDetailsReplyDump> dumpOptional =
+                dumpManager.getDump(id, ctx.getModificationCache(), new AddressDumpParams(interfaceIndex, false));
 
         return getAllIpv4AddressIds(dumpOptional, AddressKey::new);
     }

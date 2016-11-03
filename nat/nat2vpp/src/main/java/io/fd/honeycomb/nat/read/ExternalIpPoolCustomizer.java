@@ -73,10 +73,11 @@ final class ExternalIpPoolCustomizer implements
 
         final Long poolId = id.firstKeyOf(ExternalIpAddressPool.class).getPoolId();
         final SnatAddressDetails details =
-                dumpMgr.getDump(id, getClass().getName(), ctx.getModificationCache(), null)
+                dumpMgr.getDump(id, ctx.getModificationCache(), null)
                         .or(new SnatAddressDetailsReplyDump()).snatAddressDetails.get(Math.toIntExact(poolId));
 
-        builder.setExternalIpPool(new Ipv4Prefix(arrayToIpv4AddressNoZoneReversed(details.ipAddress).getValue() + "/32"));
+        builder.setExternalIpPool(
+                new Ipv4Prefix(arrayToIpv4AddressNoZoneReversed(details.ipAddress).getValue() + "/32"));
         builder.setPoolId(poolId);
 
         LOG.trace("External IP pool: {}. Read as: {}", id, builder);
@@ -100,7 +101,7 @@ final class ExternalIpPoolCustomizer implements
         // That's why the write and read is not symmetrical in terms of data structure, instead,
         // this customizer also returns every single address as a 32 prefix and assigns an artificial key to them
 
-        final long addressCount = dumpMgr.getDump(id, getClass().getName(), ctx.getModificationCache(), null)
+        final long addressCount = dumpMgr.getDump(id, ctx.getModificationCache(), null)
                 .or(new SnatAddressDetailsReplyDump()).snatAddressDetails.stream()
                 .count();
 

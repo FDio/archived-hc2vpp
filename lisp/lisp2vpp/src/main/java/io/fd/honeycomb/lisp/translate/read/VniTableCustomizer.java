@@ -53,7 +53,6 @@ public class VniTableCustomizer extends FutureJVppCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
-    private static final String LISP_TABLE_ID_DUMP = VniTableCustomizer.class.getName();
     private final DumpCacheManager<LispEidTableVniDetailsReplyDump, Void> dumpManager;
 
     public VniTableCustomizer(@Nonnull final FutureJVppCore futureJvpp) {
@@ -88,7 +87,7 @@ public class VniTableCustomizer extends FutureJVppCustomizer
         LOG.trace("Reading all IDS...");
 
         final Optional<LispEidTableVniDetailsReplyDump> optionalReply =
-                dumpManager.getDump(id, LISP_TABLE_ID_DUMP, context.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
 
         if (!optionalReply.isPresent() || optionalReply.get().lispEidTableVniDetails.isEmpty()) {
             return Collections.emptyList();
@@ -107,7 +106,7 @@ public class VniTableCustomizer extends FutureJVppCustomizer
         VniTableKey key = new VniTableKey(id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier());
 
         final Optional<LispEidTableVniDetailsReplyDump> optionalReply =
-                dumpManager.getDump(id, LISP_TABLE_ID_DUMP, ctx.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
 
         if (!optionalReply.isPresent() || optionalReply.get().lispEidTableVniDetails.isEmpty()) {
             return;

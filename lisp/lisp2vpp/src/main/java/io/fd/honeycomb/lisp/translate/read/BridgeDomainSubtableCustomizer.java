@@ -48,17 +48,18 @@ public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer impleme
         ReaderCustomizer<BridgeDomainSubtable, BridgeDomainSubtableBuilder>, SubtableReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainSubtableCustomizer.class);
-    private static final String CACHE_KEY = BridgeDomainSubtableCustomizer.class.getName();
 
-    private final DumpCacheManager<LispEidTableMapDetailsReplyDump, SubtableDumpParams> dumpManager;
+    private final DumpCacheManager<LispEidTableMapDetailsReplyDump, SubtableDumpParams>
+            dumpManager;
     private final NamingContext bridgeDomainContext;
 
     public BridgeDomainSubtableCustomizer(@Nonnull final FutureJVppCore futureJvppCore,
                                           @Nonnull final NamingContext bridgeDomainContext) {
         super(futureJvppCore);
-        dumpManager = new DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
-                .withExecutor(createExecutor(futureJvppCore))
-                .build();
+        dumpManager =
+                new DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
+                        .withExecutor(createExecutor(futureJvppCore))
+                        .build();
         this.bridgeDomainContext = checkNotNull(bridgeDomainContext, "Bridge domain context cannot be null");
     }
 
@@ -77,7 +78,7 @@ public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer impleme
         LOG.debug("Read attributes for id {}", id);
         //dumps only L2(bridge domains)
         final Optional<LispEidTableMapDetailsReplyDump> reply =
-                readSubtable(dumpManager, CACHE_KEY, ctx.getModificationCache(), id, L2_PARAMS);
+                dumpManager.getDump(id, ctx.getModificationCache(), L2_PARAMS);
 
         if (!reply.isPresent() || reply.get().lispEidTableMapDetails.isEmpty()) {
             return;

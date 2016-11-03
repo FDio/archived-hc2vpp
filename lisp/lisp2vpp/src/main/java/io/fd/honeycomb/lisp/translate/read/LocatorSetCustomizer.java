@@ -49,7 +49,6 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         implements ListReaderCustomizer<LocatorSet, LocatorSetKey, LocatorSetBuilder>, ByteDataTranslator,
         LocatorSetReader {
 
-    private static final String LOCATOR_SETS_CACHE_ID = LocatorSetCustomizer.class.getName();
     private static final Logger LOG = LoggerFactory.getLogger(LocatorSetCustomizer.class);
 
     private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
@@ -75,7 +74,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         LOG.debug("Reading attributes for Locator Set {}", id);
 
         final Optional<LispLocatorSetDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, LOCATOR_SETS_CACHE_ID, ctx.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
 
         if (!dumpOptional.isPresent() || dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
             return;
@@ -104,7 +103,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         LOG.debug("Dumping Locator Set {}", id);
 
         final Optional<LispLocatorSetDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, LOCATOR_SETS_CACHE_ID, context.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
 
         if (!dumpOptional.isPresent() || dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
             return Collections.emptyList();
