@@ -172,6 +172,13 @@ cd honeycomb/
 
  mvn clean install
 
+[NOTE]
+=====
+To perform quick build(no tests, no checks, no docs) run:
+
+ mvn clean install -DskipTests -Dcheckstyle.skip -Dmaven.javadoc.skip=true -Djacoco.skip
+=====
+
 Now Honeycomb can be run with:
 
 [subs="+attributes"]
