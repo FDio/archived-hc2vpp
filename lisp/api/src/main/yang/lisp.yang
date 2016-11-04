@@ -25,7 +25,10 @@ module lisp {
 
   revision 2016-12-14 {
     description
-     "This revision adds support for L2 features";
+     "This revision adds support for L2 features, by adding vrf-subtable/bridge-domain-subtable
+     containers under vni-table. Both contains mandatory reference to index(vrf-subtable)
+     or name(bridge-domain-subtable) of respective kind of table.";
+
     reference
       "https://tools.ietf.org/html/rfc6830";
   }
@@ -246,18 +249,22 @@ module lisp {
             description "vni";
         }
         container vrf-subtable {
+          presence "Enable L3 mapping";
           leaf table-id {
              type uint32;
              description "table-id";
+             mandatory true;
           }
 
           uses dp-subtable-grouping;
           description "VRF subtable";
         }
         container bridge-domain-subtable {
+          presence "Enable L2 mapping";
           leaf bridge-domain-ref {
             type string;
             description "Name reference to existing bridge domain";
+            mandatory true;
           }
 
           uses dp-subtable-grouping;
