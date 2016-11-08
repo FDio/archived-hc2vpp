@@ -35,7 +35,7 @@ import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
-import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuilder;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.vpp.test.util.NamingContextHelper;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
 import io.fd.honeycomb.vpp.test.util.FutureProducer;

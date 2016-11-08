@@ -27,13 +27,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
-import io.fd.honeycomb.translate.util.read.registry.CompositeReaderRegistryBuilder;
-import io.fd.honeycomb.translate.util.write.registry.FlatWriterRegistryBuilder;
-import io.fd.honeycomb.translate.vpp.util.NamingContext;
+import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,11 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import io.fd.honeycomb.vppioam.impl.config.VppIoamWriterFactory;
-import io.fd.honeycomb.vppioam.impl.util.JVppIoamProvider;
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import io.fd.vpp.jvpp.JVppRegistry;
 
