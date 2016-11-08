@@ -51,7 +51,7 @@ public class InterfaceInboundNatCustomizerTest
     private static final String CTX_NAME = "ifc";
 
     @Mock
-    private EntityDumpExecutor<SnatInterfaceDetailsReplyDump, Void> abc;
+    private EntityDumpExecutor<SnatInterfaceDetailsReplyDump, Void> natExecutor;
     private DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> dumpMgr;
     private NamingContext ifcContext = new NamingContext(CTX_NAME, CTX_NAME);
     private InstanceIdentifier<Inbound> id;
@@ -65,9 +65,9 @@ public class InterfaceInboundNatCustomizerTest
         id = getId(Inbound.class);
         defineMapping(mappingContext, IFC_NAME, IFC_IDX, CTX_NAME);
         // empty dump
-        Mockito.doReturn(new SnatInterfaceDetailsReplyDump()).when(abc).executeDump(id, null);
+        Mockito.doReturn(new SnatInterfaceDetailsReplyDump()).when(natExecutor).executeDump(id, null);
         dumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatInterfaceDetailsReplyDump, Void>()
-                .withExecutor(abc)
+                .withExecutor(natExecutor)
                 .build();
     }
 
@@ -95,7 +95,7 @@ public class InterfaceInboundNatCustomizerTest
         detail.isInside = 1;
         detail.swIfIndex = IFC_IDX;
         details.snatInterfaceDetails = Lists.newArrayList(detail);
-        Mockito.doReturn(details).when(abc).executeDump(id, null);
+        Mockito.doReturn(details).when(natExecutor).executeDump(id, null);
 
         assertTrue(getReader().read(id, ctx).isPresent());
     }

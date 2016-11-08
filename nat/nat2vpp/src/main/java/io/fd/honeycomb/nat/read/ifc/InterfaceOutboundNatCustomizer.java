@@ -32,8 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interfa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.nat.Outbound;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.nat.OutboundBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -55,11 +53,6 @@ final class InterfaceOutboundNatCustomizer extends AbstractInterfaceNatCustomize
     }
 
     @Override
-    void setBuilderPresence(@Nonnull final OutboundBuilder builder) {
-        ((PresenceOutboundBuilder) builder).setPresent(true);
-    }
-
-    @Override
     boolean isExpectedNatType(final SnatInterfaceDetails snatInterfaceDetails) {
         return snatInterfaceDetails.isInside == 0;
     }
@@ -67,7 +60,7 @@ final class InterfaceOutboundNatCustomizer extends AbstractInterfaceNatCustomize
     @Nonnull
     @Override
     public OutboundBuilder getBuilder(@Nonnull final InstanceIdentifier<Outbound> id) {
-        return new PresenceOutboundBuilder(false);
+        return new OutboundBuilder();
     }
 
     @Override
@@ -89,55 +82,5 @@ final class InterfaceOutboundNatCustomizer extends AbstractInterfaceNatCustomize
                         .child(Nat.class)
                         .child(Outbound.class);
         return Initialized.create(cfgId, readValue);
-    }
-
-    // TODO HONEYCOMB-270, make this better, having to fake a builder + value is just exploitation.
-
-    /**
-     * Special Builder to also propagate empty container into the resulting data.
-     */
-    private static final class PresenceOutboundBuilder extends OutboundBuilder {
-
-        private volatile boolean isPresent = false;
-
-        PresenceOutboundBuilder(final boolean isPresent) {
-            this.isPresent = isPresent;
-        }
-
-        void setPresent(final boolean present) {
-            this.isPresent = present;
-        }
-
-        @Override
-        public Outbound build() {
-            final Outbound build = super.build();
-            return isPresent
-                    ? build
-                    : NotPresentOutbound.NOT_PRESENT_OUTBOUND;
-        }
-    }
-
-    /**
-     * Fake container that returns false on equals.
-     */
-    private static final class NotPresentOutbound implements Outbound {
-
-        private static final NotPresentOutbound NOT_PRESENT_OUTBOUND = new NotPresentOutbound();
-
-        @Override
-        public <E extends Augmentation<Outbound>> E getAugmentation(final Class<E> augmentationType) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
-            return Outbound.class;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            // This is necessary to fake this.equals(something)
-            return obj == NOT_PRESENT_OUTBOUND;
-        }
     }
 }

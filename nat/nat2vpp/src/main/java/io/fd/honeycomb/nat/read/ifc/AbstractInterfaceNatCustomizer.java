@@ -47,6 +47,11 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<C> id,
                                       @Nonnull final B builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
+        // NOOP
+    }
+
+    @Override
+    public boolean isPresent(final InstanceIdentifier<C> id, final C built, final ReadContext ctx) throws ReadFailedException {
         final String ifcName = id.firstKeyOf(Interface.class).getName();
         getLog().debug("Reading NAT features on interface: {}", ifcName);
         final int index = ifcContext.getIndex(ifcName, ctx.getMappingContext());
@@ -56,17 +61,15 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
                 dumpMgr.getDump(id, ctx.getModificationCache(), null);
 
         // Find entries for current ifc and if is marked as inside set the builder to return presence container
-        dump.or(new SnatInterfaceDetailsReplyDump()).snatInterfaceDetails.stream()
+        return dump.or(new SnatInterfaceDetailsReplyDump()).snatInterfaceDetails.stream()
                 .filter(snatIfcDetail -> snatIfcDetail.swIfIndex == index)
                 .filter(this::isExpectedNatType)
                 .findFirst()
-                .ifPresent(snatIfcDetail -> setBuilderPresence(builder));
+                .isPresent();
         // Not setting data, just marking the builder to propagate empty container to indicate presence
     }
 
     protected abstract Logger getLog();
-
-    abstract void setBuilderPresence(@Nonnull final B builder);
 
     abstract boolean isExpectedNatType(final SnatInterfaceDetails snatInterfaceDetails);
 }

@@ -17,6 +17,7 @@
 package io.fd.honeycomb.nat.read.ifc;
 
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.vpp.util.NamingContext;
@@ -32,8 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interfa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.nat.Inbound;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.nat.InboundBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -55,8 +54,10 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
     }
 
     @Override
-    void setBuilderPresence(@Nonnull final InboundBuilder builder) {
-        ((PresenceInboundBuilder) builder).setPresent(true);
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Inbound> id,
+                                      @Nonnull final InboundBuilder builder, @Nonnull final ReadContext ctx)
+            throws ReadFailedException {
+        super.readCurrentAttributes(id, builder, ctx);
     }
 
     @Override
@@ -68,7 +69,7 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
     @Override
     public InboundBuilder getBuilder(@Nonnull final InstanceIdentifier<Inbound> id) {
         // Return not present value by default
-        return new PresenceInboundBuilder(false);
+        return new InboundBuilder();
     }
 
     @Override
@@ -90,54 +91,5 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
                 .child(Nat.class)
                 .child(Inbound.class);
         return Initialized.create(cfgId, readValue);
-    }
-
-    // TODO HONEYCOMB-270, make this better, having to fake a builder + value is just exploitation.
-
-    /**
-     * Special Builder to also propagate empty container into the resulting data.
-     */
-    private static final class PresenceInboundBuilder extends InboundBuilder {
-
-        private volatile boolean isPresent = false;
-
-        PresenceInboundBuilder(final boolean isPresent) {
-            this.isPresent = isPresent;
-        }
-
-        void setPresent(final boolean present) {
-            this.isPresent = present;
-        }
-
-        @Override
-        public Inbound build() {
-            return isPresent
-                    ? super.build()
-                    : NotPresentInbound.NOT_PRESENT_INBOUND;
-        }
-    }
-
-    /**
-     * Fake container that returns false on equals.
-     */
-    private static final class NotPresentInbound implements Inbound {
-
-        private static final NotPresentInbound NOT_PRESENT_INBOUND = new NotPresentInbound();
-
-        @Override
-        public <E extends Augmentation<Inbound>> E getAugmentation(final Class<E> augmentationType) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Class<? extends DataContainer> getImplementedInterface() {
-            return Inbound.class;
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            // This is necessary to fake this.equals(something)
-            return obj == NOT_PRESENT_INBOUND;
-        }
     }
 }
