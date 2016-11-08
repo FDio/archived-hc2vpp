@@ -440,7 +440,7 @@
 			"description": "",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanGpeTun3\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-gpe-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan-gpe\" : {\r\n                    \"local\" : \"192.168.50.76\",\r\n                    \"remote\" : \"192.168.50.71\",\r\n                    \"vni\" : \"9\",\r\n                    \"next-protocol\" : \"ethernet\",\r\n                    \"encap-vrf-id\" : \"0\",\r\n                    \"decap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
+			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanGpeTun3\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-gpe-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"ipv4-vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan-gpe\" : {\r\n                    \"local\" : \"192.168.50.76\",\r\n                    \"remote\" : \"192.168.50.71\",\r\n                    \"vni\" : \"9\",\r\n                    \"next-protocol\" : \"ethernet\",\r\n                    \"encap-vrf-id\" : \"0\",\r\n                    \"decap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
 			"folder": "ded16b18-1c4c-e349-6190-7a5e30813494"
 		},
 		{
@@ -629,7 +629,7 @@
 			"description": "",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"local0\",\r\n                \"description\": \"for testing purposes only\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"routing\" : {\r\n                    \"vrf-id\" : \"7\"\r\n                },\r\n                \"v3po:ethernet\": {\r\n                  \"mtu\": 64\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"local0\",\r\n                \"description\": \"for testing purposes only\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"routing\" : {\r\n                    \"ipv4-vrf-id\" : \"7\"\r\n                },\r\n                \"v3po:ethernet\": {\r\n                  \"mtu\": 64\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 		},
 		{
 			"id": "2d25db9f-6c65-5fe0-1602-5484c058bd1b",
@@ -988,7 +988,7 @@
 			"description": "",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanTun1\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan\" : {\r\n                    \"src\" : \"192.168.1.6\",\r\n                    \"dst\" : \"192.168.1.9\",\r\n                    \"vni\" : \"88\",\r\n                    \"encap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
+			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanTun1\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"ipv4-vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan\" : {\r\n                    \"src\" : \"192.168.1.6\",\r\n                    \"dst\" : \"192.168.1.9\",\r\n                    \"vni\" : \"88\",\r\n                    \"encap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
 			"folder": "f15540bc-415f-0ce0-4c25-5a5406d11242"
 		},
 		{
@@ -1387,7 +1387,7 @@
 			"description": "",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"greTun1\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:gre-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"vrf-id\" : \"0\"\r\n                },\r\n                \"gre\" : {\r\n                    \"src\" : \"192.168.1.6\",\r\n                    \"dst\" : \"192.168.1.9\",\r\n                    \"outer-fib-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
+			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"greTun1\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:gre-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"ipv4-vrf-id\" : \"0\"\r\n                },\r\n                \"gre\" : {\r\n                    \"src\" : \"192.168.1.6\",\r\n                    \"dst\" : \"192.168.1.9\",\r\n                    \"outer-fib-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
 			"folder": "2e489b42-8432-15f1-f4bc-859c34a3c570"
 		},
 		{
