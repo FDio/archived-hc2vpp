@@ -9,12 +9,17 @@ https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-ver
 Adding to the list of existing features: https://wiki.fd.io/view/Honeycomb/Releases/1609#Features[1609 feature list]:
 
 === New features
-* NAT management
+* https://jira.fd.io/browse/HONEYCOMB-132[NAT management]
+* https://jira.fd.io/browse/HONEYCOMB-257[iOAM management]
 
 === Removed features
 
 === Modified features
 * ACL management improvements
+* https://jira.fd.io/browse/HONEYCOMB-73[Initializers tie-in with readers]
+** Instead of root level initializer, initialization can be split among multiple initializing readers
+* https://jira.fd.io/browse/HONEYCOMB-270[Readers/ReadCustomizers able to influence presence of resulting data]
+** Suitable for presence container readers
 
 === Deprecated features
 
