@@ -141,6 +141,62 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
         }
     }
 
+    default LocalEid getArrayAsLocalEid(@Nonnull final EidType type, final byte[] address, final int vni) {
+        switch (type) {
+            case IPV4: {
+                return newEidBuilderLocal(Ipv4Afi.class, vni)
+                        .setAddress(
+                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZoneReversed(address))
+                                        .build())
+                        .build();
+            }
+            case IPV6: {
+                return newEidBuilderLocal(Ipv6Afi.class, vni)
+                        .setAddress(
+                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZoneReversed(address))
+                                        .build())
+                        .build();
+            }
+            case MAC: {
+                return newEidBuilderLocal(MacAfi.class, vni)
+                        .setAddress(
+                                new MacBuilder().setMac(new MacAddress(byteArrayToMacSeparated(address)))
+                                        .build()).build();
+            }
+            default: {
+                throw new IllegalStateException("Unknown type detected");
+            }
+        }
+    }
+
+    default RemoteEid getArrayAsRemoteEid(@Nonnull final EidType type, final byte[] address, final int vni) {
+        switch (type) {
+            case IPV4: {
+                return newEidBuilderRemote(Ipv4Afi.class, vni)
+                        .setAddress(
+                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZoneReversed(address))
+                                        .build())
+                        .build();
+            }
+            case IPV6: {
+                return newEidBuilderRemote(Ipv6Afi.class, vni)
+                        .setAddress(
+                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZoneReversed(address))
+                                        .build())
+                        .build();
+            }
+            case MAC: {
+                return newEidBuilderRemote(MacAfi.class, vni)
+                        .setAddress(
+                                new MacBuilder().setMac(new MacAddress(byteArrayToMacSeparated(address)))
+                                        .build()).build();
+            }
+            default: {
+                throw new IllegalStateException("Unknown type detected");
+            }
+        }
+    }
+
     default String getArrayAsEidString(
             EidType type, byte[] address) {
         switch (type) {

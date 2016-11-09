@@ -18,6 +18,7 @@ package io.fd.honeycomb.lisp.translate.write.factory;
 
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.ADJACENCIES_IDENTIFICATION_CONTEXT;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.INTERFACE_CONTEXT;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.LOCAL_MAPPING_CONTEXT;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.LOCATOR_SET_CONTEXT;
@@ -25,6 +26,7 @@ import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.REMOTE_MAPPING_CON
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.honeycomb.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.write.LispCustomizer;
 import io.fd.honeycomb.lisp.translate.write.PitrCfgCustomizer;
@@ -46,6 +48,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class LispWriterFactory extends AbstractLispWriterFactoryBase implements WriterFactory {
 
     private final NamingContext bridgeDomainContext;
+    private final AdjacenciesMappingContext adjacenciesMappingContext;
 
     @Inject
     public LispWriterFactory(final FutureJVppCore vppApi,
@@ -53,10 +56,13 @@ public final class LispWriterFactory extends AbstractLispWriterFactoryBase imple
                              @Named(LOCATOR_SET_CONTEXT) final NamingContext locatorSetContext,
                              @Named("bridge-domain-context") final NamingContext bridgeDomainContext,
                              @Named(LOCAL_MAPPING_CONTEXT) final EidMappingContext localMappingContext,
-                             @Named(REMOTE_MAPPING_CONTEXT) final EidMappingContext remoteMappingContext) {
+                             @Named(REMOTE_MAPPING_CONTEXT) final EidMappingContext remoteMappingContext,
+                             @Named(ADJACENCIES_IDENTIFICATION_CONTEXT) final AdjacenciesMappingContext adjacenciesMappingContext) {
         super(InstanceIdentifier.create(Lisp.class), vppApi, interfaceContext, locatorSetContext, localMappingContext,
                 remoteMappingContext);
         this.bridgeDomainContext = checkNotNull(bridgeDomainContext, "Bridge domain context cannot be null");
+        this.adjacenciesMappingContext =
+                checkNotNull(adjacenciesMappingContext, "Adjacencies mapping context cannot be null");
     }
 
     @Override
@@ -64,7 +70,7 @@ public final class LispWriterFactory extends AbstractLispWriterFactoryBase imple
         registry.add(new GenericWriter<>(lispInstanceIdentifier, new LispCustomizer(vppApi)));
 
         VniTableWriterFactory.newInstance(lispInstanceIdentifier, vppApi, localMappingContext, remoteMappingContext,
-                bridgeDomainContext)
+                bridgeDomainContext, adjacenciesMappingContext)
                 .init(registry);
         LocatorSetsWriterFactory.newInstance(lispInstanceIdentifier, vppApi, interfaceContext, locatorSetContext)
                 .init(registry);

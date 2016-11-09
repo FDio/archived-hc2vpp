@@ -27,6 +27,7 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.honeycomb.lisp.cfgattrs.LispConfiguration;
+import io.fd.honeycomb.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.honeycomb.lisp.context.util.ContextsReaderFactoryProvider;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.read.factory.LispStateReaderFactory;
@@ -62,6 +63,11 @@ public class LispModule extends AbstractModule {
         bind(EidMappingContext.class)
                 .annotatedWith(Names.named(REMOTE_MAPPING_CONTEXT))
                 .toInstance(new EidMappingContext(REMOTE_MAPPING_CONTEXT));
+
+        LOG.info("Binding Adjacencies context");
+        bind(AdjacenciesMappingContext.class)
+                .annotatedWith(Names.named(LispConfiguration.ADJACENCIES_IDENTIFICATION_CONTEXT))
+                .toInstance(new AdjacenciesMappingContext(LispConfiguration.ADJACENCIES_IDENTIFICATION_CONTEXT));
 
         LOG.info("Binding reader factories");
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);

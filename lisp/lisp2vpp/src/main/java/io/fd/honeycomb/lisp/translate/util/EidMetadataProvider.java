@@ -19,6 +19,8 @@ package io.fd.honeycomb.lisp.translate.util;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.InstanceIdType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.LispAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.adjacency.LocalEidBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.adjacency.RemoteEidBuilder;
 
 /**
  * Trait providing metadata for eid's
@@ -45,6 +47,20 @@ public interface EidMetadataProvider {
             @Nonnull final Class<? extends LispAddressFamily> eidAddressType,
             final int vni) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.EidBuilder()
+                .setAddressType(eidAddressType)
+                .setVirtualNetworkId(new InstanceIdType(Long.valueOf(vni)));
+    }
+
+    default LocalEidBuilder newEidBuilderLocal(@Nonnull final Class<? extends LispAddressFamily> eidAddressType,
+                                          final int vni) {
+        return new LocalEidBuilder()
+                .setAddressType(eidAddressType)
+                .setVirtualNetworkId(new InstanceIdType(Long.valueOf(vni)));
+    }
+
+    default RemoteEidBuilder newEidBuilderRemote(@Nonnull final Class<? extends LispAddressFamily> eidAddressType,
+                                           final int vni) {
+        return new RemoteEidBuilder()
                 .setAddressType(eidAddressType)
                 .setVirtualNetworkId(new InstanceIdType(Long.valueOf(vni)));
     }

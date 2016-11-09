@@ -16,6 +16,8 @@
 
 package io.fd.honeycomb.lisp.translate.read.factory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.ADJACENCIES_IDENTIFICATION_CONTEXT;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.INTERFACE_CONTEXT;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.LOCAL_MAPPING_CONTEXT;
 import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.LOCATOR_SET_CONTEXT;
@@ -23,6 +25,7 @@ import static io.fd.honeycomb.lisp.cfgattrs.LispConfiguration.REMOTE_MAPPING_CON
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.honeycomb.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.read.LispStateCustomizer;
 import io.fd.honeycomb.lisp.translate.read.PitrCfgCustomizer;
@@ -44,15 +47,21 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public class LispStateReaderFactory extends AbstractLispReaderFactoryBase implements ReaderFactory {
 
+    private final AdjacenciesMappingContext adjacenciesIdentificationContext;
+
     @Inject
     public LispStateReaderFactory(final FutureJVppCore vppApi,
                                   @Named(INTERFACE_CONTEXT) final NamingContext interfaceContext,
                                   @Named(LOCATOR_SET_CONTEXT) final NamingContext locatorSetContext,
                                   @Named("bridge-domain-context") final NamingContext bridgeDomainContext,
                                   @Named(LOCAL_MAPPING_CONTEXT) final EidMappingContext localMappingContext,
-                                  @Named(REMOTE_MAPPING_CONTEXT) final EidMappingContext remoteMappingContext) {
+                                  @Named(REMOTE_MAPPING_CONTEXT) final EidMappingContext remoteMappingContext,
+                                  @Named(ADJACENCIES_IDENTIFICATION_CONTEXT) final
+                                  AdjacenciesMappingContext adjacenciesIdentificationContext) {
         super(InstanceIdentifier.create(LispState.class), vppApi, interfaceContext, locatorSetContext,
                 bridgeDomainContext, localMappingContext, remoteMappingContext);
+        this.adjacenciesIdentificationContext =
+                checkNotNull(adjacenciesIdentificationContext, "Adjacencies mapping context cannot be null");
     }
 
     @Override
@@ -65,7 +74,7 @@ public class LispStateReaderFactory extends AbstractLispReaderFactoryBase implem
         MapResolversReaderFactory.newInstance(lispStateId, vppApi).init(registry);
         EidTableReaderFactory
                 .newInstance(lispStateId, vppApi, interfaceContext, locatorSetContext, bridgeDomainContext,
-                        localMappingContext, remoteMappingContext)
+                        localMappingContext, remoteMappingContext, adjacenciesIdentificationContext)
                 .init(registry);
 
         registry.add(new GenericReader<>(lispStateId.child(LispFeatureData.class).child(PitrCfg.class),

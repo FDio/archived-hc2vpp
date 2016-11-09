@@ -31,6 +31,7 @@
 
     <properties>
         <project.translate.groupId>io.fd.honeycomb</project.translate.groupId>
+        <naming.context.version>1.16.12-SNAPSHOT</naming.context.version>
     </properties>
 
     <dependencies>
@@ -45,6 +46,11 @@
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>yang-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb.vpp</groupId>
+            <artifactId>naming-context-api</artifactId>
+            <version>${naming.context.version}</version>
         </dependency>
     </dependencies>
 </project>

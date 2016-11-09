@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType;
 
+import io.fd.honeycomb.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
@@ -47,27 +48,49 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
 
     private final EidMappingContext localEidsMappingContext;
     private final EidMappingContext remoteEidsMappingContext;
+    private final AdjacenciesMappingContext adjacenciesMappingContext;
 
     public AdjacencyCustomizer(@Nonnull final FutureJVppCore futureJvpp,
-                               @Nonnull EidMappingContext localEidsMappingContext,
-                               @Nonnull EidMappingContext remoteEidsMappingContext) {
+                               @Nonnull final EidMappingContext localEidsMappingContext,
+                               @Nonnull final EidMappingContext remoteEidsMappingContext,
+                               @Nonnull final AdjacenciesMappingContext adjacenciesMappingContext) {
         super(futureJvpp);
         this.localEidsMappingContext =
                 checkNotNull(localEidsMappingContext, "Eid context for local eid's cannot be null");
         this.remoteEidsMappingContext =
                 checkNotNull(remoteEidsMappingContext, "Eid context for remote eid's cannot be null");
+        this.adjacenciesMappingContext = checkNotNull(adjacenciesMappingContext, "Adjacencies context cannot be null");
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Adjacency> id,
                                        @Nonnull final Adjacency dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-
         try {
             addDelAdjacency(true, id, dataAfter, writeContext);
         } catch (TimeoutException | VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
+
+        //after successful creation, create mapping
+        adjacenciesMappingContext.addEidPair(adjacencyId(id),
+                localEidId(dataAfter, writeContext),
+                remoteEidId(dataAfter, writeContext),
+                writeContext.getMappingContext());
+    }
+
+    private String remoteEidId(final @Nonnull Adjacency dataAfter, final @Nonnull WriteContext writeContext) {
+        return remoteEidsMappingContext.getId(toRemoteEid(dataAfter.getRemoteEid()), writeContext.getMappingContext())
+                .getValue();
+    }
+
+    private String localEidId(final @Nonnull Adjacency dataAfter, final @Nonnull WriteContext writeContext) {
+        return localEidsMappingContext.getId(toLocalEid(dataAfter.getLocalEid()), writeContext.getMappingContext())
+                .getValue();
+    }
+
+    private String adjacencyId(final @Nonnull InstanceIdentifier<Adjacency> id) {
+        return id.firstKeyOf(Adjacency.class).getId();
     }
 
     @Override
@@ -86,6 +109,10 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         } catch (TimeoutException | VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataBefore, e);
         }
+
+        //after successful creation, create mapping
+        adjacenciesMappingContext.removeForIndex(adjacencyId(id),
+                writeContext.getMappingContext());
     }
 
     private void addDelAdjacency(boolean add, final InstanceIdentifier<Adjacency> id, final Adjacency data,

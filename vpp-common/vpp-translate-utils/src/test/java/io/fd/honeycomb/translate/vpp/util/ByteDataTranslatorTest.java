@@ -21,9 +21,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-/**
- * Created by jsrnicek on 23.9.2016.
- */
 public class ByteDataTranslatorTest implements ByteDataTranslator {
 
     @Test

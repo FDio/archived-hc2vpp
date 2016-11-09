@@ -16,6 +16,10 @@
 
 package io.fd.honeycomb.lisp.translate.write;
 
+import static io.fd.honeycomb.lisp.translate.AdjacencyData.ADDRESS_ONE;
+import static io.fd.honeycomb.lisp.translate.AdjacencyData.ADDRESS_THREE;
+import static io.fd.honeycomb.lisp.translate.AdjacencyData.LOCAL_EID_ONE;
+import static io.fd.honeycomb.lisp.translate.AdjacencyData.REMOTE_EID_ONE;
 import static io.fd.honeycomb.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV4;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -26,8 +30,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.honeycomb.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
-import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.lisp.util.EidMappingContextHelper;
 import io.fd.honeycomb.vpp.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.LispAddDelAdjacency;
 import io.fd.vpp.jvpp.core.dto.LispAddDelAdjacencyReply;
@@ -43,29 +48,33 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.addres
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.MacBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.adjacency.LocalEidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.adjacency.RemoteEidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.RemoteMappings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.RemoteMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.RemoteMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.EidTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.VniTableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class AdjacencyCustomizerTest extends WriterCustomizerTest {
+public class AdjacencyCustomizerTest extends WriterCustomizerTest implements EidMappingContextHelper {
 
     @Captor
     private ArgumentCaptor<LispAddDelAdjacency> requestCaptor;
 
-    @Mock
     private EidMappingContext localMappingContext;
 
-    @Mock
     private EidMappingContext remoteMappingContext;
+
+    @Mock
+    private AdjacenciesMappingContext adjacenciesMappingContext;
 
     private AdjacencyCustomizer customizer;
 
@@ -78,16 +87,18 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest {
 
     @Before
     public void init() {
-        customizer = new AdjacencyCustomizer(api, localMappingContext, remoteMappingContext);
+        localMappingContext = new EidMappingContext("local-mapping-context");
+        remoteMappingContext = new EidMappingContext("remote-mapping-context");
+        customizer = new AdjacencyCustomizer(api, localMappingContext, remoteMappingContext, adjacenciesMappingContext);
 
         emptyId = InstanceIdentifier.create(Adjacency.class);
         validId = InstanceIdentifier.create(EidTable.class)
                 .child(VniTable.class, new VniTableKey(2L))
                 .child(BridgeDomainSubtable.class)
                 .child(RemoteMappings.class)
-                .child(RemoteMapping.class)
+                .child(RemoteMapping.class, new RemoteMappingKey(new MappingId("remote-mapping")))
                 .child(Adjacencies.class)
-                .child(Adjacency.class);
+                .child(Adjacency.class, new AdjacencyKey("adj-one"));
 
         emptyData = new AdjacencyBuilder().build();
 
@@ -108,12 +119,12 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest {
                 new LocalEidBuilder()
                         .setVirtualNetworkId(new InstanceIdType(12L))
                         .setAddressType(Ipv4Afi.class)
-                        .setAddress(new Ipv4Builder().setIpv4(new Ipv4Address("192.168.2.1")).build())
+                        .setAddress(new Ipv4Builder().setIpv4(ADDRESS_ONE).build())
                         .build()).setRemoteEid(
                 new RemoteEidBuilder()
                         .setVirtualNetworkId(new InstanceIdType(12L))
                         .setAddressType(Ipv4Afi.class)
-                        .setAddress(new Ipv4Builder().setIpv4(new Ipv4Address("192.168.5.2")).build()).build()).build();
+                        .setAddress(new Ipv4Builder().setIpv4(ADDRESS_THREE).build()).build()).build();
 
         when(api.lispAddDelAdjacency(any())).thenReturn(future(new LispAddDelAdjacencyReply()));
     }
@@ -145,31 +156,20 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void writeCurrentAttributes() throws Exception {
-        when(localMappingContext.containsId(
-                any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid.class),
-                any(
-                        MappingContext.class))).thenReturn(true);
-
-        when(remoteMappingContext.containsId(
-                any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
-                any(
-                        MappingContext.class))).thenReturn(true);
-
+        defineEidMapping(mappingContext, LOCAL_EID_ONE, new MappingId("local-eid-one"), "local-mapping-context");
+        defineEidMapping(mappingContext, REMOTE_EID_ONE, new MappingId("remote-eid-one"), "remote-mapping-context");
         customizer.writeCurrentAttributes(validId, validData, writeContext);
         verify(api, times(1)).lispAddDelAdjacency(requestCaptor.capture());
-        verifyRequest(requestCaptor.getValue(), 1, new byte[]{-64, -88, 2, 1}, 32, new byte[]{-64, -88, 5, 2},
+        verifyRequest(requestCaptor.getValue(), 1, new byte[]{-64, -88, 2, 1}, 32, new byte[]{-64, -88, 2, 3},
                 32, IPV4.getValue(), 2);
+        verify(adjacenciesMappingContext, times(1))
+                .addEidPair("adj-one", "local-eid-one", "remote-eid-one", mappingContext);
     }
 
     @Test
     public void writeCurrentAttributesNonExistingLocalMapping() throws Exception {
-        when(localMappingContext.containsId(
-                any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid.class),
-                any(MappingContext.class))).thenReturn(false);
-
-        when(remoteMappingContext.containsId(
-                any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
-                any(MappingContext.class))).thenReturn(true);
+        noEidMappingDefined(mappingContext, "local-eid-one", "local-mapping-context");
+        defineEidMapping(mappingContext, REMOTE_EID_ONE, new MappingId("remote-eid-one"), "remote-mapping-context");
         try {
             customizer.writeCurrentAttributes(validId, validData, writeContext);
         } catch (IllegalStateException e) {
@@ -182,13 +182,9 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void writeCurrentAttributesNonExistingRemoteMapping() throws Exception {
-        when(localMappingContext.containsId(
-                any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid.class),
-                any(MappingContext.class))).thenReturn(true);
+        noEidMappingDefined(mappingContext, "remote-eid-one", "remote-mapping-context");
+        defineEidMapping(mappingContext, LOCAL_EID_ONE, new MappingId("local-eid-one"), "local-mapping-context");
 
-        when(remoteMappingContext.containsId(
-                any(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
-                any(MappingContext.class))).thenReturn(false);
         try {
             customizer.writeCurrentAttributes(validId, validData, writeContext);
         } catch (IllegalStateException e) {
@@ -225,8 +221,9 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest {
     public void deleteCurrentAttributes() throws Exception {
         customizer.deleteCurrentAttributes(validId, validData, writeContext);
         verify(api, times(1)).lispAddDelAdjacency(requestCaptor.capture());
-        verifyRequest(requestCaptor.getValue(), 0, new byte[]{-64, -88, 2, 1}, 32, new byte[]{-64, -88, 5, 2},
+        verifyRequest(requestCaptor.getValue(), 0, new byte[]{-64, -88, 2, 1}, 32, new byte[]{-64, -88, 2, 3},
                 32, IPV4.getValue(), 2);
+        verify(adjacenciesMappingContext, times(1)).removeForIndex("adj-one", mappingContext);
     }
 
     private static void verifyRequest(final LispAddDelAdjacency request, final int isAdd, final byte[] leid,

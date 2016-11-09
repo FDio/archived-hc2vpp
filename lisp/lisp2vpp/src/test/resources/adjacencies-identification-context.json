@@ -1,0 +1,29 @@
+
+{
+
+  "mappings": {
+    "mapping": [
+      {
+        "id": "first",
+        "eid-identificator-pair": {
+          "local-eid-id": "local-eid-1",
+          "remote-eid-id": "remote-eid-1"
+        }
+      },
+      {
+        "id": "second",
+        "eid-identificator-pair": {
+          "local-eid-id": "local-eid-2",
+          "remote-eid-id": "remote-eid-2"
+        }
+      },
+      {
+        "id": "third",
+        "eid-identificator-pair": {
+          "local-eid-id": "local-eid-3",
+          "remote-eid-id": "remote-eid-3"
+        }
+      }
+    ]
+  }
+}

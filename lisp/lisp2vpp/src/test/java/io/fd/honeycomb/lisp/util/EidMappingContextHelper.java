@@ -76,8 +76,8 @@ public interface EidMappingContextHelper {
      * @param mappingName       index to be mapped
      * @param namingContextName name of the naming context
      */
-    default void defineMapping(@Nonnull final MappingContext mappingContext, @Nonnull final Eid eid,
-                               final MappingId mappingName, @Nonnull final String namingContextName) {
+    default void defineEidMapping(@Nonnull final MappingContext mappingContext, @Nonnull final Eid eid,
+                                  final MappingId mappingName, @Nonnull final String namingContextName) {
         final KeyedInstanceIdentifier<Mapping, MappingKey> mappingIid = mappingIid(mappingName, namingContextName);
         final InstanceIdentifier<Mappings> mappingsIid = mappingIid.firstIdentifierOf(Mappings.class);
 
@@ -87,6 +87,16 @@ public interface EidMappingContextHelper {
 
         doReturn(Optional.of(new MappingsBuilder().setMapping(list).build())).when(mappingContext).read(mappingsIid);
         doReturn(singleMapping).when(mappingContext).read(mappingIid);
+    }
+
+    default void noEidMappingDefined(@Nonnull final MappingContext mappingContext, @Nonnull final String name,
+                                     @Nonnull final String namingContextName) {
+        final InstanceIdentifier<Mappings> iid =
+                mappingIid(new MappingId(name), namingContextName).firstIdentifierOf(Mappings.class);
+        final List<Mapping> list = Common.getMappingList(mappingContext, iid);
+
+        doReturn(Optional.of(new MappingsBuilder().setMapping(list).build())).when(mappingContext).read(iid);
+        doReturn(Optional.absent()).when(mappingContext).read(mappingIid(new MappingId(name), namingContextName));
     }
 
     final class Common {

@@ -19,6 +19,7 @@ package io.fd.honeycomb.lisp.translate.write.factory;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableSet;
+import io.fd.honeycomb.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.write.AdjacencyCustomizer;
 import io.fd.honeycomb.lisp.translate.write.BridgeDomainSubtableCustomizer;
@@ -53,20 +54,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
+//TODO - HONEYCOMB-282 - refactor this and other factories for better readability
+
 /**
  * Factory for producing writers for {@code EidTable}
  */
 final class VniTableWriterFactory extends AbstractLispWriterFactoryBase implements WriterFactory {
 
     private final NamingContext bridgeDomainContext;
+    private final AdjacenciesMappingContext adjacenciesMappingContext;
 
     private VniTableWriterFactory(final InstanceIdentifier<Lisp> lispInstanceIdentifier,
                                   final FutureJVppCore vppApi,
                                   final EidMappingContext localMappingContext,
                                   final EidMappingContext remoteMappingContext,
-                                  final NamingContext bridgeDomainContext) {
+                                  final NamingContext bridgeDomainContext,
+                                  final AdjacenciesMappingContext adjacenciesMappingContext) {
         super(lispInstanceIdentifier, vppApi, localMappingContext, remoteMappingContext);
         this.bridgeDomainContext = checkNotNull(bridgeDomainContext, "Bridge domain context cannot be null");
+        this.adjacenciesMappingContext =
+                checkNotNull(adjacenciesMappingContext, "Adjacencies mapping context cannot be null");
     }
 
     public static VniTableWriterFactory newInstance(
@@ -74,9 +81,10 @@ final class VniTableWriterFactory extends AbstractLispWriterFactoryBase implemen
             @Nonnull final FutureJVppCore vppApi,
             @Nonnull final EidMappingContext localMappingContext,
             @Nonnull final EidMappingContext remoteMappingContext,
-            @Nonnull final NamingContext bridgeDomainContext) {
+            @Nonnull final NamingContext bridgeDomainContext,
+            @Nonnull final AdjacenciesMappingContext adjacenciesMappingContext) {
         return new VniTableWriterFactory(lispInstanceIdentifier, vppApi, localMappingContext, remoteMappingContext,
-                bridgeDomainContext);
+                bridgeDomainContext, adjacenciesMappingContext);
     }
 
     @Override
@@ -135,7 +143,8 @@ final class VniTableWriterFactory extends AbstractLispWriterFactoryBase implemen
                 new GenericListWriter<>(
                         vrfSubtableId.child(RemoteMappings.class).child(RemoteMapping.class)
                                 .child(Adjacencies.class).child(Adjacency.class),
-                        new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext)));
+                        new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext,
+                                adjacenciesMappingContext)));
         //VniTable - > BridgeDomainSubtable -> RemoteMappings - > RemoteMapping - > Adjacencies - > Adjacency
         registry.subtreeAdd(ImmutableSet.of(adjacencySubtreeId
                         .child(LocalEid.class), adjacencySubtreeId.child(RemoteEid.class)),
@@ -143,6 +152,7 @@ final class VniTableWriterFactory extends AbstractLispWriterFactoryBase implemen
                         bridgeDomainSubtableId.child(RemoteMappings.class)
                                 .child(RemoteMapping.class)
                                 .child(Adjacencies.class).child(Adjacency.class),
-                        new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext)));
+                        new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext,
+                                adjacenciesMappingContext)));
     }
 }

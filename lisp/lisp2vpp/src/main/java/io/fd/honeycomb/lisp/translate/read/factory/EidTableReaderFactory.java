@@ -17,7 +17,10 @@
 package io.fd.honeycomb.lisp.translate.read.factory;
 
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.collect.ImmutableSet;
+import io.fd.honeycomb.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.honeycomb.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.lisp.translate.read.AdjacencyCustomizer;
 import io.fd.honeycomb.lisp.translate.read.BridgeDomainSubtableCustomizer;
@@ -61,15 +64,19 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 final class EidTableReaderFactory extends AbstractLispReaderFactoryBase implements ReaderFactory {
 
+    private final AdjacenciesMappingContext adjacenciesMappingContext;
+
     private EidTableReaderFactory(final InstanceIdentifier<LispState> lispStateId,
                                   final FutureJVppCore vppApi,
                                   final NamingContext interfaceContext,
                                   final NamingContext locatorSetContext,
                                   final NamingContext bridgeDomainContext,
                                   final EidMappingContext localMappingContext,
-                                  final EidMappingContext remoteMappingContext) {
+                                  final EidMappingContext remoteMappingContext,
+                                  final AdjacenciesMappingContext adjacenciesMappingContext) {
         super(lispStateId, vppApi, interfaceContext, locatorSetContext, bridgeDomainContext, localMappingContext,
                 remoteMappingContext);
+        this.adjacenciesMappingContext = checkNotNull(adjacenciesMappingContext, "Adjacencies context cannot be null");
     }
 
     public static EidTableReaderFactory newInstance(@Nonnull final InstanceIdentifier<LispState> lispStateId,
@@ -78,10 +85,10 @@ final class EidTableReaderFactory extends AbstractLispReaderFactoryBase implemen
                                                     @Nonnull final NamingContext locatorSetContext,
                                                     @Nonnull final NamingContext bridgeDomainContext,
                                                     @Nonnull final EidMappingContext localMappingContext,
-                                                    @Nonnull final EidMappingContext remoteMappingContext) {
+                                                    @Nonnull final EidMappingContext remoteMappingContext,
+                                                    @Nonnull final AdjacenciesMappingContext adjacenciesMappingContext) {
         return new EidTableReaderFactory(lispStateId, vppApi, interfaceContext, locatorSetContext, bridgeDomainContext,
-                localMappingContext,
-                remoteMappingContext);
+                localMappingContext, remoteMappingContext, adjacenciesMappingContext);
     }
 
     @Override
@@ -165,10 +172,12 @@ final class EidTableReaderFactory extends AbstractLispReaderFactoryBase implemen
         registry.subtreeAdd(
                 ImmutableSet.of(adjacencySubtreeId.child(LocalEid.class), adjacencySubtreeId.child(RemoteEid.class)),
                 new GenericListReader<>(vrfTableAdjacenciesInstanceIdentifier.child(Adjacency.class),
-                        new AdjacencyCustomizer(vppApi)));
+                        new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext,
+                                adjacenciesMappingContext)));
         registry.subtreeAdd(
                 ImmutableSet.of(adjacencySubtreeId.child(LocalEid.class), adjacencySubtreeId.child(RemoteEid.class)),
                 new GenericListReader<>(bridgeDomainAdjacenciesInstanceIdentifier.child(Adjacency.class),
-                        new AdjacencyCustomizer(vppApi)));
+                        new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext,
+                                adjacenciesMappingContext)));
     }
 }

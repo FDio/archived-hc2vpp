@@ -48,12 +48,12 @@ public class LispConfiguration {
     public static final String REMOTE_MAPPING_CONTEXT = "remote-mapping-context";
 
     /**
-     * Central honeycomb initializer.
-     */
-    public static final String HONEYCOMB_INITIALIZER = "honeycomb-initializer";
-
-    /**
      * Unique prefix for naming context of locator sets.
      **/
     public static final String LOCATOR_SET_CONTEXT_PREFIX = "locator-set-";
+
+    /**
+     * Adjacency id to eid pair mapping
+     * */
+    public static final String ADJACENCIES_IDENTIFICATION_CONTEXT = "adjacencies-identification-context";
 }

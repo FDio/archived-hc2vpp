@@ -59,7 +59,7 @@ public class EidMappingContextTest implements EidMappingContextHelper {
         mappingEid = fromLocalToMappingEid(localEid);
         mappingId = new MappingId("mapping");
 
-        defineMapping(mappingContext, mappingEid, mappingId, EID_MAPPING_CONTEXT_NAME);
+        defineEidMapping(mappingContext, mappingEid, mappingId, EID_MAPPING_CONTEXT_NAME);
     }
 
     @Test
