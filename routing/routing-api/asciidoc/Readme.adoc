@@ -1,0 +1,8 @@
+= routing-api
+
+Contains 4 models
+
+- *ietf-routing* - Common model for routing
+- *ietf-ipv4-unicast-routing* - Ipv4 address family specific routing
+- *ietf-ipv6-unicast-routing* - Ipv6 address family specific routing
+- *vpp-routing* - Vpp specific attributes necessary to map routes

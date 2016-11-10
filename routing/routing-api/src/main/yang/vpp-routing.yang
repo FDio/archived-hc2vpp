@@ -1,0 +1,59 @@
+module vpp-routing{
+
+    namespace "urn:ietf:params:xml:ns:yang:vpp-routing";
+    prefix "vpp-routing";
+    description "General extensions for routes to be able to use VPP route defining apis";
+
+    revision 2016-10-18 {
+        description "Initial revision.";
+    }
+
+    import yang-ext {
+        prefix "ext";
+    }
+
+    import vpp-classifier {
+        prefix "classifier";
+    }
+
+    typedef vni-reference{
+        type uint32;
+        description "Vrf index reference";
+    }
+
+    grouping vpp-routing-attributes{
+        //vrf_id
+        leaf primary-vrf{
+            type vni-reference;
+            mandatory true;
+            description "Main vrf associated to route";
+        }
+
+        leaf auto-create-vrf{
+            type boolean;
+            default false;
+            description "If referenced primary vrf not exists,create while creating route";
+        }
+
+        //lookup_in_vrf
+        leaf secondary-vrf{
+            type vni-reference;
+            description "Optional secondary vrf used to lookup in";
+        }
+
+        leaf classify-table{
+            // classify_table_index + is_classify flag
+            type classifier:classify-table-ref;
+            description "Optional reference to classify table";
+        }
+    }
+
+     grouping vpp-routing-state-attributes{
+            //vrf_id
+            leaf primary-vrf{
+                type vni-reference;
+                mandatory true;
+                description "Main vrf associated to route";
+            }
+     }
+}
