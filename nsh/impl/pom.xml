@@ -18,11 +18,11 @@
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>impl-parent</artifactId>
     <version>1.16.12-SNAPSHOT</version>
-    <relativePath>../../common/impl-parent</relativePath>
+
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.fd.honeycomb.vppnsh</groupId>
+  <groupId>io.fd.hc2vpp.nsh</groupId>
   <artifactId>vppnsh-impl</artifactId>
   <name>${project.artifactId}</name>
   <version>1.16.12-SNAPSHOT</version>
@@ -97,12 +97,12 @@
         <version>16.12-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.vpp</groupId>
+      <groupId>io.fd.hc2vpp.common</groupId>
       <artifactId>vpp-translate-utils</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.vpp</groupId>
+      <groupId>io.fd.hc2vpp.common</groupId>
       <artifactId>vpp-translate-test</artifactId>
       <version>${project.version}</version>
     </dependency>

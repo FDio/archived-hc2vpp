@@ -1,6 +1,6 @@
 = Honeycomb {project-version} Release notes
 
-Release notes for honeycomb {project-version}. Based on VPP {project-vpp-snapshot-version}
+Release notes for honeycomb for VPP {project-version}. Based on VPP {project-vpp-snapshot-version}
 
 == Release plan
 https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-version}[Release plan]
@@ -16,10 +16,6 @@ Adding to the list of existing features: https://wiki.fd.io/view/Honeycomb/Relea
 
 === Modified features
 * ACL management improvements
-* https://jira.fd.io/browse/HONEYCOMB-73[Initializers tie-in with readers]
-** Instead of root level initializer, initialization can be split among multiple initializing readers
-* https://jira.fd.io/browse/HONEYCOMB-270[Readers/ReadCustomizers able to influence presence of resulting data]
-** Suitable for presence container readers
 
 === Deprecated features
 

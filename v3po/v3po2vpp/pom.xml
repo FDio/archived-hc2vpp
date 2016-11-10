@@ -17,14 +17,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.fd.honeycomb.vpp</groupId>
+        <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
         <version>1.16.12-SNAPSHOT</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.honeycomb.v3po</groupId>
+    <groupId>io.fd.hc2vpp.v3po</groupId>
     <artifactId>v3po2vpp</artifactId>
     <name>${project.artifactId}</name>
     <version>1.16.12-SNAPSHOT</version>
@@ -47,7 +47,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.honeycomb.vpp</groupId>
+            <groupId>io.fd.hc2vpp.common</groupId>
             <artifactId>vpp-translate-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -88,7 +88,7 @@
 
         <!-- Testing Dependencies -->
         <dependency>
-            <groupId>io.fd.honeycomb.vpp</groupId>
+            <groupId>io.fd.hc2vpp.common</groupId>
             <artifactId>vpp-translate-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

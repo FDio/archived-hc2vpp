@@ -1,3 +1,0 @@
-= interfaces-models
-
-Overview of interfaces-models

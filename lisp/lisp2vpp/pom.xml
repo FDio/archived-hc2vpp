@@ -17,21 +17,21 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.fd.honeycomb.vpp</groupId>
+        <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
         <version>1.16.12-SNAPSHOT</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.honeycomb.lisp</groupId>
+    <groupId>io.fd.hc2vpp.lisp</groupId>
     <artifactId>lisp2vpp</artifactId>
     <name>${project.artifactId}</name>
     <version>1.16.12-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <properties>
-        <project.vpp.groupId>io.fd.honeycomb.vpp</project.vpp.groupId>
+        <project.vpp.groupId>io.fd.hc2vpp.common</project.vpp.groupId>
         <project.honeycomb.groupId>io.fd.honeycomb</project.honeycomb.groupId>
     </properties>
 
@@ -102,7 +102,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.fd.honeycomb.vpp</groupId>
+            <groupId>io.fd.hc2vpp.common</groupId>
             <artifactId>vpp-translate-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

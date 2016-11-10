@@ -20,10 +20,9 @@
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
     <version>1.16.12-SNAPSHOT</version>
-    <relativePath>../common/honeycomb-parent</relativePath>
   </parent>
 
-  <groupId>io.fd.honeycomb.nat</groupId>
+  <groupId>io.fd.hc2vpp</groupId>
   <artifactId>release-notes-aggregator</artifactId>
   <version>1.16.12-SNAPSHOT</version>
   <name>${project.artifactId}</name>
@@ -87,7 +86,7 @@
                 <!-- TODO set snapshot version to project-snat-version after VPP is released-->
                 <!--<project-snat-snapshot-version>1.0</project-snat-snapshot-version>-->
                 <project-snat-snapshot-version>1.0-SNAPSHOT</project-snat-snapshot-version>
-                <project-git-web>https://git.fd.io/cgit/honeycomb/tree</project-git-web>
+                <project-git-web>https://git.fd.io/cgit/hc2vpp/tree</project-git-web>
               </attributes>
             </configuration>
           </execution>

@@ -19,11 +19,10 @@
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
     <version>1.16.12-SNAPSHOT</version>
-    <relativePath>../../common/minimal-distribution-parent</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.fd.honeycomb.vpp.integration</groupId>
+  <groupId>io.fd.hc2vpp.integration</groupId>
   <artifactId>vpp-integration-distribution</artifactId>
   <name>${project.artifactId}</name>
   <version>1.16.12-SNAPSHOT</version>
@@ -38,13 +37,13 @@
     <ioam.version>1.16.12-SNAPSHOT</ioam.version>
 
     <distribution.modules>
-      io.fd.honeycomb.vpp.common.integration.VppCommonModule,
-      io.fd.honeycomb.lisp.LispModule,
-      io.fd.honeycomb.translate.v3po.V3poModule,
-      io.fd.honeycomb.nat.NatModule,
-      // io.fd.honeycomb.vppnsh.impl.VppNshModule,
+      io.fd.hc2vpp.common.integration.VppCommonModule,
+      io.fd.hc2vpp.lisp.LispModule,
+      io.fd.hc2vpp.v3po.V3poModule,
+      io.fd.hc2vpp.nat.NatModule,
+      // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
-      //io.fd.honeycomb.vppioam.impl.VppIoamModule
+      // io.fd.hc2vpp.vppioam.impl.VppIoamModule
       <!-- iOAM module by default disabled, because it needs ioam plugin (not part of vpp codebase.)-->
     </distribution.modules>
   </properties>
@@ -74,32 +73,32 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.fd.honeycomb.vpp</groupId>
+      <groupId>io.fd.hc2vpp.common</groupId>
       <artifactId>vpp-common-integration</artifactId>
       <version>${vpp.common.integration.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.v3po</groupId>
+      <groupId>io.fd.hc2vpp.v3po</groupId>
       <artifactId>v3po2vpp</artifactId>
       <version>${v3po.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.lisp</groupId>
+      <groupId>io.fd.hc2vpp.lisp</groupId>
       <artifactId>lisp2vpp</artifactId>
       <version>${lisp.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.vppnsh</groupId>
+      <groupId>io.fd.hc2vpp.nsh</groupId>
       <artifactId>vppnsh-impl</artifactId>
       <version>${vppnsh.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.nat</groupId>
+      <groupId>io.fd.hc2vpp.nat</groupId>
       <artifactId>nat2vpp</artifactId>
       <version>${nat.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.vppioam</groupId>
+      <groupId>io.fd.hc2vpp.ioam</groupId>
       <artifactId>vppioam-impl</artifactId>
       <version>${ioam.version}</version>
     </dependency>

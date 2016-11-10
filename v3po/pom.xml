@@ -19,10 +19,9 @@
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
     <version>1.16.12-SNAPSHOT</version>
-    <relativePath>../common/honeycomb-parent</relativePath>
   </parent>
 
-  <groupId>io.fd.honeycomb.v3po</groupId>
+  <groupId>io.fd.hc2vpp.v3po</groupId>
   <artifactId>v3po-aggregator</artifactId>
   <version>1.16.12-SNAPSHOT</version>
   <name>${project.artifactId}</name>

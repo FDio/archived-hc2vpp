@@ -19,11 +19,10 @@
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>api-parent</artifactId>
         <version>1.16.12-SNAPSHOT</version>
-        <relativePath>../../common/api-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.honeycomb.routing</groupId>
+    <groupId>io.fd.hc2vpp.routing</groupId>
     <artifactId>routing-api</artifactId>
     <version>1.16.12-SNAPSHOT</version>
     <packaging>bundle</packaging>
@@ -62,7 +61,7 @@
             <artifactId>yang-ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fd.honeycomb.v3po</groupId>
+            <groupId>io.fd.hc2vpp.v3po</groupId>
             <artifactId>v3po-api</artifactId>
             <version>${project.version}</version>
         </dependency>

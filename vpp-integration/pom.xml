@@ -13,44 +13,44 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <parent>
-    <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>honeycomb-parent</artifactId>
+    <parent>
+        <groupId>io.fd.honeycomb.common</groupId>
+        <artifactId>honeycomb-parent</artifactId>
+        <version>1.16.12-SNAPSHOT</version>
+    </parent>
+
+    <groupId>io.fd.hc2vpp.integration</groupId>
+    <artifactId>vpp-integration</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.16.12-SNAPSHOT</version>
-    <relativePath>../common/honeycomb-parent</relativePath>
-  </parent>
+    <packaging>pom</packaging>
+    <modelVersion>4.0.0</modelVersion>
+    <description>Aggregator for Honeycomb's VPP distribution. Aggregating all VPP plugins.</description>
 
-  <groupId>io.fd.honeycomb.vpp.integration</groupId>
-  <artifactId>vpp-integration</artifactId>
-  <name>${project.artifactId}</name>
-  <version>1.16.12-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <modelVersion>4.0.0</modelVersion>
-  <description>Aggregator for Honeycomb's VPP distribution. Aggregating all VPP plugins.</description>
+    <modules>
+        <module>minimal-distribution</module>
+    </modules>
 
-  <modules>
-    <module>minimal-distribution</module>
-  </modules>
-
-  <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
