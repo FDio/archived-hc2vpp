@@ -57,10 +57,13 @@ public final class VppHoneycombWriterFactory implements WriterFactory {
     public void init(final ModifiableWriterRegistryBuilder registry) {
         // Vpp has no handlers
         //  BridgeDomains has no handlers
-        //   BridgeDomain =
+        //   BridgeDomain(handled before L2 of ifc and subifc) =
         final InstanceIdentifier<BridgeDomain> bdId =
-                InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(BridgeDomain.class);
-        registry.add(new GenericListWriter<>(bdId, new BridgeDomainCustomizer(jvpp, bdContext)));
+            InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(BridgeDomain.class);
+        registry.addBefore(new GenericListWriter<>(bdId, new BridgeDomainCustomizer(jvpp, bdContext)),
+            Sets.newHashSet(
+                L2_ID,
+                SubinterfaceAugmentationWriterFactory.L2_ID));
         //    L2FibTable has no handlers
         //     L2FibEntry(handled after BridgeDomain and L2 of ifc and subifc) =
         final InstanceIdentifier<L2FibEntry> l2FibEntryId = bdId.child(L2FibTable.class).child(L2FibEntry.class);
