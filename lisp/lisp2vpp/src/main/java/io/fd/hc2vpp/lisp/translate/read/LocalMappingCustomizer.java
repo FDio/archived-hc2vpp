@@ -24,6 +24,8 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDump
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.QuantityType;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams;
 import io.fd.hc2vpp.lisp.translate.read.trait.MappingReader;
@@ -33,8 +35,6 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -78,6 +78,7 @@ public class LocalMappingCustomizer
         this.dumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
                         .withExecutor(createMappingDumpExecutor(futureJvpp))
+                        .acceptOnly(LispEidTableDetailsReplyDump.class)
                         .build();
     }
 

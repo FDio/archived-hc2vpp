@@ -64,11 +64,13 @@ public class NatReaderFactory implements ReaderFactory {
         this.mapEntryDumpMgr =
                 new DumpCacheManager.DumpCacheManagerBuilder<SnatStaticMappingDetailsReplyDump, Void>()
                         .withExecutor(new MappingEntryCustomizer.MappingEntryDumpExecutor(jvppSnat))
+                        .acceptOnly(SnatStaticMappingDetailsReplyDump.class)
                         .build();
 
         this.addressRangeDumpMgr =
                 new DumpCacheManager.DumpCacheManagerBuilder<SnatAddressDetailsReplyDump, Void>()
                         .withExecutor(new ExternalIpPoolCustomizer.AddressRangeDumpExecutor(jvppSnat))
+                        .acceptOnly(SnatAddressDetailsReplyDump.class)
                         .build();
     }
 

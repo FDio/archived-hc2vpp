@@ -21,6 +21,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.LocatorDumpParams;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.LocatorDumpParams.LocatorDumpParamsBuilder;
 import io.fd.hc2vpp.lisp.translate.read.trait.LocatorReader;
@@ -29,8 +31,6 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -67,6 +67,7 @@ public class InterfaceCustomizer
         this.dumpCacheManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorDetailsReplyDump, LocatorDumpParams>()
                         .withExecutor(createLocatorDumpExecutor(futureJvpp))
+                        .acceptOnly(LispLocatorDetailsReplyDump.class)
                         .build();
     }
 

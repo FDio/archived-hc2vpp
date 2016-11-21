@@ -20,18 +20,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
+import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
+import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -69,8 +69,14 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
                 .withExecutor(createExecutor(futureJVppCore))
                 //same as with ipv4 addresses for interfaces, these must have cache scope of their parent sub-interface
-                .withCacheKeyFactory(new IdentifierCacheKeyFactory(ImmutableSet.of(SubInterface.class)))
+                .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(IpAddressDetailsReplyDump.class,
+                        ImmutableSet.of(SubInterface.class)))
                 .build();
+    }
+
+    private static String getSubInterfaceName(@Nonnull final InstanceIdentifier<Address> id) {
+        return SubInterfaceUtils.getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
+                Math.toIntExact(id.firstKeyOf(SubInterface.class).getIdentifier()));
     }
 
     @Override
@@ -121,11 +127,6 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
     @Override
     public void merge(@Nonnull Builder<? extends DataObject> builder, @Nonnull List<Address> readData) {
         ((Ipv4Builder) builder).setAddress(readData);
-    }
-
-    private static String getSubInterfaceName(@Nonnull final InstanceIdentifier<Address> id) {
-        return SubInterfaceUtils.getSubInterfaceName(id.firstKeyOf(Interface.class).getName(),
-                Math.toIntExact(id.firstKeyOf(SubInterface.class).getIdentifier()));
     }
 
     @Override

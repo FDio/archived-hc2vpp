@@ -19,14 +19,14 @@ package io.fd.hc2vpp.lisp.translate.read;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDump;
@@ -61,6 +61,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
                         .withExecutor((identifier, params) -> getReplyForRead(
                                 futureJvpp.lispMapResolverDump(new LispMapResolverDump()).toCompletableFuture(),
                                 identifier))
+                        .acceptOnly(LispMapResolverDetailsReplyDump.class)
                         .build();
     }
 

@@ -20,14 +20,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.translate.read.trait.LocatorSetReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -60,6 +60,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator Set mapping context cannot be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
                 .withExecutor(createExecutor(futureJvpp))
+                .acceptOnly(LispLocatorSetDetailsReplyDump.class)
                 .build();
     }
 

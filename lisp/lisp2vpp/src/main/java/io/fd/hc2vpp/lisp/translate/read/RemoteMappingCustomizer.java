@@ -25,6 +25,10 @@ import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.l
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.LocatorDumpParams;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.LocatorDumpParams.LocatorDumpParamsBuilder;
@@ -40,11 +44,7 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
-import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
@@ -105,16 +105,25 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         this.dumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
                         .withExecutor(createMappingDumpExecutor(futureJvpp))
+                        .acceptOnly(LispEidTableDetailsReplyDump.class)
                         .build();
 
         // cache key needs to have locator set scope to not mix with cached data
         this.locatorsDumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorDetailsReplyDump, LocatorDumpParams>()
                         .withExecutor(createLocatorDumpExecutor(futureJvpp))
-                        .withCacheKeyFactory(new IdentifierCacheKeyFactory(ImmutableSet.of(LocatorSet.class)))
+                        .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(LispLocatorDetailsReplyDump.class,
+                                ImmutableSet.of(LocatorSet.class)))
+                        .acceptOnly(LispLocatorDetailsReplyDump.class)
                         .build();
     }
 
+    //compensate ~0 as default value of ttl
+    private static long resolveTtl(final int ttlValue) {
+        return ttlValue == -1
+                ? Integer.MAX_VALUE
+                : ttlValue;
+    }
 
     @Override
     public RemoteMappingBuilder getBuilder(InstanceIdentifier<RemoteMapping> id) {
@@ -173,13 +182,6 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         builder.setAuthoritative(
                 new RemoteMapping.Authoritative(byteToBoolean(details.authoritative)));
         resolveMappings(id, builder, details, ctx.getModificationCache(), ctx.getMappingContext());
-    }
-
-    //compensate ~0 as default value of ttl
-    private static long resolveTtl(final int ttlValue) {
-        return ttlValue == -1
-                ? Integer.MAX_VALUE
-                : ttlValue;
     }
 
     @Override

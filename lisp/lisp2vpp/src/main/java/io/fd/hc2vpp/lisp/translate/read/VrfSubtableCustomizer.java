@@ -19,6 +19,7 @@ package io.fd.hc2vpp.lisp.translate.read;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDumpParams;
 import io.fd.hc2vpp.lisp.translate.read.trait.SubtableReader;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -26,7 +27,6 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -54,6 +54,7 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         dumpManager = new DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
                 .withExecutor(createExecutor(futureJvpp))
+                .acceptOnly(LispEidTableMapDetailsReplyDump.class)
                 .build();
     }
 

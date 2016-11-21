@@ -20,6 +20,8 @@ package io.fd.hc2vpp.lisp.translate.read;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams;
@@ -31,8 +33,6 @@ import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.LispAdjacenciesGet;
 import io.fd.vpp.jvpp.core.dto.LispAdjacenciesGetReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -70,6 +70,7 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         dumpCacheManager = new DumpCacheManager.DumpCacheManagerBuilder<LispAdjacenciesGetReply, AdjacencyDumpParams>()
                 .withExecutor(createExecutor())
+                .acceptOnly(LispAdjacenciesGetReply.class)
                 .build();
 
         this.adjacenciesMappingContext =
@@ -155,28 +156,6 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         };
     }
 
-    private class EidPairProducer implements EidTranslator {
-
-        private final EidMappingContext localMappingContext;
-        private final EidMappingContext remoteMappingContext;
-
-        public EidPairProducer(final EidMappingContext localMappingContext,
-                               final EidMappingContext remoteMappingContext) {
-            this.localMappingContext = checkNotNull(localMappingContext, "Local mapping context cannot be null");
-            this.remoteMappingContext = checkNotNull(remoteMappingContext, "Remote mapping context cannot be null");
-        }
-
-        public EidIdentificatorPair createPair(final LispAdjacency data, final int vni,
-                                               final MappingContext mappingContext) {
-            return new EidIdentificatorPairBuilder()
-                    .setLocalEidId(new MappingId(localMappingContext.getId(getArrayAsEidLocal(
-                            MappingsDumpParams.EidType.valueOf(data.eidType), data.leid, vni), mappingContext)))
-                    .setRemoteEidId(new MappingId(remoteMappingContext.getId(getArrayAsEidLocal(
-                            MappingsDumpParams.EidType.valueOf(data.eidType), data.reid, vni), mappingContext)))
-                    .build();
-        }
-    }
-
     private static final class AdjacencyDumpParams {
 
         private final int vni;
@@ -187,6 +166,28 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
 
         public int getVni() {
             return this.vni;
+        }
+    }
+
+    private class EidPairProducer implements EidTranslator {
+
+        private final EidMappingContext localMappingContext;
+        private final EidMappingContext remoteMappingContext;
+
+        EidPairProducer(final EidMappingContext localMappingContext,
+                        final EidMappingContext remoteMappingContext) {
+            this.localMappingContext = checkNotNull(localMappingContext, "Local mapping context cannot be null");
+            this.remoteMappingContext = checkNotNull(remoteMappingContext, "Remote mapping context cannot be null");
+        }
+
+        EidIdentificatorPair createPair(final LispAdjacency data, final int vni,
+                                        final MappingContext mappingContext) {
+            return new EidIdentificatorPairBuilder()
+                    .setLocalEidId(new MappingId(localMappingContext.getId(getArrayAsEidLocal(
+                            MappingsDumpParams.EidType.valueOf(data.eidType), data.leid, vni), mappingContext)))
+                    .setRemoteEidId(new MappingId(remoteMappingContext.getId(getArrayAsEidLocal(
+                            MappingsDumpParams.EidType.valueOf(data.eidType), data.reid, vni), mappingContext)))
+                    .build();
         }
     }
 }

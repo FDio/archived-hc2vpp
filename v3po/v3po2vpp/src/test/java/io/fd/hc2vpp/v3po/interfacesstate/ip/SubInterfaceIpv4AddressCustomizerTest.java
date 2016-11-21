@@ -29,13 +29,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableSet;
+import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
-import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
-import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import java.util.Arrays;
@@ -76,17 +76,24 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
                     .augmentation(SubinterfaceStateAugmentation.class)
                     .child(SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(SUB_IF_ID))
                     .child(Ipv4.class);
-    private InstanceIdentifier<Address> ifaceOneAddressOneIdentifier;
-    private InstanceIdentifier<Address> ifaceTwoAddressOneIdentifier;
-    private CacheKeyFactory cacheKeyFactory;
     private static final Ipv4AddressNoZone IP1 = new Ipv4AddressNoZone("10.1.1.1");
     private static final Ipv4AddressNoZone IP2 = new Ipv4AddressNoZone("10.1.1.2");
     private static final short PREFIX_LENGTH = 16;
-
+    private InstanceIdentifier<Address> ifaceOneAddressOneIdentifier;
+    private InstanceIdentifier<Address> ifaceTwoAddressOneIdentifier;
+    private CacheKeyFactory cacheKeyFactory;
     private NamingContext interfaceContext;
 
     public SubInterfaceIpv4AddressCustomizerTest() {
         super(Address.class, Ipv4Builder.class);
+    }
+
+    private static InstanceIdentifier<Address> getId() {
+        return IP4_IID.child(Address.class);
+    }
+
+    private static InstanceIdentifier<Address> getId(final Ipv4AddressNoZone ip) {
+        return IP4_IID.child(Address.class, new AddressKey(ip));
     }
 
     @Override
@@ -109,7 +116,8 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
                 .child(Address.class, new AddressKey(new Ipv4AddressNoZone("192.168.2.1")));
 
         // to simulate complex key
-        cacheKeyFactory = new IdentifierCacheKeyFactory(ImmutableSet.of(SubInterface.class));
+        cacheKeyFactory = new TypeAwareIdentifierCacheKeyFactory(IpAddressDetailsReplyDump.class,
+                ImmutableSet.of(SubInterface.class));
 
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
         defineMapping(mappingContext, SUB_IF_NAME, SUB_IF_INDEX, IFC_CTX_NAME);
@@ -119,14 +127,6 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
     @Override
     protected ListReaderCustomizer<Address, AddressKey, AddressBuilder> initCustomizer() {
         return new SubInterfaceIpv4AddressCustomizer(api, interfaceContext);
-    }
-
-    private static InstanceIdentifier<Address> getId() {
-        return IP4_IID.child(Address.class);
-    }
-
-    private static InstanceIdentifier<Address> getId(final Ipv4AddressNoZone ip) {
-        return IP4_IID.child(Address.class, new AddressKey(ip));
     }
 
     @Test

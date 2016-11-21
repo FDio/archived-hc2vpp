@@ -27,13 +27,13 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
-import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
-import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpAddressDump;
@@ -76,6 +76,15 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         super(Address.class, Ipv4Builder.class);
     }
 
+    private static InstanceIdentifier<Address> getId(final String address, final String ifaceName) {
+        return InstanceIdentifier.builder(InterfacesState.class)
+                .child(Interface.class, new InterfaceKey(ifaceName))
+                .augmentation(Interface2.class)
+                .child(Ipv4.class)
+                .child(Address.class, new AddressKey(new Ipv4AddressNoZone(new Ipv4Address(address))))
+                .build();
+    }
+
     @Override
     public void setUp() {
         interfacesContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
@@ -96,21 +105,13 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
                         .child(Address.class, new AddressKey(new Ipv4AddressNoZone("192.168.2.1")));
 
         // to simulate complex key
-        cacheKeyFactory = new IdentifierCacheKeyFactory(ImmutableSet.of(Interface.class));
+        cacheKeyFactory = new TypeAwareIdentifierCacheKeyFactory(IpAddressDetailsReplyDump.class,
+                ImmutableSet.of(Interface.class));
     }
 
     @Override
     protected ReaderCustomizer<Address, AddressBuilder> initCustomizer() {
         return new Ipv4AddressCustomizer(api, interfacesContext);
-    }
-
-    private static InstanceIdentifier<Address> getId(final String address, final String ifaceName) {
-        return InstanceIdentifier.builder(InterfacesState.class)
-                .child(Interface.class, new InterfaceKey(ifaceName))
-                .augmentation(Interface2.class)
-                .child(Ipv4.class)
-                .child(Address.class, new AddressKey(new Ipv4AddressNoZone(new Ipv4Address(address))))
-                .build();
     }
 
     @Test

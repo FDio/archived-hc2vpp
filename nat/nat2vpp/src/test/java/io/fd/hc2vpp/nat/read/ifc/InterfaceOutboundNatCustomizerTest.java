@@ -21,13 +21,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
+import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
 import org.junit.Test;
@@ -63,6 +63,7 @@ public class InterfaceOutboundNatCustomizerTest
         Mockito.doReturn(new SnatInterfaceDetailsReplyDump()).when(abc).executeDump(id, null);
         dumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatInterfaceDetailsReplyDump, Void>()
                 .withExecutor(abc)
+                .acceptOnly(SnatInterfaceDetailsReplyDump.class)
                 .build();
     }
 

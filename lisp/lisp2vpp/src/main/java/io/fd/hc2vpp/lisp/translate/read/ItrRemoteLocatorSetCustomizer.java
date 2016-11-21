@@ -20,14 +20,14 @@ package io.fd.hc2vpp.lisp.translate.read;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -51,6 +51,7 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
                 .withExecutor(((identifier, params) -> getReplyForRead(
                         futureJVppCore.lispGetMapRequestItrRlocs(new LispGetMapRequestItrRlocs()).toCompletableFuture(),
                         identifier)))
+                .acceptOnly(LispGetMapRequestItrRlocsReply.class)
                 .build();
     }
 

@@ -19,19 +19,19 @@ package io.fd.hc2vpp.v3po.interfacesstate.ip;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.IdentifierCacheKeyFactory;
-import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -72,8 +72,33 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                 new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
                         .withExecutor(createExecutor(futureJVppCore))
                         // Key needs to contain interface ID to distinguish dumps between interfaces
-                        .withCacheKeyFactory(new IdentifierCacheKeyFactory(ImmutableSet.of(Interface.class)))
+                        .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(IpAddressDetailsReplyDump.class,
+                                ImmutableSet.of(Interface.class)))
                         .build();
+    }
+
+    private static Subnet getSubnet(final Address address) {
+        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.Subnet
+                subnet = address.getSubnet();
+
+        // Only prefix length supported
+        Preconditions.checkArgument(
+                subnet instanceof org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength);
+
+        return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder()
+                .setPrefixLength(
+                        ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength) subnet)
+                                .getPrefixLength()).build();
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address> getCfgId(
+            final InstanceIdentifier<Address> id) {
+        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
+                .augmentation(Interface1.class)
+                .child(Ipv4.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressKey(
+                                id.firstKeyOf(Address.class).getIp()));
     }
 
     @Override
@@ -139,28 +164,5 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                         .setIp(readValue.getIp())
                         .setSubnet(getSubnet(readValue))
                         .build());
-    }
-
-    private static Subnet getSubnet(final Address address) {
-        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.Subnet
-                subnet = address.getSubnet();
-
-        // Only prefix length supported
-        Preconditions.checkArgument(
-                subnet instanceof org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength);
-
-        return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder()
-                .setPrefixLength(
-                ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength) subnet)
-                        .getPrefixLength()).build();
-    }
-
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address> getCfgId(
-            final InstanceIdentifier<Address> id) {
-        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
-                .augmentation(Interface1.class)
-                .child(Ipv4.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address.class,
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressKey(id.firstKeyOf(Address.class).getIp()));
     }
 }

@@ -19,14 +19,14 @@ package io.fd.hc2vpp.nat.read.ifc;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDump;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
@@ -60,6 +60,7 @@ public final class IfcNatReaderFactory implements ReaderFactory {
                                @Named("interface-context") final NamingContext ifcContext) {
         this.snatIfcDumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatInterfaceDetailsReplyDump, Void>()
                 .withExecutor(new SnatInterfaceExecutor(jvppSnat))
+                .acceptOnly(SnatInterfaceDetailsReplyDump.class)
                 .build();
         this.ifcContext = ifcContext;
     }

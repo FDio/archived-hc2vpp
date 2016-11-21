@@ -20,13 +20,13 @@ import static com.google.common.base.Preconditions.checkState;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDump;
@@ -60,6 +60,7 @@ public class VniTableCustomizer extends FutureJVppCustomizer
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableVniDetailsReplyDump, Void>()
                 .withExecutor(((identifier, params) -> getReplyForRead(
                         futureJvpp.lispEidTableVniDump(new LispEidTableVniDump()).toCompletableFuture(), identifier)))
+                .acceptOnly(LispEidTableVniDetailsReplyDump.class)
                 .build();
     }
 

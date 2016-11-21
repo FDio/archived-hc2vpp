@@ -20,13 +20,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
+import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
 import org.junit.Test;
@@ -60,6 +60,14 @@ public class InterfaceInboundNatCustomizerTest
         super(Inbound.class, NatBuilder.class);
     }
 
+    static <T extends ChildOf<Nat>> InstanceIdentifier<T> getId(Class<T> boundType) {
+        return InstanceIdentifier.create(InterfacesState.class)
+                .child(Interface.class, new InterfaceKey(IFC_NAME))
+                .augmentation(NatInterfaceStateAugmentation.class)
+                .child(Nat.class)
+                .child(boundType);
+    }
+
     @Override
     protected void setUp() throws Exception {
         id = getId(Inbound.class);
@@ -68,15 +76,8 @@ public class InterfaceInboundNatCustomizerTest
         Mockito.doReturn(new SnatInterfaceDetailsReplyDump()).when(natExecutor).executeDump(id, null);
         dumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatInterfaceDetailsReplyDump, Void>()
                 .withExecutor(natExecutor)
+                .acceptOnly(SnatInterfaceDetailsReplyDump.class)
                 .build();
-    }
-
-    static <T extends ChildOf<Nat>> InstanceIdentifier<T> getId(Class<T> boundType) {
-        return InstanceIdentifier.create(InterfacesState.class)
-                .child(Interface.class, new InterfaceKey(IFC_NAME))
-                .augmentation(NatInterfaceStateAugmentation.class)
-                .child(Nat.class)
-                .child(boundType);
     }
 
     @Test
