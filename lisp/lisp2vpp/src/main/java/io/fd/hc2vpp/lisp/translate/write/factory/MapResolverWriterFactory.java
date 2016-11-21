@@ -17,39 +17,27 @@
 package io.fd.hc2vpp.lisp.translate.write.factory;
 
 
+import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.write.MapResolverCustomizer;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.MapResolvers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.map.resolvers.MapResolver;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
  * Factory responsible for producing writers for {@code MapResolvers}
  */
-final class MapResolversWriterFactory extends AbstractLispWriterFactoryBase implements WriterFactory {
-
-    private MapResolversWriterFactory(final InstanceIdentifier<Lisp> lispInstanceIdentifier,
-                                      final FutureJVppCore vppApi) {
-        super(lispInstanceIdentifier, vppApi, null);
-    }
-
-    public static MapResolversWriterFactory newInstance(
-            @Nonnull final InstanceIdentifier<Lisp> lispInstanceIdentifier,
-            @Nonnull final FutureJVppCore vppApi) {
-        return new MapResolversWriterFactory(lispInstanceIdentifier, vppApi);
-    }
+public final class MapResolverWriterFactory extends AbstractLispInfraFactoryBase
+        implements WriterFactory {
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         registry.add(new GenericListWriter<>(
-                lispInstanceIdentifier.child(LispFeatureData.class).child(MapResolvers.class).child(MapResolver.class),
+                LISP_CONFIG_IDENTIFIER.child(LispFeatureData.class).child(MapResolvers.class).child(MapResolver.class),
                 new MapResolverCustomizer(vppApi)));
     }
 }

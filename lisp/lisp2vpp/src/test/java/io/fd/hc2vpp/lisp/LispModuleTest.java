@@ -28,18 +28,18 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
-import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public class LispModuleTest {
 
@@ -76,7 +76,7 @@ public class LispModuleTest {
         initMocks(this);
         interfaceContext = new NamingContext("interfaceContext", "interfaceContext");
         bridgeDomainContext = new NamingContext("bridgeDomainContext", "bridgeDomainContext");
-        Guice.createInjector(new LispModule(), BoundFieldModule.of(this)).injectMembers(this);
+        Guice.createInjector(new io.fd.hc2vpp.lisp.LispModule(), BoundFieldModule.of(this)).injectMembers(this);
     }
 
     @Test

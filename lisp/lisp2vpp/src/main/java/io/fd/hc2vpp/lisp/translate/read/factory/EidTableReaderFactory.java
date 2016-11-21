@@ -17,11 +17,8 @@
 package io.fd.hc2vpp.lisp.translate.read.factory;
 
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.collect.ImmutableSet;
-import io.fd.hc2vpp.lisp.context.util.AdjacenciesMappingContext;
-import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
+import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.read.AdjacencyCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.BridgeDomainSubtableCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.LocalMappingCustomizer;
@@ -32,10 +29,7 @@ import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.Adjacency;
@@ -46,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.RemoteMappings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.RemoteMappingsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.LocalMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.RemoteMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.negative.mapping.MapReply;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.Rlocs;
@@ -62,121 +57,118 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Factory that produces {@code Reader} for {@code EidTable}<br> with all its inhired child readers
  */
-final class EidTableReaderFactory extends AbstractLispReaderFactoryBase implements ReaderFactory {
+public final class EidTableReaderFactory extends AbstractLispInfraFactoryBase implements ReaderFactory {
 
-    private final AdjacenciesMappingContext adjacenciesMappingContext;
+    private static final InstanceIdentifier<EidTable> EID_TABLE_IID =
+            LISP_OPERATIONAL_IDENTIFIER.child(LispFeatureData.class).child(EidTable.class);
 
-    private EidTableReaderFactory(final InstanceIdentifier<LispState> lispStateId,
-                                  final FutureJVppCore vppApi,
-                                  final NamingContext interfaceContext,
-                                  final NamingContext locatorSetContext,
-                                  final NamingContext bridgeDomainContext,
-                                  final EidMappingContext localMappingContext,
-                                  final EidMappingContext remoteMappingContext,
-                                  final AdjacenciesMappingContext adjacenciesMappingContext) {
-        super(lispStateId, vppApi, interfaceContext, locatorSetContext, bridgeDomainContext, localMappingContext,
-                remoteMappingContext);
-        this.adjacenciesMappingContext = checkNotNull(adjacenciesMappingContext, "Adjacencies context cannot be null");
-    }
+    private static final InstanceIdentifier<VniTable> VNI_TABLE_IID = EID_TABLE_IID.child(VniTable.class);
 
-    public static EidTableReaderFactory newInstance(@Nonnull final InstanceIdentifier<LispState> lispStateId,
-                                                    @Nonnull final FutureJVppCore vppApi,
-                                                    @Nonnull final NamingContext interfaceContext,
-                                                    @Nonnull final NamingContext locatorSetContext,
-                                                    @Nonnull final NamingContext bridgeDomainContext,
-                                                    @Nonnull final EidMappingContext localMappingContext,
-                                                    @Nonnull final EidMappingContext remoteMappingContext,
-                                                    @Nonnull final AdjacenciesMappingContext adjacenciesMappingContext) {
-        return new EidTableReaderFactory(lispStateId, vppApi, interfaceContext, locatorSetContext, bridgeDomainContext,
-                localMappingContext, remoteMappingContext, adjacenciesMappingContext);
-    }
+    private static final InstanceIdentifier<VrfSubtable> VRF_SUBTABLE_IID = VNI_TABLE_IID.child(VrfSubtable.class);
+
+    private static final InstanceIdentifier<BridgeDomainSubtable> BRIDGE_DOMAIN_SUBTABLE_IID =
+            VNI_TABLE_IID.child(BridgeDomainSubtable.class);
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        final InstanceIdentifier<EidTable> eidTableInstanceIdentifier =
-                lispStateId.child(LispFeatureData.class).child(EidTable.class);
-        final InstanceIdentifier<VniTable> vniTableInstanceIdentifier =
-                eidTableInstanceIdentifier.child(VniTable.class);
-        final InstanceIdentifier<VrfSubtable> vrfSubtable = vniTableInstanceIdentifier.child(VrfSubtable.class);
-        final InstanceIdentifier<BridgeDomainSubtable> bridgeDomainSubtable =
-                vniTableInstanceIdentifier.child(BridgeDomainSubtable.class);
-
-        final InstanceIdentifier<LocalMappings> vrfTableLocalMappingsInstanceIdentifier =
-                vrfSubtable.child(LocalMappings.class);
-        final InstanceIdentifier<RemoteMappings> vrfTableRemoteMappingsInstanceIdentifier =
-                vrfSubtable.child(RemoteMappings.class);
-        final InstanceIdentifier<Adjacencies> vrfTableAdjacenciesInstanceIdentifier =
-                vrfSubtable.child(RemoteMappings.class).child(RemoteMapping.class).child(Adjacencies.class);
-
-        final InstanceIdentifier<LocalMappings> bridgeDomainLocalMappingsInstanceIdentifier =
-                bridgeDomainSubtable.child(LocalMappings.class);
-        final InstanceIdentifier<RemoteMappings> bridgeDomainRemoteMappingsInstanceIdentifier =
-                bridgeDomainSubtable.child(RemoteMappings.class);
-        final InstanceIdentifier<Adjacencies> bridgeDomainAdjacenciesInstanceIdentifier =
-                bridgeDomainSubtable.child(RemoteMappings.class).child(RemoteMapping.class).child(Adjacencies.class);
 
         //EidTable
-        registry.addStructuralReader(eidTableInstanceIdentifier, EidTableBuilder.class);
+        registry.addStructuralReader(EID_TABLE_IID, EidTableBuilder.class);
         //EidTable -> VniTable
-        registry.add(new GenericListReader<>(vniTableInstanceIdentifier, new VniTableCustomizer(vppApi)));
+        registry.add(new GenericListReader<>(VNI_TABLE_IID, new VniTableCustomizer(vppApi)));
 
         //EidTable -> VniTable -> VrfSubtable
-        registry.add(new GenericReader<>(vrfSubtable, new VrfSubtableCustomizer(vppApi)));
+        registry.add(new GenericReader<>(VRF_SUBTABLE_IID, new VrfSubtableCustomizer(vppApi)));
 
         //EidTable -> VniTable -> BridgeDomainSubtable
-        registry.add(new GenericReader<>(bridgeDomainSubtable,
+        registry.add(new GenericReader<>(BRIDGE_DOMAIN_SUBTABLE_IID,
                 new BridgeDomainSubtableCustomizer(vppApi, bridgeDomainContext)));
 
-        //EidTable -> VniTable -> VrfSubtable -> LocalMappings
-        registry.addStructuralReader(vrfTableLocalMappingsInstanceIdentifier, LocalMappingsBuilder.class);
-        //EidTable -> VniTable -> BridgeDomainSubtable -> LocalMappings
-        registry.addStructuralReader(bridgeDomainLocalMappingsInstanceIdentifier, LocalMappingsBuilder.class);
+        addLocalMappingSubtree(registry);
+        addRemoteMappingSubtree(registry);
+        addAdjacenciesSubtree(registry);
+    }
+
+    /**
+     * EidTable -> VniTable -> VrfSubtable -> LocalMappings
+     * EidTable -> VniTable -> BridgeDomainSubtable -> LocalMappings
+     * EidTable -> VniTable -> VrfSubtable -> LocalMappings -> LocalMapping
+     * EidTable -> VniTable -> BridgeDomainSubtable -> LocalMappings -> LocalMapping
+     */
+    private void addLocalMappingSubtree(final @Nonnull ModifiableReaderRegistryBuilder registry) {
+        final InstanceIdentifier<LocalMappings> vrfTableLocalMappingsId = VRF_SUBTABLE_IID.child(LocalMappings.class);
+
+        final InstanceIdentifier<LocalMappings> bridgeDomainLocalMappingsId =
+                BRIDGE_DOMAIN_SUBTABLE_IID.child(LocalMappings.class);
 
         final InstanceIdentifier<LocalMapping> localMappingSubtreeId = InstanceIdentifier.create(LocalMapping.class);
-        //EidTable -> VniTable -> VrfSubtable -> LocalMappings -> LocalMapping
-        registry.subtreeAdd(ImmutableSet.of(localMappingSubtreeId
-                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid.class)),
-                new GenericListReader<>(vrfTableLocalMappingsInstanceIdentifier.child(LocalMapping.class),
+        final ImmutableSet<InstanceIdentifier<?>> localMappingHandledChildren = ImmutableSet.of(localMappingSubtreeId
+                .child(Eid.class));
+
+        registry.addStructuralReader(vrfTableLocalMappingsId, LocalMappingsBuilder.class);
+        registry.addStructuralReader(bridgeDomainLocalMappingsId, LocalMappingsBuilder.class);
+
+        registry.subtreeAdd(localMappingHandledChildren,
+                new GenericListReader<>(vrfTableLocalMappingsId.child(LocalMapping.class),
                         new LocalMappingCustomizer(vppApi, locatorSetContext, localMappingContext)));
 
-        //EidTable -> VniTable -> BridgeDomainSubtable -> LocalMappings -> LocalMapping
-        registry.subtreeAdd(ImmutableSet.of(localMappingSubtreeId
-                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid.class)),
-                new GenericListReader<>(bridgeDomainLocalMappingsInstanceIdentifier.child(LocalMapping.class),
+        registry.subtreeAdd(localMappingHandledChildren,
+                new GenericListReader<>(bridgeDomainLocalMappingsId.child(LocalMapping.class),
                         new LocalMappingCustomizer(vppApi, locatorSetContext, localMappingContext)));
+    }
 
-        //EidTable -> VniTable -> VrfSubtable -> RemoteMappings
-        registry.addStructuralReader(vrfTableRemoteMappingsInstanceIdentifier, RemoteMappingsBuilder.class);
-        registry.addStructuralReader(bridgeDomainRemoteMappingsInstanceIdentifier, RemoteMappingsBuilder.class);
+    /**
+     * EidTable -> VniTable -> VrfSubtable -> RemoteMappings
+     * EidTable -> VniTable -> BridgeDomainSubtable -> RemoteMappings
+     */
+    private void addRemoteMappingSubtree(final @Nonnull ModifiableReaderRegistryBuilder registry) {
+        final InstanceIdentifier<RemoteMappings> vrfTableRemoteMappingsId =
+                VRF_SUBTABLE_IID.child(RemoteMappings.class);
+        final InstanceIdentifier<RemoteMappings> bridgeDomainRemoteMappingsId =
+                BRIDGE_DOMAIN_SUBTABLE_IID.child(RemoteMappings.class);
 
         final InstanceIdentifier<RemoteMapping> remoteMappingSubtreeId = InstanceIdentifier.create(RemoteMapping.class);
-        registry.subtreeAdd(ImmutableSet.of(remoteMappingSubtreeId
-                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
-                remoteMappingSubtreeId.child(Rlocs.class),
-                remoteMappingSubtreeId.child(Rlocs.class).child(Locator.class),
-                remoteMappingSubtreeId.child(MapReply.class)),
-                new GenericListReader<>(vrfTableRemoteMappingsInstanceIdentifier.child(RemoteMapping.class),
-                        new RemoteMappingCustomizer(vppApi, locatorSetContext, remoteMappingContext)));
-        registry.subtreeAdd(ImmutableSet.of(remoteMappingSubtreeId
-                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
-                remoteMappingSubtreeId.child(Rlocs.class),
-                remoteMappingSubtreeId.child(Rlocs.class).child(Locator.class),
-                remoteMappingSubtreeId.child(MapReply.class)),
-                new GenericListReader<>(bridgeDomainRemoteMappingsInstanceIdentifier.child(RemoteMapping.class),
-                        new RemoteMappingCustomizer(vppApi, locatorSetContext, remoteMappingContext)));
 
-        registry.addStructuralReader(vrfTableAdjacenciesInstanceIdentifier, AdjacenciesBuilder.class);
-        registry.addStructuralReader(bridgeDomainAdjacenciesInstanceIdentifier, AdjacenciesBuilder.class);
+        registry.addStructuralReader(vrfTableRemoteMappingsId, RemoteMappingsBuilder.class);
+        registry.addStructuralReader(bridgeDomainRemoteMappingsId, RemoteMappingsBuilder.class);
 
+        final ImmutableSet<InstanceIdentifier<?>> remoteMappingHandledChildren =
+                ImmutableSet.of(remoteMappingSubtreeId
+                                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
+                        remoteMappingSubtreeId.child(Rlocs.class),
+                        remoteMappingSubtreeId.child(Rlocs.class).child(Locator.class),
+                        remoteMappingSubtreeId.child(MapReply.class));
+
+        registry.subtreeAdd(remoteMappingHandledChildren,
+                new GenericListReader<>(vrfTableRemoteMappingsId.child(RemoteMapping.class),
+                        new RemoteMappingCustomizer(vppApi, locatorSetContext, remoteMappingContext)));
+        registry.subtreeAdd(remoteMappingHandledChildren,
+                new GenericListReader<>(bridgeDomainRemoteMappingsId.child(RemoteMapping.class),
+                        new RemoteMappingCustomizer(vppApi, locatorSetContext, remoteMappingContext)));
+    }
+
+    /**
+     * EidTable -> VniTable -> VrfSubtable -> RemoteMappings -> Adjacencies
+     */
+    private void addAdjacenciesSubtree(final @Nonnull ModifiableReaderRegistryBuilder registry) {
+        final InstanceIdentifier<Adjacencies> vrfTableAdjacenciesId =
+                VRF_SUBTABLE_IID.child(RemoteMappings.class).child(RemoteMapping.class).child(Adjacencies.class);
+        final InstanceIdentifier<Adjacencies> bridgeDomainAdjacenciesId =
+                BRIDGE_DOMAIN_SUBTABLE_IID.child(RemoteMappings.class).child(RemoteMapping.class)
+                        .child(Adjacencies.class);
         final InstanceIdentifier<Adjacency> adjacencySubtreeId = InstanceIdentifier.create(Adjacency.class);
-        registry.subtreeAdd(
-                ImmutableSet.of(adjacencySubtreeId.child(LocalEid.class), adjacencySubtreeId.child(RemoteEid.class)),
-                new GenericListReader<>(vrfTableAdjacenciesInstanceIdentifier.child(Adjacency.class),
+        final ImmutableSet<InstanceIdentifier<?>> adjacencyHandledChildren = ImmutableSet
+                .of(adjacencySubtreeId.child(LocalEid.class), adjacencySubtreeId.child(RemoteEid.class));
+
+        registry.addStructuralReader(vrfTableAdjacenciesId, AdjacenciesBuilder.class);
+        registry.addStructuralReader(bridgeDomainAdjacenciesId, AdjacenciesBuilder.class);
+
+        registry.subtreeAdd(adjacencyHandledChildren,
+                new GenericListReader<>(vrfTableAdjacenciesId.child(Adjacency.class),
                         new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext,
                                 adjacenciesMappingContext)));
-        registry.subtreeAdd(
-                ImmutableSet.of(adjacencySubtreeId.child(LocalEid.class), adjacencySubtreeId.child(RemoteEid.class)),
-                new GenericListReader<>(bridgeDomainAdjacenciesInstanceIdentifier.child(Adjacency.class),
+        registry.subtreeAdd(adjacencyHandledChildren,
+                new GenericListReader<>(bridgeDomainAdjacenciesId.child(Adjacency.class),
                         new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext,
                                 adjacenciesMappingContext)));
     }
