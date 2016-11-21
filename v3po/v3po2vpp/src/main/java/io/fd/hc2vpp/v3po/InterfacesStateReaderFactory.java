@@ -19,13 +19,7 @@ package io.fd.hc2vpp.v3po;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv4AddressCustomizer;
-import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
-import io.fd.honeycomb.translate.impl.read.GenericInitReader;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
-import io.fd.honeycomb.translate.impl.read.GenericReader;
-import io.fd.honeycomb.translate.read.ReaderFactory;
-import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
@@ -36,12 +30,19 @@ import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanGpeCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.acl.ingress.AclCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv4AddressCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv4Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv4NeighbourCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv6Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.pbb.PbbRewriteStateCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.span.MirroredInterfacesCustomizer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitReader;
+import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.impl.read.GenericReader;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
@@ -60,11 +61,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.ProxyArp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Span;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.SpanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.Ip6Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.L2Acl;
@@ -173,6 +177,13 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         //   Proxy ARP
         registry.add(new GenericReader<>(vppIfcAugId.child(ProxyArp.class), new ProxyArpCustomizer(jvpp,
                 ifcNamingCtx)));
+
+        // Span
+        final InstanceIdentifier<Span> spanId = vppIfcAugId.child(Span.class);
+        registry.addStructuralReader(spanId, SpanBuilder.class);
+        //  MirroredInterfaces
+        registry.add(new GenericInitReader<>(spanId.child(MirroredInterfaces.class),
+                new MirroredInterfacesCustomizer(jvpp, ifcNamingCtx)));
     }
 
     private void initPbbRewriteAugmentation(final ModifiableReaderRegistryBuilder registry,
