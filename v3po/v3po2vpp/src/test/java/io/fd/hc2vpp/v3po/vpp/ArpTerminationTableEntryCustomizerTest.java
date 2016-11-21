@@ -25,9 +25,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.VppInvocationException;
 import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
@@ -62,8 +62,15 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     private ArpTerminationTableEntry entry;
     private InstanceIdentifier<ArpTerminationTableEntry> id;
 
+    private static InstanceIdentifier<ArpTerminationTableEntry> getArpEntryId(final IpAddress ipAddress,
+                                                                              final PhysAddress physAddress) {
+        return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(BD_NAME))
+                .child(ArpTerminationTable.class)
+                .child(ArpTerminationTableEntry.class, new ArpTerminationTableEntryKey(ipAddress, physAddress));
+    }
+
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         customizer = new ArpTerminationTableEntryCustomizer(api, new NamingContext("generatedBdName", BD_CTX_NAME));
 
         ipAddressRaw = new byte[]{1, 2, 3, 4};
@@ -76,13 +83,6 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
 
         defineMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
-    }
-
-    private static InstanceIdentifier<ArpTerminationTableEntry> getArpEntryId(final IpAddress ipAddress,
-                                                                              final PhysAddress physAddress) {
-        return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(BD_NAME))
-                .child(ArpTerminationTable.class)
-                .child(ArpTerminationTableEntry.class, new ArpTerminationTableEntryKey(ipAddress, physAddress));
     }
 
     private void whenBdIpMacAddDelThenSuccess() {

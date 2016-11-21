@@ -24,8 +24,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
@@ -51,11 +51,6 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
 
     private ClassifyTableWriter customizer;
 
-    @Override
-    public void setUp() throws Exception {
-        customizer = new ClassifyTableWriter(api, classifierContext);
-    }
-
     private static ClassifyTable generateClassifyTable(final String name) {
         final ClassifyTableBuilder builder = new ClassifyTableBuilder();
         builder.setName(name);
@@ -72,16 +67,6 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
     private static InstanceIdentifier<ClassifyTable> getClassifyTableId(final String name) {
         return InstanceIdentifier.create(VppClassifier.class)
                 .child(ClassifyTable.class, new ClassifyTableKey(name));
-    }
-
-    private void whenClassifyAddDelTableThenSuccess() {
-        final ClassifyAddDelTableReply reply = new ClassifyAddDelTableReply();
-        reply.newTableIndex = TABLE_INDEX;
-        doReturn(future(reply)).when(api).classifyAddDelTable(any(ClassifyAddDelTable.class));
-    }
-
-    private void whenClassifyAddDelTableThenFailure() {
-        doReturn(failedFuture()).when(api).classifyAddDelTable(any(ClassifyAddDelTable.class));
     }
 
     private static ClassifyAddDelTable generateClassifyAddDelTable(final byte isAdd) {
@@ -102,6 +87,21 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
                 new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
                         (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00};
         return request;
+    }
+
+    @Override
+    public void setUpTest() throws Exception {
+        customizer = new ClassifyTableWriter(api, classifierContext);
+    }
+
+    private void whenClassifyAddDelTableThenSuccess() {
+        final ClassifyAddDelTableReply reply = new ClassifyAddDelTableReply();
+        reply.newTableIndex = TABLE_INDEX;
+        doReturn(future(reply)).when(api).classifyAddDelTable(any(ClassifyAddDelTable.class));
+    }
+
+    private void whenClassifyAddDelTableThenFailure() {
+        doReturn(failedFuture()).when(api).classifyAddDelTable(any(ClassifyAddDelTable.class));
     }
 
     @Test

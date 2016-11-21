@@ -22,10 +22,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -39,11 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.base.attributes.interconnection.XconnectBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.base.attributes.interconnection.XconnectBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
 
 public class L2CustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
     private static final String IFACE_CTX_NAME = "interface-ctx";
@@ -61,7 +61,7 @@ public class L2CustomizerTest extends WriterCustomizerTest implements ByteDataTr
     private L2Customizer customizer;
 
     @Override
-    protected void setUp() throws Exception {
+    protected void setUpTest() throws Exception {
         customizer = new L2Customizer(api, new NamingContext("ifacePrefix", IFACE_CTX_NAME),
             new NamingContext("bdPrefix", BD_CTX_NAME));
         defineMapping(mappingContext, IF1_NAME, IF1_INDEX, IFACE_CTX_NAME);

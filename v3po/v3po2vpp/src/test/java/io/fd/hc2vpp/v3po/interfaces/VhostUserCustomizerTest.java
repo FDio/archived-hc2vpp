@@ -29,10 +29,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.CreateVhostUserIf;
+import io.fd.vpp.jvpp.core.dto.CreateVhostUserIfReply;
+import io.fd.vpp.jvpp.core.dto.DeleteVhostUserIf;
+import io.fd.vpp.jvpp.core.dto.DeleteVhostUserIfReply;
+import io.fd.vpp.jvpp.core.dto.ModifyVhostUserIf;
+import io.fd.vpp.jvpp.core.dto.ModifyVhostUserIfReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -43,26 +51,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUserBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.CreateVhostUserIf;
-import io.fd.vpp.jvpp.core.dto.CreateVhostUserIfReply;
-import io.fd.vpp.jvpp.core.dto.DeleteVhostUserIf;
-import io.fd.vpp.jvpp.core.dto.DeleteVhostUserIfReply;
-import io.fd.vpp.jvpp.core.dto.ModifyVhostUserIf;
-import io.fd.vpp.jvpp.core.dto.ModifyVhostUserIfReply;
 
 public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
 
-    private VhostUserCustomizer customizer;
     private static final int IFACE_ID = 1;
     private static final String IFACE_NAME = "eth0";
     private static final InstanceIdentifier<VhostUser> ID =
             InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
                     .augmentation(VppInterfaceAugmentation.class).child(VhostUser.class);
+    private VhostUserCustomizer customizer;
+
+    private static VhostUser generateVhostUser(final VhostUserRole role, final String socketName) {
+        VhostUserBuilder builder = new VhostUserBuilder();
+        builder.setRole(role);
+        builder.setSocket(socketName);
+        return builder.build();
+    }
 
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VhostUser.class);
         customizer = new VhostUserCustomizer(api, new NamingContext("generatedInterfaceName", "test-instance"));
@@ -103,13 +110,6 @@ public class VhostUserCustomizerTest extends WriterCustomizerTest implements Ipv
         final DeleteVhostUserIf actual = argumentCaptor.getValue();
         assertEquals(swIfIndex, actual.swIfIndex);
         return actual;
-    }
-
-    private static VhostUser generateVhostUser(final VhostUserRole role, final String socketName) {
-        VhostUserBuilder builder = new VhostUserBuilder();
-        builder.setRole(role);
-        builder.setSocket(socketName);
-        return builder.build();
     }
 
     @Test

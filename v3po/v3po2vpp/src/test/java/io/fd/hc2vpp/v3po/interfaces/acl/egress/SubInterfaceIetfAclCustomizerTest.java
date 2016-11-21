@@ -21,10 +21,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import io.fd.hc2vpp.v3po.interfaces.acl.common.IetfAclWriter;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfaces.acl.common.IetfAclWriter;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.Collections;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -65,18 +65,6 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
     private IetfAclWriter aclWriter;
     private SubInterfaceIetfAclCustomizer customizer;
 
-    @Override
-    protected void setUp() {
-        customizer = new SubInterfaceIetfAclCustomizer(aclWriter, new NamingContext("prefix", IFC_TEST_INSTANCE));
-        defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
-        defineMapping(mappingContext, SUBIF_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
-
-
-        when(writeContext.readAfter(IID.firstIdentifierOf(SubInterface.class))).thenReturn(Optional.of(
-            new SubInterfaceBuilder().build()
-        ));
-    }
-
     private static Egress acl(final InterfaceMode mode) {
         return new EgressBuilder().setAccessLists(
             new AccessListsBuilder().setAcl(
@@ -87,6 +75,18 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
             ).setMode(mode)
                 .build()
         ).build();
+    }
+
+    @Override
+    protected void setUpTest() {
+        customizer = new SubInterfaceIetfAclCustomizer(aclWriter, new NamingContext("prefix", IFC_TEST_INSTANCE));
+        defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, SUBIF_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
+
+
+        when(writeContext.readAfter(IID.firstIdentifierOf(SubInterface.class))).thenReturn(Optional.of(
+                new SubInterfaceBuilder().build()
+        ));
     }
 
     private void verifyWrite(final AccessLists accessLists) throws WriteFailedException {

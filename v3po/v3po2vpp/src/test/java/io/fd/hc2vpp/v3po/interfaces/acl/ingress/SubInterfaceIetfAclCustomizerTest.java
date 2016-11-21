@@ -21,11 +21,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfaces.acl.IetfAclWriter;
 import io.fd.hc2vpp.v3po.interfaces.acl.common.AclTableContextManager;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.ClassifyTableByInterface;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
@@ -73,8 +73,27 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
     @Mock
     private AclTableContextManager aclCtx;
 
+    private static InputAclSetInterface inputAclSetInterfaceWriteRequest() {
+        final InputAclSetInterface request = new InputAclSetInterface();
+        request.swIfIndex = SUBIF_INDEX;
+        request.isAdd = 1;
+        request.l2TableIndex = -1;
+        request.ip4TableIndex = -1;
+        request.ip6TableIndex = -1;
+        return request;
+    }
+
+    private static InputAclSetInterface inputAclSetInterfaceDeleteRequest() {
+        final InputAclSetInterface request = new InputAclSetInterface();
+        request.swIfIndex = SUBIF_INDEX;
+        request.l2TableIndex = -1;
+        request.ip4TableIndex = -1;
+        request.ip6TableIndex = -1;
+        return request;
+    }
+
     @Override
-    protected void setUp() {
+    protected void setUpTest() {
         customizer =
             new SubInterfaceIetfAclCustomizer(new IngressIetfAclWriter(api, aclCtx), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
@@ -87,16 +106,6 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
                     .build())
             ).build()
         ).build();
-    }
-
-    private static InputAclSetInterface inputAclSetInterfaceWriteRequest() {
-        final InputAclSetInterface request = new InputAclSetInterface();
-        request.swIfIndex = SUBIF_INDEX;
-        request.isAdd = 1;
-        request.l2TableIndex = -1;
-        request.ip4TableIndex = -1;
-        request.ip6TableIndex = -1;
-        return request;
     }
 
     @Test
@@ -117,15 +126,6 @@ public class SubInterfaceIetfAclCustomizerTest extends WriterCustomizerTest {
         final ClassifyTableByInterface expectedRequest = new ClassifyTableByInterface();
         expectedRequest.swIfIndex = SUBIF_INDEX;
         verify(api).inputAclSetInterface(inputAclSetInterfaceDeleteRequest());
-    }
-
-    private static InputAclSetInterface inputAclSetInterfaceDeleteRequest() {
-        final InputAclSetInterface request = new InputAclSetInterface();
-        request.swIfIndex = SUBIF_INDEX;
-        request.l2TableIndex = -1;
-        request.ip4TableIndex = -1;
-        request.ip6TableIndex = -1;
-        return request;
     }
 
     @Test

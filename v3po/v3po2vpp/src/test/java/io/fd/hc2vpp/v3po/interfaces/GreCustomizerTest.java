@@ -27,9 +27,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.common.net.InetAddresses;
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.GreAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.GreAddDelTunnelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -41,25 +45,28 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.GreBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.GreAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.GreAddDelTunnelReply;
 
 public class GreCustomizerTest extends WriterCustomizerTest {
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
+    private static final byte ADD_GRE = 1;
+    private static final byte DEL_GRE = 0;
     private final String IFACE_NAME = "eth0";
     private final int IFACE_ID = 1;
     private InstanceIdentifier<Gre> id = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IFACE_NAME))
         .augmentation(VppInterfaceAugmentation.class).child(Gre.class);
-    private static final byte ADD_GRE = 1;
-    private static final byte DEL_GRE = 0;
-
     private GreCustomizer customizer;
 
+    private static Gre generateGre() {
+        final GreBuilder builder = new GreBuilder();
+        builder.setSrc(new IpAddress(new Ipv4Address("192.168.20.10")));
+        builder.setDst(new IpAddress(new Ipv4Address("192.168.20.11")));
+        builder.setOuterFibId(Long.valueOf(123));
+        return builder.build();
+    }
+
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.GreTunnel.class);
         customizer = new GreCustomizer(api, new NamingContext("generateInterfaceNAme", IFC_TEST_INSTANCE));
@@ -96,14 +103,6 @@ public class GreCustomizerTest extends WriterCustomizerTest {
     private void verifyGreDeleteWasInvoked(final Gre gre) throws VppInvocationException {
         final GreAddDelTunnel actual = verifyGreAddDelTunnelWasInvoked(gre);
         assertEquals(DEL_GRE, actual.isAdd);
-    }
-
-    private static Gre generateGre() {
-        final GreBuilder builder = new GreBuilder();
-        builder.setSrc(new IpAddress(new Ipv4Address("192.168.20.10")));
-        builder.setDst(new IpAddress(new Ipv4Address("192.168.20.11")));
-        builder.setOuterFibId(Long.valueOf(123));
-        return builder.build();
     }
 
     @Test

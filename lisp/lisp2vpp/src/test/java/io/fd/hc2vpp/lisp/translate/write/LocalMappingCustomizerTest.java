@@ -25,11 +25,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEid;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEidReply;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -52,8 +54,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.VrfSubtable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEid;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEidReply;
 
 public class LocalMappingCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator, Ipv4Translator {
 
@@ -67,7 +67,7 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
     private LocalMappingCustomizer customizer;
 
     @Override
-    public void setUp() {
+    public void setUpTest() {
         final Eid
                 eid = new EidBuilder()
                 .setAddressType(Ipv4Afi.class)

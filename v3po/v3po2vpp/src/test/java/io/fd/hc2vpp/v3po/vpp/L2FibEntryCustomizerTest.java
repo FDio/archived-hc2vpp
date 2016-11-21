@@ -24,9 +24,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.VppInvocationException;
 import io.fd.vpp.jvpp.core.dto.L2FibAddDel;
@@ -55,8 +55,13 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     private L2FibEntryCustomizer customizer;
 
+    private static InstanceIdentifier<L2FibEntry> getL2FibEntryId(final PhysAddress address) {
+        return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(BD_NAME))
+                .child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(address));
+    }
+
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         defineMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
@@ -64,11 +69,6 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
                 api,
                 new NamingContext("generatedBdName", BD_CTX_NAME),
                 new NamingContext("generatedIfaceName", IFC_CTX_NAME));
-    }
-
-    private static InstanceIdentifier<L2FibEntry> getL2FibEntryId(final PhysAddress address) {
-        return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(BD_NAME))
-                .child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(address));
     }
 
     private void whenL2FibAddDelThenSuccess() {

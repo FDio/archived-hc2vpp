@@ -23,8 +23,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.CreateLoopback;
 import io.fd.vpp.jvpp.core.dto.CreateLoopbackReply;
 import io.fd.vpp.jvpp.core.dto.DeleteLoopback;
@@ -47,7 +47,7 @@ public class LoopbackCustomizerTest extends WriterCustomizerTest {
     private LoopbackCustomizer loopCustomizer;
 
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.Loopback.class);
         loopCustomizer = new LoopbackCustomizer(api, new NamingContext("ifcintest", IFC_TEST_INSTANCE));

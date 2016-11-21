@@ -22,11 +22,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfaces.acl.ingress.AclCustomizer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterface;
 import io.fd.vpp.jvpp.core.dto.InputAclSetInterfaceReply;
@@ -36,29 +36,37 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.L2Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.L2AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.acl.IngressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.L2Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.base.attributes.L2AclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AclCustomizerTest extends WriterCustomizerTest {
 
-    @Mock
-    private VppClassifierContextManager classifyTableContext;
-
-    private AclCustomizer customizer;
-
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 1;
-
     private static final int ACL_TABLE_INDEX = 0;
     private static final String ACL_TABLE_NAME = "table0";
+    @Mock
+    private VppClassifierContextManager classifyTableContext;
+    private AclCustomizer customizer;
+
+    private static InputAclSetInterface generateInputAclSetInterface(final byte isAdd, final int ifIndex,
+                                                                     final int l2TableIndex) {
+        final InputAclSetInterface request = new InputAclSetInterface();
+        request.isAdd = isAdd;
+        request.l2TableIndex = l2TableIndex;
+        request.ip4TableIndex = ~0;
+        request.ip6TableIndex = ~0;
+        request.swIfIndex = ifIndex;
+        return request;
+    }
 
     @Override
-    public void setUp() {
+    public void setUpTest() {
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
         customizer = new AclCustomizer(api, new NamingContext("generatedInterfaceName", IFC_TEST_INSTANCE),
             classifyTableContext);
@@ -83,17 +91,6 @@ public class AclCustomizerTest extends WriterCustomizerTest {
 
     private void whenInputAclSetInterfaceThenFailure() {
         doReturn(failedFuture()).when(api).inputAclSetInterface(any(InputAclSetInterface.class));
-    }
-
-    private static InputAclSetInterface generateInputAclSetInterface(final byte isAdd, final int ifIndex,
-                                                                     final int l2TableIndex) {
-        final InputAclSetInterface request = new InputAclSetInterface();
-        request.isAdd = isAdd;
-        request.l2TableIndex = l2TableIndex;
-        request.ip4TableIndex = ~0;
-        request.ip6TableIndex = ~0;
-        request.swIfIndex = ifIndex;
-        return request;
     }
 
     @Test

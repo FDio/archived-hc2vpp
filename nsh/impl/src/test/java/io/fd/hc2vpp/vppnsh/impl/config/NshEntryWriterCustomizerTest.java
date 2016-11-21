@@ -22,9 +22,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntry;
 import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntryReply;
@@ -54,14 +54,6 @@ public class NshEntryWriterCustomizerTest extends WriterCustomizerTest {
 
     private NshEntryWriterCustomizer customizer;
 
-    @Override
-    public void setUp() throws Exception {
-        nshContext = new NamingContext("nsh_entry", ENTRY_CTX_NAME);
-        defineMapping(mappingContext, ENTRY_NAME, ENTRY_INDEX, ENTRY_CTX_NAME);
-
-        customizer = new NshEntryWriterCustomizer(jvppNsh, nshContext);
-    }
-
     private static NshEntry generateNshEntry(final String name) {
         final NshEntryBuilder builder = new NshEntryBuilder();
         builder.setName(name);
@@ -88,16 +80,6 @@ public class NshEntryWriterCustomizerTest extends WriterCustomizerTest {
                 .child(NshEntry.class, new NshEntryKey(name));
     }
 
-    private void whenNshAddDelEntryThenSuccess() {
-        final NshAddDelEntryReply reply = new NshAddDelEntryReply();
-        reply.entryIndex = ENTRY_INDEX;
-        doReturn(future(reply)).when(jvppNsh).nshAddDelEntry(any(NshAddDelEntry.class));
-    }
-
-    private void whenNshAddDelEntryThenFailure() {
-        doReturn(failedFuture()).when(jvppNsh).nshAddDelEntry(any(NshAddDelEntry.class));
-    }
-
     private static NshAddDelEntry generateNshAddDelEntry(final byte isAdd) {
         final NshAddDelEntry request = new NshAddDelEntry();
         request.isAdd = isAdd;
@@ -112,6 +94,24 @@ public class NshEntryWriterCustomizerTest extends WriterCustomizerTest {
         request.c4 = 4;
 
         return request;
+    }
+
+    @Override
+    public void setUpTest() throws Exception {
+        nshContext = new NamingContext("nsh_entry", ENTRY_CTX_NAME);
+        defineMapping(mappingContext, ENTRY_NAME, ENTRY_INDEX, ENTRY_CTX_NAME);
+
+        customizer = new NshEntryWriterCustomizer(jvppNsh, nshContext);
+    }
+
+    private void whenNshAddDelEntryThenSuccess() {
+        final NshAddDelEntryReply reply = new NshAddDelEntryReply();
+        reply.entryIndex = ENTRY_INDEX;
+        doReturn(future(reply)).when(jvppNsh).nshAddDelEntry(any(NshAddDelEntry.class));
+    }
+
+    private void whenNshAddDelEntryThenFailure() {
+        doReturn(failedFuture()).when(jvppNsh).nshAddDelEntry(any(NshAddDelEntry.class));
     }
 
     @Test

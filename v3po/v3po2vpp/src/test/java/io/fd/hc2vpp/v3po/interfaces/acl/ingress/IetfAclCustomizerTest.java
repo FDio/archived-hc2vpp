@@ -22,10 +22,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import io.fd.hc2vpp.v3po.interfaces.acl.common.AclTableContextManager;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfaces.acl.common.AclTableContextManager;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
@@ -85,8 +85,45 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
     private int DENY = 0;
     private int PERMIT = -1;
 
+    private static Ace ace(final PacketHandling action) {
+        return new AceBuilder()
+                .setMatches(new MatchesBuilder().setAceType(
+                        new AceIpBuilder()
+                                .setAceIpVersion(new AceIpv6Builder().build())
+                                .setProtocol((short) 1)
+                                .build()
+                ).build())
+                .setActions(new ActionsBuilder().setPacketHandling(action).build())
+                .build();
+    }
+
+    private static InputAclSetInterface inputAclSetInterfaceDeleteRequest() {
+        final InputAclSetInterface request = new InputAclSetInterface();
+        request.swIfIndex = IF_INDEX;
+        request.l2TableIndex = 1;
+        request.ip4TableIndex = 2;
+        request.ip6TableIndex = 3;
+        return request;
+    }
+
+    private static ClassifyAddDelTable classifyAddDelTable(final int tableIndex) {
+        final ClassifyAddDelTable reply = new ClassifyAddDelTable();
+        reply.tableIndex = tableIndex;
+        return reply;
+    }
+
+    private static InputAclSetInterface inputAclSetInterfaceWriteRequest() {
+        final InputAclSetInterface request = new InputAclSetInterface();
+        request.swIfIndex = IF_INDEX;
+        request.isAdd = 1;
+        request.l2TableIndex = -1;
+        request.ip4TableIndex = -1;
+        request.ip6TableIndex = 0;
+        return request;
+    }
+
     @Override
-    protected void setUp() {
+    protected void setUpTest() {
         customizer = new IetfAclCustomizer(new IngressIetfAclWriter(api, aclCtx), new NamingContext("prefix", IFC_TEST_INSTANCE));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
         acl = new IngressBuilder().setAccessLists(
@@ -131,7 +168,6 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
         return table -> table.missNextIndex == action;
     }
 
-
     private ArgumentMatcher<ClassifyAddDelSession> actionOnHitEquals(final int action) {
         return session -> session.hitNextIndex == action;
     }
@@ -142,18 +178,6 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
 
     private Permit permit() {
         return new PermitBuilder().build();
-    }
-
-    private static Ace ace(final PacketHandling action) {
-        return new AceBuilder()
-            .setMatches(new MatchesBuilder().setAceType(
-                new AceIpBuilder()
-                    .setAceIpVersion(new AceIpv6Builder().build())
-                    .setProtocol((short) 1)
-                    .build()
-            ).build())
-            .setActions(new ActionsBuilder().setPacketHandling(action).build())
-            .build();
     }
 
     @Test
@@ -176,30 +200,5 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
         verify(api).classifyAddDelTable(classifyAddDelTable(1));
         verify(api).classifyAddDelTable(classifyAddDelTable(2));
         verify(api).classifyAddDelTable(classifyAddDelTable(3));
-    }
-
-    private static InputAclSetInterface inputAclSetInterfaceDeleteRequest() {
-        final InputAclSetInterface request = new InputAclSetInterface();
-        request.swIfIndex = IF_INDEX;
-        request.l2TableIndex = 1;
-        request.ip4TableIndex = 2;
-        request.ip6TableIndex = 3;
-        return request;
-    }
-
-    private static ClassifyAddDelTable classifyAddDelTable(final int tableIndex) {
-        final ClassifyAddDelTable reply = new ClassifyAddDelTable();
-        reply.tableIndex = tableIndex;
-        return reply;
-    }
-
-    private static InputAclSetInterface inputAclSetInterfaceWriteRequest() {
-        final InputAclSetInterface request = new InputAclSetInterface();
-        request.swIfIndex = IF_INDEX;
-        request.isAdd = 1;
-        request.l2TableIndex = -1;
-        request.ip4TableIndex = -1;
-        request.ip6TableIndex = 0;
-        return request;
     }
 }

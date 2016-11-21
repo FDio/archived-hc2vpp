@@ -23,10 +23,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppInvocationException;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDel;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDelReply;
@@ -45,11 +45,6 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
     private static final byte ADD_OR_UPDATE_BD = (byte) 1;
     private BridgeDomainCustomizer customizer;
 
-    @Override
-    public void setUp() throws Exception {
-        customizer = new BridgeDomainCustomizer(api, new NamingContext("generatedBDName", BD_CTX_NAME));
-    }
-
     @Nullable
     private static Boolean intToBoolean(final int value) {
         if (value == 0) {
@@ -64,6 +59,11 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
     private static KeyedInstanceIdentifier<BridgeDomain, BridgeDomainKey> bdIdentifierForName(
             final String bdName) {
         return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(bdName));
+    }
+
+    @Override
+    public void setUpTest() throws Exception {
+        customizer = new BridgeDomainCustomizer(api, new NamingContext("generatedBDName", BD_CTX_NAME));
     }
 
     private BridgeDomain generateBridgeDomain(final String bdName) {

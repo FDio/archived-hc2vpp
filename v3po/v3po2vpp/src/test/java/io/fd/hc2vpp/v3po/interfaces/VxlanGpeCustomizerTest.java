@@ -28,10 +28,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.net.InetAddresses;
-import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -46,9 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnelReply;
 
 public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
 
@@ -62,8 +62,23 @@ public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
     private String ifaceName;
     private InstanceIdentifier<VxlanGpe> id;
 
+    private static VxlanGpe generateVxlanGpe(long vni) {
+        final VxlanGpeBuilder builder = new VxlanGpeBuilder();
+        builder.setLocal(new IpAddress(new Ipv4Address("192.168.20.10")));
+        builder.setRemote(new IpAddress(new Ipv4Address("192.168.20.11")));
+        builder.setVni(new VxlanGpeVni(Long.valueOf(vni)));
+        builder.setNextProtocol(VxlanGpeNextProtocol.forValue(1));
+        builder.setEncapVrfId(Long.valueOf(123));
+        builder.setDecapVrfId(Long.valueOf(456));
+        return builder.build();
+    }
+
+    private static VxlanGpe generateVxlanGpe() {
+        return generateVxlanGpe(Long.valueOf(11));
+    }
+
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VxlanGpeTunnel.class);
         NamingContext namingContext = new NamingContext("generateInterfaceName", "test-instance");
@@ -108,21 +123,6 @@ public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
     private void verifyVxlanGpeDeleteWasInvoked(final VxlanGpe vxlanGpe) throws VppBaseCallException {
         final VxlanGpeAddDelTunnel actual = verifyVxlanGpeAddDelTunnelWasInvoked(vxlanGpe);
         assertEquals(DEL_VXLAN_GPE, actual.isAdd);
-    }
-
-    private static VxlanGpe generateVxlanGpe(long vni) {
-        final VxlanGpeBuilder builder = new VxlanGpeBuilder();
-        builder.setLocal(new IpAddress(new Ipv4Address("192.168.20.10")));
-        builder.setRemote(new IpAddress(new Ipv4Address("192.168.20.11")));
-        builder.setVni(new VxlanGpeVni(Long.valueOf(vni)));
-        builder.setNextProtocol(VxlanGpeNextProtocol.forValue(1));
-        builder.setEncapVrfId(Long.valueOf(123));
-        builder.setDecapVrfId(Long.valueOf(456));
-        return builder.build();
-    }
-
-    private static VxlanGpe generateVxlanGpe() {
-        return generateVxlanGpe(Long.valueOf(11));
     }
 
     @Test

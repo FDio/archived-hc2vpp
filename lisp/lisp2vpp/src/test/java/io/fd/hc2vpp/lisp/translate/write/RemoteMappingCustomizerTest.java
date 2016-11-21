@@ -25,10 +25,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
-import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMapping;
 import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMappingReply;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     private EidMappingContext remoteMappingContext;
 
     @Override
-    public void setUp() {
+    public void setUpTest() {
         final Eid eid = new EidBuilder()
                 .setAddressType(Ipv4Afi.class)
                 .setAddress(

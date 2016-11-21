@@ -23,8 +23,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.TapConnect;
+import io.fd.vpp.jvpp.core.dto.TapConnectReply;
+import io.fd.vpp.jvpp.core.dto.TapDelete;
+import io.fd.vpp.jvpp.core.dto.TapDeleteReply;
+import io.fd.vpp.jvpp.core.dto.TapModify;
+import io.fd.vpp.jvpp.core.dto.TapModifyReply;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -36,12 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.TapBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.TapConnect;
-import io.fd.vpp.jvpp.core.dto.TapConnectReply;
-import io.fd.vpp.jvpp.core.dto.TapDelete;
-import io.fd.vpp.jvpp.core.dto.TapDeleteReply;
-import io.fd.vpp.jvpp.core.dto.TapModify;
-import io.fd.vpp.jvpp.core.dto.TapModifyReply;
 
 public class TapCustomizerTest extends WriterCustomizerTest {
 
@@ -49,7 +49,7 @@ public class TapCustomizerTest extends WriterCustomizerTest {
     private TapCustomizer tapCustomizer;
 
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.Tap.class);
         tapCustomizer = new TapCustomizer(api, new NamingContext("ifcintest", IFC_TEST_INSTANCE));

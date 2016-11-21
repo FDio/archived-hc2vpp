@@ -26,9 +26,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppCallbackException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelMapRequestItrRlocs;
 import io.fd.vpp.jvpp.core.dto.LispAddDelMapRequestItrRlocsReply;
@@ -56,7 +56,7 @@ public class ItrRemoteLocatorSetCustomizerTest extends WriterCustomizerTest impl
     private ItrRemoteLocatorSet validData;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         initMocks(this);
         customizer = new ItrRemoteLocatorSetCustomizer(api);
         validId = InstanceIdentifier.create(ItrRemoteLocatorSet.class);

@@ -19,10 +19,10 @@ package io.fd.hc2vpp.v3po.interfaces.acl.egress;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import io.fd.hc2vpp.v3po.interfaces.acl.common.IetfAclWriter;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfaces.acl.common.IetfAclWriter;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import java.util.Collections;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -55,12 +55,6 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
     private IetfAclWriter aclWriter;
     private IetfAclCustomizer customizer;
 
-    @Override
-    protected void setUp() {
-        customizer = new IetfAclCustomizer(aclWriter, new NamingContext("prefix", IFC_TEST_INSTANCE));
-        defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
-    }
-
     private static Egress acl(final InterfaceMode mode) {
         return new EgressBuilder().setAccessLists(
             new AccessListsBuilder().setAcl(
@@ -71,6 +65,12 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
             ).setMode(mode)
                 .build()
         ).build();
+    }
+
+    @Override
+    protected void setUpTest() {
+        customizer = new IetfAclCustomizer(aclWriter, new NamingContext("prefix", IFC_TEST_INSTANCE));
+        defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_TEST_INSTANCE);
     }
 
     private void verifyWrite(final AccessLists accessLists) throws WriteFailedException {

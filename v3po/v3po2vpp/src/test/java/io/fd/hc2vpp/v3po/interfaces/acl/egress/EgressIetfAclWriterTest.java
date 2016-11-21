@@ -21,8 +21,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import io.fd.hc2vpp.v3po.interfaces.acl.common.AclTableContextManager;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.v3po.interfaces.acl.common.AclTableContextManager;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
@@ -61,15 +61,15 @@ public class EgressIetfAclWriterTest extends WriterCustomizerTest {
     @Mock
     private InstanceIdentifier<?> id;
 
-    @Override
-    protected void setUp() throws Exception {
-        writer = new EgressIetfAclWriter(api, aclCtx);
-    }
-
     private static ClassifyAddDelTable classifyAddDelTable(final int tableIndex) {
         final ClassifyAddDelTable reply = new ClassifyAddDelTable();
         reply.tableIndex = tableIndex;
         return reply;
+    }
+
+    @Override
+    protected void setUpTest() throws Exception {
+        writer = new EgressIetfAclWriter(api, aclCtx);
     }
 
     private ClassifySetInterfaceL2Tables classifySetInterfaceL2TablesRequest() {

@@ -24,10 +24,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocator;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -40,8 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocator;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorReply;
 
 public class InterfaceCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 
@@ -53,7 +53,7 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
     private InterfaceCustomizer customizer;
 
     @Override
-    public void setUp() {
+    public void setUpTest() {
         final String ifcCtxName = "INInterruptedException, ExecutionException, STANCE";
         final String interfaceName = "Interface";
         defineMapping(mappingContext, interfaceName, 5, ifcCtxName);

@@ -24,19 +24,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
 
 public class InterfaceCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
     private static final String IFACE_CTX_NAME = "interface-ctx";
@@ -48,7 +48,7 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
         InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME));
 
     @Override
-    protected void setUp() throws Exception {
+    protected void setUpTest() throws Exception {
         customizer = new InterfaceCustomizer(api, new NamingContext("ifacePrefix", IFACE_CTX_NAME));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFACE_CTX_NAME);
     }

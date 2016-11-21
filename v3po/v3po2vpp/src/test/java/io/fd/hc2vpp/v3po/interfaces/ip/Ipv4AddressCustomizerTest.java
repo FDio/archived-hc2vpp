@@ -22,18 +22,21 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
 import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.SubnetValidator;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,10 +61,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.DottedQuad;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
 
 public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
 
@@ -75,17 +74,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     private NamingContext interfaceContext;
     private Ipv4AddressCustomizer customizer;
 
-    @Before
-    public void setUp() throws Exception {
-        interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
-
-        customizer = new Ipv4AddressCustomizer(api, interfaceContext, subnetValidator);
-
-        doReturn(future(new IpAddressDetailsReplyDump())).when(api).ipAddressDump(any());
-        when(writeContext.readAfter(Mockito.any()))
-                .thenReturn(Optional.of(new Ipv4Builder().setAddress(Collections.emptyList()).build()));
-    }
-
     private static InstanceIdentifier<Address> getAddressId(final String ifaceName) {
         return InstanceIdentifier.builder(Interfaces.class)
                 .child(Interface.class, new InterfaceKey(ifaceName))
@@ -93,6 +81,22 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
                 .child(Ipv4.class)
                 .child(Address.class)
                 .build();
+    }
+
+    private static ArgumentMatcher<InstanceIdentifier<?>> matchInstanceIdentifier(
+            Class<?> desiredClass) {
+        return o -> o instanceof InstanceIdentifier && (o.getTargetType().equals(desiredClass));
+    }
+
+    @Before
+    public void setUpTest() throws Exception {
+        interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
+
+        customizer = new Ipv4AddressCustomizer(api, interfaceContext, subnetValidator);
+
+        doReturn(future(new IpAddressDetailsReplyDump())).when(api).ipAddressDump(any());
+        when(writeContext.readAfter(Mockito.any()))
+                .thenReturn(Optional.of(new Ipv4Builder().setAddress(Collections.emptyList()).build()));
     }
 
     private void whenSwInterfaceAddDelAddressThenSuccess() {
@@ -178,11 +182,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
             verify(subnetValidator, times(1)).checkNotAddingToSameSubnet(addressList);
         }
 
-    }
-
-    private static ArgumentMatcher<InstanceIdentifier<?>> matchInstanceIdentifier(
-            Class<?> desiredClass) {
-        return o -> o instanceof InstanceIdentifier && (o.getTargetType().equals(desiredClass));
     }
 
     @Test(expected =  WriteFailedException.UpdateFailedException.class)

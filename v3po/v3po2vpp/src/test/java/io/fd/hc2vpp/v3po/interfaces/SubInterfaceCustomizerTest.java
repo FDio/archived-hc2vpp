@@ -25,9 +25,14 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.CreateSubif;
+import io.fd.vpp.jvpp.core.dto.CreateSubifReply;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -55,58 +60,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.tags.TagBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.tags.TagKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.CreateSubif;
-import io.fd.vpp.jvpp.core.dto.CreateSubifReply;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlags;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsReply;
 
 public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
-
-    private NamingContext namingContext;
-    private SubInterfaceCustomizer customizer;
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
     private static final String SUPER_IF_NAME = "local0";
     private static final int SUPER_IF_ID = 1;
     private static final String SUB_IFACE_NAME = "local0.11";
     private static final int SUBIF_INDEX = 11;
-
     private static final short STAG_ID = 100;
     private static final short CTAG_ID = 200;
     private static final short CTAG_ANY_ID = 0; // only the *IdAny flag is set
-
     private final Tag STAG_100;
     private final Tag CTAG_200;
     private final Tag CTAG_ANY;
+    private NamingContext namingContext;
+    private SubInterfaceCustomizer customizer;
 
     public SubInterfaceCustomizerTest() {
         STAG_100 = generateTag((short) 0, SVlan.class, new Dot1qTag.VlanId(new Dot1qVlanId((int) STAG_ID)));
         CTAG_200 = generateTag((short) 1, CVlan.class, new Dot1qTag.VlanId(new Dot1qVlanId(200)));
         CTAG_ANY = generateTag((short) 1, CVlan.class, new Dot1qTag.VlanId(Dot1qTag.VlanId.Enumeration.Any));
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
-        customizer = new SubInterfaceCustomizer(api, namingContext);
-        defineMapping(mappingContext, SUB_IFACE_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
-        defineMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_ID, IFC_TEST_INSTANCE);
-    }
-
-    private SubInterface generateSubInterface(final boolean enabled, final List<Tag> tagList) {
-        SubInterfaceBuilder builder = new SubInterfaceBuilder();
-        builder.setVlanType(_802dot1ad.class);
-        builder.setIdentifier(11L);
-        final TagsBuilder tags = new TagsBuilder();
-
-        tags.setTag(tagList);
-
-        builder.setTags(tags.build());
-
-        builder.setMatch(generateMatch());
-        builder.setEnabled(enabled);
-        return builder.build();
     }
 
     private static Tag generateTag(final short index, final Class<? extends Dot1qTagVlanType> tagType,
@@ -129,6 +103,29 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.match.attributes.match.type.VlanTaggedBuilder()
                 .setVlanTagged(tagged.build()).build());
         return match.build();
+    }
+
+    @Override
+    public void setUpTest() throws Exception {
+        namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
+        customizer = new SubInterfaceCustomizer(api, namingContext);
+        defineMapping(mappingContext, SUB_IFACE_NAME, SUBIF_INDEX, IFC_TEST_INSTANCE);
+        defineMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_ID, IFC_TEST_INSTANCE);
+    }
+
+    private SubInterface generateSubInterface(final boolean enabled, final List<Tag> tagList) {
+        SubInterfaceBuilder builder = new SubInterfaceBuilder();
+        builder.setVlanType(_802dot1ad.class);
+        builder.setIdentifier(11L);
+        final TagsBuilder tags = new TagsBuilder();
+
+        tags.setTag(tagList);
+
+        builder.setTags(tags.build());
+
+        builder.setMatch(generateMatch());
+        builder.setEnabled(enabled);
+        return builder.build();
     }
 
     private CreateSubif generateSubInterfaceRequest(final int superIfId, final short innerVlanId,

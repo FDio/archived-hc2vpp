@@ -23,15 +23,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSet;
+import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSetReply;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.pitr.cfg.grouping.PitrCfgBuilder;
-import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSet;
-import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSetReply;
 
 
 public class PitrCfgCustomizerTest extends WriterCustomizerTest {
@@ -39,7 +39,7 @@ public class PitrCfgCustomizerTest extends WriterCustomizerTest {
     private PitrCfgCustomizer customizer;
 
     @Override
-    public void setUp() {
+    public void setUpTest() {
         customizer = new PitrCfgCustomizer(api);
     }
 

@@ -28,10 +28,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.net.InetAddresses;
-import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -45,10 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
 
 public class VxlanCustomizerTest extends WriterCustomizerTest {
 
@@ -62,8 +62,21 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
     private String ifaceName;
     private InstanceIdentifier<Vxlan> id;
 
+    private static Vxlan generateVxlan(long vni) {
+        final VxlanBuilder builder = new VxlanBuilder();
+        builder.setSrc(new IpAddress(new Ipv4Address("192.168.20.10")));
+        builder.setDst(new IpAddress(new Ipv4Address("192.168.20.11")));
+        builder.setEncapVrfId(Long.valueOf(123));
+        builder.setVni(new VxlanVni(Long.valueOf(vni)));
+        return builder.build();
+    }
+
+    private static Vxlan generateVxlan() {
+        return generateVxlan(Long.valueOf(11));
+    }
+
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VxlanTunnel.class);
 
@@ -106,19 +119,6 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
     private void verifyVxlanDeleteWasInvoked(final Vxlan vxlan) throws VppInvocationException {
         final VxlanAddDelTunnel actual = verifyVxlanAddDelTunnelWasInvoked(vxlan);
         assertEquals(DEL_VXLAN, actual.isAdd);
-    }
-
-    private static Vxlan generateVxlan(long vni) {
-        final VxlanBuilder builder = new VxlanBuilder();
-        builder.setSrc(new IpAddress(new Ipv4Address("192.168.20.10")));
-        builder.setDst(new IpAddress(new Ipv4Address("192.168.20.11")));
-        builder.setEncapVrfId(Long.valueOf(123));
-        builder.setVni(new VxlanVni(Long.valueOf(vni)));
-        return builder.build();
-    }
-
-    private static Vxlan generateVxlan() {
-        return generateVxlan(Long.valueOf(11));
     }
 
     @Test

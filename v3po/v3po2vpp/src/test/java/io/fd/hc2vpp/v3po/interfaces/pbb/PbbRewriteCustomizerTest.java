@@ -26,9 +26,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppCallbackException;
 import io.fd.vpp.jvpp.core.dto.L2InterfacePbbTagRewrite;
 import io.fd.vpp.jvpp.core.dto.L2InterfacePbbTagRewriteReply;
@@ -56,7 +56,7 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
     private InstanceIdentifier<PbbRewrite> invalidId;
 
     @Override
-    protected void setUp() throws Exception {
+    protected void setUpTest() throws Exception {
         interfaceContext = new NamingContext("interface", "interface-context");
         customizer = new PbbRewriteCustomizer(api, interfaceContext);
 

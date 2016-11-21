@@ -28,9 +28,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
 import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSetReply;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
@@ -52,7 +52,7 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
     private LocatorSetCustomizer customizer;
 
     @Override
-    public void setUp() {
+    public void setUpTest() {
         customizer = new LocatorSetCustomizer(api, new NamingContext("locator-set", "locator-set-context"));
     }
 

@@ -25,8 +25,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSession;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelSessionReply;
@@ -49,25 +49,10 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
     private static final int TABLE_INDEX = 123;
     private static final String TABLE_NAME = "table123";
-
+    private static final int SESSION_INDEX = 456;
     @Mock
     private VppClassifierContextManager classfierContext;
-
     private ClassifySessionWriter customizer;
-    private static final int SESSION_INDEX = 456;
-
-    @Override
-    public void setUp() throws Exception {
-        customizer = new ClassifySessionWriter(api, classfierContext);
-
-        when(classfierContext.containsTable(TABLE_NAME, mappingContext)).thenReturn(true);
-        when(classfierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);
-
-        final ClassifyTable table = mock(ClassifyTable.class);
-        when(table.getClassifierNode()).thenReturn(new VppNodeName("ip4-classifier"));
-        when(writeContext.readAfter(any())).thenReturn(Optional.of(table));
-        when(writeContext.readBefore(any())).thenReturn(Optional.of(table));
-    }
 
     private static ClassifySession generateClassifySession(final long opaqueIndex, final String match) {
         final ClassifySessionBuilder builder = new ClassifySessionBuilder();
@@ -85,15 +70,6 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
                 .child(ClassifySession.class, new ClassifySessionKey(new HexString(match)));
     }
 
-    private void whenClassifyAddDelSessionThenSuccess() {
-        doReturn(future(new ClassifyAddDelSessionReply())).when(api)
-                .classifyAddDelSession(any(ClassifyAddDelSession.class));
-    }
-
-    private void whenClassifyAddDelSessionThenFailure() {
-        doReturn(failedFuture()).when(api).classifyAddDelSession(any(ClassifyAddDelSession.class));
-    }
-
     private static ClassifyAddDelSession generateClassifyAddDelSession(final byte isAdd, final int tableIndex,
                                                                        final int sessionIndex) {
         final ClassifyAddDelSession request = new ClassifyAddDelSession();
@@ -106,6 +82,28 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
                 new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
                         (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00};
         return request;
+    }
+
+    @Override
+    public void setUpTest() throws Exception {
+        customizer = new ClassifySessionWriter(api, classfierContext);
+
+        when(classfierContext.containsTable(TABLE_NAME, mappingContext)).thenReturn(true);
+        when(classfierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);
+
+        final ClassifyTable table = mock(ClassifyTable.class);
+        when(table.getClassifierNode()).thenReturn(new VppNodeName("ip4-classifier"));
+        when(writeContext.readAfter(any())).thenReturn(Optional.of(table));
+        when(writeContext.readBefore(any())).thenReturn(Optional.of(table));
+    }
+
+    private void whenClassifyAddDelSessionThenSuccess() {
+        doReturn(future(new ClassifyAddDelSessionReply())).when(api)
+                .classifyAddDelSession(any(ClassifyAddDelSession.class));
+    }
+
+    private void whenClassifyAddDelSessionThenFailure() {
+        doReturn(failedFuture()).when(api).classifyAddDelSession(any(ClassifyAddDelSession.class));
     }
 
     @Test

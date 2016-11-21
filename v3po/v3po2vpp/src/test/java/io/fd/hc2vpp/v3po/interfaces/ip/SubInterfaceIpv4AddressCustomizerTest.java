@@ -22,10 +22,13 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -46,9 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLengthBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
 
 public class SubInterfaceIpv4AddressCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 
@@ -66,7 +66,7 @@ public class SubInterfaceIpv4AddressCustomizerTest extends WriterCustomizerTest 
     private SubInterfaceIpv4AddressCustomizer customizer;
 
     @Override
-    protected void setUp() {
+    protected void setUpTest() {
         customizer = new SubInterfaceIpv4AddressCustomizer(api, new NamingContext("prefix", IFC_CTX_NAME));
         defineMapping(mappingContext, IFACE_NAME, IFACE_INDEX, IFC_CTX_NAME);
         defineMapping(mappingContext, SUBIF_NAME, SUBIF_INDEX, IFC_CTX_NAME);

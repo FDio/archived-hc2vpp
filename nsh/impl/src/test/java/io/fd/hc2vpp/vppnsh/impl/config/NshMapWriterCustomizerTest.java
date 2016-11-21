@@ -22,9 +22,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.nsh.dto.NshAddDelMap;
 import io.fd.vpp.jvpp.nsh.dto.NshAddDelMapReply;
@@ -58,16 +58,6 @@ public class NshMapWriterCustomizerTest extends WriterCustomizerTest {
 
     private NshMapWriterCustomizer customizer;
 
-    @Override
-    public void setUp() throws Exception {
-        nshContext = new NamingContext("nsh_map", MAP_CTX_NAME);
-        defineMapping(mappingContext, MAP_NAME, MAP_INDEX, MAP_CTX_NAME);
-        interfaceContext = new NamingContext("interface", INT_CTX_NAME);
-        defineMapping(mappingContext, ITF_NAME, ITF_INDEX, INT_CTX_NAME);
-
-        customizer = new NshMapWriterCustomizer(jvppNsh, nshContext, interfaceContext);
-    }
-
     private static NshMap generateNshMap(final String name) {
         final NshMapBuilder builder = new NshMapBuilder();
         builder.setName(name);
@@ -88,16 +78,6 @@ public class NshMapWriterCustomizerTest extends WriterCustomizerTest {
                 .child(NshMap.class, new NshMapKey(name));
     }
 
-    private void whenNshAddDelMapThenSuccess() {
-        final NshAddDelMapReply reply = new NshAddDelMapReply();
-        reply.mapIndex = MAP_INDEX;
-        doReturn(future(reply)).when(jvppNsh).nshAddDelMap(any(NshAddDelMap.class));
-    }
-
-    private void whenNshAddDelMapThenFailure() {
-        doReturn(failedFuture()).when(jvppNsh).nshAddDelMap(any(NshAddDelMap.class));
-    }
-
     private static NshAddDelMap generateNshAddDelMap(final byte isAdd) {
         final NshAddDelMap request = new NshAddDelMap();
         request.isAdd = isAdd;
@@ -108,6 +88,26 @@ public class NshMapWriterCustomizerTest extends WriterCustomizerTest {
         request.nextNode = 2;
 
         return request;
+    }
+
+    @Override
+    public void setUpTest() throws Exception {
+        nshContext = new NamingContext("nsh_map", MAP_CTX_NAME);
+        defineMapping(mappingContext, MAP_NAME, MAP_INDEX, MAP_CTX_NAME);
+        interfaceContext = new NamingContext("interface", INT_CTX_NAME);
+        defineMapping(mappingContext, ITF_NAME, ITF_INDEX, INT_CTX_NAME);
+
+        customizer = new NshMapWriterCustomizer(jvppNsh, nshContext, interfaceContext);
+    }
+
+    private void whenNshAddDelMapThenSuccess() {
+        final NshAddDelMapReply reply = new NshAddDelMapReply();
+        reply.mapIndex = MAP_INDEX;
+        doReturn(future(reply)).when(jvppNsh).nshAddDelMap(any(NshAddDelMap.class));
+    }
+
+    private void whenNshAddDelMapThenFailure() {
+        doReturn(failedFuture()).when(jvppNsh).nshAddDelMap(any(NshAddDelMap.class));
     }
 
     @Test

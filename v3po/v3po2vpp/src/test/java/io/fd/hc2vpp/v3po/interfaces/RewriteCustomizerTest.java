@@ -22,10 +22,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.translate.util.TagRewriteOperation;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.VppInvocationException;
 import io.fd.vpp.jvpp.core.dto.L2InterfaceVlanTagRewrite;
@@ -47,23 +47,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class RewriteCustomizerTest extends WriterCustomizerTest {
 
-    private NamingContext namingContext;
-    private RewriteCustomizer customizer;
-
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
     private static final String IF_NAME = "local0";
     private static final String VLAN_IF_NAME = "local0.1";
     private static final int VLAN_IF_ID = 1;
     private static final int VLAN_IF_INDEX = 11;
+    private NamingContext namingContext;
+    private RewriteCustomizer customizer;
     private InstanceIdentifier<Rewrite> VLAN_IID;
-
-    @Override
-    public void setUp() throws Exception {
-        namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
-        customizer = new RewriteCustomizer(api, namingContext);
-        VLAN_IID = getVlanTagRewriteId(IF_NAME, VLAN_IF_ID);
-        defineMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_TEST_INSTANCE);
-    }
 
     private static InstanceIdentifier<Rewrite> getVlanTagRewriteId(final String name, final long index) {
         final Class<ChildOf<? super SubInterface>> child = (Class) Rewrite.class;
@@ -73,6 +64,14 @@ public class RewriteCustomizerTest extends WriterCustomizerTest {
                         .child(SubInterface.class, new SubInterfaceKey(index))
                         .child(child);
         return id;
+    }
+
+    @Override
+    public void setUpTest() throws Exception {
+        namingContext = new NamingContext("generatedSubInterfaceName", IFC_TEST_INSTANCE);
+        customizer = new RewriteCustomizer(api, namingContext);
+        VLAN_IID = getVlanTagRewriteId(IF_NAME, VLAN_IF_ID);
+        defineMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_TEST_INSTANCE);
     }
 
     private Rewrite generateRewrite(final TagRewriteOperation op) {

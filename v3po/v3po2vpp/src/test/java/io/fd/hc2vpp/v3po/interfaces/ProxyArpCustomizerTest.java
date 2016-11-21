@@ -20,9 +20,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
+import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -32,8 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ProxyArpBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
-import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
 
 public class ProxyArpCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
     private static final String IF_NAME = "eth1";
@@ -41,7 +41,7 @@ public class ProxyArpCustomizerTest extends WriterCustomizerTest implements Byte
     private ProxyArpCustomizer customizer;
 
     @Override
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         customizer = new ProxyArpCustomizer(api);
     }
 

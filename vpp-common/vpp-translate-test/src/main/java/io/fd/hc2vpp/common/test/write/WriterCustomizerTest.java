@@ -16,17 +16,17 @@
 
 package io.fd.hc2vpp.common.test.write;
 
+import io.fd.hc2vpp.common.test.util.FutureProducer;
+import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.hc2vpp.common.test.util.FutureProducer;
-import io.fd.hc2vpp.common.test.util.NamingContextHelper;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 /**
  * Generic test for classes implementing {@link WriterCustomizer} interface.
@@ -52,12 +52,18 @@ public abstract class WriterCustomizerTest implements FutureProducer,
         cache = new ModificationCache();
         Mockito.doReturn(cache).when(writeContext).getModificationCache();
         Mockito.doReturn(mappingContext).when(writeContext).getMappingContext();
-        setUp();
+        setUpTest();
     }
 
     /**
      * Optional setup for subclasses. Invoked after parent initialization.
      */
-    protected void setUp() throws Exception {
+    protected void setUpTest() throws Exception {
+        // this method would normally trigger this warning while compiling:
+        //
+        // "if test is using @RunWith(HoneycombTestRunner and if named setUp() :
+        // [JUnit4SetUpNotRun] setUpTest() method will not be run; Please add a @Before annotation"
+        //
+        // more details http://errorprone.info/bugpattern/JUnit4SetUpNotRun
     }
 }
