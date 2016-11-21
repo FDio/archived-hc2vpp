@@ -204,12 +204,10 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
         replyIfaceOne.ipAddressDetails = Arrays.asList(detailIfaceOneAddressOne);
         replyIfaceTwo.ipAddressDetails = Arrays.asList(detailIfaceTwoAddressOne);
 
-        detailIfaceOneAddressOne.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceOneAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceOneAddressOne.prefixLength = 22;
 
-        detailIfaceTwoAddressOne.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceTwoAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceTwoAddressOne.prefixLength = 23;
 
         cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
@@ -221,8 +219,7 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
         IpAddressDetailsReplyDump replyIfaceOne = new IpAddressDetailsReplyDump();
         replyIfaceOne.ipAddressDetails = Arrays.asList(detailIfaceOneAddressOne);
 
-        detailIfaceOneAddressOne.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceOneAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceOneAddressOne.prefixLength = 22;
 
         cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
@@ -233,12 +230,12 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
         final IpAddressDetailsReplyDump reply = new IpAddressDetailsReplyDump();
 
         final IpAddressDetails details1 = new IpAddressDetails();
-        details1.ip = new byte[]{1, 1, 1, 10};
+        details1.ip = new byte[]{10, 1, 1, 1};
         details1.prefixLength = (byte) PREFIX_LENGTH;
         reply.ipAddressDetails.add(details1);
 
         final IpAddressDetails details2 = new IpAddressDetails();
-        details2.ip = new byte[]{2, 1, 1, 10};
+        details2.ip = new byte[]{10, 1, 1, 2};
         details2.prefixLength = (byte) PREFIX_LENGTH;
         reply.ipAddressDetails.add(details2);
 

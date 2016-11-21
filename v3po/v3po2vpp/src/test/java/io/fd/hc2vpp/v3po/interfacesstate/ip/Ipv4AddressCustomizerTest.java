@@ -120,10 +120,8 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         IpAddressDetails detail1 = new IpAddressDetails();
         IpAddressDetails detail2 = new IpAddressDetails();
 
-        detail1.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
-        detail2.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.2"))));
+        detail1.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
+        detail2.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.2")));
 
         IpAddressDetailsReplyDump reply = new IpAddressDetailsReplyDump();
         reply.ipAddressDetails = ImmutableList.of(detail1);
@@ -166,12 +164,9 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         IpAddressDetails detail2 = new IpAddressDetails();
         IpAddressDetails detail3 = new IpAddressDetails();
 
-        detail1.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
-        detail2.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.2"))));
-        detail3.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.3"))));
+        detail1.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
+        detail2.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.2")));
+        detail3.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.3")));
 
         IpAddressDetailsReplyDump reply = new IpAddressDetailsReplyDump();
         reply.ipAddressDetails = ImmutableList.of(detail1, detail2, detail3);
@@ -192,12 +187,9 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         IpAddressDetails detail2 = new IpAddressDetails();
         IpAddressDetails detail3 = new IpAddressDetails();
 
-        detail1.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
-        detail2.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.2"))));
-        detail3.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.3"))));
+        detail1.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
+        detail2.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.2")));
+        detail3.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.3")));
 
         IpAddressDetailsReplyDump reply = new IpAddressDetailsReplyDump();
         reply.ipAddressDetails = ImmutableList.of(detail1, detail2, detail3);
@@ -257,12 +249,10 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         replyIfaceOne.ipAddressDetails = Arrays.asList(detailIfaceOneAddressOne);
         replyIfaceTwo.ipAddressDetails = Arrays.asList(detailIfaceTwoAddressOne);
 
-        detailIfaceOneAddressOne.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceOneAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceOneAddressOne.prefixLength = 22;
 
-        detailIfaceTwoAddressOne.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceTwoAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceTwoAddressOne.prefixLength = 23;
 
         cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
@@ -274,8 +264,7 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         IpAddressDetailsReplyDump replyIfaceOne = new IpAddressDetailsReplyDump();
         replyIfaceOne.ipAddressDetails = Arrays.asList(detailIfaceOneAddressOne);
 
-        detailIfaceOneAddressOne.ip = reverseBytes(
-                ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"))));
+        detailIfaceOneAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceOneAddressOne.prefixLength = 22;
 
         cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);

@@ -101,7 +101,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         if (ipAddressDetails.isPresent()) {
             final IpAddressDetails detail = ipAddressDetails.get();
-            builder.setIp(arrayToIpv4AddressNoZone(detail.ip))
+            builder.setIp(arrayToIpv4AddressNoZoneReversed(detail.ip))
                     .setSubnet(
                             new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
 

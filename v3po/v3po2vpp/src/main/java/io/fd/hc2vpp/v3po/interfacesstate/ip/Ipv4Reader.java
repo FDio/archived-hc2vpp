@@ -47,7 +47,7 @@ interface Ipv4Reader extends Ipv4Translator, JvppReplyConsumer {
             @Nonnull final Function<Ipv4AddressNoZone, T> keyConstructor) {
         if (dumpOptional.isPresent() && dumpOptional.get().ipAddressDetails != null) {
             return dumpOptional.get().ipAddressDetails.stream()
-                    .map(detail -> keyConstructor.apply(arrayToIpv4AddressNoZone(detail.ip)))
+                    .map(detail -> keyConstructor.apply(arrayToIpv4AddressNoZoneReversed(detail.ip)))
                     .collect(Collectors.toList());
         } else {
             return Collections.emptyList();
@@ -63,7 +63,7 @@ interface Ipv4Reader extends Ipv4Translator, JvppReplyConsumer {
             final List<IpAddressDetails> details = dump.get().ipAddressDetails;
 
             return Optional.of(details.stream()
-                    .filter(singleDetail -> ip.equals(arrayToIpv4AddressNoZone(singleDetail.ip)))
+                    .filter(singleDetail -> ip.equals(arrayToIpv4AddressNoZoneReversed(singleDetail.ip)))
                     .collect(RWUtils.singleItemCollector()));
         }
         return Optional.absent();
