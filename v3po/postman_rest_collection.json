@@ -151,6 +151,17 @@
 			"owner": "45557"
 		},
 		{
+			"id": "df84e568-dac6-7014-f798-57dc87869aed",
+			"name": "SPAN",
+			"description": "",
+			"order": [
+				"cdf8e109-9af6-9000-4bb4-2261ad0c3c83",
+				"3fda19c4-0afe-f738-e4a5-5d4f99e4f588",
+				"70a990d6-8786-95a1-cab0-adf8e14a879f"
+			],
+			"owner": "45557"
+		},
+		{
 			"id": "ebed4cf3-96db-7ea3-1216-a0802c8f47d3",
 			"name": "TAP",
 			"description": "",
@@ -823,6 +834,26 @@
 			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 		},
 		{
+			"id": "3fda19c4-0afe-f738-e4a5-5d4f99e4f588",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0/span",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1477908227905,
+			"name": "Read port mirroring",
+			"description": "show span",
+			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
+			"responses": [],
+			"rawModeData": ""
+		},
+		{
 			"id": "44df5e99-524f-ae01-0d60-54257fd16ad5",
 			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
 			"url": "http://localhost:8183/restconf/config/v3po:vpp/bridge-domains/bridge-domain/testBD/l2-fib-table/l2-fib-entry/aa:bb:cc:dd:ee:ff",
@@ -1181,6 +1212,26 @@
 			"responses": [],
 			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vhost1\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vhost-user\",\r\n                \"enabled\": \"true\",\r\n                \"vhost-user\" : {\r\n                    \"socket\": \"/tmp/soc1\",\r\n                    \"role\": \"server\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
 			"folder": "015dc7da-a47b-fcdf-3dee-2760fb5de9fd"
+		},
+		{
+			"id": "70a990d6-8786-95a1-cab0-adf8e14a879f",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/span",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1477907954064,
+			"name": "Delete port mirroring local0 -> GigabiteEthernet0/8/0",
+			"description": "",
+			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
+			"responses": [],
+			"rawModeData": ""
 		},
 		{
 			"id": "7b592c36-12a3-2867-ed71-80ec74695dec",
@@ -1577,6 +1628,26 @@
 			"responses": [],
 			"rawModeData": "{\n    \"l2-fib-entry\": [\n        {\n            \"phys-address\": \"11:22:33:44:55:66\",\n            \"outgoing-interface\": \"local0\",\n            \"static-config\": \"true\",\n            \"action\": \"l2-fib-forward\"\n        }\n    ]\n}",
 			"folder": "e742a44e-2e82-fe0c-d7c1-2f6b6bc1f0e9"
+		},
+		{
+			"id": "cdf8e109-9af6-9000-4bb4-2261ad0c3c83",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/span",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1477905258870,
+			"name": "Set port mirroring local0 -> GigabiteEthernet0/8/0",
+			"description": "set span src local0 dst GigabiteEthernet0/8/0",
+			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
+			"responses": [],
+			"rawModeData": "{\r\n    \r\n    \"span\": {\r\n    \t\"mirrored-interfaces\": {\r\n    \t\t\"mirrored-interface\": [\"local0\"]\r\n    \t}\r\n    }\r\n    \r\n}"
 		},
 		{
 			"id": "ea9e0f3b-ede6-2104-892b-bb8fd72e3d5d",

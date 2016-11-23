@@ -10,7 +10,8 @@ module v3po {
        - moved ACL definitions to vpp-acl module
        - updated l2 container constraint (permit IP address on BVI interface)
        - added PID of vpp process to vpp-state
-       - added support for Loopback interfaces";
+       - added support for Loopback interfaces
+       - added support for port mirroring";
   }
 
   revision "2015-01-05" {
@@ -435,6 +436,16 @@ module v3po {
       }
   }
 
+  grouping span-attributes {
+    description "Parameters of the SPAN feature";
+
+    container mirrored-interfaces {
+      leaf-list mirrored-interface {
+        type if:interface-ref; // todo use interface-state-ref for operational data?
+      }
+    }
+  }
+
   augment /if:interfaces/if:interface {
     ext:augment-identifier "vpp-interface-augmentation";
 
@@ -521,6 +532,10 @@ module v3po {
       container egress {
         uses vpp-acl:ietf-acl-base-attributes;
       }
+    }
+
+    container span {
+      uses span-attributes;
     }
   }
 
@@ -612,6 +627,10 @@ module v3po {
       container egress {
         uses vpp-acl:ietf-acl-base-attributes;
       }
+    }
+
+    container span {
+      uses span-attributes;
     }
   }
 
