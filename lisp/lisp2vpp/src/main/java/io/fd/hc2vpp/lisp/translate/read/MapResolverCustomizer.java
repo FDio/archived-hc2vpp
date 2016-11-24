@@ -87,7 +87,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
         final LispMapResolverDetails mapResolverDetails =
                 dumpOptional.get().lispMapResolverDetails.stream()
                         .filter(a -> addressesEqual(key.getIpAddress(),
-                                arrayToIpAddressReversed(byteToBoolean(a.isIpv6), a.ipAddress)))
+                                arrayToIpAddress(byteToBoolean(a.isIpv6), a.ipAddress)))
                         .collect(RWUtils.singleItemCollector());
 
         builder.setKey(key);
@@ -115,7 +115,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
 
         return dumpOptional.get().lispMapResolverDetails.stream()
                 .map(resolver -> new MapResolverKey(
-                        arrayToIpAddressReversed(byteToBoolean(resolver.isIpv6), resolver.ipAddress)))
+                        arrayToIpAddress(byteToBoolean(resolver.isIpv6), resolver.ipAddress)))
                 .collect(Collectors.toList());
     }
 

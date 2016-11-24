@@ -20,8 +20,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
 import java.util.Collections;
 import java.util.Comparator;
@@ -97,20 +97,20 @@ public class MappingEntryContext implements Ipv4Translator {
     private MappingEntryKey entryToKey(final SnatStaticMappingDetails entry) {
         // Only IPv4
         return new MappingEntryKey(
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZoneReversed(entry.externalIpAddress))),
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZoneReversed(entry.localIpAddress))));
+                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(entry.externalIpAddress))),
+                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(entry.localIpAddress))));
     }
 
     private boolean equalEntries(final SnatStaticMappingDetails detail, final MappingEntry ctxMappingEntry) {
         final IpAddress internalAddrFromDetails =
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZoneReversed(detail.localIpAddress)));
+                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.localIpAddress)));
         // Only IPv4
         if (!ctxMappingEntry.getInternal().equals(internalAddrFromDetails)) {
             return false;
         }
         // Only IPv4
         final IpAddress externalAddrFromDetails =
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZoneReversed(detail.externalIpAddress)));
+                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.externalIpAddress)));
         if (!ctxMappingEntry.getExternal().equals(externalAddrFromDetails)) {
             return false;
         }

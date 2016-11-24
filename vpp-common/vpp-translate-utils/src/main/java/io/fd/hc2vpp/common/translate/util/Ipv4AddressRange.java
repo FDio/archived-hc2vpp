@@ -115,7 +115,7 @@ public final class Ipv4AddressRange {
         }
 
         return new Ipv4AddressRange(
-                Ipv4Translator.INSTANCE.arrayToIpv4AddressNoZoneReversed(prefixAddrBytes0),
-                Ipv4Translator.INSTANCE.arrayToIpv4AddressNoZoneReversed(prefixAddrBytesF));
+                Ipv4Translator.INSTANCE.arrayToIpv4AddressNoZone(prefixAddrBytes0),
+                Ipv4Translator.INSTANCE.arrayToIpv4AddressNoZone(prefixAddrBytesF));
     }
 }

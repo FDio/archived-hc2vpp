@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.net.InetAddresses;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
@@ -75,11 +76,11 @@ public interface Ipv6Translator extends ByteDataTranslator {
     /**
      * Creates address array from address part of {@link Ipv6Prefix}
      */
-    default byte[] ipv6AddressPrefixToArray(@Nonnull final Ipv6Prefix ipv4Prefix) {
-        checkNotNull(ipv4Prefix, "Cannot convert null prefix");
+    default byte[] ipv6AddressPrefixToArray(@Nonnull final Ipv6Prefix ipv6Prefix) {
+        checkNotNull(ipv6Prefix, "Cannot convert null prefix");
 
         return ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(
-                new Ipv6Address(ipv4Prefix.getValue().substring(0, ipv4Prefix.getValue().indexOf('/')))));
+                new Ipv6Address(ipv6Prefix.getValue().substring(0, ipv6Prefix.getValue().indexOf('/')))));
     }
 
     /**
@@ -101,9 +102,9 @@ public interface Ipv6Translator extends ByteDataTranslator {
     }
 
     /**
-     * Parse byte array returned by VPP representing an Ipv6 address. Vpp returns IP byte arrays in reversed order.
+     * Parse byte array returned by VPP representing an Ipv6 address. Expects array in non-reversed order
      *
-     * @return Ipv46ddressNoZone containing string representation of IPv6 address constructed from submitted bytes. No
+     * @return Ipv6ddressNoZone containing string representation of IPv6 address constructed from submitted bytes. No
      * change in order.
      */
     @Nonnull
@@ -111,7 +112,7 @@ public interface Ipv6Translator extends ByteDataTranslator {
         checkArgument(ip.length == 16, "Illegal array length");
 
         try {
-            return new Ipv6AddressNoZone(InetAddresses.toAddrString(InetAddresses.fromLittleEndianByteArray(ip)));
+            return new Ipv6AddressNoZone(InetAddresses.toAddrString(InetAddress.getByAddress(ip)));
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("Unable to parse ipv6", e);
         }
@@ -126,26 +127,6 @@ public interface Ipv6Translator extends ByteDataTranslator {
         checkState(!(address.getIpv4Address() == null && address.getIpv6Address() == null), "Invalid address");
         return address.getIpv6Address() != null;
     }
-
-    /**
-     * Parse byte array returned by VPP representing an Ipv6 address. Vpp returns IP byte arrays in natural order.
-     *
-     * @return Ipv46ddressNoZone containing string representation of IPv6 address constructed from submitted bytes. No
-     * change in order.
-     */
-    @Nonnull
-    default Ipv6AddressNoZone arrayToIpv6AddressNoZoneReversed(@Nonnull byte[] ip) {
-        checkArgument(ip.length == 16, "Illegal array length");
-
-        ip = reverseBytes(ip);
-
-        try {
-            return new Ipv6AddressNoZone(InetAddresses.toAddrString(InetAddresses.fromLittleEndianByteArray(ip)));
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Unable to parse ipv6", e);
-        }
-    }
-
 
     /**
      * Detects whether {@code IpPrefix} is ipv6

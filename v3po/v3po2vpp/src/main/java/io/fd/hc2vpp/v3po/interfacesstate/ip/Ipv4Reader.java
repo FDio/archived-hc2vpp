@@ -19,11 +19,13 @@ package io.fd.hc2vpp.v3po.interfacesstate.ip;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
-import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
+import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpAddressDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
@@ -33,8 +35,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yangtools.yang.binding.Identifier;
-import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
-import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 
 /**
  * Utility class providing Ipv4 read support.
@@ -47,7 +47,7 @@ interface Ipv4Reader extends Ipv4Translator, JvppReplyConsumer {
             @Nonnull final Function<Ipv4AddressNoZone, T> keyConstructor) {
         if (dumpOptional.isPresent() && dumpOptional.get().ipAddressDetails != null) {
             return dumpOptional.get().ipAddressDetails.stream()
-                    .map(detail -> keyConstructor.apply(arrayToIpv4AddressNoZoneReversed(detail.ip)))
+                    .map(detail -> keyConstructor.apply(arrayToIpv4AddressNoZone(detail.ip)))
                     .collect(Collectors.toList());
         } else {
             return Collections.emptyList();
@@ -63,7 +63,7 @@ interface Ipv4Reader extends Ipv4Translator, JvppReplyConsumer {
             final List<IpAddressDetails> details = dump.get().ipAddressDetails;
 
             return Optional.of(details.stream()
-                    .filter(singleDetail -> ip.equals(arrayToIpv4AddressNoZoneReversed(singleDetail.ip)))
+                    .filter(singleDetail -> ip.equals(arrayToIpv4AddressNoZone(singleDetail.ip)))
                     .collect(RWUtils.singleItemCollector()));
         }
         return Optional.absent();

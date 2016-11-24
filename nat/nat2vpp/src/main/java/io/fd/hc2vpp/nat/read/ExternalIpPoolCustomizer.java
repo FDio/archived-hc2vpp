@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.nat.read;
 
+import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -23,8 +25,6 @@ import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.snat.dto.SnatAddressDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatAddressDump;
@@ -76,8 +76,7 @@ final class ExternalIpPoolCustomizer implements
                 dumpMgr.getDump(id, ctx.getModificationCache(), null)
                         .or(new SnatAddressDetailsReplyDump()).snatAddressDetails.get(Math.toIntExact(poolId));
 
-        builder.setExternalIpPool(
-                new Ipv4Prefix(arrayToIpv4AddressNoZoneReversed(details.ipAddress).getValue() + "/32"));
+        builder.setExternalIpPool(new Ipv4Prefix(arrayToIpv4AddressNoZone(details.ipAddress).getValue() + "/32"));
         builder.setPoolId(poolId);
 
         LOG.trace("External IP pool: {}. Read as: {}", id, builder);

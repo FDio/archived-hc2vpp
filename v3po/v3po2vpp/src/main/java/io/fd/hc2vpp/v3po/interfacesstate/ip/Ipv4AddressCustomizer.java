@@ -77,30 +77,6 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                         .build();
     }
 
-    private static Subnet getSubnet(final Address address) {
-        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.Subnet
-                subnet = address.getSubnet();
-
-        // Only prefix length supported
-        Preconditions.checkArgument(
-                subnet instanceof org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength);
-
-        return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder()
-                .setPrefixLength(
-                        ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength) subnet)
-                                .getPrefixLength()).build();
-    }
-
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address> getCfgId(
-            final InstanceIdentifier<Address> id) {
-        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
-                .augmentation(Interface1.class)
-                .child(Ipv4.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address.class,
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressKey(
-                                id.firstKeyOf(Address.class).getIp()));
-    }
-
     @Override
     @Nonnull
     public AddressBuilder getBuilder(@Nonnull InstanceIdentifier<Address> id) {
@@ -126,9 +102,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         if (ipAddressDetails.isPresent()) {
             final IpAddressDetails detail = ipAddressDetails.get();
-            builder.setIp(arrayToIpv4AddressNoZoneReversed(detail.ip))
-                    .setSubnet(
-                            new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
+            builder.setIp(arrayToIpv4AddressNoZone(detail.ip))
+                    .setSubnet(new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Attributes for {} interface (id={}) address {} successfully read: {}",
@@ -164,5 +139,28 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                         .setIp(readValue.getIp())
                         .setSubnet(getSubnet(readValue))
                         .build());
+    }
+
+    private static Subnet getSubnet(final Address address) {
+        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.Subnet
+                subnet = address.getSubnet();
+
+        // Only prefix length supported
+        Preconditions.checkArgument(
+                subnet instanceof org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength);
+
+        return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder()
+                .setPrefixLength(
+                ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength) subnet)
+                        .getPrefixLength()).build();
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address> getCfgId(
+            final InstanceIdentifier<Address> id) {
+        return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
+                .augmentation(Interface1.class)
+                .child(Ipv4.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.AddressKey(id.firstKeyOf(Address.class).getIp()));
     }
 }

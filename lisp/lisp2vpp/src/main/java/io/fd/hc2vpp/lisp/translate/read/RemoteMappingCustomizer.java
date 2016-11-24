@@ -292,7 +292,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
     }
 
     private Locator detailsToLocator(final LispLocatorDetails details) {
-        final IpAddress address = arrayToIpAddressReversed(byteToBoolean(details.isIpv6), details.ipAddress);
+        final IpAddress address = arrayToIpAddress(byteToBoolean(details.isIpv6), details.ipAddress);
         return new LocatorBuilder()
                 .setAddress(address)
                 .setKey(new LocatorKey(address))

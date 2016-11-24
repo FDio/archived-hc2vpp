@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.nat.read;
 
+import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -24,8 +26,6 @@ import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDump;
@@ -89,9 +89,9 @@ final class MappingEntryCustomizer implements Ipv4Translator,
         builder.setType(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.MappingEntry.Type.Static);
         // Snat only supports ipv4 for now
-        builder.setExternalSrcAddress(arrayToIpv4AddressNoZoneReversed(snatStaticMappingDetails.externalIpAddress));
+        builder.setExternalSrcAddress(arrayToIpv4AddressNoZone(snatStaticMappingDetails.externalIpAddress));
         builder.setInternalSrcAddress(
-                new IpAddress(arrayToIpv4AddressNoZoneReversed(snatStaticMappingDetails.localIpAddress)));
+                new IpAddress(arrayToIpv4AddressNoZone(snatStaticMappingDetails.localIpAddress)));
 
         if (snatStaticMappingDetails.addrOnly == 0) {
             builder.setExternalSrcPort(new ExternalSrcPortBuilder()

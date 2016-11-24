@@ -65,21 +65,4 @@ public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTr
             return new IpAddress(arrayToIpv4AddressNoZone(ip));
         }
     }
-
-    /**
-     * Converts array bytes to {@link IpAddress}
-     */
-    @Nonnull
-    default IpAddress arrayToIpAddressReversed(boolean isIpv6, byte[] ip) {
-        if (isIpv6) {
-            return new IpAddress(arrayToIpv6AddressNoZoneReversed(ip));
-        } else {
-            return new IpAddress(arrayToIpv4AddressNoZoneReversed(ip));
-        }
-    }
-
-    default IpAddress reverseAddress(@Nonnull final IpAddress address) {
-        //arrayToIpAdddress internaly reverts order
-        return arrayToIpAddress(isIpv6(address), ipAddressToArray(address));
-    }
 }

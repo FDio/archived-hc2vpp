@@ -131,7 +131,7 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
-        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.eid).getValue());
+        assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.eid).getValue());
         assertEquals(0, request.eidType);
         assertEquals(1, request.isAdd);
         assertEquals(25, request.vni);
@@ -154,7 +154,7 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
-        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.eid).getValue());
+        assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.eid).getValue());
         assertEquals(0, request.eidType);
         assertEquals(0, request.isAdd);
         assertEquals(25, request.vni);

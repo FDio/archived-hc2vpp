@@ -74,7 +74,7 @@ public class MapResolverCustomizerTest extends WriterCustomizerTest implements I
 
         LispAddDelMapResolver request = resolverCaptor.getValue();
         assertEquals(1, request.isAdd);
-        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.ipAddress).getValue());
+        assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.ipAddress).getValue());
     }
 
 
@@ -97,7 +97,7 @@ public class MapResolverCustomizerTest extends WriterCustomizerTest implements I
 
         LispAddDelMapResolver request = resolverCaptor.getValue();
         assertEquals(0, request.isAdd);
-        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.ipAddress).getValue());
+        assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.ipAddress).getValue());
     }
 
 }

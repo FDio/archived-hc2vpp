@@ -109,8 +109,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesBadData() throws WriteFailedException {
-        customizer
-                .writeCurrentAttributes(null, mock(RemoteMapping.class), writeContext);
+        customizer.writeCurrentAttributes(null, mock(RemoteMapping.class), writeContext);
     }
 
     @Test
@@ -123,7 +122,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
         assertNotNull(request);
         assertEquals(1, request.isAdd);
-        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.eid).getValue());
+        assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.eid).getValue());
         assertEquals(25, request.vni);
     }
 
@@ -148,7 +147,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
         assertNotNull(request);
         assertEquals(0, request.isAdd);
-        assertEquals("1.2.168.192", arrayToIpv4AddressNoZone(request.eid).getValue());
+        assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.eid).getValue());
         assertEquals(25, request.vni);
     }
 

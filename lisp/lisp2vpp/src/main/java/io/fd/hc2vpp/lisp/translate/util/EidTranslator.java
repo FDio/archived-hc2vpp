@@ -92,12 +92,12 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
         switch (type) {
             case IPV4: {
                 return newLocalEidBuilder(Ipv4Afi.class, vni).setAddress(
-                        new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZoneReversed(address)).build())
+                        new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZone(address)).build())
                         .build();
             }
             case IPV6: {
                 return newLocalEidBuilder(Ipv6Afi.class, vni).setAddress(
-                        new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZoneReversed(address)).build())
+                        new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZone(address)).build())
                         .build();
             }
             case MAC: {
@@ -118,14 +118,14 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
             case IPV4: {
                 return newRemoteEidBuilder(Ipv4Afi.class, vni)
                         .setAddress(
-                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZoneReversed(address))
+                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZone(address))
                                         .build())
                         .build();
             }
             case IPV6: {
                 return newRemoteEidBuilder(Ipv6Afi.class, vni)
                         .setAddress(
-                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZoneReversed(address))
+                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZone(address))
                                         .build())
                         .build();
             }
@@ -146,14 +146,14 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
             case IPV4: {
                 return newEidBuilderLocal(Ipv4Afi.class, vni)
                         .setAddress(
-                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZoneReversed(address))
+                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZone(address))
                                         .build())
                         .build();
             }
             case IPV6: {
                 return newEidBuilderLocal(Ipv6Afi.class, vni)
                         .setAddress(
-                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZoneReversed(address))
+                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZone(address))
                                         .build())
                         .build();
             }
@@ -174,14 +174,14 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
             case IPV4: {
                 return newEidBuilderRemote(Ipv4Afi.class, vni)
                         .setAddress(
-                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZoneReversed(address))
+                                new Ipv4Builder().setIpv4(arrayToIpv4AddressNoZone(address))
                                         .build())
                         .build();
             }
             case IPV6: {
                 return newEidBuilderRemote(Ipv6Afi.class, vni)
                         .setAddress(
-                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZoneReversed(address))
+                                new Ipv6Builder().setIpv6(arrayToIpv6AddressNoZone(address))
                                         .build())
                         .build();
             }
@@ -201,10 +201,10 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
             EidType type, byte[] address) {
         switch (type) {
             case IPV4: {
-                return arrayToIpv4AddressNoZoneReversed(address).getValue();
+                return arrayToIpv4AddressNoZone(address).getValue();
             }
             case IPV6: {
-                return arrayToIpv6AddressNoZoneReversed(address).getValue();
+                return arrayToIpv6AddressNoZone(address).getValue();
             }
             case MAC: {
                 //as wrong as it looks ,its right(second param is not end index,but count)

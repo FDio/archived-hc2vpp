@@ -19,6 +19,7 @@ package io.fd.hc2vpp.common.translate.util;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.net.InetAddresses;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
@@ -33,7 +34,8 @@ public interface Ipv4Translator extends ByteDataTranslator {
     /**
      * Make available also from static context.
      */
-    Ipv4Translator INSTANCE = new Ipv4Translator() {};
+    Ipv4Translator INSTANCE = new Ipv4Translator() {
+    };
 
     /**
      * Creates address array from address part of {@link Ipv4Prefix}
@@ -69,7 +71,7 @@ public interface Ipv4Translator extends ByteDataTranslator {
     }
 
     /**
-     * Parse byte array returned by VPP representing an Ipv4 address. Vpp returns IP byte arrays in reversed order.
+     * Parse byte array returned by VPP representing an Ipv4 address. Expects array in big endian
      *
      * @return Ipv4AddressNoZone containing string representation of IPv4 address constructed from submitted bytes. No
      * change in order.
@@ -81,39 +83,11 @@ public interface Ipv4Translator extends ByteDataTranslator {
             ip = Arrays.copyOfRange(ip, 0, 4);
         }
         try {
-            // Not reversing the byte array here!! because the IP coming from VPP is in reversed byte order
-            // compared to byte order it was submitted
-            return new Ipv4AddressNoZone(InetAddresses.toAddrString(InetAddresses.fromLittleEndianByteArray(ip)));
+            return new Ipv4AddressNoZone(InetAddresses.toAddrString(InetAddress.getByAddress(ip)));
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("Unable to parse ipv4", e);
         }
     }
-
-    /**
-     * Parse byte array returned by VPP representing an Ipv4 address. Vpp returns IP byte arrays in reversed order.
-     *
-     * @return Ipv4AddressNoZone containing string representation of IPv4 address constructed from submitted bytes. No
-     * change in order.
-     */
-    @Nonnull
-    default Ipv4AddressNoZone arrayToIpv4AddressNoZoneReversed(@Nonnull byte[] ip) {
-        // VPP sends ipv4 in a 16 byte array
-
-        if (ip.length == 16) {
-            ip = Arrays.copyOfRange(ip, 0, 4);
-        }
-
-        ip = reverseBytes(ip);
-
-        try {
-            // Not reversing the byte array here!! because the IP coming from VPP is in reversed byte order
-            // compared to byte order it was submitted
-            return new Ipv4AddressNoZone(InetAddresses.toAddrString(InetAddresses.fromLittleEndianByteArray(ip)));
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Unable to parse ipv4", e);
-        }
-    }
-
 
     /**
      * Transform Ipv4 address to a byte array acceptable by VPP. VPP expects incoming byte array to be in the same order
