@@ -1,34 +1,61 @@
 {
-	"id": "7d81e8b0-274e-1f22-de94-d40cb78a389d",
-	"name": "Honeycomb RESTCONF calls for iOAM Trace",
-	"description": "To enable iOAM trace on VPP management nodes.",
-	"order": [
-		"f5a5aaea-2d61-a57f-191a-7cc81286f605"
-	],
-	"folders": [],
-	"timestamp": 1478073563257,
-	"owner": 0,
-	"public": false,
-	"requests": [
+	"variables": [],
+	"info": {
+		"name": "Honeycomb RESTCONF calls for iOAM Trace",
+		"_postman_id": "4117bd46-e112-6cfc-9d18-e566b66ba610",
+		"description": "To enable iOAM trace on VPP management nodes.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "f5a5aaea-2d61-a57f-191a-7cc81286f605",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8181/restconf/config/ioam-sb-trace:ioam-trace-config/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1478077673476,
-			"name": "iaom trace",
-			"description": "",
-			"collectionId": "7d81e8b0-274e-1f22-de94-d40cb78a389d",
-			"responses": [],
-			"rawModeData": "{\n\"trace-config\":{\n        \"trace-config-name\":\"trace\",\n        \"acl-name\":\"testAcl\",\n        \"trace-type\":31,\n        \"trace-num-elt\":3,\n        \"trace-tsp\":\"milliseconds\",\n        \"trace-op\":\"add\",\n        \"trace-app-data\":1234,\n        \"data-export-profile-name\":\"dataProfileName\",\n        \"transport-encap-profile-name\":\"transProfileName\",\n        \"node-id\":1,\n        \"node-interfaces\":[\n            {\n                \"index\":5,\n                \"intf-name\":\"GigabitEthernetb/0/0\"\n            }\n        ]\n      }\n}\n"
+			"name": "iaom trace - config",
+			"request": {
+				"url": "http://localhost:8183/restconf/config/ioam-sb-trace:ioam-trace-config/",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"trace-config\":{\n        \"trace-config-name\":\"trace\",\n        \"acl-name\":\"testAcl\",\n        \"trace-type\":31,\n        \"trace-num-elt\":3,\n        \"trace-tsp\":\"milliseconds\",\n        \"trace-op\":\"add\",\n        \"trace-app-data\":1234,\n        \"data-export-profile-name\":\"dataProfileName\",\n        \"transport-encap-profile-name\":\"transProfileName\",\n        \"node-id\":1,\n        \"node-interfaces\":[\n            {\n                \"index\":5,\n                \"intf-name\":\"GigabitEthernetb/0/0\"\n            }\n        ]\n      }\n}\n"
+				},
+				"description": "Configure ioam trace config on VPP"
+			},
+			"response": []
+		},
+		{
+			"name": "iaom trace - oper",
+			"request": {
+				"url": "http://localhost:8183/restconf/operational/ioam-sb-trace:ioam-trace-config/trace-config/*",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"trace-config\":{\n        \"trace-config-name\":\"trace\",\n        \"acl-name\":\"testAcl\",\n        \"trace-type\":31,\n        \"trace-num-elt\":3,\n        \"trace-tsp\":\"milliseconds\",\n        \"trace-op\":\"add\",\n        \"trace-app-data\":1234,\n        \"data-export-profile-name\":\"dataProfileName\",\n        \"transport-encap-profile-name\":\"transProfileName\",\n        \"node-id\":1,\n        \"node-interfaces\":[\n            {\n                \"index\":5,\n                \"intf-name\":\"GigabitEthernetb/0/0\"\n            }\n        ]\n      }\n}\n"
+				},
+				"description": "Read ioam trace config from VPP"
+			},
+			"response": []
 		}
 	]
 }

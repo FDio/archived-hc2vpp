@@ -30,7 +30,9 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,6 +64,9 @@ public class VppIoamModuleTest {
     @Inject
     private Set<WriterFactory> writerFactories = new HashSet<>();
 
+    @Inject
+    private Set<ReaderFactory> readerFactories = new HashSet<>();
+
     @Before
     public void setUp() throws Exception {
 
@@ -78,6 +83,17 @@ public class VppIoamModuleTest {
         writerFactories.forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
     }
+
+    @Test
+    public void testReaderFactories() throws Exception {
+        assertThat(readerFactories, is(not(empty())));
+
+        // Test registration process (all dependencies present, topological order of readers does exist, etc.)
+        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder();
+        readerFactories.forEach(factory -> factory.init(registryBuilder));
+        assertNotNull(registryBuilder.build());
+    }
+
 
     private static final class MockJVppIoamProvider implements Provider<FutureJVppIoamtraceFacade> {
 

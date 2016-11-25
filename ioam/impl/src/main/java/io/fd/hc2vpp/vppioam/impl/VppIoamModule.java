@@ -17,12 +17,14 @@ package io.fd.hc2vpp.vppioam.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import com.google.inject.Provider;
 import io.fd.hc2vpp.vppioam.impl.config.VppIoamWriterFactory;
-import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.hc2vpp.vppioam.impl.oper.VppIoamReaderFactory;
 import io.fd.hc2vpp.vppioam.impl.util.JVppIoamProvider;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import org.slf4j.Logger;
@@ -54,6 +56,7 @@ public final class VppIoamModule extends AbstractModule {
 
         // Below are classes picked up by HC framework
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(VppIoamWriterFactory.class);
+        Multibinder.newSetBinder(binder(), ReaderFactory.class).addBinding().to(VppIoamReaderFactory.class);
 
         LOG.debug("Module iOAM successfully configured");
     }

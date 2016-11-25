@@ -50,7 +50,7 @@ public final class JVppIoamProvider extends ProviderTrait<FutureJVppIoamtraceFac
                 }
             });
 
-            LOG.debug("Successfully loaded jvpp-ioam plugin");
+            LOG.info("Successfully loaded jvpp-ioam plugin");
             return new FutureJVppIoamtraceFacade(registry, jVppIoamTr);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to open VPP management connection", e);
