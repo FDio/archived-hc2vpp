@@ -38,6 +38,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.$YangModuleInfoImpl;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.AdjacenciesIdentificationCtxAugmentation;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.AdjacenciesIdentificationContexts;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.AdjacenciesIdentification;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.AdjacenciesIdentificationKey;
@@ -45,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.mapping.EidIdentificatorPair;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -96,8 +98,10 @@ public class AdjacenciesMappingContextTest implements InjectablesProcessor {
         MockitoAnnotations.initMocks(this);
 
         adjacenciesMappingContext = new AdjacenciesMappingContext("context");
-        adjacenciesMappingContextId = InstanceIdentifier.create(AdjacenciesIdentificationContexts.class).child(
-                AdjacenciesIdentification.class, new AdjacenciesIdentificationKey("context"));
+        adjacenciesMappingContextId = InstanceIdentifier.create(Contexts.class)
+                .augmentation(AdjacenciesIdentificationCtxAugmentation.class)
+                .child(AdjacenciesIdentificationContexts.class).child(
+                        AdjacenciesIdentification.class, new AdjacenciesIdentificationKey("context"));
 
         when(mappingContext.read(adjacenciesMappingContextId.child(Mappings.class))).thenReturn(Optional.of(mappings));
         when(mappingContext.read(parentKey(PARENT_1))).thenReturn(Optional.of(filterForParent(PARENT_1)));

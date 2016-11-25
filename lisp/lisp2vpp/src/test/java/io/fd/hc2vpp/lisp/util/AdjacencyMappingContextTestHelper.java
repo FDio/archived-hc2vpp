@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.MappingContext;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.AdjacenciesIdentificationCtxAugmentation;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.AdjacenciesIdentificationContexts;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.AdjacenciesIdentification;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.AdjacenciesIdentificationKey;
@@ -34,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.mapping.EidIdentificatorPair;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.adjacencies.identification.context.rev160801.adjacencies.identification.context.attributes.adjacencies.identification.contexts.adjacencies.identification.mappings.mapping.EidIdentificatorPairBuilder;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.MappingId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -63,7 +65,9 @@ public interface AdjacencyMappingContextTestHelper {
      */
     static KeyedInstanceIdentifier<Mapping, MappingKey> mappingIid(@Nonnull final String id,
                                                                    @Nonnull final String mappingContextName) {
-        return InstanceIdentifier.create(AdjacenciesIdentificationContexts.class).child(AdjacenciesIdentification.class,
+        return InstanceIdentifier.create(Contexts.class)
+                .augmentation(AdjacenciesIdentificationCtxAugmentation.class)
+                .child(AdjacenciesIdentificationContexts.class).child(AdjacenciesIdentification.class,
                 new AdjacenciesIdentificationKey(mappingContextName)).child(Mappings.class)
                 .child(Mapping.class, new MappingKey(id));
     }
