@@ -249,6 +249,7 @@ module lisp {
             description "vni";
         }
         container vrf-subtable {
+          presence "Enable L3 mapping";
           leaf table-id {
              type uint32;
              description "table-id";
@@ -259,6 +260,7 @@ module lisp {
           description "VRF subtable";
         }
         container bridge-domain-subtable {
+          presence "Enable L2 mapping";
           leaf bridge-domain-ref {
             type string;
             description "Name reference to existing bridge domain";
