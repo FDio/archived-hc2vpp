@@ -18,6 +18,10 @@ package io.fd.hc2vpp.v3po;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.common.translate.util.ReadTimeoutException;
+import io.fd.hc2vpp.common.translate.util.VppStatusListener;
+import io.fd.hc2vpp.v3po.cfgattrs.V3poConfiguration;
 import io.fd.hc2vpp.v3po.vppstate.BridgeDomainCustomizer;
 import io.fd.hc2vpp.v3po.vppstate.L2FibEntryCustomizer;
 import io.fd.hc2vpp.v3po.vppstate.VersionCustomizer;
@@ -26,9 +30,6 @@ import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.KeepaliveReaderWrapper;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.translate.util.ReadTimeoutException;
-import io.fd.hc2vpp.common.translate.util.VppStatusListener;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.ScheduledExecutorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppState;
@@ -49,6 +50,9 @@ public final class VppStateHoneycombReaderFactory implements ReaderFactory {
     private final NamingContext bdCtx;
     private final ScheduledExecutorService keepaliveExecutor;
     private final VppStatusListener vppStatusListener;
+
+    @Inject
+    private V3poConfiguration v3poConfiguration;
 
     @Inject
     public VppStateHoneycombReaderFactory(final FutureJVppCore jVpp,
@@ -73,7 +77,7 @@ public final class VppStateHoneycombReaderFactory implements ReaderFactory {
         // Relying on VersionCustomizer to provide a "timing out read"
         registry.add(new KeepaliveReaderWrapper<>(
                 new GenericReader<>(vppStateId.child(Version.class), new VersionCustomizer(jVpp)),
-                keepaliveExecutor, ReadTimeoutException.class, 30, vppStatusListener));
+                keepaliveExecutor, ReadTimeoutException.class, v3poConfiguration.getKeepaliveDelay(), vppStatusListener));
         //  BridgeDomains(Structural)
         final InstanceIdentifier<BridgeDomains> bridgeDomainsId = vppStateId.child(BridgeDomains.class);
         registry.addStructuralReader(bridgeDomainsId, BridgeDomainsBuilder.class);

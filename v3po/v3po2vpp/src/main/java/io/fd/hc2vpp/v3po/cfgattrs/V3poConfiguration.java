@@ -17,8 +17,16 @@
 package io.fd.hc2vpp.v3po.cfgattrs;
 
 import net.jmob.guice.conf.core.BindConfig;
+import net.jmob.guice.conf.core.InjectConfig;
 import net.jmob.guice.conf.core.Syntax;
 
 @BindConfig(value = "v3po", syntax = Syntax.JSON)
 public class V3poConfiguration {
+
+    @InjectConfig("keepalive-delay")
+    private String keepaliveDelay;
+
+    public int getKeepaliveDelay() {
+        return Integer.valueOf(this.keepaliveDelay);
+    }
 }
