@@ -19,6 +19,7 @@ package io.fd.hc2vpp.v3po;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -28,18 +29,19 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
+import io.fd.hc2vpp.v3po.cfgattrs.V3poConfiguration;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public class V3poModuleTest {
 
@@ -68,6 +70,9 @@ public class V3poModuleTest {
     @Inject
     private Set<WriterFactory> writerFactories = new HashSet<>();
 
+    @Inject
+    private V3poConfiguration configuration;
+
     @Before
     public void setUp() {
         initMocks(this);
@@ -92,5 +97,10 @@ public class V3poModuleTest {
         final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder();
         writerFactories.stream().forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
+    }
+
+    @Test
+    public void testConfiguration() {
+        assertEquals(30, configuration.getKeepaliveDelay());
     }
 }
