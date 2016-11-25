@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.lisp;
 
+
 import static io.fd.hc2vpp.lisp.cfgattrs.LispConfiguration.LOCAL_MAPPING_CONTEXT;
 import static io.fd.hc2vpp.lisp.cfgattrs.LispConfiguration.LOCATOR_SET_CONTEXT;
 import static io.fd.hc2vpp.lisp.cfgattrs.LispConfiguration.LOCATOR_SET_CONTEXT_PREFIX;
@@ -25,14 +26,20 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.cfgattrs.LispConfiguration;
 import io.fd.hc2vpp.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.hc2vpp.lisp.context.util.ContextsReaderFactoryProvider;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
+import io.fd.hc2vpp.lisp.translate.read.factory.EidTableReaderFactory;
 import io.fd.hc2vpp.lisp.translate.read.factory.LispStateReaderFactory;
+import io.fd.hc2vpp.lisp.translate.read.factory.LocatorSetReaderFactory;
+import io.fd.hc2vpp.lisp.translate.read.factory.MapResolverReaderFactory;
+import io.fd.hc2vpp.lisp.translate.write.factory.EidTableWriterFactory;
 import io.fd.hc2vpp.lisp.translate.write.factory.LispWriterFactory;
+import io.fd.hc2vpp.lisp.translate.write.factory.LocatorSetWriterFactory;
+import io.fd.hc2vpp.lisp.translate.write.factory.MapResolverWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import net.jmob.guice.conf.core.ConfigurationModule;
 import org.slf4j.Logger;
@@ -71,11 +78,17 @@ public class LispModule extends AbstractModule {
         LOG.info("Binding reader factories");
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readerFactoryBinder.addBinding().to(LispStateReaderFactory.class);
+        readerFactoryBinder.addBinding().to(EidTableReaderFactory.class);
+        readerFactoryBinder.addBinding().to(LocatorSetReaderFactory.class);
+        readerFactoryBinder.addBinding().to(MapResolverReaderFactory.class);
         LOG.info("Reader factories binded");
 
         LOG.info("Binding writer factories");
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writerFactoryBinder.addBinding().to(LispWriterFactory.class);
+        writerFactoryBinder.addBinding().to(EidTableWriterFactory.class);
+        writerFactoryBinder.addBinding().to(LocatorSetWriterFactory.class);
+        writerFactoryBinder.addBinding().to(MapResolverWriterFactory.class);
         LOG.info("Writer factories binded");
 
         final Multibinder<ReaderFactory> readerBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);

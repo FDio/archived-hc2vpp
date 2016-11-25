@@ -17,48 +17,31 @@
 package io.fd.hc2vpp.lisp.translate.read.factory;
 
 
+import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.read.InterfaceCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.LocatorSetCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.LocatorSetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
  * Produces reader for {@link LocatorSets} <br> and all its inhired child readers.
  */
-public class LocatorSetsReaderFactory extends AbstractLispReaderFactoryBase implements ReaderFactory {
+public class LocatorSetReaderFactory extends AbstractLispInfraFactoryBase implements ReaderFactory {
 
-
-    private LocatorSetsReaderFactory(final InstanceIdentifier<LispState> lispStateId,
-                                     final FutureJVppCore vppApi,
-                                     final NamingContext interfaceContext,
-                                     final NamingContext locatorSetContext) {
-        super(lispStateId, vppApi);
-        this.interfaceContext = interfaceContext;
-        this.locatorSetContext = locatorSetContext;
-    }
-
-    public static final LocatorSetsReaderFactory newInstance(@Nonnull final InstanceIdentifier<LispState> lispStateId,
-                                                             @Nonnull final FutureJVppCore vppApi,
-                                                             final NamingContext interfaceContext,
-                                                             @Nonnull final NamingContext locatorSetContext) {
-        return new LocatorSetsReaderFactory(lispStateId, vppApi, interfaceContext, locatorSetContext);
-    }
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        InstanceIdentifier<LocatorSets> locatorSetsInstanceIdentifier = lispStateId.child(LispFeatureData.class).child(LocatorSets.class);
+        InstanceIdentifier<LocatorSets> locatorSetsInstanceIdentifier =
+                LISP_OPERATIONAL_IDENTIFIER.child(LispFeatureData.class).child(LocatorSets.class);
         InstanceIdentifier<LocatorSet> locatorSetInstanceIdentifier =
                 locatorSetsInstanceIdentifier.child(LocatorSet.class);
 

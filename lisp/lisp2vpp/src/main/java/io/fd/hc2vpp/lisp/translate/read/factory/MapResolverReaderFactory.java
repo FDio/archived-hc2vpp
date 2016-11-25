@@ -17,39 +17,29 @@
 package io.fd.hc2vpp.lisp.translate.read.factory;
 
 
+import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.read.MapResolverCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.MapResolvers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.MapResolversBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.map.resolvers.MapResolver;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
  * Builds reader for {@link MapResolvers}<br> and all its inhired child readers
  */
-public class MapResolversReaderFactory extends AbstractLispReaderFactoryBase implements ReaderFactory {
-
-    private MapResolversReaderFactory(final InstanceIdentifier<LispState> lispStateId, final FutureJVppCore vppApi) {
-        super(lispStateId, vppApi);
-    }
-
-    public static MapResolversReaderFactory newInstance(@Nonnull final InstanceIdentifier<LispState> lispStateId,
-                                                        @Nonnull final FutureJVppCore vppApi) {
-        return new MapResolversReaderFactory(lispStateId, vppApi);
-    }
+public class MapResolverReaderFactory extends AbstractLispInfraFactoryBase implements ReaderFactory {
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
 
         InstanceIdentifier<MapResolvers> mapResolversInstanceIdentifier =
-                lispStateId.child(LispFeatureData.class).child(MapResolvers.class);
+                LISP_OPERATIONAL_IDENTIFIER.child(LispFeatureData.class).child(MapResolvers.class);
 
         registry.addStructuralReader(mapResolversInstanceIdentifier, MapResolversBuilder.class);
         registry.add(new GenericListReader<>(mapResolversInstanceIdentifier.child(MapResolver.class),
