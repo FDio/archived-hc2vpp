@@ -17,7 +17,7 @@ package io.fd.hc2vpp.vppioam.impl.oper;
 
 import com.google.common.collect.Lists;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.vppioam.impl.util.FutureJVppIoamCustomizer;
+import io.fd.hc2vpp.vppioam.impl.util.FutureJVppIoamtraceCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -37,13 +37,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TraceProfileReaderCustomizer extends FutureJVppIoamCustomizer
+public class TraceProfileReaderCustomizer extends FutureJVppIoamtraceCustomizer
         implements InitializingListReaderCustomizer<TraceConfig, TraceConfigKey, TraceConfigBuilder>, JvppReplyConsumer{
 
     private static final Logger LOG = LoggerFactory.getLogger(TraceProfileReaderCustomizer.class);
 
-    public TraceProfileReaderCustomizer(@Nonnull FutureJVppIoamtrace futureJVppIoam) {
-        super(futureJVppIoam);
+    public TraceProfileReaderCustomizer(@Nonnull FutureJVppIoamtrace futureJVppIoamtrace) {
+
+        super(futureJVppIoamtrace);
     }
 
     /**
@@ -88,7 +89,7 @@ public class TraceProfileReaderCustomizer extends FutureJVppIoamCustomizer
 
         LOG.debug("reading attribute for trace config {}",id);
         final TraceProfileShowConfig request = new TraceProfileShowConfig();
-        TraceProfileShowConfigReply reply = getReplyForRead(getFutureJVppIoam().traceProfileShowConfig(request)
+        TraceProfileShowConfigReply reply = getReplyForRead(getFutureJVppIoamtrace().traceProfileShowConfig(request)
                 .toCompletableFuture(),id);
         if(reply == null) {
             LOG.debug("{} returned null as reply from vpp",id);

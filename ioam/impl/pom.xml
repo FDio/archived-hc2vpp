@@ -94,6 +94,11 @@
         <version>${ioam.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.fd.vpp</groupId>
+      <artifactId>jvpp-ioam-pot</artifactId>
+      <version>${ioam.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.fd.hc2vpp.common</groupId>
       <artifactId>vpp-translate-utils</artifactId>
       <version>${project.version}</version>

@@ -16,14 +16,6 @@
 
 package io.fd.hc2vpp.vppioam.impl;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -34,15 +26,24 @@ import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuild
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import java.util.HashSet;
-import java.util.Set;
+import io.fd.vpp.jvpp.JVppRegistry;
+import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampotFacade;
+import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
-import io.fd.vpp.jvpp.JVppRegistry;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 
 public class VppIoamModuleTest {
@@ -72,7 +73,7 @@ public class VppIoamModuleTest {
 
         initMocks(this);
 
-        Guice.createInjector(new VppIoamModule(MockJVppIoamProvider.class), BoundFieldModule.of(this)).injectMembers(this);
+        Guice.createInjector(new VppIoamModule(MockJVppIoamTraceProvider.class,MockJVppIoamPotProvider.class), BoundFieldModule.of(this)).injectMembers(this);
     }
 
     @Test
@@ -94,12 +95,18 @@ public class VppIoamModuleTest {
         assertNotNull(registryBuilder.build());
     }
 
-
-    private static final class MockJVppIoamProvider implements Provider<FutureJVppIoamtraceFacade> {
-
+    private static final class MockJVppIoamTraceProvider implements Provider<FutureJVppIoamtraceFacade> {
         @Override
         public FutureJVppIoamtraceFacade get() {
             return mock(FutureJVppIoamtraceFacade.class);
+        }
+    }
+
+    private static final class MockJVppIoamPotProvider implements Provider<FutureJVppIoampotFacade> {
+
+        @Override
+        public FutureJVppIoampotFacade get() {
+            return mock(FutureJVppIoampotFacade.class);
         }
     }
 }

@@ -18,20 +18,21 @@ package io.fd.hc2vpp.vppioam.impl.util;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.infra.distro.ProviderTrait;
-import java.io.IOException;
 import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import io.fd.vpp.jvpp.ioamtrace.JVppIoamtraceImpl;
+import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * Provides future API for jvpp-ioam plugin. Must be a singleton due to shutdown hook usage.
  * Registers shutdown hook to free plugin's resources on shutdown.
  */
-public final class JVppIoamProvider extends ProviderTrait<FutureJVppIoamtraceFacade> {
+public final class JVppIoamTraceProvider extends ProviderTrait<FutureJVppIoamtraceFacade> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JVppIoamProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JVppIoamTraceProvider.class);
 
     @Inject
     private JVppRegistry registry;
@@ -44,13 +45,13 @@ public final class JVppIoamProvider extends ProviderTrait<FutureJVppIoamtraceFac
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
-                    LOG.info("Unloading jvpp-ioam plugin");
+                    LOG.info("Unloading jvpp-ioam-trace plugin");
                     jVppIoamTr.close();
-                    LOG.info("Successfully unloaded jvpp-ioam plugin");
+                    LOG.info("Successfully unloaded jvpp-ioam-trace plugin");
                 }
             });
 
-            LOG.info("Successfully loaded jvpp-ioam plugin");
+            LOG.info("Successfully loaded jvpp-ioam-trace plugin");
             return new FutureJVppIoamtraceFacade(registry, jVppIoamTr);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to open VPP management connection", e);

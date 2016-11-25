@@ -20,11 +20,14 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import io.fd.hc2vpp.vppioam.impl.config.VppIoamWriterFactory;
 import io.fd.hc2vpp.vppioam.impl.oper.VppIoamReaderFactory;
-import io.fd.hc2vpp.vppioam.impl.util.JVppIoamProvider;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.hc2vpp.vppioam.impl.config.VppIoamWriterFactory;
+import io.fd.hc2vpp.vppioam.impl.util.JVppIoamPotProvider;
+import io.fd.hc2vpp.vppioam.impl.util.JVppIoamTraceProvider;
+import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
+import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampotFacade;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import org.slf4j.Logger;
@@ -36,28 +39,32 @@ import org.slf4j.LoggerFactory;
 public final class VppIoamModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppIoamModule.class);
-    private final Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamProviderClass;
+    private final Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamTraceProviderClass;
+    private final Class<? extends Provider<FutureJVppIoampotFacade>> jvppIoamPotProviderClass;
 
     public VppIoamModule() {
-        this(JVppIoamProvider.class);
+        this(JVppIoamTraceProvider.class, JVppIoamPotProvider.class);
     }
 
     @VisibleForTesting
-    VppIoamModule(Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamProvider) {
-        this.jvppIoamProviderClass = jvppIoamProvider;
+    VppIoamModule(Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamTraceProvider,
+                  Class<? extends Provider<FutureJVppIoampotFacade>> jvppIoamPotProviderClass) {
+        this.jvppIoamTraceProviderClass = jvppIoamTraceProvider;
+        this.jvppIoamPotProviderClass = jvppIoamPotProviderClass;
     }
 
     @Override
     protected void configure() {
-        LOG.debug("Installing iOAM module");
+        LOG.info("Installing iOAM module");
 
         // Bind to Plugin's JVPP.
-        bind(FutureJVppIoamtrace.class).toProvider(jvppIoamProviderClass).in(Singleton.class);
+        bind(FutureJVppIoamtrace.class).toProvider(jvppIoamTraceProviderClass).in(Singleton.class);
+        bind(FutureJVppIoampot.class).toProvider(jvppIoamPotProviderClass).in(Singleton.class);
 
         // Below are classes picked up by HC framework
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(VppIoamWriterFactory.class);
         Multibinder.newSetBinder(binder(), ReaderFactory.class).addBinding().to(VppIoamReaderFactory.class);
 
-        LOG.debug("Module iOAM successfully configured");
+        LOG.info("Module iOAM successfully configured");
     }
 }

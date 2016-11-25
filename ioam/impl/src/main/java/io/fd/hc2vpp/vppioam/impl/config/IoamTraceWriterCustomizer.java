@@ -15,29 +15,20 @@
  */
 package io.fd.hc2vpp.vppioam.impl.config;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
-import io.fd.hc2vpp.vppioam.impl.util.FutureJVppIoamCustomizer;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.vppioam.impl.util.FutureJVppIoamtraceCustomizer;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-
 import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileAdd;
 import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileAddReply;
 import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileDel;
 import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileDelReply;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
-
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfig;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfig;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfig.TraceOp;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.trace.config.NodeInterfaces;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfigKey;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.trace.config.NodeInterfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +36,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Writer customizer responsible for Ioam Trace create/delete.
  */
-public class IoamTraceWriterCustomizer extends FutureJVppIoamCustomizer
+public class IoamTraceWriterCustomizer extends FutureJVppIoamtraceCustomizer
         implements ListWriterCustomizer<TraceConfig, TraceConfigKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(IoamTraceWriterCustomizer.class);
 
-    public IoamTraceWriterCustomizer(@Nonnull final FutureJVppIoamtrace futureJVppIoam) {
-        super(futureJVppIoam);
+    public IoamTraceWriterCustomizer(@Nonnull FutureJVppIoamtrace futureJVppIoamtrace) {
+        super(futureJVppIoamtrace);
     }
 
     @Override
@@ -61,7 +52,7 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamCustomizer
             throws WriteFailedException {
 
         try {
-            addTraceConfig(dataCurr, writeContext, id);
+            addTraceConfig(dataCurr, id);
         } catch (Exception exCreate) {
             LOG.error("Add Trace Configuration failed", exCreate);
             throw new WriteFailedException.CreateFailedException(id, dataCurr, exCreate);
@@ -77,7 +68,7 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamCustomizer
                                         @Nonnull final WriteContext ctx) throws WriteFailedException {
         try {
             deleteTraceConfig(dataBefore, id);
-            addTraceConfig(dataAfter, ctx, id);
+            addTraceConfig(dataAfter, id);
         } catch (Exception exUpdate) {
             LOG.error("Update Trace Configuration failed", exUpdate);
             throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter, exUpdate);
@@ -101,18 +92,17 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamCustomizer
     }
 
     public TraceProfileAddReply addTraceConfig(TraceConfig traceConfig,
-                                               WriteContext ctx,
                                                final InstanceIdentifier<TraceConfig> id) throws Exception {
 
         TraceProfileAdd traceProfileAdd = new TraceProfileAdd();
-        traceProfileAdd.traceType = (byte) traceConfig.getTraceType().byteValue(); //trace type
-        traceProfileAdd.numElts = (byte) traceConfig.getTraceNumElt().byteValue();  //num of elts
+        traceProfileAdd.traceType = traceConfig.getTraceType().byteValue(); //trace type
+        traceProfileAdd.numElts = traceConfig.getTraceNumElt().byteValue();  //num of elts
         traceProfileAdd.traceTsp = (byte) traceConfig.getTraceTsp().getIntValue(); // tsp
-        traceProfileAdd.appData = (int) traceConfig.getTraceAppData().intValue(); // appdata
-        traceProfileAdd.nodeId = (int) traceConfig.getNodeId().intValue(); // nodeid
+        traceProfileAdd.appData = traceConfig.getTraceAppData().intValue(); // appdata
+        traceProfileAdd.nodeId = traceConfig.getNodeId().intValue(); // nodeid
 
         /* Write to VPP */
-        final TraceProfileAddReply reply = getReplyForWrite((getFutureJVppIoam().
+        final TraceProfileAddReply reply = getReplyForWrite((getFutureJVppIoamtrace().
                                                             traceProfileAdd(traceProfileAdd).
                                                             toCompletableFuture()), id);
         return reply;
@@ -123,7 +113,7 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamCustomizer
         TraceProfileDel del = new TraceProfileDel();
 
         /* Write to VPP */
-        TraceProfileDelReply reply = getReplyForWrite((getFutureJVppIoam().
+        TraceProfileDelReply reply = getReplyForWrite((getFutureJVppIoamtrace().
                                                       traceProfileDel(del).toCompletableFuture()), id);
 
         return reply;

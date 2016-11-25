@@ -38,13 +38,12 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.r
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfigKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-
 public class IoamTraceWriterCustomizerTest extends WriterCustomizerTest {
 
     private static final String TRACE_NAME = "trace_test";
 
     @Mock
-    protected FutureJVppIoamtrace jvppIoam;
+    protected FutureJVppIoamtrace jvppIoamtrace;
 
     private IoamTraceWriterCustomizer customizer;
 
@@ -53,12 +52,12 @@ public class IoamTraceWriterCustomizerTest extends WriterCustomizerTest {
         builder.setTraceConfigName(name);
         builder.setKey(new TraceConfigKey(name));
         builder.setAclName(name);
-        builder.setTraceType(new Short("31"));
-        builder.setTraceNumElt(new Short("4"));
+        builder.setTraceType(Short.valueOf("31"));
+        builder.setTraceNumElt(Short.valueOf("4"));
         builder.setTraceTsp(TraceTsp.Milliseconds);
         builder.setTraceOp(TraceOp.Add);
-        builder.setTraceAppData(new Long("123"));
-        builder.setNodeId(new Long("1"));
+        builder.setTraceAppData(Long.valueOf("123"));
+        builder.setNodeId(Long.valueOf("1"));
 
         return builder.build();
     }
@@ -87,27 +86,27 @@ public class IoamTraceWriterCustomizerTest extends WriterCustomizerTest {
 
     @Override
     public void setUpTest() throws Exception {
-        customizer = new IoamTraceWriterCustomizer(jvppIoam);
+        customizer = new IoamTraceWriterCustomizer(jvppIoamtrace);
     }
 
     private void whenTraceAddThenSuccess() {
         final TraceProfileAddReply reply = new TraceProfileAddReply();
         reply.context = 1;
-        doReturn(future(reply)).when(jvppIoam).traceProfileAdd(any(TraceProfileAdd.class));
+        doReturn(future(reply)).when(jvppIoamtrace).traceProfileAdd(any(TraceProfileAdd.class));
     }
 
     private void whenTraceAddThenFailure() {
-        doReturn(failedFuture()).when(jvppIoam).traceProfileAdd(any(TraceProfileAdd.class));
+        doReturn(failedFuture()).when(jvppIoamtrace).traceProfileAdd(any(TraceProfileAdd.class));
     }
 
     private void whenTraceDelThenSuccess() {
         final TraceProfileDelReply reply = new TraceProfileDelReply();
         reply.context = 1;
-        doReturn(future(reply)).when(jvppIoam).traceProfileDel(any(TraceProfileDel.class));
+        doReturn(future(reply)).when(jvppIoamtrace).traceProfileDel(any(TraceProfileDel.class));
     }
 
     private void whenTraceDelThenFailure() {
-        doReturn(failedFuture()).when(jvppIoam).traceProfileDel(any(TraceProfileDel.class));
+        doReturn(failedFuture()).when(jvppIoamtrace).traceProfileDel(any(TraceProfileDel.class));
     }
 
     @Test
@@ -119,7 +118,7 @@ public class IoamTraceWriterCustomizerTest extends WriterCustomizerTest {
 
         customizer.writeCurrentAttributes(id, traceConfig, writeContext);
 
-        verify(jvppIoam).traceProfileAdd(generateTraceProfileAdd());
+        verify(jvppIoamtrace).traceProfileAdd(generateTraceProfileAdd());
     }
 
     @Test
@@ -133,7 +132,7 @@ public class IoamTraceWriterCustomizerTest extends WriterCustomizerTest {
             customizer.writeCurrentAttributes(id, traceConfig, writeContext);
         } catch (WriteFailedException e) {
             //assertTrue(e.getCause() instanceof VppBaseCallException);
-            verify(jvppIoam).traceProfileAdd(generateTraceProfileAdd());
+            verify(jvppIoamtrace).traceProfileAdd(generateTraceProfileAdd());
 
             return;
         }
@@ -150,7 +149,7 @@ public class IoamTraceWriterCustomizerTest extends WriterCustomizerTest {
 
         customizer.deleteCurrentAttributes(id, traceConfig, writeContext);
 
-        verify(jvppIoam).traceProfileDel(generateTraceProfileDel());
+        verify(jvppIoamtrace).traceProfileDel(generateTraceProfileDel());
     }
 
     @Test
@@ -165,7 +164,7 @@ public class IoamTraceWriterCustomizerTest extends WriterCustomizerTest {
             customizer.deleteCurrentAttributes(id, traceConfig, writeContext);
         } catch (WriteFailedException e) {
             //assertTrue(e.getCause() instanceof VppBaseCallException);
-            verify(jvppIoam).traceProfileDel(generateTraceProfileDel());
+            verify(jvppIoamtrace).traceProfileDel(generateTraceProfileDel());
 
             return;
         }

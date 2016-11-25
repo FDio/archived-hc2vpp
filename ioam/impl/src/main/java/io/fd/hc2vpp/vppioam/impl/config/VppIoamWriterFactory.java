@@ -20,27 +20,40 @@ import com.google.inject.Inject;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import javax.annotation.Nonnull;
+import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
+import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfig;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfig;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.PotProfiles;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profiles.PotProfileSet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
+
+import javax.annotation.Nonnull;
 
 public class VppIoamWriterFactory implements WriterFactory {
 
     @Nonnull
-    private final FutureJVppIoamtrace jvppIoam;
+    private final FutureJVppIoamtrace jVppIoamtrace;
+    @Nonnull
+    private final FutureJVppIoampot jVppIoampot;
 
     @Inject
-    public VppIoamWriterFactory(@Nonnull final FutureJVppIoamtrace jvppIoam) {
-        this.jvppIoam = jvppIoam;
+    public VppIoamWriterFactory(@Nonnull final FutureJVppIoamtrace jVppIoamtrace,
+                                @Nonnull final FutureJVppIoampot jVppIoampot) {
+        this.jVppIoamtrace = jVppIoamtrace;
+        this.jVppIoampot = jVppIoampot;
     }
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
-        // TraceConfig
+        // Trace Config
         final InstanceIdentifier<TraceConfig> trId =
                 InstanceIdentifier.create(IoamTraceConfig.class).child(TraceConfig.class);
-        registry.add(new GenericListWriter<>(trId, new IoamTraceWriterCustomizer(jvppIoam)));
+        registry.add(new GenericListWriter<>(trId, new IoamTraceWriterCustomizer(jVppIoamtrace)));
+        // POT Config
+        final InstanceIdentifier<PotProfileSet> potId =
+                InstanceIdentifier.create(PotProfiles.class).child(PotProfileSet.class);
+        registry.add(new GenericListWriter<>(potId, new IoamPotWriterCustomizer(jVppIoampot)));
+
     }
 }

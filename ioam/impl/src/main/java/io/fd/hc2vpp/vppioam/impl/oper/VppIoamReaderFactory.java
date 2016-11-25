@@ -32,6 +32,7 @@ public class VppIoamReaderFactory implements ReaderFactory {
 
     @Inject
     VppIoamReaderFactory(FutureJVppIoamtrace jVppIoamtrace){
+
         this.jVppIoamtrace = jVppIoamtrace;
     }
 
@@ -49,6 +50,7 @@ public class VppIoamReaderFactory implements ReaderFactory {
 
         //TraceConfig
         final InstanceIdentifier<TraceConfig> traceConfigId = ioamTraceConfigId.child(TraceConfig.class);
-        registry.add(new GenericInitListReader<>(traceConfigId,new TraceProfileReaderCustomizer(jVppIoamtrace)));
+        registry.add(new GenericInitListReader<>(traceConfigId,
+                new TraceProfileReaderCustomizer(jVppIoamtrace)));
     }
 }

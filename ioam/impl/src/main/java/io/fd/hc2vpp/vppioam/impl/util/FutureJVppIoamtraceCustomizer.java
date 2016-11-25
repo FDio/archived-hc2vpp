@@ -25,21 +25,21 @@ import javax.annotation.Nonnull;
  * Abstract utility to hold the IoamApi reference.
  */
 @Beta
-public abstract class FutureJVppIoamCustomizer {
+public abstract class FutureJVppIoamtraceCustomizer {
 
-    private final FutureJVppIoamtrace futureJVppIoam;
+    private final FutureJVppIoamtrace futureJVppIoamtrace;
 
-    public FutureJVppIoamCustomizer(@Nonnull final FutureJVppIoamtrace futureJVppIoam) {
-        this.futureJVppIoam = Preconditions.checkNotNull(futureJVppIoam,
-                                  "futureJVppIoam should not be null");
+    public FutureJVppIoamtraceCustomizer(@Nonnull final FutureJVppIoamtrace futureJVppIoamtrace) {
+        this.futureJVppIoamtrace = Preconditions.checkNotNull(futureJVppIoamtrace,
+                                  "futureJVppIoamtrace should not be null");
     }
 
     /**
-     * Get IoamApi reference
+     * Get Ioam Trace Api reference
      *
-     * @return IoamApi reference
+     * @return Ioam trace Api reference
      */
-    public FutureJVppIoamtrace getFutureJVppIoam() {
-        return futureJVppIoam;
+    public FutureJVppIoamtrace getFutureJVppIoamtrace() {
+        return futureJVppIoamtrace;
     }
 }
