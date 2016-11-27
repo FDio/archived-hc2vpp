@@ -50,7 +50,7 @@
       <artifactId>yang-ext</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.fd.honeycomb.v3po</groupId>
+      <groupId>io.fd.hc2vpp.v3po</groupId>
       <artifactId>v3po-api</artifactId>
       <version>${project.version}</version>
     </dependency>

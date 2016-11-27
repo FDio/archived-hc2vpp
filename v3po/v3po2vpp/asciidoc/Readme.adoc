@@ -32,7 +32,7 @@ Current order of v3po-api writers is:
 
 To find out current order in runtime, turn on logging for writer registry:
 
-  log:set TRACE io.fd.honeycomb.v3po.translate.util.write.registry
+  log:set TRACE io.fd.hc2vpp.v3po.translate.util.write.registry
 
 === Readers
 There is not a strict order for readers, but current configuration produces approx. this order:
