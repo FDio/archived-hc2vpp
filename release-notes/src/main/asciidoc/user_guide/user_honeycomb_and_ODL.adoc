@@ -12,7 +12,7 @@ Issues with Honeycomb and ODL integration
 
 If ODL fails to open ssh session due to InvalidAlgorithmParameterException, e.g.:
 
-[srouce]
+[source]
 ====
 2016-09-13 13:52:34,852 | WARN  | NioProcessor-3   | ClientSessionImpl | 180 -
 org.apache.sshd.core - 0.14.0 | Exception caught
