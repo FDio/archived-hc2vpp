@@ -1,11 +1,11 @@
-module vpp-acl {
+module vpp-classfier-acl {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:acl";
-  prefix "vpp-acl";
+  namespace "urn:opendaylight:params:xml:ns:yang:vpp:classfier:acl";
+  prefix "vpp-classfier-acl";
 
   revision "2016-12-14" {
     description
-      "Initial revision of vpp-acl model.";
+      "Initial revision of vpp-classfier-acl model.";
   }
 
   import ietf-access-control-list {
@@ -138,7 +138,7 @@ module vpp-acl {
   }
 
   augment /acl:access-lists/acl:acl/acl:access-list-entries/acl:ace/acl:matches/acl:ace-type {
-    ext:augment-identifier "vpp-acl-type-augmentation";
+    ext:augment-identifier "vpp-classfier-acl-type-augmentation";
     case ace-ip-and-eth {
       description
         "Access List entry that can define both ip and eth rules.";

@@ -36,8 +36,8 @@ module v3po {
   import yang-ext {
     prefix "ext";
   }
-  import vpp-acl {
-    prefix "vpp-acl";
+  import vpp-classfier-acl {
+    prefix "vpp-classfier-acl";
   }
 
   typedef bridge-domain-ref {
@@ -518,19 +518,19 @@ module v3po {
 
     container acl {
       container ingress {
-        uses vpp-acl:acl-base-attributes;
+        uses vpp-classfier-acl:acl-base-attributes;
       }
       container egress {
-        uses vpp-acl:acl-base-attributes;
+        uses vpp-classfier-acl:acl-base-attributes;
       }
     }
 
     container ietf-acl {
       container ingress {
-        uses vpp-acl:ietf-acl-base-attributes;
+        uses vpp-classfier-acl:ietf-acl-base-attributes;
       }
       container egress {
-        uses vpp-acl:ietf-acl-base-attributes;
+        uses vpp-classfier-acl:ietf-acl-base-attributes;
       }
     }
 
@@ -613,19 +613,19 @@ module v3po {
 
     container acl {
       container ingress {
-        uses vpp-acl:acl-base-attributes;
+        uses vpp-classfier-acl:acl-base-attributes;
       }
       container egress {
-        uses vpp-acl:acl-base-attributes;
+        uses vpp-classfier-acl:acl-base-attributes;
       }
     }
 
     container ietf-acl {
       container ingress {
-        uses vpp-acl:ietf-acl-base-attributes;
+        uses vpp-classfier-acl:ietf-acl-base-attributes;
       }
       container egress {
-        uses vpp-acl:ietf-acl-base-attributes;
+        uses vpp-classfier-acl:ietf-acl-base-attributes;
       }
     }
 

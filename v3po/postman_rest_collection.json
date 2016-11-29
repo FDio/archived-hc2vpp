@@ -1736,7 +1736,7 @@
 		{
 			"id": "9f58c827-d698-fc60-ec49-c2ccbca97c35",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-access-control-list:access-lists/acl/vpp-acl:mixed-acl/acl5",
+			"url": "http://localhost:8183/restconf/config/ietf-access-control-list:access-lists/acl/vpp-classfier-acl:mixed-acl/acl5",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -1751,13 +1751,13 @@
 			"description": "",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\r\n        \"acl\": [\r\n            {\r\n                \"acl-type\": \"vpp-acl:mixed-acl\",\r\n                \"acl-name\": \"acl5\",\r\n                \"access-list-entries\": {\r\n                    \"ace\": [\r\n                        {\r\n                            \"rule-name\": \"rule1(ip4+mac)\",\r\n                            \"matches\": {\r\n                                \"vpp-acl:destination-mac-address\": \"AA:BB:CC:DD:00:00\",\r\n                                \"vpp-acl:destination-mac-address-mask\": \"FF:FF:FF:FF:00:00\",\r\n                                \"vpp-acl:source-mac-address\": \"00:00:00:00:AA:BB\",\r\n                                \"vpp-acl:source-mac-address-mask\": \"00:00:00:00:FF:FF\",\r\n                                \"vpp-acl:destination-ipv4-network\": \"1.2.3.1/24\",\r\n                                \"vpp-acl:protocol\": \"4\",\r\n                                \"vpp-acl:dscp\": \"11\",\r\n                                \"vpp-acl:source-ipv4-network\": \"1.2.4.2/24\"\r\n                            },\r\n                            \"actions\": {\r\n                                \"deny\": {}\r\n                            }\r\n                        },\r\n                        {\r\n                            \"rule-name\": \"rule2(ip4+mac)\",\r\n                            \"matches\": {\r\n                                \"vpp-acl:source-mac-address\": \"01:02:03:04:05:06\",\r\n                                \"vpp-acl:destination-ipv4-network\": \"1.1.1.1/16\",\r\n                                \"vpp-acl:protocol\": \"4\",\r\n                                \"vpp-acl:dscp\": \"63\",\r\n                                \"vpp-acl:source-ipv4-network\": \"2.2.2.2/32\"\r\n                            },\r\n                            \"actions\": {\r\n                                \"deny\": {}\r\n                            }\r\n                        },\r\n                        {\r\n                            \"rule-name\": \"rule3(ip6+mac)\",\r\n                            \"matches\": {\r\n                                \"vpp-acl:destination-mac-address\": \"11:22:33:44:55:66\",\r\n                                \"vpp-acl:destination-ipv6-network\": \"1111:2222:3333:4444:5555:6666:7777:8888/64\"\r\n                            },\r\n                            \"actions\": {\r\n                                \"deny\": {}\r\n                            }\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n}",
+			"rawModeData": "{\r\n        \"acl\": [\r\n            {\r\n                \"acl-type\": \"vpp-classfier-acl:mixed-acl\",\r\n                \"acl-name\": \"acl5\",\r\n                \"access-list-entries\": {\r\n                    \"ace\": [\r\n                        {\r\n                            \"rule-name\": \"rule1(ip4+mac)\",\r\n                            \"matches\": {\r\n                                \"vpp-classfier-acl:destination-mac-address\": \"AA:BB:CC:DD:00:00\",\r\n                                \"vpp-classfier-acl:destination-mac-address-mask\": \"FF:FF:FF:FF:00:00\",\r\n                                \"vpp-classfier-acl:source-mac-address\": \"00:00:00:00:AA:BB\",\r\n                                \"vpp-classfier-acl:source-mac-address-mask\": \"00:00:00:00:FF:FF\",\r\n                                \"vpp-classfier-acl:destination-ipv4-network\": \"1.2.3.1/24\",\r\n                                \"vpp-classfier-acl:protocol\": \"4\",\r\n                                \"vpp-classfier-acl:dscp\": \"11\",\r\n                                \"vpp-classfier-acl:source-ipv4-network\": \"1.2.4.2/24\"\r\n                            },\r\n                            \"actions\": {\r\n                                \"deny\": {}\r\n                            }\r\n                        },\r\n                        {\r\n                            \"rule-name\": \"rule2(ip4+mac)\",\r\n                            \"matches\": {\r\n                                \"vpp-classfier-acl:source-mac-address\": \"01:02:03:04:05:06\",\r\n                                \"vpp-classfier-acl:destination-ipv4-network\": \"1.1.1.1/16\",\r\n                                \"vpp-classfier-acl:protocol\": \"4\",\r\n                                \"vpp-classfier-acl:dscp\": \"63\",\r\n                                \"vpp-classfier-acl:source-ipv4-network\": \"2.2.2.2/32\"\r\n                            },\r\n                            \"actions\": {\r\n                                \"deny\": {}\r\n                            }\r\n                        },\r\n                        {\r\n                            \"rule-name\": \"rule3(ip6+mac)\",\r\n                            \"matches\": {\r\n                                \"vpp-classfier-acl:destination-mac-address\": \"11:22:33:44:55:66\",\r\n                                \"vpp-classfier-acl:destination-ipv6-network\": \"1111:2222:3333:4444:5555:6666:7777:8888/64\"\r\n                            },\r\n                            \"actions\": {\r\n                                \"deny\": {}\r\n                            }\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n}",
 			"folder": "c05d7211-11b0-5688-2079-afa51196045c"
 		},
 		{
 			"id": "93b5345a-434f-9459-26c2-dc2cad9176e0",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-access-control-list:access-lists/acl/vpp-acl:mixed-acl/acl6",
+			"url": "http://localhost:8183/restconf/config/ietf-access-control-list:access-lists/acl/vpp-classfier-acl:mixed-acl/acl6",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -1772,7 +1772,7 @@
 			"description": "Deny any traffic where destination port is 80 and source port in range [1000,2000].",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\n\t\"acl\": [\n\t\t{\n\t\t\t\"acl-name\": \"acl6\", \n\t\t\t\"acl-type\": \"vpp-acl:mixed-acl\", \n\t\t\t\"access-list-entries\": {\n\t\t\t\t\"ace\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"matches\": {\n                            \"destination-ipv4-network\": \"0.0.0.0/0\",\n\t\t\t\t\t\t\t\"destination-port-range\": {\n\t\t\t\t\t\t\t\t\"lower-port\": 80\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t}, \n\t\t\t\t\t\t\t\"source-port-range\": {\n\t\t\t\t\t\t\t\t\"lower-port\": 1000,\n\t\t\t\t\t\t\t\t\"upper-port\": 2000\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}, \n\t\t\t\t\t\t\"actions\": {\n\t\t\t\t\t\t\t\"deny\": {}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"rule-name\": \"rule1\"\n\t\t\t\t\t}]}}]}\n",
+			"rawModeData": "{\n\t\"acl\": [\n\t\t{\n\t\t\t\"acl-name\": \"acl6\", \n\t\t\t\"acl-type\": \"vpp-classfier-acl:mixed-acl\", \n\t\t\t\"access-list-entries\": {\n\t\t\t\t\"ace\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"matches\": {\n                            \"destination-ipv4-network\": \"0.0.0.0/0\",\n\t\t\t\t\t\t\t\"destination-port-range\": {\n\t\t\t\t\t\t\t\t\"lower-port\": 80\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t}, \n\t\t\t\t\t\t\t\"source-port-range\": {\n\t\t\t\t\t\t\t\t\"lower-port\": 1000,\n\t\t\t\t\t\t\t\t\"upper-port\": 2000\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}, \n\t\t\t\t\t\t\"actions\": {\n\t\t\t\t\t\t\t\"deny\": {}\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"rule-name\": \"rule1\"\n\t\t\t\t\t}]}}]}\n",
 			"folder": "c05d7211-11b0-5688-2079-afa51196045c"
 		},
 		{
@@ -1862,7 +1862,7 @@
 		{
 			"id": "13b938a5-7a53-513f-44b9-33d869b8cb53",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/ietf-acl/ingress/access-lists/acl/vpp-acl:mixed-acl/acl5",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/ietf-acl/ingress/access-lists/acl/vpp-classfier-acl:mixed-acl/acl5",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -1877,13 +1877,13 @@
 			"description": "Creates chain of classfy tabless/sessions in VPP and assigns them to local0 interface.\n\nCan be verified with:\nvppctl show classify table verbose\n\nthen (depending on acl mode):\n\nvppctl show inacl type l2\n\nor\n\nvppctl show inacl type ip4\n\nvppctl show inacl type ip6",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\n\n    \"acl\": [\n        {\n            \"type\" : \"vpp-acl:mixed-acl\",\n            \"name\" : \"acl5\"\n        }\n    ]\n}",
+			"rawModeData": "{\n\n    \"acl\": [\n        {\n            \"type\" : \"vpp-classfier-acl:mixed-acl\",\n            \"name\" : \"acl5\"\n        }\n    ]\n}",
 			"folder": "c05d7211-11b0-5688-2079-afa51196045c"
 		},
 		{
 			"id": "bca26b70-fe05-a1b4-f93a-1f683341d492",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/ietf-acl/ingress/access-lists/acl/vpp-acl:mixed-acl/acl6",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/ietf-acl/ingress/access-lists/acl/vpp-classfier-acl:mixed-acl/acl6",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -1898,7 +1898,7 @@
 			"description": "Creates chain of classfy tabless/sessions in VPP and assigns them to local0 interface.\n\nCan be verified with:\nvppctl show classify table verbose\n\nthen (depending on acl mode):\n\nvppctl show inacl type l2\n\nor\n\nvppctl show inacl type ip4\n\nvppctl show inacl type ip6",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\n\n    \"acl\": [\n        {\n            \"type\" : \"vpp-acl:mixed-acl\",\n            \"name\" : \"acl6\"\n        }\n    ]\n}",
+			"rawModeData": "{\n\n    \"acl\": [\n        {\n            \"type\" : \"vpp-classfier-acl:mixed-acl\",\n            \"name\" : \"acl6\"\n        }\n    ]\n}",
 			"folder": "c05d7211-11b0-5688-2079-afa51196045c"
 		},
 		{
