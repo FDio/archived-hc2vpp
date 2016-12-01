@@ -13,7 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
@@ -35,12 +36,14 @@
     <vppnsh.version>1.16.12-SNAPSHOT</vppnsh.version>
     <nat.version>1.16.12-SNAPSHOT</nat.version>
     <ioam.version>1.16.12-SNAPSHOT</ioam.version>
+    <routing.version>1.16.12-SNAPSHOT</routing.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
       io.fd.hc2vpp.lisp.LispModule,
       io.fd.hc2vpp.v3po.V3poModule,
       io.fd.hc2vpp.nat.NatModule,
+      io.fd.hc2vpp.routing.RoutingModule,
       // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
       // io.fd.hc2vpp.vppioam.impl.VppIoamModule
@@ -96,6 +99,11 @@
       <groupId>io.fd.hc2vpp.nat</groupId>
       <artifactId>nat2vpp</artifactId>
       <version>${nat.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.routing</groupId>
+      <artifactId>routing-impl</artifactId>
+      <version>${routing.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.ioam</groupId>

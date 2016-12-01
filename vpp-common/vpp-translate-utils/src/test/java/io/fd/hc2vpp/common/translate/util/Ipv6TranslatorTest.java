@@ -51,4 +51,11 @@ public class Ipv6TranslatorTest implements Ipv6Translator {
     public void testExtractPrefix() {
         assertEquals(48, extractPrefix(new Ipv6Prefix("3ffe:1900:4545:3:200:f8ff:fe21:67cf/48")));
     }
+
+    @Test
+    public void toPrefix() {
+        assertEquals("2001:db8:a0b:12f0:0:0:0:1/48",
+                toIpv6Prefix(new byte[]{32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1},
+                        (byte) 48).getValue());
+    }
 }

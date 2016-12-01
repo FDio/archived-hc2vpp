@@ -1,0 +1,109 @@
+{
+  "routing-state": {
+    "routing-instance": {
+      "name": "routing-3",
+      "router-id": "192.168.2.1",
+      "routing-protocols": {
+        "routing-protocol": [
+          {
+            "name": "test-routing-protocol",
+            "type": "static",
+            "vpp-protocol-state-attributes": {
+              "primary-vrf": "1"
+            },
+            "static-routes": {
+              "ipv4": {
+                "route": [
+                  {
+                    "id": 1,
+                    "destination-prefix": "192.168.2.3/32",
+                    "next-hop": "192.168.2.8",
+                    "outgoing-interface": "local0",
+                    "vpp-ipv4-route-state": {
+                      "secondary-vrf": "1"
+                    }
+                  },
+                  {
+                    "id": 2,
+                    "destination-prefix": "192.168.2.4/32",
+                    "vpp-ipv4-route-state": {
+                      "secondary-vrf": "1"
+                    },
+                    "next-hop-list": {
+                      "next-hop": [
+                        {
+                          "id": "1",
+                          "address": "192.168.2.5",
+                          "outgoing-interface": "local0",
+                          "weight": "1"
+                        },
+                        {
+                          "id": "2",
+                          "address": "192.168.2.6",
+                          "outgoing-interface": "local0",
+                          "weight": "2"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": 3,
+                    "destination-prefix": "192.168.2.5/32",
+                    "special-next-hop": "receive"
+                  }
+                ]
+              },
+              "ipv6": {
+                "route": [
+                  {
+                    "id": 1,
+                    "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0001/64",
+                    "next-hop": "2001:0db8:0a0b:12f0:0000:0000:0000:0002",
+                    "outgoing-interface": "GigabitEthernet0/8/0",
+                    "vpp-ipv6-route-state": {
+                      "secondary-vrf": "1"
+                    }
+                  },
+                  {
+                    "id": 2,
+                    "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0008/64",
+                    "vpp-ipv6-route-state": {
+                      "secondary-vrf": "1"
+                    },
+                    "next-hop-list": {
+                      "next-hop": [
+                        {
+                          "id": "1",
+                          "address": "2001:0db8:0a0b:12f0:0000:0000:0000:0003",
+                          "outgoing-interface": "GigabitEthernet0/8/0",
+                          "weight": "1"
+                        },
+                        {
+                          "id": "2",
+                          "address": "2001:0db8:0a0b:12f0:0000:0000:0000:0004",
+                          "outgoing-interface": "GigabitEthernet0/8/0",
+                          "weight": "2"
+                        },
+                        {
+                          "id": "3",
+                          "address": "2001:0db8:0a0b:12f0:0000:0000:0000:0005",
+                          "outgoing-interface": "GigabitEthernet0/8/0",
+                          "weight": "3"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": 3,
+                    "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0005/32",
+                    "special-next-hop": "receive"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

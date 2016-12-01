@@ -39,17 +39,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public interface Ipv6Translator extends ByteDataTranslator {
 
-    /**
-     * Transform Ipv6 address to a byte array acceptable by VPP. VPP expects incoming byte array to be in the same order
-     * as the address.
-     *
-     * @return byte array with address bytes
-     */
-    default byte[] ipv6AddressNoZoneToArray(@Nonnull final Ipv6AddressNoZone ipv6Addr) {
+    default byte[] ipv6AddressNoZoneToArray(@Nonnull final String address) {
         byte[] retval = new byte[16];
 
         //splits address and add ommited zeros for easier parsing
-        List<String> segments = Arrays.asList(ipv6Addr.getValue().split(":"))
+        List<String> segments = Arrays.asList(address.split(":"))
                 .stream()
                 .map(segment -> StringUtils.repeat('0', 4 - segment.length()) + segment)
                 .collect(Collectors.toList());
@@ -71,6 +65,16 @@ public interface Ipv6Translator extends ByteDataTranslator {
         }
 
         return retval;
+    }
+
+    /**
+     * Transform Ipv6 address to a byte array acceptable by VPP. VPP expects incoming byte array to be in the same order
+     * as the address.
+     *
+     * @return byte array with address bytes
+     */
+    default byte[] ipv6AddressNoZoneToArray(@Nonnull final Ipv6AddressNoZone ipv6Addr) {
+        return ipv6AddressNoZoneToArray(ipv6Addr.getValue());
     }
 
     /**
@@ -135,5 +139,16 @@ public interface Ipv6Translator extends ByteDataTranslator {
         checkNotNull(address, "Address cannot be null");
         checkState(!(address.getIpv4Prefix() == null && address.getIpv6Prefix() == null), "Invalid address");
         return address.getIpv6Prefix() != null;
+    }
+
+    default Ipv6Prefix toIpv6Prefix(final byte[] address, final int prefix) {
+        try {
+            return new Ipv6Prefix(
+                    String.format("%s/%s", InetAddress.getByAddress(address).getHostAddress(),
+                            String.valueOf(prefix)));
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException(
+                    "Cannot create prefix for address[" + Arrays.toString(address) + "],prefix[" + prefix + "]");
+        }
     }
 }

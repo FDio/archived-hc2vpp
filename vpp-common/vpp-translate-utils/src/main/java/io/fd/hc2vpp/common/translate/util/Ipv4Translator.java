@@ -108,4 +108,15 @@ public interface Ipv4Translator extends ByteDataTranslator {
         }
         return retval;
     }
+
+    default Ipv4Prefix toIpv4Prefix(final byte[] address, final int prefix) {
+        try {
+            return new Ipv4Prefix(
+                    String.format("%s/%s", InetAddress.getByAddress(address).getHostAddress(),
+                            String.valueOf(prefix)));
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException(
+                    "Cannot create prefix for address[" + Arrays.toString(address) + "],prefix[" + prefix + "]");
+        }
+    }
 }

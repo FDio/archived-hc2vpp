@@ -228,7 +228,7 @@ module ietf-ipv4-unicast-routing {
 
           //TODO modification needed because of yangtools bug(unable to proceed augmentation in separate model of augmentation in this model)
           container vpp-ipv4-route-state{
-              uses vpp-r:vpp-routing-state-attributes;
+              uses vpp-r:vpp-route-attributes;
           }
         }
       }
@@ -348,7 +348,7 @@ module ietf-ipv4-unicast-routing {
 
         //TODO modification needed because of yangtools bug(unable to proceed augmentation in separate model of augmentation in this model)
         container vpp-ipv4-route{
-            uses vpp-r:vpp-routing-attributes;
+            uses vpp-r:vpp-route-attributes;
         }
       }
     }

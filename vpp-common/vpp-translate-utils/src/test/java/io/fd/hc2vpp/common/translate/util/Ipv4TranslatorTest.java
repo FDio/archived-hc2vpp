@@ -44,4 +44,9 @@ public class Ipv4TranslatorTest implements Ipv4Translator {
     public void testExtractPrefix() {
         assertEquals(24, extractPrefix(new Ipv4Prefix("192.168.2.1/24")));
     }
+
+    @Test
+    public void testToPrefix() {
+        assertEquals("192.168.2.1/24", toIpv4Prefix(new byte[]{-64, -88, 2, 1}, (byte) 24).getValue());
+    }
 }

@@ -19,7 +19,6 @@ package io.fd.hc2vpp.common.translate.util;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import org.junit.Test;
 
 public class ByteDataTranslatorTest implements ByteDataTranslator {
@@ -49,5 +48,12 @@ public class ByteDataTranslatorTest implements ByteDataTranslator {
         System.arraycopy(expected, 0, cString, 0, expected.length);
         final String jString = toString(cString);
         assertArrayEquals(expected, jString.getBytes());
+    }
+
+    @Test
+    public void testToJavaByte() {
+        assertEquals(128, toJavaByte((byte) -128));
+        assertEquals(129, toJavaByte((byte) -127));
+        assertEquals(127, toJavaByte((byte) 127));
     }
 }

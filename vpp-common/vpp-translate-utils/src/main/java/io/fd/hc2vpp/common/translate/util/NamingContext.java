@@ -128,6 +128,17 @@ public final class NamingContext implements AutoCloseable {
         mappingContext.put(mappingIid, new MappingBuilder().setIndex(index).setName(name).build());
     }
 
+    /**
+     * Add mapping to current context with next available index.
+     * Suitable for learned data mappings
+     *
+     * @param name           name of a mapped item
+     * @param mappingContext mapping context providing context data for current transaction
+     */
+    public synchronized void addName(final String name, final MappingContext mappingContext) {
+        addName(getNextAvailableIndex(mappingContext), name, mappingContext);
+    }
+
     private KeyedInstanceIdentifier<Mapping, MappingKey> getMappingIid(final String name) {
         return namingContextIid.child(Mappings.class).child(Mapping.class, new MappingKey(name));
     }
@@ -170,6 +181,25 @@ public final class NamingContext implements AutoCloseable {
 
     private String getArtificialName(final int index) {
         return artificialNamePrefix + index;
+    }
+
+    /**
+     * Returns next available index for mapping
+     */
+    private int getNextAvailableIndex(final MappingContext mappingContext) {
+        final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
+
+        if (!read.isPresent()) {
+            return 0;
+        }
+
+        return read.get().getMapping()
+                .stream()
+                .mapToInt(Mapping::getIndex)
+                // do not use i++(need increase before, not after
+                .map(i -> ++i)
+                .max()
+                .orElse(0);
     }
 
     @Override

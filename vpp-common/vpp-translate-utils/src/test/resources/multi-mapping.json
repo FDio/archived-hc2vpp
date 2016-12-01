@@ -1,0 +1,35 @@
+{
+  "mappings": {
+    "mapping": [
+      {
+        "name": "parent-1",
+        "value": [
+          {
+            "index": 1,
+            "name": "child-1"
+          },
+          {
+            "index": 2,
+            "name": "child-2"
+          },
+          {
+            "index": 3,
+            "name": "child-3"
+          }
+        ]
+      },
+      {
+        "name": "parent-2"
+      },
+      {
+        "name": "parent-3",
+        "value": [
+          {
+            "index": 1,
+            "name": "child-1"
+          }
+        ]
+      }
+    ]
+  }
+}

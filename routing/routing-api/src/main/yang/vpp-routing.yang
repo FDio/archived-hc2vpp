@@ -4,7 +4,7 @@ module vpp-routing{
     prefix "vpp-routing";
     description "General extensions for routes to be able to use VPP route defining apis";
 
-    revision 2016-10-18 {
+    revision 2016-12-14 {
         description "Initial revision.";
     }
 
@@ -15,26 +15,17 @@ module vpp-routing{
     import vpp-classifier {
         prefix "classifier";
     }
+    
+    import ietf-routing {
+        prefix "ietf-r";
+    }
 
     typedef vni-reference{
         type uint32;
         description "Vrf index reference";
     }
 
-    grouping vpp-routing-attributes{
-        //vrf_id
-        leaf primary-vrf{
-            type vni-reference;
-            mandatory true;
-            description "Main vrf associated to route";
-        }
-
-        leaf auto-create-vrf{
-            type boolean;
-            default false;
-            description "If referenced primary vrf not exists,create while creating route";
-        }
-
+    grouping vpp-route-attributes {
         //lookup_in_vrf
         leaf secondary-vrf{
             type vni-reference;
@@ -42,18 +33,34 @@ module vpp-routing{
         }
 
         leaf classify-table{
-            // classify_table_index + is_classify flag
+        // classify_table_index + is_classify flag
             type classifier:classify-table-ref;
             description "Optional reference to classify table";
         }
     }
 
-     grouping vpp-routing-state-attributes{
-            //vrf_id
-            leaf primary-vrf{
-                type vni-reference;
-                mandatory true;
-                description "Main vrf associated to route";
-            }
-     }
+    grouping vpp-routing-protocol-attributes{
+        //vrf_id
+        leaf primary-vrf{
+            type vni-reference;
+            mandatory true;
+            description "Main vrf associated to route";
+        }
+    }
+
+    augment /ietf-r:routing/ietf-r:routing-instance/ietf-r:routing-protocols/ietf-r:routing-protocol{
+        ext:augment-identifier "routing-protocol-vpp-attr";
+        container vpp-protocol-attributes {
+            presence "Config attributes";
+            uses vpp-routing-protocol-attributes;
+        }
+    }
+
+    augment /ietf-r:routing-state/ietf-r:routing-instance/ietf-r:routing-protocols/ietf-r:routing-protocol{
+        ext:augment-identifier "routing-protocol-state-vpp-attr";
+        container vpp-protocol-state-attributes {
+            presence "Operational attributes";
+            uses vpp-routing-protocol-attributes;
+        }
+    }
 }

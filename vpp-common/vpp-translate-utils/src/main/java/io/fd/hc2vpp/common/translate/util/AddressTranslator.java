@@ -30,6 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTranslator {
 
+    AddressTranslator INSTANCE = new AddressTranslator() {
+    };
+
     default byte[] ipAddressToArray(IpAddress address) {
         checkNotNull(address, "Cannot resolve null adddress");
 

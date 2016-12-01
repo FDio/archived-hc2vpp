@@ -1,0 +1,16 @@
+{
+  "static-routes": {
+    "ipv4": {
+      "route": [
+        {
+          "id": 1,
+          "destination-prefix": "192.168.2.1/24",
+          "vpp-ipv4-route": {
+          },
+          "next-hop": "192.168.2.2",
+          "outgoing-interface": "iface"
+        }
+      ]
+    }
+  }
+}

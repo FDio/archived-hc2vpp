@@ -24,6 +24,12 @@ import javax.annotation.Nullable;
  */
 public interface ByteDataTranslator {
 
+    ByteDataTranslator INSTANCE = new ByteDataTranslator() {
+    };
+
+    byte BYTE_FALSE = 0;
+    byte BYTE_TRUE = 1;
+
     /**
      * Returns 0 if argument is null or false, 1 otherwise.
      *
@@ -32,8 +38,22 @@ public interface ByteDataTranslator {
      */
     default byte booleanToByte(@Nullable final Boolean value) {
         return value != null && value
-                ? (byte) 1
-                : (byte) 0;
+                ? BYTE_TRUE
+                : BYTE_FALSE;
+    }
+
+    /**
+     * Converts int to byte
+     */
+    default byte toByte(final int value) {
+        return Integer.valueOf(value).byteValue();
+    }
+
+    /**
+     * Converts short to byte
+     */
+    default byte toByte(final short value) {
+        return Short.valueOf(value).byteValue();
     }
 
     /**
@@ -45,9 +65,9 @@ public interface ByteDataTranslator {
      */
     @Nonnull
     default Boolean byteToBoolean(final byte value) {
-        if (value == 0) {
+        if (value == BYTE_FALSE) {
             return Boolean.FALSE;
-        } else if (value == 1) {
+        } else if (value == BYTE_TRUE) {
             return Boolean.TRUE;
         }
         throw new IllegalArgumentException(String.format("0 or 1 was expected but was %d", value));
@@ -75,5 +95,14 @@ public interface ByteDataTranslator {
      */
     default String toString(final byte[] cString) {
         return new String(cString).replaceAll("\\u0000", "").intern();
+    }
+
+    /**
+     * Converts signed byte(filled with unsigned value from vpp) to java integer
+     *
+     * For example unsigned C byte 128 is converted by jvpp to -128, this will return 128
+     */
+    default int toJavaByte(final byte vppByte) {
+        return Byte.toUnsignedInt(vppByte);
     }
 }

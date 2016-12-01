@@ -1,0 +1,4 @@
+{
+  "default-routing-instance-name": "vpp-routing-instance",
+  "learned-route-name-prefix": "learned-route"
+}

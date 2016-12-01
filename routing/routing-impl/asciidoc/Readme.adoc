@@ -1,0 +1,28 @@
+= routing-impl
+
+Overview of routing-impl
+
+# Supported Features
+
+Routing plugin allows to create Ipv4/6 based routes.
+Data are modeled by 4 models.
+
+* ietf-routing - Basic routes model, modeling routing-instances,protocols,...
+* ietf-ipv4-unicast-routing/ietf-ipv6-unicast-routing - Address family specific models
+* vpp-routing - Attributes specific to vpp implementation of routing
+
+WARNING: Specific family models has to be manualy modified to add necessary configuration,
+due to lack of support to handle cross-model multi-level augments(augment of augment)
+
+# Restrictions
+
+* Due to vpp implementation of routing, configuration has been restricted to single *routing-instance*.
+Key/name of this *routing-instace* can be modified by property *"default-routing-instance-name"* in *routing.json*.
+Anny attempt to configure different routing-instance will be rejected.
+
+* *Routing protocols* has been mapped to unique vrf-id's from vpp, so only single *routing-protocol* can be mapped
+ to single *vrf-id*
+
+* Vpp by default contains pre-configured routes. Any vrf-id of this kind is mapped to
+  protocol name with prefix specified by property *"learned-route-name-prefix"* in *routing.json*.
+  Respective routing protocols are prefixed with value *"learned-protocol-"*.

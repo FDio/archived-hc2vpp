@@ -1,0 +1,13 @@
+{
+  "static-routes": {
+    "ipv4": {
+      "route": [
+        {
+          "id": 1,
+          "destination-prefix": "192.168.2.1/24",
+          "special-next-hop": "prohibit"
+        }
+      ]
+    }
+  }
+}
