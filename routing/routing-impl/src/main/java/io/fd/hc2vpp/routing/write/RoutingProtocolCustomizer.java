@@ -61,9 +61,12 @@ public class RoutingProtocolCustomizer
                 // while using ip_add_del_table
                 routingProtocolContext.addName(tableId, newProtocolName, mappingContext);
             } else {
-                throw new IllegalStateException(String.format(
-                        "An attempt to assign protocol %s to table id %s. Table id already assigned to protocol %s",
-                        newProtocolName, tableId, routingProtocolContext.getName(tableId, mappingContext)));
+                // prevent to fail while restoring data(trying to remap already mapped name)
+                if (!newProtocolName.equals(routingProtocolContext.getName(tableId, mappingContext))) {
+                    throw new IllegalStateException(String.format(
+                            "An attempt to assign protocol %s to table id %s. Table id already assigned to protocol %s",
+                            newProtocolName, tableId, routingProtocolContext.getName(tableId, mappingContext)));
+                }
             }
         }
     }

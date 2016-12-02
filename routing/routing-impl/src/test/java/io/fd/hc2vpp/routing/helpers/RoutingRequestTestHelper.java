@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev
 public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProducer, RouteMapper {
 
     String ROUTE_PROTOCOL_NAME = "tst-protocol";
+    String ROUTE_PROTOCOL_NAME_2 = "tst-protocol-2";
     String ROUTE_NAME = "tst-route";
     String STATIC_ROUTE_PATH = "/ietf-routing:routing" +
             "/ietf-routing:routing-instance[ietf-routing:name='" + ROUTE_PROTOCOL_NAME + "']" +

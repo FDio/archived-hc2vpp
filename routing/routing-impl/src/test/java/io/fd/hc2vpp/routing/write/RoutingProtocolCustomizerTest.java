@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.routing.write;
 
 import static io.fd.hc2vpp.routing.helpers.RoutingRequestTestHelper.ROUTE_PROTOCOL_NAME;
+import static io.fd.hc2vpp.routing.helpers.RoutingRequestTestHelper.ROUTE_PROTOCOL_NAME_2;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -39,6 +40,7 @@ public class RoutingProtocolCustomizerTest extends WriterCustomizerTest {
 
     private InstanceIdentifier<RoutingProtocol> validId;
     private RoutingProtocol validData;
+    private RoutingProtocol validData2;
     private RoutingProtocol invalidData;
     private RoutingProtocolCustomizer customizer;
     private NamingContext routingProtocolContext;
@@ -48,6 +50,16 @@ public class RoutingProtocolCustomizerTest extends WriterCustomizerTest {
         validId = InstanceIdentifier.create(RoutingProtocol.class);
         validData = new RoutingProtocolBuilder()
                 .setName(ROUTE_PROTOCOL_NAME)
+                .setType(Static.class)
+                .addAugmentation(RoutingProtocolVppAttr.class, new RoutingProtocolVppAttrBuilder()
+                        .setVppProtocolAttributes(new VppProtocolAttributesBuilder()
+                                .setPrimaryVrf(new VniReference(1L))
+                                .build())
+                        .build())
+                .build();
+
+        validData2= new RoutingProtocolBuilder()
+                .setName(ROUTE_PROTOCOL_NAME_2)
                 .setType(Static.class)
                 .addAugmentation(RoutingProtocolVppAttr.class, new RoutingProtocolVppAttrBuilder()
                         .setVppProtocolAttributes(new VppProtocolAttributesBuilder()
@@ -74,11 +86,27 @@ public class RoutingProtocolCustomizerTest extends WriterCustomizerTest {
         }
     }
 
+    /**
+     * Should not fail, just ignore re-mapping same name
+     * */
     @Test
-    public void testWriteIsStaticAllreadyExist() throws WriteFailedException {
+    public void testWriteIsStaticSameAllreadyExist() throws WriteFailedException {
         defineMapping(mappingContext, ROUTE_PROTOCOL_NAME, 1, "routing-protocol-context");
         try {
             customizer.writeCurrentAttributes(validId, validData, writeContext);
+        } catch (Exception e) {
+            fail("Test should have passed without throwing exception");
+        }
+    }
+
+    /**
+     * Should fail, because of attempt to map different name to same index
+     * */
+    @Test
+    public void testWriteIsStaticOtherAllreadyExist() throws WriteFailedException {
+        defineMapping(mappingContext, ROUTE_PROTOCOL_NAME, 1, "routing-protocol-context");
+        try {
+            customizer.writeCurrentAttributes(validId, validData2, writeContext);
         } catch (Exception e) {
             assertTrue(e instanceof IllegalStateException);
             return;
