@@ -3,8 +3,14 @@ module vpp-nsh {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:nsh";
   prefix "vpp-nsh";
 
+  revision "2016-12-14" {
+    description
+    "This revision adds support for NSH-Proxy and NSH-Classifier features";
+  }
+
   revision "2016-06-24" {
-    description "Initial revision of vpp-nsh model";
+    description
+    "Initial revision of vpp-nsh model";
   }
 
   import iana-if-type {
@@ -99,9 +105,14 @@ module vpp-nsh {
     description "vxlan-gpe encap type";
   }
 
-  identity vxlan {
+  identity vxlan4 {
     base "encap-type";
-    description "vxlan encap type";
+    description "ipv4 vxlan encap type";
+  }
+
+  identity vxlan6 {
+    base "encap-type";
+    description "ipv6 vxlan encap type";
   }
 
   typedef nsh-encap-type {
