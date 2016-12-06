@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po;
+package io.fd.hc2vpp.v3po.factory;
 
-import static io.fd.hc2vpp.v3po.VppClassifierHoneycombWriterFactory.CLASSIFY_SESSION_ID;
-import static io.fd.hc2vpp.v3po.VppClassifierHoneycombWriterFactory.CLASSIFY_TABLE_ID;
+import static io.fd.hc2vpp.v3po.factory.VppClassifierHoneycombWriterFactory.CLASSIFY_SESSION_ID;
+import static io.fd.hc2vpp.v3po.factory.VppClassifierHoneycombWriterFactory.CLASSIFY_TABLE_ID;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
 import io.fd.hc2vpp.v3po.interfaces.EthernetCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.InterfaceCustomizer;
@@ -61,7 +62,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Gre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.IetfAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Loopback;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ProxyArp;
@@ -76,7 +76,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip6Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.L2Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.ietf.acl.base.attributes.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev161214.PbbRewriteInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewrite;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -90,13 +89,6 @@ public final class InterfacesWriterFactory implements WriterFactory {
     public static final InstanceIdentifier<Acl> ACL_ID = VPP_IFC_AUG_ID.child(Acl.class);
     public static final InstanceIdentifier<Ingress> INGRESS_ACL_ID = ACL_ID.child(Ingress.class);
     public static final InstanceIdentifier<L2> L2_ID = VPP_IFC_AUG_ID.child(L2.class);
-    public static final InstanceIdentifier<IetfAcl> IETF_ACL_ID = VPP_IFC_AUG_ID.child(IetfAcl.class);
-    public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Ingress>
-            INGRESS_IETF_ACL_ID = IETF_ACL_ID.child(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Ingress.class);
-    public static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Egress>
-            EGRESS_IETF_ACL_ID = IETF_ACL_ID.child(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Egress.class);
 
     private final FutureJVppCore jvpp;
     private final IngressIetfAclWriter ingressAclWriter;
@@ -130,11 +122,11 @@ public final class InterfacesWriterFactory implements WriterFactory {
         registry.add(new GenericListWriter<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcNamingContext)));
         //   VppInterfaceAugmentation
         addVppInterfaceAgmentationWriters(IFC_ID, registry);
-        //   Interface1 (ietf-ip augmentation)
+        //   Interface1 (ietf-ip augmentation)
         addInterface1AugmentationWriters(IFC_ID, registry);
         //   SubinterfaceAugmentation
-        new SubinterfaceAugmentationWriterFactory(jvpp, ingressAclWriter, egressAclWriter, ifcNamingContext, bdNamingContext,
-                classifyTableContext).init(registry);
+        new SubinterfaceAugmentationWriterFactory(jvpp, ifcNamingContext, bdNamingContext,
+            classifyTableContext).init(registry);
 
         addPbbAugmentationWriters(IFC_ID, registry);
     }
@@ -214,27 +206,6 @@ public final class InterfacesWriterFactory implements WriterFactory {
                                 new AclCustomizer(jvpp, ifcNamingContext, classifyTableContext)),
                         Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
 
-        // Ingress IETF-ACL, also handles AccessLists and Acl:
-        final InstanceIdentifier<AccessLists> accessListsIdIngress = InstanceIdentifier.create(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Ingress.class)
-                .child(AccessLists.class);
-        final InstanceIdentifier<?> aclIdIngress = accessListsIdIngress.child(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.ietf.acl.base.attributes.access.lists.Acl.class);
-        registry.subtreeAdd(
-                Sets.newHashSet(accessListsIdIngress, aclIdIngress),
-                new GenericWriter<>(INGRESS_IETF_ACL_ID, new io.fd.hc2vpp.v3po.interfaces.acl.ingress.IetfAclCustomizer(ingressAclWriter, ifcNamingContext)));
-
-        // Ingress IETF-ACL, also handles AccessLists and Acl:
-        final InstanceIdentifier<AccessLists> accessListsIdEgress = InstanceIdentifier.create(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ietf.acl.Egress.class)
-                .child(AccessLists.class);
-        final InstanceIdentifier<?> aclIdEgress = accessListsIdEgress.child(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.ietf.acl.base.attributes.access.lists.Acl.class);
-        registry.subtreeAdd(
-                Sets.newHashSet(accessListsIdEgress, aclIdEgress),
-                new GenericWriter<>(EGRESS_IETF_ACL_ID,
-                        new io.fd.hc2vpp.v3po.interfaces.acl.egress.IetfAclCustomizer(egressAclWriter,
-                                ifcNamingContext)));
         // Span writers
         //  Mirrored interfaces
         final InstanceIdentifier<MirroredInterfaces> mirroredIfcsId = VPP_IFC_AUG_ID

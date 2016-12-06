@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po;
+package io.fd.hc2vpp.v3po.factory;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
 import io.fd.hc2vpp.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;

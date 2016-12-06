@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po;
+package io.fd.hc2vpp.v3po.factory;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

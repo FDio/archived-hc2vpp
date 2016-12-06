@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po;
-
-import static io.fd.hc2vpp.v3po.InterfacesWriterFactory.L2_ID;
+package io.fd.hc2vpp.v3po.factory;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
@@ -62,7 +60,7 @@ public final class VppHoneycombWriterFactory implements WriterFactory {
             InstanceIdentifier.create(Vpp.class).child(BridgeDomains.class).child(BridgeDomain.class);
         registry.addBefore(new GenericListWriter<>(bdId, new BridgeDomainCustomizer(jvpp, bdContext)),
             Sets.newHashSet(
-                L2_ID,
+                InterfacesWriterFactory.L2_ID,
                 SubinterfaceAugmentationWriterFactory.L2_ID));
         //    L2FibTable has no handlers
         //     L2FibEntry(handled after BridgeDomain and L2 of ifc and subifc) =
@@ -71,7 +69,7 @@ public final class VppHoneycombWriterFactory implements WriterFactory {
                 new GenericListWriter<>(l2FibEntryId, new L2FibEntryCustomizer(jvpp, bdContext, ifcContext)),
                 Sets.newHashSet(
                         bdId,
-                        L2_ID,
+                        InterfacesWriterFactory.L2_ID,
                         SubinterfaceAugmentationWriterFactory.L2_ID));
         //    ArpTerminationTable has no handlers
         //     ArpTerminationTableEntry(handled after BridgeDomain) =

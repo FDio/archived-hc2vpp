@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po;
+package io.fd.hc2vpp.v3po.factory;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -23,7 +23,7 @@ import io.fd.hc2vpp.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev161214.mapping.entry.context.attributes.acl.mapping.entry.context.MappingTable;
 
-class IngressIetfAClWriterProvider implements Provider<IngressIetfAclWriter> {
+public class IngressIetfAClWriterProvider implements Provider<IngressIetfAclWriter> {
 
     private final FutureJVppCore jvpp;
 

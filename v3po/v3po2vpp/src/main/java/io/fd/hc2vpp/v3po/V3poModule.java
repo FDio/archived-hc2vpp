@@ -19,15 +19,23 @@ package io.fd.hc2vpp.v3po;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.cfgattrs.V3poConfiguration;
+import io.fd.hc2vpp.v3po.factory.EgressIetfAClWriterProvider;
+import io.fd.hc2vpp.v3po.factory.IngressIetfAClWriterProvider;
+import io.fd.hc2vpp.v3po.factory.InterfacesStateReaderFactory;
+import io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory;
+import io.fd.hc2vpp.v3po.factory.VppClassifierHoneycombWriterFactory;
+import io.fd.hc2vpp.v3po.factory.VppClassifierReaderFactory;
+import io.fd.hc2vpp.v3po.factory.VppHoneycombWriterFactory;
+import io.fd.hc2vpp.v3po.factory.VppStateHoneycombReaderFactory;
 import io.fd.hc2vpp.v3po.interfaces.acl.egress.EgressIetfAclWriter;
+import io.fd.hc2vpp.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
 import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManagerImpl;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
-import io.fd.hc2vpp.v3po.cfgattrs.V3poConfiguration;
-import io.fd.hc2vpp.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -81,7 +89,6 @@ public class V3poModule extends AbstractModule {
         writerFactoryBinder.addBinding().to(InterfacesWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppHoneycombWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppClassifierHoneycombWriterFactory.class);
-        writerFactoryBinder.addBinding().to(AclWriterFactory.class);
 
         // Notifications
         final Multibinder<ManagedNotificationProducer> notifiersBinder =
