@@ -17,6 +17,8 @@
 package io.fd.hc2vpp.v3po.factory;
 
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfaces.RewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceCustomizer;
@@ -57,15 +59,19 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
     private final VppClassifierContextManager classifyTableContext;
 
     public static final InstanceIdentifier<SubinterfaceAugmentation> SUB_IFC_AUG_ID =
-            InterfacesWriterFactory.IFC_ID.augmentation(SubinterfaceAugmentation.class);
+        InterfacesWriterFactory.IFC_ID.augmentation(SubinterfaceAugmentation.class);
     public static final InstanceIdentifier<SubInterface> SUB_IFC_ID =
-            SUB_IFC_AUG_ID.child(SubInterfaces.class).child(SubInterface.class);
+        SUB_IFC_AUG_ID.child(SubInterfaces.class).child(SubInterface.class);
     public static final InstanceIdentifier<L2> L2_ID = SUB_IFC_ID.child(
-            L2.class);
+        L2.class);
     public static final InstanceIdentifier<Acl> SUBIF_ACL_ID = SUB_IFC_ID.child(Acl.class);
     public static final InstanceIdentifier<Ingress> SUBIF_INGRESS_ACL_ID = SUBIF_ACL_ID.child(Ingress.class);
 
-    public SubinterfaceAugmentationWriterFactory(final FutureJVppCore jvpp, final NamingContext ifcContext, final NamingContext bdContext, final VppClassifierContextManager classifyTableContext) {
+    @Inject
+    public SubinterfaceAugmentationWriterFactory(final FutureJVppCore jvpp,
+                                                 @Named("interface-context") final NamingContext ifcContext,
+                                                 @Named("bridge-domain-context") final NamingContext bdContext,
+                                                 @Named("classify-table-context") final VppClassifierContextManager classifyTableContext) {
         this.jvpp = jvpp;
         this.ifcContext = ifcContext;
         this.bdContext = bdContext;
@@ -77,33 +83,34 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
         // Subinterfaces
         //  Subinterface(Handle only after all interface related stuff gets processed) =
         registry.subtreeAddAfter(
-                // TODO HONEYCOMB-188 this customizer covers quite a lot of complex child nodes (maybe refactor ?)
-                Sets.newHashSet(
-                        InstanceIdentifier.create(SubInterface.class).child(Tags.class),
-                        InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class),
-                        InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class).child(
-                                Dot1qTag.class),
-                        InstanceIdentifier.create(SubInterface.class).child(Match.class),
-                        InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
-                new GenericListWriter<>(SUB_IFC_ID, new SubInterfaceCustomizer(jvpp, ifcContext)),
-                InterfacesWriterFactory.IFC_ID);
+            // TODO HONEYCOMB-188 this customizer covers quite a lot of complex child nodes (maybe refactor ?)
+            Sets.newHashSet(
+                InstanceIdentifier.create(SubInterface.class).child(Tags.class),
+                InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class),
+                InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class).child(
+                    Dot1qTag.class),
+                InstanceIdentifier.create(SubInterface.class).child(Match.class),
+                InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
+            new GenericListWriter<>(SUB_IFC_ID, new SubInterfaceCustomizer(jvpp, ifcContext)),
+            InterfacesWriterFactory.IFC_ID);
         //   L2 =
         registry.addAfter(new GenericWriter<>(L2_ID, new SubInterfaceL2Customizer(jvpp, ifcContext, bdContext)),
-                SUB_IFC_ID);
+            SUB_IFC_ID);
         //    Rewrite(also handles pushTags + pushTags/dot1qtag) =
         final InstanceIdentifier<Rewrite> rewriteId = L2_ID.child(Rewrite.class);
         registry.subtreeAddAfter(
-                Sets.newHashSet(
-                        InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
-                        InstanceIdentifier.create(Rewrite.class).child(PushTags.class)
-                                .child(org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
-                new GenericWriter<>(rewriteId, new RewriteCustomizer(jvpp, ifcContext)),
-                L2_ID);
+            Sets.newHashSet(
+                InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
+                InstanceIdentifier.create(Rewrite.class).child(PushTags.class)
+                    .child(
+                        org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
+            new GenericWriter<>(rewriteId, new RewriteCustomizer(jvpp, ifcContext)),
+            L2_ID);
         //   Ipv4(handled after L2 and L2/rewrite is done) =
         final InstanceIdentifier<Address> ipv4SubifcAddressId = SUB_IFC_ID.child(Ipv4.class).child(Address.class);
         registry.addAfter(new GenericListWriter<>(ipv4SubifcAddressId,
                 new SubInterfaceIpv4AddressCustomizer(jvpp, ifcContext)),
-                rewriteId);
+            rewriteId);
 
         // Ingress (execute after classify table and session writers)
         // also handles L2Acl, Ip4Acl and Ip6Acl:
@@ -111,7 +118,9 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
         registry
             .subtreeAddAfter(
                 Sets.newHashSet(aclId.child(L2Acl.class), aclId.child(Ip4Acl.class), aclId.child(Ip6Acl.class)),
-                new GenericWriter<>(SUBIF_INGRESS_ACL_ID, new SubInterfaceAclCustomizer(jvpp, ifcContext, classifyTableContext)),
-                Sets.newHashSet(VppClassifierHoneycombWriterFactory.CLASSIFY_TABLE_ID, VppClassifierHoneycombWriterFactory.CLASSIFY_SESSION_ID));
+                new GenericWriter<>(SUBIF_INGRESS_ACL_ID,
+                    new SubInterfaceAclCustomizer(jvpp, ifcContext, classifyTableContext)),
+                Sets.newHashSet(VppClassifierHoneycombWriterFactory.CLASSIFY_TABLE_ID,
+                    VppClassifierHoneycombWriterFactory.CLASSIFY_SESSION_ID));
     }
 }

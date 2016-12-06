@@ -35,9 +35,7 @@ import io.fd.hc2vpp.v3po.interfaces.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanGpeCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.acl.egress.EgressIetfAclWriter;
 import io.fd.hc2vpp.v3po.interfaces.acl.ingress.AclCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
 import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4AddressCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4NeighbourCustomizer;
@@ -91,8 +89,6 @@ public final class InterfacesWriterFactory implements WriterFactory {
     public static final InstanceIdentifier<L2> L2_ID = VPP_IFC_AUG_ID.child(L2.class);
 
     private final FutureJVppCore jvpp;
-    private final IngressIetfAclWriter ingressAclWriter;
-    private final EgressIetfAclWriter egressAclWriter;
     private final NamingContext bdNamingContext;
     private final NamingContext ifcNamingContext;
     private final VppClassifierContextManager classifyTableContext;
@@ -100,15 +96,11 @@ public final class InterfacesWriterFactory implements WriterFactory {
 
     @Inject
     public InterfacesWriterFactory(final FutureJVppCore vppJvppIfcDependency,
-                                   final IngressIetfAclWriter ingressAclWriter,
-                                   final EgressIetfAclWriter egressAclWriter,
                                    @Named("bridge-domain-context") final NamingContext bridgeDomainContextDependency,
                                    @Named("interface-context") final NamingContext interfaceContextDependency,
                                    @Named("classify-table-context") final VppClassifierContextManager classifyTableContext,
                                    final DisabledInterfacesManager ifcDisableContext) {
         this.jvpp = vppJvppIfcDependency;
-        this.ingressAclWriter = ingressAclWriter;
-        this.egressAclWriter = egressAclWriter;
         this.bdNamingContext = bridgeDomainContextDependency;
         this.ifcNamingContext = interfaceContextDependency;
         this.ifcDisableContext = ifcDisableContext;
@@ -124,9 +116,6 @@ public final class InterfacesWriterFactory implements WriterFactory {
         addVppInterfaceAgmentationWriters(IFC_ID, registry);
         //   Interface1 (ietf-ip augmentation)
         addInterface1AugmentationWriters(IFC_ID, registry);
-        //   SubinterfaceAugmentation
-        new SubinterfaceAugmentationWriterFactory(jvpp, ifcNamingContext, bdNamingContext,
-            classifyTableContext).init(registry);
 
         addPbbAugmentationWriters(IFC_ID, registry);
     }

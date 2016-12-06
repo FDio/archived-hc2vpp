@@ -114,8 +114,6 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         initVppIfcAugmentationReaders(registry, IFC_ID);
         // ietf-ip.yang
         initInterface2AugmentationReaders(registry, IFC_ID);
-        // vpp-vlan.yang
-        new SubinterfaceStateAugmentationReaderFactory(jvpp, ifcNamingCtx, bdNamingCtx, classifyContext).init(registry);
         //vpp-pbb.yang
         initPbbRewriteAugmentation(registry, IFC_ID);
     }

@@ -17,6 +17,9 @@
 package io.fd.hc2vpp.v3po.factory;
 
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.RewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceL2Customizer;
@@ -28,7 +31,6 @@ import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip4Acl;
@@ -54,16 +56,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory {
+public final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory {
 
     private final FutureJVppCore jvpp;
     private final NamingContext ifcCtx;
     private final NamingContext bdCtx;
     private final VppClassifierContextManager classifyCtx;
 
-    SubinterfaceStateAugmentationReaderFactory(final FutureJVppCore jvpp, final NamingContext ifcCtx,
-                                               final NamingContext bdCtx,
-                                               final VppClassifierContextManager classifyCtx) {
+    @Inject
+    public SubinterfaceStateAugmentationReaderFactory(final FutureJVppCore jvpp,
+                                                      @Named("interface-context") final NamingContext ifcCtx,
+                                                      @Named("bridge-domain-context") final NamingContext bdCtx,
+                                                      @Named("classify-table-context") final VppClassifierContextManager classifyCtx) {
         this.jvpp = jvpp;
         this.ifcCtx = ifcCtx;
         this.bdCtx = bdCtx;
@@ -103,7 +107,8 @@ final class SubinterfaceStateAugmentationReaderFactory implements ReaderFactory 
         registry.addStructuralReader(ipv4Id, Ipv4Builder.class);
         //     Address
         registry.add(
-            new GenericInitListReader<>(ipv4Id.child(Address.class), new SubInterfaceIpv4AddressCustomizer(jvpp, ifcCtx)));
+            new GenericInitListReader<>(ipv4Id.child(Address.class),
+                new SubInterfaceIpv4AddressCustomizer(jvpp, ifcCtx)));
         //    Acl(Structural)
         final InstanceIdentifier<Acl> aclIid = subIfcId.child(Acl.class);
         registry.addStructuralReader(aclIid, AclBuilder.class);

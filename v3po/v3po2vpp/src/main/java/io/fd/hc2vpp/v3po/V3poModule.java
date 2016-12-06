@@ -25,6 +25,8 @@ import io.fd.hc2vpp.v3po.factory.EgressIetfAClWriterProvider;
 import io.fd.hc2vpp.v3po.factory.IngressIetfAClWriterProvider;
 import io.fd.hc2vpp.v3po.factory.InterfacesStateReaderFactory;
 import io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory;
+import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
+import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
 import io.fd.hc2vpp.v3po.factory.VppClassifierHoneycombWriterFactory;
 import io.fd.hc2vpp.v3po.factory.VppClassifierReaderFactory;
 import io.fd.hc2vpp.v3po.factory.VppHoneycombWriterFactory;
@@ -77,6 +79,7 @@ public class V3poModule extends AbstractModule {
         // Readers
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readerFactoryBinder.addBinding().to(InterfacesStateReaderFactory.class);
+        readerFactoryBinder.addBinding().to(SubinterfaceStateAugmentationReaderFactory.class);
         readerFactoryBinder.addBinding().to(VppStateHoneycombReaderFactory.class);
         readerFactoryBinder.addBinding().to(VppClassifierReaderFactory.class);
         // Expose disabled interfaces in operational data
@@ -87,6 +90,7 @@ public class V3poModule extends AbstractModule {
         // Writers
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writerFactoryBinder.addBinding().to(InterfacesWriterFactory.class);
+        writerFactoryBinder.addBinding().to(SubinterfaceAugmentationWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppHoneycombWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppClassifierHoneycombWriterFactory.class);
 
