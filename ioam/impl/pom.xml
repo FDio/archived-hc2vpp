@@ -30,7 +30,7 @@
 
   <properties>
     <ioam.version>1.0-SNAPSHOT</ioam.version>
-    <jvpp.version>16.12-SNAPSHOT</jvpp.version>
+    <jvpp.version>17.01-SNAPSHOT</jvpp.version>
   </properties>
 
   <dependencies>

@@ -29,7 +29,7 @@
 
     <properties>
         <honeycomb.min.distro.version>1.16.12-SNAPSHOT</honeycomb.min.distro.version>
-        <jvpp.version>16.12-SNAPSHOT</jvpp.version>
+        <jvpp.version>17.01-SNAPSHOT</jvpp.version>
         <hamcrest.version>1.3</hamcrest.version>
     </properties>
 
