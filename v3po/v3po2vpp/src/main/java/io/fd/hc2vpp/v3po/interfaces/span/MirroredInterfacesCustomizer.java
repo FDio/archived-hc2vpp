@@ -83,7 +83,7 @@ public final class MirroredInterfacesCustomizer
 
     private SwInterfaceSpanEnableDisable getSpanAddDelRequest(final int dstId, final Integer srcId, final boolean isAdd) {
         final SwInterfaceSpanEnableDisable spanAddDel = new SwInterfaceSpanEnableDisable();
-        spanAddDel.enable = (byte) (isAdd ? 1 : 0);
+        spanAddDel.state = (byte) (isAdd ? 3 : 0); // 3 - enable rx & tx : 0 - disabled
         spanAddDel.swIfIndexFrom = srcId;
         spanAddDel.swIfIndexTo = dstId;
         return spanAddDel;
