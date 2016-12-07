@@ -11,7 +11,7 @@ BUILD_DIR=${SOURCE_DIR}/honeycomb-${VERSION}
 
 # Copy and unpack the archive with vpp-integration distribution
 ARCHIVE_DIR=${SOURCE_DIR}/../../../vpp-integration/minimal-distribution/target/
-ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-1.16.12-SNAPSHOT-hc.tar.gz
+ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-1.17.01-SNAPSHOT-hc.tar.gz
 cp ${ARCHIVE} ${SOURCE_DIR}
 ARCHIVE=${SOURCE_DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT-hc.tar.gz
 tar -xf ${ARCHIVE} -C ${SOURCE_DIR}/
@@ -31,7 +31,7 @@ cp ${SOURCE_DIR}/$3 ${BUILD_DIR}
 cat <<EOT >> ${BUILD_DIR}/debian/changelog
 honeycomb (${VERSION}-${RELEASE}) unstable; urgency=low
 
-  * 16.12 release
+  * 17.01 release
 
  -- mmarsale <mmarsale@cisco.com>  Mon, 22 Aug 2016 09:41:37 +0200
 EOT
