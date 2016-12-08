@@ -108,6 +108,7 @@ public abstract class AbstractIetfAclWriter implements IetfAclWriter, JvppReplyC
             return; // classify table id is absent
         }
         final ClassifyAddDelTable request = new ClassifyAddDelTable();
+        request.delChain = 1;
         request.tableIndex = tableIndex;
         final CompletionStage<ClassifyAddDelTableReply> cs = jvpp.classifyAddDelTable(request);
         getReplyForDelete(cs.toCompletableFuture(), id);

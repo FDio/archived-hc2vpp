@@ -109,6 +109,7 @@ public class IetfAclCustomizerTest extends WriterCustomizerTest {
     private static ClassifyAddDelTable classifyAddDelTable(final int tableIndex) {
         final ClassifyAddDelTable reply = new ClassifyAddDelTable();
         reply.tableIndex = tableIndex;
+        reply.delChain = 1;
         return reply;
     }
 
