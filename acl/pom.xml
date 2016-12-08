@@ -14,35 +14,40 @@
  limitations under the License.
 --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+  <groupId>io.fd.hc2vpp.acl</groupId>
+
   <parent>
-    <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>honeycomb-parent</artifactId>
+    <artifactId>hc2vpp-aggregator</artifactId>
+    <groupId>io.fd.hc2vpp</groupId>
     <version>1.17.01-SNAPSHOT</version>
   </parent>
-
-  <groupId>io.fd.hc2vpp</groupId>
-  <artifactId>hc2vpp-aggregator</artifactId>
+  <artifactId>acl-aggregator</artifactId>
   <version>1.17.01-SNAPSHOT</version>
-  <name>hc2vpp</name>
+  <name>acl-aggregator</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
 
-  <description>Honeycomb based management agent for VPP</description>
-
-  <scm>
-    <url>https://git.fd.io/cgit/hc2vpp/tree/</url>
-  </scm>
-
   <modules>
-    <module>vpp-common</module>
-    <module>v3po</module>
-    <module>ioam</module>
-    <module>nsh</module>
-    <module>routing</module>
-    <module>nat</module>
-    <module>lisp</module>
-    <module>release-notes</module>
-    <module>vpp-integration</module>
-    <module>acl</module>
+    <module>acl-api</module>
   </modules>
+
+  <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

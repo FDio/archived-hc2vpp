@@ -1,0 +1,209 @@
+module vpp-acl {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:vpp:acl";
+  prefix "vpp-acl";
+
+  revision "2016-12-14" {
+    description
+      "Initial revision of vpp-acl model.";
+  }
+
+  import ietf-access-control-list {
+    prefix "acl";
+  }
+
+  import yang-ext {
+    prefix "ext";
+  }
+
+  import ietf-packet-fields {
+    prefix packet-fields;
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  import ietf-yang-types {
+    prefix yang;
+  }
+
+  augment /acl:access-lists/acl:acl/acl:access-list-entries/acl:ace/acl:actions/acl:packet-handling {
+    ext:augment-identifier "stateful-acl-action-augmentation";
+    case stateful {
+      leaf permit {
+        type empty;
+        description
+          "Permits egress TCP/UDP traffic and ingress in reverse direction by creating reflexive ACEs.";
+      }
+    }
+  }
+
+  identity vpp-acl {
+    base acl:acl-base;
+    description
+      "ACL that contains only aces of vpp-ace type.";
+  }
+
+  identity vpp-macip-acl {
+    base acl:acl-base;
+    description
+      "ACL that contains only aces of vpp-macip-acl type.";
+  }
+
+  grouping acl-icmp-header-fields {
+    description
+      "ICMP header fields";
+    container icmp-type-range {
+      presence "Enables setting icmp-type";
+      description
+        "Inclusive range representing icmp types to be used.";
+      leaf first-icmp-type {
+        type uint8;
+        mandatory true;
+        description
+          "Lower boundary for icmp type.";
+      }
+      leaf last-icmp-type {
+        type uint8;
+        mandatory true;
+        must ". >= ../lower-port" {
+          error-message
+          "The first-icmp-type must be greater than or equal to first-icmp-type";
+        }
+        description
+          "Upper boundary for icmp type";
+      }
+    }
+  }
+
+  grouping acl-tcp-header-fields {
+    description
+      "TCP header fields";
+    leaf tcp-flags-mask {
+      description
+        "Binary mask for tcp flags to match. MSB order (FIN at position 0).
+         Applied as logical AND to tcp flags field of the packet being matched,
+         before it is compared with tcp-flags-value.";
+      type uint8;
+    }
+    leaf tcp-flags-value {
+      description
+        "Binary value for tcp flags to match. MSB order (FIN at position 0).
+         Before tcp-flags-value is compared with tcp flags field of the packet being matched,
+         tcp-flags-mask is applied to packet field value.";
+      type uint8;
+    }
+  }
+
+  grouping acl-ip-protocol-header-fields {
+    description
+      "Defines header fields for TCP/UDP or ICMP protocols";
+    choice ip-protocol {
+      case icmp {
+        uses acl-icmp-header-fields;
+      }
+      case udp {
+        uses packet-fields:acl-transport-header-fields;
+      }
+      case tcp {
+        uses packet-fields:acl-transport-header-fields;
+        uses acl-tcp-header-fields;
+      }
+    }
+  }
+
+  augment /acl:access-lists/acl:acl/acl:access-list-entries/acl:ace/acl:matches/acl:ace-type {
+    ext:augment-identifier "vpp-acl-type-augmentation";
+    case vpp-ace {
+      description
+        "Access List entry that can define:
+         - IP4/IP6 src/dst ip prefix- Internet Protocol number
+         - Internet Protocol number
+         - selected L4 headers:
+           * ICMP (type range)
+           * UDP (port range)
+           * TCP (port range, flags mask, flags value)";
+      choice ace-ip-version {
+        description
+          "IP version used in this Access List Entry.";
+        mandatory true;
+        case ace-ipv4 {
+          uses packet-fields:acl-ipv4-header-fields;
+        }
+        case ace-ipv6 {
+          uses packet-fields:acl-ipv6-header-fields;
+        }
+      }
+      leaf protocol {
+        type uint8;
+        description
+          "Internet Protocol number.";
+      }
+      uses acl-ip-protocol-header-fields;
+    }
+  }
+
+  grouping vpp-macip-ace-eth-header-fields {
+    description
+      "Fields in Ethernet header supported by vpp-macip rule";
+    leaf source-mac-address {
+      type yang:mac-address;
+      description
+        "Source IEEE 802 MAC address.
+         Before source-mac-address is compared with source mac address field of the packet being matched,
+         source-mac-address-mask is applied to packet field value.";
+    }
+    leaf source-mac-address-mask {
+      type yang:mac-address;
+      description
+        "Source IEEE 802 MAC address mask.
+         Applied as logical AND with source mac address field of the packet being matched,
+         before it is compared with source-mac-address.";
+    }
+  }
+
+  grouping vpp-macip-ace-ipv4-header-fields {
+    description
+      "Fields in IPv4 header supported by vpp-macip rule";
+    leaf source-ipv4-network {
+      type inet:ipv4-prefix;
+      description
+        "Source IPv4 address prefix.";
+    }
+  }
+
+  grouping vpp-macip-ace-ipv6-header-fields {
+    description
+      "Fields in IPv6 header supported by vpp-macip rule";
+    leaf source-ipv6-network {
+      type inet:ipv6-prefix;
+      description
+        "Source IPv6 address prefix.";
+    }
+  }
+
+  augment /acl:access-lists/acl:acl/acl:access-list-entries/acl:ace/acl:matches/acl:ace-type {
+    ext:augment-identifier "vpp-macip-acl-type-augmentation";
+    case vpp-macip-ace {
+      description
+        "Access List entry that can define:
+         - IP4/IP6 src ip prefix
+         - src MAC address mask
+         - src MAC address value
+         - can be used only for static ACLs.";
+      choice ace-ip-version {
+        description
+          "IP version used in this Access List Entry.";
+        mandatory true;
+        case ace-ipv4 {
+          uses vpp-macip-ace-ipv4-header-fields;
+        }
+        case ace-ipv6 {
+          uses vpp-macip-ace-ipv6-header-fields;
+        }
+      }
+      uses vpp-macip-ace-eth-header-fields;
+    }
+  }
+}

@@ -1,0 +1,98 @@
+module interface-acl {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:interface:acl";
+  prefix "ifc-acl";
+
+  revision "2016-12-14" {
+    description "Initial revision of interface-acl model";
+  }
+
+  import ietf-interfaces {
+    prefix "if";
+  }
+  import yang-ext {
+    prefix "ext";
+  }
+  import ietf-yang-types {
+    prefix "yang";
+  }
+
+  import vpp-acl {
+    prefix "vpp-acl";
+  }
+
+  import ietf-access-control-list {
+    prefix "acl";
+  }
+
+  description "Augmentations to interfaces model to apply acls exposed by acl plugin of vpp";
+
+  grouping vpp-acl-base-attributes {
+    leaf tag {
+      type yang:hex-string {
+        length 64;
+      }
+      description
+        "Placeholder for ACL metadata. Value is stored in vpp, and returned in read requests. No processing involved.";
+    }
+  }
+
+  grouping vpp-acls-base-attributes  {
+    description
+      "List of ACLs of vpp-acl type"; // TODO express constraint in the model if possible
+    list vpp-acls {
+      key "type name";
+      ordered-by user;
+
+      leaf type {
+        type acl:acl-type;
+      }
+
+      leaf name {
+        type acl:access-control-list-ref;
+      }
+
+      uses vpp-acl-base-attributes;
+    }
+  }
+
+  grouping vpp-macip-acls-base-attributes  {
+    container vpp-macip-acl {
+      description
+        "ACL of vpp-macip-acl type"; // TODO express constraint in the model if possible
+
+      leaf type {
+        type acl:acl-type;
+      }
+
+      leaf name {
+        type acl:access-control-list-ref;
+      }
+
+      uses vpp-acl-base-attributes;
+    }
+  }
+
+  grouping interface-acl-attributes {
+    container acl {
+      container ingress {
+        uses vpp-acls-base-attributes;
+        uses vpp-macip-acls-base-attributes;
+      }
+      container egress {
+        uses vpp-acls-base-attributes;
+      }
+    }
+  }
+
+  augment /if:interfaces/if:interface {
+    ext:augment-identifier "vpp-acl-interface-augmentation";
+    uses interface-acl-attributes;
+  }
+
+  augment /if:interfaces-state/if:interface {
+    ext:augment-identifier "vpp-acl-interface-state-augmentation";
+    uses interface-acl-attributes;
+  }
+
+}
