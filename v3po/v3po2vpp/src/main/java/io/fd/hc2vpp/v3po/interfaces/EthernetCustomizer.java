@@ -16,43 +16,69 @@
 
 package io.fd.hc2vpp.v3po.interfaces;
 
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceSetMtu;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Ethernet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EthernetCustomizer extends FutureJVppCustomizer implements WriterCustomizer<Ethernet> {
+public class EthernetCustomizer extends AbstractInterfaceTypeCustomizer<Ethernet> implements JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(EthernetCustomizer.class);
+    private final NamingContext interfaceContext;
 
-    public EthernetCustomizer(final FutureJVppCore vppApi) {
+    public EthernetCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
         super(vppApi);
+        this.interfaceContext = interfaceContext;
     }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
+    protected Class<? extends InterfaceType> getExpectedInterfaceType() {
+        return EthernetCsmacd.class;
+    }
+
+    @Override
+    public void writeInterface(@Nonnull final InstanceIdentifier<Ethernet> id,
                                        @Nonnull final Ethernet dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-        LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
-        // VPP API does not support setting MTU
+        throws WriteFailedException {
+        setEthernetAttributes(id, dataAfter, writeContext);
     }
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
                                         @Nonnull final Ethernet dataBefore, @Nonnull final Ethernet dataAfter,
-                                        @Nonnull final WriteContext writeContext) {
-        LOG.warn("Unsupported, ignoring configuration {}", dataAfter);
+                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        setEthernetAttributes(id, dataAfter, writeContext);
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
-                                        @Nonnull final Ethernet dataBefore, @Nonnull final WriteContext writeContext) {
-        LOG.warn("Unsupported, ignoring configuration delete {}", id);
+                                        @Nonnull final Ethernet dataBefore, @Nonnull final WriteContext writeContext)
+        throws WriteFailedException.DeleteFailedException {
+        throw new WriteFailedException.DeleteFailedException(id,
+            new UnsupportedOperationException("Removing interface of Ethernet class is not supported"));
+    }
+
+    private void setEthernetAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
+                                       @Nonnull final Ethernet dataAfter, @Nonnull final WriteContext writeContext)
+        throws WriteFailedException {
+        final String name = id.firstKeyOf(Interface.class).getName();
+        final int index = interfaceContext.getIndex(name, writeContext.getMappingContext());
+        LOG.debug("Setting Ethernet attributes for interface: {}, {}. Ethernet: {}", name, index, dataAfter);
+        final SwInterfaceSetMtu request = new SwInterfaceSetMtu();
+        request.swIfIndex = index;
+        request.mtu = dataAfter.getMtu().shortValue();
+        getReplyForWrite(getFutureJVpp().swInterfaceSetMtu(request).toCompletableFuture(), id);
+        LOG.debug("Ethernet attributes set successfully for: {}, {}. Ethernet: {}", name, index, dataAfter);
     }
 }
