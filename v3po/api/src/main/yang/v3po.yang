@@ -271,6 +271,17 @@ module v3po {
     }
   }
 
+  grouping routing-base-attributes {
+    leaf ipv4-vrf-id {
+      type uint32;
+    }
+    leaf ipv6-vrf-id {
+      type uint32;
+    }
+    description
+      "Defines VRF tables used for ipv4 and ipv6 traffic";
+  }
+
   grouping ethernet-state-attributes {
     leaf manufacturer-description {
       type string;
@@ -472,15 +483,7 @@ module v3po {
     }
 
     container routing {
-      // TODO (HONEYCOMB-127): add routing info for oper
-      leaf ipv4-vrf-id {
-        type uint32;
-      }
-      leaf ipv6-vrf-id {
-        type uint32;
-      }
-      description
-        "Defines VRF tables used for ipv4 and ipv6 traffic";
+      uses routing-base-attributes;
     }
 
     container vhost-user {
@@ -576,6 +579,10 @@ module v3po {
       when "../if:type = 'ianaift:ethernetCsmacd'";
       uses ethernet-base-attributes;
       uses ethernet-state-attributes;
+    }
+
+    container routing {
+      uses routing-base-attributes;
     }
 
     container vhost-user {

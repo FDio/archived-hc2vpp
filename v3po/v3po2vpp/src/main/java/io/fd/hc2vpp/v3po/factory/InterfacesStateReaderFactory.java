@@ -26,6 +26,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.L2Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.ProxyArpCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.RoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
@@ -62,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.ProxyArp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Span;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.SpanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Tap;
@@ -145,7 +147,10 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         registry.addStructuralReader(vppIfcAugId, VppInterfaceStateAugmentationBuilder.class);
         //    Ethernet
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Ethernet.class),
-                        new EthernetCustomizer(jvpp, ifcNamingCtx)));
+            new EthernetCustomizer(jvpp, ifcNamingCtx)));
+        //    Routing
+        registry.add(new GenericInitReader<>(vppIfcAugId.child(Routing.class),
+            new RoutingCustomizer(jvpp, ifcNamingCtx)));
         //    Tap
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Tap.class), new TapCustomizer(jvpp, ifcNamingCtx)));
         //    VhostUser
