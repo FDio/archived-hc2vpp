@@ -51,6 +51,23 @@ module vpp-acl {
       "ACL that contains only aces of vpp-macip-acl type.";
   }
 
+  grouping value-range {
+    description "Defines value range with first and last value defined";
+
+    leaf first {
+        type uint8;
+        mandatory true;
+        description "Lower boundary for range";
+    }
+
+    leaf last {
+        type uint8;
+        mandatory true;
+        description "Upper boundary for range";
+        must "last >= first";
+    }
+  }
+
   grouping acl-icmp-header-fields {
     description
       "ICMP header fields";
@@ -58,22 +75,14 @@ module vpp-acl {
       presence "Enables setting icmp-type";
       description
         "Inclusive range representing icmp types to be used.";
-      leaf first-icmp-type {
-        type uint8;
-        mandatory true;
-        description
-          "Lower boundary for icmp type.";
-      }
-      leaf last-icmp-type {
-        type uint8;
-        mandatory true;
-        must ". >= ../lower-port" {
-          error-message
-          "The first-icmp-type must be greater than or equal to first-icmp-type";
-        }
-        description
-          "Upper boundary for icmp type";
-      }
+      uses value-range;
+    }
+
+    container icmp-code-range {
+      presence "Enables setting icmp-code";
+      description
+          "Inclusive range representing icmp codes to be used.";
+      uses value-range;
     }
   }
 
