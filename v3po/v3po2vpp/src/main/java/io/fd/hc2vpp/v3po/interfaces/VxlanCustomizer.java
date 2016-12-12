@@ -18,27 +18,33 @@ package io.fd.hc2vpp.v3po.interfaces;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.net.InetAddresses;
-import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
-import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
+
 import javax.annotation.Nonnull;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.L2Input;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.NshProxy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VxlanTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Vxlan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.net.InetAddresses;
+
+import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
+import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> implements JvppReplyConsumer {
 
@@ -48,8 +54,8 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
     private final DisabledInterfacesManager interfaceDisableContext;
 
     public VxlanCustomizer(@Nonnull final FutureJVppCore vppApi,
-                           @Nonnull final NamingContext interfaceNamingContext,
-                           @Nonnull final DisabledInterfacesManager interfaceDisableContext) {
+            @Nonnull final NamingContext interfaceNamingContext,
+            @Nonnull final DisabledInterfacesManager interfaceDisableContext) {
         super(vppApi);
         this.interfaceNamingContext = interfaceNamingContext;
         this.interfaceDisableContext = interfaceDisableContext;
@@ -62,44 +68,51 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
 
     @Override
     protected final void writeInterface(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataAfter,
-                                        @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
+            @Nonnull final WriteContext writeContext)
+                    throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         createVxlanTunnel(id, swIfName, dataAfter, writeContext);
     }
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
-                                        @Nonnull final Vxlan dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException.UpdateFailedException {
+            @Nonnull final Vxlan dataAfter, @Nonnull final WriteContext writeContext)
+                    throws WriteFailedException.UpdateFailedException {
         throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
                 new UnsupportedOperationException("Vxlan tunnel update is not supported"));
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
-                                        @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
+            @Nonnull final WriteContext writeContext)
+                    throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         deleteVxlanTunnel(id, swIfName, dataBefore, writeContext);
     }
 
     private void createVxlanTunnel(final InstanceIdentifier<Vxlan> id, final String swIfName, final Vxlan vxlan,
-                                   final WriteContext writeContext)
-            throws WriteFailedException {
+            final WriteContext writeContext)
+                    throws WriteFailedException {
         final byte isIpv6 = (byte) (isIpv6(vxlan)
                 ? 1
-                : 0);
+                        : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
 
         int encapVrfId = vxlan.getEncapVrfId().intValue();
         int vni = vxlan.getVni().getValue().intValue();
 
+        int decapNext = -1;
+        if (vxlan.getDecapNext() == L2Input.class) {
+            decapNext = 1;
+        } else if (vxlan.getDecapNext() == NshProxy.class) {
+            decapNext = 2;
+        }
+
         LOG.debug("Setting vxlan tunnel for interface: {}. Vxlan: {}", swIfName, vxlan);
         final CompletionStage<VxlanAddDelTunnelReply> vxlanAddDelTunnelReplyCompletionStage =
                 getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 1 /* is add */, srcAddress.getAddress(),
-                        dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
+                        dstAddress.getAddress(), encapVrfId, decapNext, vni, isIpv6));
 
         final VxlanAddDelTunnelReply reply =
                 getReplyForCreate(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id, vxlan);
@@ -145,24 +158,31 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
     private String getAddressString(final IpAddress addr) {
         return addr.getIpv4Address() == null
                 ? addr.getIpv6Address().getValue()
-                : addr.getIpv4Address().getValue();
+                        : addr.getIpv4Address().getValue();
     }
 
     private void deleteVxlanTunnel(final InstanceIdentifier<Vxlan> id, final String swIfName, final Vxlan vxlan,
-                                   final WriteContext writeContext) throws WriteFailedException {
+            final WriteContext writeContext) throws WriteFailedException {
         final byte isIpv6 = (byte) (isIpv6(vxlan)
                 ? 1
-                : 0);
+                        : 0);
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
 
         int encapVrfId = vxlan.getEncapVrfId().intValue();
         int vni = vxlan.getVni().getValue().intValue();
 
+        int decapNext = -1;
+        if (vxlan.getDecapNext() == L2Input.class) {
+            decapNext = 1;
+        } else if (vxlan.getDecapNext() == NshProxy.class) {
+            decapNext = 2;
+        }
+
         LOG.debug("Deleting vxlan tunnel for interface: {}. Vxlan: {}", swIfName, vxlan);
         final CompletionStage<VxlanAddDelTunnelReply> vxlanAddDelTunnelReplyCompletionStage =
                 getFutureJVpp().vxlanAddDelTunnel(getVxlanTunnelRequest((byte) 0 /* is add */, srcAddress.getAddress(),
-                        dstAddress.getAddress(), encapVrfId, -1, vni, isIpv6));
+                        dstAddress.getAddress(), encapVrfId, decapNext, vni, isIpv6));
 
         getReplyForDelete(vxlanAddDelTunnelReplyCompletionStage.toCompletableFuture(), id);
         LOG.debug("Vxlan tunnel deleted successfully for: {}, vxlan: {}", swIfName, vxlan);
@@ -177,8 +197,8 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
     }
 
     private static VxlanAddDelTunnel getVxlanTunnelRequest(final byte isAdd, final byte[] srcAddr, final byte[] dstAddr,
-                                                           final int encapVrfId,
-                                                           final int decapNextIndex, final int vni, final byte isIpv6) {
+            final int encapVrfId,
+            final int decapNextIndex, final int vni, final byte isIpv6) {
         final VxlanAddDelTunnel vxlanAddDelTunnel = new VxlanAddDelTunnel();
         vxlanAddDelTunnel.isAdd = isAdd;
         vxlanAddDelTunnel.srcAddress = srcAddr;

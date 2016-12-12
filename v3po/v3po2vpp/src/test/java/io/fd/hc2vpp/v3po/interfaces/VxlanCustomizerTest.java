@@ -20,22 +20,13 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.net.InetAddresses;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
-import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -44,11 +35,23 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.L2Input;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VxlanVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import com.google.common.net.InetAddresses;
+
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
 
 public class VxlanCustomizerTest extends WriterCustomizerTest {
 
@@ -68,6 +71,7 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
         builder.setDst(new IpAddress(new Ipv4Address("192.168.20.11")));
         builder.setEncapVrfId(Long.valueOf(123));
         builder.setVni(new VxlanVni(Long.valueOf(vni)));
+        builder.setDecapNext(L2Input.class);
         return builder.build();
     }
 
@@ -78,14 +82,14 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
     @Override
     public void setUpTest() throws Exception {
         InterfaceTypeTestUtils.setupWriteContext(writeContext,
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VxlanTunnel.class);
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VxlanTunnel.class);
 
         customizer =
-            new VxlanCustomizer(api, new NamingContext("generateInterfaceNAme", "test-instance"), disableContext);
+                new VxlanCustomizer(api, new NamingContext("generateInterfaceNAme", "test-instance"), disableContext);
 
         ifaceName = "eth0";
         id = InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(ifaceName))
-            .augmentation(VppInterfaceAugmentation.class).child(Vxlan.class);
+                .augmentation(VppInterfaceAugmentation.class).child(Vxlan.class);
     }
 
     private void whenVxlanAddDelTunnelThenSuccess() {
@@ -101,11 +105,11 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
         verify(api).vxlanAddDelTunnel(argumentCaptor.capture());
         final VxlanAddDelTunnel actual = argumentCaptor.getValue();
         assertEquals(0, actual.isIpv6);
-        assertEquals(-1, actual.decapNextIndex);
+        assertEquals(1, actual.decapNextIndex);
         assertArrayEquals(InetAddresses.forString(vxlan.getSrc().getIpv4Address().getValue()).getAddress(),
-            actual.srcAddress);
+                actual.srcAddress);
         assertArrayEquals(InetAddresses.forString(vxlan.getDst().getIpv4Address().getValue()).getAddress(),
-            actual.dstAddress);
+                actual.dstAddress);
         assertEquals(vxlan.getEncapVrfId().intValue(), actual.encapVrfId);
         assertEquals(vxlan.getVni().getValue().intValue(), actual.vni);
         return actual;
@@ -161,7 +165,7 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
         // Remove the first mapping before putting in the new one
         verify(mappingContext).delete(eq(mappingIid(ifaceName, "test-instance")));
         verify(mappingContext)
-            .put(eq(mappingIid(ifaceName, "test-instance")), eq(mapping(ifaceName, ifaceId).get()));
+        .put(eq(mappingIid(ifaceName, "test-instance")), eq(mapping(ifaceName, ifaceId).get()));
     }
 
     @Test
@@ -177,7 +181,7 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
             verifyVxlanAddWasInvoked(vxlan);
             // Mapping not stored due to failure
             verify(mappingContext, times(0))
-                .put(eq(mappingIid(ifaceName, "test-instance")), eq(mapping(ifaceName, 0).get()));
+            .put(eq(mappingIid(ifaceName, "test-instance")), eq(mapping(ifaceName, 0).get()));
             return;
         }
         fail("WriteFailedException.CreateFailedException was expected");

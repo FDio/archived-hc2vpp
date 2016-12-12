@@ -328,6 +328,28 @@ module v3po {
     }
   }
 
+  /*
+   * Defines the supported decap node for vxlan.
+   */
+  identity decap-node {
+    description
+    "Define the supported decap node";
+  }
+  identity l2-input {
+    base decap-node;
+    description
+    "The next decap node is l2-input";
+  }
+  identity nsh-proxy {
+    base decap-node;
+    description
+    "The next decap node is nsh-proxy";
+  }
+  typedef vxlan-decap-node {
+    type identityref {
+      base "decap-node";
+    }
+  }
   grouping vxlan-base-attributes {
     // FIXME: this should be in an vxlan-specific extension
     leaf src {
@@ -344,6 +366,10 @@ module v3po {
     }
     leaf encap-vrf-id {
       type uint32;
+    }
+    leaf decap-next {
+      type vxlan-decap-node;
+      default "l2-input";
     }
   }
 
