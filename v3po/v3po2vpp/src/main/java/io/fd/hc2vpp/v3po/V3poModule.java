@@ -34,9 +34,11 @@ import io.fd.hc2vpp.v3po.factory.VppStateHoneycombReaderFactory;
 import io.fd.hc2vpp.v3po.interfaces.acl.egress.EgressIetfAclWriter;
 import io.fd.hc2vpp.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
 import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducer;
+import io.fd.hc2vpp.v3po.rpc.CliInbandService;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManagerImpl;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
+import io.fd.honeycomb.rpc.RpcService;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import java.util.concurrent.Executors;
@@ -98,6 +100,11 @@ public class V3poModule extends AbstractModule {
         final Multibinder<ManagedNotificationProducer> notifiersBinder =
                 Multibinder.newSetBinder(binder(), ManagedNotificationProducer.class);
         notifiersBinder.addBinding().to(InterfaceChangeNotificationProducer.class);
+
+        // RPCs
+        final Multibinder<RpcService> rpcsBinder = Multibinder.newSetBinder(binder(), RpcService.class);
+        rpcsBinder.addBinding().to(CliInbandService.class);
+
         LOG.info("Module V3PO successfully configured");
     }
 }

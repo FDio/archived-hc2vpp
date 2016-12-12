@@ -765,4 +765,17 @@ module v3po {
         type interface-name-or-index;
     }
   }
+
+  rpc cli-inband {
+    input {
+      leaf cmd {
+        type string;
+      }
+    }
+    output {
+      leaf reply {
+        type string;
+      }
+    }
+  }
 }
