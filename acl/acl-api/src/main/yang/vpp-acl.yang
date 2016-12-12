@@ -30,6 +30,7 @@ module vpp-acl {
 
   augment /acl:access-lists/acl:acl/acl:access-list-entries/acl:ace/acl:actions/acl:packet-handling {
     ext:augment-identifier "stateful-acl-action-augmentation";
+    when "../acl:matches/acl:ace-type = 'vpp-acl:vpp-acl'";
     case stateful {
       leaf permit {
         type empty;
@@ -105,11 +106,23 @@ module vpp-acl {
     }
   }
 
+  grouping acl-other-protocol-fields {
+    description "Used for any other protocol than TCP/UDP/ICMP/ICMPv6";
+      leaf protocol {
+        must "protocol != 1 and protocol != 6 and protocol != 17 and protocol != 58";
+        type uint8;
+        description "Internet Protocol number.";
+    }
+  }
+
   grouping acl-ip-protocol-header-fields {
     description
       "Defines header fields for TCP/UDP or ICMP protocols";
     choice ip-protocol {
       case icmp {
+        uses acl-icmp-header-fields;
+      }
+      case icmp-v6 {
         uses acl-icmp-header-fields;
       }
       case udp {
@@ -118,6 +131,9 @@ module vpp-acl {
       case tcp {
         uses packet-fields:acl-transport-header-fields;
         uses acl-tcp-header-fields;
+      }
+      case other {
+        uses acl-other-protocol-fields;
       }
     }
   }
@@ -143,11 +159,6 @@ module vpp-acl {
         case ace-ipv6 {
           uses packet-fields:acl-ipv6-header-fields;
         }
-      }
-      leaf protocol {
-        type uint8;
-        description
-          "Internet Protocol number.";
       }
       uses acl-ip-protocol-header-fields;
     }
