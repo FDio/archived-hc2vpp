@@ -18,22 +18,32 @@ package io.fd.hc2vpp.vppioam.impl.oper;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfig;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfig;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.PotProfiles;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.PotProfilesBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileList;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profiles.PotProfileSet;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profiles.PotProfileSetBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class VppIoamReaderFactory implements ReaderFactory {
 
+    @Nonnull
     FutureJVppIoamtrace jVppIoamtrace;
+    @Nonnull
+    FutureJVppIoampot jVppIoampot;
 
     @Inject
-    VppIoamReaderFactory(FutureJVppIoamtrace jVppIoamtrace){
+    VppIoamReaderFactory(FutureJVppIoamtrace jVppIoamtrace, FutureJVppIoampot jVppIoampot){
 
         this.jVppIoamtrace = jVppIoamtrace;
+        this.jVppIoampot = jVppIoampot;
     }
 
     /**
@@ -52,5 +62,18 @@ public class VppIoamReaderFactory implements ReaderFactory {
         final InstanceIdentifier<TraceConfig> traceConfigId = ioamTraceConfigId.child(TraceConfig.class);
         registry.add(new GenericInitListReader<>(traceConfigId,
                 new TraceProfileReaderCustomizer(jVppIoamtrace)));
+
+        //PotProfiles (Structural)
+        final InstanceIdentifier<PotProfiles> potProfilesInstanceIdentifier = InstanceIdentifier.create(PotProfiles.class);
+        registry.addStructuralReader(potProfilesInstanceIdentifier, PotProfilesBuilder.class);
+        //PotProfileSet (Structural)
+        final InstanceIdentifier<PotProfileSet> potProfileSetInstanceIdentifier =
+                potProfilesInstanceIdentifier.child(PotProfileSet.class);
+        registry.addStructuralReader(potProfileSetInstanceIdentifier, PotProfileSetBuilder.class);
+        //PotProfileList
+        final InstanceIdentifier<PotProfileList> potProfileListInstanceIdentifier= potProfileSetInstanceIdentifier.child(PotProfileList.class);
+        registry.add(new GenericInitListReader<>(potProfileListInstanceIdentifier,
+                new PotProfileReaderCustomizer(jVppIoampot)));
+
     }
 }

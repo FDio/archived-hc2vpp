@@ -26,6 +26,7 @@ import io.fd.vpp.jvpp.ioampot.dto.PotProfileAddReply;
 import io.fd.vpp.jvpp.ioampot.dto.PotProfileDel;
 import io.fd.vpp.jvpp.ioampot.dto.PotProfileDelReply;
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileList;
@@ -125,11 +126,10 @@ public class IoamPotWriterCustomizer extends FutureJVppIoampotCustomizer impleme
         PotProfileAdd request = new PotProfileAdd();
             request.id = potProfileList.getIndex().getValue().byteValue();
             request.validator = (byte) (potProfileList.isValidator() ? 1 : 0);
-            request.secretKey = 1;
             request.secretShare = potProfileList.getSecretShare().longValue();
             request.prime = potProfileList.getPrimeNumber().longValue();
             request.secretKey = potProfileList.getValidatorKey().longValue();
-            request.maxBits = 64;
+            request.maxBits = getMaxBitsfromBitmask(potProfileList.getBitmask());
             request.lpc = potProfileList.getLpc().longValue();
             request.polynomialPublic = potProfileList.getPublicPolynomial().longValue();
             request.listNameLen = (byte) name.getBytes(StandardCharsets.UTF_8).length;
@@ -145,5 +145,14 @@ public class IoamPotWriterCustomizer extends FutureJVppIoampotCustomizer impleme
         request.listName = potProfileSet.getName().getBytes(StandardCharsets.UTF_8);
 
         return getReplyForWrite(getFutureJVppIoampot().potProfileDel(request).toCompletableFuture(),id);
+    }
+
+    static byte getMaxBitsfromBitmask(BigInteger bitmask){
+        byte numOfBits = 0;
+        while ((bitmask.and(BigInteger.ONE)).equals(BigInteger.ONE)){
+            bitmask=bitmask.shiftRight(1);
+            numOfBits++;
+        }
+        return numOfBits;
     }
 }

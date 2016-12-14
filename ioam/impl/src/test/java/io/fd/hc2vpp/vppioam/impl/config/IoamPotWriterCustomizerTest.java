@@ -61,7 +61,7 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
     private static PotProfileList generatePotProfileList() {
         final PotProfileListBuilder builder= new PotProfileListBuilder();
         builder.setIndex(new ProfileIndexRange(1));
-        builder.setBitmask(new BigInteger("1"));
+        builder.setBitmask(new BigInteger("64"));
         builder.setKey(new PotProfileListKey(new ProfileIndexRange(1)));
         builder.setLpc(new BigInteger("1233"));
         builder.setPrimeNumber(new BigInteger("1001"));
@@ -115,7 +115,7 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
         request.secretKey = 1;
         request.secretShare = 1234;
         request.prime = 1001;
-        request.maxBits = 64;
+        request.maxBits = IoamPotWriterCustomizer.getMaxBitsfromBitmask(BigInteger.valueOf(64));
         request.lpc = 1233;
         request.polynomialPublic = 1234;
         request.listNameLen = (byte)POT_TEST_NAME.getBytes(StandardCharsets.UTF_8).length;
