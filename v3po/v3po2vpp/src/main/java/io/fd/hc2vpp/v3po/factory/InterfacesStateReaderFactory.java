@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.v3po.factory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -72,6 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.MirroredInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip6Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.L2Acl;
@@ -186,8 +188,10 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         final InstanceIdentifier<Span> spanId = vppIfcAugId.child(Span.class);
         registry.addStructuralReader(spanId, SpanBuilder.class);
         //  MirroredInterfaces
-        registry.add(new GenericInitReader<>(spanId.child(MirroredInterfaces.class),
-                new MirroredInterfacesCustomizer(jvpp, ifcNamingCtx)));
+        registry.subtreeAdd(
+                ImmutableSet.of(InstanceIdentifier.create(MirroredInterfaces.class).child(MirroredInterface.class)),
+                new GenericInitReader<>(spanId.child(MirroredInterfaces.class),
+                        new MirroredInterfacesCustomizer(jvpp, ifcNamingCtx)));
     }
 
     private void initPbbRewriteAugmentation(final ModifiableReaderRegistryBuilder registry,

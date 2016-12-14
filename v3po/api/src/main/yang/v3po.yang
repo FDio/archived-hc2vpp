@@ -142,6 +142,35 @@ module v3po {
     }
   }
 
+
+  typedef span-state {
+    type enumeration {
+      enum "receive" {
+        value "1";
+        description
+            "Receive (Rx) SPAN—The goal of receive (or ingress) SPAN
+             is to monitor as much as possible all the packets received by the source interface.
+             A copy of each packet received by the source is sent to the destination port for that SPAN session.
+             You can monitor a series or range of ingress ports in a SPAN session.";
+      }
+
+      enum "transmit" {
+        value "2";
+        description
+            "Transmit (Tx) SPAN—The goal of transmit (or egress) SPAN is to monitor as much as possible all the packets
+             sent by the source interface after all modification and processing is performed by the switch.
+             A copy of each packet sent by the source is sent to the destination port for that SPAN session.
+             The copy is provided after the packet is modified. Monitors a range of egress ports in a SPAN session.";
+      }
+
+      enum "both" {
+        value "3";
+        description
+            "In a SPAN session, you can monitor a series or range of ports for both received and sent packets.";
+      }
+    }
+  }
+
   grouping bridge-domain-attributes {
     leaf flood {
       type boolean;
@@ -477,8 +506,16 @@ module v3po {
     description "Parameters of the SPAN feature";
 
     container mirrored-interfaces {
-      leaf-list mirrored-interface {
-        type if:interface-ref; // todo use interface-state-ref for operational data?
+      list mirrored-interface {
+        key "iface-ref";
+        leaf iface-ref {
+          type if:interface-ref; // todo use interface-state-ref for operational data?
+        }
+
+        leaf state {
+          type span-state;
+          mandatory true;
+        }
       }
     }
   }

@@ -41,7 +41,7 @@ import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4Customizer;
 import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4NeighbourCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.ip.Ipv6Customizer;
 import io.fd.hc2vpp.v3po.interfaces.pbb.PbbRewriteCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.span.MirroredInterfacesCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.span.MirroredInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
@@ -71,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.MirroredInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip4Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip6Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.L2Acl;
@@ -198,10 +199,11 @@ public final class InterfacesWriterFactory implements WriterFactory {
 
         // Span writers
         //  Mirrored interfaces
-        final InstanceIdentifier<MirroredInterfaces> mirroredIfcsId = VPP_IFC_AUG_ID
+        final InstanceIdentifier<MirroredInterface> mirroredIfcId = VPP_IFC_AUG_ID
                 .child(Span.class)
-                .child(MirroredInterfaces.class);
-        registry.addAfter(new GenericWriter<>(mirroredIfcsId, new MirroredInterfacesCustomizer(jvpp, ifcNamingContext)),
+                .child(MirroredInterfaces.class)
+                .child(MirroredInterface.class);
+        registry.addAfter(new GenericWriter<>(mirroredIfcId, new MirroredInterfaceCustomizer(jvpp, ifcNamingContext)),
                 ifcId);
     }
 

@@ -1770,7 +1770,7 @@
 			"description": "set span src local0 dst GigabiteEthernet0/8/0",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\r\n    \r\n    \"span\": {\r\n    \t\"mirrored-interfaces\": {\r\n    \t\t\"mirrored-interface\": [\"local0\"]\r\n    \t}\r\n    }\r\n    \r\n}"
+			"rawModeData": "{\r\n    \r\n    \"span\": {\r\n    \t\"mirrored-interfaces\": {\r\n    \t\t\"mirrored-interface\": [{\"iface-ref\":\"local0\",\"state\":\"receive\"}]\r\n    \t}\r\n    }\r\n    \r\n}"
 		},
 		{
 			"id": "ea9e0f3b-ede6-2104-892b-bb8fd72e3d5d",

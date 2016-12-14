@@ -32,11 +32,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.SpanState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Span;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.SpanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.MirroredInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.mirrored.interfaces.MirroredInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.mirrored.interfaces.MirroredInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.mirrored.interfaces.MirroredInterfaceKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -79,10 +83,20 @@ public final class MirroredInterfacesCustomizer
             ctx.getModificationCache().put(getCacheKey(), replyForRead);
         }
 
-        final List<String> mirroredInterfaces =
+        final List<MirroredInterface> mirroredInterfaces =
                 replyForRead.swInterfaceSpanDetails.stream()
                         .filter(detail -> detail.swIfIndexTo == dstId)
-                        .map(detail -> ifcContext.getName(detail.swIfIndexFrom, ctx.getMappingContext()))
+                        .filter(detail -> detail.state != 0) // filters disabled(we use disabled as delete)
+                        .map(detail -> {
+                                    final String interfaceName =
+                                            ifcContext.getName(detail.swIfIndexFrom, ctx.getMappingContext());
+                                    return new MirroredInterfaceBuilder()
+                                            .setIfaceRef(interfaceName)
+                                            .setKey(new MirroredInterfaceKey(interfaceName))
+                                            .setState(SpanState.forValue(detail.state))
+                                            .build();
+                                }
+                        )
                         .collect(Collectors.toList());
 
         LOG.debug("Mirrored interfaces for: {} read as: {}", id, mirroredInterfaces);
