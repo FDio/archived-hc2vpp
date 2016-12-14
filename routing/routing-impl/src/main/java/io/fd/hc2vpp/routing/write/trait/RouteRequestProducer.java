@@ -133,6 +133,11 @@ public interface RouteRequestProducer extends ByteDataTranslator, AddressTransla
         request.classifyTableIndex = classifyTableIndex;
         request.isClassify = classifyTableSet;
 
+        // not used, prevents crash
+        // TODO - remove after VPP-559
+        request.nextHopOutLabelStack = new int[0];
+
+
         return request;
     }
 }

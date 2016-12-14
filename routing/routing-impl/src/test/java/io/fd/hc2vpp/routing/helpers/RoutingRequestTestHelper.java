@@ -113,6 +113,7 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
         request.isLocal = toByte(isLocal);
         request.isUnreach = toByte(isUnreach);
         request.isProhibit = toByte(isProhibit);
+        request.nextHopOutLabelStack = new int[0];
         return request;
     }
 
