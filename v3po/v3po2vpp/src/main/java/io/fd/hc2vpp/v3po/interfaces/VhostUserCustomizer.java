@@ -30,6 +30,7 @@ import io.fd.vpp.jvpp.core.dto.DeleteVhostUserIfReply;
 import io.fd.vpp.jvpp.core.dto.ModifyVhostUserIf;
 import io.fd.vpp.jvpp.core.dto.ModifyVhostUserIfReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
@@ -91,6 +92,10 @@ public class VhostUserCustomizer extends AbstractInterfaceTypeCustomizer<VhostUs
         } else {
             request.renumber = 1;
             request.customDevInstance = Math.toIntExact(deviceInstance);
+        }
+        final String tag = vhostUser.getTag();
+        if (tag != null) {
+            request.tag = tag.getBytes(StandardCharsets.US_ASCII);
         }
         request.useCustomMac = 0;
         request.macAddress = new byte[]{};

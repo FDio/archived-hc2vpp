@@ -16,14 +16,14 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDetailsReplyDump;
@@ -114,13 +114,20 @@ public class TapCustomizer extends FutureJVppCustomizer
         LOG.trace("Tap interface: {} attributes returned from VPP: {}", key.getName(), swInterfaceTapDetails);
 
         builder.setTapName(toString(swInterfaceTapDetails.devName));
+
+        final SwInterfaceDetails ifcDetails = getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
+            interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache(), LOG);
+
+        if (ifcDetails.tag[0] != 0) { // tag supplied
+            builder.setTag(toString(ifcDetails.tag));
+        }
         LOG.debug("Tap interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
 
     @Override
     public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Tap> init(
             @Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap readValue, @Nonnull final ReadContext ctx) {
-        // The MAC address is set from interface details, those details are retrieved from cache
+        // The MAC address & tag is set from interface details, those details are retrieved from cache
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
         final SwInterfaceDetails ifcDetails =
@@ -130,6 +137,7 @@ public class TapCustomizer extends FutureJVppCustomizer
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.TapBuilder()
                         .setMac(new PhysAddress(vppPhysAddrToYang(ifcDetails.l2Address)))
                         .setTapName(readValue.getTapName())
+                        .setTag(ifcDetails.tag[0] == 0 ? null : toString(ifcDetails.tag))
 //                            tapBuilder.setDeviceInstance();
                         .build());
     }

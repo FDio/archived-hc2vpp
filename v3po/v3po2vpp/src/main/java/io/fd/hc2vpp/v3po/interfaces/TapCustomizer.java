@@ -29,6 +29,7 @@ import io.fd.vpp.jvpp.core.dto.TapDeleteReply;
 import io.fd.vpp.jvpp.core.dto.TapModify;
 import io.fd.vpp.jvpp.core.dto.TapModifyReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
@@ -98,7 +99,7 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> implemen
                            final WriteContext writeContext) throws WriteFailedException {
         LOG.debug("Setting tap interface: {}. Tap: {}", swIfName, tap);
         final CompletionStage<TapConnectReply> tapConnectFuture = getFutureJVpp()
-                .tapConnect(getTapConnectRequest(tap.getTapName(), tap.getMac(), tap.getDeviceInstance()));
+                .tapConnect(getTapConnectRequest(tap));
         final TapConnectReply reply = getReplyForCreate(tapConnectFuture.toCompletableFuture(), id, tap);
         LOG.debug("Tap set successfully for: {}, tap: {}", swIfName, tap);
         // Add new interface to our interface context
@@ -128,10 +129,11 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> implemen
         interfaceContext.removeName(swIfName, writeContext.getMappingContext());
     }
 
-    private TapConnect getTapConnectRequest(final String tapName, final PhysAddress mac, final Long deviceInstance) {
+    private TapConnect getTapConnectRequest(final Tap tap) {
         final TapConnect tapConnect = new TapConnect();
-        tapConnect.tapName = tapName.getBytes();
+        tapConnect.tapName = tap.getTapName().getBytes();
 
+        final PhysAddress mac = tap.getMac();
         if (mac == null) {
             tapConnect.useRandomMac = 1;
             tapConnect.macAddress = new byte[6];
@@ -140,11 +142,17 @@ public class TapCustomizer extends AbstractInterfaceTypeCustomizer<Tap> implemen
             tapConnect.macAddress = parseMac(mac.getValue());
         }
 
+        final Long deviceInstance = tap.getDeviceInstance();
         if (deviceInstance == null) {
             tapConnect.renumber = 0;
         } else {
             tapConnect.renumber = 1;
             tapConnect.customDevInstance = Math.toIntExact(deviceInstance);
+        }
+
+        final String tag = tap.getTag();
+        if (tag != null) {
+            tapConnect.tag = tag.getBytes(StandardCharsets.US_ASCII);
         }
 
         return tapConnect;

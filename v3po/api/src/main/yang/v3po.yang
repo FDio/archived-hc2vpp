@@ -257,12 +257,24 @@ module v3po {
     }
   }
 
+  grouping interface-tag {
+    leaf tag {
+      type string {
+        length 1..63;
+      }
+      description
+        "ASCII string placeholder for interface metadata. Value is stored in vpp,
+         and returned in read requests. No processing involved.";
+    }
+  }
+
   grouping tap-interface-base-attributes {
     leaf tap-name {
       type string{
         pattern "[a-zA-Z0-9\-;.+@$#^&*!_()=\[\]]*";
       }
     }
+    uses interface-tag;
   }
 
   grouping tap-interface-config-attributes {
@@ -335,6 +347,7 @@ module v3po {
       type vhost-user-role;
       default "server";
     }
+    uses interface-tag;
     description "vhost-user settings";
   }
 

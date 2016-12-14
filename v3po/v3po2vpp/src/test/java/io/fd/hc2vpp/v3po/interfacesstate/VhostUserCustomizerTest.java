@@ -67,6 +67,7 @@ public class VhostUserCustomizerTest extends ReaderCustomizerTest<VhostUser, Vho
         final SwInterfaceDetails details = new SwInterfaceDetails();
         details.swIfIndex = IF_INDEX;
         details.interfaceName = IF_NAME.getBytes();
+        details.tag = new byte[64];
         return details;
     }
 

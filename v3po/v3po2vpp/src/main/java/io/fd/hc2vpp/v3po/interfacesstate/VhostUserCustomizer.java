@@ -24,6 +24,7 @@ import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDump;
@@ -120,6 +121,9 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         LOG.trace("Vhost user interface: {} attributes returned from VPP: {}", key.getName(),
                 swInterfaceVhostUserDetails);
 
+        final SwInterfaceDetails ifcDetails = getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
+            interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache(), LOG);
+
         builder.setRole(swInterfaceVhostUserDetails.isServer == 1
                 ? VhostUserRole.Server
                 : VhostUserRole.Client);
@@ -129,6 +133,9 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         builder.setVirtioNetHdrSize((long) swInterfaceVhostUserDetails.virtioNetHdrSz);
         // TODO: map error code to meaningful message after VPP-436 is done
         builder.setConnectError(Integer.toString(swInterfaceVhostUserDetails.sockErrno));
+        if (ifcDetails.tag[0] != 0) { // tag supplied
+            builder.setTag(toString(ifcDetails.tag));
+        }
 
         LOG.debug("Vhost user interface: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
@@ -138,10 +145,16 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
             @Nonnull final InstanceIdentifier<VhostUser> id,
             @Nonnull final VhostUser readValue,
             @Nonnull final ReadContext ctx) {
+        // The tag is set from interface details, those details are retrieved from cache
+        final InterfaceKey key = id.firstKeyOf(Interface.class);
+        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
+        final SwInterfaceDetails ifcDetails =
+            InterfaceCustomizer.getCachedInterfaceDump(ctx.getModificationCache()).get(index);
         return Initialized.create(getCfgId(id),
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUserBuilder()
                         .setRole(readValue.getRole())
                         .setSocket(readValue.getSocket())
+                        .setTag(ifcDetails.tag[0] == 0 ? null : toString(ifcDetails.tag))
                         .build());
     }
 
