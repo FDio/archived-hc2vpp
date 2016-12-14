@@ -681,7 +681,7 @@
 			"description": "",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"tapp2\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:tap\",\r\n                \"tap\" :{\r\n                    \"tap-name\" : \"tapp2\",\r\n                    \"mac\" : \"00:ff:ff:ff:ff:ff\",\r\n                    \"device-instance\" : 55\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
+			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"tapp2\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:tap\",\r\n                \"tap\" :{\r\n                    \"tap-name\" : \"tapp2\",\r\n                    \"mac\" : \"00:ff:ff:ff:ff:ff\",\r\n                    \"device-instance\" : 55,\r\n                    \"tag\": \"tapp2_tag\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
 			"folder": "ebed4cf3-96db-7ea3-1216-a0802c8f47d3"
 		},
 		{
@@ -1273,7 +1273,7 @@
 			"description": "Adds vhost-user interface.\nCorresponsing vpp cli command:\n\ncreate vhost-user socket /tmp/soc1 server\n\nTo verify invoke:\n\nvppctl show vhost-user\n\nor\n\nvppctl show int",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vhost1\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vhost-user\",\r\n                \"enabled\": \"true\",\r\n                \"vhost-user\" : {\r\n                    \"socket\": \"/tmp/soc1\",\r\n                    \"role\": \"server\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
+			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vhost1\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vhost-user\",\r\n                \"enabled\": \"true\",\r\n                \"vhost-user\" : {\r\n                    \"socket\": \"/tmp/soc1\",\r\n                    \"role\": \"server\",\r\n                    \"device-instance\": \"123\",\r\n                    \"tag\": \"vhost1_tag\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}",
 			"folder": "015dc7da-a47b-fcdf-3dee-2760fb5de9fd"
 		},
 		{
