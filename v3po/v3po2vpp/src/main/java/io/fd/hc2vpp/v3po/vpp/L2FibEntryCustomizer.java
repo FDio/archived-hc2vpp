@@ -16,14 +16,17 @@
 
 package io.fd.hc2vpp.v3po.vpp;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.primitives.Longs;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.MacTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.L2FibAddDel;
@@ -48,6 +51,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
         JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2FibEntryCustomizer.class);
+    public static final int NO_INTERFACE_REF = -1;
 
     private final NamingContext bdContext;
     private final NamingContext interfaceContext;
@@ -55,8 +59,8 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     public L2FibEntryCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext bdContext,
                                 @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
-        this.bdContext = Preconditions.checkNotNull(bdContext, "bdContext should not be null");
-        this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
+        this.bdContext = checkNotNull(bdContext, "bdContext should not be null");
+        this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
     }
 
     @Override
@@ -90,20 +94,30 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     private void l2FibAddDel(@Nonnull final InstanceIdentifier<L2FibEntry> id, @Nonnull final L2FibEntry entry,
                              final WriteContext writeContext, boolean isAdd) throws WriteFailedException {
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
-        final int bdId = bdContext.getIndex(bdName, writeContext.getMappingContext());
+        final MappingContext mappingContext = writeContext.getMappingContext();
+        final int bdId = bdContext.getIndex(bdName, mappingContext);
 
-        int swIfIndex = -1;
-        final String swIfName = entry.getOutgoingInterface();
-        if (swIfName != null) {
-            swIfIndex = interfaceContext.getIndex(swIfName, writeContext.getMappingContext());
-        }
-
-        final L2FibAddDel l2FibRequest = createL2FibRequest(entry, bdId, swIfIndex, isAdd);
+        final L2FibAddDel l2FibRequest = createL2FibRequest(entry, bdId, getCheckedInterfaceIndex(entry,
+                mappingContext), isAdd);
         LOG.debug("Sending l2FibAddDel request: {}", l2FibRequest);
         final CompletionStage<L2FibAddDelReply> l2FibAddDelReplyCompletionStage =
                 getFutureJVpp().l2FibAddDel(l2FibRequest);
 
         getReplyForWrite(l2FibAddDelReplyCompletionStage.toCompletableFuture(), id);
+    }
+
+    private int getCheckedInterfaceIndex(final L2FibEntry entry, final MappingContext mappingContext) {
+        if (L2FibFilter.class == entry.getAction()) {
+            // if filter, interface should not be defined
+            checkArgument(entry.getOutgoingInterface() == null, "Interface reference should not be defined for type %s",
+                    L2FibFilter.class);
+            return NO_INTERFACE_REF;
+        } else {
+            // if type is not filter, interface reference is mandatory
+            return interfaceContext.getIndex(
+                    checkNotNull(entry.getOutgoingInterface(), "Interface reference should be defined for type %s",
+                            entry.getAction()), mappingContext);
+        }
     }
 
     private L2FibAddDel createL2FibRequest(final L2FibEntry entry, final int bdId, final int swIfIndex, boolean isAdd) {

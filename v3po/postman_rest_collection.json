@@ -1686,7 +1686,7 @@
 			"description": "Adds L2 FIB static entry. Corresponds to invoking:\n\nvppctl l2fib add 00:01:02:03:04:05 [bd_id] filter\n\nTo verify run:\n\nvppctl show l2fib verbose",
 			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
 			"responses": [],
-			"rawModeData": "{\n    \"l2-fib-entry\": [\n        {\n            \"phys-address\": \"00:01:02:03:04:05\",\n            \"outgoing-interface\": \"local0\",\n            \"static-config\": \"true\",\n            \"action\": \"l2-fib-filter\"\n        }\n    ]\n}",
+			"rawModeData": "{\n    \"l2-fib-entry\": [\n        {\n            \"phys-address\": \"00:01:02:03:04:05\",\n \"static-config\": \"true\",\n            \"action\": \"l2-fib-filter\"\n        }\n    ]\n}",
 			"folder": "e742a44e-2e82-fe0c-d7c1-2f6b6bc1f0e9"
 		},
 		{

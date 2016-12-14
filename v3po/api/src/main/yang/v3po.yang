@@ -227,12 +227,10 @@ module v3po {
         }
 
         leaf outgoing-interface {
-          type string;
-          // mandatory true;
-          // mandatory for forward action
-          // FIXME VPP's CLI does not require to set iface id for filter action
-          // VPP's binary api in constrast to CLI does some checks on the iface id value,
-          // so currently it has to be set for all actions
+          // either filter must be specified or interface(can't be both)
+          when "../action != 'l2-fib-filter'";
+          type if:interface-ref;
+          // mandatory true; - when is not actually resolved, so mandatory can't be in place
           description
             "One of interfaces assigned to the FIB table's bridge-domain.";
         }
