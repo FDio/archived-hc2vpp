@@ -120,20 +120,30 @@ module vpp-acl {
       "Defines header fields for TCP/UDP or ICMP protocols";
     choice ip-protocol {
       case icmp {
-        uses acl-icmp-header-fields;
+        container icmp-nodes {
+            uses acl-icmp-header-fields;
+        }
       }
       case icmp-v6 {
-        uses acl-icmp-header-fields;
+        container icmp-v6-nodes {
+            uses acl-icmp-header-fields;
+        }
       }
       case udp {
-        uses packet-fields:acl-transport-header-fields;
+        container udp-nodes {
+            uses packet-fields:acl-transport-header-fields;
+        }
       }
       case tcp {
-        uses packet-fields:acl-transport-header-fields;
-        uses acl-tcp-header-fields;
+        container tcp-nodes {
+            uses packet-fields:acl-transport-header-fields;
+            uses acl-tcp-header-fields;
+        }
       }
       case other {
-        uses acl-other-protocol-fields;
+        container other-nodes {
+            uses acl-other-protocol-fields;
+        }
       }
     }
   }
@@ -149,18 +159,20 @@ module vpp-acl {
            * ICMP (type range)
            * UDP (port range)
            * TCP (port range, flags mask, flags value)";
-      choice ace-ip-version {
-        description
-          "IP version used in this Access List Entry.";
-        mandatory true;
-        case ace-ipv4 {
-          uses packet-fields:acl-ipv4-header-fields;
+      container vpp-ace-nodes {
+        choice ace-ip-version {
+            description
+              "IP version used in this Access List Entry.";
+            mandatory true;
+            case ace-ipv4 {
+              uses packet-fields:acl-ipv4-header-fields;
+            }
+            case ace-ipv6 {
+              uses packet-fields:acl-ipv6-header-fields;
+            }
         }
-        case ace-ipv6 {
-          uses packet-fields:acl-ipv6-header-fields;
-        }
+        uses acl-ip-protocol-header-fields;
       }
-      uses acl-ip-protocol-header-fields;
     }
   }
 
@@ -212,18 +224,20 @@ module vpp-acl {
          - src MAC address mask
          - src MAC address value
          - can be used only for static ACLs.";
-      choice ace-ip-version {
-        description
-          "IP version used in this Access List Entry.";
-        mandatory true;
-        case ace-ipv4 {
-          uses vpp-macip-ace-ipv4-header-fields;
-        }
-        case ace-ipv6 {
-          uses vpp-macip-ace-ipv6-header-fields;
-        }
+      container vpp-macip-ace-nodes {
+        choice ace-ip-version {
+            description
+              "IP version used in this Access List Entry.";
+            mandatory true;
+            case ace-ipv4 {
+              uses vpp-macip-ace-ipv4-header-fields;
+            }
+            case ace-ipv6 {
+              uses vpp-macip-ace-ipv6-header-fields;
+            }
+          }
+        uses vpp-macip-ace-eth-header-fields;
       }
-      uses vpp-macip-ace-eth-header-fields;
     }
   }
 }
