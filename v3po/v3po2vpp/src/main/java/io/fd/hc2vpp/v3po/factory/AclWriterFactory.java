@@ -20,8 +20,8 @@ import static io.fd.hc2vpp.v3po.factory.InterfacesClassifierIetfAclWriterFactory
 import static io.fd.hc2vpp.v3po.factory.SubInterfacesClassifierIetfAclWriterFactory.SUBIF_IETF_ACL_ID;
 
 import com.google.common.collect.Sets;
-import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.hc2vpp.v3po.interfaces.acl.IetfAclWriter;
+import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRange;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.AceIpAndEthNodes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class AclWriterFactory implements WriterFactory {
@@ -48,10 +49,11 @@ public final class AclWriterFactory implements WriterFactory {
         final InstanceIdentifier<Ace> aceId = aclIdRelative.child(AccessListEntries.class).child(Ace.class);
         final InstanceIdentifier<Actions> actionsId = aceId.child(Actions.class);
         final InstanceIdentifier<Matches> matchesId = aceId.child(Matches.class);
+        final InstanceIdentifier<AceIpAndEthNodes> aceIpAndEthId = matchesId.child(AceIpAndEthNodes.class);
         final InstanceIdentifier<SourcePortRange> srcPortId = matchesId.child((Class)SourcePortRange.class);
         final InstanceIdentifier<DestinationPortRange> dstPortId = matchesId.child((Class)DestinationPortRange.class);
 
-        registry.subtreeAddBefore(Sets.newHashSet(aceId, actionsId, matchesId, srcPortId, dstPortId),
+        registry.subtreeAddBefore(Sets.newHashSet(aceId, actionsId, matchesId, aceIpAndEthId, srcPortId, dstPortId),
             new GenericListWriter<>(ACL_ID, new IetfAclWriter()),
             Sets.newHashSet(IETF_ACL_ID, SUBIF_IETF_ACL_ID));
     }

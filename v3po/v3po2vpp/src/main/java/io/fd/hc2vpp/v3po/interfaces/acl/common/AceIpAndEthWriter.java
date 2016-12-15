@@ -27,9 +27,10 @@ import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.InterfaceMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.AceIpVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.AceIpAndEthNodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.AceIpVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv6;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +40,8 @@ public final class AceIpAndEthWriter
     private static final Logger LOG = LoggerFactory.getLogger(AceIpAndEthWriter.class);
 
     private static int maskLength(@Nonnull final AceIpAndEth ace, final int vlanTags) {
-        if (ace.getAceIpVersion() != null) {
-            if (ace.getAceIpVersion() instanceof AceIpv4) {
+        if (ace.getAceIpAndEthNodes().getAceIpVersion() != null) {
+            if (ace.getAceIpAndEthNodes().getAceIpVersion() instanceof AceIpv4) {
                 return 48;
             } else {
                 return vlanTags == 2
@@ -54,7 +55,8 @@ public final class AceIpAndEthWriter
     @Override
     public ClassifyAddDelTable createTable(@Nonnull final AceIpAndEth ace, @Nullable final InterfaceMode mode,
                                            final int nextTableIndex, final int vlanTags) {
-        final int numberOfSessions = PortPair.fromRange(ace.getSourcePortRange(), ace.getDestinationPortRange()).size();
+        final AceIpAndEthNodes nodes = ace.getAceIpAndEthNodes();
+        final int numberOfSessions = PortPair.fromRange(nodes.getSourcePortRange(), nodes.getDestinationPortRange()).size();
         final ClassifyAddDelTable request = createTable(nextTableIndex, numberOfSessions);
         final int maskLength = maskLength(ace, vlanTags);
         request.mask = new byte[maskLength];
@@ -62,20 +64,20 @@ public final class AceIpAndEthWriter
         request.matchNVectors = maskLength / 16;
 
         boolean aceIsEmpty =
-            destinationMacAddressMask(ace.getDestinationMacAddressMask(), ace.getDestinationMacAddress(), request);
-        aceIsEmpty &= sourceMacAddressMask(ace.getSourceMacAddressMask(), ace.getSourceMacAddress(), request);
+            destinationMacAddressMask(nodes.getDestinationMacAddressMask(), nodes.getDestinationMacAddress(), request);
+        aceIsEmpty &= sourceMacAddressMask(nodes.getSourceMacAddressMask(), nodes.getSourceMacAddress(), request);
 
         // if we use classifier API, we need to know ip version (fields common for ip4 and ip6 have different offsets):
-        final AceIpVersion aceIpVersion = ace.getAceIpVersion();
+        final AceIpVersion aceIpVersion = nodes.getAceIpVersion();
         checkArgument(aceIpVersion != null, "AceIpAndEth have to define IpVersion");
 
         final int baseOffset = getVlanTagsLen(vlanTags);
         if (aceIpVersion instanceof AceIpv4) {
             final AceIpv4 ipVersion = (AceIpv4) aceIpVersion;
-            aceIsEmpty &= ip4Mask(baseOffset, mode, ace, ipVersion, request);
+            aceIsEmpty &= ip4Mask(baseOffset, mode, nodes, ipVersion, request);
         } else if (aceIpVersion instanceof AceIpv6) {
             final AceIpv6 ipVersion = (AceIpv6) aceIpVersion;
-            aceIsEmpty &= ip6Mask(baseOffset, mode, ace, ipVersion, request);
+            aceIsEmpty &= ip6Mask(baseOffset, mode, nodes, ipVersion, request);
         } else {
             throw new IllegalArgumentException(String.format("Unsupported IP version %s", aceIpVersion));
         }
@@ -94,25 +96,26 @@ public final class AceIpAndEthWriter
                                                      @Nonnull final AceIpAndEth ace,
                                                      @Nullable final InterfaceMode mode, final int tableIndex,
                                                      final int vlanTags) {
-        final List<PortPair> portPairs = PortPair.fromRange(ace.getSourcePortRange(), ace.getDestinationPortRange());
+        final AceIpAndEthNodes nodes = ace.getAceIpAndEthNodes();
+        final List<PortPair> portPairs = PortPair.fromRange(nodes.getSourcePortRange(), nodes.getDestinationPortRange());
         final List<ClassifyAddDelSession> requests = new ArrayList<>(portPairs.size());
         for (final PortPair pair : portPairs) {
             final ClassifyAddDelSession request = createSession(action, tableIndex);
             request.match = new byte[maskLength(ace, vlanTags)];
 
-            boolean noMatch = destinationMacAddressMatch(ace.getDestinationMacAddress(), request);
-            noMatch &= sourceMacAddressMatch(ace.getSourceMacAddress(), request);
+            boolean noMatch = destinationMacAddressMatch(nodes.getDestinationMacAddress(), request);
+            noMatch &= sourceMacAddressMatch(nodes.getSourceMacAddress(), request);
 
-            final AceIpVersion aceIpVersion = ace.getAceIpVersion();
+            final AceIpVersion aceIpVersion = nodes.getAceIpVersion();
             checkArgument(aceIpVersion != null, "AceIpAndEth have to define IpVersion");
 
             final int baseOffset = getVlanTagsLen(vlanTags);
             if (aceIpVersion instanceof AceIpv4) {
                 final AceIpv4 ipVersion = (AceIpv4) aceIpVersion;
-                noMatch &= ip4Match(baseOffset, mode, ace, ipVersion, pair.getSrc(), pair.getDst(), request);
+                noMatch &= ip4Match(baseOffset, mode, nodes, ipVersion, pair.getSrc(), pair.getDst(), request);
             } else if (aceIpVersion instanceof AceIpv6) {
                 final AceIpv6 ipVersion = (AceIpv6) aceIpVersion;
-                noMatch &= ip6Match(baseOffset, mode, ace, ipVersion, pair.getSrc(), pair.getDst(), request);
+                noMatch &= ip6Match(baseOffset, mode, nodes, ipVersion, pair.getSrc(), pair.getDst(), request);
             } else {
                 throw new IllegalArgumentException(String.format("Unsupported IP version %s", aceIpVersion));
             }

@@ -142,19 +142,22 @@ module vpp-classfier-acl {
     case ace-ip-and-eth {
       description
         "Access List entry that can define both ip and eth rules.";
-      choice ace-ip-version {
-        description
-          "IP version used in this Access List Entry.";
-        mandatory true;
-        case ace-ipv4 {
-          uses packet-fields:acl-ipv4-header-fields;
+      container ace-ip-and-eth-nodes {
+
+        choice ace-ip-version {
+          description
+            "IP version used in this Access List Entry.";
+          mandatory true;
+          case ace-ipv4 {
+            uses packet-fields:acl-ipv4-header-fields;
+          }
+          case ace-ipv6 {
+            uses packet-fields:acl-ipv6-header-fields;
+          }
         }
-        case ace-ipv6 {
-          uses packet-fields:acl-ipv6-header-fields;
-        }
+        uses packet-fields:acl-ip-header-fields;
+        uses packet-fields:acl-eth-header-fields;
       }
-      uses packet-fields:acl-ip-header-fields;
-      uses packet-fields:acl-eth-header-fields;
     }
   }
 }

@@ -34,7 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.InterfaceMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEthBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.AceIpAndEthNodesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv4Builder;
 
 public class AceIpAndEthWriterTest {
 
@@ -47,14 +48,14 @@ public class AceIpAndEthWriterTest {
         initMocks(this);
         writer = new AceIpAndEthWriter();
         action = new DenyBuilder().setDeny(true).build();
-        ace = new AceIpAndEthBuilder()
+        ace = new AceIpAndEthBuilder().setAceIpAndEthNodes(new AceIpAndEthNodesBuilder()
             .setDestinationMacAddress(new MacAddress("11:22:33:44:55:66"))
             .setSourceMacAddress(new MacAddress("aa:bb:cc:dd:ee:ff"))
             .setAceIpVersion(new AceIpv4Builder()
                 .setSourceIpv4Network(new Ipv4Prefix("1.2.3.4/32")).build())
             .setSourcePortRange(new SourcePortRangeBuilder().setLowerPort(new PortNumber(0x1111)).build())
             .setDestinationPortRange(new DestinationPortRangeBuilder().setLowerPort(new PortNumber(0x2222)).build())
-            .build();
+            .build()).build();
     }
 
     @Test

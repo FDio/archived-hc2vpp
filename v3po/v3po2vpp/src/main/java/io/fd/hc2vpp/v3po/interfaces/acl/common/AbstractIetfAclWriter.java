@@ -123,8 +123,8 @@ public abstract class AbstractIetfAclWriter implements IetfAclWriter, JvppReplyC
         if (aclType == AclType.ETH) {
             return true;  // L2 only rules are possible for IP4 traffic
         }
-        if (aclType == AclType.ETH_AND_IP && ((AceIpAndEth) aceType)
-            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv4) {
+        if (aclType == AclType.ETH_AND_IP && ((AceIpAndEth) aceType).getAceIpAndEthNodes()
+            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv4) {
             return true;
         }
         return false;
@@ -139,8 +139,8 @@ public abstract class AbstractIetfAclWriter implements IetfAclWriter, JvppReplyC
         if (aclType == AclType.ETH) {
             return true;  // L2 only rules are possible for IP6 traffic
         }
-        if (aclType == AclType.ETH_AND_IP && ((AceIpAndEth) aceType)
-            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.version.AceIpv6) {
+        if (aclType == AclType.ETH_AND_IP && ((AceIpAndEth) aceType).getAceIpAndEthNodes()
+            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv6) {
             return true;
         }
         return false;
