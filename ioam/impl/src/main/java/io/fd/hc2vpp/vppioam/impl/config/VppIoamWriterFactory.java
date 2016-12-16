@@ -16,19 +16,21 @@
 
 package io.fd.hc2vpp.vppioam.impl.config;
 
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfig;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfig;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.trace.config.NodeInterfaces;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.PotProfiles;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileList;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profiles.PotProfileSet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import javax.annotation.Nonnull;
 
 public class VppIoamWriterFactory implements WriterFactory {
 
@@ -49,11 +51,15 @@ public class VppIoamWriterFactory implements WriterFactory {
         // Trace Config
         final InstanceIdentifier<TraceConfig> trId =
                 InstanceIdentifier.create(IoamTraceConfig.class).child(TraceConfig.class);
-        registry.add(new GenericListWriter<>(trId, new IoamTraceWriterCustomizer(jVppIoamtrace)));
+        registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(TraceConfig.class)
+                        .child(NodeInterfaces.class)),
+                new GenericListWriter<>(trId, new IoamTraceWriterCustomizer(jVppIoamtrace)));
         // POT Config
         final InstanceIdentifier<PotProfileSet> potId =
                 InstanceIdentifier.create(PotProfiles.class).child(PotProfileSet.class);
-        registry.add(new GenericListWriter<>(potId, new IoamPotWriterCustomizer(jVppIoampot)));
+        registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(PotProfileSet.class)
+                        .child(PotProfileList.class)),
+                new GenericListWriter<>(potId, new IoamPotWriterCustomizer(jVppIoampot)));
 
     }
 }

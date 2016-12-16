@@ -2,7 +2,7 @@
 	"variables": [],
 	"info": {
 		"name": "Honeycomb RESTCONF calls for iOAM Trace",
-		"_postman_id": "4117bd46-e112-6cfc-9d18-e566b66ba610",
+		"_postman_id": "014389fd-d55b-9b35-ad71-81eda31779bc",
 		"description": "To enable iOAM trace on VPP management nodes.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
@@ -10,7 +10,7 @@
 		{
 			"name": "iaom trace - config",
 			"request": {
-				"url": "http://localhost:8183/restconf/config/ioam-sb-trace:ioam-trace-config/",
+				"url": "http://localhost:8183/restconf/config/ioam-sb-trace:ioam-trace-config/trace-config/trace",
 				"method": "PUT",
 				"header": [
 					{
@@ -54,6 +54,31 @@
 					"raw": "{\n\"trace-config\":{\n        \"trace-config-name\":\"trace\",\n        \"acl-name\":\"testAcl\",\n        \"trace-type\":31,\n        \"trace-num-elt\":3,\n        \"trace-tsp\":\"milliseconds\",\n        \"trace-op\":\"add\",\n        \"trace-app-data\":1234,\n        \"data-export-profile-name\":\"dataProfileName\",\n        \"transport-encap-profile-name\":\"transProfileName\",\n        \"node-id\":1,\n        \"node-interfaces\":[\n            {\n                \"index\":5,\n                \"intf-name\":\"GigabitEthernetb/0/0\"\n            }\n        ]\n      }\n}\n"
 				},
 				"description": "Read ioam trace config from VPP"
+			},
+			"response": []
+		},
+		{
+			"name": "iaom pot - config",
+			"request": {
+				"url": "http://localhost:8183/restconf/config/sfc-ioam-sb-pot:pot-profiles/pot-profile-set/potprofile",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4=",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"pot-profile-set\":[\n\t\t{\n\t        \"name\":\"potprofile\",\n\t        \"path-identifier\":\"ACL\",\n\t        \"active-profile-index\":1,\n\t        \"pot-profile-list\":[{\n\t        \t\"index\":1,\n\t        \t\"prime-number\":7,\n\t        \t\"secret-share\":1234,\n\t        \t\"public-polynomial\":1234,\n\t        \t\"lpc\":1234,\n\t        \t\"validator\":\"true\",\n\t        \t\"validator-key\":1234,\n\t        \t\"bitmask\":1111111111\n\t        }]\n\t     }\n    ]\n}\n"
+				},
+				"description": "Configure ioam pot config on VPP"
 			},
 			"response": []
 		}
