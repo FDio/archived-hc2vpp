@@ -1,0 +1,38 @@
+{
+  "access-lists": {
+    "acl": [
+      {
+        "acl-name": "standard-acl",
+        "acl-type": "vpp-acl:vpp-acl",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "tcp-rule",
+              "matches": {
+                "vpp-ace-nodes": {
+                  "destination-ipv4-network": "192.168.2.1/24",
+                  "source-ipv4-network": "192.168.2.2/32",
+                  "tcp-nodes": {
+                    "source-port-range": {
+                      "lower-port": "1",
+                      "upper-port": "5487"
+                    },
+                    "destination-port-range": {
+                      "lower-port": "87",
+                      "upper-port": "6745"
+                    },
+                    "tcp-flags-mask": "1",
+                    "tcp-flags-value": "7"
+                  }
+                }
+              },
+              "actions": {
+                "permit": {}
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

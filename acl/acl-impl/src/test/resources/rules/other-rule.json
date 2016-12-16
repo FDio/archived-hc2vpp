@@ -1,0 +1,26 @@
+{
+  "access-lists": {
+    "acl": [
+      {
+        "acl-name": "standard-acl",
+        "acl-type": "vpp-acl:vpp-acl",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "imcp-rule",
+              "matches": {
+                "vpp-ace-nodes": {
+                  "destination-ipv4-network": "192.168.2.1/32",
+                  "source-ipv4-network": "192.168.2.2/32",
+                  "other-nodes": {
+                    "protocol": "64"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

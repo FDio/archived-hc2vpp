@@ -58,8 +58,6 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
     Gauge64 vppLinkSpeed16 = new Gauge64(BigInteger.valueOf(40000L * 1000000));
     Gauge64 vppLinkSpeed32 = new Gauge64(BigInteger.valueOf(100000L * 1000000));
 
-    char[] HEX_CHARS = "0123456789abcdef".toCharArray();
-
     int PHYSICAL_ADDRESS_LENGTH = 6;
 
     Collector<SwInterfaceDetails, ?, SwInterfaceDetails> SINGLE_ITEM_COLLECTOR =
@@ -90,12 +88,6 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
         }
     }
 
-    default void appendHexByte(final StringBuilder sb, final byte b) {
-        final int v = b & 0xFF;
-        sb.append(HEX_CHARS[v >>> 4]);
-        sb.append(HEX_CHARS[v & 15]);
-    }
-
     /**
      * Reads first 6 bytes of supplied byte array and converts to string as Yang dictates <p> Replace later with
      * https://git.opendaylight.org/gerrit/#/c/34869/10/model/ietf/ietf-type- util/src/main/
@@ -117,23 +109,6 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
                 "Invalid physical address size (%s) for given startIndex (%s), expected >= %s", vppPhysAddress.length,
                 startIndex, endIndex);
         return printHexBinary(vppPhysAddress, startIndex, endIndex);
-    }
-
-    default String printHexBinary(@Nonnull final byte[] bytes) {
-        Objects.requireNonNull(bytes, "bytes array should not be null");
-        return printHexBinary(bytes, 0, bytes.length);
-    }
-
-    default String printHexBinary(@Nonnull final byte[] bytes, final int startIndex, final int endIndex) {
-        StringBuilder str = new StringBuilder();
-
-        appendHexByte(str, bytes[startIndex]);
-        for (int i = startIndex + 1; i < endIndex; i++) {
-            str.append(":");
-            appendHexByte(str, bytes[i]);
-        }
-
-        return str.toString();
     }
 
     /**

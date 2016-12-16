@@ -1,0 +1,33 @@
+{
+  "access-lists": {
+    "acl": [
+      {
+        "acl-name": "standard-acl",
+        "acl-type": "vpp-acl:vpp-acl",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "imcp-rule",
+              "matches": {
+                "vpp-ace-nodes": {
+                  "destination-ipv6-network": "2001:0db8:0a0b:12f0:0000:0000:0000:0001/64",
+                  "source-ipv6-network": "2001:0db8:0a0b:12f0:0000:0000:0000:0002/64",
+                  "icmp-v6-nodes": {
+                    "icmp-type-range": {
+                      "first": "5",
+                      "last": "8"
+                    },
+                    "icmp-code-range": {
+                      "first": "1",
+                      "last": "3"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

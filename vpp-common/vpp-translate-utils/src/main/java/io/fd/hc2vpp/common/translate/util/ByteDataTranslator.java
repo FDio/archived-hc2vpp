@@ -16,13 +16,16 @@
 
 package io.fd.hc2vpp.common.translate.util;
 
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Trait providing logic for working with binary-based data
+ * Trait providing logic for working with binary/hex-based data
  */
 public interface ByteDataTranslator {
+
+    char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
     ByteDataTranslator INSTANCE = new ByteDataTranslator() {
     };
@@ -70,6 +73,8 @@ public interface ByteDataTranslator {
         } else if (value == BYTE_TRUE) {
             return Boolean.TRUE;
         }
+
+    char[] HEX_CHARS = "0123456789abcdef".toCharArray();
         throw new IllegalArgumentException(String.format("0 or 1 was expected but was %d", value));
     }
 
@@ -90,6 +95,8 @@ public interface ByteDataTranslator {
     }
 
     /**
+
+    char[] HEX_CHARS = "0123456789abcdef".toCharArray();
      * Return (interned) string from byte array while removing \u0000. Strings represented as fixed length byte[] from
      * vpp contain \u0000.
      */
@@ -104,5 +111,28 @@ public interface ByteDataTranslator {
      */
     default int toJavaByte(final byte vppByte) {
         return Byte.toUnsignedInt(vppByte);
+    }
+
+    default String printHexBinary(@Nonnull final byte[] bytes) {
+        Objects.requireNonNull(bytes, "bytes array should not be null");
+        return printHexBinary(bytes, 0, bytes.length);
+    }
+
+    default String printHexBinary(@Nonnull final byte[] bytes, final int startIndex, final int endIndex) {
+        StringBuilder str = new StringBuilder();
+
+        appendHexByte(str, bytes[startIndex]);
+        for (int i = startIndex + 1; i < endIndex; i++) {
+            str.append(":");
+            appendHexByte(str, bytes[i]);
+        }
+
+        return str.toString();
+    }
+
+    default void appendHexByte(final StringBuilder sb, final byte b) {
+        final int v = b & 0xFF;
+        sb.append(HEX_CHARS[v >>> 4]);
+        sb.append(HEX_CHARS[v & 15]);
     }
 }

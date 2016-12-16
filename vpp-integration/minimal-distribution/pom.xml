@@ -37,14 +37,17 @@
     <nat.version>1.17.01-SNAPSHOT</nat.version>
     <ioam.version>1.17.01-SNAPSHOT</ioam.version>
     <routing.version>1.17.01-SNAPSHOT</routing.version>
+    <acl.version>1.17.01-SNAPSHOT</acl.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
       io.fd.hc2vpp.lisp.LispModule,
       io.fd.hc2vpp.v3po.V3poModule,
-      io.fd.hc2vpp.v3po.ClassifierIetfAclModule,
+      // io.fd.hc2vpp.v3po.ClassifierIetfAclModule,
+      <!-- Classifier Acl's module disabled by default, can't run in the same time with AclModule -->
       io.fd.hc2vpp.nat.NatModule,
       io.fd.hc2vpp.routing.RoutingModule,
+      io.fd.hc2vpp.acl.AclModule,
       // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
       // io.fd.hc2vpp.vppioam.impl.VppIoamModule
@@ -110,6 +113,11 @@
       <groupId>io.fd.hc2vpp.ioam</groupId>
       <artifactId>vppioam-impl</artifactId>
       <version>${ioam.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.acl</groupId>
+      <artifactId>acl-impl</artifactId>
+      <version>${acl.version}</version>
     </dependency>
   </dependencies>
 </project>
