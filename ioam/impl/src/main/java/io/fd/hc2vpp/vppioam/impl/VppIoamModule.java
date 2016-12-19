@@ -20,12 +20,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import io.fd.hc2vpp.vppioam.impl.oper.VppIoamReaderFactory;
-import io.fd.honeycomb.translate.read.ReaderFactory;
-import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.hc2vpp.vppioam.impl.config.VppIoamWriterFactory;
+import io.fd.hc2vpp.vppioam.impl.oper.VppIoamReaderFactory;
+import io.fd.hc2vpp.vppioam.impl.util.JVppIoamExportProvider;
 import io.fd.hc2vpp.vppioam.impl.util.JVppIoamPotProvider;
 import io.fd.hc2vpp.vppioam.impl.util.JVppIoamTraceProvider;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexport;
+import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexportFacade;
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampotFacade;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
@@ -41,16 +44,19 @@ public final class VppIoamModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(VppIoamModule.class);
     private final Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamTraceProviderClass;
     private final Class<? extends Provider<FutureJVppIoampotFacade>> jvppIoamPotProviderClass;
+    private final Class<? extends Provider<FutureJVppIoamexportFacade>> jvppIoamExportProviderClass;
 
     public VppIoamModule() {
-        this(JVppIoamTraceProvider.class, JVppIoamPotProvider.class);
+        this(JVppIoamTraceProvider.class, JVppIoamPotProvider.class, JVppIoamExportProvider.class);
     }
 
     @VisibleForTesting
     VppIoamModule(Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamTraceProvider,
-                  Class<? extends Provider<FutureJVppIoampotFacade>> jvppIoamPotProviderClass) {
+                  Class<? extends Provider<FutureJVppIoampotFacade>> jvppIoamPotProviderClass,
+                  Class<? extends Provider<FutureJVppIoamexportFacade>> jvppIoamExportProviderClass) {
         this.jvppIoamTraceProviderClass = jvppIoamTraceProvider;
         this.jvppIoamPotProviderClass = jvppIoamPotProviderClass;
+        this.jvppIoamExportProviderClass = jvppIoamExportProviderClass;
     }
 
     @Override
@@ -60,6 +66,7 @@ public final class VppIoamModule extends AbstractModule {
         // Bind to Plugin's JVPP.
         bind(FutureJVppIoamtrace.class).toProvider(jvppIoamTraceProviderClass).in(Singleton.class);
         bind(FutureJVppIoampot.class).toProvider(jvppIoamPotProviderClass).in(Singleton.class);
+        bind(FutureJVppIoamexport.class).toProvider(jvppIoamExportProviderClass).in(Singleton.class);
 
         // Below are classes picked up by HC framework
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(VppIoamWriterFactory.class);

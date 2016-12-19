@@ -1,0 +1,46 @@
+module ioam-sb-export {
+
+  yang-version 1;
+
+  namespace "urn:cisco:params:xml:ns:yang:ioam-sb-export";
+
+  prefix ioam-sb-export;
+
+  organization "Cisco Systems, Inc.";
+  contact
+    "Shwetha Bhandari <shwethab@cisco.com>
+     Sagar Srivastav <sagsriva@cisco.com>";
+
+  description
+    "This module contains a collection of YANG definitions for
+     managing in-band OAM based export
+     parameters.";
+
+  revision 2017-02-06 {
+    description
+      "set source and collector addresses as mandatory";
+    reference
+      "";
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  container ioam-export {
+
+    leaf disable {
+       type boolean;
+    }
+
+    leaf collector-address {
+        mandatory true;
+        type inet:ipv4-address;
+    }
+
+    leaf source-address {
+        mandatory true;
+        type inet:ipv4-address;
+    }
+  }
+}
