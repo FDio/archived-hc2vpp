@@ -42,6 +42,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppClassifierStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.state.ClassifyTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.state.ClassifyTableBuilder;
@@ -116,9 +117,13 @@ public class ClassifyTableReader extends FutureJVppCustomizer
             builder.setClassifierNode(new VppNodeName(tableBaseNode.get()));
         }
 
-        builder.setMissNext(
-                readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext(), LOG)
-                        .get());
+        final Optional<VppNode> node =
+            readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext(), LOG);
+        if (node.isPresent()) {
+            builder.setMissNext(node.get());
+        } else {
+            builder.setMissNext(new VppNode(new VppNodeName("unknown"))); // TODO(HC2VPP-9): remove this workaround
+        }
         builder.setMask(new HexString(printHexBinary(reply.mask)));
         builder.setActiveSessions(UnsignedInts.toLong(reply.activeSessions));
 
