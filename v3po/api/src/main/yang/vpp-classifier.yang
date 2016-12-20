@@ -157,11 +157,11 @@ module vpp-classifier {
       "Defines classify table config only attributes (present in classify_add_del_table message
        but not in classify_table_info_reply).";
 
-    // FIXME move to classify-table-base-attributes
+    // TODO(HC2VPP-10): move to classify-table-base-attributes
     // after https://jira.fd.io/browse/VPP-208 is fixed
     leaf memory_size {
       type uint32;
-      mandatory true;
+      // mandatory true; // TODO(HC2VPP-10): uncomment
       description
         "Memory size for classify table and its entries.";
     }
