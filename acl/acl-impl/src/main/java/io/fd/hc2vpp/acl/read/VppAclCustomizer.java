@@ -102,7 +102,13 @@ public class VppAclCustomizer extends FutureJVppAclCustomizer
             dump.aclInterfaceListDetails = dump.aclInterfaceListDetails
                     .stream()
                     .map(iface -> {
-                        iface.acls = Arrays.copyOfRange(iface.acls, 0, iface.nInput - 1);
+                        if (iface.acls != null && iface.acls.length > 0) {
+                            if (iface.nInput <= 0) {
+                                iface.acls = new int[0];
+                            } else {
+                                iface.acls = Arrays.copyOfRange(iface.acls, 0, iface.nInput);
+                            }
+                        }
                         return iface;
                     })
                     .collect(Collectors.toList());
@@ -116,7 +122,11 @@ public class VppAclCustomizer extends FutureJVppAclCustomizer
             dump.aclInterfaceListDetails = dump.aclInterfaceListDetails
                     .stream()
                     .map(iface -> {
-                        iface.acls = Arrays.copyOfRange(iface.acls, iface.nInput, iface.acls.length);
+                        if (iface.nInput >= iface.acls.length) {
+                            iface.acls = new int[0];
+                        } else {
+                            iface.acls = Arrays.copyOfRange(iface.acls, iface.nInput, iface.acls.length);
+                        }
                         return iface;
                     })
                     .collect(Collectors.toList());
