@@ -19,7 +19,8 @@ package io.fd.hc2vpp.acl.read.factory;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.acl.AclModule;
-import io.fd.hc2vpp.acl.read.VppAclCustomizer;
+import io.fd.hc2vpp.acl.read.EgressVppAclCustomizer;
+import io.fd.hc2vpp.acl.read.IngressVppAclCustomizer;
 import io.fd.hc2vpp.acl.read.VppMacIpAclCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericListReader;
@@ -73,13 +74,13 @@ public class InterfaceAclReaderFactory implements ReaderFactory {
         final InstanceIdentifier<Ingress> ingressInstanceIdentifier = ACL_IID.child(Ingress.class);
         registry.addStructuralReader(ingressInstanceIdentifier, IngressBuilder.class);
         registry.addAfter(new GenericListReader<>(ingressInstanceIdentifier.child(VppAcls.class),
-            new VppAclCustomizer(futureAclFacade, interfaceContext, standardAclContext, true)), IFC_ID);
+            new IngressVppAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)), IFC_ID);
         registry.addAfter(new GenericReader<>(ingressInstanceIdentifier.child(VppMacipAcl.class),
             new VppMacIpAclCustomizer(futureAclFacade, interfaceContext, macIpAClContext)), IFC_ID);
 
         final InstanceIdentifier<Egress> egressInstanceIdentifier = ACL_IID.child(Egress.class);
         registry.addStructuralReader(egressInstanceIdentifier, EgressBuilder.class);
         registry.addAfter(new GenericListReader<>(egressInstanceIdentifier.child(VppAcls.class),
-            new VppAclCustomizer(futureAclFacade, interfaceContext, standardAclContext, false)), IFC_ID);
+            new EgressVppAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)), IFC_ID);
     }
 }
