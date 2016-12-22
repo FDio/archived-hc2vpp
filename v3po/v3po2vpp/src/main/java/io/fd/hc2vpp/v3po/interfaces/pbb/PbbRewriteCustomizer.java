@@ -112,8 +112,8 @@ public class PbbRewriteCustomizer extends FutureJVppCustomizer
         return checkNotNull(data.getSourceAddress(), "Destination address cannot be null").getValue();
     }
 
-    private byte verifiedBVlanId(final PbbRewrite data) {
-        return (byte) checkNotNull(data.getBVlanTagVlanId(), "BVlan id cannot be null").shortValue();
+    private short verifiedBVlanId(final PbbRewrite data) {
+        return checkNotNull(data.getBVlanTagVlanId(), "BVlan id cannot be null").shortValue();
     }
 
     private int verifiedISid(final PbbRewrite data) {

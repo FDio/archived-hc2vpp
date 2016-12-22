@@ -223,7 +223,7 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
         desiredResult.vtrOp = Operation.Pop2.getIntValue();
         desiredResult.bDmac = new byte[]{-69, -69, -69, -69, -69, -69};
         desiredResult.bSmac = new byte[]{-86, -86, -86, -86, -86, -86};
-        desiredResult.bVlanid = 1;
+        desiredResult.bVlanid = 1234;
         desiredResult.iSid = 2;
 
         return desiredResult;
@@ -235,7 +235,7 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
         desiredResult.vtrOp = 0;
         desiredResult.bDmac = new byte[]{-69, -69, -69, -69, -69, -69};
         desiredResult.bSmac = new byte[]{-86, -86, -86, -86, -86, -86};
-        desiredResult.bVlanid = 1;
+        desiredResult.bVlanid = 1234;
         desiredResult.iSid = 2;
 
         return desiredResult;
@@ -257,7 +257,7 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
 
     private PbbRewrite invalidDataNoDestination() {
         return new PbbRewriteBuilder()
-                .setBVlanTagVlanId(1)
+                .setBVlanTagVlanId(1234)
                 .setITagIsid(2L)
                 .setSourceAddress(new MacAddress("aa:aa:aa:aa:aa:aa"))
                 .setInterfaceOperation(Operation.Pop2)
@@ -266,7 +266,7 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
 
     private PbbRewrite invalidDataNoSource() {
         return new PbbRewriteBuilder()
-                .setBVlanTagVlanId(1)
+                .setBVlanTagVlanId(1234)
                 .setITagIsid(2L)
                 .setDestinationAddress(new MacAddress("bb:bb:bb:bb:bb:bb"))
                 .setInterfaceOperation(Operation.Pop2)
@@ -275,7 +275,7 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
 
     private PbbRewrite invalidDataNoItag() {
         return new PbbRewriteBuilder()
-                .setBVlanTagVlanId(1)
+                .setBVlanTagVlanId(1234)
                 .setSourceAddress(new MacAddress("aa:aa:aa:aa:aa:aa"))
                 .setDestinationAddress(new MacAddress("bb:bb:bb:bb:bb:bb"))
                 .setInterfaceOperation(Operation.Pop2)
@@ -302,7 +302,7 @@ public class PbbRewriteCustomizerTest extends WriterCustomizerTest {
 
     private PbbRewrite validData() {
         return new PbbRewriteBuilder()
-                .setBVlanTagVlanId(1)
+                .setBVlanTagVlanId(1234)
                 .setITagIsid(2L)
                 .setSourceAddress(new MacAddress("aa:aa:aa:aa:aa:aa"))
                 .setDestinationAddress(new MacAddress("bb:bb:bb:bb:bb:bb"))
