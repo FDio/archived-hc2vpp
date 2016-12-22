@@ -49,7 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
-        implements ReaderCustomizer<VppMacipAcl, VppMacipAclBuilder>, JvppReplyConsumer, ByteDataTranslator {
+    implements ReaderCustomizer<VppMacipAcl, VppMacipAclBuilder>, JvppReplyConsumer, ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppMacIpAclCustomizer.class);
 
@@ -65,15 +65,15 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
 
         // for dumping of Mac-ip details
         macIpAclDumpManager = new DumpCacheManager.DumpCacheManagerBuilder<MacipAclDetailsReplyDump, Integer>()
-                .withExecutor(createMacIpDumpExecutor())
-                .acceptOnly(MacipAclDetailsReplyDump.class)
-                .build();
+            .withExecutor(createMacIpDumpExecutor())
+            .acceptOnly(MacipAclDetailsReplyDump.class)
+            .build();
 
         // for dumping of reference on interface
         interfaceMacIpAclDumpManager = new DumpCacheManager.DumpCacheManagerBuilder<MacipAclInterfaceGetReply, Void>()
-                .withExecutor(createInterfaceMacIpDumpExecutor())
-                .acceptOnly(MacipAclInterfaceGetReply.class)
-                .build();
+            .withExecutor(createInterfaceMacIpDumpExecutor())
+            .acceptOnly(MacipAclInterfaceGetReply.class)
+            .build();
         this.interfaceContext = interfaceContext;
         this.macIpAclContext = macIpAclContext;
     }
@@ -89,8 +89,8 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
 
     private EntityDumpExecutor<MacipAclInterfaceGetReply, Void> createInterfaceMacIpDumpExecutor() {
         return (identifier, params) -> getReplyForRead(
-                getjVppAclFacade().macipAclInterfaceGet(new MacipAclInterfaceGet()).toCompletableFuture(),
-                identifier);
+            getjVppAclFacade().macipAclInterfaceGet(new MacipAclInterfaceGet()).toCompletableFuture(),
+            identifier);
     }
 
     @Nonnull
@@ -108,26 +108,28 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, mappingContext);
         final ModificationCache modificationCache = ctx.getModificationCache();
         final Optional<MacipAclInterfaceGetReply> interfacesMacIpDumpReply =
-                interfaceMacIpAclDumpManager.getDump(id, modificationCache, NO_PARAMS);
+            interfaceMacIpAclDumpManager.getDump(id, modificationCache, NO_PARAMS);
 
         if (interfacesMacIpDumpReply.isPresent() && interfaceIndex < interfacesMacIpDumpReply.get().count) {
             final int aclIndex = interfacesMacIpDumpReply.get().acls[interfaceIndex];
 
             final Optional<MacipAclDetailsReplyDump> macIpDumpReply =
-                    macIpAclDumpManager.getDump(id, modificationCache, aclIndex);
+                macIpAclDumpManager.getDump(id, modificationCache, aclIndex);
 
             if (macIpDumpReply.isPresent() && !macIpDumpReply.get().macipAclDetails.isEmpty()) {
                 final MacipAclDetails details = macIpDumpReply.get().macipAclDetails.get(0);
 
-                builder.setName(macIpAclContext.getName(aclIndex, mappingContext))
-                        .setType(
-                                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAcl.class)
-                        .setTag(new HexString(printHexBinary(details.tag)));
+                builder.setName(macIpAclContext.getName(aclIndex, mappingContext));
+                builder.setType(
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAcl.class);
+                if (details.tag != null && details.tag.length > 0) {
+                    builder.setTag(new HexString(printHexBinary(details.tag)));
+                }
             } else {
                 // this is invalid state(Interface in VPP will act as "deny-all" for security reasons), but generally
                 // it should not happen
                 throw new ReadFailedException(id,
-                        new IllegalStateException(String.format("ACC with index %s not found in VPP", aclIndex)));
+                    new IllegalStateException(String.format("ACE with index %s not found in VPP", aclIndex)));
             }
         } else {
             // this is valid state, so just logging

@@ -72,6 +72,11 @@ public abstract class AbstractVppAclCustomizerTest
         super(VppAcls.class, parentBuilderClass);
     }
 
+    protected static InstanceIdentifier<Acl> getAclId(final String ifName) {
+        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(ifName))
+            .augmentation(VppAclInterfaceStateAugmentation.class).child(Acl.class);
+    }
+
     @Override
     protected void setUp() throws Exception {
         defineMapping(mappingContext, IF_NAME, IF_ID, IFC_CTX_NAME);
@@ -135,11 +140,6 @@ public abstract class AbstractVppAclCustomizerTest
         details.nInput = nInput;
         reply.aclInterfaceListDetails.add(details);
         return reply;
-    }
-
-    protected InstanceIdentifier<Acl> getAclId(final String ifName) {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(ifName))
-            .augmentation(VppAclInterfaceStateAugmentation.class).child(Acl.class);
     }
 
     protected abstract InstanceIdentifier<VppAcls> getWildcardedIid(@Nonnull final String ifName);
