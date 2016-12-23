@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.acl.read;
 
+import static io.fd.hc2vpp.acl.read.AbstractVppAclCustomizer.getAclCfgId;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
@@ -27,7 +28,9 @@ import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.vpp.jvpp.acl.dto.MacipAclDetails;
@@ -39,6 +42,8 @@ import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.IngressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAclBuilder;
@@ -49,7 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
-    implements ReaderCustomizer<VppMacipAcl, VppMacipAclBuilder>, JvppReplyConsumer, ByteDataTranslator {
+    implements InitializingReaderCustomizer<VppMacipAcl, VppMacipAclBuilder>, JvppReplyConsumer, ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppMacIpAclCustomizer.class);
 
@@ -76,6 +81,11 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
             .build();
         this.interfaceContext = interfaceContext;
         this.macIpAclContext = macIpAclContext;
+    }
+
+    private static InstanceIdentifier<VppMacipAcl> getCfgId(
+        final InstanceIdentifier<VppMacipAcl> id) {
+        return getAclCfgId(RWUtils.cutId(id, Acl.class)).child(Ingress.class).child(VppMacipAcl.class);
     }
 
     private EntityDumpExecutor<MacipAclDetailsReplyDump, Integer> createMacIpDumpExecutor() {
@@ -141,5 +151,13 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
     public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder,
                       @Nonnull final VppMacipAcl readValue) {
         IngressBuilder.class.cast(parentBuilder).setVppMacipAcl(readValue);
+    }
+
+    @Nonnull
+    @Override
+    public Initialized<? extends DataObject> init(@Nonnull final InstanceIdentifier<VppMacipAcl> id,
+                                                  @Nonnull final VppMacipAcl readValue,
+                                                  @Nonnull final ReadContext ctx) {
+        return Initialized.create(getCfgId(id), readValue);
     }
 }

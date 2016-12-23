@@ -24,7 +24,8 @@ import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
@@ -41,8 +42,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAcls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAclsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAclsKey;
@@ -50,7 +54,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 abstract class AbstractVppAclCustomizer extends FutureJVppAclCustomizer
-    implements ListReaderCustomizer<VppAcls, VppAclsKey, VppAclsBuilder>, JvppReplyConsumer, ByteDataTranslator {
+    implements InitializingListReaderCustomizer<VppAcls, VppAclsKey, VppAclsBuilder>, JvppReplyConsumer,
+    ByteDataTranslator {
 
     private final NamingContext interfaceContext;
     private final NamingContext standardAclContext;
@@ -77,6 +82,15 @@ abstract class AbstractVppAclCustomizer extends FutureJVppAclCustomizer
             .withExecutor(createAclExecutor())
             .acceptOnly(AclDetailsReplyDump.class)
             .build();
+    }
+
+    protected static InstanceIdentifier<Acl> getAclCfgId(
+        final InstanceIdentifier<Acl> id) {
+        return InstanceIdentifier.create(Interfaces.class).child(
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class,
+            new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey(
+                id.firstKeyOf(Interface.class).getName())).augmentation(VppAclInterfaceAugmentation.class)
+            .child(Acl.class);
     }
 
     private EntityDumpExecutor<AclDetailsReplyDump, Integer> createAclExecutor() {
@@ -160,4 +174,14 @@ abstract class AbstractVppAclCustomizer extends FutureJVppAclCustomizer
                 new IllegalArgumentException(String.format("Acl with name %s not found", aclName)));
         }
     }
+
+    @Nonnull
+    @Override
+    public Initialized<VppAcls> init(@Nonnull final InstanceIdentifier<VppAcls> id,
+                                     @Nonnull final VppAcls vppAcls,
+                                     @Nonnull final ReadContext readContext) {
+        return Initialized.create(getCfgId(id), vppAcls);
+    }
+
+    protected abstract InstanceIdentifier<VppAcls> getCfgId(final InstanceIdentifier<VppAcls> id);
 }

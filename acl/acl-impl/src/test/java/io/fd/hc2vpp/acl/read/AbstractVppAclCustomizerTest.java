@@ -18,15 +18,17 @@ package io.fd.hc2vpp.acl.read;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.vpp.jvpp.acl.dto.AclDetails;
 import io.fd.vpp.jvpp.acl.dto.AclDetailsReplyDump;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetails;
@@ -51,7 +53,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public abstract class AbstractVppAclCustomizerTest
-    extends ListReaderCustomizerTest<VppAcls, VppAclsKey, VppAclsBuilder> {
+    extends InitializingListReaderCustomizerTest<VppAcls, VppAclsKey, VppAclsBuilder> {
 
     protected static final String IF_NAME = "eth1";
     protected static final int IF_ID = 1;
@@ -121,6 +123,21 @@ public abstract class AbstractVppAclCustomizerTest
         assertFalse(getCustomizer().getAllIds(getWildcardedIid(IF_NAME), ctx).isEmpty());
         // read all for interface without ACLs defined:
         assertEquals(0, getCustomizer().getAllIds(getWildcardedIid(IF_NAME_NO_ACL), ctx).size());
+    }
+
+    @Test
+    public void testInit() {
+        final String aclName = "acl-name";
+        final Class<VppAcl> aclType = VppAcl.class;
+        defineMapping(mappingContext, aclName, 1, ACL_CTX_NAME);
+
+        final VppAcls readValue = new VppAclsBuilder().build();
+        final Initialized<? extends DataObject> cfgValue =
+            getCustomizer().init(getIid(IF_NAME, new VppAclsKey(aclName, aclType)), readValue, ctx);
+        assertEquals(readValue, cfgValue.getData());
+        assertNotNull(cfgValue.getId().firstKeyOf(
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class));
+        assertEquals(cfgValue.getId().getTargetType(), VppAcls.class);
     }
 
     protected AclInterfaceListDump aclInterfaceRequest(final int swIfIndex) {

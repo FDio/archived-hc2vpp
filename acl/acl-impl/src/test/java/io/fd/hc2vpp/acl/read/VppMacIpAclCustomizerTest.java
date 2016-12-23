@@ -17,15 +17,18 @@
 package io.fd.hc2vpp.acl.read;
 
 import static io.fd.hc2vpp.acl.read.AbstractVppAclCustomizerTest.getAclId;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.vpp.jvpp.acl.dto.MacipAclDetails;
 import io.fd.vpp.jvpp.acl.dto.MacipAclDetailsReplyDump;
 import io.fd.vpp.jvpp.acl.dto.MacipAclDump;
@@ -35,13 +38,15 @@ import javax.annotation.Nonnull;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AclBase;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.IngressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAclBuilder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class VppMacIpAclCustomizerTest extends ReaderCustomizerTest<VppMacipAcl, VppMacipAclBuilder> {
+public class VppMacIpAclCustomizerTest extends InitializingReaderCustomizerTest<VppMacipAcl, VppMacipAclBuilder> {
 
     protected static final String IF_NAME_NO_ACL = "eth2";
     protected static final int IF_ID_NO_ACL = 2;
@@ -102,6 +107,16 @@ public class VppMacIpAclCustomizerTest extends ReaderCustomizerTest<VppMacipAcl,
         when(aclApi.macipAclInterfaceGet(any())).thenReturn(future(new MacipAclInterfaceGetReply()));
         getCustomizer().readCurrentAttributes(getIid(IF_NAME_NO_ACL), builder, ctx);
         verifyZeroInteractions(builder);
+    }
+
+    @Test
+    public void testInit() {
+        final VppMacipAcl readValue = new VppMacipAclBuilder().build();
+        final Initialized<? extends DataObject> cfgValue = getCustomizer().init(getIid(IF_NAME), readValue, ctx);
+        assertEquals(cfgValue.getData(), readValue);
+        assertNotNull(cfgValue.getId().firstKeyOf(Interface.class));
+        assertEquals(cfgValue.getId().getTargetType(), VppMacipAcl.class);
+
     }
 
     protected InstanceIdentifier<VppMacipAcl> getIid(@Nonnull final String ifName) {

@@ -23,8 +23,8 @@ import io.fd.hc2vpp.acl.read.EgressVppAclCustomizer;
 import io.fd.hc2vpp.acl.read.IngressVppAclCustomizer;
 import io.fd.hc2vpp.acl.read.VppMacIpAclCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
-import io.fd.honeycomb.translate.impl.read.GenericReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
@@ -73,14 +73,14 @@ public class InterfaceAclReaderFactory implements ReaderFactory {
 
         final InstanceIdentifier<Ingress> ingressInstanceIdentifier = ACL_IID.child(Ingress.class);
         registry.addStructuralReader(ingressInstanceIdentifier, IngressBuilder.class);
-        registry.addAfter(new GenericListReader<>(ingressInstanceIdentifier.child(VppAcls.class),
+        registry.addAfter(new GenericInitListReader<>(ingressInstanceIdentifier.child(VppAcls.class),
             new IngressVppAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)), IFC_ID);
-        registry.addAfter(new GenericReader<>(ingressInstanceIdentifier.child(VppMacipAcl.class),
+        registry.addAfter(new GenericInitReader<>(ingressInstanceIdentifier.child(VppMacipAcl.class),
             new VppMacIpAclCustomizer(futureAclFacade, interfaceContext, macIpAClContext)), IFC_ID);
 
         final InstanceIdentifier<Egress> egressInstanceIdentifier = ACL_IID.child(Egress.class);
         registry.addStructuralReader(egressInstanceIdentifier, EgressBuilder.class);
-        registry.addAfter(new GenericListReader<>(egressInstanceIdentifier.child(VppAcls.class),
+        registry.addAfter(new GenericInitListReader<>(egressInstanceIdentifier.child(VppAcls.class),
             new EgressVppAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)), IFC_ID);
     }
 }
