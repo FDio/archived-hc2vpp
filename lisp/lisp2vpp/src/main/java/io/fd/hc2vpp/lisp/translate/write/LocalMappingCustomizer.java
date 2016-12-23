@@ -67,13 +67,6 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
         checkState(id.firstKeyOf(VniTable.class) != null, "Parent vni table not found");
         checkAllowedCombination(id, dataAfter);
 
-        //checks whether value with specified mapping-id does not exist in mapping allready
-        final MappingId mappingId = id.firstKeyOf(LocalMapping.class).getId();
-        checkState(!localMappingsContext
-                        .containsEid(mappingId, writeContext.getMappingContext()),
-                "Local mapping with id %s already defined", id);
-
-
         try {
             addDelMappingAndReply(true, dataAfter,
                     id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier().intValue());
@@ -81,7 +74,8 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
 
-        //adds mapping for id and eid
+        // adds mapping for id and eid
+        final MappingId mappingId = id.firstKeyOf(LocalMapping.class).getId();
         localMappingsContext.addEid(mappingId, dataAfter.getEid(), writeContext.getMappingContext());
     }
 

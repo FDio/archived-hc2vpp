@@ -81,11 +81,6 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         checkState(id.firstKeyOf(VniTable.class) != null, "Parent vni table not found");
         checkAllowedCombination(id, dataAfter);
 
-        //checks whether mapping not already contains such key
-        MappingId mappingId = id.firstKeyOf(RemoteMapping.class).getId();
-        checkState(!remoteMappingContext.containsEid(mappingId, writeContext.getMappingContext()),
-                "Mapping for id %s already defined", mappingId);
-
         try {
             addDelRemoteMappingAndReply(true, dataAfter,
                     id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier().intValue());
@@ -93,7 +88,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
 
-        //after successfull adition adds mapping
+        // after successfull adition adds mapping
+        MappingId mappingId = id.firstKeyOf(RemoteMapping.class).getId();
         remoteMappingContext.addEid(mappingId, dataAfter.getEid(), writeContext.getMappingContext());
     }
 

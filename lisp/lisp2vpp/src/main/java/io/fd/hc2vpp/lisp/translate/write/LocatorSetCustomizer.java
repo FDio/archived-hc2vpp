@@ -61,8 +61,6 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
         checkState(isNonEmptyLocatorSet(writeContext.readAfter(id).get()),
                 "Creating empty locator-sets is not allowed");
         final String locatorSetName = dataAfter.getName();
-        checkState(!locatorSetContext.containsIndex(locatorSetName, writeContext.getMappingContext()),
-                "Locator set with name %s already defined", locatorSetName);
 
         final int locatorSetIndex = addDelLocatorSetAndReply(true, dataAfter.getName(), id);
         locatorSetContext.addName(locatorSetIndex, locatorSetName, writeContext.getMappingContext());

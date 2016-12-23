@@ -53,12 +53,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public final class EidTableWriterFactory extends AbstractLispInfraFactoryBase implements WriterFactory {
 
-    private static final InstanceIdentifier<VniTable> VNI_TABLE_ID =
+    static final InstanceIdentifier<VniTable> VNI_TABLE_ID =
             LISP_CONFIG_IDENTIFIER.child(LispFeatureData.class).child(EidTable.class).child(VniTable.class);
 
-    private static final InstanceIdentifier<VrfSubtable> VRF_SUBTABLE_ID = VNI_TABLE_ID.child(VrfSubtable.class);
+    static final InstanceIdentifier<VrfSubtable> VRF_SUBTABLE_ID = VNI_TABLE_ID.child(VrfSubtable.class);
 
-    private static final InstanceIdentifier<BridgeDomainSubtable> BRIDGE_DOMAIN_SUBTABLE_ID =
+    static final InstanceIdentifier<BridgeDomainSubtable> BRIDGE_DOMAIN_SUBTABLE_ID =
             VNI_TABLE_ID.child(BridgeDomainSubtable.class);
 
 
