@@ -18,7 +18,7 @@ License:    Apache-1.0
 URL:        http://www.fd.io
 Source0:     vpp-integration-distribution-%{_version}-SNAPSHOT-hc.zip
 Source1:     honeycomb.service
-Requires:    vpp, vpp-plugins, java >= 1:1.8.0
+Requires:    vpp >= 17.01, vpp < 17.04, vpp-plugins >= 17.01, vpp-plugins < 17.04, java >= 1:1.8.0
 # Required for creating honeycomb group
 Requires(pre): shadow-utils
 # Required for configuring systemd
