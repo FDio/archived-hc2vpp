@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -51,7 +52,6 @@ public class VppMacIpAclCustomizerTest extends InitializingReaderCustomizerTest<
     protected static final String IF_NAME_NO_ACL = "eth2";
     protected static final int IF_ID_NO_ACL = 2;
     protected static final String IFC_CTX_NAME = "interface-context";
-    protected static final String ACL_CTX_NAME = "standard-acl-context";
     private static final String IF_NAME = "eth1";
     private static final int IF_ID = 1;
     private static final String ACL_NAME = "acl-name";
@@ -61,7 +61,8 @@ public class VppMacIpAclCustomizerTest extends InitializingReaderCustomizerTest<
     @Mock
     protected FutureJVppAclFacade aclApi;
     protected NamingContext interfaceContext = new NamingContext("iface", IFC_CTX_NAME);
-    protected NamingContext macIpAclContext = new NamingContext("macIpAcl", ACL_CTX_NAME);
+    @Mock
+    protected AclContextManager macIpAclContext;
 
     public VppMacIpAclCustomizerTest() {
         super(VppMacipAcl.class, IngressBuilder.class);
@@ -76,7 +77,7 @@ public class VppMacIpAclCustomizerTest extends InitializingReaderCustomizerTest<
     protected void setUp() {
         defineMapping(mappingContext, IF_NAME, IF_ID, IFC_CTX_NAME);
         defineMapping(mappingContext, IF_NAME_NO_ACL, IF_ID_NO_ACL, IFC_CTX_NAME);
-        defineMapping(mappingContext, ACL_NAME, ACL_ID, ACL_CTX_NAME);
+        when(macIpAclContext.getAclName(ACL_ID, mappingContext)).thenReturn(ACL_NAME);
     }
 
     @Test

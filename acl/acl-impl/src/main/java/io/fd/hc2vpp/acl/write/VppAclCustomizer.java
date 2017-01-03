@@ -16,11 +16,11 @@
 
 package io.fd.hc2vpp.acl.write;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
 import io.fd.hc2vpp.acl.util.acl.AclDataExtractor;
 import io.fd.hc2vpp.acl.util.acl.AclValidator;
 import io.fd.hc2vpp.acl.util.acl.AclWriter;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -34,12 +34,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class VppAclCustomizer extends FutureJVppAclCustomizer
         implements ListWriterCustomizer<Acl, AclKey>, AclValidator, AclDataExtractor, AclWriter {
 
-    private final NamingContext standardAclContext;
-    private final NamingContext macIpAclContext;
+    private final AclContextManager standardAclContext;
+    private final AclContextManager macIpAclContext;
 
     public VppAclCustomizer(@Nonnull final FutureJVppAclFacade jVppAclFacade,
-                            @Nonnull final NamingContext standardAclContext,
-                            @Nonnull final NamingContext macIpAclContext) {
+                            @Nonnull final AclContextManager standardAclContext,
+                            @Nonnull final AclContextManager macIpAclContext) {
         super(jVppAclFacade);
         this.standardAclContext = standardAclContext;
         this.macIpAclContext = macIpAclContext;

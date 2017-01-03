@@ -20,6 +20,7 @@ import static io.fd.hc2vpp.acl.read.AbstractVppAclCustomizer.getAclCfgId;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -61,11 +62,11 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
     private final DumpCacheManager<MacipAclDetailsReplyDump, Integer> macIpAclDumpManager;
     private final DumpCacheManager<MacipAclInterfaceGetReply, Void> interfaceMacIpAclDumpManager;
     private final NamingContext interfaceContext;
-    private final NamingContext macIpAclContext;
+    private final AclContextManager macIpAclContext;
 
     public VppMacIpAclCustomizer(@Nonnull final FutureJVppAclFacade jVppAclFacade,
                                  @Nonnull final NamingContext interfaceContext,
-                                 @Nonnull final NamingContext macIpAclContext) {
+                                 @Nonnull final AclContextManager macIpAclContext) {
         super(jVppAclFacade);
 
         // for dumping of Mac-ip details
@@ -129,7 +130,7 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
             if (macIpDumpReply.isPresent() && !macIpDumpReply.get().macipAclDetails.isEmpty()) {
                 final MacipAclDetails details = macIpDumpReply.get().macipAclDetails.get(0);
 
-                builder.setName(macIpAclContext.getName(aclIndex, mappingContext));
+                builder.setName(macIpAclContext.getAclName(aclIndex, mappingContext));
                 builder.setType(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAcl.class);
                 if (details.tag != null && details.tag.length > 0) {
@@ -143,7 +144,7 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
             }
         } else {
             // this is valid state, so just logging
-            LOG.info("No Mac-ip ACL specified for Interface name={},index={}", interfaceName, interfaceIndex);
+            LOG.debug("No Mac-ip ACL specified for Interface name={},index={}", interfaceName, interfaceIndex);
         }
     }
 

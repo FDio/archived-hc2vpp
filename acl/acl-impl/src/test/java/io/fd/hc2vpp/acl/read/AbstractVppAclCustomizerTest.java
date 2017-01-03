@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -68,7 +69,9 @@ public abstract class AbstractVppAclCustomizerTest
     protected FutureJVppAclFacade aclApi;
 
     protected NamingContext interfaceContext = new NamingContext("iface", IFC_CTX_NAME);
-    protected NamingContext standardAclContext = new NamingContext("standardAcl", ACL_CTX_NAME);
+
+    @Mock
+    protected AclContextManager standardAclContext;
 
     protected AbstractVppAclCustomizerTest(final Class<? extends Builder<? extends DataObject>> parentBuilderClass) {
         super(VppAcls.class, parentBuilderClass);

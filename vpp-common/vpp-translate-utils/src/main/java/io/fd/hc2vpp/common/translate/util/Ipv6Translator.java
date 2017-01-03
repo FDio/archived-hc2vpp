@@ -141,6 +141,18 @@ public interface Ipv6Translator extends ByteDataTranslator {
         return address.getIpv6Prefix() != null;
     }
 
+    /**
+     * Sets correct length of ip4 array in case vpp returns array of length greater than 4.
+     * @param ip array to be truncated
+     * @return ip array of length 4
+     */
+    default byte[] truncateIp4Array(final byte[] ip) {
+        //  16, which causes problems for toIpv4Prefix
+        final byte[] result = new byte[4];
+        System.arraycopy(ip, 0, result, 0, 4);
+        return result;
+    }
+
     default Ipv6Prefix toIpv6Prefix(final byte[] address, final int prefix) {
         try {
             return new Ipv6Prefix(

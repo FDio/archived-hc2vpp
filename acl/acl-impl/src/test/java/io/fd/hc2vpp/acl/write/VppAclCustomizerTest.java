@@ -24,8 +24,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.acl.AclTestSchemaContext;
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -68,8 +68,11 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
     private InstanceIdentifier<Acl> validId;
     private InstanceIdentifier<Acl> validMacipId;
     private VppAclCustomizer aclCustomizer;
-    private NamingContext standardAclContext;
-    private NamingContext macIpAclContext;
+
+    @Mock
+    private AclContextManager standardAclContext;
+    @Mock
+    private AclContextManager macIpAclContext;
 
 
     @Override
@@ -78,8 +81,6 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
                 InstanceIdentifier.create(AccessLists.class).child(Acl.class, new AclKey("standard-acl", VppAcl.class));
         validMacipId =
                 InstanceIdentifier.create(AccessLists.class).child(Acl.class, new AclKey("macip-acl", VppAcl.class));
-        standardAclContext = new NamingContext("acl", "acl-context");
-        macIpAclContext = new NamingContext("macip", "macip-context");
         aclCustomizer = new VppAclCustomizer(aclApi, standardAclContext, macIpAclContext);
 
         when(aclApi.aclAddReplace(any())).thenReturn(future(new AclAddReplaceReply()));
@@ -122,13 +123,14 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
     @Test
     public void updateCurrentAttributesIcmpIpv4(@InjectTestData(resourcePath = "/acl/standard/standard-acl-icmp.json")
                                                         AccessLists standardAcls) throws Exception {
-        defineMapping(mappingContext, "standard-acl", 4, "acl-context");
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         final Acl data = standardAcls.getAcl().get(0);
 
         aclCustomizer.updateCurrentAttributes(validId, data, data, writeContext);
 
         verify(aclApi, times(1)).aclAddReplace(aclAddReplaceRequestCaptor.capture());
-        verifyIcmpIpv4Request(4);
+        verifyIcmpIpv4Request(aclIndex);
     }
 
 
@@ -145,12 +147,13 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
     public void updateCurrentAttributesIcmpIpv6(
             @InjectTestData(resourcePath = "/acl/standard/standard-acl-icmp-v6.json")
                     AccessLists standardAcls) throws Exception {
-        defineMapping(mappingContext, "standard-acl", 4, "acl-context");
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         final Acl data = standardAcls.getAcl().get(0);
         aclCustomizer.updateCurrentAttributes(validId, data, data, writeContext);
 
         verify(aclApi, times(1)).aclAddReplace(aclAddReplaceRequestCaptor.capture());
-        verifyIcmpv6Request(4);
+        verifyIcmpv6Request(aclIndex);
     }
 
 
@@ -166,12 +169,13 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
     @Test
     public void updateCurrentAttributesTcp(@InjectTestData(resourcePath = "/acl/standard/standard-acl-tcp.json")
                                                    AccessLists standardAcls) throws Exception {
-        defineMapping(mappingContext, "standard-acl", 4, "acl-context");
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         final Acl data = standardAcls.getAcl().get(0);
         aclCustomizer.updateCurrentAttributes(validId, data, data, writeContext);
 
         verify(aclApi, times(1)).aclAddReplace(aclAddReplaceRequestCaptor.capture());
-        verifyTcpRequest(4);
+        verifyTcpRequest(aclIndex);
     }
 
 
@@ -188,54 +192,59 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
     @Test
     public void updateCurrentAttributesUdp(@InjectTestData(resourcePath = "/acl/standard/standard-acl-udp.json")
                                                    AccessLists standardAcls) throws Exception {
-        defineMapping(mappingContext, "standard-acl", 4, "acl-context");
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         final Acl data = standardAcls.getAcl().get(0);
         aclCustomizer.updateCurrentAttributes(validId, data, data, writeContext);
 
         verify(aclApi, times(1)).aclAddReplace(aclAddReplaceRequestCaptor.capture());
-        verifyUdpRequest(4);
+        verifyUdpRequest(aclIndex);
     }
 
 
     @Test
     public void deleteCurrentAttributesIcmpIpv4(@InjectTestData(resourcePath = "/acl/standard/standard-acl-icmp.json")
                                                         AccessLists standardAcls) throws Exception {
-        defineMapping(mappingContext, "standard-acl", 4, "acl-context");
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);
 
         verify(aclApi, times(1)).aclDel(aclDelRequestCaptor.capture());
-        assertEquals(4, aclDelRequestCaptor.getValue().aclIndex);
+        assertEquals(aclIndex, aclDelRequestCaptor.getValue().aclIndex);
     }
 
     @Test
     public void deleteCurrentAttributesIcmpIpv6(
             @InjectTestData(resourcePath = "/acl/standard/standard-acl-icmp-v6.json")
                     AccessLists standardAcls) throws Exception {
-        defineMapping(mappingContext, "standard-acl", 4, "acl-context");
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);
 
         verify(aclApi, times(1)).aclDel(aclDelRequestCaptor.capture());
-        assertEquals(4, aclDelRequestCaptor.getValue().aclIndex);
+        assertEquals(aclIndex, aclDelRequestCaptor.getValue().aclIndex);
     }
 
     @Test
     public void deleteCurrentAttributesTcp(@InjectTestData(resourcePath = "/acl/standard/standard-acl-tcp.json")
                                                    AccessLists standardAcls) throws Exception {
-        defineMapping(mappingContext, "standard-acl", 4, "acl-context");
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);
 
         verify(aclApi, times(1)).aclDel(aclDelRequestCaptor.capture());
-        assertEquals(4, aclDelRequestCaptor.getValue().aclIndex);
+        assertEquals(aclIndex, aclDelRequestCaptor.getValue().aclIndex);
     }
 
     @Test
     public void deleteCurrentAttributesUdp(@InjectTestData(resourcePath = "/acl/standard/standard-acl-udp.json")
                                                    AccessLists standardAcls) throws Exception {
-        defineMapping(mappingContext, "standard-acl", 4, "acl-context");
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);
 
         verify(aclApi, times(1)).aclDel(aclDelRequestCaptor.capture());
-        assertEquals(4, aclDelRequestCaptor.getValue().aclIndex);
+        assertEquals(aclIndex, aclDelRequestCaptor.getValue().aclIndex);
     }
 
     private void verifyUdpRequest(final int aclIndex) {

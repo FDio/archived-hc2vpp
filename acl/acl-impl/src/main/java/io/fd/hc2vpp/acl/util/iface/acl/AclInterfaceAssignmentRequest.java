@@ -19,6 +19,7 @@ package io.fd.hc2vpp.acl.util.iface.acl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -46,7 +47,7 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
     private InstanceIdentifier<Acl> identifier;
     private List<String> inputAclNames;
     private List<String> outputAclNames;
-    private NamingContext standardAclContext;
+    private AclContextManager standardAclContext;
     private NamingContext interfaceContext;
 
 
@@ -74,7 +75,7 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
         return this;
     }
 
-    public AclInterfaceAssignmentRequest standardAclContext(@Nonnull final NamingContext standardAclContext) {
+    public AclInterfaceAssignmentRequest standardAclContext(@Nonnull final AclContextManager standardAclContext) {
         this.standardAclContext = standardAclContext;
         return this;
     }
@@ -155,7 +156,7 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
         request.nInput = (byte) inputAclNames.size();
         request.count = (byte) (inputAclNames.size() + outputAclNames.size());
         request.acls = Stream.concat(inputAclNames.stream(), outputAclNames.stream())
-                .mapToInt(aclName -> standardAclContext.getIndex(aclName, mappingContext))
+                .mapToInt(aclName -> standardAclContext.getAclIndex(aclName, mappingContext))
                 .toArray();
         return request;
     }

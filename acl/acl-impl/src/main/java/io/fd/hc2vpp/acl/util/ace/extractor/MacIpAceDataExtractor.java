@@ -17,17 +17,23 @@
 package io.fd.hc2vpp.acl.util.ace.extractor;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
+import io.fd.hc2vpp.common.translate.util.MacTranslator;
+import io.fd.vpp.jvpp.acl.types.MacipAclRule;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Deny;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAceIpv4HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAceIpv6HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAce;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.AceIpVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv6Builder;
 
-public interface MacIpAceDataExtractor extends AddressTranslator {
+public interface MacIpAceDataExtractor extends AddressTranslator, MacTranslator {
 
     default VppMacipAce fromMacIpAce(@Nonnull final Ace ace) {
         return VppMacipAce.class.cast(ace.getMatches().getAceType());
@@ -79,5 +85,38 @@ public interface MacIpAceDataExtractor extends AddressTranslator {
                 String.format("Unsupported packet-handling action %s for ACE %s", action, ace));
         }
     }
+
+    default AceIpVersion ipVersion(final MacipAclRule rule) {
+        if (rule.isIpv6 == 0) {
+            return ip4Ace(rule);
+        } else {
+            return ip6Ace(rule);
+        }
+    }
+
+    default AceIpVersion ip4Ace(MacipAclRule rule) {
+        final AceIpv4Builder ipVersion = new AceIpv4Builder();
+        if (rule.srcIpAddr != null && rule.srcIpAddr.length != 0) {
+            ipVersion.setSourceIpv4Network(toIpv4Prefix(truncateIp4Array(rule.srcIpAddr), rule.srcIpPrefixLen));
+        }
+        return ipVersion.build();
+    }
+
+    default AceIpVersion ip6Ace(MacipAclRule rule) {
+        final AceIpv6Builder ipVersion = new AceIpv6Builder();
+        if (rule.srcIpAddr != null && rule.srcIpAddr.length != 0) {
+            ipVersion.setSourceIpv6Network(toIpv6Prefix(rule.srcIpAddr, rule.srcIpPrefixLen));
+        }
+        return ipVersion.build();
+    }
+
+    default MacAddress sourceMac(final MacipAclRule rule) {
+        return new MacAddress(byteArrayToMacSeparated(rule.srcMac));
+    }
+
+    default MacAddress sourceMacMask(final MacipAclRule rule) {
+        return new MacAddress(byteArrayToMacSeparated(rule.srcMacMask));
+    }
+
 
 }

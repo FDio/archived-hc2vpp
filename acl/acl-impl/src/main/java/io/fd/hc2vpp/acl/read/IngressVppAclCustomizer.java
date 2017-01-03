@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.acl.read;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetails;
@@ -36,7 +37,7 @@ public final class IngressVppAclCustomizer extends AbstractVppAclCustomizer {
 
     public IngressVppAclCustomizer(@Nonnull final FutureJVppAclFacade jVppAclFacade,
                                    @Nonnull final NamingContext interfaceContext,
-                                   @Nonnull final NamingContext standardAclContext) {
+                                   @Nonnull final AclContextManager standardAclContext) {
         super(jVppAclFacade, interfaceContext, standardAclContext);
     }
 

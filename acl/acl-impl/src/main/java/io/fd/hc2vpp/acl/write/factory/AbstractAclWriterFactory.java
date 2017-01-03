@@ -19,6 +19,7 @@ package io.fd.hc2vpp.acl.write.factory;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.acl.AclModule;
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 
@@ -32,11 +33,11 @@ class AbstractAclWriterFactory {
 
     @Inject
     @Named(AclModule.STANDARD_ACL_CONTEXT_NAME)
-    protected NamingContext standardAclContext;
+    protected AclContextManager standardAclContext;
 
     @Inject
     @Named(AclModule.MAC_IP_ACL_CONTEXT_NAME)
-    protected NamingContext macIpAClContext;
+    protected AclContextManager macIpAClContext;
 
     @Inject
     @Named("interface-context")

@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -79,7 +80,9 @@ public class AclInterfaceAssignmentRequestTest implements NamingContextHelper, F
 
     private InstanceIdentifier<Acl> validIdentifier;
     private NamingContext interfaceContext;
-    private NamingContext aclContext;
+
+    @Mock
+    private AclContextManager aclContext;
 
     @Before
     public void setUp() {
@@ -91,15 +94,14 @@ public class AclInterfaceAssignmentRequestTest implements NamingContextHelper, F
                 .child(Acl.class);
 
         interfaceContext = new NamingContext("iface", "interface-context");
-        aclContext = new NamingContext("acl", "acl-context");
 
         defineMapping(mappingContext, INTERFACE_NAME, INTERFACE_INDEX, "interface-context");
 
-        defineMapping(mappingContext, ACL_NAME_1, ACL_INDEX_1, "acl-context");
-        defineMapping(mappingContext, ACL_NAME_2, ACL_INDEX_2, "acl-context");
-        defineMapping(mappingContext, ACL_NAME_3, ACL_INDEX_3, "acl-context");
-        defineMapping(mappingContext, ACL_NAME_4, ACL_INDEX_4, "acl-context");
-        defineMapping(mappingContext, ACL_NAME_5, ACL_INDEX_5, "acl-context");
+        when(aclContext.getAclIndex(ACL_NAME_1, mappingContext)).thenReturn(ACL_INDEX_1);
+        when(aclContext.getAclIndex(ACL_NAME_2, mappingContext)).thenReturn(ACL_INDEX_2);
+        when(aclContext.getAclIndex(ACL_NAME_3, mappingContext)).thenReturn(ACL_INDEX_3);
+        when(aclContext.getAclIndex(ACL_NAME_4, mappingContext)).thenReturn(ACL_INDEX_4);
+        when(aclContext.getAclIndex(ACL_NAME_5, mappingContext)).thenReturn(ACL_INDEX_5);
 
         when(api.aclInterfaceSetAclList(any())).thenReturn(future(new AclInterfaceSetAclListReply()));
     }

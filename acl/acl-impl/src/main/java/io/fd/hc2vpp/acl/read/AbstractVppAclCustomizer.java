@@ -18,6 +18,7 @@ package io.fd.hc2vpp.acl.read;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -58,14 +59,14 @@ abstract class AbstractVppAclCustomizer extends FutureJVppAclCustomizer
     ByteDataTranslator {
 
     private final NamingContext interfaceContext;
-    private final NamingContext standardAclContext;
+    private final AclContextManager standardAclContext;
 
     private final DumpCacheManager<AclInterfaceListDetailsReplyDump, Integer> aclReferenceDumpManager;
     private final DumpCacheManager<AclDetailsReplyDump, Integer> aclDumpManager;
 
     protected AbstractVppAclCustomizer(@Nonnull final FutureJVppAclFacade jVppAclFacade,
                                        @Nonnull final NamingContext interfaceContext,
-                                       @Nonnull final NamingContext standardAclContext) {
+                                       @Nonnull final AclContextManager standardAclContext) {
         super(jVppAclFacade);
         this.interfaceContext = interfaceContext;
         this.standardAclContext = standardAclContext;
@@ -127,7 +128,7 @@ abstract class AbstractVppAclCustomizer extends FutureJVppAclCustomizer
             // dump message in vpp)
             final AclInterfaceListDetails aclDetails = dumpReply.get().aclInterfaceListDetails.get(0);
             return filterAcls(aclDetails)
-                .mapToObj(aclIndex -> standardAclContext.getName(aclIndex, context.getMappingContext()))
+                .mapToObj(aclIndex -> standardAclContext.getAclName(aclIndex, context.getMappingContext()))
                 .map(aclName -> new VppAclsKey(aclName, VppAcl.class))
                 .collect(Collectors.toList());
         } else {
@@ -155,13 +156,13 @@ abstract class AbstractVppAclCustomizer extends FutureJVppAclCustomizer
                                             @Nonnull final ReadContext ctx) throws ReadFailedException {
         final VppAclsKey vppAclsKey = id.firstKeyOf(VppAcls.class);
         final String aclName = vppAclsKey.getName();
-        final int aclIndex = standardAclContext.getIndex(aclName, ctx.getMappingContext());
+        final int aclIndex = standardAclContext.getAclIndex(aclName, ctx.getMappingContext());
 
         final Optional<AclDetailsReplyDump> dumpReply =
             aclDumpManager.getDump(id, ctx.getModificationCache(), aclIndex);
 
         if (dumpReply.isPresent() && !dumpReply.get().aclDetails.isEmpty()) {
-            // FIXME (model expects hex string, but tag is written and read as ascii string)
+            // TODO(HONEYCOMB-330): (model expects hex string, but tag is written and read as ascii string)
             // decide how tag should be handled (model change might be needed).
             builder.setName(aclName);
             builder.setType(vppAclsKey.getType());

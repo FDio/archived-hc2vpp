@@ -19,6 +19,7 @@ package io.fd.hc2vpp.acl.util.iface.macip;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -41,7 +42,7 @@ public class MacIpInterfaceAssignmentRequest implements ByteDataTranslator, Jvpp
     private final MappingContext mappingContext;
     private InstanceIdentifier<VppMacipAcl> identifier;
     private String aclName;
-    private NamingContext macIpAclContext;
+    private AclContextManager macIpAclContext;
     private NamingContext interfaceContext;
 
 
@@ -68,7 +69,7 @@ public class MacIpInterfaceAssignmentRequest implements ByteDataTranslator, Jvpp
         return this;
     }
 
-    public MacIpInterfaceAssignmentRequest macIpAclContext(@Nonnull final NamingContext macIpAclContext) {
+    public MacIpInterfaceAssignmentRequest macIpAclContext(@Nonnull final AclContextManager macIpAclContext) {
         this.macIpAclContext = macIpAclContext;
         return this;
     }
@@ -96,7 +97,7 @@ public class MacIpInterfaceAssignmentRequest implements ByteDataTranslator, Jvpp
 
             MacipAclInterfaceAddDel request = new MacipAclInterfaceAddDel();
             request.isAdd = booleanToByte(isNew);
-            request.aclIndex = macIpAclContext.getIndex(aclName, mappingContext);
+            request.aclIndex = macIpAclContext.getAclIndex(aclName, mappingContext);
             request.swIfIndex =
                     interfaceContext.getIndex(interfaceName, mappingContext);
 

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -49,9 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interfa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-/**
- * Created by jsrnicek on 13.12.2016.
- */
 public class MacIpInterfaceAssignmentRequestTest implements NamingContextHelper,FutureProducer {
 
     private static final String INTERFACE_NAME = "iface";
@@ -70,7 +68,8 @@ public class MacIpInterfaceAssignmentRequestTest implements NamingContextHelper,
 
     private InstanceIdentifier<VppMacipAcl> validIdentifier;
     private NamingContext interfaceContext;
-    private NamingContext macIpAclContext;
+    @Mock
+    private AclContextManager macIpAclContext;
 
     @Before
     public void setUp() throws Exception {
@@ -84,10 +83,9 @@ public class MacIpInterfaceAssignmentRequestTest implements NamingContextHelper,
                 .child(VppMacipAcl.class);
 
         interfaceContext = new NamingContext("iface", "interface-context");
-        macIpAclContext = new NamingContext("mac-ip-acl", "mac-ip-acl-context");
 
         defineMapping(mappingContext, INTERFACE_NAME, INTERFACE_INDEX, "interface-context");
-        defineMapping(mappingContext, ACL_NAME, ACL_INDEX, "mac-ip-acl-context");
+        when(macIpAclContext.getAclIndex(ACL_NAME, mappingContext)).thenReturn(ACL_INDEX);
         when(api.macipAclInterfaceAddDel(any())).thenReturn(future(new MacipAclInterfaceAddDelReply()));
     }
 

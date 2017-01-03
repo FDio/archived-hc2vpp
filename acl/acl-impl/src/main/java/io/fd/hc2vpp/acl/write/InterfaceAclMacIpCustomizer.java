@@ -19,6 +19,7 @@ package io.fd.hc2vpp.acl.write;
 import static io.fd.hc2vpp.acl.util.iface.macip.MacIpInterfaceAssignmentRequest.addNew;
 import static io.fd.hc2vpp.acl.util.iface.macip.MacIpInterfaceAssignmentRequest.deleteExisting;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
@@ -29,14 +30,13 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-
 public class InterfaceAclMacIpCustomizer extends FutureJVppAclCustomizer implements WriterCustomizer<VppMacipAcl> {
 
-    private final NamingContext macIpAclContext;
+    private final AclContextManager macIpAclContext;
     private final NamingContext interfaceContext;
 
     public InterfaceAclMacIpCustomizer(@Nonnull final FutureJVppAclFacade jVppAclFacade,
-                                       @Nonnull final NamingContext macIpAclContext,
+                                       @Nonnull final AclContextManager macIpAclContext,
                                        @Nonnull final NamingContext interfaceContext) {
         super(jVppAclFacade);
         this.macIpAclContext = macIpAclContext;

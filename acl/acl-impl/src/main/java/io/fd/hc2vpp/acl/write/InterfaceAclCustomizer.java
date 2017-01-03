@@ -18,6 +18,7 @@ package io.fd.hc2vpp.acl.write;
 
 import static java.util.stream.Collectors.toList;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
 import io.fd.hc2vpp.acl.util.iface.acl.AclInterfaceAssignmentRequest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -39,11 +40,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class InterfaceAclCustomizer extends FutureJVppAclCustomizer implements WriterCustomizer<Acl> {
 
     private final NamingContext interfaceContext;
-    private final NamingContext standardAclContext;
+    private final AclContextManager standardAclContext;
 
     public InterfaceAclCustomizer(@Nonnull final FutureJVppAclFacade jVppAclFacade,
                                   @Nonnull final NamingContext interfaceContext,
-                                  @Nonnull final NamingContext standardAclContext) {
+                                  @Nonnull final AclContextManager standardAclContext) {
         super(jVppAclFacade);
         this.interfaceContext = interfaceContext;
         this.standardAclContext = standardAclContext;

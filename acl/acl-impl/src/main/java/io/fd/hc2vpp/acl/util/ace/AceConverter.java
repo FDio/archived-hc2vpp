@@ -16,25 +16,34 @@
 
 package io.fd.hc2vpp.acl.util.ace;
 
+import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.ace.extractor.MacIpAceDataExtractor;
 import io.fd.hc2vpp.acl.util.ace.extractor.StandardAceDataExtractor;
 import io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.acl.types.AclRule;
 import io.fd.vpp.jvpp.acl.types.MacipAclRule;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.AceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.AceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.MatchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAce;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.VppAceNodesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.VppMacipAceNodesBuilder;
 
 /**
- * Convert Ace's to vpp rules
+ * Convert between Ace's and vpp rules.
  */
 public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtractor, ProtoPreBindRuleProducer {
 
-
-    default MacipAclRule[] convertToMacIpAclRules(@Nonnull final List<Ace> aces) {
+    default MacipAclRule[] toMacIpAclRules(@Nonnull final List<Ace> aces) {
         return aces.stream()
                 .map(ace -> {
                     final VppMacipAce macIpAce = fromMacIpAce(ace);
@@ -61,7 +70,7 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
                 .toArray(new MacipAclRule[aces.size()]);
     }
 
-    default AclRule[] convertToStandardAclRules(@Nonnull final List<Ace> aces) {
+    default AclRule[] toStandardAclRules(@Nonnull final List<Ace> aces) {
         return aces.stream()
                 .map(ace -> {
                     final VppAce standardAce = fromStandardAce(ace);
@@ -85,10 +94,59 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
                         rule.dstIpPrefixLen = ipv4DestinationAddressPrefix(standardAce);
                     }
 
-
                     return rule;
                 })
                 .collect(Collectors.toList())
                 .toArray(new AclRule[aces.size()]);
+    }
+
+    default List<Ace> toMacIpAces(final String aclName, @Nonnull MacipAclRule[] rules,
+                                  @Nonnull final AclContextManager macipAclContext,
+                                  @Nonnull final MappingContext mappingContext) {
+        final List<Ace> aces = new ArrayList<>(rules.length);
+        int i = 0;
+        for (final MacipAclRule rule : rules) {
+            final AceBuilder ace = new AceBuilder();
+            final VppMacipAceBuilder aceType = new VppMacipAceBuilder();
+            final VppMacipAceNodesBuilder nodes = new VppMacipAceNodesBuilder();
+            nodes.setAceIpVersion(ipVersion(rule));
+            nodes.setSourceMacAddress(sourceMac(rule));
+            nodes.setSourceMacAddressMask(sourceMacMask(rule));
+            aceType.setVppMacipAceNodes(nodes.build());
+
+            ace.setMatches(new MatchesBuilder().setAceType(aceType.build()).build());
+            ace.setActions(actions(rule.isPermit));
+
+            final String aceName = macipAclContext.getAceName(aclName, i++, mappingContext);
+            ace.setRuleName(aceName);
+            ace.setKey(new AceKey(aceName));
+
+            aces.add(ace.build());
+        }
+        return aces;
+    }
+
+    default List<Ace> toStandardAces(final String aclName, @Nonnull AclRule[] rules,
+                                     @Nonnull final AclContextManager standardAclContext,
+                                     @Nonnull final MappingContext mappingContext) {
+        final List<Ace> aces = new ArrayList<>(rules.length);
+        int i = 0;
+        for (final AclRule rule : rules) {
+            final AceBuilder ace = new AceBuilder();
+            final VppAceBuilder aceType = new VppAceBuilder();
+            final VppAceNodesBuilder nodes = new VppAceNodesBuilder();
+            nodes.setAceIpVersion(ipVersion(rule));
+            nodes.setIpProtocol(parseProtocol(rule));
+            aceType.setVppAceNodes(nodes.build());
+
+            ace.setMatches(new MatchesBuilder().setAceType(aceType.build()).build());
+            ace.setActions(actions(rule.isPermit));
+
+            final String aceName = standardAclContext.getAceName(aclName, i++, mappingContext);
+            ace.setRuleName(aceName);
+            ace.setKey(new AceKey(aceName));
+            aces.add(ace.build());
+        }
+        return aces;
     }
 }

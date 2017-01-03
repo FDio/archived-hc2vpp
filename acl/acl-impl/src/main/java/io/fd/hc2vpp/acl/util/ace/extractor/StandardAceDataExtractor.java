@@ -16,25 +16,33 @@
 
 package io.fd.hc2vpp.acl.util.ace.extractor;
 
-
 import com.google.common.collect.ImmutableMap;
+import io.fd.hc2vpp.acl.util.protocol.IpProtocolReader;
 import io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
+import io.fd.vpp.jvpp.acl.types.AclRule;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Actions;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.ActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Deny;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.DenyBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.PermitBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv4HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv6HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.actions.packet.handling.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.actions.packet.handling.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.AceIpVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6Builder;
 
-
-public interface StandardAceDataExtractor extends AddressTranslator, ProtoPreBindRuleProducer {
+public interface StandardAceDataExtractor extends AddressTranslator, ProtoPreBindRuleProducer, IpProtocolReader {
 
     /**
      * Allowed packet-processing actions for Acl's
@@ -94,5 +102,53 @@ public interface StandardAceDataExtractor extends AddressTranslator, ProtoPreBin
                 .orElseThrow(() -> new IllegalArgumentException(
                         String.format("Unsupported packet-handling action %s for ACE %s", action,
                                 ace.getRuleName())))).byteValue();
+    }
+
+    default AceIpVersion ipVersion(final AclRule rule) {
+        if (rule.isIpv6 == 0) {
+            return ip4Ace(rule);
+        } else {
+            return ip6Ace(rule);
+        }
+    }
+
+    default AceIpVersion ip4Ace(final AclRule rule) {
+        final AceIpv4Builder ipVersion = new AceIpv4Builder();
+        if (rule.srcIpAddr != null && rule.srcIpAddr.length != 0) {
+            ipVersion.setSourceIpv4Network(toIpv4Prefix(truncateIp4Array(rule.srcIpAddr), rule.srcIpPrefixLen));
+        }
+        if (rule.dstIpAddr != null && rule.dstIpAddr.length != 0) {
+            ipVersion.setDestinationIpv4Network(toIpv4Prefix(truncateIp4Array(rule.dstIpAddr), rule.dstIpPrefixLen));
+        }
+        return ipVersion.build();
+    }
+
+    default AceIpVersion ip6Ace(final AclRule rule) {
+        final AceIpv6Builder ipVersion = new AceIpv6Builder();
+        if (rule.srcIpAddr != null && rule.srcIpAddr.length != 0) {
+            ipVersion.setSourceIpv6Network(toIpv6Prefix(rule.srcIpAddr, rule.srcIpPrefixLen));
+        }
+        if (rule.dstIpAddr != null && rule.dstIpAddr.length != 0) {
+            ipVersion.setDestinationIpv6Network(toIpv6Prefix(rule.dstIpAddr, rule.dstIpPrefixLen));
+        }
+        return ipVersion.build();
+    }
+
+    default Actions actions(final byte isPermit) {
+        final ActionsBuilder actions = new ActionsBuilder();
+        switch (isPermit) {
+            case 0:
+                actions.setPacketHandling(new DenyBuilder().setDeny(true).build());
+                break;
+            case 1:
+                actions.setPacketHandling(new PermitBuilder().setPermit(true).build());
+                break;
+            case 2:
+                actions.setPacketHandling(new StatefulBuilder().setPermit(true).build());
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported action: " + isPermit);
+        }
+        return actions.build();
     }
 }
