@@ -19,10 +19,10 @@
   <parent>
     <artifactId>hc2vpp-aggregator</artifactId>
     <groupId>io.fd.hc2vpp</groupId>
-    <version>1.17.01-SNAPSHOT</version>
+    <version>1.17.04-SNAPSHOT</version>
   </parent>
   <artifactId>acl-aggregator</artifactId>
-  <version>1.17.01-SNAPSHOT</version>
+  <version>1.17.04-SNAPSHOT</version>
   <name>acl-aggregator</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>

@@ -1,7 +1,7 @@
 = SNAT
 
 Support fot VPP's SNAT plugin:
-https://docs.fd.io/vpp/17.01/plugins_snat-plugin_snat.html
+https://docs.fd.io/vpp/17.04/plugins_snat-plugin_snat.html
 
 == Supported features
 
