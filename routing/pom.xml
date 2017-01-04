@@ -19,12 +19,12 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>honeycomb-parent</artifactId>
-        <version>1.17.01-SNAPSHOT</version>
+        <version>1.17.01-RC2</version>
     </parent>
 
     <groupId>io.fd.hc2vpp.routing</groupId>
     <artifactId>routing-aggregator</artifactId>
-    <version>1.17.01-SNAPSHOT</version>
+    <version>1.17.01-RC2</version>
     <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>

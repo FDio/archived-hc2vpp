@@ -17,14 +17,14 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>api-parent</artifactId>
-    <version>1.17.01-SNAPSHOT</version>
+    <version>1.17.01-RC2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.hc2vpp.v3po</groupId>
   <artifactId>v3po-api</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.01-SNAPSHOT</version>
+  <version>1.17.01-RC2</version>
   <packaging>bundle</packaging>
 
   <dependencies>

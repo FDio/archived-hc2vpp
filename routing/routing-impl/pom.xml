@@ -20,14 +20,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.17.01-SNAPSHOT</version>
+        <version>1.17.01-RC2</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.routing</groupId>
     <artifactId>routing-impl</artifactId>
-    <version>1.17.01-SNAPSHOT</version>
+    <version>1.17.01-RC2</version>
     <packaging>bundle</packaging>
 
     <dependencies>
