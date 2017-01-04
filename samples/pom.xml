@@ -5,7 +5,7 @@
     <parent>
         <artifactId>hc2vpp-aggregator</artifactId>
         <groupId>io.fd.hc2vpp</groupId>
-        <version>1.17.01-SNAPSHOT</version>
+        <version>1.17.01</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
