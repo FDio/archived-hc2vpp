@@ -60,9 +60,8 @@ public class SubInterfaceIpv6NeighbourCustomizer extends FutureJVppCustomizer
             request.dstAddress = ipv6AddressNoZoneToArray(data.getIp());
             request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
             request.swIfIndex = subInterfaceIndex(id, interfaceContext, writeContext.getMappingContext());
+            // we don't have support for sub-interface routing, so not setting vrf
 
-            //TODO HONEYCOMB-182 if it is necessary for future use ,make adjustments to be able to set vrfid
-            //request.vrfId
             return request;
         }, getFutureJVpp());
         LOG.debug("Neighbour {} successfully written", id);
