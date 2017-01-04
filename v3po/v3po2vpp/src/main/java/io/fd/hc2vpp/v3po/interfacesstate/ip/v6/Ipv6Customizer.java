@@ -14,46 +14,45 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfacesstate.ip;
+package io.fd.hc2vpp.v3po.interfacesstate.ip.v6;
 
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv6Builder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv4Customizer extends FutureJVppCustomizer implements ReaderCustomizer<Ipv4, Ipv4Builder> {
+public class Ipv6Customizer extends FutureJVppCustomizer implements ReaderCustomizer<Ipv6, Ipv6Builder> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv4Customizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Ipv6Customizer.class);
 
-    public Ipv4Customizer(@Nonnull final FutureJVppCore futureJVppCore) {
+    public Ipv6Customizer(@Nonnull final FutureJVppCore futureJVppCore) {
         super(futureJVppCore);
     }
 
     @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final Ipv4 readValue) {
-        ((Interface2Builder) parentBuilder).setIpv4(readValue);
+    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder, @Nonnull final Ipv6 readValue) {
+        ((Interface2Builder) parentBuilder).setIpv6(readValue);
     }
 
     @Nonnull
     @Override
-    public Ipv4Builder getBuilder(@Nonnull final InstanceIdentifier<Ipv4> id) {
-        return new Ipv4Builder();
+    public Ipv6Builder getBuilder(@Nonnull final InstanceIdentifier<Ipv6> id) {
+        return new Ipv6Builder();
     }
 
     @Override
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id, @Nonnull final Ipv4Builder builder,
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv6> id, @Nonnull final Ipv6Builder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        LOG.debug("Reading Ipv4 leaves (mtu, forwarding) is not supported by VPP API");
+        LOG.debug("Reading Ipv6 leaves (mtu, forwarding) is not supported by VPP API");
     }
-
 }

@@ -27,13 +27,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.DottedQuad;
 
-public class SubnetValidatorTest {
+public class Ipv4SubnetValidatorTest {
 
-    private SubnetValidator subnetValidator;
+    private Ipv4SubnetValidator subnetValidator;
 
     @Before
     public void init() {
-        subnetValidator = new SubnetValidator();
+        subnetValidator = new Ipv4SubnetValidator();
     }
 
     @Test(expected = SubnetValidationException.class)

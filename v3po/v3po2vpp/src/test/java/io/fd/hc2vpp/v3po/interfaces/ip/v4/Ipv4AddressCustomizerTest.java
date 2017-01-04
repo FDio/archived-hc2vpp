@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfaces.ip;
+package io.fd.hc2vpp.v3po.interfaces.ip.v4;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -30,8 +30,8 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.Ipv4SubnetValidator;
 import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
-import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.SubnetValidator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
@@ -69,7 +69,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     private static final int IFACE_ID = 123;
 
     @Mock
-    private SubnetValidator subnetValidator;
+    private Ipv4SubnetValidator subnetValidator;
 
     private NamingContext interfaceContext;
     private Ipv4AddressCustomizer customizer;

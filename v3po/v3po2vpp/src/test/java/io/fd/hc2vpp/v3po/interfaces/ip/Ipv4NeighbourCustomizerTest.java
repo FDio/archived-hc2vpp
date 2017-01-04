@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfaces.ip.v4.Ipv4NeighbourCustomizer;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.IpNeighborAddDel;

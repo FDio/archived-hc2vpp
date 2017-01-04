@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfacesstate.ip;
+package io.fd.hc2vpp.v3po.interfacesstate.ip.v4;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,7 +24,8 @@ import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.IpReader;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.IfaceDumpFilter;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -56,21 +57,20 @@ import org.slf4j.LoggerFactory;
  * Read customizer for interface Ipv4 addresses.
  */
 public class Ipv4AddressCustomizer extends FutureJVppCustomizer
-        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder>, Ipv4Reader {
+        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder>, IpReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
-    private static final String CACHE_KEY = Ipv4AddressCustomizer.class.getName();
 
     private final NamingContext interfaceContext;
-    private final DumpCacheManager<IpAddressDetailsReplyDump, AddressDumpParams> dumpManager;
+    private final DumpCacheManager<IpAddressDetailsReplyDump, IfaceDumpFilter> dumpManager;
 
     public Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                  @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.dumpManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
-                        .withExecutor(createExecutor(futureJVppCore))
+                new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, IfaceDumpFilter>()
+                        .withExecutor(createAddressDumpExecutor(futureJVppCore))
                         // Key needs to contain interface ID to distinguish dumps between interfaces
                         .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(IpAddressDetailsReplyDump.class,
                                 ImmutableSet.of(Interface.class)))
@@ -92,13 +92,13 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
         final Optional<IpAddressDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, ctx.getModificationCache(), new AddressDumpParams(interfaceIndex, false));
+                dumpManager.getDump(id, ctx.getModificationCache(), new IfaceDumpFilter(interfaceIndex, false));
 
         if (!dumpOptional.isPresent() || dumpOptional.get().ipAddressDetails.isEmpty()) {
             return;
         }
         final Optional<IpAddressDetails> ipAddressDetails =
-                findIpAddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
+                findIpv4AddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
 
         if (ipAddressDetails.isPresent()) {
             final IpAddressDetails detail = ipAddressDetails.get();
@@ -120,7 +120,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
         final Optional<IpAddressDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, ctx.getModificationCache(), new AddressDumpParams(interfaceIndex, false));
+                dumpManager.getDump(id, ctx.getModificationCache(), new IfaceDumpFilter(interfaceIndex, false));
 
         return getAllIpv4AddressIds(dumpOptional, AddressKey::new);
     }

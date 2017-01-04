@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Function;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4Writer;
+import io.fd.hc2vpp.v3po.interfaces.ip.IpWriter;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 /**
  * Validator for detecting if there is an attempt to assign multiple addresses from same subnet
  */
-public class SubnetValidator implements Ipv4Writer {
+public class Ipv4SubnetValidator implements IpWriter {
 
     /**
      * Checks whether data provided for writing are not in collision with already existing data

@@ -24,7 +24,6 @@ import io.fd.hc2vpp.v3po.interfaces.RewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceL2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.acl.ingress.SubInterfaceAclCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
@@ -46,8 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.l2.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.tags.Tag;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -106,11 +103,6 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
                         org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
             new GenericWriter<>(rewriteId, new RewriteCustomizer(jvpp, ifcContext)),
             L2_ID);
-        //   Ipv4(handled after L2 and L2/rewrite is done) =
-        final InstanceIdentifier<Address> ipv4SubifcAddressId = SUB_IFC_ID.child(Ipv4.class).child(Address.class);
-        registry.addAfter(new GenericListWriter<>(ipv4SubifcAddressId,
-                new SubInterfaceIpv4AddressCustomizer(jvpp, ifcContext)),
-            rewriteId);
 
         // Ingress (execute after classify table and session writers)
         // also handles L2Acl, Ip4Acl and Ip6Acl:

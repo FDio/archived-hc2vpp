@@ -19,23 +19,30 @@ package io.fd.hc2vpp.v3po.interfaces.ip;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.IpNeighborAddDel;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddress;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceAddDelAddressReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Supplier;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Utility class providing Ipv4 CUD support.
+ * Utility class providing Ipv4/6 CUD support.
  */
-public interface Ipv4Writer extends ByteDataTranslator, Ipv4Translator, JvppReplyConsumer {
+public interface IpWriter extends ByteDataTranslator, AddressTranslator, JvppReplyConsumer {
 
     int DOTTED_QUAD_MASK_LENGTH = 4;
     int IPV4_ADDRESS_PART_BITS_COUNT = 8;
@@ -55,6 +62,23 @@ public interface Ipv4Writer extends ByteDataTranslator, Ipv4Translator, JvppRepl
                 futureJVppCore.swInterfaceAddDelAddress(
                         getSwInterfaceAddDelAddressRequest(ifaceId, booleanToByte(add) /* isAdd */,
                                 (byte) 0 /* isIpv6 */, (byte) 0 /* delAll */, prefixLength, addressBytes));
+
+        getReplyForWrite(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture(), id);
+    }
+
+    default void addDelAddress(@Nonnull final FutureJVppCore futureJVppCore, final boolean add,
+                               final InstanceIdentifier<?> id,
+                               @Nonnegative final int ifaceId,
+                               @Nonnull final Ipv6AddressNoZone address, @Nonnegative final byte prefixLength)
+            throws WriteFailedException {
+        checkNotNull(address, "address should not be null");
+
+        final byte[] addressBytes = ipv6AddressNoZoneToArray(address);
+
+        final CompletionStage<SwInterfaceAddDelAddressReply> swInterfaceAddDelAddressReplyCompletionStage =
+                futureJVppCore.swInterfaceAddDelAddress(
+                        getSwInterfaceAddDelAddressRequest(ifaceId, booleanToByte(add) /* isAdd */,
+                                (byte) 1 /* isIpv6 */, (byte) 0 /* delAll */, prefixLength, addressBytes));
 
         getReplyForWrite(swInterfaceAddDelAddressReplyCompletionStage.toCompletableFuture(), id);
     }
@@ -105,4 +129,38 @@ public interface Ipv4Writer extends ByteDataTranslator, Ipv4Translator, JvppRepl
         return (byte) leadingOnes;
     }
 
+    default int subInterfaceIndex(final InstanceIdentifier<?> id, final NamingContext interfaceContext,
+                                  final MappingContext mappingContext) {
+        return interfaceContext
+                .getIndex(id.firstKeyOf(Interface.class).getName() + "." + id.firstKeyOf(SubInterface.class).getIdentifier(),
+                        mappingContext);
+    }
+
+    default void addDelNeighbour(@Nonnull final InstanceIdentifier<?> id,
+                                 @Nonnull final Supplier<IpNeighborAddDel> requestSupplier,
+                                 @Nonnull final FutureJVppCore api) throws WriteFailedException {
+        getReplyForWrite(api.ipNeighborAddDel(requestSupplier.get()).toCompletableFuture(), id);
+    }
+
+    default IpNeighborAddDel preBindIpv4Request(final boolean add) {
+        IpNeighborAddDel request = staticPreBindRequest(add);
+        request.isIpv6 = 0;
+
+        return request;
+    }
+
+    default IpNeighborAddDel preBindIpv6Request(final boolean add) {
+        IpNeighborAddDel request = staticPreBindRequest(add);
+        request.isIpv6 = 1;
+
+        return request;
+    }
+
+    static IpNeighborAddDel staticPreBindRequest(final boolean add) {
+        IpNeighborAddDel request = new IpNeighborAddDel();
+
+        request.isAdd = ByteDataTranslator.INSTANCE.booleanToByte(add);
+        request.isStatic = 1;
+        return request;
+    }
 }

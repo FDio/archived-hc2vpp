@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfaces.ip;
+package io.fd.hc2vpp.v3po.interfaces.ip.v4.subinterface;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfaces.ip.IpWriter;
 import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * Write customizer for sub-interface {@link Address}
  */
 public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<Address, AddressKey>, Ipv4Writer {
+        implements ListWriterCustomizer<Address, AddressKey>, IpWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv4AddressCustomizer.class);
     private final NamingContext interfaceContext;

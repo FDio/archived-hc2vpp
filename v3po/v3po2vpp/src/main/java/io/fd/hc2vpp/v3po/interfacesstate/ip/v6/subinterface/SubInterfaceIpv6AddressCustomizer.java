@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfacesstate.ip;
+package io.fd.hc2vpp.v3po.interfacesstate.ip.v6.subinterface;
+
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,7 +24,8 @@ import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.AddressDumpParams;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.IpReader;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.IfaceDumpFilter;
 import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -39,36 +41,31 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.AddressBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.AddressKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLengthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip6.attributes.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip6.attributes.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip6.attributes.ipv6.Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip6.attributes.ipv6.AddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip6.attributes.ipv6.AddressKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Read customizer for sub-interface Ipv4 addresses.
- */
-public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
-        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder>, Ipv4Reader {
+public class SubInterfaceIpv6AddressCustomizer extends FutureJVppCustomizer
+        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder>, IpReader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv4AddressCustomizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv6AddressCustomizer.class);
 
     private final NamingContext interfaceContext;
-    private final DumpCacheManager<IpAddressDetailsReplyDump, AddressDumpParams> dumpManager;
+    private final DumpCacheManager<IpAddressDetailsReplyDump, IfaceDumpFilter> dumpManager;
 
-    public SubInterfaceIpv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+    public SubInterfaceIpv6AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                              @Nonnull final NamingContext interfaceContext) {
         super(futureJVppCore);
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, AddressDumpParams>()
-                .withExecutor(createExecutor(futureJVppCore))
-                //same as with ipv4 addresses for interfaces, these must have cache scope of their parent sub-interface
+        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, IfaceDumpFilter>()
+                .withExecutor(createAddressDumpExecutor(futureJVppCore))
                 .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(IpAddressDetailsReplyDump.class,
                         ImmutableSet.of(SubInterface.class)))
                 .build();
@@ -94,15 +91,15 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
         final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
+                .getDump(id, ctx.getModificationCache(), new IfaceDumpFilter(subInterfaceIndex, false));
 
         final Optional<IpAddressDetails> ipAddressDetails =
-                findIpAddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
+                findIpv6AddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
 
         if (ipAddressDetails.isPresent()) {
             final IpAddressDetails detail = ipAddressDetails.get();
-            builder.setIp(arrayToIpv4AddressNoZone(detail.ip));
-            builder.setSubnet(new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
+            builder.setIp(arrayToIpv6AddressNoZone(detail.ip));
+            builder.setPrefixLength((short) detail.prefixLength);
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Attributes for {} sub-interface (id={}) address {} successfully read: {}",
@@ -112,6 +109,7 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
     }
 
     @Override
+    @Nonnull
     public List<AddressKey> getAllIds(@Nonnull InstanceIdentifier<Address> id, @Nonnull ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("Reading list of keys for sub-interface addresses: {}", id);
@@ -119,17 +117,18 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
         final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, ctx.getModificationCache(), new AddressDumpParams(subInterfaceIndex, false));
+                .getDump(id, ctx.getModificationCache(), new IfaceDumpFilter(subInterfaceIndex, false));
 
-        return getAllIpv4AddressIds(dumpOptional, AddressKey::new);
+        return getAllIpv6AddressIds(dumpOptional, AddressKey::new);
     }
 
     @Override
     public void merge(@Nonnull Builder<? extends DataObject> builder, @Nonnull List<Address> readData) {
-        ((Ipv4Builder) builder).setAddress(readData);
+        ((Ipv6Builder) builder).setAddress(readData);
     }
 
     @Override
+    @Nonnull
     public Initialized<Address> init(
             @Nonnull final InstanceIdentifier<Address> id, @Nonnull final Address readValue,
             @Nonnull final ReadContext ctx) {
@@ -138,7 +137,7 @@ public class SubInterfaceIpv4AddressCustomizer extends FutureJVppCustomizer
 
     private InstanceIdentifier<Address> getCfgId(final InstanceIdentifier<Address> id) {
         return SubInterfaceCustomizer.getCfgId(RWUtils.cutId(id, SubInterface.class))
-                .child(Ipv4.class)
+                .child(Ipv6.class)
                 .child(Address.class, new AddressKey(id.firstKeyOf(Address.class)));
     }
 }

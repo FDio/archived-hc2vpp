@@ -24,7 +24,6 @@ import io.fd.hc2vpp.v3po.interfacesstate.RewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceL2Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.acl.ingress.SubInterfaceAclCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.SubInterfaceIpv4AddressCustomizer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
@@ -50,9 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.l2.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.tags.Tag;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -102,13 +98,7 @@ public final class SubinterfaceStateAugmentationReaderFactory implements ReaderF
                 .child(
                     org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
             new GenericReader<>(l2Id.child(Rewrite.class), new RewriteCustomizer(jvpp, ifcCtx)));
-        //    Ipv4(Structural)
-        final InstanceIdentifier<Ipv4> ipv4Id = subIfcId.child(Ipv4.class);
-        registry.addStructuralReader(ipv4Id, Ipv4Builder.class);
-        //     Address
-        registry.add(
-            new GenericInitListReader<>(ipv4Id.child(Address.class),
-                new SubInterfaceIpv4AddressCustomizer(jvpp, ifcCtx)));
+
         //    Acl(Structural)
         final InstanceIdentifier<Acl> aclIid = subIfcId.child(Acl.class);
         registry.addStructuralReader(aclIid, AclBuilder.class);

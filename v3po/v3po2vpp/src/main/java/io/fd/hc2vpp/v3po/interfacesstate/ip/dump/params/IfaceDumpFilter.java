@@ -16,12 +16,12 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params;
 
-public class AddressDumpParams {
+public class IfaceDumpFilter {
 
     private final int interfaceIndex;
     private final boolean isIpv6;
 
-    public AddressDumpParams(final int interfaceIndex, final boolean isIpv6) {
+    public IfaceDumpFilter(final int interfaceIndex, final boolean isIpv6) {
         this.interfaceIndex = interfaceIndex;
         this.isIpv6 = isIpv6;
     }
@@ -36,7 +36,7 @@ public class AddressDumpParams {
 
     @Override
     public String toString() {
-        return "AddressDumpParams{" +
+        return "IfaceDumpFilter{" +
                 "interfaceIndex=" + interfaceIndex +
                 ", isIpv6=" + isIpv6 +
                 '}';

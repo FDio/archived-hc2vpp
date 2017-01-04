@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.v4.Ipv4AddressCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;

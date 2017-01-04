@@ -33,16 +33,11 @@ import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanGpeCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.acl.ingress.AclCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv4AddressCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv4Customizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv4NeighbourCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.Ipv6Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.pbb.PbbRewriteStateCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.span.MirroredInterfacesCustomizer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
@@ -50,12 +45,6 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Acl;
@@ -116,29 +105,9 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
 
         // v3po.yang
         initVppIfcAugmentationReaders(registry, IFC_ID);
-        // ietf-ip.yang
-        initInterface2AugmentationReaders(registry, IFC_ID);
+
         //vpp-pbb.yang
         initPbbRewriteAugmentation(registry, IFC_ID);
-    }
-
-    private void initInterface2AugmentationReaders(final ModifiableReaderRegistryBuilder registry,
-                                                   final InstanceIdentifier<Interface> ifcId) {
-        //   Interface2Augmentation(Structural)
-        final InstanceIdentifier<Interface2> ifc2AugId = ifcId.augmentation(Interface2.class);
-        registry.addStructuralReader(ifc2AugId, Interface2Builder.class);
-        //    Ipv4
-        final InstanceIdentifier<Ipv4> ipv4Id = ifc2AugId.child(Ipv4.class);
-        registry.add(new GenericReader<>(ipv4Id, new Ipv4Customizer(jvpp)));
-        //     Address
-        final InstanceIdentifier<Address> ipv4AddrId = ipv4Id.child(Address.class);
-        registry.add(new GenericInitListReader<>(ipv4AddrId, new Ipv4AddressCustomizer(jvpp, ifcNamingCtx)));
-        //     Neighbor
-        final InstanceIdentifier<Neighbor> neighborId = ipv4Id.child(Neighbor.class);
-        registry.add(new GenericListReader<>(neighborId, new Ipv4NeighbourCustomizer(jvpp)));
-        //    Ipv6
-        final InstanceIdentifier<Ipv6> ipv6Id = ifc2AugId.child(Ipv6.class);
-        registry.add(new GenericReader<>(ipv6Id, new Ipv6Customizer(jvpp, ifcNamingCtx)));
     }
 
     private void initVppIfcAugmentationReaders(final ModifiableReaderRegistryBuilder registry,

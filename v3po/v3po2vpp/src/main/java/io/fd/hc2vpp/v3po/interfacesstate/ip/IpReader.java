@@ -1,0 +1,152 @@
+/*
+ * Copyright (c) 2017 Cisco and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.fd.hc2vpp.v3po.interfacesstate.ip;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.IfaceDumpFilter;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.util.read.cache.DumpSupplier;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
+import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.IpAddressDump;
+import io.fd.vpp.jvpp.core.dto.IpNeighborDetails;
+import io.fd.vpp.jvpp.core.dto.IpNeighborDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.IpNeighborDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
+import org.opendaylight.yangtools.yang.binding.Identifier;
+
+/**
+ * Utility class providing Ipv4/6 read support.
+ */
+public interface IpReader extends AddressTranslator, JvppReplyConsumer {
+
+    @Nonnull
+    default <T extends Identifier> List<T> getAllIpv4AddressIds(
+            final Optional<IpAddressDetailsReplyDump> dumpOptional,
+            @Nonnull final Function<Ipv4AddressNoZone, T> keyConstructor) {
+        if (dumpOptional.isPresent() && dumpOptional.get().ipAddressDetails != null) {
+            return dumpOptional.get().ipAddressDetails.stream()
+                    .map(detail -> keyConstructor.apply(arrayToIpv4AddressNoZone(detail.ip)))
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Nonnull
+    default <T extends Identifier> List<T> getAllIpv6AddressIds(
+            final Optional<IpAddressDetailsReplyDump> dumpOptional,
+            @Nonnull final Function<Ipv6AddressNoZone, T> keyConstructor) {
+        if (dumpOptional.isPresent() && dumpOptional.get().ipAddressDetails != null) {
+            return dumpOptional.get().ipAddressDetails.stream()
+                    .map(detail -> keyConstructor.apply(arrayToIpv6AddressNoZone(detail.ip)))
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    default Optional<IpAddressDetails> findIpv4AddressDetailsByIp(
+            final Optional<IpAddressDetailsReplyDump> dump,
+            @Nonnull final Ipv4AddressNoZone ip) {
+        checkNotNull(ip, "ip address should not be null");
+
+        if (dump.isPresent() && dump.get().ipAddressDetails != null) {
+            final List<IpAddressDetails> details = dump.get().ipAddressDetails;
+
+            return Optional.of(details.stream()
+                    .filter(singleDetail -> ip.equals(arrayToIpv4AddressNoZone(singleDetail.ip)))
+                    .collect(RWUtils.singleItemCollector()));
+        }
+        return Optional.absent();
+    }
+
+    default Optional<IpAddressDetails> findIpv6AddressDetailsByIp(
+            final Optional<IpAddressDetailsReplyDump> dump,
+            @Nonnull final Ipv6AddressNoZone ip) {
+        checkNotNull(ip, "ip address should not be null");
+
+        if (dump.isPresent() && dump.get().ipAddressDetails != null) {
+            final List<IpAddressDetails> details = dump.get().ipAddressDetails;
+
+            return Optional.of(details.stream()
+                    .filter(singleDetail -> ip.equals(arrayToIpv6AddressNoZone(singleDetail.ip)))
+                    .collect(RWUtils.singleItemCollector()));
+        }
+        return Optional.absent();
+    }
+
+    default EntityDumpExecutor<IpAddressDetailsReplyDump, IfaceDumpFilter> createAddressDumpExecutor(
+            @Nonnull final FutureJVppCore vppApi) {
+        return (identifier, params) -> {
+            checkNotNull(params, "Address dump params cannot be null");
+
+            final IpAddressDump dumpRequest = new IpAddressDump();
+            dumpRequest.isIpv6 = booleanToByte(params.isIpv6());
+            dumpRequest.swIfIndex = params.getInterfaceIndex();
+
+            return getReplyForRead(vppApi.ipAddressDump(dumpRequest).toCompletableFuture(), identifier);
+        };
+    }
+
+    default EntityDumpExecutor<IpNeighborDetailsReplyDump, IfaceDumpFilter> createNeighbourDumpExecutor(
+            @Nonnull final FutureJVppCore vppApi) {
+        return (identifier, params) -> {
+            checkNotNull(params, "Address dump params cannot be null");
+
+            final IpNeighborDump dumpRequest = new IpNeighborDump();
+            dumpRequest.isIpv6 = booleanToByte(params.isIpv6());
+            dumpRequest.swIfIndex = params.getInterfaceIndex();
+
+            return getReplyForRead(vppApi.ipNeighborDump(dumpRequest).toCompletableFuture(), identifier);
+        };
+    }
+
+    @Nonnull
+    default <T extends Identifier> List<T> getNeighborKeys(
+            final DumpSupplier<Optional<IpNeighborDetailsReplyDump>> dumpSupplier,
+            final Function<IpNeighborDetails, T> detailToKey)
+            throws ReadFailedException {
+        final Optional<IpNeighborDetailsReplyDump> neighbourDumpOpt = dumpSupplier.get();
+
+        if (neighbourDumpOpt.isPresent()) {
+            final IpNeighborDetailsReplyDump neighbourDump = neighbourDumpOpt.get();
+
+            return neighbourDump.ipNeighborDetails.stream()
+                    .map(detailToKey)
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+
+
+}

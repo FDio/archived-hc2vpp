@@ -25,6 +25,14 @@ import io.fd.hc2vpp.v3po.factory.EgressIetfAClWriterProvider;
 import io.fd.hc2vpp.v3po.factory.IngressIetfAClWriterProvider;
 import io.fd.hc2vpp.v3po.factory.InterfacesStateReaderFactory;
 import io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory;
+import io.fd.hc2vpp.v3po.factory.Ipv4StateReaderFactory;
+import io.fd.hc2vpp.v3po.factory.Ipv4WriterFactory;
+import io.fd.hc2vpp.v3po.factory.Ipv6StateReaderFactory;
+import io.fd.hc2vpp.v3po.factory.Ipv6WriterFactory;
+import io.fd.hc2vpp.v3po.factory.SubInterfaceIpv4WriterFactory;
+import io.fd.hc2vpp.v3po.factory.SubInterfaceIpv6WriterFactory;
+import io.fd.hc2vpp.v3po.factory.SubInterfaceStateIpv4ReaderFactory;
+import io.fd.hc2vpp.v3po.factory.SubInterfaceStateIpv6ReaderFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
 import io.fd.hc2vpp.v3po.factory.VppClassifierHoneycombWriterFactory;
@@ -88,6 +96,11 @@ public class V3poModule extends AbstractModule {
         readerFactoryBinder.addBinding().to(DisabledInterfacesManager.ContextsReaderFactory.class);
         // Expose vpp-classfier-context interfaces in operational data
         readerFactoryBinder.addBinding().to(VppClassifierContextManagerImpl.ContextsReaderFactory.class);
+        //Ipv4/Ipv6
+        readerFactoryBinder.addBinding().to(Ipv4StateReaderFactory.class);
+        readerFactoryBinder.addBinding().to(Ipv6StateReaderFactory.class);
+        readerFactoryBinder.addBinding().to(SubInterfaceStateIpv4ReaderFactory.class);
+        readerFactoryBinder.addBinding().to(SubInterfaceStateIpv6ReaderFactory.class);
 
         // Writers
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
@@ -95,6 +108,12 @@ public class V3poModule extends AbstractModule {
         writerFactoryBinder.addBinding().to(SubinterfaceAugmentationWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppHoneycombWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppClassifierHoneycombWriterFactory.class);
+
+        //Ipv4/Ipv6
+        writerFactoryBinder.addBinding().to(Ipv4WriterFactory.class);
+        writerFactoryBinder.addBinding().to(Ipv6WriterFactory.class);
+        writerFactoryBinder.addBinding().to(SubInterfaceIpv4WriterFactory.class);
+        writerFactoryBinder.addBinding().to(SubInterfaceIpv6WriterFactory.class);
 
         // Notifications
         final Multibinder<ManagedNotificationProducer> notifiersBinder =

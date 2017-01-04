@@ -14,45 +14,39 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfaces.ip;
+package io.fd.hc2vpp.v3po.interfaces.ip.v6;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpNeighborAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Neighbor;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.NeighborKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-/**
- * Customizer for writing {@link Neighbor} for {@link Ipv4}.
- */
-public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
+public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<Neighbor, NeighborKey>, ByteDataTranslator, AddressTranslator,
         JvppReplyConsumer {
 
-
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv4NeighbourCustomizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Ipv6NeighbourCustomizer.class);
     final NamingContext interfaceContext;
 
-    public Ipv4NeighbourCustomizer(final FutureJVppCore futureJVppCore, final NamingContext interfaceContext) {
+    public Ipv6NeighbourCustomizer(final FutureJVppCore futureJVppCore, final NamingContext interfaceContext) {
         super(futureJVppCore);
         this.interfaceContext = interfaceContext;
     }
@@ -113,9 +107,9 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
         IpNeighborAddDel request = new IpNeighborAddDel();
 
         request.isAdd = booleanToByte(add);
-        request.isIpv6 = 0;
+        request.isIpv6 = 1;
         request.isStatic = 1;
-        request.dstAddress = ipv4AddressNoZoneToArray(data.getIp());
+        request.dstAddress = ipv6AddressNoZoneToArray(data.getIp());
         request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
         request.swIfIndex = parentInterfaceIndex;
 

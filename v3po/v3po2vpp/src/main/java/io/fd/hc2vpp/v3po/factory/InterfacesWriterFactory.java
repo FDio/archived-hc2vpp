@@ -36,10 +36,6 @@ import io.fd.hc2vpp.v3po.interfaces.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanGpeCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.acl.ingress.AclCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4AddressCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4Customizer;
-import io.fd.hc2vpp.v3po.interfaces.ip.Ipv4NeighbourCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.ip.Ipv6Customizer;
 import io.fd.hc2vpp.v3po.interfaces.pbb.PbbRewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.span.MirroredInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
@@ -51,11 +47,6 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Ethernet;
@@ -115,30 +106,8 @@ public final class InterfacesWriterFactory implements WriterFactory {
         registry.add(new GenericListWriter<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcNamingContext)));
         //   VppInterfaceAugmentation
         addVppInterfaceAgmentationWriters(IFC_ID, registry);
-        //   Interface1 (ietf-ip augmentation)
-        addInterface1AugmentationWriters(IFC_ID, registry);
 
         addPbbAugmentationWriters(IFC_ID, registry);
-    }
-
-    private void addInterface1AugmentationWriters(final InstanceIdentifier<Interface> ifcId,
-                                                  final ModifiableWriterRegistryBuilder registry) {
-        final InstanceIdentifier<Interface1> ifc1AugId = ifcId.augmentation(Interface1.class);
-        // Ipv6(after interface) =
-        registry.addAfter(new GenericWriter<>(ifc1AugId.child(Ipv6.class), new Ipv6Customizer(jvpp)),
-                ifcId);
-        // Ipv4(after interface)
-        final InstanceIdentifier<Ipv4> ipv4Id = ifc1AugId.child(Ipv4.class);
-        registry.addAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp)),
-                ifcId);
-        //  Address(after Ipv4) =
-        final InstanceIdentifier<Address> ipv4AddressId = ipv4Id.child(Address.class);
-        registry.addAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcNamingContext)),
-                ipv4Id);
-        //  Neighbor(after ipv4Address)
-        registry.addAfter(new GenericListWriter<>(ipv4Id.child(Neighbor.class), new Ipv4NeighbourCustomizer(jvpp,
-                        ifcNamingContext)),
-                ipv4AddressId);
     }
 
     private void addVppInterfaceAgmentationWriters(final InstanceIdentifier<Interface> ifcId,

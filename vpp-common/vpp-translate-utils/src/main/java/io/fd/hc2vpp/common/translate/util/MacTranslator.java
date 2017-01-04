@@ -26,6 +26,7 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nonnull;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 
 /**
  * Trait providing logic for translation of MAC address data
@@ -87,6 +88,10 @@ public interface MacTranslator {
         }
 
         return separated;
+    }
+
+    default PhysAddress toPhysAddress(final byte[] macAddress) {
+        return new PhysAddress(byteArrayToMacSeparated(macAddress));
     }
 
     /**

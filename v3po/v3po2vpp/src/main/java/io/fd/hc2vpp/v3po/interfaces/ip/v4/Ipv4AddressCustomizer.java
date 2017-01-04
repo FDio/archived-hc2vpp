@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfaces.ip;
+package io.fd.hc2vpp.v3po.interfaces.ip.v4;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfaces.ip.IpWriter;
+import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.Ipv4SubnetValidator;
 import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.SubnetValidator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -45,14 +47,15 @@ import org.slf4j.LoggerFactory;
  * Customizer for writing {@link Address}
  */
 public class Ipv4AddressCustomizer extends FutureJVppCustomizer
-        implements ListWriterCustomizer<Address, AddressKey>, Ipv4Writer {
+        implements ListWriterCustomizer<Address, AddressKey>, IpWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
     private final NamingContext interfaceContext;
-    private final SubnetValidator subnetValidator;
+    private final Ipv4SubnetValidator subnetValidator;
 
+    @VisibleForTesting
     Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext interfaceContext,
-                          @Nonnull final SubnetValidator subnetValidator) {
+                          @Nonnull final Ipv4SubnetValidator subnetValidator) {
         super(futureJVppCore);
         this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
         this.subnetValidator = checkNotNull(subnetValidator, "Subnet validator cannot be null");
@@ -60,7 +63,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
     public Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                  @Nonnull final NamingContext interfaceContext) {
-        this(futureJVppCore, interfaceContext, new SubnetValidator());
+        this(futureJVppCore, interfaceContext, new Ipv4SubnetValidator());
     }
 
     @Override
