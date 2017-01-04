@@ -19,14 +19,14 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>impl-parent</artifactId>
-    <version>1.17.01-SNAPSHOT</version>
+    <version>1.17.01-RC1</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fd.hc2vpp.common</groupId>
   <artifactId>vpp-impl-parent</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.01-SNAPSHOT</version>
+  <version>1.17.01-RC1</version>
   <packaging>pom</packaging>
 
   <properties>
