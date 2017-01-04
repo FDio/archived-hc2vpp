@@ -17,12 +17,12 @@
 package io.fd.hc2vpp.v3po.vpp;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
@@ -31,7 +31,6 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomain;
@@ -107,12 +106,10 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
         request.macAddress = parseMac(entry.getPhysAddress().getValue());
 
         final IpAddress ipAddress = entry.getIpAddress();
-        if (ipAddress.getIpv6Address() != null) {
-            // FIXME: HONEYCOMB-187 vpp does not support ipv6 in arp-termination table (based on analysis of l2_bd.c)
-            throw new UnsupportedOperationException("IPv6 address for ARP termination table is not supported yet");
-        }
 
-        request.ipAddress = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(ipAddress.getIpv4Address()));
+        request.ipAddress = ipAddressToArray(ipAddress);
+        request.isIpv6 = booleanToByte(isIpv6(ipAddress));
+
         return request;
     }
 }

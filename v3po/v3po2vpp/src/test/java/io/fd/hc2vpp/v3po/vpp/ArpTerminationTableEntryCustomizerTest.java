@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.bridge.domain.attributes.ArpTerminationTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
@@ -56,10 +57,13 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     private static final int IFACE_ID = 123;
     private ArpTerminationTableEntryCustomizer customizer;
     private byte[] ipAddressRaw;
+    private byte[] ip6AddressRaw;
     private byte[] physAddressRaw;
     private PhysAddress physAddress;
     private IpAddress ipAddress;
+    private IpAddress ip6Address;
     private ArpTerminationTableEntry entry;
+    private ArpTerminationTableEntry ip6entry;
     private InstanceIdentifier<ArpTerminationTableEntry> id;
 
     private static InstanceIdentifier<ArpTerminationTableEntry> getArpEntryId(final IpAddress ipAddress,
@@ -74,11 +78,14 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         customizer = new ArpTerminationTableEntryCustomizer(api, new NamingContext("generatedBdName", BD_CTX_NAME));
 
         ipAddressRaw = new byte[]{1, 2, 3, 4};
+        ip6AddressRaw = new byte[]{32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1};
         physAddressRaw = new byte[]{1, 2, 3, 4, 5, 6};
         physAddress = new PhysAddress("01:02:03:04:05:06");
 
         ipAddress = new IpAddress(Ipv4AddressNoZone.getDefaultInstance("1.2.3.4"));
+        ip6Address = new IpAddress(Ipv6AddressNoZone.getDefaultInstance("2001:0db8:0a0b:12f0:0000:0000:0000:0001"));
         entry = generateArpEntry(ipAddress, physAddress);
+        ip6entry = generateArpEntry(ip6Address, physAddress);
         id = getArpEntryId(ipAddress, physAddress);
 
         defineMapping(mappingContext, BD_NAME, BD_ID, BD_CTX_NAME);
@@ -130,6 +137,13 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     }
 
     @Test
+    public void testCreateIpv6() throws Exception {
+        whenBdIpMacAddDelThenSuccess();
+        customizer.writeCurrentAttributes(id, ip6entry, writeContext);
+        verifyBdIpMacAddDelWasInvoked(generateBdIpMacAddDelRequest(ip6AddressRaw, physAddressRaw, (byte) 1));
+    }
+
+    @Test
     public void testCreateFailed() throws Exception {
         whenBdIpMacAddDelThenFailure();
         try {
@@ -154,6 +168,13 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         whenBdIpMacAddDelThenSuccess();
         customizer.deleteCurrentAttributes(id, entry, writeContext);
         verifyBdIpMacAddDelWasInvoked(generateBdIpMacAddDelRequest(ipAddressRaw, physAddressRaw, (byte) 0));
+    }
+
+    @Test
+    public void testDeleteIpv6() throws Exception {
+        whenBdIpMacAddDelThenSuccess();
+        customizer.deleteCurrentAttributes(id, ip6entry, writeContext);
+        verifyBdIpMacAddDelWasInvoked(generateBdIpMacAddDelRequest(ip6AddressRaw, physAddressRaw, (byte) 0));
     }
 
     @Test
