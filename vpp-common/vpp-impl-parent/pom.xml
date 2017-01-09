@@ -30,7 +30,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <jvpp.version>17.01-SNAPSHOT</jvpp.version>
+    <jvpp.version>17.04-SNAPSHOT</jvpp.version>
   </properties>
 
   <dependencyManagement>

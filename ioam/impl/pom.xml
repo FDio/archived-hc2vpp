@@ -29,8 +29,8 @@
   <packaging>bundle</packaging>
 
   <properties>
-    <ioam.version>1.0-SNAPSHOT</ioam.version>
-    <jvpp.version>17.01-SNAPSHOT</jvpp.version>
+    <ioam.version>17.04-SNAPSHOT</ioam.version>
+    <jvpp.version>17.04-SNAPSHOT</jvpp.version>
   </properties>
 
   <dependencies>
@@ -90,12 +90,12 @@
     </dependency>
     <dependency>
         <groupId>io.fd.vpp</groupId>
-        <artifactId>jvpp-ioam-trace</artifactId>
+        <artifactId>jvpp-ioamtrace</artifactId>
         <version>${ioam.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.vpp</groupId>
-      <artifactId>jvpp-ioam-pot</artifactId>
+      <artifactId>jvpp-ioampot</artifactId>
       <version>${ioam.version}</version>
     </dependency>
     <dependency>
