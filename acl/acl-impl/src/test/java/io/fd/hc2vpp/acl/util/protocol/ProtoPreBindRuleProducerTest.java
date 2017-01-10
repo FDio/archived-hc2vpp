@@ -77,6 +77,34 @@ public class ProtoPreBindRuleProducerTest implements ProtoPreBindRuleProducer, A
     }
 
     @Test
+    public void testTcpRuleNoFlags(@InjectTestData(resourcePath = "/rules/tcp-rule-no-flags.json") AccessLists acls) {
+        final AclRule tcpRule = createPreBindRule(extractAce(acls));
+        assertEquals(6, tcpRule.proto);
+        assertEquals(123, tcpRule.srcportOrIcmptypeFirst);
+        assertEquals(123, tcpRule.srcportOrIcmptypeLast);
+        assertEquals((short)65000, tcpRule.dstportOrIcmpcodeFirst);
+        assertEquals((short)65000, tcpRule.dstportOrIcmpcodeLast);
+        assertEquals(0, tcpRule.tcpFlagsMask);
+        assertEquals(0, tcpRule.tcpFlagsValue);
+    }
+
+    @Test
+    public void testSourcePortRangeNotGiven() {
+        AclRule rule = new AclRule();
+        ProtoPreBindRuleProducer.bindSourcePortRange(rule, null);
+        assertEquals(0, rule.srcportOrIcmptypeFirst);
+        assertEquals(MAX_PORT_NUMBER, rule.srcportOrIcmptypeLast);
+    }
+
+    @Test
+    public void testDestinationPortRangeNotGiven() {
+        AclRule rule = new AclRule();
+        ProtoPreBindRuleProducer.bindDestinationPortRange(rule, null);
+        assertEquals(0, rule.dstportOrIcmpcodeFirst);
+        assertEquals(MAX_PORT_NUMBER, rule.dstportOrIcmpcodeLast);
+    }
+
+    @Test
     public void testUdpRule(@InjectTestData(resourcePath = "/rules/udp-rule.json") AccessLists acls) {
         final AclRule udpRule = createPreBindRule(extractAce(acls));
         assertEquals(17, udpRule.proto);

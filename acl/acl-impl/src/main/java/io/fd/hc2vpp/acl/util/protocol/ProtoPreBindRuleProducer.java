@@ -24,6 +24,7 @@ import io.fd.vpp.jvpp.acl.types.AclRule;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRange;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRange;
@@ -52,6 +53,7 @@ public interface ProtoPreBindRuleProducer {
     int TCP_INDEX = 6;
     int UDP_INDEX = 17;
     int ICMPV6_INDEX = 58;
+    short MAX_PORT_NUMBER = (short)65535;
 
     Set<ProtocolPair> PROTOCOL_PAIRS = ImmutableSet.of(pair(Icmp.class, ICMP_INDEX), pair(Tcp.class, TCP_INDEX),
             pair(Udp.class, UDP_INDEX), pair(IcmpV6.class, ICMPV6_INDEX));
@@ -123,22 +125,56 @@ public interface ProtoPreBindRuleProducer {
         return rule;
     }
 
+    static void bindSourcePortRange(@Nonnull final AclRule rule, @Nullable final SourcePortRange sourcePortRange) {
+        // allow all ports by default:
+        rule.srcportOrIcmptypeFirst = 0;
+        rule.srcportOrIcmptypeLast = MAX_PORT_NUMBER;
+
+        if(sourcePortRange != null) {
+            // lower port is mandatory
+            rule.srcportOrIcmptypeFirst = portNumber(sourcePortRange.getLowerPort());
+
+            if (sourcePortRange.getUpperPort() != null) {
+                rule.srcportOrIcmptypeLast = portNumber(sourcePortRange.getUpperPort());
+            } else {
+                // if upper port is missing, set lower port value as end of checked range:
+                rule.srcportOrIcmptypeLast = rule.srcportOrIcmptypeFirst;
+            }
+        }
+    }
+
+    static void bindDestinationPortRange(@Nonnull final AclRule rule, @Nullable final DestinationPortRange destinationPortRange) {
+        // allow all ports by default:
+        rule.dstportOrIcmpcodeFirst = 0;
+        rule.dstportOrIcmpcodeLast = MAX_PORT_NUMBER;
+
+        if(destinationPortRange != null) {
+            // lower port is mandatory
+            rule.dstportOrIcmpcodeFirst = portNumber(destinationPortRange.getLowerPort());
+
+            if (destinationPortRange.getUpperPort() != null) {
+                rule.dstportOrIcmpcodeLast = portNumber(destinationPortRange.getUpperPort());
+            } else {
+                // if upper port is missing, set lower port value as end of checked range:
+                rule.dstportOrIcmpcodeLast = rule.dstportOrIcmpcodeFirst;
+            }
+        }
+    }
 
     static AclRule bindTcpNodes(AclRule rule, VppAce ace) {
         final VppAceNodes vppAceNodes = ace.getVppAceNodes();
         checkArgument(vppAceNodes.getIpProtocol() instanceof Tcp);
 
         final TcpNodes tcp = Tcp.class.cast(vppAceNodes.getIpProtocol()).getTcpNodes();
-        final SourcePortRange sourcePortRange = tcp.getSourcePortRange();
-        final DestinationPortRange destinationPortRange = tcp.getDestinationPortRange();
+        bindSourcePortRange(rule, tcp.getSourcePortRange());
+        bindDestinationPortRange(rule, tcp.getDestinationPortRange());
 
-        rule.srcportOrIcmptypeFirst = portNumber(sourcePortRange.getLowerPort());
-        rule.srcportOrIcmptypeLast = portNumber(sourcePortRange.getUpperPort());
-        rule.dstportOrIcmpcodeFirst = portNumber(destinationPortRange.getLowerPort());
-        rule.dstportOrIcmpcodeLast = portNumber(destinationPortRange.getUpperPort());
-        rule.tcpFlagsMask = tcp.getTcpFlagsMask().byteValue();
-        rule.tcpFlagsValue = tcp.getTcpFlagsValue().byteValue();
-
+        if(tcp.getTcpFlagsMask() != null) {
+            rule.tcpFlagsMask = tcp.getTcpFlagsMask().byteValue();
+        }
+        if(tcp.getTcpFlagsValue() != null) {
+            rule.tcpFlagsValue = tcp.getTcpFlagsValue().byteValue();
+        }
         return rule;
     }
 
@@ -147,14 +183,8 @@ public interface ProtoPreBindRuleProducer {
         checkArgument(vppAceNodes.getIpProtocol() instanceof Udp);
 
         final UdpNodes udp = Udp.class.cast(vppAceNodes.getIpProtocol()).getUdpNodes();
-        final SourcePortRange sourcePortRange = udp.getSourcePortRange();
-        final DestinationPortRange destinationPortRange = udp.getDestinationPortRange();
-
-        rule.srcportOrIcmptypeFirst = portNumber(sourcePortRange.getLowerPort());
-        rule.srcportOrIcmptypeLast = portNumber(sourcePortRange.getUpperPort());
-        rule.dstportOrIcmpcodeFirst = portNumber(destinationPortRange.getLowerPort());
-        rule.dstportOrIcmpcodeLast = portNumber(destinationPortRange.getUpperPort());
-
+        bindSourcePortRange(rule, udp.getSourcePortRange());
+        bindDestinationPortRange(rule, udp.getDestinationPortRange());
         return rule;
     }
 
