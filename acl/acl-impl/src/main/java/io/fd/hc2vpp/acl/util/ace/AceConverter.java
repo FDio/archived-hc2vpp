@@ -75,7 +75,7 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
                 .map(ace -> {
                     final VppAce standardAce = fromStandardAce(ace);
 
-                    // pre-bind rule with protocol based attributes
+                    // pre-bind rule with protocol based attributes (if present)
                     AclRule rule = createPreBindRule(standardAce);
 
                     rule.isPermit = standardAction(ace);

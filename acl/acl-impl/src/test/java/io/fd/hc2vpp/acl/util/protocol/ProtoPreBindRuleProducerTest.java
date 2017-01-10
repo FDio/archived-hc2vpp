@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 
 @RunWith(HoneycombTestRunner.class)
 public class ProtoPreBindRuleProducerTest implements ProtoPreBindRuleProducer, AclTestSchemaContext {
+    private static final byte IGNORE_PROTOCOL = 0;
 
     //TODO - remove after resolving how to address identity from different model in textual yang instance identifier
     private VppAce extractAce(AccessLists accessLists) {
@@ -97,6 +98,13 @@ public class ProtoPreBindRuleProducerTest implements ProtoPreBindRuleProducer, A
         assertEquals((short) 65535, icmpRule.dstportOrIcmpcodeLast);
         assertEquals(0, icmpRule.tcpFlagsMask);
         assertEquals(0, icmpRule.tcpFlagsValue);
+    }
+
+    @Test
+    public void tesProtocolNotSpecified(@InjectTestData(resourcePath = "/rules/no-protocol-rule.json") AccessLists acls) {
+        final AclRule noProtocolRule = createPreBindRule(extractAce(acls));
+
+        assertEquals(IGNORE_PROTOCOL, noProtocolRule.proto);
     }
 
 }
