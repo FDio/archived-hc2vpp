@@ -172,10 +172,23 @@ public interface ProtoPreBindRuleProducer {
         return portNumber.getValue().shortValue();
     }
 
+    /**
+     * Pre-bind rule with protocol based attributes (if present).
+     *
+     * @param vppAce rule to be processed
+     * @return AclRule with protocol filled protocol fields
+     */
     default AclRule createPreBindRule(@Nonnull final VppAce vppAce) {
         AclRule rule = new AclRule();
 
-        rule.proto = protocol(vppAce.getVppAceNodes().getIpProtocol());
+
+        final IpProtocol ipProtocol = vppAce.getVppAceNodes().getIpProtocol();
+        if (ipProtocol == null) {
+            // returns AclRule with rule.proto set to 0 (protocol fields will be ignored by vpp)
+            return rule;
+        }
+
+        rule.proto = protocol(ipProtocol);
 
         switch (rule.proto) {
             case ICMP_INDEX: {
