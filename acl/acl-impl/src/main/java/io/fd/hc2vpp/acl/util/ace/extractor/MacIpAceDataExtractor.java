@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.acl.util.ace.extractor;
 
-import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.MacTranslator;
 import io.fd.vpp.jvpp.acl.types.MacipAclRule;
 import javax.annotation.Nonnull;
@@ -33,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.vpp.macip.ace.nodes.ace.ip.version.AceIpv6Builder;
 
-public interface MacIpAceDataExtractor extends AddressTranslator, MacTranslator {
+public interface MacIpAceDataExtractor extends AddressExtractor, MacTranslator {
 
     default VppMacipAce fromMacIpAce(@Nonnull final Ace ace) {
         return VppMacipAce.class.cast(ace.getMatches().getAceType());
@@ -52,22 +51,22 @@ public interface MacIpAceDataExtractor extends AddressTranslator, MacTranslator 
     }
 
     default byte[] ipv4Address(@Nonnull final VppMacipAce ace) {
-        return ipv4AddressPrefixToArray(
+        return extractIp4Address(
             VppMacipAceIpv4HeaderFields.class.cast(ace.getVppMacipAceNodes().getAceIpVersion()).getSourceIpv4Network());
     }
 
     default byte ipv4AddressPrefix(@Nonnull final VppMacipAce ace) {
-        return extractPrefix(
+        return extractIp4AddressPrefix(
             VppMacipAceIpv4HeaderFields.class.cast(ace.getVppMacipAceNodes().getAceIpVersion()).getSourceIpv4Network());
     }
 
     default byte[] ipv6Address(@Nonnull final VppMacipAce ace) {
-        return ipv6AddressPrefixToArray(
+        return extractIp6Address(
             VppMacipAceIpv6HeaderFields.class.cast(ace.getVppMacipAceNodes().getAceIpVersion()).getSourceIpv6Network());
     }
 
     default byte ipv6AddressPrefix(@Nonnull final VppMacipAce ace) {
-        return extractPrefix(
+        return extractIp6AddressPrefix(
             VppMacipAceIpv6HeaderFields.class.cast(ace.getVppMacipAceNodes().getAceIpVersion()).getSourceIpv6Network());
     }
 
