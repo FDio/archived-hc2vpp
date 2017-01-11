@@ -30,11 +30,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.ProfileIndexRange;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileList;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileListBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileListKey;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profiles.PotProfileSetBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.ProfileIndexRange;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profile.PotProfileList;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profile.PotProfileListBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profile.PotProfileListKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profiles.PotProfileSetBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -108,8 +108,17 @@ public class PotProfileReaderCustomizer extends FutureJVppIoampotCustomizer impl
         builder.setPublicPolynomial(BigInteger.valueOf(details.polynomialPublic));
         builder.setIndex(new ProfileIndexRange((int)details.id));
         builder.setLpc(BigInteger.valueOf(details.lpc));
-        builder.setBitmask(BigInteger.valueOf(details.bitMask));
+        builder.setNumberOfBits(getMaxBitsfromBitmask(BigInteger.valueOf(details.bitMask)));
 
         LOG.info("Item {} successfully read: {}",instanceIdentifier,builder.build());
+    }
+
+    private static short getMaxBitsfromBitmask (BigInteger bitmask){
+        short numOfBits = 0;
+        while ((bitmask.and(BigInteger.ONE)).equals(BigInteger.ONE)){
+            bitmask=bitmask.shiftRight(1);
+            numOfBits++;
+        }
+        return numOfBits;
     }
 }

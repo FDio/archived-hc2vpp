@@ -31,14 +31,14 @@ import io.fd.vpp.jvpp.ioampot.dto.PotProfileShowConfigDump;
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.PotProfiles;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.ProfileIndexRange;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileList;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileListBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profile.PotProfileListKey;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profiles.PotProfileSet;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profiles.PotProfileSetBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev160615.pot.profiles.PotProfileSetKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.PotProfiles;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.ProfileIndexRange;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profile.PotProfileList;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profile.PotProfileListBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profile.PotProfileListKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profiles.PotProfileSet;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profiles.PotProfileSetBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profiles.PotProfileSetKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class PotProfileReaderCustomizerTest extends ListReaderCustomizerTest<PotProfileList,PotProfileListKey,
@@ -60,7 +60,7 @@ public class PotProfileReaderCustomizerTest extends ListReaderCustomizerTest<Pot
     public void setUp(){
         final PotProfileShowConfigDetailsReplyDump replyDump = new PotProfileShowConfigDetailsReplyDump();
         final PotProfileShowConfigDetails replyDetails = new PotProfileShowConfigDetails();
-        replyDetails.bitMask = (long)0xFFFFFF;
+        replyDetails.bitMask = (long)0xF;
         replyDetails.id=0;
         replyDetails.lpc=1234;
         replyDetails.polynomialPublic=1234;
@@ -82,7 +82,7 @@ public class PotProfileReaderCustomizerTest extends ListReaderCustomizerTest<Pot
     public void testReadCurrentAttributes() throws ReadFailedException {
         PotProfileListBuilder builder = new PotProfileListBuilder();
         getCustomizer().readCurrentAttributes(getPotProfileListId(0),builder,ctx);
-        assertEquals(0xFFFFFF,builder.getBitmask().longValue());
+        assertEquals(0x4,builder.getNumberOfBits().longValue());
         assertEquals(0,builder.getIndex().getValue().intValue());
         assertEquals(1234,builder.getLpc().longValue());
         assertEquals(1234,builder.getPublicPolynomial().longValue());

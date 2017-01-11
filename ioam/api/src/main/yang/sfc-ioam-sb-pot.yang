@@ -15,23 +15,24 @@ module sfc-ioam-sb-pot {
     "This module contains a collection of YANG definitions for
      managing in-band OAM based proof of transit configuration
      parameters.  (https://github.com/ciscodevnet/ioam).
+
      The model is meant for proof of transit
      and is targetted for south-bound deployment nodes.";
 
-  revision 2016-06-15 {
+  revision 2017-01-12 {
     description
-      "Initial revision.";
+      "Changes to field names and parameter ranges.";
     reference
       "";
   }
 
   typedef profile-index-range {
     type int32 {
-      range "0 .. 1";
+      range "-1 .. 1";
     }
     description
       "Range used for the profile index. Currently restricted to
-       0 or 1 to identify the two profiles.";
+       -1 to 1 to identify profiles.";
   }
 
   identity path-identifier-identity {
@@ -108,9 +109,9 @@ module sfc-ioam-sb-pot {
           "Secret key for validating the path, constant of poly 1";
       }
 
-      leaf bitmask {
-        type uint64;
-        default 4294967295;
+      leaf number-of-bits {
+        type uint8;
+        default 32;
         description
           "Number of bits as mask used in random value generation.
            32-bits of mask is default.";
