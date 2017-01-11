@@ -168,7 +168,7 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
 
     @Test
     public void updateCurrentAttributesTcp(@InjectTestData(resourcePath = "/acl/standard/standard-acl-tcp.json")
-                                                   AccessLists standardAcls) throws Exception {
+                                           AccessLists standardAcls) throws Exception {
         final int aclIndex = 4;
         when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
         final Acl data = standardAcls.getAcl().get(0);
@@ -176,6 +176,23 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
 
         verify(aclApi, times(1)).aclAddReplace(aclAddReplaceRequestCaptor.capture());
         verifyTcpRequest(aclIndex);
+    }
+
+    @Test
+    public void updateCurrentAttributesTcpSrcOnly(@InjectTestData(resourcePath = "/acl/standard/standard-acl-tcp-src-only.json")
+                                           AccessLists standardAcls) throws Exception {
+        final int aclIndex = 4;
+        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
+        final Acl data = standardAcls.getAcl().get(0);
+        aclCustomizer.updateCurrentAttributes(validId, data, data, writeContext);
+
+        verify(aclApi, times(1)).aclAddReplace(aclAddReplaceRequestCaptor.capture());
+        final AclAddReplace request = aclAddReplaceRequestCaptor.getValue();
+        final AclRule tcpRule = request.r[0];
+        assertTrue(Arrays.equals(new byte[]{-64, -88, 2, 2}, tcpRule.srcIpAddr));
+        assertEquals(32, tcpRule.srcIpPrefixLen);
+        assertTrue(Arrays.equals(new byte[]{0, 0, 0, 0}, tcpRule.dstIpAddr));
+        assertEquals(0, tcpRule.dstIpPrefixLen);
     }
 
 

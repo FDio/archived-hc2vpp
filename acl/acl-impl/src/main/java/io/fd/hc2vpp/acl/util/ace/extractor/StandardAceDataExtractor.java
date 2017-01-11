@@ -19,7 +19,6 @@ package io.fd.hc2vpp.acl.util.ace.extractor;
 import com.google.common.collect.ImmutableMap;
 import io.fd.hc2vpp.acl.util.protocol.IpProtocolReader;
 import io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer;
-import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.vpp.jvpp.acl.types.AclRule;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -42,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6Builder;
 
-public interface StandardAceDataExtractor extends AddressTranslator, ProtoPreBindRuleProducer, IpProtocolReader {
+public interface StandardAceDataExtractor extends AddressExtractor, ProtoPreBindRuleProducer, IpProtocolReader {
 
     /**
      * Allowed packet-processing actions for Acl's
@@ -59,39 +58,43 @@ public interface StandardAceDataExtractor extends AddressTranslator, ProtoPreBin
     }
 
     default byte[] ipv4SourceAddress(@Nonnull final VppAce ace) {
-        return ipv4AddressPrefixToArray(
+        return extractIp4Address(
             AclIpv4HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv4Network());
     }
 
     default byte ipv4SourceAddressPrefix(@Nonnull final VppAce ace) {
-        return extractPrefix(AclIpv4HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv4Network());
+        return extractIp4AddressPrefix(
+            AclIpv4HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv4Network());
     }
 
     default byte[] ipv4DestinationAddress(@Nonnull final VppAce ace) {
-        return ipv4AddressPrefixToArray(
+        return extractIp4Address(
             AclIpv4HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv4Network());
     }
 
     default byte ipv4DestinationAddressPrefix(@Nonnull final VppAce ace) {
-        return extractPrefix(AceIpv4.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv4Network());
+        return extractIp4AddressPrefix(AceIpv4.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv4Network());
     }
 
+
     default byte[] ipv6SourceAddress(@Nonnull final VppAce ace) {
-        return ipv6AddressPrefixToArray(
+        return extractIp6Address(
             AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv6Network());
     }
 
     default byte ipv6SourceAddressPrefix(@Nonnull final VppAce ace) {
-        return extractPrefix(AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv6Network());
+        return extractIp6AddressPrefix(
+            AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv6Network());
     }
 
     default byte[] ipv6DestinationAddress(@Nonnull final VppAce ace) {
-        return ipv6AddressPrefixToArray(
+        return extractIp6Address(
             AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv6Network());
     }
 
     default byte ipv6DestinationAddressPrefix(@Nonnull final VppAce ace) {
-        return extractPrefix(AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv6Network());
+        return extractIp6AddressPrefix(
+            AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv6Network());
     }
 
     default byte standardAction(@Nonnull final Ace ace) {
