@@ -87,7 +87,7 @@ public class InterfaceAclCustomizer extends FutureJVppAclCustomizer implements W
                 .executeAsDelete(getjVppAclFacade());
     }
 
-    private static List<String> getAclNames(@Nonnull final VppAclsBaseAttributes acls) {
+    private static List<String> getAclNames(final VppAclsBaseAttributes acls) {
         if (acls == null || acls.getVppAcls() == null) {
             return Collections.emptyList();
         } else {

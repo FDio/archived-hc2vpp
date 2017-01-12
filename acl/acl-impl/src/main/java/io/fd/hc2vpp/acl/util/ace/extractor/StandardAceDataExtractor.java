@@ -21,22 +21,26 @@ import io.fd.hc2vpp.acl.util.protocol.IpProtocolReader;
 import io.fd.hc2vpp.acl.util.protocol.ProtoPreBindRuleProducer;
 import io.fd.vpp.jvpp.acl.types.AclRule;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.ActionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Deny;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.DenyBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.actions.packet.handling.PermitBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv4HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv6HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.actions.packet.handling.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.actions.packet.handling.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.VppAceNodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.AceIpVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6Builder;
@@ -50,55 +54,94 @@ public interface StandardAceDataExtractor extends AddressExtractor, ProtoPreBind
             Stateful.class, 2);
 
     default VppAce fromStandardAce(@Nonnull final Ace ace) {
-        return VppAce.class.cast(ace.getMatches().getAceType());
+        return Optional.ofNullable(ace.getMatches())
+                .map(Matches::getAceType)
+                .map(VppAce.class::cast)
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Unable to create VppAce from %s", ace)));
     }
 
     default boolean standardIsIpv6(@Nonnull final Ace ace) {
-        return VppAce.class.cast(ace.getMatches().getAceType()).getVppAceNodes().getAceIpVersion() instanceof AceIpv6;
+        return Optional.ofNullable(ace.getMatches())
+                .map(Matches::getAceType)
+                .map(VppAce.class::cast)
+                .map(VppAce::getVppAceNodes)
+                .map(VppAceNodes::getAceIpVersion)
+                .map(aceIpVersion -> aceIpVersion instanceof AceIpv6)
+                .orElse(false);
     }
 
     default byte[] ipv4SourceAddress(@Nonnull final VppAce ace) {
         return extractIp4Address(
-            AclIpv4HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv4Network());
+                extractV4SourceAddressOrNull(ace));
     }
 
     default byte ipv4SourceAddressPrefix(@Nonnull final VppAce ace) {
         return extractIp4AddressPrefix(
-            AclIpv4HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv4Network());
+                extractV4SourceAddressOrNull(ace));
     }
 
+    static Ipv4Prefix extractV4SourceAddressOrNull(@Nonnull final VppAce ace) {
+        return Optional.ofNullable(ace.getVppAceNodes())
+                .map(VppAceNodes::getAceIpVersion)
+                .map(AclIpv4HeaderFields.class::cast)
+                .map(AclIpv4HeaderFields::getSourceIpv4Network)
+                .orElse(null);
+    }
+
+
     default byte[] ipv4DestinationAddress(@Nonnull final VppAce ace) {
-        return extractIp4Address(
-            AclIpv4HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv4Network());
+        return extractIp4Address(extractV4DestinationAddressOrNull(ace));
     }
 
     default byte ipv4DestinationAddressPrefix(@Nonnull final VppAce ace) {
-        return extractIp4AddressPrefix(AceIpv4.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv4Network());
+        return extractIp4AddressPrefix(extractV4DestinationAddressOrNull(ace));
     }
 
+    static Ipv4Prefix extractV4DestinationAddressOrNull(@Nonnull final VppAce ace) {
+        return Optional.ofNullable(ace.getVppAceNodes())
+                .map(VppAceNodes::getAceIpVersion)
+                .map(AclIpv4HeaderFields.class::cast)
+                .map(AclIpv4HeaderFields::getDestinationIpv4Network)
+                .orElse(null);
+    }
 
     default byte[] ipv6SourceAddress(@Nonnull final VppAce ace) {
-        return extractIp6Address(
-            AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv6Network());
+        return extractIp6Address(extractV6SourceAddressOrNull(ace));
     }
 
     default byte ipv6SourceAddressPrefix(@Nonnull final VppAce ace) {
-        return extractIp6AddressPrefix(
-            AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getSourceIpv6Network());
+        return extractIp6AddressPrefix(extractV6SourceAddressOrNull(ace));
+    }
+
+    static Ipv6Prefix extractV6SourceAddressOrNull(@Nonnull final VppAce ace) {
+        return Optional.ofNullable(ace.getVppAceNodes())
+                .map(VppAceNodes::getAceIpVersion)
+                .map(AclIpv6HeaderFields.class::cast)
+                .map(AclIpv6HeaderFields::getSourceIpv6Network)
+                .orElse(null);
     }
 
     default byte[] ipv6DestinationAddress(@Nonnull final VppAce ace) {
-        return extractIp6Address(
-            AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv6Network());
+        return extractIp6Address(extractV6DestinationAddressOrNull(ace));
     }
 
     default byte ipv6DestinationAddressPrefix(@Nonnull final VppAce ace) {
-        return extractIp6AddressPrefix(
-            AclIpv6HeaderFields.class.cast(ace.getVppAceNodes().getAceIpVersion()).getDestinationIpv6Network());
+        return extractIp6AddressPrefix(extractV6DestinationAddressOrNull(ace));
+    }
+
+    static Ipv6Prefix extractV6DestinationAddressOrNull(@Nonnull final VppAce ace) {
+        return Optional.ofNullable(ace.getVppAceNodes())
+                .map(VppAceNodes::getAceIpVersion)
+                .map(AclIpv6HeaderFields.class::cast)
+                .map(AclIpv6HeaderFields::getDestinationIpv6Network)
+                .orElse(null);
     }
 
     default byte standardAction(@Nonnull final Ace ace) {
-        final PacketHandling action = ace.getActions().getPacketHandling();
+        // default == deny
+        final PacketHandling action = Optional.ofNullable(ace.getActions())
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Unable to extract Action from %s", ace)))
+                .getPacketHandling();
         return ACTION_VALUE_PAIRS.get(ACTION_VALUE_PAIRS.keySet().stream()
                 .filter(aClass -> aClass.isInstance(action))
                 .findAny()
@@ -107,7 +150,7 @@ public interface StandardAceDataExtractor extends AddressExtractor, ProtoPreBind
                                 ace.getRuleName())))).byteValue();
     }
 
-    default AceIpVersion ipVersion(final AclRule rule) {
+    default AceIpVersion ipVersion(@Nonnull final AclRule rule) {
         if (rule.isIpv6 == 0) {
             return ip4Ace(rule);
         } else {
@@ -115,7 +158,7 @@ public interface StandardAceDataExtractor extends AddressExtractor, ProtoPreBind
         }
     }
 
-    default AceIpVersion ip4Ace(final AclRule rule) {
+    default AceIpVersion ip4Ace(@Nonnull final AclRule rule) {
         final AceIpv4Builder ipVersion = new AceIpv4Builder();
         if (rule.srcIpAddr != null && rule.srcIpAddr.length != 0) {
             ipVersion.setSourceIpv4Network(toIpv4Prefix(truncateIp4Array(rule.srcIpAddr), rule.srcIpPrefixLen));
@@ -126,7 +169,7 @@ public interface StandardAceDataExtractor extends AddressExtractor, ProtoPreBind
         return ipVersion.build();
     }
 
-    default AceIpVersion ip6Ace(final AclRule rule) {
+    default AceIpVersion ip6Ace(@Nonnull final AclRule rule) {
         final AceIpv6Builder ipVersion = new AceIpv6Builder();
         if (rule.srcIpAddr != null && rule.srcIpAddr.length != 0) {
             ipVersion.setSourceIpv6Network(toIpv6Prefix(rule.srcIpAddr, rule.srcIpPrefixLen));

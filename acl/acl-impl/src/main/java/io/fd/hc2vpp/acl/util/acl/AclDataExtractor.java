@@ -18,6 +18,7 @@ package io.fd.hc2vpp.acl.util.acl;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
@@ -56,13 +57,16 @@ public interface AclDataExtractor {
     }
 
     default List<Ace> getAces(@Nonnull final Acl acl) {
-        return acl.getAccessListEntries().getAce();
+        return Optional.ofNullable(acl.getAccessListEntries()).orElseThrow(() ->
+                new IllegalArgumentException(String.format("Unable to extract aces from %s", acl))).getAce();
     }
 
     /**
      * Convert {@link Acl} name to byte array as UTF_8
      */
     default byte[] getAclNameAsBytes(@Nonnull final Acl acl) {
-        return acl.getAclName().getBytes(StandardCharsets.UTF_8);
+        return Optional.ofNullable(acl.getAclName())
+                .orElseThrow(() -> new IllegalArgumentException("Unable to extract bytes for null"))
+                .getBytes(StandardCharsets.UTF_8);
     }
 }
