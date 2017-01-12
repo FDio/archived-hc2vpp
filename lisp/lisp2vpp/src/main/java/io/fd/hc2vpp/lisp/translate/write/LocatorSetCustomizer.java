@@ -20,17 +20,29 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import io.fd.hc2vpp.lisp.translate.read.trait.LocatorSetReader;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.common.translate.util.ReferenceCheck;
+import io.fd.hc2vpp.lisp.translate.read.trait.LocatorSetReader;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.DpSubtableGrouping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.LocalMappings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.LocalMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.EidTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.VniTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.Interface;
@@ -44,7 +56,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public class LocatorSetCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<LocatorSet, LocatorSetKey>, ByteDataTranslator,
-        LocatorSetReader {
+        LocatorSetReader, ReferenceCheck {
 
     private final NamingContext locatorSetContext;
 
@@ -85,9 +97,46 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
                                         @Nonnull LocatorSet dataBefore,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
         final String locatorSetName = dataBefore.getName();
+
+        final Optional<EidTable> eidTableData = writeContext.readAfter(InstanceIdentifier.create(Lisp.class)
+                .child(LispFeatureData.class)
+                .child(EidTable.class));
+
+        if (eidTableData.isPresent()) {
+            // due to non-functional LeafRefValidation, it must be checked like this
+            final List<VniTable> vniTables =
+                    Optional.fromNullable(eidTableData.get().getVniTable()).or(Collections.emptyList());
+            checkReferenceExist(id, vrfReferences(vniTables, locatorSetName));
+            checkReferenceExist(id, bdReferences(vniTables, locatorSetName));
+        }
+
         addDelLocatorSetAndReply(false, dataBefore.getName(), id);
         //removes mapping after successful delete
         locatorSetContext.removeName(locatorSetName, writeContext.getMappingContext());
+    }
+
+    private Collection<LocalMapping> bdReferences(final List<VniTable> vniTables,
+                                                  final String locatorSetName) {
+        return vniTables.stream()
+                .map(vniTable -> java.util.Optional.ofNullable(vniTable.getBridgeDomainSubtable())
+                        .map(DpSubtableGrouping::getLocalMappings)
+                        .map(LocalMappings::getLocalMapping)
+                        .orElse(Collections.emptyList()))
+                .flatMap(Collection::stream)
+                .filter(localMapping -> locatorSetName.equals(localMapping.getLocatorSet()))
+                .collect(Collectors.toSet());
+    }
+
+    private static Collection<LocalMapping> vrfReferences(final List<VniTable> vniTables,
+                                                          final String locatorSetName) {
+        return vniTables.stream()
+                .map(vniTable -> java.util.Optional.ofNullable(vniTable.getVrfSubtable())
+                        .map(DpSubtableGrouping::getLocalMappings)
+                        .map(LocalMappings::getLocalMapping)
+                        .orElse(Collections.emptyList()))
+                .flatMap(Collection::stream)
+                .filter(localMapping -> locatorSetName.equals(localMapping.getLocatorSet()))
+                .collect(Collectors.toSet());
     }
 
     private int addDelLocatorSetAndReply(final boolean add, final String name, final InstanceIdentifier<LocatorSet> id)
