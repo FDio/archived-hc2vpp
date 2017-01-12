@@ -40,6 +40,14 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.LocalMappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.LocalMappingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.EidTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.EidTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.VniTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.VrfSubtableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSetBuilder;
@@ -48,6 +56,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class LocatorSetCustomizerTest extends WriterCustomizerTest {
+
+    private static final InstanceIdentifier<EidTable>
+            EID_TABLE_ID = InstanceIdentifier.create(Lisp.class)
+            .child(LispFeatureData.class)
+            .child(EidTable.class);
+
+    private static final LocatorSet LOCATOR_SET_TO_DELETE = new LocatorSetBuilder()
+            .setName("Locator")
+            .build();
 
     private LocatorSetCustomizer customizer;
 
@@ -126,10 +143,25 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDeleteCurrentAttributes() throws InterruptedException, ExecutionException, WriteFailedException {
-        LocatorSet locatorSet = new LocatorSetBuilder()
-                .setName("Locator")
-                .build();
+        when(writeContext.readAfter(EID_TABLE_ID)).thenReturn(Optional.absent());
+        verifySuccessfullDelete(LOCATOR_SET_TO_DELETE);
+    }
 
+    @Test
+    public void testDeleteCurrentAttributesWithoutLocalMappingContainer()
+            throws InterruptedException, ExecutionException, WriteFailedException {
+        when(writeContext.readAfter(EID_TABLE_ID)).thenReturn(eidTableDataWithoutLocalMappingContainer());
+        verifySuccessfullDelete(LOCATOR_SET_TO_DELETE);
+    }
+
+    @Test
+    public void testDeleteCurrentAttributesWithoutLocalMappingValues()
+            throws InterruptedException, ExecutionException, WriteFailedException {
+        when(writeContext.readAfter(EID_TABLE_ID)).thenReturn(eidTableDataWithoutLocalMappingValues());
+        verifySuccessfullDelete(LOCATOR_SET_TO_DELETE);
+    }
+
+    private void verifySuccessfullDelete(final LocatorSet locatorSet) throws WriteFailedException {
         ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
 
         when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class)))
@@ -145,4 +177,55 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
         assertEquals("Locator", new String(request.locatorSetName));
         assertEquals(0, request.isAdd);
     }
+
+    @Test
+    public void testDeleteReferenced() throws InterruptedException, ExecutionException, WriteFailedException {
+        when(writeContext.readAfter(EID_TABLE_ID))
+                .thenReturn(eidTableData());
+
+        ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
+
+        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class)))
+                .thenReturn(future(new LispAddDelLocatorSetReply()));
+
+        try {
+            customizer.deleteCurrentAttributes(null, LOCATOR_SET_TO_DELETE, writeContext);
+        } catch (IllegalStateException e) {
+            verify(api, times(0)).lispAddDelLocatorSet(locatorSetCaptor.capture());
+            return;
+        }
+        fail("testDeleteReferenced should have failed");
+    }
+
+    private static Optional<EidTable> eidTableData() {
+        return Optional.of(new EidTableBuilder()
+                .setVniTable(
+                        Arrays.asList(new VniTableBuilder()
+                                .setVrfSubtable(new VrfSubtableBuilder()
+                                        .setLocalMappings(new LocalMappingsBuilder()
+                                                .setLocalMapping(Arrays.asList(
+                                                        new LocalMappingBuilder().setLocatorSet("Locator")
+                                                                .build(),
+                                                        new LocalMappingBuilder()
+                                                                .setLocatorSet("OtherLocatorSet").build()
+                                                )).build()).build()).build())).build());
+    }
+
+    private static Optional<EidTable> eidTableDataWithoutLocalMappingValues() {
+        return Optional.of(new EidTableBuilder()
+                .setVniTable(
+                        Arrays.asList(new VniTableBuilder()
+                                .setVrfSubtable(new VrfSubtableBuilder()
+                                        .setLocalMappings(new LocalMappingsBuilder().build()).build()).build()))
+                .build());
+    }
+
+    private static Optional<EidTable> eidTableDataWithoutLocalMappingContainer() {
+        return Optional.of(new EidTableBuilder()
+                .setVniTable(
+                        Arrays.asList(new VniTableBuilder().setVrfSubtable(new VrfSubtableBuilder().build()).build()))
+                .build());
+    }
+
+
 }
