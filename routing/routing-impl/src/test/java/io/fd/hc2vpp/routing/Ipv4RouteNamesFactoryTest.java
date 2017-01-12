@@ -72,7 +72,7 @@ public class Ipv4RouteNamesFactoryTest
 
     @Test
     public void testUniqueRouteName(
-            @InjectTestData(resourcePath = "/ipv4/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes data) {
         assertEquals("tst-protocol_19216821_24",
                 factory.uniqueRouteName(ROUTE_PROTOCOL_NAME, getIpv4RouteWithId(data, 1L)));

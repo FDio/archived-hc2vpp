@@ -51,17 +51,23 @@ public class MultipathHopRequestFactoryIpv4Test
     @Mock
     private MappingContext mappingContext;
 
-    @InjectTestData(resourcePath = "/ipv4/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
+    @InjectTestData(resourcePath = "/ipv4/multihop/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
     private StaticRoutes ipv4StaticRoutesWithClassifier;
 
-    @InjectTestData(resourcePath = "/ipv4/multiHopRouteWithoutClassifier.json", id = STATIC_ROUTE_PATH)
+    @InjectTestData(resourcePath = "/ipv4/multihop/multiHopRouteWithoutClassifier.json", id = STATIC_ROUTE_PATH)
     private StaticRoutes ipv4StaticRoutesWithoutClassifier;
+
+    @InjectTestData(resourcePath = "/ipv4/multihop/multiHopRouteWithNoRouteAttrs.json", id = STATIC_ROUTE_PATH)
+    private StaticRoutes ipv4StaticRoutesWithoutRouteAttrs;
 
     private Route ipv4MutlipathRouteWithClassifier;
     private NextHop ipv4nextHopWithClassifier;
 
     private Route ipv4MutlipathRouteWithoutClassifier;
     private NextHop ipv4nextHopWithoutClassifier;
+
+    private Route ipv4MutlipathRouteWithoutRouteAtts;
+    private NextHop ipv4nextHopWithoutRouteAtts;
 
     private NamingContext interfaceContext;
     private NamingContext routingProtocolContext;
@@ -88,9 +94,16 @@ public class MultipathHopRequestFactoryIpv4Test
 
         ipv4MutlipathRouteWithoutClassifier = getIpv4RouteWithId(ipv4StaticRoutesWithoutClassifier, 1L);
         final List<NextHop> ipv4HopsNonClassified =
-                NextHopList.class.cast(ipv4MutlipathRouteWithClassifier.getNextHopOptions()).getNextHopList()
+                NextHopList.class.cast(ipv4MutlipathRouteWithoutClassifier.getNextHopOptions()).getNextHopList()
                         .getNextHop();
         ipv4nextHopWithoutClassifier =
+                ipv4HopsNonClassified.stream().filter(nextHop -> nextHop.getId() == 1L).findFirst().get();
+
+        ipv4MutlipathRouteWithoutRouteAtts = getIpv4RouteWithId(ipv4StaticRoutesWithoutRouteAttrs, 1L);
+        final List<NextHop> ipv4HopsNonRouteAttrs =
+                NextHopList.class.cast(ipv4MutlipathRouteWithoutRouteAtts.getNextHopOptions()).getNextHopList()
+                        .getNextHop();
+        ipv4nextHopWithoutRouteAtts =
                 ipv4HopsNonClassified.stream().filter(nextHop -> nextHop.getId() == 1L).findFirst().get();
     }
 
@@ -110,6 +123,18 @@ public class MultipathHopRequestFactoryIpv4Test
         final IpAddDelRoute request =
                 factory.createIpv4MultipathHopRequest(false, ROUTE_PROTOCOL_NAME, ipv4MutlipathRouteWithoutClassifier,
                         ipv4nextHopWithoutClassifier,
+                        mappingContext);
+
+        assertEquals(
+                desiredFlaglessResult(0, 0, 1, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
+                        Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 1, 0, 0, 0), request);
+    }
+
+    @Test
+    public void testIpv4WithoutRouteAttrs() {
+        final IpAddDelRoute request =
+                factory.createIpv4MultipathHopRequest(false, ROUTE_PROTOCOL_NAME, ipv4MutlipathRouteWithoutRouteAtts,
+                        ipv4nextHopWithoutRouteAtts,
                         mappingContext);
 
         assertEquals(

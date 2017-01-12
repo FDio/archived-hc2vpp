@@ -47,12 +47,6 @@ public class SimpleHopRequestFactoryIpv6Test
     @Mock
     private MappingContext mappingContext;
 
-    @InjectTestData(resourcePath = "/ipv6/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
-    private StaticRoutes ipv6StaticRouteWithClassifier;
-
-    @InjectTestData(resourcePath = "/ipv6/simpleHopRouteWithoutClassifier.json", id = STATIC_ROUTE_PATH)
-    private StaticRoutes ipv6StaticRouteWithoutClassifier;
-
     private NamingContext interfaceContext;
     private NamingContext routingProtocolContext;
     private SimpleHopRequestFactory factory;
@@ -71,7 +65,9 @@ public class SimpleHopRequestFactoryIpv6Test
     }
 
     @Test
-    public void testIpv6WithClassifier() {
+    public void testIpv6WithClassifier(
+            @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
+                    StaticRoutes ipv6StaticRouteWithClassifier) {
         final IpAddDelRoute request =
                 factory.createIpv6SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
                         ipv6StaticRouteWithClassifier.getAugmentation(StaticRoutes1.class).getIpv6().getRoute().get(0),
@@ -83,10 +79,25 @@ public class SimpleHopRequestFactoryIpv6Test
     }
 
     @Test
-    public void testIpv6WithoutClassifier() {
+    public void testIpv6WithoutClassifier(
+            @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithoutClassifier.json", id = STATIC_ROUTE_PATH)
+                    StaticRoutes ipv6StaticRouteWithoutClassifier) {
         final IpAddDelRoute request =
                 factory.createIpv6SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
                         ipv6StaticRouteWithoutClassifier.getAugmentation(StaticRoutes1.class).getIpv6().getRoute()
+                                .get(0),
+                        mappingContext);
+
+        assertEquals(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
+                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 1, 0, 0, 0), request);
+    }
+
+    @Test
+    public void testIpv6WithoutRouteAttrs(@InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithoutRouteAttrs.json", id = STATIC_ROUTE_PATH)
+                                                      StaticRoutes ipv6StaticRouteWithoutRouteAttrs) {
+        final IpAddDelRoute request =
+                factory.createIpv6SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
+                        ipv6StaticRouteWithoutRouteAttrs.getAugmentation(StaticRoutes1.class).getIpv6().getRoute()
                                 .get(0),
                         mappingContext);
 

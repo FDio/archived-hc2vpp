@@ -96,7 +96,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testWriteSingleHop(
-            @InjectTestData(resourcePath = "/ipv4/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         final Route route1 = getIpv4RouteWithId(route, 1L);
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route1), "route-context");
@@ -111,7 +111,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testWriteHopList(
-            @InjectTestData(resourcePath = "/ipv4/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv4/multihop/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         final Route route1 = getIpv4RouteWithId(route, 1L);
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route1), "route-context");
@@ -141,7 +141,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testWriteSpecialHop(
-            @InjectTestData(resourcePath = "/ipv4/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         final Route route1 = getIpv4RouteWithId(route, 1L);
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route1), "route-context");
@@ -154,7 +154,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testUpdate(
-            @InjectTestData(resourcePath = "/ipv4/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route) {
+            @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route) {
         try {
             customizer.updateCurrentAttributes(validId, new RouteBuilder().build(), getIpv4RouteWithId(route, 1L),
                     writeContext);
@@ -169,7 +169,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testDeleteSingleHop(
-            @InjectTestData(resourcePath = "/ipv4/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         customizer.deleteCurrentAttributes(validId, getIpv4RouteWithId(route, 1L), writeContext);
         verifyInvocation(1, ImmutableList
@@ -180,7 +180,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testDeleteHopList(
-            @InjectTestData(resourcePath = "/ipv4/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv4/multihop/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         final Route route1 = getIpv4RouteWithId(route, 1L);
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route1), "route-context");
@@ -209,7 +209,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testDeleteSpecialHop(
-            @InjectTestData(resourcePath = "/ipv4/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         customizer.deleteCurrentAttributes(validId, getIpv4RouteWithId(route, 1L), writeContext);
 

@@ -65,7 +65,7 @@ public class SpecialNextHopRequestFactoryIpv4Test
 
     @Test
     public void testIpv4WithClassifierBlackhole(
-            @InjectTestData(resourcePath = "/ipv4/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
                 factory.createIpv4SpecialHopRequest(true, extractSingleRoute(routes, 1L), mappingContext,
@@ -76,7 +76,7 @@ public class SpecialNextHopRequestFactoryIpv4Test
 
     @Test
     public void testIpv4WithClassifierReceive(
-            @InjectTestData(resourcePath = "/ipv4/specialHopRouteReceive.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteReceive.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
                 factory.createIpv4SpecialHopRequest(true, extractSingleRoute(routes, 1L), mappingContext, Receive);
@@ -86,7 +86,7 @@ public class SpecialNextHopRequestFactoryIpv4Test
 
     @Test
     public void testIpv4WithClassifierUnreach(
-            @InjectTestData(resourcePath = "/ipv4/specialHopRouteUnreachable.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteUnreachable.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
                 factory.createIpv4SpecialHopRequest(true, extractSingleRoute(routes, 1L), mappingContext, Unreachable);
@@ -96,7 +96,7 @@ public class SpecialNextHopRequestFactoryIpv4Test
 
     @Test
     public void testIpv4WithClassifierProhibited(
-            @InjectTestData(resourcePath = "/ipv4/specialHopRouteProhibited.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteProhibited.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
                 factory.createIpv4SpecialHopRequest(true, extractSingleRoute(routes, 1L), mappingContext, Prohibit);

@@ -50,10 +50,10 @@ public class MultipathHopRequestFactoryIpv6Test
     @Mock
     private MappingContext mappingContext;
 
-    @InjectTestData(resourcePath = "/ipv6/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
+    @InjectTestData(resourcePath = "/ipv6/multihop/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
     private StaticRoutes ipv6StaticRoutesWithClassifier;
 
-    @InjectTestData(resourcePath = "/ipv6/multiHopRouteWithoutClassifier.json", id = STATIC_ROUTE_PATH)
+    @InjectTestData(resourcePath = "/ipv6/multihop/multiHopRouteWithoutClassifier.json", id = STATIC_ROUTE_PATH)
     private StaticRoutes ipv6StaticRoutesWithoutClassifier;
 
     private Route ipv6MultipathRouteWithClassifier;

@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.routing.write.factory;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.write.factory.base.BasicHopRequestFactory;
 import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
@@ -58,12 +56,13 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
                                                     @Nonnull final MappingContext mappingContext) {
 
         final SimpleNextHop hop = SimpleNextHop.class.cast(route.getNextHopOptions());
-        final VppIpv4Route routingAttributes = checkNotNull(route.getVppIpv4Route(), "VppIpv4Route not defined");
+        final VppIpv4Route routingAttributes = route.getVppIpv4Route();
         final int nextHopInterfaceIndex =
                 getInterfaceNamingContext().getIndex(hop.getOutgoingInterface(), mappingContext);
 
-        if (classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
-                mappingContext)) {
+        if (routingAttributes != null &&
+                classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
+                        mappingContext)) {
             return getSimpleHopRequest(add,
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
@@ -79,7 +78,7 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
                     nextHopInterfaceIndex,
                     hop.getNextHop(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    optionalVni(routingAttributes.getSecondaryVrf()),
+                    optionalVni(null),
                     0,
                     false);
         }
@@ -93,12 +92,13 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
                 hop =
                 (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.SimpleNextHop) route
                         .getNextHopOptions();
-        final VppIpv6Route routingAttributes = checkNotNull(route.getVppIpv6Route(), "VppIpv6Route not defined");
+        final VppIpv6Route routingAttributes = route.getVppIpv6Route();
         final int nextHopInterfaceIndex =
                 getInterfaceNamingContext().getIndex(hop.getOutgoingInterface(), mappingContext);
 
-        if (classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
-                mappingContext)) {
+        if (routingAttributes != null &&
+                classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
+                        mappingContext)) {
             return getSimpleHopRequest(add,
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
@@ -114,7 +114,7 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
                     nextHopInterfaceIndex,
                     hop.getNextHop(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    optionalVni(routingAttributes.getSecondaryVrf()),
+                    optionalVni(null),
                     0,
                     false);
         }
