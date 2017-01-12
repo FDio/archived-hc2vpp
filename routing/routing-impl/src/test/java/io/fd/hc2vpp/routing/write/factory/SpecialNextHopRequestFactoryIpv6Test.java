@@ -63,7 +63,7 @@ public class SpecialNextHopRequestFactoryIpv6Test
 
     @Test
     public void testIpv6Blackhole(
-            @InjectTestData(resourcePath = "/ipv6/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
                 factory.createIpv6SpecialHopRequest(true, extractSingleRoute(routes, 1L), mappingContext, Blackhole);
@@ -74,7 +74,7 @@ public class SpecialNextHopRequestFactoryIpv6Test
 
     @Test
     public void testIpv6Receive(
-            @InjectTestData(resourcePath = "/ipv6/specialHopRouteReceive.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteReceive.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
                 factory.createIpv6SpecialHopRequest(true, extractSingleRoute(routes, 1L), mappingContext, Receive);
@@ -84,7 +84,7 @@ public class SpecialNextHopRequestFactoryIpv6Test
 
     @Test
     public void testIpv6Unreach(
-            @InjectTestData(resourcePath = "/ipv6/specialHopRouteUnreachable.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteUnreachable.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
                 factory.createIpv6SpecialHopRequest(true, extractSingleRoute(routes, 1L), mappingContext, Unreachable);
@@ -94,7 +94,7 @@ public class SpecialNextHopRequestFactoryIpv6Test
 
     @Test
     public void testIpv6Prohibited(
-            @InjectTestData(resourcePath = "/ipv6/specialHopRouteProhibited.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteProhibited.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
                 factory.createIpv6SpecialHopRequest(true, extractSingleRoute(routes, 1L), mappingContext, Prohibit);

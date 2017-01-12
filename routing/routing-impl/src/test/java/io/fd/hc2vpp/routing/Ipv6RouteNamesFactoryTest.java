@@ -72,7 +72,7 @@ public class Ipv6RouteNamesFactoryTest implements RoutingRequestTestHelper, Sche
 
     @Test
     public void testUniqueRouteName(
-            @InjectTestData(resourcePath = "/ipv6/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
+            @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes data) {
         assertEquals("tst-protocol_2001db8a0b12f01_64",
                 factory.uniqueRouteName(ROUTE_PROTOCOL_NAME, getIpv6RouteWithId(data, 1L)));

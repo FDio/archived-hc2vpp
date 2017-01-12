@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.routing.write.factory;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.write.factory.base.BasicHopRequestFactory;
 import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
@@ -57,13 +55,12 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                                                        @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route route,
                                                        @Nonnull final NextHop hop,
                                                        @Nonnull final MappingContext mappingContext) {
-
-        final VppIpv4Route routingAttributes = checkNotNull(route.getVppIpv4Route(), "VppIpv4Route not defined");
+        final VppIpv4Route routingAttributes = route.getVppIpv4Route();
 
         final int nextHopInterfaceIndex =
                 getInterfaceNamingContext().getIndex(hop.getOutgoingInterface(), mappingContext);
 
-        if (classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
+        if (routingAttributes!= null && classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
                 mappingContext)) {
             return getMultipathHopRequest(add,
                     route.getDestinationPrefix(),
@@ -82,7 +79,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     hop.getAddress(),
                     toByte(hop.getWeight()),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    optionalVni(routingAttributes.getSecondaryVrf()),
+                    optionalVni(null),
                     0,
                     false);
         }
@@ -93,12 +90,12 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                                                        @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route,
                                                        @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHop hop,
                                                        @Nonnull final MappingContext mappingContext) {
-        final VppIpv6Route routingAttributes = checkNotNull(route.getVppIpv6Route(), "VppIpv6Route not defined");
+        final VppIpv6Route routingAttributes = route.getVppIpv6Route();
 
         final int nextHopInterfaceIndex =
                 getInterfaceNamingContext().getIndex(hop.getOutgoingInterface(), mappingContext);
 
-        if (classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
+        if (routingAttributes != null && classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
                 mappingContext)) {
             return getMultipathHopRequest(add,
                     route.getDestinationPrefix(),
@@ -117,7 +114,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     hop.getAddress(),
                     toByte(hop.getWeight()),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    optionalVni(routingAttributes.getSecondaryVrf()),
+                    optionalVni(null),
                     0,
                     false);
         }

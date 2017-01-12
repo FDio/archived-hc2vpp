@@ -91,7 +91,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testWriteSingleHop(
-            @InjectTestData(resourcePath = "/ipv6/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
         customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
@@ -103,7 +103,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testWriteHopList(
-            @InjectTestData(resourcePath = "/ipv6/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv6/multihop/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
         customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
@@ -133,7 +133,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testDeleteSpecialHop(
-            @InjectTestData(resourcePath = "/ipv6/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
         customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, 1L),
@@ -145,7 +145,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testDeleteSingleHop(
-            @InjectTestData(resourcePath = "/ipv6/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
         customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
@@ -157,7 +157,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testDeleteHopList(
-            @InjectTestData(resourcePath = "/ipv6/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv6/multihop/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
         customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
@@ -174,7 +174,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
 
     @Test
     public void testWriteSpecialHop(
-            @InjectTestData(resourcePath = "/ipv6/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
         customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, 1L),

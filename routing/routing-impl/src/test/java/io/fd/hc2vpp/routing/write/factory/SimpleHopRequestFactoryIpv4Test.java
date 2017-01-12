@@ -46,12 +46,6 @@ public class SimpleHopRequestFactoryIpv4Test
     @Mock
     private MappingContext mappingContext;
 
-    @InjectTestData(resourcePath = "/ipv4/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
-    private StaticRoutes ipv4StaticRouteWithClassifier;
-
-    @InjectTestData(resourcePath = "/ipv4/simpleHopRouteWithoutClassifier.json", id = STATIC_ROUTE_PATH)
-    private StaticRoutes ipv4StaticRouteWithoutClassifier;
-
     private NamingContext interfaceContext;
     private NamingContext routingProtocolContext;
     private SimpleHopRequestFactory factory;
@@ -70,7 +64,9 @@ public class SimpleHopRequestFactoryIpv4Test
     }
 
     @Test
-    public void testIpv4WithClassifier() {
+    public void testIpv4WithClassifier(
+            @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
+                    StaticRoutes ipv4StaticRouteWithClassifier) {
         final IpAddDelRoute request =
                 factory.createIpv4SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
                         getIpv4RouteWithId(ipv4StaticRouteWithClassifier, 1L),
@@ -82,10 +78,26 @@ public class SimpleHopRequestFactoryIpv4Test
     }
 
     @Test
-    public void testIpv4WithoutClassifier() {
+    public void testIpv4WithoutClassifier(
+            @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithoutClassifier.json", id = STATIC_ROUTE_PATH)
+                    StaticRoutes ipv4StaticRouteWithoutClassifier) {
         final IpAddDelRoute request =
                 factory.createIpv4SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
                         ipv4StaticRouteWithoutClassifier.getAugmentation(StaticRoutes1.class).getIpv4().getRoute()
+                                .get(0), mappingContext);
+
+        assertEquals(
+                desiredFlaglessResult(0, 0, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
+                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 1, 0, 0, 0), request);
+    }
+
+    @Test
+    public void testIpv4WithoutVppAttrs(
+            @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteNoRouteAttrs.json", id = STATIC_ROUTE_PATH)
+                    StaticRoutes ipv4StaticRouteWithoutRouteAttrs) {
+        final IpAddDelRoute request =
+                factory.createIpv4SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
+                        ipv4StaticRouteWithoutRouteAttrs.getAugmentation(StaticRoutes1.class).getIpv4().getRoute()
                                 .get(0), mappingContext);
 
         assertEquals(
