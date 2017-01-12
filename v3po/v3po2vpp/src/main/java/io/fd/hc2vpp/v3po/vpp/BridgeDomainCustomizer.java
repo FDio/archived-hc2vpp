@@ -18,29 +18,37 @@ package io.fd.hc2vpp.v3po.vpp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.common.translate.util.ReferenceCheck;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDel;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collections;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.L2BaseAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.base.attributes.interconnection.BridgeBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomainKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BridgeDomainCustomizer
-        extends FutureJVppCustomizer
-        implements ListWriterCustomizer<BridgeDomain, BridgeDomainKey>, ByteDataTranslator, JvppReplyConsumer {
+public class BridgeDomainCustomizer extends FutureJVppCustomizer
+        implements ListWriterCustomizer<BridgeDomain, BridgeDomainKey>, ByteDataTranslator, JvppReplyConsumer,
+        ReferenceCheck {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainCustomizer.class);
 
@@ -110,6 +118,24 @@ public class BridgeDomainCustomizer
             throws WriteFailedException {
         LOG.debug("deleteCurrentAttributes: id={}, dataBefore={}, ctx={}", id, dataBefore, ctx);
         final String bdName = id.firstKeyOf(BridgeDomain.class).getName();
+
+        final com.google.common.base.Optional<Interfaces> after =
+                ctx.readAfter(InstanceIdentifier.create(Interfaces.class));
+
+        if (after.isPresent()) {
+            checkReferenceExist(id, Optional.ofNullable(after.get().getInterface())
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .map(iface -> Optional.ofNullable(iface.getAugmentation(VppInterfaceAugmentation.class))
+                            .map(VppInterfaceAugmentation::getL2)
+                            .map(L2BaseAttributes::getInterconnection)
+                            .orElse(null))
+                    .filter(interconnection -> interconnection instanceof BridgeBased)
+                    .map(BridgeBased.class::cast)
+                    .filter(bridgeBased -> bdName.equals(bridgeBased.getBridgeDomain()))
+                    .collect(toList()));
+        }
+
         int bdId = bdContext.getIndex(bdName, ctx.getMappingContext());
 
         final BridgeDomainAddDel request = new BridgeDomainAddDel();

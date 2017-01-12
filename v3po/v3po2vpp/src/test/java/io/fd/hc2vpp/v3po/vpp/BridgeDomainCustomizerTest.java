@@ -23,6 +23,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -30,8 +31,17 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppInvocationException;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDel;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainAddDelReply;
+import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.L2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.base.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.vpp.bridge.domains.BridgeDomainBuilder;
@@ -168,6 +178,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
         defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
 
         whenBridgeDomainAddDelThenSuccess();
 
@@ -177,10 +188,60 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
     }
 
     @Test
+    public void testDeleteReferencedBridgeDomain() throws Exception {
+        final int bdId = 1;
+        final String bdName = "bd1";
+        final BridgeDomain bd = generateBridgeDomain(bdName);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.of(
+                new InterfacesBuilder().setInterface(Arrays.asList(l2ReferenceToBd("bd1"), l2ReferenceToBd("other-bd")))
+                        .build()
+        ));
+
+        try {
+            customizer.deleteCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
+        } catch (IllegalStateException e) {
+            verify(api, never()).bridgeDomainAddDel(any(BridgeDomainAddDel.class));
+            return;
+        }
+        fail("IllegalStateException was expected");
+    }
+
+    @Test
+    public void testDeleteReferencedPartialData() throws Exception {
+        final int bdId = 1;
+        final String bdName = "bd1";
+        final BridgeDomain bd = generateBridgeDomain(bdName);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        whenBridgeDomainAddDelThenSuccess();
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.of(
+                new InterfacesBuilder().setInterface(Arrays.asList(new InterfaceBuilder()
+                        .addAugmentation(VppInterfaceAugmentation.class, new VppInterfaceAugmentationBuilder().build())
+                        .build())).build()
+        ));
+
+        customizer.deleteCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
+        verifyBridgeDomainDeleteWasInvoked(bdId);
+    }
+
+    private static Interface l2ReferenceToBd(final String bridgeDomain) {
+        return new InterfaceBuilder()
+                .addAugmentation(VppInterfaceAugmentation.class, new VppInterfaceAugmentationBuilder()
+                        .setL2(new L2Builder()
+                                .setInterconnection(new BridgeBasedBuilder()
+                                        .setBridgeDomain(bridgeDomain)
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+    @Test
     public void testDeleteUnknownBridgeDomain() throws Exception {
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain("bd1");
         noMappingDefined(mappingContext, bdName, BD_CTX_NAME);
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
 
         try {
             customizer.deleteCurrentAttributes(bdIdentifierForName(bdName), bd, writeContext);
@@ -197,6 +258,7 @@ public class BridgeDomainCustomizerTest extends WriterCustomizerTest implements 
         final String bdName = "bd1";
         final BridgeDomain bd = generateBridgeDomain(bdName);
         defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(Optional.absent());
 
         whenBridgeDomainAddDelThenFailure();
 
