@@ -23,7 +23,7 @@
 		{
 			"id": "260fce67-2d84-8557-ff03-b4371fc62cdb",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-routing:routing",
+			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "GET",
@@ -43,7 +43,7 @@
 		{
 			"id": "2bf3def8-ef34-fa83-0789-ecebb03f297f",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-2",
+			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-2",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "PUT",
@@ -63,7 +63,7 @@
 		{
 			"id": "41585a9d-5067-05d8-2dc1-3ace153a70b6",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-5",
+			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-5",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "PUT",
@@ -83,7 +83,7 @@
 		{
 			"id": "6244bd7f-dedd-bd6d-45c3-00b0fd10bb21",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-6",
+			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-6",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "PUT",
@@ -103,7 +103,7 @@
 		{
 			"id": "86b915a1-f85c-939a-0814-fd98b1154162",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-4",
+			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-4",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "PUT",
@@ -123,7 +123,7 @@
 		{
 			"id": "c50cc4a4-a760-f91a-fe66-dd8a66d6085b",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/ietf-routing:routing-state",
+			"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing-state",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "GET",
@@ -162,7 +162,7 @@
 		{
 			"id": "de73785a-6784-b280-a9bc-6d6e48199f09",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/ietf-routing:routing-state/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/vpp-routing-protocol_2",
+			"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing-state/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/vpp-routing-protocol_2",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "GET",
@@ -182,7 +182,7 @@
 		{
 			"id": "e3510e60-17e7-887b-6a55-5e0f651512b0",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-1",
+			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-1",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "PUT",
@@ -221,7 +221,7 @@
 		{
 			"id": "ea4e8b3d-2333-6c17-1da2-32fd0b88da96",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-3",
+			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/test-routing-protocol-3",
 			"preRequestScript": null,
 			"pathVariables": {},
 			"method": "PUT",

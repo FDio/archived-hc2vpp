@@ -41,11 +41,11 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
     String ROUTE_PROTOCOL_NAME = "tst-protocol";
     String ROUTE_PROTOCOL_NAME_2 = "tst-protocol-2";
     String ROUTE_NAME = "tst-route";
-    String STATIC_ROUTE_PATH = "/ietf-routing:routing" +
-            "/ietf-routing:routing-instance[ietf-routing:name='" + ROUTE_PROTOCOL_NAME + "']" +
-            "/ietf-routing:routing-protocols" +
-            "/ietf-routing:routing-protocol[ietf-routing:name='" + ROUTE_NAME + "']" +
-            "/ietf-routing:static-routes";
+    String STATIC_ROUTE_PATH = "/hc2vpp-ietf-routing:routing" +
+            "/hc2vpp-ietf-routing:routing-instance[hc2vpp-ietf-routing:name='" + ROUTE_PROTOCOL_NAME + "']" +
+            "/hc2vpp-ietf-routing:routing-protocols" +
+            "/hc2vpp-ietf-routing:routing-protocol[hc2vpp-ietf-routing:name='" + ROUTE_NAME + "']" +
+            "/hc2vpp-ietf-routing:static-routes";
 
     default IpAddDelRoute desiredFlaglessResult(final int add, final int ipv6, final int isMultipath,
                                                 final byte[] destinationAddress,

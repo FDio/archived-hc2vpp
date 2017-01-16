@@ -15,8 +15,8 @@ module vpp-routing{
     import vpp-classifier {
         prefix "classifier";
     }
-    
-    import ietf-routing {
+
+    import hc2vpp-ietf-routing {
         prefix "ietf-r";
     }
 

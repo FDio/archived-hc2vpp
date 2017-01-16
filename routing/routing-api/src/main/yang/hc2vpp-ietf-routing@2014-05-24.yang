@@ -1,4 +1,4 @@
-module ietf-routing{
+module hc2vpp-ietf-routing {
 
   namespace "urn:ietf:params:xml:ns:yang:ietf-routing";
 

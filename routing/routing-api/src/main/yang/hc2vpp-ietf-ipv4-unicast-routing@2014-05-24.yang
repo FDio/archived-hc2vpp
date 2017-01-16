@@ -1,11 +1,12 @@
-module ietf-ipv4-unicast-routing {
+module hc2vpp-ietf-ipv4-unicast-routing {
 
   namespace "urn:ietf:params:xml:ns:yang:ietf-ipv4-unicast-routing";
 
   prefix "v4ur";
 
-  import ietf-routing {
+  import hc2vpp-ietf-routing {
     prefix "rt";
+    revision-date 2014-05-24;
   }
 
   import ietf-inet-types {
