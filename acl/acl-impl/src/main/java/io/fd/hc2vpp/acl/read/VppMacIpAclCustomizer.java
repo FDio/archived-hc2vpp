@@ -34,7 +34,6 @@ import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.vpp.jvpp.acl.dto.MacipAclDetails;
 import io.fd.vpp.jvpp.acl.dto.MacipAclDetailsReplyDump;
 import io.fd.vpp.jvpp.acl.dto.MacipAclDump;
 import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceGet;
@@ -42,7 +41,6 @@ import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceGetReply;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.IngressBuilder;
@@ -128,14 +126,9 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
                 macIpAclDumpManager.getDump(id, modificationCache, aclIndex);
 
             if (macIpDumpReply.isPresent() && !macIpDumpReply.get().macipAclDetails.isEmpty()) {
-                final MacipAclDetails details = macIpDumpReply.get().macipAclDetails.get(0);
-
                 builder.setName(macIpAclContext.getAclName(aclIndex, mappingContext));
                 builder.setType(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAcl.class);
-                if (details.tag != null && details.tag.length > 0) {
-                    builder.setTag(new HexString(printHexBinary(details.tag)));
-                }
             } else {
                 // this is invalid state(Interface in VPP will act as "deny-all" for security reasons), but generally
                 // it should not happen

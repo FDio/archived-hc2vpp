@@ -4,6 +4,7 @@
       {
         "acl-name": "macip-acl",
         "acl-type": "vpp-acl:vpp-macip-acl",
+        "tag": "macip-tag-value",
         "access-list-entries": {
           "ace": [
             {

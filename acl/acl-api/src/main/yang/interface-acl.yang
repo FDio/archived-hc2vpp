@@ -27,16 +27,6 @@ module interface-acl {
 
   description "Augmentations to interfaces model to apply acls exposed by acl plugin of vpp";
 
-  grouping vpp-acl-base-attributes {
-    leaf tag {
-      type yang:hex-string {
-        length 64;
-      }
-      description
-        "Placeholder for ACL metadata. Value is stored in vpp, and returned in read requests. No processing involved.";
-    }
-  }
-
   grouping vpp-acls-base-attributes  {
     description
       "List of ACLs of vpp-acl type"; // TODO express constraint in the model if possible
@@ -51,8 +41,6 @@ module interface-acl {
       leaf name {
         type acl:access-control-list-ref;
       }
-
-      uses vpp-acl-base-attributes;
     }
   }
 
@@ -68,8 +56,6 @@ module interface-acl {
       leaf name {
         type acl:access-control-list-ref;
       }
-
-      uses vpp-acl-base-attributes;
     }
   }
 

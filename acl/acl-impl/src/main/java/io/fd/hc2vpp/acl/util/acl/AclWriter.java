@@ -48,7 +48,7 @@ public interface AclWriter extends AclDataExtractor, AceConverter, JvppReplyCons
 
         final AclAddReplace request = new AclAddReplace();
 
-        request.tag = getAclNameAsBytes(acl);
+        request.tag = getAclTag(acl);
         request.aclIndex = ACL_INDEX_CREATE_NEW;
 
         final List<Ace> aces = getAces(acl);
@@ -70,7 +70,7 @@ public interface AclWriter extends AclDataExtractor, AceConverter, JvppReplyCons
 
         final AclAddReplace request = new AclAddReplace();
 
-        request.tag = getAclNameAsBytes(acl);
+        request.tag = getAclTag(acl);
         // by setting existing index, request is resolved as update
         request.aclIndex = standardAclContext.getAclIndex(acl.getAclName(), mappingContext);
 
@@ -105,7 +105,7 @@ public interface AclWriter extends AclDataExtractor, AceConverter, JvppReplyCons
                              @Nonnull final MappingContext mappingContext) throws WriteFailedException {
         final MacipAclAdd request = new MacipAclAdd();
 
-        request.tag = getAclNameAsBytes(acl);
+        request.tag = getAclTag(acl);
 
         final List<Ace> aces = getAces(acl);
         request.r = toMacIpAclRules(aces);

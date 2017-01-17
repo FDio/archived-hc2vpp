@@ -238,4 +238,16 @@ module vpp-acl {
       }
     }
   }
+
+  augment /acl:access-lists/acl:acl {
+    ext:augment-identifier "vpp-acl-augmentation";
+    leaf tag {
+      type string {
+        length 1..63;
+      }
+      description
+        "ASCII tag that can be used as a placeholder for ACL metadata. Value is stored in vpp,
+         and returned in read requests. No processing involved.";
+    }
+  }
 }

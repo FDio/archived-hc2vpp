@@ -31,7 +31,6 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
-import io.fd.vpp.jvpp.acl.dto.AclDetails;
 import io.fd.vpp.jvpp.acl.dto.AclDetailsReplyDump;
 import io.fd.vpp.jvpp.acl.dto.AclDump;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceListDetails;
@@ -45,7 +44,6 @@ import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAcls;
@@ -162,14 +160,8 @@ abstract class AbstractVppAclCustomizer extends FutureJVppAclCustomizer
             aclDumpManager.getDump(id, ctx.getModificationCache(), aclIndex);
 
         if (dumpReply.isPresent() && !dumpReply.get().aclDetails.isEmpty()) {
-            // TODO(HONEYCOMB-330): (model expects hex string, but tag is written and read as ascii string)
-            // decide how tag should be handled (model change might be needed).
             builder.setName(aclName);
             builder.setType(vppAclsKey.getType());
-            final AclDetails aclDetails = dumpReply.get().aclDetails.get(0);
-            if (aclDetails.tag != null && aclDetails.tag.length > 0) {
-                builder.setTag(new HexString(printHexBinary(aclDetails.tag)));
-            }
         } else {
             throw new ReadFailedException(id,
                 new IllegalArgumentException(String.format("Acl with name %s not found", aclName)));
