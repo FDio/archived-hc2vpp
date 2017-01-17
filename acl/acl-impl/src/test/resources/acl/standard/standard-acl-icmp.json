@@ -4,6 +4,7 @@
       {
         "acl-name": "standard-acl",
         "acl-type": "vpp-acl:vpp-acl",
+        "tag": "icmp-v4-tag-value",
         "access-list-entries": {
           "ace": [
             {

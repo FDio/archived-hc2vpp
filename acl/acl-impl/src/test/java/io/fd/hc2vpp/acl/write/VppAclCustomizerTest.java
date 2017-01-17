@@ -38,6 +38,7 @@ import io.fd.vpp.jvpp.acl.dto.MacipAclAddReply;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import io.fd.vpp.jvpp.acl.types.AclRule;
 import io.fd.vpp.jvpp.acl.types.MacipAclRule;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -99,7 +100,7 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
         final MacipAclAdd request = macipAclAddReplaceRequestCaptor.getValue();
 
         assertEquals(1, request.count);
-        assertTrue(Arrays.equals("macip-acl".getBytes(), request.tag));
+        assertEquals("macip-tag-value", new String(request.tag, StandardCharsets.US_ASCII));
 
         final MacipAclRule rule = request.r[0];
 
@@ -268,7 +269,7 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
         final AclAddReplace request = aclAddReplaceRequestCaptor.getValue();
         assertEquals(aclIndex, request.aclIndex);
         assertEquals(1, request.count);
-        assertTrue(Arrays.equals("standard-acl".getBytes(), request.tag));
+        assertEquals("udp-tag-value", new String(request.tag, StandardCharsets.US_ASCII));
 
         final AclRule udpRule = request.r[0];
 
@@ -292,7 +293,7 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
         final AclAddReplace request = aclAddReplaceRequestCaptor.getValue();
         assertEquals(aclIndex, request.aclIndex);
         assertEquals(1, request.count);
-        assertTrue(Arrays.equals("standard-acl".getBytes(), request.tag));
+        assertEquals("tcp-tag-value", new String(request.tag, StandardCharsets.US_ASCII));
 
         final AclRule tcpRule = request.r[0];
 
@@ -316,7 +317,8 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
         final AclAddReplace request = aclAddReplaceRequestCaptor.getValue();
         assertEquals(aclIndex, request.aclIndex);
         assertEquals(1, request.count);
-        assertTrue(Arrays.equals("standard-acl".getBytes(), request.tag));
+        assertEquals("icmp-v6-tag-value", new String(request.tag, StandardCharsets.US_ASCII));
+
 
         final AclRule icmpv6Rule = request.r[0];
 
@@ -344,7 +346,7 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
         final AclAddReplace request = aclAddReplaceRequestCaptor.getValue();
         assertEquals(aclIndex, request.aclIndex);
         assertEquals(1, request.count);
-        assertTrue(Arrays.equals("standard-acl".getBytes(), request.tag));
+        assertEquals("icmp-v4-tag-value", new String(request.tag, StandardCharsets.US_ASCII));
 
         final AclRule icmpRule = request.r[0];
 

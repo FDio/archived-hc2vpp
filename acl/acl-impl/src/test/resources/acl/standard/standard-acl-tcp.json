@@ -4,6 +4,7 @@
       {
         "acl-name": "standard-acl",
         "acl-type": "vpp-acl:vpp-acl",
+        "tag": "tcp-tag-value",
         "access-list-entries": {
           "ace": [
             {

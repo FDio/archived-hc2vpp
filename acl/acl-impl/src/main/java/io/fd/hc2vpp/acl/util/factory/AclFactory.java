@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.DestinationPortRange;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.acl.transport.header.fields.SourcePortRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppAclAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.VppAceNodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.macip.ace.VppMacipAceNodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.icmp.header.fields.IcmpCodeRange;
@@ -41,7 +42,9 @@ public interface AclFactory {
     default Set<InstanceIdentifier<?>> vppAclChildren(final InstanceIdentifier<Acl> parentId) {
         final InstanceIdentifier<Matches> matchesIid =
             parentId.child(AccessListEntries.class).child(Ace.class).child(Matches.class);
-        return ImmutableSet.of(parentId.child(AccessListEntries.class),
+        return ImmutableSet.of(
+            parentId.augmentation(VppAclAugmentation.class),
+            parentId.child(AccessListEntries.class),
             parentId.child(AccessListEntries.class).child(Ace.class),
             parentId.child(AccessListEntries.class).child(Ace.class).child(Matches.class),
             parentId.child(AccessListEntries.class).child(Ace.class).child(Actions.class),

@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppAclAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppMacipAce;
 
@@ -62,11 +63,13 @@ public interface AclDataExtractor {
     }
 
     /**
-     * Convert {@link Acl} name to byte array as UTF_8
+     * Convert {@link Acl} tag to byte array in US_ASCII
      */
-    default byte[] getAclNameAsBytes(@Nonnull final Acl acl) {
-        return Optional.ofNullable(acl.getAclName())
-                .orElseThrow(() -> new IllegalArgumentException("Unable to extract bytes for null"))
-                .getBytes(StandardCharsets.UTF_8);
+    default byte[] getAclTag(@Nonnull final Acl acl) {
+        final VppAclAugmentation augmentation = acl.getAugmentation(VppAclAugmentation.class);
+        if (augmentation != null && augmentation.getTag() != null) {
+            return augmentation.getTag().getBytes(StandardCharsets.US_ASCII);
+        }
+        return new byte[0];
     }
 }
