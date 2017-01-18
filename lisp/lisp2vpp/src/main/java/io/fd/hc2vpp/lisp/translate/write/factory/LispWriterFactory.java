@@ -17,6 +17,8 @@
 package io.fd.hc2vpp.lisp.translate.write.factory;
 
 
+import static io.fd.hc2vpp.lisp.translate.write.factory.LocatorSetWriterFactory.LOCATOR_SET_ID;
+
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.write.LispCustomizer;
 import io.fd.hc2vpp.lisp.translate.write.PitrCfgCustomizer;
@@ -40,7 +42,7 @@ public final class LispWriterFactory extends AbstractLispInfraFactoryBase implem
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         registry.add(new GenericWriter<>(lispInstanceIdentifier, new LispCustomizer(vppApi)));
 
-        registry.add(new GenericWriter<>(lispInstanceIdentifier.child(LispFeatureData.class).child(PitrCfg.class),
-                new PitrCfgCustomizer(vppApi)));
+        registry.addAfter(new GenericWriter<>(lispInstanceIdentifier.child(LispFeatureData.class).child(PitrCfg.class),
+                new PitrCfgCustomizer(vppApi)),LOCATOR_SET_ID);
     }
 }
