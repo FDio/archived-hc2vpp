@@ -18,12 +18,12 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
-    <version>1.17.01-RC2</version>
+    <version>1.17.01-SNAPSHOT</version>
   </parent>
 
   <groupId>io.fd.hc2vpp.nat</groupId>
   <artifactId>nat-aggregator</artifactId>
-  <version>1.17.01-RC2</version>
+  <version>1.17.01-SNAPSHOT</version>
   <name>nat-aggregator</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>

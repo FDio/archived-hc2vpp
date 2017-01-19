@@ -18,19 +18,19 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>api-parent</artifactId>
-        <version>1.17.01-RC2</version>
+        <version>1.17.01-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.lisp</groupId>
     <artifactId>lisp-api</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.17.01-RC2</version>
+    <version>1.17.01-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <properties>
         <project.translate.groupId>io.fd.honeycomb</project.translate.groupId>
-        <naming.context.version>1.17.01-RC2</naming.context.version>
+        <naming.context.version>1.17.01-SNAPSHOT</naming.context.version>
     </properties>
 
     <dependencies>

@@ -20,13 +20,13 @@
     <parent>
         <groupId>io.fd.honeycomb.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.17.01-RC2</version>
+        <version>1.17.01-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.hc2vpp.acl</groupId>
     <artifactId>acl-impl</artifactId>
-    <version>1.17.01-RC2</version>
+    <version>1.17.01-SNAPSHOT</version>
 
     <properties>
         <jvpp.acl.version>17.01</jvpp.acl.version>

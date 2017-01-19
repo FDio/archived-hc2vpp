@@ -18,12 +18,12 @@
   <parent>
     <groupId>io.fd.honeycomb.common</groupId>
     <artifactId>honeycomb-parent</artifactId>
-    <version>1.17.01-RC2</version>
+    <version>1.17.01-SNAPSHOT</version>
   </parent>
 
   <groupId>io.fd.hc2vpp.v3po</groupId>
   <artifactId>v3po-aggregator</artifactId>
-  <version>1.17.01-RC2</version>
+  <version>1.17.01-SNAPSHOT</version>
   <name>${project.artifactId}</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
