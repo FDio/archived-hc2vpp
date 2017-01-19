@@ -127,7 +127,7 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
                                               final int primaryVrf, final int secondaryVrf,
                                               final int classifyTableIndex, final boolean classifyIndexSet) {
         return flaglessAddDelRouteRequest(booleanToByte(isAdd), nextHopInterfaceIndex,
-                ipv6AddressNoZoneToArray(nextHopAddress.getValue()), DEFAULT_HOP_WEIGHT, BYTE_TRUE,
+                ipv6AddressNoZoneToArray(nextHopAddress), DEFAULT_HOP_WEIGHT, BYTE_TRUE,
                 ipv6AddressPrefixToArray(destinationAddress), extractPrefix(destinationAddress.getValue()), BYTE_FALSE,
                 primaryVrf, secondaryVrf, classifyTableIndex, booleanToByte(classifyIndexSet));
     }
