@@ -28,7 +28,17 @@ public class Ipv6TranslatorTest implements Ipv6Translator {
     public void testIpv6NoZone() {
         final Ipv6AddressNoZone ipv6Addr = new Ipv6AddressNoZone("3ffe:1900:4545:3:200:f8ff:fe21:67cf");
         byte[] bytes = ipv6AddressNoZoneToArray(ipv6Addr);
-        assertEquals((byte) 63, bytes[0]);
+        assertEquals((byte) 0x3f, bytes[0]);
+        final Ipv6AddressNoZone ivp6AddressNoZone = arrayToIpv6AddressNoZone(bytes);
+        assertEquals(ipv6Addr, ivp6AddressNoZone);
+    }
+
+    @Test
+    public void testIpv6NoZoneEmptyGroup() {
+        final Ipv6AddressNoZone ipv6Addr = new Ipv6AddressNoZone("10::10");
+        byte[] bytes = ipv6AddressNoZoneToArray(ipv6Addr);
+        assertEquals((byte) 0, bytes[0]);
+        assertEquals((byte) 0x10, bytes[1]);
         final Ipv6AddressNoZone ivp6AddressNoZone = arrayToIpv6AddressNoZone(bytes);
         assertEquals(ipv6Addr, ivp6AddressNoZone);
     }

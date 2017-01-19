@@ -128,7 +128,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                                                  final int primaryVrf, final int secondaryVrf,
                                                  final int classifyTableIndex, final boolean classifyIndexSet) {
         return flaglessAddDelRouteRequest(booleanToByte(isAdd), nextHopInterfaceIndex,
-                ipv6AddressNoZoneToArray(nextHopAddress.getValue()), nextHopWeight, toByte(1),
+                ipv6AddressNoZoneToArray(nextHopAddress), nextHopWeight, toByte(1),
                 ipv6AddressPrefixToArray(destinationAddress), extractPrefix(destinationAddress.getValue()), toByte(1),
                 primaryVrf, secondaryVrf, classifyTableIndex,
                 booleanToByte(classifyIndexSet));

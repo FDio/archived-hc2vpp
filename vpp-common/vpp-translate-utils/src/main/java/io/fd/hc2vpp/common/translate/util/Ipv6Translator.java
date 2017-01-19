@@ -24,10 +24,7 @@ import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -39,32 +36,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public interface Ipv6Translator extends ByteDataTranslator {
 
-    default byte[] ipv6AddressNoZoneToArray(@Nonnull final String address) {
-        byte[] retval = new byte[16];
-
-        //splits address and add ommited zeros for easier parsing
-        List<String> segments = Arrays.asList(address.split(":"))
-                .stream()
-                .map(segment -> StringUtils.repeat('0', 4 - segment.length()) + segment)
-                .collect(Collectors.toList());
-
-        byte index = 0;
-        for (String segment : segments) {
-
-            String firstPart = segment.substring(0, 2);
-            String secondPart = segment.substring(2);
-
-            //first part should be ommited
-            if ("00".equals(firstPart)) {
-                index++;
-            } else {
-                retval[index++] = ((byte) Short.parseShort(firstPart, 16));
-            }
-
-            retval[index++] = ((byte) Short.parseShort(secondPart, 16));
-        }
-
-        return retval;
+    /**
+     * Transform Ipv6 address to a byte array acceptable by VPP. VPP expects incoming byte array to be in the same order
+     * as the address.
+     *
+     * @return byte array with address bytes
+     */
+    default byte[] ipv6AddressNoZoneToArray(@Nonnull final Ipv6Address address) {
+        return Impl.ipv6AddressNoZoneToArray(address.getValue());
     }
 
     /**
@@ -74,7 +53,7 @@ public interface Ipv6Translator extends ByteDataTranslator {
      * @return byte array with address bytes
      */
     default byte[] ipv6AddressNoZoneToArray(@Nonnull final Ipv6AddressNoZone ipv6Addr) {
-        return ipv6AddressNoZoneToArray(ipv6Addr.getValue());
+        return Impl.ipv6AddressNoZoneToArray(ipv6Addr.getValue());
     }
 
     /**
@@ -161,6 +140,17 @@ public interface Ipv6Translator extends ByteDataTranslator {
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException(
                     "Cannot create prefix for address[" + Arrays.toString(address) + "],prefix[" + prefix + "]");
+        }
+    }
+
+    class Impl {
+        private static byte[] ipv6AddressNoZoneToArray(@Nonnull final String address){
+            try {
+                // No lookup performed for literal ipv6 addresses
+                return InetAddress.getByName(address).getAddress();
+            } catch (UnknownHostException e) {
+                throw new IllegalArgumentException("Invalid address supplied", e);
+            }
         }
     }
 }
