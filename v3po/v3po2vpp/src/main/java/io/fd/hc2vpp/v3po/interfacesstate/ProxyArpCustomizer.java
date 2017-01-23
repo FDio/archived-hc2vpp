@@ -74,6 +74,6 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer
         //TODO: VPP-225 Implement fully when VPP Proxy ARP read API is available + add initializing
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        LOG.warn("Reading of ARP data not (yet) supported by VPP API");
+        LOG.debug("Reading of ARP data not (yet) supported by VPP API");
     }
 }
