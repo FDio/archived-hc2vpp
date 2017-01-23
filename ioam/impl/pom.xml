@@ -29,8 +29,8 @@
   <packaging>bundle</packaging>
 
   <properties>
-    <ioam.version>1.0-SNAPSHOT</ioam.version>
-    <jvpp.version>17.01-SNAPSHOT</jvpp.version>
+    <ioam.version>17.01</ioam.version>
+    <jvpp.version>17.01</jvpp.version>
   </properties>
 
   <dependencies>
