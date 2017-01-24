@@ -32,7 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispBuilder;
 
-
 public class LispCustomizerTest extends WriterCustomizerTest {
 
     private LispCustomizer customizer;

@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
  */
 public class EidMappingContext implements EidTranslator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EidMappingContext.class);
     private static final Collector<Mapping, ?, Mapping> SINGLE_ITEM_COLLECTOR = RWUtils.singleItemCollector();
 
     private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.EidMappingContext, EidMappingContextKey>
