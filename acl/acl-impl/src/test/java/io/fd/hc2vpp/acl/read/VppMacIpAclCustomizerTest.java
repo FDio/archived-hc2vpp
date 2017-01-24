@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.acl.read;
 
+import static io.fd.hc2vpp.acl.read.VppMacIpAclCustomizer.ACL_NOT_ASSIGNED;
 import static io.fd.hc2vpp.acl.read.AbstractVppAclCustomizerTest.getAclId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -86,7 +87,7 @@ public class VppMacIpAclCustomizerTest extends InitializingReaderCustomizerTest<
 
         final MacipAclInterfaceGetReply assignedAcls = new MacipAclInterfaceGetReply();
         assignedAcls.count = 2;
-        assignedAcls.acls = new int[] {-1, ACL_ID};
+        assignedAcls.acls = new int[] {ACL_NOT_ASSIGNED, ACL_ID};
         when(aclApi.macipAclInterfaceGet(any())).thenReturn(future(assignedAcls));
 
         final MacipAclDump request = new MacipAclDump();
@@ -100,6 +101,28 @@ public class VppMacIpAclCustomizerTest extends InitializingReaderCustomizerTest<
         getCustomizer().readCurrentAttributes(getIid(IF_NAME), builder, ctx);
         verify(builder).setName(ACL_NAME);
         verify(builder).setType(ACL_TYPE);
+    }
+
+    @Test
+    public void testReadNotAssigned() throws ReadFailedException {
+        final VppMacipAclBuilder builder = mock(VppMacipAclBuilder.class);
+
+        final MacipAclInterfaceGetReply assignedAcls = new MacipAclInterfaceGetReply();
+        // pretending we have 3 interfaces, IF_NAME does not have MacipAcl assigned
+        assignedAcls.count = 3;
+        assignedAcls.acls = new int[] {ACL_NOT_ASSIGNED, ACL_NOT_ASSIGNED, ACL_ID};
+        when(aclApi.macipAclInterfaceGet(any())).thenReturn(future(assignedAcls));
+
+        final MacipAclDump request = new MacipAclDump();
+        request.aclIndex = ACL_ID;
+        final MacipAclDetailsReplyDump reply = new MacipAclDetailsReplyDump();
+        final MacipAclDetails details = new MacipAclDetails();
+        details.aclIndex = ACL_ID;
+        reply.macipAclDetails.add(details);
+        when(aclApi.macipAclDump(request)).thenReturn(future(reply));
+
+        getCustomizer().readCurrentAttributes(getIid(IF_NAME), builder, ctx);
+        verifyZeroInteractions(builder);
     }
 
     @Test

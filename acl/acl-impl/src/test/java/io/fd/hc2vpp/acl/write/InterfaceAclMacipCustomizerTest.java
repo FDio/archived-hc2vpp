@@ -24,8 +24,9 @@ import io.fd.hc2vpp.acl.AclTestSchemaContext;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.acl.dto.AclInterfaceSetAclList;
-import io.fd.vpp.jvpp.acl.dto.AclInterfaceSetAclListReply;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceAddDel;
+import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceAddDelReply;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,61 +35,64 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.Ingress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.macip.acls.base.attributes.VppMacipAclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class InterfaceAclCustomizerTest extends WriterCustomizerTest implements AclTestSchemaContext {
+public class InterfaceAclMacipCustomizerTest extends WriterCustomizerTest implements AclTestSchemaContext {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "eth0";
     private static final int IFACE_ID = 123;
+    private static final String ACL_NAME = "macip_acl";
+    private static final int ACL_ID = 111;
 
     @Mock
     private FutureJVppAclFacade aclApi;
     @Mock
-    private AclContextManager standardAclContext;
+    private AclContextManager macipAclContext;
 
-    private InterfaceAclCustomizer customizer;
+    private InterfaceAclMacIpCustomizer customizer;
     private NamingContext interfaceContext;
-    private InstanceIdentifier<Acl> ACL_ID = InstanceIdentifier.create(Interfaces.class)
-        .child(Interface.class, new InterfaceKey(IFACE_NAME)).augmentation(VppAclInterfaceAugmentation.class).child(Acl.class);
+    private InstanceIdentifier<VppMacipAcl> ACL_IID = InstanceIdentifier.create(Interfaces.class)
+        .child(Interface.class, new InterfaceKey(IFACE_NAME)).augmentation(VppAclInterfaceAugmentation.class)
+        .child(Acl.class).child(Ingress.class).child(VppMacipAcl.class);
+    private VppMacipAcl acl;
 
     @Override
     protected void setUpTest() throws Exception {
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
-        customizer = new InterfaceAclCustomizer(aclApi, interfaceContext, standardAclContext);
-        when(aclApi.aclInterfaceSetAclList(any())).thenReturn(future(new AclInterfaceSetAclListReply()));
+        customizer = new InterfaceAclMacIpCustomizer(aclApi, macipAclContext, interfaceContext);
+        acl = new VppMacipAclBuilder().setName(ACL_NAME).build();
+        when(macipAclContext.getAclIndex(ACL_NAME, mappingContext)).thenReturn(ACL_ID);
+        when(aclApi.macipAclInterfaceAddDel(any())).thenReturn(future(new MacipAclInterfaceAddDelReply()));
     }
 
     @Test
     public void testWrite() throws Exception {
-        final Acl acl = new AclBuilder().build();
-        customizer.writeCurrentAttributes(ACL_ID, acl, writeContext);
-        final AclInterfaceSetAclList list = new AclInterfaceSetAclList();
-        list.swIfIndex = IFACE_ID;
-        list.acls = new int[]{};
-        verify(aclApi).aclInterfaceSetAclList(list);
+        customizer.writeCurrentAttributes(ACL_IID, acl, writeContext);
+        final MacipAclInterfaceAddDel request = new MacipAclInterfaceAddDel();
+        request.swIfIndex = IFACE_ID;
+        request.isAdd = 1;
+        request.aclIndex = ACL_ID;
+        verify(aclApi).macipAclInterfaceAddDel(request);
     }
 
-    @Test
+    @Test(expected = WriteFailedException.UpdateFailedException.class)
     public void testUpdate() throws Exception {
-        final Acl acl = new AclBuilder().build();
-        customizer.updateCurrentAttributes(ACL_ID, acl, acl, writeContext);
-        final AclInterfaceSetAclList list = new AclInterfaceSetAclList();
-        list.swIfIndex = IFACE_ID;
-        list.acls = new int[]{};
-        verify(aclApi).aclInterfaceSetAclList(list);
+        customizer.updateCurrentAttributes(ACL_IID, acl, acl, writeContext);
     }
 
     @Test
     public void testDelete() throws Exception {
-        final Acl acl = new AclBuilder().build();
-        customizer.deleteCurrentAttributes(ACL_ID, acl, writeContext);
-        final AclInterfaceSetAclList list = new AclInterfaceSetAclList();
-        list.swIfIndex = IFACE_ID;
-        list.acls = new int[]{};
-        verify(aclApi).aclInterfaceSetAclList(list);
+        customizer.deleteCurrentAttributes(ACL_IID, acl, writeContext);
+        final MacipAclInterfaceAddDel request = new MacipAclInterfaceAddDel();
+        request.swIfIndex = IFACE_ID;
+        request.isAdd = 0;
+        request.aclIndex = ACL_ID;
+        verify(aclApi).macipAclInterfaceAddDel(request);
     }
 
 }
