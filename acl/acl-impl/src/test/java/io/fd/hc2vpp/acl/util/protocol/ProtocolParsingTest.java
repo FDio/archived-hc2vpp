@@ -26,9 +26,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.ip.protocol.header.fields.ip.protocol.Icmp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.ip.protocol.header.fields.ip.protocol.IcmpV6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.ip.protocol.header.fields.ip.protocol.Other;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.ip.protocol.header.fields.ip.protocol.Tcp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.ip.protocol.header.fields.ip.protocol.Udp;
 
 @RunWith(HoneycombTestRunner.class)
-public class ProtoPreBindRuleProducerTest implements ProtoPreBindRuleProducer, AclTestSchemaContext {
+public class ProtocolParsingTest implements ProtoPreBindRuleProducer, IpProtocolReader, AclTestSchemaContext {
     private static final byte IGNORE_PROTOCOL = 0;
 
     //TODO - remove after resolving how to address identity from different model in textual yang instance identifier
@@ -42,14 +47,15 @@ public class ProtoPreBindRuleProducerTest implements ProtoPreBindRuleProducer, A
         final AclRule icmpRule = createPreBindRule(extractAce(acls));
 
         assertEquals(1, icmpRule.proto);
-        assertEquals(5, icmpRule.srcportOrIcmptypeFirst);
-        assertEquals(8, icmpRule.srcportOrIcmptypeLast);
-        assertEquals(1, icmpRule.dstportOrIcmpcodeFirst);
-        assertEquals(3, icmpRule.dstportOrIcmpcodeLast);
         assertEquals(0, icmpRule.tcpFlagsMask);
         assertEquals(0, icmpRule.tcpFlagsValue);
-    }
 
+        final Icmp protocol = (Icmp)parseProtocol(icmpRule);
+        assertEquals(5, protocol.getIcmpNodes().getIcmpTypeRange().getFirst().shortValue());
+        assertEquals(8, protocol.getIcmpNodes().getIcmpTypeRange().getLast().shortValue());
+        assertEquals(1, protocol.getIcmpNodes().getIcmpCodeRange().getFirst().shortValue());
+        assertEquals(3, protocol.getIcmpNodes().getIcmpCodeRange().getLast().shortValue());
+    }
 
     @Test
     public void testIcmpv6Rule(@InjectTestData(resourcePath = "/rules/icmp-v6-rule.json") AccessLists acls) {
@@ -62,18 +68,26 @@ public class ProtoPreBindRuleProducerTest implements ProtoPreBindRuleProducer, A
         assertEquals(3, icmpv6Rule.dstportOrIcmpcodeLast);
         assertEquals(0, icmpv6Rule.tcpFlagsMask);
         assertEquals(0, icmpv6Rule.tcpFlagsValue);
+
+        final IcmpV6 protocol = (IcmpV6)parseProtocol(icmpv6Rule);
+        assertEquals(5, protocol.getIcmpV6Nodes().getIcmpTypeRange().getFirst().shortValue());
+        assertEquals(8, protocol.getIcmpV6Nodes().getIcmpTypeRange().getLast().shortValue());
+        assertEquals(1, protocol.getIcmpV6Nodes().getIcmpCodeRange().getFirst().shortValue());
+        assertEquals(3, protocol.getIcmpV6Nodes().getIcmpCodeRange().getLast().shortValue());
     }
 
     @Test
     public void testTcpRule(@InjectTestData(resourcePath = "/rules/tcp-rule.json") AccessLists acls) {
         final AclRule tcpRule = createPreBindRule(extractAce(acls));
         assertEquals(6, tcpRule.proto);
-        assertEquals(1, tcpRule.srcportOrIcmptypeFirst);
-        assertEquals(5487, tcpRule.srcportOrIcmptypeLast);
-        assertEquals(87, tcpRule.dstportOrIcmpcodeFirst);
-        assertEquals(6745, tcpRule.dstportOrIcmpcodeLast);
         assertEquals(1, tcpRule.tcpFlagsMask);
         assertEquals(7, tcpRule.tcpFlagsValue);
+
+        final Tcp protocol = (Tcp)parseProtocol(tcpRule);
+        assertEquals(1, protocol.getTcpNodes().getSourcePortRange().getLowerPort().getValue().intValue());
+        assertEquals(5487, protocol.getTcpNodes().getSourcePortRange().getUpperPort().getValue().intValue());
+        assertEquals(87, protocol.getTcpNodes().getDestinationPortRange().getLowerPort().getValue().intValue());
+        assertEquals(6745, protocol.getTcpNodes().getDestinationPortRange().getUpperPort().getValue().intValue());
     }
 
     @Test
@@ -86,6 +100,12 @@ public class ProtoPreBindRuleProducerTest implements ProtoPreBindRuleProducer, A
         assertEquals((short)65000, tcpRule.dstportOrIcmpcodeLast);
         assertEquals(0, tcpRule.tcpFlagsMask);
         assertEquals(0, tcpRule.tcpFlagsValue);
+
+        final Tcp protocol = (Tcp)parseProtocol(tcpRule);
+        assertEquals(123, protocol.getTcpNodes().getSourcePortRange().getLowerPort().getValue().intValue());
+        assertEquals(123, protocol.getTcpNodes().getSourcePortRange().getUpperPort().getValue().intValue());
+        assertEquals(65000, protocol.getTcpNodes().getDestinationPortRange().getLowerPort().getValue().intValue());
+        assertEquals(65000, protocol.getTcpNodes().getDestinationPortRange().getUpperPort().getValue().intValue());
     }
 
     @Test
@@ -108,24 +128,30 @@ public class ProtoPreBindRuleProducerTest implements ProtoPreBindRuleProducer, A
     public void testUdpRule(@InjectTestData(resourcePath = "/rules/udp-rule.json") AccessLists acls) {
         final AclRule udpRule = createPreBindRule(extractAce(acls));
         assertEquals(17, udpRule.proto);
-        assertEquals(1, udpRule.srcportOrIcmptypeFirst);
-        assertEquals(5487, udpRule.srcportOrIcmptypeLast);
-        assertEquals(87, udpRule.dstportOrIcmpcodeFirst);
-        assertEquals(6745, udpRule.dstportOrIcmpcodeLast);
         assertEquals(0, udpRule.tcpFlagsMask);
         assertEquals(0, udpRule.tcpFlagsValue);
+
+        final Udp protocol = (Udp)parseProtocol(udpRule);
+        assertEquals(1, protocol.getUdpNodes().getSourcePortRange().getLowerPort().getValue().intValue());
+        assertEquals(5487, protocol.getUdpNodes().getSourcePortRange().getUpperPort().getValue().intValue());
+        assertEquals(87, protocol.getUdpNodes().getDestinationPortRange().getLowerPort().getValue().intValue());
+        assertEquals(6745, protocol.getUdpNodes().getDestinationPortRange().getUpperPort().getValue().intValue());
     }
 
     @Test
     public void testOtherRule(@InjectTestData(resourcePath = "/rules/other-rule.json") AccessLists acls) {
-        final AclRule icmpRule = createPreBindRule(extractAce(acls));
-        assertEquals(64, icmpRule.proto);
-        assertEquals(0, icmpRule.srcportOrIcmptypeFirst);
-        assertEquals((short) 65535, icmpRule.srcportOrIcmptypeLast);
-        assertEquals(0, icmpRule.dstportOrIcmpcodeFirst);
-        assertEquals((short) 65535, icmpRule.dstportOrIcmpcodeLast);
-        assertEquals(0, icmpRule.tcpFlagsMask);
-        assertEquals(0, icmpRule.tcpFlagsValue);
+        final AclRule rule = createPreBindRule(extractAce(acls));
+        final int protocolNumber = 64;
+        assertEquals(protocolNumber, rule.proto);
+        assertEquals(0, rule.srcportOrIcmptypeFirst);
+        assertEquals((short) 65535, rule.srcportOrIcmptypeLast);
+        assertEquals(0, rule.dstportOrIcmpcodeFirst);
+        assertEquals((short) 65535, rule.dstportOrIcmpcodeLast);
+        assertEquals(0, rule.tcpFlagsMask);
+        assertEquals(0, rule.tcpFlagsValue);
+
+        final Other protocol = (Other)parseProtocol(rule);
+        assertEquals(protocolNumber, protocol.getOtherNodes().getProtocol().shortValue());
     }
 
     @Test

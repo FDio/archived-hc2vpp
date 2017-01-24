@@ -19,6 +19,7 @@ package io.fd.hc2vpp.acl.read;
 import static io.fd.hc2vpp.acl.read.AbstractVppAclCustomizer.getAclCfgId;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.acl.util.FutureJVppAclCustomizer;
@@ -56,6 +57,8 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
     implements InitializingReaderCustomizer<VppMacipAcl, VppMacipAclBuilder>, JvppReplyConsumer, ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppMacIpAclCustomizer.class);
+    @VisibleForTesting
+    protected static final int ACL_NOT_ASSIGNED = -1;
 
     private final DumpCacheManager<MacipAclDetailsReplyDump, Integer> macIpAclDumpManager;
     private final DumpCacheManager<MacipAclInterfaceGetReply, Void> interfaceMacIpAclDumpManager;
@@ -121,24 +124,25 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
 
         if (interfacesMacIpDumpReply.isPresent() && interfaceIndex < interfacesMacIpDumpReply.get().count) {
             final int aclIndex = interfacesMacIpDumpReply.get().acls[interfaceIndex];
+            if (aclIndex != ACL_NOT_ASSIGNED) {
+                final Optional<MacipAclDetailsReplyDump> macIpDumpReply =
+                    macIpAclDumpManager.getDump(id, modificationCache, aclIndex);
 
-            final Optional<MacipAclDetailsReplyDump> macIpDumpReply =
-                macIpAclDumpManager.getDump(id, modificationCache, aclIndex);
-
-            if (macIpDumpReply.isPresent() && !macIpDumpReply.get().macipAclDetails.isEmpty()) {
-                builder.setName(macIpAclContext.getAclName(aclIndex, mappingContext));
-                builder.setType(
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAcl.class);
-            } else {
-                // this is invalid state(Interface in VPP will act as "deny-all" for security reasons), but generally
-                // it should not happen
-                throw new ReadFailedException(id,
-                    new IllegalStateException(String.format("ACE with index %s not found in VPP", aclIndex)));
+                if (macIpDumpReply.isPresent() && !macIpDumpReply.get().macipAclDetails.isEmpty()) {
+                    builder.setName(macIpAclContext.getAclName(aclIndex, mappingContext));
+                    builder.setType(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAcl.class);
+                    return;
+                } else {
+                    // this is invalid state(Interface in VPP will act as "deny-all" for security reasons), but generally
+                    // it should not happen
+                    throw new ReadFailedException(id,
+                        new IllegalStateException(String.format("ACE with index %s not found in VPP", aclIndex)));
+                }
             }
-        } else {
-            // this is valid state, so just logging
-            LOG.debug("No Mac-ip ACL specified for Interface name={},index={}", interfaceName, interfaceIndex);
         }
+        // this is valid state, so just logging
+        LOG.debug("No Mac-ip ACL specified for Interface name={},index={}", interfaceName, interfaceIndex);
     }
 
     @Override
