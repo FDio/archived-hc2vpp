@@ -46,5 +46,6 @@
     <module>vpp-integration</module>
     <module>acl</module>
     <module>dhcp</module>
+    <module>samples</module>
   </modules>
 </project>

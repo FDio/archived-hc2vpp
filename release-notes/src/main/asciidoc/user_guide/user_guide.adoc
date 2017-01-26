@@ -13,17 +13,15 @@ link:user_honeycomb_and_ODL.html[Mounting Honeycomb in ODL]
 Honeycomb's configuration files present within its distribution:
 
 * Honeycomb infra:
-** {project-git-web}/infra/minimal-distribution/src/main/resources/honeycomb-minimal-resources/config/honeycomb.json?h={project-branch}[Honeycomb base configuration]
+** {project-infra-git-web}/infra/minimal-distribution/src/main/resources/honeycomb-minimal-resources/config/honeycomb.json?h={project-branch}[Honeycomb base configuration]
 * Honeycomb vpp plugins commons:
 ** {project-git-web}/vpp-common/vpp-common-integration/src/main/resources/honeycomb-minimal-resources/config/jvpp.json?h={project-branch}[VPP plugins common configuration]
 * V3PO plugin:
 ** {project-git-web}/v3po/v3po2vpp/src/main/resources/honeycomb-minimal-resources/config/v3po.json?h={project-branch}[V3PO plugin for Honeycomb configuration]
 * LISP plugin
 ** {project-git-web}/lisp/lisp2vpp/src/main/resources/honeycomb-minimal-resources/config/lisp.json?h={project-branch}[LISP plugin for Honeycomb configuration]
-* NSH plugin:
-** {project-git-web}/nsh/impl/src/main/resources/honeycomb-minimal-resources/config/vppnsh.json?h={project-branch}[NSH_SFC plugin for Honeycomb configuration]
-* iOAM plugin:
-** {project-git-web}/ioam/impl/src/main/resources/honeycomb-minimal-resources/config/vppioam.json?h={project-branch}[IOAM plugin for Honeycomb configuration]
+* Routing plugin:
+** {project-git-web}/routing/routing-impl/src/main/resources/honeycomb-minimal-resources/config/routing.json?h={project-branch}[Routing plugin for Honeycomb configuration]
 
 === YANG models
 
@@ -37,6 +35,10 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/nat/nat-api/src/main/yang?h={project-branch}[NAT YANG models]
 * iOAM plugin
 ** {project-git-web}/ioam/api/src/main/yang?h={project-branch}[IOAM YANG models]
+* Routing plugin
+** {project-git-web}/routing/routing-api/src/main/yang?h={project-branch}[Routing YANG models]
+* ACL plugin
+** {project-git-web}/acl/acl-api/src/main/yang?h={project-branch}[ACL YANG models]
 * Context models
 ** {project-git-web}/vpp-common/naming-context-api/src/main/yang?h={project-branch}[Context YANG models]
 
@@ -45,10 +47,14 @@ Honeycomb's configuration files present within its distribution:
 * V3PO plugin
 ** {project-git-web}/v3po/postman_rest_collection.json?h={project-branch}[V3PO postman collection]
 * LISP plugin
-** {project-git-web}/lisp/lisp_postman_rest_collection.json?h={project-branch}[LISP postman collection]
+** {project-git-web}/lisp/lisp_postman_collection.json?h={project-branch}[LISP postman collection]
 * NSH plugin
-** {project-git-web}/nsh/nsh_postman_rest_collection.json?h={project-branch}[NSH postman collection]
+** {project-git-web}/nsh/nsh_postman_collection.json?h={project-branch}[NSH postman collection]
 * NAT plugin
 ** {project-git-web}/nat/postman_rest_collection.json?h={project-branch}[NAT postman collection]
 * iOAM plugin
-** {project-git-web}/ioam/ioam_trace_postman_collection.json?h={project-branch}[IOAM postman collection]
+** {project-git-web}/ioam/ioam_postman_collection.json?h={project-branch}[IOAM postman collection]
+* Routing plugin
+** {project-git-web}/routing/routing_postman_collection.json?h={project-branch}[Routing postman collection]
+* Stateful ACL plugin
+** {project-git-web}/acl/acl_postman_collection.json?h={project-branch}[Stateful ACL postman collection]

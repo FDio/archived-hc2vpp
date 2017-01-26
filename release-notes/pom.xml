@@ -87,6 +87,7 @@
                 <!--<project-snat-snapshot-version>1.0</project-snat-snapshot-version>-->
                 <project-snat-snapshot-version>1.0-SNAPSHOT</project-snat-snapshot-version>
                 <project-git-web>https://git.fd.io/cgit/hc2vpp/tree</project-git-web>
+                <project-infra-git-web>https://git.fd.io/cgit/honeycomb/tree</project-infra-git-web>
               </attributes>
             </configuration>
           </execution>

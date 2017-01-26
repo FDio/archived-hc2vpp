@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>io.fd.hc2vpp.common</groupId>
+        <artifactId>vpp-impl-parent</artifactId>
+        <version>1.17.04-SNAPSHOT</version>
+        <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>samples-impl</artifactId>
+    <version>1.17.01-SNAPSHOT</version>
+
+    <dependencies>
+        <!-- Api classes generated from yang model -->
+        <dependency>
+            <groupId>io.fd.hc2vpp.common</groupId>
+            <artifactId>samples-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Infrastructure communication interfaces -->
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>translate-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Vpp api java wrapped -->
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-core</artifactId>
+        </dependency>
+        <!-- Infrastructure utils for translation code -->
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>translate-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Jvpp specific utils for translation code -->
+        <dependency>
+            <groupId>io.fd.hc2vpp.common</groupId>
+            <artifactId>vpp-translate-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Generic implementations for communication interfaces-->
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>translate-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Initialization interfaces for infrastructure-->
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>cfg-init</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Google juice injection -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
+        <!-- Google juice multibindings -->
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-multibindings</artifactId>
+        </dependency>
+        <!-- Configuration injection -->
+        <dependency>
+            <groupId>net.jmob</groupId>
+            <artifactId>guice.conf</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

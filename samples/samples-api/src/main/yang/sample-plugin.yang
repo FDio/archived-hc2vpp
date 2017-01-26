@@ -1,0 +1,42 @@
+module sample-plugin {
+
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:sample:plugin";
+    prefix "samples";
+
+    revision 2016-12-14 {
+        description "Sample model for demonstration of transation code";
+    }
+
+    import ietf-inet-types {
+        prefix "inet";
+    }
+
+    grouping sample-plugin-params {
+        container vxlans {
+            list vxlan-tunnel {
+
+                key id;
+                leaf id {
+                    type string;
+                }
+
+                leaf src {
+                  type inet:ip-address;
+                }
+                leaf dst {
+                  type inet:ip-address;
+                }
+            }
+        }
+    }
+
+    container sample-plugin-state {
+        config false;
+        uses sample-plugin-params;
+    }
+
+    container sample-plugin {
+        uses sample-plugin-params;
+    }
+}
