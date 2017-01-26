@@ -44,5 +44,6 @@
     <module>release-notes</module>
     <module>vpp-integration</module>
     <module>acl</module>
+    <module>samples</module>
   </modules>
 </project>
