@@ -94,17 +94,7 @@
     <dependency>
         <groupId>io.fd.nsh_sfc</groupId>
         <artifactId>nsh-sfc</artifactId>
-        <!--
-             todo: bump nsh and remove jvpp-registry exclusion
-             after nsh artifact (rc or final) is released
-        -->
-        <version>17.01-SNAPSHOT</version>
-        <exclusions>
-          <exclusion>
-            <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp-registry</artifactId>
-          </exclusion>
-        </exclusions>
+        <version>17.01</version>
     </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.common</groupId>
