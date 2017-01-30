@@ -1,6 +1,7 @@
-= Honeycomb {project-version} Release notes
+= Hc2vpp {project-version} Release notes
 
 Release notes for honeycomb for VPP {project-version}. Based on VPP {project-vpp-snapshot-version}
+and honeycomb {project-version}.
 
 == Release plan
 https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-version}[Release plan]
@@ -9,29 +10,18 @@ https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-ver
 Adding to the list of existing features: https://wiki.fd.io/view/Honeycomb/Releases/1701#Features[1701 feature list]:
 
 === New features
-* https://jira.fd.io/browse/HONEYCOMB-132[NAT management]
-* https://jira.fd.io/browse/HONEYCOMB-257[iOAM management]
-* https://jira.fd.io/browse/HONEYCOMB-58[Static routing management]
-* https://jira.fd.io/browse/HONEYCOMB-303[Stateful acl's management]
-* https://jira.fd.io/browse/HONEYCOMB-46[NSH management]
-* https://jira.fd.io/browse/HONEYCOMB-242[Port mirroring]
-* https://jira.fd.io/browse/HONEYCOMB-281[Loopback interface management]
-* https://jira.fd.io/browse/HONEYCOMB-102[Ipv6 support]
+* https://jira.fd.io/browse/HC2VPP-33[SLAAC]
 
 === Removed features
 
 === Modified features
-* ACL management improvements:
-* Previous ACL implementation that used classfier has been disabled in favor of implementation
-  based on acl plugin (which provides also stateful acls)
 
 === Deprecated features
-* ACL management in terms of ietf-acl model based on vpp classfier
 
 == Backlog
 
 * https://jira.fd.io/projects/HONEYCOMB/versions/{project-version-in-jira}[JIRA]
-* https://jira.fd.io/jira/secure/ReleaseNote.jspa?projectId=10001&version={project-version-in-jira}[Release notes]
+* https://jira.fd.io/jira/secure/ReleaseNote.jspa?projectId=10601&version={project-version-in-jira}[Release notes]
 
 include::install_guide/install_guide.adoc[]
 

@@ -56,5 +56,5 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/ioam/ioam_postman_collection.json?h={project-branch}[IOAM postman collection]
 * Routing plugin
 ** {project-git-web}/routing/routing_postman_collection.json?h={project-branch}[Routing postman collection]
-* Stateful ACL plugin
-** {project-git-web}/acl/acl_postman_collection.json?h={project-branch}[Stateful ACL postman collection]
+* ACL plugin
+** {project-git-web}/acl/acl_postman_collection.json?h={project-branch}[ACL postman collection]
