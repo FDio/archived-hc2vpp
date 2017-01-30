@@ -1,13 +1,12 @@
 == Devel guide
 
-Honeycomb plugin development guide.
+Hc2vpp plugin development guide.
 
 === Tutorials
-!!!!! fixme link here tutorials from honeycomb !!!!!
-
 * link:devel_plugin_vpp_tutorial.html[How to write Honeycomb plugins for VPP]
+* for general tutorials on building Honeycomb agents, see https://docs.fd.io/honeycomb/1.17.01/release-notes-aggregator/release_notes.html#_tutorials[Honeycomb tutorials]
 
 === Samples
-* {project-git-web}/samples?h={project-branch}[Interface managmenet sample from Honeycomb]
+* {project-git-web}/samples?h={project-branch}[Interface management sample from Honeycomb]
 ** Generic(non-VPP) plugin with a custom distribution containing lots of useful information about Honeycomb and its plugins.
 
