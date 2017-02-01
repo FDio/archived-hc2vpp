@@ -117,7 +117,6 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                         .withExecutor(createLocatorDumpExecutor(futureJvpp))
                         .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(LispLocatorDetailsReplyDump.class,
                                 ImmutableSet.of(LocatorSet.class)))
-                        .acceptOnly(LispLocatorDetailsReplyDump.class)
                         .build();
     }
 
