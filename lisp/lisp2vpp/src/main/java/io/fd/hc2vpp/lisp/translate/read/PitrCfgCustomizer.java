@@ -17,32 +17,37 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
-import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import java.util.concurrent.TimeoutException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.pitr.cfg.grouping.PitrCfg;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.pitr.cfg.grouping.PitrCfgBuilder;
-import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
+import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ShowLispPitr;
 import io.fd.vpp.jvpp.core.dto.ShowLispPitrReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfgBuilder;
+import org.opendaylight.yangtools.concepts.Builder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.concurrent.TimeoutException;
 
 
 /**
  * Customizer for reading {@link PitrCfg}<br> Currently unsupported in jvpp
  */
 public class PitrCfgCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<PitrCfg, PitrCfgBuilder>, ByteDataTranslator, JvppReplyConsumer {
+        implements InitializingReaderCustomizer<PitrCfg, PitrCfgBuilder>, ByteDataTranslator, JvppReplyConsumer,
+        LispInitPathsMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(PitrCfgCustomizer.class);
 
@@ -79,5 +84,11 @@ public class PitrCfgCustomizer extends FutureJVppCustomizer
 
     public ShowLispPitrReply getPitrStatus() throws TimeoutException, VppBaseCallException {
         return getReply(getFutureJVpp().showLispPitr(new ShowLispPitr()).toCompletableFuture());
+    }
+
+    @Nonnull
+    @Override
+    public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<PitrCfg> instanceIdentifier, @Nonnull PitrCfg pitrCfg, @Nonnull ReadContext readContext) {
+        return Initialized.create(lispFeaturesBasePath().child(PitrCfg.class), pitrCfg);
     }
 }

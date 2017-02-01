@@ -17,31 +17,34 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.itr.remote.locator.sets.grouping.ItrRemoteLocatorSetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.itr.remote.locator.sets.grouping.ItrRemoteLocatorSetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+import javax.annotation.Nonnull;
+
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+
 public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
-        implements ReaderCustomizer<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder>, ByteDataTranslator,
-        JvppReplyConsumer {
+        implements InitializingReaderCustomizer<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder>, ByteDataTranslator,
+        JvppReplyConsumer, LispInitPathsMapper {
 
     private final DumpCacheManager<LispGetMapRequestItrRlocsReply, Void> dumpCacheManager;
 
@@ -79,5 +82,11 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
     public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder,
                       @Nonnull final ItrRemoteLocatorSet readValue) {
         ((LispFeatureDataBuilder) parentBuilder).setItrRemoteLocatorSet(readValue);
+    }
+
+    @Nonnull
+    @Override
+    public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<ItrRemoteLocatorSet> instanceIdentifier, @Nonnull ItrRemoteLocatorSet itrRemoteLocatorSet, @Nonnull ReadContext readContext) {
+        return Initialized.create(lispFeaturesBasePath().child(ItrRemoteLocatorSet.class), itrRemoteLocatorSet);
     }
 }

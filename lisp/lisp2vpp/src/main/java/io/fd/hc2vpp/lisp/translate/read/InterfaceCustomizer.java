@@ -17,35 +17,39 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.LocatorDumpParams;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.LocatorDumpParams.LocatorDumpParamsBuilder;
+import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
 import io.fd.hc2vpp.lisp.translate.read.trait.LocatorReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.LocatorSetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.locator.sets.grouping.locator.sets.locator.set.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.InterfaceKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 
 /**
@@ -53,7 +57,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public class InterfaceCustomizer
         extends FutureJVppCustomizer
-        implements ListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder>, LocatorReader {
+        implements InitializingListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder>, LocatorReader, LispInitPathsMapper {
 
     private final NamingContext interfaceContext;
     private final NamingContext locatorSetContext;
@@ -144,5 +148,13 @@ public class InterfaceCustomizer
     @Override
     public void merge(Builder<? extends DataObject> builder, List<Interface> readData) {
         ((LocatorSetBuilder) builder).setInterface(readData);
+    }
+
+    @Nonnull
+    @Override
+    public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<Interface> instanceIdentifier, @Nonnull Interface anInterface, @Nonnull ReadContext readContext) {
+        final KeyedInstanceIdentifier<Interface, InterfaceKey> identifier = lispLocatorSetPath(instanceIdentifier)
+                .child(Interface.class, instanceIdentifier.firstKeyOf(Interface.class));
+        return Initialized.create(identifier, anInterface);
     }
 }

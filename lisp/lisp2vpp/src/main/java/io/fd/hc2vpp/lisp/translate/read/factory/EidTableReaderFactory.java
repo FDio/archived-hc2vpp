@@ -19,39 +19,35 @@ package io.fd.hc2vpp.lisp.translate.read.factory;
 
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
-import io.fd.hc2vpp.lisp.translate.read.AdjacencyCustomizer;
-import io.fd.hc2vpp.lisp.translate.read.BridgeDomainSubtableCustomizer;
-import io.fd.hc2vpp.lisp.translate.read.LocalMappingCustomizer;
-import io.fd.hc2vpp.lisp.translate.read.RemoteMappingCustomizer;
-import io.fd.hc2vpp.lisp.translate.read.VniTableCustomizer;
-import io.fd.hc2vpp.lisp.translate.read.VrfSubtableCustomizer;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
-import io.fd.honeycomb.translate.impl.read.GenericReader;
+import io.fd.hc2vpp.lisp.translate.read.*;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.Adjacencies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.AdjacenciesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.adjacency.LocalEid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.adjacencies.grouping.adjacencies.adjacency.RemoteEid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.LocalMappings;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.LocalMappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.RemoteMappings;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.RemoteMappingsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.LocalMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.RemoteMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.negative.mapping.MapReply;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.Rlocs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.Locator;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.EidTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.EidTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.VniTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.eid.table.grouping.eid.table.vni.table.VrfSubtable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.adjacencies.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.adjacencies.adjacency.LocalEid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.adjacencies.adjacency.RemoteEid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.LocalMappings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.LocalMappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.RemoteMappings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.RemoteMappingsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.LocalMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.Eid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.RemoteMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.negative.mapping.MapReply;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.Rlocs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.Locator;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.EidTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.EidTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -75,13 +71,13 @@ public final class EidTableReaderFactory extends AbstractLispInfraFactoryBase im
         //EidTable
         registry.addStructuralReader(EID_TABLE_IID, EidTableBuilder.class);
         //EidTable -> VniTable
-        registry.add(new GenericListReader<>(VNI_TABLE_IID, new VniTableCustomizer(vppApi)));
+        registry.add(new GenericInitListReader<>(VNI_TABLE_IID, new VniTableCustomizer(vppApi)));
 
         //EidTable -> VniTable -> VrfSubtable
-        registry.add(new GenericReader<>(VRF_SUBTABLE_IID, new VrfSubtableCustomizer(vppApi)));
+        registry.add(new GenericInitReader<>(VRF_SUBTABLE_IID, new VrfSubtableCustomizer(vppApi)));
 
         //EidTable -> VniTable -> BridgeDomainSubtable
-        registry.add(new GenericReader<>(BRIDGE_DOMAIN_SUBTABLE_IID,
+        registry.add(new GenericInitReader<>(BRIDGE_DOMAIN_SUBTABLE_IID,
                 new BridgeDomainSubtableCustomizer(vppApi, bridgeDomainContext)));
 
         addLocalMappingSubtree(registry);
@@ -109,11 +105,11 @@ public final class EidTableReaderFactory extends AbstractLispInfraFactoryBase im
         registry.addStructuralReader(bridgeDomainLocalMappingsId, LocalMappingsBuilder.class);
 
         registry.subtreeAdd(localMappingHandledChildren,
-                new GenericListReader<>(vrfTableLocalMappingsId.child(LocalMapping.class),
+                new GenericInitListReader<>(vrfTableLocalMappingsId.child(LocalMapping.class),
                         new LocalMappingCustomizer(vppApi, locatorSetContext, localMappingContext)));
 
         registry.subtreeAdd(localMappingHandledChildren,
-                new GenericListReader<>(bridgeDomainLocalMappingsId.child(LocalMapping.class),
+                new GenericInitListReader<>(bridgeDomainLocalMappingsId.child(LocalMapping.class),
                         new LocalMappingCustomizer(vppApi, locatorSetContext, localMappingContext)));
     }
 
@@ -134,16 +130,16 @@ public final class EidTableReaderFactory extends AbstractLispInfraFactoryBase im
 
         final ImmutableSet<InstanceIdentifier<?>> remoteMappingHandledChildren =
                 ImmutableSet.of(remoteMappingSubtreeId
-                                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
+                                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.Eid.class),
                         remoteMappingSubtreeId.child(Rlocs.class),
                         remoteMappingSubtreeId.child(Rlocs.class).child(Locator.class),
                         remoteMappingSubtreeId.child(MapReply.class));
 
         registry.subtreeAdd(remoteMappingHandledChildren,
-                new GenericListReader<>(vrfTableRemoteMappingsId.child(RemoteMapping.class),
+                new GenericInitListReader<>(vrfTableRemoteMappingsId.child(RemoteMapping.class),
                         new RemoteMappingCustomizer(vppApi, locatorSetContext, remoteMappingContext)));
         registry.subtreeAdd(remoteMappingHandledChildren,
-                new GenericListReader<>(bridgeDomainRemoteMappingsId.child(RemoteMapping.class),
+                new GenericInitListReader<>(bridgeDomainRemoteMappingsId.child(RemoteMapping.class),
                         new RemoteMappingCustomizer(vppApi, locatorSetContext, remoteMappingContext)));
     }
 
@@ -164,11 +160,11 @@ public final class EidTableReaderFactory extends AbstractLispInfraFactoryBase im
         registry.addStructuralReader(bridgeDomainAdjacenciesId, AdjacenciesBuilder.class);
 
         registry.subtreeAdd(adjacencyHandledChildren,
-                new GenericListReader<>(vrfTableAdjacenciesId.child(Adjacency.class),
+                new GenericInitListReader<>(vrfTableAdjacenciesId.child(Adjacency.class),
                         new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext,
                                 adjacenciesMappingContext)));
         registry.subtreeAdd(adjacencyHandledChildren,
-                new GenericListReader<>(bridgeDomainAdjacenciesId.child(Adjacency.class),
+                new GenericInitListReader<>(bridgeDomainAdjacenciesId.child(Adjacency.class),
                         new AdjacencyCustomizer(vppApi, localMappingContext, remoteMappingContext,
                                 adjacenciesMappingContext)));
     }

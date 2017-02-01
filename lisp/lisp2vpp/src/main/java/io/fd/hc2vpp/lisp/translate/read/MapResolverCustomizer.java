@@ -16,39 +16,44 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.MapResolversBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.map.resolvers.MapResolver;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.map.resolvers.MapResolverBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.map.resolvers.grouping.map.resolvers.MapResolverKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.MapResolvers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.MapResolversBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.map.resolvers.MapResolver;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.map.resolvers.MapResolverBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.map.resolvers.MapResolverKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+
 public class MapResolverCustomizer extends FutureJVppCustomizer
-        implements ListReaderCustomizer<MapResolver, MapResolverKey, MapResolverBuilder>, AddressTranslator,
-        JvppReplyConsumer {
+        implements InitializingListReaderCustomizer<MapResolver, MapResolverKey, MapResolverBuilder>, AddressTranslator,
+        JvppReplyConsumer, LispInitPathsMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(MapResolverCustomizer.class);
 
@@ -122,5 +127,11 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
     @Override
     public void merge(Builder<? extends DataObject> builder, List<MapResolver> readData) {
         ((MapResolversBuilder) builder).setMapResolver(readData);
+    }
+
+    @Nonnull
+    @Override
+    public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<MapResolver> instanceIdentifier, @Nonnull MapResolver mapResolver, @Nonnull ReadContext readContext) {
+        return Initialized.create(lispFeaturesBasePath().child(MapResolvers.class).child(MapResolver.class, instanceIdentifier.firstKeyOf(MapResolver.class)), mapResolver);
     }
 }

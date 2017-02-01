@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.MappingKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.EidBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.MappingId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ public class EidMappingContext implements EidTranslator {
      */
     @Nonnull
     public synchronized MappingId getId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid remoteEid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.Eid remoteEid,
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
@@ -91,7 +91,7 @@ public class EidMappingContext implements EidTranslator {
      */
     @Nonnull
     public synchronized MappingId getId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
@@ -111,7 +111,7 @@ public class EidMappingContext implements EidTranslator {
      * @return true if present, false otherwise
      */
     public synchronized boolean containsId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
 
@@ -129,7 +129,7 @@ public class EidMappingContext implements EidTranslator {
      * @return true if present, false otherwise
      */
     public synchronized boolean containsId(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
             @Nonnull final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
 
@@ -149,7 +149,7 @@ public class EidMappingContext implements EidTranslator {
      */
     public synchronized void addEid(
             @Nonnull final MappingId index,
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.Eid eid,
             final MappingContext mappingContext) {
 
         final KeyedInstanceIdentifier<Mapping, MappingKey> mappingIid = getMappingIid(index);
@@ -165,7 +165,7 @@ public class EidMappingContext implements EidTranslator {
      */
     public synchronized void addEid(
             @Nonnull final MappingId index,
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid,
             final MappingContext mappingContext) {
 
         final KeyedInstanceIdentifier<Mapping, MappingKey> mappingIid = getMappingIid(index);
@@ -177,13 +177,13 @@ public class EidMappingContext implements EidTranslator {
     }
 
     private Eid copyEid(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.local.mappings.local.mapping.Eid eid) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.Eid eid) {
         return new EidBuilder().setAddress(eid.getAddress()).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }
 
     private Eid copyEid(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid) {
         return new EidBuilder().setAddress(eid.getAddress()).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }

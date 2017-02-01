@@ -19,15 +19,16 @@ package io.fd.hc2vpp.lisp.translate.read.factory;
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.read.LispStateCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.PitrCfgCustomizer;
-import io.fd.honeycomb.translate.impl.read.GenericReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.LispState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.lisp.feature.data.grouping.LispFeatureDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev161214.pitr.cfg.grouping.PitrCfg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -40,10 +41,10 @@ public class LispStateReaderFactory extends AbstractLispInfraFactoryBase impleme
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
 
-        registry.add(new GenericReader<>(lispStateId, new LispStateCustomizer(vppApi)));
+        registry.add(new GenericInitReader<>(lispStateId, new LispStateCustomizer(vppApi)));
         registry.addStructuralReader(lispStateId.child(LispFeatureData.class), LispFeatureDataBuilder.class);
 
-        registry.add(new GenericReader<>(lispStateId.child(LispFeatureData.class).child(PitrCfg.class),
+        registry.add(new GenericInitReader<>(lispStateId.child(LispFeatureData.class).child(PitrCfg.class),
                 new PitrCfgCustomizer(vppApi)));
     }
 }

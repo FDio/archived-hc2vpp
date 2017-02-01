@@ -23,6 +23,10 @@ module lisp {
     "This YANG module defines the generic configuration and
     operational data for LISP in VPP";
 
+  revision 2017-03-15 {
+    description "Excludes lisp-state from config data";
+  }
+
   revision 2016-12-14 {
     description
      "This revision adds support for L2 features, by adding vrf-subtable/bridge-domain-subtable
@@ -341,7 +345,7 @@ module lisp {
   }
 
   container lisp-state {
-
+    config "false";
     // lisp_enable_disable / lisp_enable_disable_status_dump
     leaf enable {
       type boolean;
