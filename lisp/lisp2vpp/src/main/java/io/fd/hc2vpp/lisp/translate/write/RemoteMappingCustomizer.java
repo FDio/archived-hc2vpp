@@ -17,31 +17,20 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static io.fd.hc2vpp.lisp.translate.write.RemoteMappingCustomizer.LocatorListType.NEGATIVE;
-import static io.fd.hc2vpp.lisp.translate.write.RemoteMappingCustomizer.LocatorListType.POSITIVE;
-
 import com.google.common.base.Preconditions;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.read.trait.MappingProducer;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMapping;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.RemoteLocator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapReplyAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.RemoteMapping;
@@ -50,12 +39,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.NegativeMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.PositiveMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.Rlocs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.Locator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMapping;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.TimeoutException;
+
+import static com.google.common.base.Preconditions.*;
+import static io.fd.hc2vpp.lisp.translate.write.RemoteMappingCustomizer.LocatorListType.NEGATIVE;
+import static io.fd.hc2vpp.lisp.translate.write.RemoteMappingCustomizer.LocatorListType.POSITIVE;
 
 
 /**
@@ -143,7 +137,18 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
             checkArgument(rlocs != null, "No remote locators set for Positive mapping");
 
-            request.rlocs = locatorsToBinaryData(rlocs.getLocator());
+            request.rlocs = rlocs.getLocator().stream()
+                    .map(locator -> {
+                        RemoteLocator remoteLocator = new RemoteLocator();
+                        remoteLocator.addr = ipAddressToArray(locator.getAddress());
+                        remoteLocator.isIp4 = booleanToByte(!isIpv6(locator.getAddress()));
+                        Optional.ofNullable(locator.getPriority())
+                                .ifPresent(priority -> remoteLocator.priority = priority.byteValue());
+                        Optional.ofNullable(locator.getWeight())
+                                .ifPresent(weight -> remoteLocator.weight = weight.byteValue());
+
+                        return remoteLocator;
+                    }).toArray(RemoteLocator[]::new);
             request.rlocNum = Integer.valueOf(rlocs.getLocator().size()).byteValue();
         }
 
@@ -174,46 +179,6 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 "RLocs can be extracted only from Positive Mapping");
 
         return ((PositiveMapping) locatorList).getRlocs();
-    }
-
-    //cant be static because of use of default methods from traits
-    private byte[] locatorsToBinaryData(List<Locator> locators) throws IOException {
-        checkNotNull(locators, "Cannot convert null list");
-
-        ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-
-        DataOutputStream out = new DataOutputStream(byteArrayOut);
-
-
-        for (Locator locator : locators) {
-            boolean isIpv4;
-            byte[] address;
-
-            //first byte says that its v4/v6
-            isIpv4 = !isIpv6(locator.getAddress());
-            out.writeByte(booleanToByte(isIpv4));
-
-            //then writes priority
-            out.write(locator.getPriority());
-
-            //and weight
-            out.write(locator.getWeight());
-
-            if (isIpv4) {
-                //vpp in this case needs address as 16 byte array,regardless if it is ivp4 or ipv6
-                address = Arrays.copyOf(
-
-                        ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(locator.getAddress().getIpv4Address())),
-                        16);
-
-                out.write(address);
-            } else {
-                out.write(
-                        ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(locator.getAddress().getIpv6Address())));
-            }
-        }
-
-        return byteArrayOut.toByteArray();
     }
 
     public enum LocatorListType {

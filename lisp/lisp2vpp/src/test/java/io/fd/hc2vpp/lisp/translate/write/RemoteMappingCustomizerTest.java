@@ -16,25 +16,18 @@
 
 package io.fd.hc2vpp.lisp.translate.write;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMapping;
 import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMappingReply;
+import io.fd.vpp.jvpp.core.types.RemoteLocator;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv4Afi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
@@ -48,13 +41,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.Eid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.EidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.NegativeMappingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.PositiveMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.negative.mapping.MapReplyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.RlocsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.rlocs.LocatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.EidTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTableKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
 
@@ -63,7 +69,9 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
     private MappingId mappingId;
     private RemoteMappingCustomizer customizer;
-    private RemoteMapping intf;
+    private RemoteMapping negativeMapping;
+    private RemoteMapping positiveMappingNoPrioNoWeight;
+    private RemoteMapping positiveMappingPrioWeight;
     private InstanceIdentifier<RemoteMapping> id;
 
     @Mock
@@ -82,11 +90,34 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
         mappingId = new MappingId("REMOTE");
         final RemoteMappingKey key = new RemoteMappingKey(mappingId);
 
-        intf = new RemoteMappingBuilder()
-                .setEid(
-                        eid)
+        negativeMapping = new RemoteMappingBuilder()
+                .setEid(eid)
                 .setLocatorList(new NegativeMappingBuilder()
                         .setMapReply(new MapReplyBuilder().setMapReplyAction(MapReplyAction.Drop).build()).build())
+                .build();
+
+        positiveMappingNoPrioNoWeight = new RemoteMappingBuilder()
+                .setEid(eid)
+                .setLocatorList(new PositiveMappingBuilder()
+                        .setRlocs(new RlocsBuilder()
+                                .setLocator(Arrays.asList(new LocatorBuilder()
+                                        .setAddress(new IpAddress(new Ipv4Address("192.168.2.2")))
+                                        .build()))
+                                .build())
+                        .build())
+                .build();
+
+        positiveMappingPrioWeight = new RemoteMappingBuilder()
+                .setEid(eid)
+                .setLocatorList(new PositiveMappingBuilder()
+                        .setRlocs(new RlocsBuilder()
+                                .setLocator(Arrays.asList(new LocatorBuilder()
+                                        .setAddress(new IpAddress(new Ipv4Address("192.168.2.3")))
+                                        .setPriority((short) 2)
+                                        .setWeight((short) 5)
+                                        .build()))
+                                .build())
+                        .build())
                 .build();
 
         id = InstanceIdentifier.builder(Lisp.class)
@@ -102,6 +133,48 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
         when(api.lispAddDelRemoteMapping(any())).thenReturn(future(new LispAddDelRemoteMappingReply()));
     }
 
+    @Test
+    public void testWritePositiveMappingNoPrioNoWeight() throws WriteFailedException {
+        customizer.writeCurrentAttributes(id, positiveMappingNoPrioNoWeight, writeContext);
+        verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
+
+        final LispAddDelRemoteMapping request = mappingCaptor.getValue();
+        assertNotNull(request);
+        assertEquals(1, request.isAdd);
+        assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.eid).getValue());
+        assertEquals(25, request.vni);
+
+        final List<RemoteLocator> remoteLocators = Arrays.stream(request.rlocs).collect(Collectors.toList());
+        assertThat(remoteLocators, hasSize(1));
+
+        final RemoteLocator locator = remoteLocators.get(0);
+        assertArrayEquals(new byte[]{-64, -88, 2, 2}, locator.addr);
+        assertEquals(1, locator.isIp4);
+        assertEquals(0, locator.priority);
+        assertEquals(0, locator.weight);
+    }
+
+    @Test
+    public void testWritePositiveMappingPrioWeight() throws WriteFailedException {
+        customizer.writeCurrentAttributes(id, positiveMappingPrioWeight, writeContext);
+        verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
+
+        final LispAddDelRemoteMapping request = mappingCaptor.getValue();
+        assertNotNull(request);
+        assertEquals(1, request.isAdd);
+        assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.eid).getValue());
+        assertEquals(25, request.vni);
+
+        final List<RemoteLocator> remoteLocators = Arrays.stream(request.rlocs).collect(Collectors.toList());
+        assertThat(remoteLocators, hasSize(1));
+
+        final RemoteLocator locator = remoteLocators.get(0);
+        assertArrayEquals(new byte[]{-64, -88, 2, 3}, locator.addr);
+        assertEquals(1, locator.isIp4);
+        assertEquals(2, locator.priority);
+        assertEquals(5, locator.weight);
+    }
+
     @Test(expected = NullPointerException.class)
     public void testWriteCurrentAttributesNullData() throws WriteFailedException {
         customizer.writeCurrentAttributes(null, null, writeContext);
@@ -114,7 +187,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
     @Test
     public void testWriteCurrentAttributes() throws WriteFailedException {
-        customizer.writeCurrentAttributes(id, intf, writeContext);
+        customizer.writeCurrentAttributes(id, negativeMapping, writeContext);
 
         verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
 
@@ -139,7 +212,7 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     @Test
     public void testDeleteCurrentAttributes() throws WriteFailedException {
         when(remoteMappingContext.containsEid(any(), eq(mappingContext))).thenReturn(true);
-        customizer.deleteCurrentAttributes(id, intf, writeContext);
+        customizer.deleteCurrentAttributes(id, negativeMapping, writeContext);
 
         verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
 
