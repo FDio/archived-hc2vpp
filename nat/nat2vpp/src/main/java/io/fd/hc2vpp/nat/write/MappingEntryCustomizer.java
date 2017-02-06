@@ -150,6 +150,7 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         request.localIpAddress =
                 ipv4AddressNoZoneToArray(dataAfter.getInternalSrcAddress().getIpv4Address().getValue());
         request.externalIpAddress = ipv4AddressNoZoneToArray(dataAfter.getExternalSrcAddress().getValue());
+        request.externalSwIfIndex = -1; // external ip address is ignored if externalSwIfIndex is given
 
         Optional<Short> internalPortNumber = getPortNumber(id, dataAfter,
                 (entry) -> Optional.fromNullable(entry.getInternalSrcPort()).transform(PortNumber::getPortType));
