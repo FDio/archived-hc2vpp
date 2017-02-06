@@ -1,0 +1,12 @@
+{
+  "nat-instances" : {
+    "nat-instance" : {
+      "id" : 0,
+      "external-ip-address-pool": {
+        "pool-id": 22,
+        "external-ip-pool": "192.168.1.1/24"
+      }
+    }
+  }
+}
+
