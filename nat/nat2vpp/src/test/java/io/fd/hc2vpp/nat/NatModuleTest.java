@@ -16,14 +16,6 @@
 
 package io.fd.hc2vpp.nat;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -31,14 +23,14 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
-import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -48,6 +40,17 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class NatModuleTest {
 
@@ -88,8 +91,9 @@ public class NatModuleTest {
                 .addBinding().toInstance(registry -> {
                     registry.addStructuralReader(InstanceIdentifier.create(InterfacesState.class),
                             InterfacesStateBuilder.class);
-                    registry.addStructuralReader(InstanceIdentifier.create(InterfacesState.class).child(Interface.class),
-                            InterfaceBuilder.class);
+                    registry.add(new GenericListReader<>(
+                            InstanceIdentifier.create(InterfacesState.class).child(Interface.class),
+                            mock(ListReaderCustomizer.class)));
                 }), new NatModule(MockJVppSnatProvider.class), BoundFieldModule.of(this)).injectMembers(this);
     }
 

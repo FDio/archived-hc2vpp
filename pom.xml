@@ -36,7 +36,8 @@
   <modules>
     <module>vpp-common</module>
     <module>v3po</module>
-    <module>ioam</module>
+    <!-- TODO temporary disabled till HC2VPP-63 is resolved -->
+    <!--<module>ioam</module>-->
     <module>nsh</module>
     <module>routing</module>
     <module>nat</module>

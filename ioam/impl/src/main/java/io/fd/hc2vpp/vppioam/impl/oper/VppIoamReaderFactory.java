@@ -20,8 +20,6 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfig;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfig;
@@ -29,8 +27,10 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.PotProfilesBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profile.PotProfileList;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profiles.PotProfileSet;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profiles.PotProfileSetBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
 public class VppIoamReaderFactory implements ReaderFactory {
 
@@ -67,9 +67,10 @@ public class VppIoamReaderFactory implements ReaderFactory {
         final InstanceIdentifier<PotProfiles> potProfilesInstanceIdentifier = InstanceIdentifier.create(PotProfiles.class);
         registry.addStructuralReader(potProfilesInstanceIdentifier, PotProfilesBuilder.class);
         //PotProfileSet (Structural)
-        final InstanceIdentifier<PotProfileSet> potProfileSetInstanceIdentifier =
+         final InstanceIdentifier<PotProfileSet> potProfileSetInstanceIdentifier =
                 potProfilesInstanceIdentifier.child(PotProfileSet.class);
-        registry.addStructuralReader(potProfileSetInstanceIdentifier, PotProfileSetBuilder.class);
+        //TODO - temporary disabled till HC2VPP-63 is resolved
+        //registry.addStructuralReader(potProfileSetInstanceIdentifier, PotProfileSetBuilder.class);
         //PotProfileList
         final InstanceIdentifier<PotProfileList> potProfileListInstanceIdentifier= potProfileSetInstanceIdentifier.child(PotProfileList.class);
         registry.add(new GenericInitListReader<>(potProfileListInstanceIdentifier,
