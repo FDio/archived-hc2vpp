@@ -41,4 +41,22 @@ public class IfaceDumpFilter {
                 ", isIpv6=" + isIpv6 +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IfaceDumpFilter that = (IfaceDumpFilter) o;
+
+        if (interfaceIndex != that.interfaceIndex) return false;
+        return isIpv6 == that.isIpv6;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = interfaceIndex;
+        result = 31 * result + (isIpv6 ? 1 : 0);
+        return result;
+    }
 }

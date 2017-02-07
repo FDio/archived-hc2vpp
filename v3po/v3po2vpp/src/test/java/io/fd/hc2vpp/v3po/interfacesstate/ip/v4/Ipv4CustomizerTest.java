@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfacesstate.ip;
-
-import static org.mockito.Mockito.verifyZeroInteractions;
+package io.fd.hc2vpp.v3po.interfacesstate.ip.v4;
 
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.v4.Ipv4Customizer;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface2Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.Ipv4Builder;
+
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class Ipv4CustomizerTest extends ReaderCustomizerTest<Ipv4, Ipv4Builder> {
 

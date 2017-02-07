@@ -14,33 +14,18 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfacesstate.ip;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+package io.fd.hc2vpp.v3po.interfacesstate.ip.v4.subinterface;
 
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.v4.subinterface.SubInterfaceIpv4AddressCustomizer;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
 import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -60,6 +45,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip4.attributes.ipv4.address.subnet.PrefixLengthBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerTest<Address, AddressKey, AddressBuilder>
         implements Ipv4Translator {
@@ -157,11 +152,6 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
     public void testGetAllIdsFailed() throws ReadFailedException {
         when(api.ipAddressDump(any())).thenReturn(failedFuture());
         getCustomizer().getAllIds(getId(), ctx);
-    }
-
-    @Test
-    public void testCacheScope() {
-
     }
 
     @Test

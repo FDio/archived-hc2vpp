@@ -16,28 +16,21 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate.ip.v4;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.IpReader;
 import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.IfaceDumpFilter;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.readers.IpAddressReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.List;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
@@ -53,28 +46,24 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+
 /**
  * Read customizer for interface Ipv4 addresses.
  */
-public class Ipv4AddressCustomizer extends FutureJVppCustomizer
-        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder>, IpReader {
+public class Ipv4AddressCustomizer extends IpAddressReader
+        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
 
-    private final NamingContext interfaceContext;
-    private final DumpCacheManager<IpAddressDetailsReplyDump, IfaceDumpFilter> dumpManager;
-
     public Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                  @Nonnull final NamingContext interfaceContext) {
-        super(futureJVppCore);
-        this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
-        this.dumpManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, IfaceDumpFilter>()
-                        .withExecutor(createAddressDumpExecutor(futureJVppCore))
-                        // Key needs to contain interface ID to distinguish dumps between interfaces
-                        .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(IpAddressDetailsReplyDump.class,
-                                ImmutableSet.of(Interface.class)))
-                        .build();
+        super(interfaceContext, false, new DumpCacheManagerBuilder<IpAddressDetailsReplyDump, IfaceDumpFilter>()
+                .withExecutor(createAddressDumpExecutor(futureJVppCore))
+                // Key needs to contain interface ID to distinguish dumps between interfaces
+                .withCacheKeyFactory(interfaceScopedCacheKeyFactory(IpAddressDetailsReplyDump.class))
+                .build());
     }
 
     @Override
@@ -85,20 +74,14 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<Address> id, @Nonnull AddressBuilder builder,
-                                      @Nonnull ReadContext ctx)
-            throws ReadFailedException {
+                                      @Nonnull ReadContext ctx) throws ReadFailedException {
         LOG.debug("Reading attributes for interface address: {}", id);
-
-        final String interfaceName = id.firstKeyOf(Interface.class).getName();
-        final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
-        final Optional<IpAddressDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, ctx.getModificationCache(), new IfaceDumpFilter(interfaceIndex, false));
+        final Optional<IpAddressDetailsReplyDump> dumpOptional = interfaceAddressDumpSupplier(id, ctx);
 
         if (!dumpOptional.isPresent() || dumpOptional.get().ipAddressDetails.isEmpty()) {
             return;
         }
-        final Optional<IpAddressDetails> ipAddressDetails =
-                findIpv4AddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
+        final Optional<IpAddressDetails> ipAddressDetails = findIpv4AddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
 
         if (ipAddressDetails.isPresent()) {
             final IpAddressDetails detail = ipAddressDetails.get();
@@ -106,6 +89,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
                     .setSubnet(new PrefixLengthBuilder().setPrefixLength(Short.valueOf(detail.prefixLength)).build());
 
             if (LOG.isDebugEnabled()) {
+                final String interfaceName = id.firstKeyOf(Interface.class).getName();
+                final int interfaceIndex = getInterfaceContext().getIndex(interfaceName, ctx.getMappingContext());
                 LOG.debug("Attributes for {} interface (id={}) address {} successfully read: {}",
                         interfaceName, interfaceIndex, id, builder.build());
             }
@@ -116,13 +101,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     public List<AddressKey> getAllIds(@Nonnull InstanceIdentifier<Address> id, @Nonnull ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("Reading list of keys for interface addresses: {}", id);
-
-        final String interfaceName = id.firstKeyOf(Interface.class).getName();
-        final int interfaceIndex = interfaceContext.getIndex(interfaceName, ctx.getMappingContext());
-        final Optional<IpAddressDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, ctx.getModificationCache(), new IfaceDumpFilter(interfaceIndex, false));
-
-        return getAllIpv4AddressIds(dumpOptional, AddressKey::new);
+        return getAllIpv4AddressIds(interfaceAddressDumpSupplier(id, ctx), AddressKey::new);
     }
 
     @Override
@@ -151,8 +130,8 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.address.subnet.PrefixLengthBuilder()
                 .setPrefixLength(
-                ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength) subnet)
-                        .getPrefixLength()).build();
+                        ((org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength) subnet)
+                                .getPrefixLength()).build();
     }
 
     static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address> getCfgId(

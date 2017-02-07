@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po.interfacesstate.ip;
+package io.fd.hc2vpp.v3po.interfacesstate.ip.v4;
 
-
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.v4.Ipv4AddressCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.InterfaceChildNodeTest;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
@@ -38,10 +30,6 @@ import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFact
 import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpAddressDump;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -59,13 +47,19 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces.state._interface.ipv4.address.subnet.PrefixLength;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address, AddressKey, AddressBuilder> implements
-        Ipv4Translator {
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
-    private static final String IFACE_NAME = "eth0";
-    private static final String IFACE_2_NAME = "eth1";
-    private static final int IFACE_ID = 1;
-    private static final int IFACE_2_ID = 2;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+
+public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address, AddressKey, AddressBuilder> implements
+        Ipv4Translator,InterfaceChildNodeTest {
+
+
     private static final String IFC_CTX_NAME = "ifc-test-instance";
 
     private NamingContext interfacesContext;

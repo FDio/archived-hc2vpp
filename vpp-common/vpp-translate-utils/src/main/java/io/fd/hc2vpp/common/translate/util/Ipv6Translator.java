@@ -16,20 +16,15 @@
 
 package io.fd.hc2vpp.common.translate.util;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
 import com.google.common.net.InetAddresses;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.*;
+
+import javax.annotation.Nonnull;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+
+import static com.google.common.base.Preconditions.*;
 
 /**
  * Trait providing logic for translation of ipv6-related data
@@ -104,9 +99,7 @@ public interface Ipv6Translator extends ByteDataTranslator {
     /**
      * Detects whether {@code IpAddress} is ipv6
      */
-    default boolean isIpv6(IpAddress address) {
-        checkNotNull(address, "Address cannot be null");
-
+    default boolean isIpv6(@Nonnull final IpAddress address) {
         checkState(!(address.getIpv4Address() == null && address.getIpv6Address() == null), "Invalid address");
         return address.getIpv6Address() != null;
     }
@@ -114,8 +107,7 @@ public interface Ipv6Translator extends ByteDataTranslator {
     /**
      * Detects whether {@code IpPrefix} is ipv6
      */
-    default boolean isIpv6(IpPrefix address) {
-        checkNotNull(address, "Address cannot be null");
+    default boolean isIpv6(@Nonnull final  IpPrefix address) {
         checkState(!(address.getIpv4Prefix() == null && address.getIpv6Prefix() == null), "Invalid address");
         return address.getIpv6Prefix() != null;
     }

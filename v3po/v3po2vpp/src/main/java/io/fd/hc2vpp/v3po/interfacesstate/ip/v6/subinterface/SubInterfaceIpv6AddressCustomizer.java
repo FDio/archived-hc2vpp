@@ -17,15 +17,11 @@
 package io.fd.hc2vpp.v3po.interfacesstate.ip.v6.subinterface;
 
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ip.IpReader;
 import io.fd.hc2vpp.v3po.interfacesstate.ip.dump.params.IfaceDumpFilter;
+import io.fd.hc2vpp.v3po.interfacesstate.ip.readers.IpAddressReader;
 import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -33,12 +29,9 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetails;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.List;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.ip6.attributes.Ipv6;
@@ -52,23 +45,20 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SubInterfaceIpv6AddressCustomizer extends FutureJVppCustomizer
-        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder>, IpReader {
+import javax.annotation.Nonnull;
+import java.util.List;
+
+public class SubInterfaceIpv6AddressCustomizer extends IpAddressReader
+        implements InitializingListReaderCustomizer<Address, AddressKey, AddressBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceIpv6AddressCustomizer.class);
 
-    private final NamingContext interfaceContext;
-    private final DumpCacheManager<IpAddressDetailsReplyDump, IfaceDumpFilter> dumpManager;
-
     public SubInterfaceIpv6AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                              @Nonnull final NamingContext interfaceContext) {
-        super(futureJVppCore);
-        this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, IfaceDumpFilter>()
+        super(interfaceContext, true, new DumpCacheManager.DumpCacheManagerBuilder<IpAddressDetailsReplyDump, IfaceDumpFilter>()
                 .withExecutor(createAddressDumpExecutor(futureJVppCore))
-                .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(IpAddressDetailsReplyDump.class,
-                        ImmutableSet.of(SubInterface.class)))
-                .build();
+                .withCacheKeyFactory(subInterfaceScopedCacheKeyFactory(IpAddressDetailsReplyDump.class))
+                .build());
     }
 
     private static String getSubInterfaceName(@Nonnull final InstanceIdentifier<Address> id) {
@@ -87,21 +77,17 @@ public class SubInterfaceIpv6AddressCustomizer extends FutureJVppCustomizer
                                       @Nonnull ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("Reading attributes for sub-interface address: {}", id);
-
-        final String subInterfaceName = getSubInterfaceName(id);
-        final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
-        final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, ctx.getModificationCache(), new IfaceDumpFilter(subInterfaceIndex, false));
-
         final Optional<IpAddressDetails> ipAddressDetails =
-                findIpv6AddressDetailsByIp(dumpOptional, id.firstKeyOf(Address.class).getIp());
+                findIpv6AddressDetailsByIp(subInterfaceAddressDumpSupplier(id, ctx), id.firstKeyOf(Address.class).getIp());
 
         if (ipAddressDetails.isPresent()) {
             final IpAddressDetails detail = ipAddressDetails.get();
             builder.setIp(arrayToIpv6AddressNoZone(detail.ip));
-            builder.setPrefixLength((short) detail.prefixLength);
+            builder.setPrefixLength((short) Byte.toUnsignedInt(detail.prefixLength));
 
             if (LOG.isDebugEnabled()) {
+                final String subInterfaceName = getSubInterfaceName(id);
+                final int subInterfaceIndex = getInterfaceContext().getIndex(subInterfaceName, ctx.getMappingContext());
                 LOG.debug("Attributes for {} sub-interface (id={}) address {} successfully read: {}",
                         subInterfaceName, subInterfaceIndex, id, builder.build());
             }
@@ -113,13 +99,7 @@ public class SubInterfaceIpv6AddressCustomizer extends FutureJVppCustomizer
     public List<AddressKey> getAllIds(@Nonnull InstanceIdentifier<Address> id, @Nonnull ReadContext ctx)
             throws ReadFailedException {
         LOG.debug("Reading list of keys for sub-interface addresses: {}", id);
-
-        final String subInterfaceName = getSubInterfaceName(id);
-        final int subInterfaceIndex = interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext());
-        final Optional<IpAddressDetailsReplyDump> dumpOptional = dumpManager
-                .getDump(id, ctx.getModificationCache(), new IfaceDumpFilter(subInterfaceIndex, false));
-
-        return getAllIpv6AddressIds(dumpOptional, AddressKey::new);
+        return getAllIpv6AddressIds(subInterfaceAddressDumpSupplier(id, ctx), AddressKey::new);
     }
 
     @Override

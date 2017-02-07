@@ -16,13 +16,74 @@
 
 package io.fd.hc2vpp.common.translate.util;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 
+import static org.junit.Assert.*;
+
 public class Ipv6TranslatorTest implements Ipv6Translator {
+
+    private static final byte[] IPV6_BYTES = {32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1};
+    private static final String IPV6_FULL = "2001:0db8:0a0b:12f0:0000:0000:0000:0001";
+    private static final String IPV6_COMPRESSED = "2001:db8:a0b:12f0::1";
+
+    @Test
+    public void testIpv6AddressNoZoneToArrayFull() throws Exception {
+        assertArrayEquals(IPV6_BYTES, ipv6AddressNoZoneToArray(new Ipv6Address(IPV6_FULL)));
+    }
+
+    @Test
+    public void testIpv6AddressNoZoneToArrayCompressed() throws Exception {
+        assertArrayEquals(IPV6_BYTES, ipv6AddressNoZoneToArray(new Ipv6Address(IPV6_COMPRESSED)));
+    }
+
+    @Test
+    public void testIpv6AddressPrefixToArrayFull() throws Exception {
+        assertArrayEquals(IPV6_BYTES, ipv6AddressPrefixToArray(new Ipv6Prefix(IPV6_FULL + "/64")));
+    }
+
+    @Test
+    public void testIpv6AddressPrefixToArrayCompressed() throws Exception {
+        assertArrayEquals(IPV6_BYTES, ipv6AddressPrefixToArray(new Ipv6Prefix(IPV6_COMPRESSED + "/64")));
+    }
+
+    @Test
+    public void testExtractPrefixFull() throws Exception {
+        assertEquals(64, extractPrefix(new Ipv6Prefix(IPV6_FULL + "/64")));
+    }
+
+    @Test
+    public void testExtractPrefixCompressed() throws Exception {
+        assertEquals(64, extractPrefix(new Ipv6Prefix(IPV6_COMPRESSED + "/64")));
+    }
+
+    @Test
+    public void testArrayToIpv6Prefix() throws Exception {
+        assertEquals(IPV6_COMPRESSED + "/64", arrayToIpv6Prefix(IPV6_BYTES, (byte) 64).getValue());
+    }
+
+    @Test
+    public void testArrayToIpv6AddressNoZone() throws Exception {
+        assertEquals(IPV6_COMPRESSED, arrayToIpv6AddressNoZone(IPV6_BYTES).getValue());
+    }
+
+    @Test
+    public void testIsIpv6Compressed() throws Exception {
+        assertTrue(isIpv6(new IpAddress(new Ipv6Address(IPV6_COMPRESSED))));
+    }
+
+    @Test
+    public void testIsIpv6Full() throws Exception {
+        assertTrue(isIpv6(new IpAddress(new Ipv6Address(IPV6_FULL))));
+    }
+
+    @Test
+    public void testTruncateIp4Array() throws Exception {
+        assertArrayEquals(new byte[]{-64, -84, 2, 1}, truncateIp4Array(new byte[]{-64, -84, 2, 1, 0, 0, 0, 0}));
+    }
 
     @Test
     public void testIpv6NoZone() {

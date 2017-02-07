@@ -16,20 +16,21 @@
 
 package io.fd.hc2vpp.common.translate.util;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.dto.JVppReply;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Trait providing logic for consuming reply's to jvpp api calls
@@ -37,6 +38,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public interface JvppReplyConsumer {
 
     int DEFAULT_TIMEOUT_IN_SECONDS = 5;
+
+    JvppReplyConsumer INSTANCE = new JvppReplyConsumer() {
+    };
 
     /**
      * Consumes reply for jvpp call representing any write operation
