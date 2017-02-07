@@ -42,7 +42,8 @@
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
-      io.fd.hc2vpp.lisp.LispModule,
+      <!--TODO update lisp model (workaround for ODL berilium issues -->
+      <!-- io.fd.hc2vpp.lisp.LispModule,-->
       io.fd.hc2vpp.v3po.V3poModule,
       // io.fd.hc2vpp.v3po.ClassifierIetfAclModule,
       <!-- Classifier Acl's module disabled by default, can't run in the same time with AclModule -->
