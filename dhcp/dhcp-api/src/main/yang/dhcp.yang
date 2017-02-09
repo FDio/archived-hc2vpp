@@ -1,0 +1,89 @@
+module dhcp {
+
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:vpp:dhcp";
+    prefix "dhcp";
+
+    description
+        "This YANG module defines the generic configuration and
+        operational data for dhcp in VPP";
+
+    revision "2017-03-15" {
+        description
+            "Initial revision of dhcp model";
+    }
+
+    import ietf-inet-types {
+        prefix inet;
+    }
+
+    identity address-family {
+        description
+            "Base identity from which identities describing address
+            families are derived.";
+    }
+
+    identity ipv4 {
+        base address-family;
+        description
+            "This identity represents IPv4 address family.";
+    }
+
+    identity ipv6 {
+        base address-family;
+        description
+            "This identity represents IPv6 address family.";
+    }
+
+    typedef address-type {
+        type identityref {
+            base address-family;
+        }
+    }
+
+    grouping relay-attributes {
+        leaf server-address {
+            type inet:ip-address-no-zone;
+            mandatory true;
+            description
+                "IP address of the server DHCP packets will be forwarded to.";
+        }
+        leaf server-vrf-id {
+            type uint32;
+            default 0;
+            description
+                "Used to send DHCP messages to the server";
+        }
+        leaf gateway-address {
+            type inet:ip-address-no-zone;
+            mandatory true;
+            description
+                "IP address of the relay agent.";
+        }
+        leaf insert-circuit-id {
+            type boolean;
+            default true;
+        }
+    }
+
+    grouping dhcp-attributes {
+        container relays {
+            list relay {
+                key "address-type rx-vrf-id";
+                leaf address-type {
+                    type address-type;
+                }
+                leaf rx-vrf-id {
+                    type uint32;
+                    description
+                        "Used to receive DHCP messages from clients.";
+                }
+                uses relay-attributes;
+            }
+        }
+    }
+
+    container dhcp {
+        uses dhcp-attributes;
+    }
+}

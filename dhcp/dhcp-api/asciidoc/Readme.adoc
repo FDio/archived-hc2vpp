@@ -1,0 +1,14 @@
+= dhcp-api
+
+Provides YANG model that defines DHCP configuration for VPP.
+
+Currently only DHCP relay configuration is supported.
+
+Operational data model is not supported
+(there is no binary API for reading DHCP configuration).
+
+== Notes on model
+* DHCP relay configuration is based on dhcp_proxy_config_2 message API:
+  https://git.fd.io/vpp/tree/src/vnet/dhcp/dhcp.api#n48
+* More info regarding functionality provided by VPP can be found
+  at https://docs.fd.io/vpp/17.04/clicmd_src_vnet_dhcp.html#clicmd_set_dhcp_proxy

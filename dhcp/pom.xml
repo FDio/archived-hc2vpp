@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (c) 2015 Cisco and/or its affiliates.
+ Copyright (c) 2017 Cisco and/or its affiliates.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at:
@@ -14,37 +14,40 @@
  limitations under the License.
 --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+  <groupId>io.fd.hc2vpp.dhcp</groupId>
+
   <parent>
-    <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>honeycomb-parent</artifactId>
+    <artifactId>hc2vpp-aggregator</artifactId>
+    <groupId>io.fd.hc2vpp</groupId>
     <version>1.17.04-SNAPSHOT</version>
   </parent>
-
-  <groupId>io.fd.hc2vpp</groupId>
-  <artifactId>hc2vpp-aggregator</artifactId>
+  <artifactId>dhcp-aggregator</artifactId>
   <version>1.17.04-SNAPSHOT</version>
-  <name>hc2vpp</name>
+  <name>dhcp-aggregator</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
 
-  <description>Honeycomb based management agent for VPP</description>
-
-  <scm>
-    <url>https://git.fd.io/cgit/hc2vpp/tree/</url>
-  </scm>
-
   <modules>
-    <module>vpp-common</module>
-    <module>v3po</module>
-    <!-- TODO temporary disabled till HC2VPP-63 is resolved -->
-    <!--<module>ioam</module>-->
-    <module>nsh</module>
-    <module>routing</module>
-    <module>nat</module>
-    <module>lisp</module>
-    <module>release-notes</module>
-    <module>vpp-integration</module>
-    <module>acl</module>
-    <module>dhcp</module>
+    <module>dhcp-api</module>
   </modules>
+
+  <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
