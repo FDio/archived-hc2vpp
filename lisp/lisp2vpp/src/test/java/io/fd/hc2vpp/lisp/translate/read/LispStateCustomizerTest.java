@@ -16,21 +16,32 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import com.google.common.collect.ImmutableSet;
+import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
+import io.fd.honeycomb.test.tools.HoneycombTestRunner;
+import io.fd.honeycomb.test.tools.annotations.InjectTestData;
+import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
+import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.$YangModuleInfoImpl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispStateBuilder;
+import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispStateBuilder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
-
-public class LispStateCustomizerTest extends ReaderCustomizerTest<LispState, LispStateBuilder> {
+@RunWith(HoneycombTestRunner.class)
+public class LispStateCustomizerTest extends InitializingReaderCustomizerTest<LispState, LispStateBuilder>
+    implements InjectablesProcessor{
 
     private InstanceIdentifier<LispState> identifier;
 
@@ -54,6 +65,21 @@ public class LispStateCustomizerTest extends ReaderCustomizerTest<LispState, Lis
         getCustomizer().readCurrentAttributes(identifier, builder, ctx);
 
         assertEquals(true, builder.build().isEnable());
+    }
+
+    @SchemaContextProvider
+    public ModuleInfoBackedContext schemaContext() {
+        return provideSchemaContextFor(ImmutableSet.of($YangModuleInfoImpl.getInstance()));
+    }
+
+
+    @Test
+    public void testInit(@InjectTestData(resourcePath = "/lisp-config.json") Lisp config,
+                         @InjectTestData(resourcePath = "/lisp-operational.json") LispState operational) {
+        final InstanceIdentifier<LispState> operationalPath = InstanceIdentifier.create(LispState.class);
+        final InstanceIdentifier<Lisp> configPath = InstanceIdentifier.create(Lisp.class);
+
+        invokeInitTest(operationalPath, operational, configPath, config);
     }
 
     @Override

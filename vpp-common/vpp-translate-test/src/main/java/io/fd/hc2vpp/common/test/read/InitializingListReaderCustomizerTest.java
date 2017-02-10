@@ -21,6 +21,9 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
 
 /**
  * Generic test for classes implementing {@link InitializingListReaderCustomizer} interface.
@@ -30,16 +33,24 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
  * @param <B> Specific Builder for handled type (D)
  */
 public abstract class InitializingListReaderCustomizerTest<D extends DataObject & Identifiable<K>, K extends Identifier<D>, B extends Builder<D>> extends
-    ListReaderCustomizerTest<D, K, B> {
+        ListReaderCustomizerTest<D, K, B> implements InitializationTest<D> {
+
 
     protected InitializingListReaderCustomizerTest(
-        final Class<D> dataObjectClass,
-        final Class<? extends Builder<? extends DataObject>> parentBuilderClass) {
+            final Class<D> dataObjectClass,
+            final Class<? extends Builder<? extends DataObject>> parentBuilderClass) {
         super(dataObjectClass, parentBuilderClass);
     }
 
     @Override
     protected InitializingListReaderCustomizer<D, K, B> getCustomizer() {
         return InitializingListReaderCustomizer.class.cast(super.getCustomizer());
+    }
+
+    protected void invokeInitTest(@Nonnull InstanceIdentifier<D> operationalPath,
+                               @Nonnull D operationalData,
+                               @Nonnull InstanceIdentifier<?> configPath,
+                               @Nonnull Object configData) {
+        invokeInit(getCustomizer(), ctx, operationalPath, operationalData, configPath, configData);
     }
 }

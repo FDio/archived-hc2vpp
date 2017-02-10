@@ -19,6 +19,9 @@ package io.fd.hc2vpp.common.test.read;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
 
 /**
  * Generic test for classes implementing {@link InitializingReaderCustomizer} interface.
@@ -27,7 +30,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
  * @param <B> Specific Builder for handled type (D)
  */
 public abstract class InitializingReaderCustomizerTest<D extends DataObject, B extends Builder<D>> extends
-    ReaderCustomizerTest<D, B> {
+        ReaderCustomizerTest<D, B> implements InitializationTest<D> {
 
     protected InitializingReaderCustomizerTest(
         final Class<D> dataObjectClass,
@@ -38,5 +41,12 @@ public abstract class InitializingReaderCustomizerTest<D extends DataObject, B e
     @Override
     protected InitializingReaderCustomizer<D, B> getCustomizer() {
         return InitializingReaderCustomizer.class.cast(super.getCustomizer());
+    }
+
+    protected void invokeInitTest(@Nonnull InstanceIdentifier<D> operationalPath,
+                               @Nonnull D operationalData,
+                               @Nonnull InstanceIdentifier<?> configPath,
+                               @Nonnull Object configData) {
+        invokeInit(getCustomizer(), ctx, operationalPath, operationalData, configPath, configData);
     }
 }

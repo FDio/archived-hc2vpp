@@ -16,32 +16,50 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
 import com.google.common.collect.ImmutableList;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import com.google.common.collect.ImmutableSet;
+import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import io.fd.honeycomb.test.tools.HoneycombTestRunner;
+import io.fd.honeycomb.test.tools.annotations.InjectTestData;
+import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
+import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.$YangModuleInfoImpl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.LocatorSetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSetKey;
+import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+@RunWith(HoneycombTestRunner.class)
 public class LocatorSetCustomizerTest
-        extends ListReaderCustomizerTest<LocatorSet, LocatorSetKey, LocatorSetBuilder> {
+        extends InitializingListReaderCustomizerTest<LocatorSet, LocatorSetKey, LocatorSetBuilder>
+        implements InjectablesProcessor {
 
+    private static final String LOC_1_PATH = "/lisp:lisp-state" +
+            "/lisp:lisp-feature-data" +
+            "/lisp:locator-sets" +
+            "/lisp:locator-set[lisp:name='loc1']";
     private InstanceIdentifier<LocatorSet> emptyId;
     private InstanceIdentifier<LocatorSet> validId;
 
@@ -87,6 +105,27 @@ public class LocatorSetCustomizerTest
 
         assertEquals(1, keys.size());
         assertEquals("loc-set", keys.get(0).getName());
+    }
+
+    @SchemaContextProvider
+    public ModuleInfoBackedContext schemaContext() {
+        return provideSchemaContextFor(ImmutableSet.of($YangModuleInfoImpl.getInstance()));
+    }
+
+    @Test
+    public void testInit(@InjectTestData(resourcePath = "/locator-set.json", id = LOC_1_PATH) LocatorSet locatorSet) {
+        final LocatorSetKey loc1Key = new LocatorSetKey("loc1");
+        final KeyedInstanceIdentifier<LocatorSet, LocatorSetKey> operationalPath = InstanceIdentifier.create(LispState.class)
+                .child(LispFeatureData.class)
+                .child(LocatorSets.class)
+                .child(LocatorSet.class, loc1Key);
+
+        final KeyedInstanceIdentifier<LocatorSet, LocatorSetKey> configPath = InstanceIdentifier.create(Lisp.class)
+                .child(LispFeatureData.class)
+                .child(LocatorSets.class)
+                .child(LocatorSet.class, loc1Key);
+
+        invokeInitTest(operationalPath, locatorSet, configPath, locatorSet);
     }
 
     @Override
