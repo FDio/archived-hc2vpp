@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Dummy customizer for Interfaces node responsible for validation only.
  */
-public class RoutingInterfaceCustomizer implements ListWriterCustomizer<Interface, InterfaceKey> {
+final class RoutingInterfaceCustomizer implements ListWriterCustomizer<Interface, InterfaceKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingInterfaceCustomizer.class);
 
@@ -68,6 +68,6 @@ public class RoutingInterfaceCustomizer implements ListWriterCustomizer<Interfac
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class,
                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey(
                     ifcName));
-        checkArgument(writeContext.readAfter(id).isPresent(), "Interface %s is not configured");
+        checkArgument(writeContext.readAfter(id).isPresent(), "Interface %s is not configured", ifcName);
     }
 }

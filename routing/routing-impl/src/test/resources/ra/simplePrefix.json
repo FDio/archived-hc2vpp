@@ -1,0 +1,10 @@
+{
+  "prefix-list": {
+    "prefix": [
+      {
+        "prefix-spec": "2001:0db8:0a0b:12f0:0000:0000:0000:0002/64",
+        "autonomous-flag": "true"
+      }
+    ]
+  }
+}

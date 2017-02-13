@@ -1,0 +1,13 @@
+{
+  "interfaces": {
+    "interface": [
+      {
+        "name": "eth0",
+        "ipv6-router-advertisements": {
+          "send-advertisements": "true",
+          "managed-flag": "true"
+        }
+      }
+    ]
+  }
+}
