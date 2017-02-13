@@ -38,6 +38,7 @@
     <ioam.version>1.17.04-SNAPSHOT</ioam.version>
     <routing.version>1.17.04-SNAPSHOT</routing.version>
     <acl.version>1.17.04-SNAPSHOT</acl.version>
+    <dhcp.version>1.17.04-SNAPSHOT</dhcp.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
@@ -48,6 +49,7 @@
       io.fd.hc2vpp.nat.NatModule,
       io.fd.hc2vpp.routing.RoutingModule,
       io.fd.hc2vpp.acl.AclModule,
+      io.fd.hc2vpp.dhcp.DhcpModule,
       // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
       // io.fd.hc2vpp.vppioam.impl.VppIoamModule
@@ -118,6 +120,11 @@
       <groupId>io.fd.hc2vpp.acl</groupId>
       <artifactId>acl-impl</artifactId>
       <version>${acl.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.dhcp</groupId>
+      <artifactId>dhcp-impl</artifactId>
+      <version>${dhcp.version}</version>
     </dependency>
   </dependencies>
 </project>

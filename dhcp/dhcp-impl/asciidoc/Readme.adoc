@@ -1,0 +1,12 @@
+= dhcp-impl
+
+Provides translation layer for YANG models defined in dhcp-api
+
+== DHCP Relay
+DHCP Relay configuration CUD requests are mapped to dhcp_proxy_config_2 message:
+https://git.fd.io/vpp/tree/src/vnet/dhcp/dhcp.api#n48
+
+Operational read is not supported (missing VPP binary api for read).
+
+Examples of request can be found in:
+https://git.fd.io/cgit/hc2vpp/tree/dhcp/dhcp_postman_collection.json
