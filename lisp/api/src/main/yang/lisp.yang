@@ -257,7 +257,8 @@ module lisp {
           leaf table-id {
              type uint32;
              description "table-id";
-             mandatory true;
+             // TODO - HC2VPP-73 - commented due to ODL Boron issues
+             //mandatory true;
           }
 
           uses dp-subtable-grouping;
@@ -268,7 +269,8 @@ module lisp {
           leaf bridge-domain-ref {
             type string;
             description "Name reference to existing bridge domain";
-            mandatory true;
+            // TODO - HC2VPP-73 - commented due to ODL Boron issues
+            // mandatory true;
           }
 
           uses dp-subtable-grouping;

@@ -30,6 +30,8 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class VrfSubtableCustomizer extends FutureJVppCustomizer
         implements WriterCustomizer<VrfSubtable>, SubtableWriter {
 
@@ -43,7 +45,8 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<VrfSubtable> id,
                                        @Nonnull final VrfSubtable dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-
+        // TODO - HC2VPP-73 - remove after resolving ODL Boron issues
+        checkNotNull(dataAfter.getTableId(), "Table id must be present");
         LOG.debug("Writing Id[{}]/Data[{}]", id, dataAfter);
 
         try {
@@ -66,7 +69,8 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<VrfSubtable> id,
                                         @Nonnull final VrfSubtable dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-
+        // TODO - HC2VPP-73 - remove after resolving ODL Boron issues
+        checkNotNull(dataBefore.getTableId(), "Table id must be present");
         LOG.debug("Removing Id[{}]/Data[{}]", id, dataBefore);
 
         try {

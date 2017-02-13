@@ -52,6 +52,8 @@ public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomainSubtable> id,
                                        @Nonnull final BridgeDomainSubtable dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        // TODO - HC2VPP-73 - remove after resolving ODL Boron issues
+        checkNotNull(dataAfter.getBridgeDomainRef(), "Bridge domain reference must be present");
         LOG.debug("Writing Id {} ", id);
 
         try {
@@ -76,6 +78,8 @@ public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomainSubtable> id,
                                         @Nonnull final BridgeDomainSubtable dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        // TODO - HC2VPP-73 - remove after resolving ODL Boron issues
+        checkNotNull(dataBefore.getBridgeDomainRef(), "Bridge domain reference must be present");
         LOG.debug("Removing Id {}", id);
 
         try {
