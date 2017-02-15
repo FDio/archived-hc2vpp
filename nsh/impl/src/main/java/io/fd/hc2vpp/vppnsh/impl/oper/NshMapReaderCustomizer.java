@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Vxlan4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Vxlan6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.None;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.state.NshMapsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.state.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.state.nsh.maps.NshMapBuilder;
@@ -57,15 +58,15 @@ import org.slf4j.LoggerFactory;
  * Reader customizer responsible for nsh map read.<br> to VPP.
  */
 public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
-        implements InitializingListReaderCustomizer<NshMap, NshMapKey, NshMapBuilder>, JvppReplyConsumer {
+implements InitializingListReaderCustomizer<NshMap, NshMapKey, NshMapBuilder>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(NshMapReaderCustomizer.class);
     private final NamingContext nshMapContext;
     private final NamingContext interfaceContext;
 
     public NshMapReaderCustomizer(@Nonnull final FutureJVppNsh futureJVppNsh,
-                                  @Nonnull final NamingContext nshMapContext,
-                                  @Nonnull final NamingContext interfaceContext) {
+            @Nonnull final NamingContext nshMapContext,
+            @Nonnull final NamingContext interfaceContext) {
         super(futureJVppNsh);
         this.nshMapContext = checkNotNull(nshMapContext, "nshMapContext should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
@@ -74,7 +75,7 @@ public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
 
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder,
-                      @Nonnull final List<NshMap> readData) {
+            @Nonnull final List<NshMap> readData) {
         ((NshMapsBuilder) builder).setNshMap(readData);
     }
 
@@ -86,8 +87,8 @@ public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<NshMap> id,
-                                      @Nonnull final NshMapBuilder builder, @Nonnull final ReadContext ctx)
-            throws ReadFailedException {
+            @Nonnull final NshMapBuilder builder, @Nonnull final ReadContext ctx)
+                    throws ReadFailedException {
         LOG.debug("Reading attributes for nsh map: {}", id);
         final NshMapKey key = id.firstKeyOf(NshMap.class);
         checkArgument(key != null, "could not find NshMap key in {}", id);
@@ -135,27 +136,32 @@ public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
         default:
             LOG.trace("Unsupported nsh_action for nsh map: {}", nshMapDetails.nshAction);
             return;
-    }
-
-        switch (nshMapDetails.nextNode) {
-            case 2:
-                builder.setEncapType(VxlanGpe.class);
-                break;
-            case 3:
-                builder.setEncapType(Vxlan4.class);
-                break;
-            case 4:
-                builder.setEncapType(Vxlan6.class);
-                break;
-            default:
-                LOG.trace("Unsupported encap type for nsh map: {}", nshMapDetails.nextNode);
-                return;
         }
 
-        checkState(interfaceContext.containsName(nshMapDetails.swIfIndex, ctx.getMappingContext()),
-                "Mapping does not contains mapping for provider interface Index ");
-        final String interfaceName = interfaceContext.getName(nshMapDetails.swIfIndex, ctx.getMappingContext());
-        builder.setEncapIfName(interfaceName);
+        switch (nshMapDetails.nextNode) {
+        case 2:
+            builder.setEncapType(VxlanGpe.class);
+            break;
+        case 3:
+            builder.setEncapType(Vxlan4.class);
+            break;
+        case 4:
+            builder.setEncapType(Vxlan6.class);
+            break;
+        case 5:
+            builder.setEncapType(None.class);
+            break;
+        default:
+            LOG.trace("Unsupported encap type for nsh map: {}", nshMapDetails.nextNode);
+            return;
+        }
+
+        if (nshMapDetails.nextNode != 5) {
+            checkState(interfaceContext.containsName(nshMapDetails.swIfIndex, ctx.getMappingContext()),
+                    "Mapping does not contains mapping for provider interface Index ");
+            final String interfaceName = interfaceContext.getName(nshMapDetails.swIfIndex, ctx.getMappingContext());
+            builder.setEncapIfName(interfaceName);
+        }
 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Attributes for nsh map {} successfully read: {}", id, builder.build());
@@ -165,7 +171,7 @@ public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
     @Nonnull
     @Override
     public List<NshMapKey> getAllIds(@Nonnull final InstanceIdentifier<NshMap> id,
-                                     @Nonnull final ReadContext context) throws ReadFailedException {
+            @Nonnull final ReadContext context) throws ReadFailedException {
         LOG.debug("Reading list of keys for nsh map: {}", id);
 
         final NshMapDump request = new NshMapDump();
@@ -206,8 +212,8 @@ public class NshMapReaderCustomizer extends FutureJVppNshCustomizer
         return Initialized.create(
                 InstanceIdentifier.create(VppNsh.class).child(
                         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.NshMaps.class).child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.maps.NshMap.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.maps.NshMapKey(id.firstKeyOf(NshMap.class).getName())),
+                                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.maps.NshMap.class,
+                                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.maps.NshMapKey(id.firstKeyOf(NshMap.class).getName())),
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.maps.NshMapBuilder(readValue).setName(readValue.getName()).build());
     }
 }

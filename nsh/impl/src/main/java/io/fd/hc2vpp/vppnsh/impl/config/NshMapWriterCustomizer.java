@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Vxlan4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Vxlan6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.None;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.maps.NshMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -48,15 +49,15 @@ import org.slf4j.LoggerFactory;
  * Writer customizer responsible for NshMap create/delete.
  */
 public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
-        implements ListWriterCustomizer<NshMap, NshMapKey>, ByteDataTranslator, JvppReplyConsumer {
+implements ListWriterCustomizer<NshMap, NshMapKey>, ByteDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(NshMapWriterCustomizer.class);
     private final NamingContext nshMapContext;
     private final NamingContext interfaceContext;
 
     public NshMapWriterCustomizer(@Nonnull final FutureJVppNsh futureJVppNsh,
-                                  @Nonnull final NamingContext nshMapContext,
-                                  @Nonnull final NamingContext interfaceContext) {
+            @Nonnull final NamingContext nshMapContext,
+            @Nonnull final NamingContext interfaceContext) {
         super(futureJVppNsh);
         this.nshMapContext = checkNotNull(nshMapContext, "nshMapContext should not be null");
         this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
@@ -64,8 +65,8 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<NshMap> id,
-                                       @Nonnull final NshMap dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
+            @Nonnull final NshMap dataAfter, @Nonnull final WriteContext writeContext)
+                    throws WriteFailedException {
         LOG.debug("Creating nsh map: iid={} dataAfter={}", id, dataAfter);
         final int newMapIndex =
                 nshAddDelMap(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
@@ -77,15 +78,15 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
 
     @Override
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<NshMap> id,
-                                        @Nonnull final NshMap dataBefore, @Nonnull final NshMap dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
+            @Nonnull final NshMap dataBefore, @Nonnull final NshMap dataAfter,
+            @Nonnull final WriteContext writeContext) throws WriteFailedException {
         throw new UnsupportedOperationException("Nsh map update is not supported");
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<NshMap> id,
-                                        @Nonnull final NshMap dataBefore,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
+            @Nonnull final NshMap dataBefore,
+            @Nonnull final WriteContext writeContext) throws WriteFailedException {
         LOG.debug("Removing nsh map: iid={} dataBefore={}", id, dataBefore);
         final String mapName = dataBefore.getName();
         checkState(nshMapContext.containsIndex(mapName, writeContext.getMappingContext()),
@@ -100,8 +101,8 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
     }
 
     private int nshAddDelMap(final boolean isAdd, @Nonnull final InstanceIdentifier<NshMap> id,
-                             @Nonnull final NshMap map, final int mapId, final MappingContext ctx)
-            throws WriteFailedException {
+            @Nonnull final NshMap map, final int mapId, final MappingContext ctx)
+                    throws WriteFailedException {
         final CompletionStage<NshAddDelMapReply> createNshMapReplyCompletionStage =
                 getFutureJVppNsh().nshAddDelMap(getNshAddDelMapRequest(isAdd, mapId, map, ctx));
 
@@ -111,8 +112,8 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
     }
 
     private NshAddDelMap getNshAddDelMapRequest(final boolean isAdd, final int mapIndex,
-                                                @Nonnull final NshMap map,
-                                                @Nonnull final MappingContext ctx) {
+            @Nonnull final NshMap map,
+            @Nonnull final MappingContext ctx) {
         final NshAddDelMap request = new NshAddDelMap();
         request.isAdd = booleanToByte(isAdd);
 
@@ -133,11 +134,15 @@ public class NshMapWriterCustomizer extends FutureJVppNshCustomizer
             request.nextNode = 3;
         } else if (map.getEncapType() == Vxlan6.class) {
             request.nextNode = 4;
+        } else if (map.getEncapType() == None.class) {
+            request.nextNode = 5;
         }
 
-        checkState(interfaceContext.containsIndex(map.getEncapIfName(), ctx),
-                "Mapping does not contains mapping for provider interface Name ".concat(map.getEncapIfName()));
-        request.swIfIndex = interfaceContext.getIndex(map.getEncapIfName(), ctx);
+        if (map.getEncapType() != None.class) {
+            checkState(interfaceContext.containsIndex(map.getEncapIfName(), ctx),
+                    "Mapping does not contains mapping for provider interface Name ".concat(map.getEncapIfName()));
+            request.swIfIndex = interfaceContext.getIndex(map.getEncapIfName(), ctx);
+        }
 
         return request;
     }
