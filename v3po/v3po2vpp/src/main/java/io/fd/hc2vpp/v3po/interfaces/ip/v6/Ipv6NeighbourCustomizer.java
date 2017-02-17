@@ -36,6 +36,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.NeighborKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.RoutingBaseAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -118,10 +119,13 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
         final Optional<Interface> optIface = writeContext.readBefore(id.firstIdentifierOf(Interface.class));
 
         // if routing set, reads vrf-id
-        if (optIface.isPresent() && optIface.get().getAugmentation(VppInterfaceAugmentation.class) != null &&
-                optIface.get().getAugmentation(VppInterfaceAugmentation.class).getRouting() != null) {
-            request.vrfId = optIface.get().getAugmentation(VppInterfaceAugmentation.class).getRouting().getIpv4VrfId()
-                    .byteValue();
+        // uses java.util.Optional(its internal behaviour suites this use better than guava one)
+        if (optIface.isPresent()) {
+            java.util.Optional.of(optIface.get())
+                    .map(iface -> iface.getAugmentation(VppInterfaceAugmentation.class))
+                    .map(VppInterfaceAugmentation::getRouting)
+                    .map(RoutingBaseAttributes::getIpv6VrfId)
+                    .ifPresent(vrf -> request.vrfId = vrf.byteValue());
         }
         getReplyForWrite(getFutureJVpp().ipNeighborAddDel(request).toCompletableFuture(), id);
     }
