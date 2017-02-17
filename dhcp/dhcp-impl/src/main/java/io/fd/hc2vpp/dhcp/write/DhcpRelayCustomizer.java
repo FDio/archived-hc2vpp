@@ -27,7 +27,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig2;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.Relay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.RelayKey;
@@ -79,11 +79,11 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
         getReplyForWrite(getFutureJVpp().dhcpProxyConfig2(request).toCompletableFuture(), id);
     }
 
-    private byte[] parseAddress(@Nonnull final IpAddressNoZone address, final boolean isIpv6) {
+    private byte[] parseAddress(@Nonnull final IpAddress address, final boolean isIpv6) {
         if (isIpv6) {
-            return ipv6AddressNoZoneToArray(address.getIpv6AddressNoZone());
+            return ipv6AddressNoZoneToArray(address.getIpv6Address());
         } else {
-            return ipv4AddressNoZoneToArray(address.getIpv4AddressNoZone());
+            return ipv4AddressNoZoneToArray(address.getIpv4Address().getValue());
         }
     }
 }

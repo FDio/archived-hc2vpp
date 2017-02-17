@@ -43,7 +43,8 @@ module dhcp {
 
     grouping relay-attributes {
         leaf server-address {
-            type inet:ip-address-no-zone;
+          // FIXME(HC2VPP-79): change to ip-address-no-zone after https://bugs.opendaylight.org/show_bug.cgi?id=6413 is resolved
+          type inet:ip-address;
             mandatory true;
             description
                 "IP address of the server DHCP packets will be forwarded to.";
@@ -55,7 +56,8 @@ module dhcp {
                 "Used to send DHCP messages to the server";
         }
         leaf gateway-address {
-            type inet:ip-address-no-zone;
+          // FIXME(HC2VPP-79): change to ip-address-no-zone after https://bugs.opendaylight.org/show_bug.cgi?id=6413 is resolved
+          type inet:ip-address;
             mandatory true;
             description
                 "IP address of the relay agent.";
