@@ -17,13 +17,15 @@
 package io.fd.hc2vpp.v3po.interfaces;
 
 import com.google.common.net.InetAddresses;
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
+import io.fd.vpp.jvpp.core.dto.ProxyArpIntfcEnableDisable;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.util.concurrent.Future;
@@ -38,16 +40,20 @@ import org.slf4j.LoggerFactory;
 public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCustomizer<ProxyArp>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProxyArpCustomizer.class);
+    private final NamingContext interfaceContext;
 
-    public ProxyArpCustomizer(final FutureJVppCore vppApi) {
+    public ProxyArpCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
         super(vppApi);
+        this.interfaceContext = interfaceContext;
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<ProxyArp> id, @Nonnull ProxyArp dataAfter,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
+        final int swIfIndex = interfaceContext.getIndex(swIfName, writeContext.getMappingContext());
         createProxyArp(getProxyArpRequestFuture(id, swIfName, dataAfter, (byte) 1 /* 1 is add */), id, dataAfter);
+        enableProxyArp(swIfName, swIfIndex, id);
     }
 
     @Override
@@ -63,7 +69,9 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
 
         final String swIfName = id.firstKeyOf(Interface.class).getName();
+        final int swIfIndex = interfaceContext.getIndex(swIfName, writeContext.getMappingContext());
         deleteProxyArp(getProxyArpRequestFuture(id, swIfName, dataBefore, (byte) 0 /* 0 is delete */), id);
+        disableProxyArp(swIfName, swIfIndex, id);
     }
 
     private Future<ProxyArpAddDelReply> getProxyArpRequestFuture(InstanceIdentifier<ProxyArp> id, String swIfName,
@@ -86,7 +94,7 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
     }
 
     private void deleteProxyArp(final Future<ProxyArpAddDelReply> future, final InstanceIdentifier<ProxyArp> identifier)
-            throws WriteFailedException {
+        throws WriteFailedException {
         final ProxyArpAddDelReply reply = getReplyForDelete(future, identifier);
         LOG.debug("Proxy ARP setting delete successful, with reply context:", reply.context);
     }
@@ -104,5 +112,25 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
 
     private String getv4AddressString(@Nonnull final Ipv4Address addr) {
         return addr.getValue();
+    }
+
+    private void enableProxyArp(final String swIfName, final int swIfIndex,
+                                final InstanceIdentifier<ProxyArp> identifier)
+        throws WriteFailedException {
+        final ProxyArpIntfcEnableDisable request = new ProxyArpIntfcEnableDisable();
+        request.swIfIndex = swIfIndex;
+        request.enableDisable = 1;
+        getReplyForWrite(getFutureJVpp().proxyArpIntfcEnableDisable(request).toCompletableFuture(), identifier);
+        LOG.debug("Proxy ARP was successfully enabled on interface {} (id={})", swIfName, swIfIndex);
+    }
+
+    private void disableProxyArp(final String swIfName, final int swIfIndex,
+                                 final InstanceIdentifier<ProxyArp> identifier)
+        throws WriteFailedException {
+        final ProxyArpIntfcEnableDisable request = new ProxyArpIntfcEnableDisable();
+        request.swIfIndex = swIfIndex;
+        request.enableDisable = 0;
+        getReplyForDelete(getFutureJVpp().proxyArpIntfcEnableDisable(request).toCompletableFuture(), identifier);
+        LOG.debug("Proxy ARP was successfully disabled on interface {} (id={})", swIfName, swIfIndex);
     }
 }

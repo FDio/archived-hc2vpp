@@ -22,9 +22,12 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
+import io.fd.vpp.jvpp.core.dto.ProxyArpIntfcEnableDisable;
+import io.fd.vpp.jvpp.core.dto.ProxyArpIntfcEnableDisableReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -37,19 +40,24 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ProxyArpCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
     private static final String IF_NAME = "eth1";
+    private static final int IF_INDEX = 42;
+    private static final String IFACE_CTX_NAME = "ifc-test-instance";
 
     private ProxyArpCustomizer customizer;
 
     @Override
     public void setUpTest() throws Exception {
-        customizer = new ProxyArpCustomizer(api);
+        customizer = new ProxyArpCustomizer(api, new NamingContext("ifacePrefix", IFACE_CTX_NAME));
+        defineMapping(mappingContext, IF_NAME, IF_INDEX, IFACE_CTX_NAME);
+        when(api.proxyArpIntfcEnableDisable(any())).thenReturn(future(new ProxyArpIntfcEnableDisableReply()));
     }
 
     @Test
     public void testWrite() throws WriteFailedException {
         when(api.proxyArpAddDel(any())).thenReturn(future(new ProxyArpAddDelReply()));
         customizer.writeCurrentAttributes(getProxyArpId(IF_NAME), proxyArp(), writeContext);
-        verify(api).proxyArpAddDel(expectedRequest(true));
+        verify(api).proxyArpAddDel(expectedAddDelRequest(true));
+        verify(api).proxyArpIntfcEnableDisable(expectedEnableRequest(true));
     }
 
     @Test(expected = WriteFailedException.class)
@@ -67,7 +75,8 @@ public class ProxyArpCustomizerTest extends WriterCustomizerTest implements Byte
     public void testDelete() throws WriteFailedException {
         when(api.proxyArpAddDel(any())).thenReturn(future(new ProxyArpAddDelReply()));
         customizer.deleteCurrentAttributes(getProxyArpId(IF_NAME), proxyArp(), writeContext);
-        verify(api).proxyArpAddDel(expectedRequest(false));
+        verify(api).proxyArpAddDel(expectedAddDelRequest(false));
+        verify(api).proxyArpIntfcEnableDisable(expectedEnableRequest(false));
     }
 
     @Test(expected = WriteFailedException.DeleteFailedException.class)
@@ -81,12 +90,19 @@ public class ProxyArpCustomizerTest extends WriterCustomizerTest implements Byte
             .setLowAddr(new Ipv4AddressNoZone("10.1.1.1")).build();
     }
 
-    private ProxyArpAddDel expectedRequest(final boolean isAdd) {
+    private ProxyArpAddDel expectedAddDelRequest(final boolean isAdd) {
         final ProxyArpAddDel request = new ProxyArpAddDel();
         request.isAdd = booleanToByte(isAdd);
         request.vrfId = 123;
         request.lowAddress = new byte[]{10,1,1,1};
         request.hiAddress = new byte[]{10,1,1,2};
+        return request;
+    }
+
+    private ProxyArpIntfcEnableDisable expectedEnableRequest(final boolean enable) {
+        final ProxyArpIntfcEnableDisable request = new ProxyArpIntfcEnableDisable();
+        request.swIfIndex = IF_INDEX;
+        request.enableDisable = booleanToByte(enable);
         return request;
     }
 
