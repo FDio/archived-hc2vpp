@@ -17,8 +17,8 @@
   <groupId>io.fd.hc2vpp.acl</groupId>
 
   <parent>
-    <artifactId>hc2vpp-aggregator</artifactId>
-    <groupId>io.fd.hc2vpp</groupId>
+    <groupId>io.fd.honeycomb.common</groupId>
+    <artifactId>honeycomb-parent</artifactId>
     <version>1.17.04-SNAPSHOT</version>
   </parent>
   <artifactId>acl-aggregator</artifactId>
