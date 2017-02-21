@@ -76,6 +76,13 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         verify(jvppSnat).snatAddStaticMapping(expectedRequest);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testWriteUnsupportedProtocol(
+        @InjectTestData(resourcePath = "/nat/static-mapping-unsupported-proto.json", id = MAPPING_TABLE_PATH) MappingTable data)
+        throws WriteFailedException {
+        customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
+    }
+
     @Test(expected = WriteFailedException.UpdateFailedException.class)
     public void testUpdate() throws WriteFailedException {
         final MappingEntry data = mock(MappingEntry.class);
@@ -99,6 +106,7 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         final SnatAddStaticMapping expectedRequest = new SnatAddStaticMapping();
         expectedRequest.isIp4 = 1;
         expectedRequest.addrOnly = 1;
+        expectedRequest.protocol = 17; // udp
         expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
         expectedRequest.externalSwIfIndex = -1;
         expectedRequest.localIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 87};

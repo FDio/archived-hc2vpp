@@ -19,10 +19,10 @@ package io.fd.hc2vpp.nat.write;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Optional;
-import io.fd.hc2vpp.nat.util.MappingEntryContext;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.nat.util.MappingEntryContext;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.snat.dto.SnatAddStaticMapping;
@@ -151,6 +151,13 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
                 ipv4AddressNoZoneToArray(dataAfter.getInternalSrcAddress().getIpv4Address().getValue());
         request.externalIpAddress = ipv4AddressNoZoneToArray(dataAfter.getExternalSrcAddress().getValue());
         request.externalSwIfIndex = -1; // external ip address is ignored if externalSwIfIndex is given
+        request.protocol = -1;
+        final Short protocol = dataAfter.getTransportProtocol();
+        if (protocol != null) {
+            checkArgument(protocol == 1 || protocol == 6 || protocol == 17,
+                "Unsupported protocol %s only ICMP, TCP and UDP are currently supported", protocol);
+            request.protocol = protocol.byteValue();
+        }
 
         Optional<Short> internalPortNumber = getPortNumber(id, dataAfter,
                 (entry) -> Optional.fromNullable(entry.getInternalSrcPort()).transform(PortNumber::getPortType));
