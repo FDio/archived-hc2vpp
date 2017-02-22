@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.routing.trait.RouteMapper;
+import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRouteReply;
@@ -113,6 +114,7 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
         request.isLocal = toByte(isLocal);
         request.isUnreach = toByte(isUnreach);
         request.isProhibit = toByte(isProhibit);
+        request.nextHopViaLabel = RouteRequestProducer.MPLS_LABEL_INVALID;
         return request;
     }
 
