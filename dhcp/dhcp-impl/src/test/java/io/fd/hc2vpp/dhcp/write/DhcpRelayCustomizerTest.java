@@ -26,8 +26,8 @@ import io.fd.hc2vpp.dhcp.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig2;
-import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig2Reply;
+import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig;
+import io.fd.vpp.jvpp.core.dto.DhcpProxyConfigReply;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.AddressFamily;
@@ -50,7 +50,7 @@ public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements Sch
     @Override
     protected void setUpTest() throws Exception {
         customizer = new DhcpRelayCustomizer(api);
-        when(api.dhcpProxyConfig2(any())).thenReturn(future(new DhcpProxyConfig2Reply()));
+        when(api.dhcpProxyConfig(any())).thenReturn(future(new DhcpProxyConfigReply()));
     }
 
     @Test
@@ -59,14 +59,13 @@ public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements Sch
         final Relay data = relays.getRelay().get(0);
         final int rxVrfId = 0;
         customizer.writeCurrentAttributes(getId(rxVrfId, Ipv4.class), data, writeContext);
-        final DhcpProxyConfig2 request = new DhcpProxyConfig2();
+        final DhcpProxyConfig request = new DhcpProxyConfig();
         request.rxVrfId = rxVrfId;
         request.isIpv6 = 0;
         request.isAdd = 1;
-        request.insertCircuitId = 1;
         request.dhcpServer = new byte[]{1,2,3,4};
         request.dhcpSrcAddress = new byte[]{5,6,7,8};
-        verify(api).dhcpProxyConfig2(request);
+        verify(api).dhcpProxyConfig(request);
     }
 
     @Test
@@ -75,15 +74,14 @@ public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements Sch
         final Relay data = relays.getRelay().get(0);
         final int rxVrfId = 1;
         customizer.updateCurrentAttributes(getId(rxVrfId, Ipv6.class), mock(Relay.class), data, writeContext);
-        final DhcpProxyConfig2 request = new DhcpProxyConfig2();
+        final DhcpProxyConfig request = new DhcpProxyConfig();
         request.rxVrfId = rxVrfId;
         request.serverVrfId = 2;
         request.isIpv6 = 1;
         request.isAdd = 1;
-        request.insertCircuitId = 1;
         request.dhcpServer = new byte[]{0x20, 0x01, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x01};
         request.dhcpSrcAddress = new byte[]{0x20, 0x01, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
-        verify(api).dhcpProxyConfig2(request);
+        verify(api).dhcpProxyConfig(request);
     }
 
     @Test
@@ -92,14 +90,13 @@ public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements Sch
         final Relay data = relays.getRelay().get(0);
         final int rxVrfId = 0;
         customizer.deleteCurrentAttributes(getId(rxVrfId, Ipv4.class), data, writeContext);
-        final DhcpProxyConfig2 request = new DhcpProxyConfig2();
+        final DhcpProxyConfig request = new DhcpProxyConfig();
         request.rxVrfId = rxVrfId;
         request.isIpv6 = 0;
         request.isAdd = 0;
-        request.insertCircuitId = 1;
         request.dhcpServer = new byte[]{1,2,3,4};
         request.dhcpSrcAddress = new byte[]{5,6,7,8};
-        verify(api).dhcpProxyConfig2(request);
+        verify(api).dhcpProxyConfig(request);
     }
 
     private InstanceIdentifier<Relay> getId(final long rxVrfId, final Class<? extends AddressFamily> addressType) {

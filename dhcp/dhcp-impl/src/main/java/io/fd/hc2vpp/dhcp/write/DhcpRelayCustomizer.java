@@ -24,7 +24,7 @@ import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig2;
+import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -67,16 +67,18 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
 
     private void setRelay(final InstanceIdentifier<Relay> id, final Relay relay, final WriteContext writeContext,
                           final boolean isAdd) throws WriteFailedException {
-        final DhcpProxyConfig2 request = new DhcpProxyConfig2();
+        final DhcpProxyConfig request = new DhcpProxyConfig();
         request.rxVrfId = relay.getRxVrfId().byteValue();
         final boolean isIpv6 = Ipv6.class == relay.getAddressType();
         request.isIpv6 = booleanToByte(isIpv6);
         request.serverVrfId = relay.getServerVrfId().intValue();
         request.isAdd = booleanToByte(isAdd);
-        request.insertCircuitId = booleanToByte(relay.isInsertCircuitId());
+        // TODO insertCircuitId is not configurable for DHCPv4,
+        // rethink how to handle the value for DHCPv6 (VSS?)
+        // request.insertCircuitId = booleanToByte(relay.isInsertCircuitId());
         request.dhcpServer = parseAddress(relay.getServerAddress(), isIpv6);
         request.dhcpSrcAddress = parseAddress(relay.getGatewayAddress(), isIpv6);
-        getReplyForWrite(getFutureJVpp().dhcpProxyConfig2(request).toCompletableFuture(), id);
+        getReplyForWrite(getFutureJVpp().dhcpProxyConfig(request).toCompletableFuture(), id);
     }
 
     private byte[] parseAddress(@Nonnull final IpAddress address, final boolean isIpv6) {
