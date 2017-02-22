@@ -62,10 +62,7 @@ module dhcp {
             description
                 "IP address of the relay agent.";
         }
-        leaf insert-circuit-id {
-            type boolean;
-            default true;
-        }
+        // TODO(HC2VPP-44): add configurable circut-id (option-82/remote-id)
     }
 
     grouping dhcp-attributes {

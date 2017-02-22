@@ -33,7 +33,7 @@
 			"description": "",
 			"collectionId": "a38b7e49-665c-4646-723d-d78bbf27080e",
 			"responses": [],
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\",\n\t\t\t\"insert-circuit-id\": \"true\"\n\t\t}\n\t]\n}\n"
+			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
 		},
 		{
 			"id": "80aae885-6a8b-09b2-f3cc-8c52fa4e081e",
@@ -53,7 +53,7 @@
 			"description": "Equivalent of\n\nvppctl set dhcp proxy server 1.2.3.5 src-address 5.6.7.9 add-option-82\n\ncan be verified with\n\nvppctl show dhcp proxy",
 			"collectionId": "a38b7e49-665c-4646-723d-d78bbf27080e",
 			"responses": [],
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 1,\n\t\t\t\"server-address\": \"1.2.3.5\",\n\t\t\t\"gateway-address\": \"5.6.7.9\",\n\t\t\t\"insert-circuit-id\": \"true\"\n\t\t}\n\t]\n}\n"
+			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 1,\n\t\t\t\"server-address\": \"1.2.3.5\",\n\t\t\t\"gateway-address\": \"5.6.7.9\"}\n\t]\n}\n"
 		},
 		{
 			"id": "8362683a-c911-27fa-c0bd-8a3515cc4bae",
@@ -73,7 +73,7 @@
 			"description": "Configuration of IP6 DHCP proxy is not supported trough CLI",
 			"collectionId": "a38b7e49-665c-4646-723d-d78bbf27080e",
 			"responses": [],
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t        \"address-type\": \"ipv6\",\n\t        \"rx-vrf-id\": 1,\n\t        \"server-address\": \"2001::1\",\n\t        \"server-vrf-id\": 2,\n\t        \"gateway-address\": \"2001::2\",\n\t        \"insert-circuit-id\": \"true\"\n\t\t}\n\t]\n}\n"
+			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t        \"address-type\": \"ipv6\",\n\t        \"rx-vrf-id\": 1,\n\t        \"server-address\": \"2001::1\",\n\t        \"server-vrf-id\": 2,\n\t        \"gateway-address\": \"2001::2\"}\n\t]\n}\n"
 		},
 		{
 			"id": "a76f4dce-f094-ecff-d1c1-28217de33494",
@@ -133,7 +133,7 @@
 			"description": "Equivalent of\n\nvppctl set dhcp proxy server 1.2.3.4 src-address 5.6.7.8 add-option-82\n\ncan be verified with\n\nvppctl show dhcp proxy",
 			"collectionId": "a38b7e49-665c-4646-723d-d78bbf27080e",
 			"responses": [],
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\",\n\t\t\t\"insert-circuit-id\": \"true\"\n\t\t}\n\t]\n}\n"
+			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
 		}
 	]
 }

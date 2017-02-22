@@ -6,8 +6,7 @@
         "rx-vrf-id": 1,
         "server-address": "2001::1",
         "server-vrf-id": 2,
-        "gateway-address": "2001::2",
-        "insert-circuit-id": "true"
+        "gateway-address": "2001::2"
       }
     ]
   }

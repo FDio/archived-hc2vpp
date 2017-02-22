@@ -73,9 +73,6 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
         request.isIpv6 = booleanToByte(isIpv6);
         request.serverVrfId = relay.getServerVrfId().intValue();
         request.isAdd = booleanToByte(isAdd);
-        // TODO insertCircuitId is not configurable for DHCPv4,
-        // rethink how to handle the value for DHCPv6 (VSS?)
-        // request.insertCircuitId = booleanToByte(relay.isInsertCircuitId());
         request.dhcpServer = parseAddress(relay.getServerAddress(), isIpv6);
         request.dhcpSrcAddress = parseAddress(relay.getGatewayAddress(), isIpv6);
         getReplyForWrite(getFutureJVpp().dhcpProxyConfig(request).toCompletableFuture(), id);
