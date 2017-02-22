@@ -66,7 +66,7 @@ public class EthernetCustomizer extends AbstractInterfaceTypeCustomizer<Ethernet
                                         @Nonnull final Ethernet dataBefore, @Nonnull final WriteContext writeContext)
         throws WriteFailedException.DeleteFailedException {
         throw new WriteFailedException.DeleteFailedException(id,
-            new UnsupportedOperationException("Removing interface of Ethernet class is not supported"));
+            new UnsupportedOperationException("Removing ethernet container is not supported"));
     }
 
     private void setEthernetAttributes(@Nonnull final InstanceIdentifier<Ethernet> id,
