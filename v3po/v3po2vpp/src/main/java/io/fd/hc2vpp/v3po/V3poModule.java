@@ -29,6 +29,7 @@ import io.fd.hc2vpp.v3po.factory.Ipv4StateReaderFactory;
 import io.fd.hc2vpp.v3po.factory.Ipv4WriterFactory;
 import io.fd.hc2vpp.v3po.factory.Ipv6StateReaderFactory;
 import io.fd.hc2vpp.v3po.factory.Ipv6WriterFactory;
+import io.fd.hc2vpp.v3po.factory.ProxyArpWriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubInterfaceIpv4WriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubInterfaceIpv6WriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubInterfaceStateIpv4ReaderFactory;
@@ -105,6 +106,7 @@ public class V3poModule extends AbstractModule {
         // Writers
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writerFactoryBinder.addBinding().to(InterfacesWriterFactory.class);
+        writerFactoryBinder.addBinding().to(ProxyArpWriterFactory.class);
         writerFactoryBinder.addBinding().to(SubinterfaceAugmentationWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppHoneycombWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppClassifierHoneycombWriterFactory.class);

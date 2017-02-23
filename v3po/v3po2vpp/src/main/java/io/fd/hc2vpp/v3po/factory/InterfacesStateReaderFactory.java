@@ -26,7 +26,6 @@ import io.fd.hc2vpp.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.L2Customizer;
-import io.fd.hc2vpp.v3po.interfacesstate.ProxyArpCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.RoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
@@ -52,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.L2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Span;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.SpanBuilder;
@@ -148,10 +146,6 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
                         ingressIdRelative.child(Ip6Acl.class)),
                 new GenericInitReader<>(aclIid.child(Ingress.class),
                         new AclCustomizer(jvpp, ifcNamingCtx, classifyContext)));
-
-        //   Proxy ARP
-        registry.add(new GenericReader<>(vppIfcAugId.child(ProxyArp.class), new ProxyArpCustomizer(jvpp,
-                ifcNamingCtx)));
 
         // Span
         final InstanceIdentifier<Span> spanId = vppIfcAugId.child(Span.class);

@@ -29,7 +29,6 @@ import io.fd.hc2vpp.v3po.interfaces.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.InterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.L2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.LoopbackCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.ProxyArpCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.RoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VhostUserCustomizer;
@@ -53,7 +52,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Loopback;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.ProxyArp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Span;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Tap;
@@ -151,10 +149,6 @@ public final class InterfacesWriterFactory implements WriterFactory {
         // L2(Execute only after subinterface (and all other ifc types) =
         registry.addAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcNamingContext, bdNamingContext)),
                 SubinterfaceAugmentationWriterFactory.SUB_IFC_ID);
-        // Proxy Arp (execute after specific interface customizers)
-        registry.addAfter(
-                new GenericWriter<>(VPP_IFC_AUG_ID.child(ProxyArp.class), new ProxyArpCustomizer(jvpp, ifcNamingContext)),
-                specificIfcTypes);
         // Ingress (execute after classify table and session writers)
         // also handles L2Acl, Ip4Acl and Ip6Acl:
         final InstanceIdentifier<Ingress> ingressId = InstanceIdentifier.create(Ingress.class);
