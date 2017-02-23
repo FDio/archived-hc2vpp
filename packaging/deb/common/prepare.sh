@@ -11,7 +11,7 @@ BUILD_DIR=${SOURCE_DIR}/honeycomb-${VERSION}
 
 # Copy and unpack the archive with vpp-integration distribution
 ARCHIVE_DIR=${SOURCE_DIR}/../../../vpp-integration/minimal-distribution/target/
-ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-1.17.04-SNAPSHOT-hc.tar.gz
+ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT-hc.tar.gz
 cp ${ARCHIVE} ${SOURCE_DIR}
 ARCHIVE=${SOURCE_DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT-hc.tar.gz
 tar -xf ${ARCHIVE} -C ${SOURCE_DIR}/
@@ -33,7 +33,7 @@ honeycomb (${VERSION}-${RELEASE}) unstable; urgency=low
 
   * 17.04 release
 
- -- mmarsale <mmarsale@cisco.com>  Mon, 22 Aug 2016 09:41:37 +0200
+ -- mgradzki <mgradzki@cisco.com>  Mon, 23 Feb 2016 09:41:37 +0200
 EOT
 
 # Install instructions

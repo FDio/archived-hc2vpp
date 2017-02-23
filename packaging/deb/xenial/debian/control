@@ -1,11 +1,11 @@
 Source: honeycomb
 Section: misc
 Priority: optional
-Maintainer: fd.io/honeycomb <honeycomb-dev@lists.fd.io>
+Maintainer: fd.io/hc2vpp <hc2vpp@lists.fd.io>
 Build-Depends: debhelper (>= 9), dh-systemd
 Standards-Version: 3.9.6
-Homepage: https://wiki.fd.io/view/Honeycomb
-Vcs-Browser: https://git.fd.io/cgit/honeycomb/tree/
+Homepage: https://wiki.fd.io/view/Hc2vpp
+Vcs-Browser: https://git.fd.io/cgit/hc2vpp/tree/
 
 Package: honeycomb
 Architecture: all
