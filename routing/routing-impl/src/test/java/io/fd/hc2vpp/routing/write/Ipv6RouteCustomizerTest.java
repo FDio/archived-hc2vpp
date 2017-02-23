@@ -52,6 +52,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         implements RoutingRequestTestHelper, ClassifyTableTestHelper, SchemaContextTestHelper {
 
+    private static final int ROUTE_PROTOCOL_INDEX = 1;
     @Captor
     private ArgumentCaptor<IpAddDelRoute> requestCaptor;
 
@@ -86,7 +87,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
 
         defineMapping(mappingContext, INTERFACE_NAME, INTERFACE_INDEX, "interface-context");
         addMapping(classifyManager, CLASSIFY_TABLE_NAME, CLASSIFY_TABLE_INDEX, mappingContext);
-        defineMapping(mappingContext, ROUTE_PROTOCOL_NAME, 1, "routing-protocol-context");
+        defineMapping(mappingContext, ROUTE_PROTOCOL_NAME, ROUTE_PROTOCOL_INDEX, "routing-protocol-context");
     }
 
     @Test
@@ -97,7 +98,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
         verifyInvocation(1, ImmutableList
                 .of(desiredFlaglessResult(1, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                        Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1,
+                        Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, ROUTE_PROTOCOL_INDEX,
                         1, 0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
     }
 
@@ -110,10 +111,10 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(1, 1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 1, 0,
+                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 1, 0,
                                 CLASSIFY_TABLE_INDEX, 1),
                         desiredFlaglessResult(1, 1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 1, 0,
+                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 1, 0,
                                 CLASSIFY_TABLE_INDEX, 1)), api,
                 requestCaptor);
     }
@@ -139,7 +140,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, 1L),
                 writeContext);
         verifyInvocation(1, ImmutableList
-                        .of(desiredSpecialResult(0, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0)), api,
+                        .of(desiredSpecialResult(0, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0, ROUTE_PROTOCOL_INDEX, 0)), api,
                 requestCaptor);
     }
 
@@ -180,7 +181,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, 1L),
                 writeContext);
         verifyInvocation(1, ImmutableList
-                        .of(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0)), api,
+                        .of(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0, ROUTE_PROTOCOL_INDEX, 0)), api,
                 requestCaptor);
     }
 }

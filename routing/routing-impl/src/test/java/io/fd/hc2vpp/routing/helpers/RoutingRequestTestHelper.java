@@ -72,9 +72,11 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
                                                final int isDrop,
                                                final int isReceive,
                                                final int isUnreach,
-                                               final int isProhibit) {
+                                               final int isProhibit,
+                                               final int protocolTableId,
+                                               final int secondaryTableId) {
         // verifiaction of special request that has only destination address and flag
-        return desiredResult(add, ipv6, 0, destinationAddress, destinationPrefixLength, null, 0, 0, 0, 1, 0, 0, 0,
+        return desiredResult(add, ipv6, 0, destinationAddress, destinationPrefixLength, null, 0, 0, protocolTableId, 1, secondaryTableId, 0, 0,
                 isDrop, isReceive, isUnreach, isProhibit);
     }
 

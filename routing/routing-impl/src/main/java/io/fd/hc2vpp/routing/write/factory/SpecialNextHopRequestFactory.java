@@ -16,31 +16,41 @@
 
 package io.fd.hc2vpp.routing.write.factory;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import io.fd.hc2vpp.routing.write.factory.base.ClassifierContextHolder;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.routing.write.factory.base.BasicHopRequestFactory;
 import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev161214.VniReference;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev161214.VppRouteAttributes;
 
-public class SpecialNextHopRequestFactory extends ClassifierContextHolder
+import javax.annotation.Nonnull;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class SpecialNextHopRequestFactory extends BasicHopRequestFactory
         implements RouteRequestProducer {
 
-    private SpecialNextHopRequestFactory(final VppClassifierContextManager classifierContextManager) {
-        super(classifierContextManager);
+    private SpecialNextHopRequestFactory(final VppClassifierContextManager classifierContextManager,
+                                         final NamingContext interfaceContext,
+                                         final NamingContext routingProtocolContext) {
+        super(classifierContextManager,interfaceContext,routingProtocolContext);
     }
 
-    public static SpecialNextHopRequestFactory forClassifierContext(
-            @Nonnull final VppClassifierContextManager classifierContextManager) {
-        return new SpecialNextHopRequestFactory(classifierContextManager);
+    public static SpecialNextHopRequestFactory forContexts(
+            @Nonnull final VppClassifierContextManager classifierContextManager,
+            @Nonnull final NamingContext interfaceContext,
+            @Nonnull final NamingContext routingProtocolContext) {
+        return new SpecialNextHopRequestFactory(classifierContextManager, interfaceContext, routingProtocolContext);
     }
 
     public IpAddDelRoute createIpv4SpecialHopRequest(final boolean add,
+                                                     @Nonnull final String parentProtocolName,
                                                      @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route route,
                                                      @Nonnull final MappingContext mappingContext,
                                                      @Nonnull final SpecialNextHopGrouping.SpecialNextHop flagsVariant) {
@@ -48,10 +58,18 @@ public class SpecialNextHopRequestFactory extends ClassifierContextHolder
         checkNotNull(mappingContext, "Mapping Context cannot be null");
         checkNotNull(flagsVariant, "Flags variant cannot be null");
 
-        return resolveFlags(getSpecialHopRequest(add, route.getDestinationPrefix()), flagsVariant);
+        final int parentProtocolTableId = getRoutingProtocolContext().getIndex(parentProtocolName,mappingContext);
+        final byte secondaryTableId = Optional.ofNullable(route.getVppIpv4Route())
+                .map(VppRouteAttributes::getSecondaryVrf)
+                .map(VniReference::getValue)
+                .map(Long::byteValue)
+                .orElse(DEFAULT_VNI);
+
+        return resolveFlags(getSpecialHopRequest(add, route.getDestinationPrefix(), (byte) parentProtocolTableId, secondaryTableId), flagsVariant);
     }
 
     public IpAddDelRoute createIpv6SpecialHopRequest(final boolean add,
+                                                     @Nonnull final String parentProtocolName,
                                                      @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route,
                                                      @Nonnull final MappingContext mappingContext,
                                                      @Nonnull final SpecialNextHopGrouping.SpecialNextHop flagsVariant) {
@@ -60,20 +78,29 @@ public class SpecialNextHopRequestFactory extends ClassifierContextHolder
         checkNotNull(mappingContext, "Mapping Context cannot be null");
         checkNotNull(flagsVariant, "Flags variant cannot be null");
 
-        return resolveFlags(getSpecialHopRequest(add, route.getDestinationPrefix()), flagsVariant);
+        final int parentProtocolTableId = getRoutingProtocolContext().getIndex(parentProtocolName,mappingContext);
+        final byte secondaryTableId = Optional.ofNullable(route.getVppIpv6Route())
+                .map(VppRouteAttributes::getSecondaryVrf)
+                .map(VniReference::getValue)
+                .map(Long::byteValue)
+                .orElse(DEFAULT_VNI);
+
+        return resolveFlags(getSpecialHopRequest(add, route.getDestinationPrefix(), (byte) parentProtocolTableId, secondaryTableId), flagsVariant);
     }
 
-    private IpAddDelRoute getSpecialHopRequest(final boolean isAdd, @Nonnull final Ipv6Prefix destinationAddress) {
+    private IpAddDelRoute getSpecialHopRequest(final boolean isAdd, @Nonnull final Ipv6Prefix destinationAddress,
+                                               final byte primaryTableId, final byte secondaryTableId) {
 
         return flaglessAddDelRouteRequest(booleanToByte(isAdd), 0, null, DEFAULT_HOP_WEIGHT, BYTE_TRUE,
                 ipv6AddressPrefixToArray(destinationAddress), extractPrefix(destinationAddress.getValue()), BYTE_FALSE,
-                DEFAULT_VNI, DEFAULT_VNI, DEFAULT_CLASSIFY_TABLE_INDEX, BYTE_FALSE);
+                primaryTableId, secondaryTableId, DEFAULT_CLASSIFY_TABLE_INDEX, BYTE_FALSE);
     }
 
-    private IpAddDelRoute getSpecialHopRequest(final boolean isAdd, @Nonnull final Ipv4Prefix destinationAddress) {
+    private IpAddDelRoute getSpecialHopRequest(final boolean isAdd, @Nonnull final Ipv4Prefix destinationAddress,
+                                               final byte primaryTableId, final byte secondaryTableId) {
         return flaglessAddDelRouteRequest(booleanToByte(isAdd), 0, null, DEFAULT_HOP_WEIGHT, BYTE_FALSE,
                 ipv4AddressPrefixToArray(destinationAddress), extractPrefix(destinationAddress.getValue()), BYTE_FALSE,
-                DEFAULT_VNI, DEFAULT_VNI, DEFAULT_CLASSIFY_TABLE_INDEX, BYTE_FALSE);
+                primaryTableId, secondaryTableId, DEFAULT_CLASSIFY_TABLE_INDEX, BYTE_FALSE);
     }
 
     private IpAddDelRoute resolveFlags(IpAddDelRoute request,

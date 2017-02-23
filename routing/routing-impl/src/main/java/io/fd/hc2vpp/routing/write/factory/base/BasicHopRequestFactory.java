@@ -16,17 +16,19 @@
 
 package io.fd.hc2vpp.routing.write.factory.base;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
+
 import javax.annotation.Nonnull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Extension to {@code ClassifierContextHolder} to hold also {@code NamingContext}
  */
-public abstract class BasicHopRequestFactory extends ClassifierContextHolder {
+public abstract class BasicHopRequestFactory {
 
+    private final VppClassifierContextManager classifierContextManager;
     private final NamingContext interfaceNamingContext;
     private final NamingContext routingProtocolContext;
 
@@ -34,9 +36,13 @@ public abstract class BasicHopRequestFactory extends ClassifierContextHolder {
             @Nonnull final VppClassifierContextManager classifierContextManager,
             @Nonnull final NamingContext interfaceContext,
             @Nonnull final NamingContext routingProtocolContext) {
-        super(classifierContextManager);
+        this.classifierContextManager = checkNotNull(classifierContextManager, "Classifier context cannot be null");
         this.interfaceNamingContext = checkNotNull(interfaceContext, "Interface context cannot be null");
         this.routingProtocolContext = checkNotNull(routingProtocolContext, "Routing protocol context cannot be null");
+    }
+
+    protected VppClassifierContextManager getVppClassifierContextManager() {
+        return this.classifierContextManager;
     }
 
     protected NamingContext getInterfaceNamingContext() {

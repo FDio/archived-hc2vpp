@@ -84,7 +84,8 @@ public class Ipv6RouteCustomizer extends FutureJVppCustomizer
                 SimpleHopRequestFactory.forContexts(classifierContextManager, interfaceContext, routingProtocolContext);
         multipathHopRequestFactory = MultipathHopRequestFactory
                 .forContexts(classifierContextManager, interfaceContext, routingProtocolContext);
-        specialNextHopRequestFactory = SpecialNextHopRequestFactory.forClassifierContext(classifierContextManager);
+        specialNextHopRequestFactory = SpecialNextHopRequestFactory.forContexts(classifierContextManager, interfaceContext,
+                routingProtocolContext);
         namesFactory = new Ipv6RouteNamesFactory(interfaceContext, routingProtocolContext);
     }
 
@@ -141,7 +142,7 @@ public class Ipv6RouteCustomizer extends FutureJVppCustomizer
                 removeMappingForEachHop(routeName, writeContext, createdHops);
             }
         } else if (route.getNextHopOptions() instanceof SpecialNextHop) {
-            writeSpecialHopRoute(identifier, route, writeContext, isAdd);
+            writeSpecialHopRoute(identifier, route, parentProtocolName, writeContext, isAdd);
         } else {
             throw new IllegalArgumentException("Unsupported next-hop type");
         }
@@ -177,13 +178,14 @@ public class Ipv6RouteCustomizer extends FutureJVppCustomizer
 
 
     private void writeSpecialHopRoute(final @Nonnull InstanceIdentifier<Route> identifier, final @Nonnull Route route,
-                                      final @Nonnull WriteContext writeContext, final boolean isAdd)
+                                      final @Nonnull String parentProtocolName, final @Nonnull WriteContext writeContext,
+                                      final boolean isAdd)
             throws WriteFailedException {
         final SpecialNextHop hop = SpecialNextHop.class.cast(route.getNextHopOptions());
         final MappingContext mappingContext = writeContext.getMappingContext();
 
         final IpAddDelRoute request = specialNextHopRequestFactory
-                .createIpv6SpecialHopRequest(isAdd, route, mappingContext, hop.getSpecialNextHop());
+                .createIpv6SpecialHopRequest(isAdd, parentProtocolName, route, mappingContext, hop.getSpecialNextHop());
 
         writeRoute(request, identifier);
     }
