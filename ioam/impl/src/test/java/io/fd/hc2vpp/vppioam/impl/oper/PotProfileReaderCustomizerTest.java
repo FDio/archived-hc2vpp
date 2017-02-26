@@ -45,19 +45,19 @@ public class PotProfileReaderCustomizerTest extends ListReaderCustomizerTest<Pot
         PotProfileListBuilder>{
 
     @Mock
-    FutureJVppIoampot jVppIoampot;
+    FutureJVppIoampot jVppIoamPot;
 
-    public PotProfileReaderCustomizerTest(){
+    public PotProfileReaderCustomizerTest() {
         super(PotProfileList.class, PotProfileSetBuilder.class);
     }
 
     @Override
     protected ReaderCustomizer<PotProfileList, PotProfileListBuilder> initCustomizer() {
-        return new PotProfileReaderCustomizer(jVppIoampot);
+        return new PotProfileReaderCustomizer(jVppIoamPot);
     }
 
     @Override
-    public void setUp(){
+    public void setUp() {
         final PotProfileShowConfigDetailsReplyDump replyDump = new PotProfileShowConfigDetailsReplyDump();
         final PotProfileShowConfigDetails replyDetails = new PotProfileShowConfigDetails();
         replyDetails.bitMask = (long)0xF;
@@ -69,7 +69,7 @@ public class PotProfileReaderCustomizerTest extends ListReaderCustomizerTest<Pot
         replyDetails.secretShare = 1234;
         replyDetails.validator = 1;
         replyDump.potProfileShowConfigDetails = Lists.newArrayList(replyDetails);
-        doReturn(future(replyDump)).when(jVppIoampot).potProfileShowConfigDump(any(PotProfileShowConfigDump.class));
+        doReturn(future(replyDump)).when(jVppIoamPot).potProfileShowConfigDump(any(PotProfileShowConfigDump.class));
     }
 
     private InstanceIdentifier<PotProfileList> getPotProfileListId(int id){

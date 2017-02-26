@@ -38,19 +38,19 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class VppIoamWriterFactory implements WriterFactory {
 
     @Nonnull
-    private final FutureJVppIoamtrace jVppIoamtrace;
+    private final FutureJVppIoamtrace jVppIoamTrace;
     @Nonnull
-    private final FutureJVppIoampot jVppIoampot;
+    private final FutureJVppIoampot jVppIoamPot;
     @Nonnull
-    private final FutureJVppIoamexport jVppIoamexport;
+    private final FutureJVppIoamexport jVppIoamExport;
 
     @Inject
-    public VppIoamWriterFactory(@Nonnull final FutureJVppIoamtrace jVppIoamtrace,
-                                @Nonnull final FutureJVppIoampot jVppIoampot,
-                                @Nonnull final FutureJVppIoamexport jVppIoamexport) {
-        this.jVppIoamtrace = jVppIoamtrace;
-        this.jVppIoampot = jVppIoampot;
-        this.jVppIoamexport = jVppIoamexport;
+    public VppIoamWriterFactory(@Nonnull final FutureJVppIoamtrace jVppIoamTrace,
+                                @Nonnull final FutureJVppIoampot jVppIoamPot,
+                                @Nonnull final FutureJVppIoamexport jVppIoamExport) {
+        this.jVppIoamTrace = jVppIoamTrace;
+        this.jVppIoamPot = jVppIoamPot;
+        this.jVppIoamExport = jVppIoamExport;
     }
 
     @Override
@@ -60,17 +60,17 @@ public class VppIoamWriterFactory implements WriterFactory {
                 InstanceIdentifier.create(IoamTraceConfig.class).child(TraceConfig.class);
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(TraceConfig.class)
                         .child(NodeInterfaces.class)),
-                new GenericListWriter<>(trId, new IoamTraceWriterCustomizer(jVppIoamtrace)));
+                new GenericListWriter<>(trId, new IoamTraceWriterCustomizer(jVppIoamTrace)));
         // POT Config
         final InstanceIdentifier<PotProfileSet> potId =
                 InstanceIdentifier.create(PotProfiles.class).child(PotProfileSet.class);
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(PotProfileSet.class)
                         .child(PotProfileList.class)),
-                new GenericListWriter<>(potId, new IoamPotWriterCustomizer(jVppIoampot)));
+                new GenericListWriter<>(potId, new IoamPotWriterCustomizer(jVppIoamPot)));
         //Export Config
         final InstanceIdentifier<IoamExport> exportId =
                 InstanceIdentifier.create(IoamExport.class);
-        registry.add(new GenericWriter<>(exportId,new IoamExportWriterCustomizer(jVppIoamexport)));
+        registry.add(new GenericWriter<>(exportId,new IoamExportWriterCustomizer(jVppIoamExport)));
 
     }
 }

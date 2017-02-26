@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.hc2vpp.vppioam.impl;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -36,7 +37,7 @@ import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
+/*
  * Glue code necessary for Honeycomb distribution to pick up the plugin classes
  */
 public final class VppIoamModule extends AbstractModule {

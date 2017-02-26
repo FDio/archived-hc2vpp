@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.hc2vpp.vppioam.impl.oper;
 
 import com.google.common.collect.Lists;
@@ -50,7 +51,7 @@ public class TraceProfileReaderCustomizer extends FutureJVppIoamtraceCustomizer
     /**
      * Creates new builder that will be used to build read value.
      *
-     * @param id
+     * @param id Identifier
      */
     @Nonnull
     @Override
@@ -89,17 +90,18 @@ public class TraceProfileReaderCustomizer extends FutureJVppIoamtraceCustomizer
 
         LOG.debug("reading attribute for trace config {}",id);
         final TraceProfileShowConfig request = new TraceProfileShowConfig();
-        TraceProfileShowConfigReply reply = getReplyForRead(getFutureJVppIoamtrace().traceProfileShowConfig(request)
+        TraceProfileShowConfigReply reply = getReplyForRead (getFutureJVppIoamtrace().traceProfileShowConfig(request)
                 .toCompletableFuture(),id);
-        if(reply == null) {
+        if (reply == null) {
             LOG.debug("{} returned null as reply from vpp",id);
             return;
         }
 
-        if(reply.traceType == 0){
+        if (reply.traceType == 0) {
             LOG.debug("{} no configured trace config found",id);
             return;
         }
+
         builder.setNodeId((long) reply.nodeId);
         builder.setTraceAppData((long) reply.appData);
         builder.setTraceNumElt((short) reply.numElts);
@@ -112,8 +114,8 @@ public class TraceProfileReaderCustomizer extends FutureJVppIoamtraceCustomizer
     /**
      * Merge read data into provided parent builder.
      *
-     * @param parentBuilder
-     * @param readValue
+     * @param parentBuilder Parent Builder
+     * @param readValue Read Value
      */
     @Override
     public void merge(@Nonnull Builder<? extends DataObject> parentBuilder, @Nonnull TraceConfig readValue) {
@@ -121,6 +123,11 @@ public class TraceProfileReaderCustomizer extends FutureJVppIoamtraceCustomizer
         List<TraceConfig> traceConfigs = builder.getTraceConfig();
         traceConfigs.add(readValue);
         builder.setTraceConfig(traceConfigs);
+    }
+
+    @Override
+    public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<TraceConfig> list) {
+        ((IoamTraceConfigBuilder) builder).setTraceConfig(list);
     }
 
     @Nonnull
@@ -132,10 +139,5 @@ public class TraceProfileReaderCustomizer extends FutureJVppIoamtraceCustomizer
         // name of trace config, which is key for the list, is not used in the VPP implementation.
 
         return Lists.newArrayList(new TraceConfigKey("trace config"));
-    }
-
-    @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<TraceConfig> list) {
-        ((IoamTraceConfigBuilder) builder).setTraceConfig(list);
     }
 }

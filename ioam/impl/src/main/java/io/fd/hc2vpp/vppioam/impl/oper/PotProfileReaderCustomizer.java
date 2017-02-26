@@ -46,8 +46,8 @@ public class PotProfileReaderCustomizer extends FutureJVppIoampotCustomizer impl
 
     private static final Logger LOG = LoggerFactory.getLogger(PotProfileReaderCustomizer.class);
 
-    public PotProfileReaderCustomizer(FutureJVppIoampot futureJVppIoampot){
-        super(futureJVppIoampot);
+    public PotProfileReaderCustomizer(FutureJVppIoampot futureJVppIoamPot) {
+        super(futureJVppIoamPot);
     }
 
     @Nonnull
@@ -101,7 +101,7 @@ public class PotProfileReaderCustomizer extends FutureJVppIoampotCustomizer impl
 
         final PotProfileShowConfigDetails details = reply.potProfileShowConfigDetails.get(0);
 
-        builder.setValidator(details.validator==1);
+        builder.setValidator(details.validator == 1);
         builder.setValidatorKey(BigInteger.valueOf(details.secretKey));
         builder.setSecretShare(BigInteger.valueOf(details.secretShare));
         builder.setPrimeNumber(BigInteger.valueOf(details.prime));
@@ -110,13 +110,13 @@ public class PotProfileReaderCustomizer extends FutureJVppIoampotCustomizer impl
         builder.setLpc(BigInteger.valueOf(details.lpc));
         builder.setNumberOfBits(getMaxBitsfromBitmask(BigInteger.valueOf(details.bitMask)));
 
-        LOG.info("Item {} successfully read: {}",instanceIdentifier,builder.build());
+        LOG.info("Item {} successfully read: {}",instanceIdentifier, builder.build());
     }
 
-    private static short getMaxBitsfromBitmask (BigInteger bitmask){
+    private static short getMaxBitsfromBitmask (BigInteger bitmask) {
         short numOfBits = 0;
-        while ((bitmask.and(BigInteger.ONE)).equals(BigInteger.ONE)){
-            bitmask=bitmask.shiftRight(1);
+        while ((bitmask.and(BigInteger.ONE)).equals(BigInteger.ONE)) {
+            bitmask = bitmask.shiftRight(1);
             numOfBits++;
         }
         return numOfBits;

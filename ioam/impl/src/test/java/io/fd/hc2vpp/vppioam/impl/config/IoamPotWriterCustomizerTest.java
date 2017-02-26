@@ -47,7 +47,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
 
     @Mock
-    protected FutureJVppIoampot jVppIoampot;
+    protected FutureJVppIoampot jVppIoamPot;
 
     private IoamPotWriterCustomizer customizer;
 
@@ -55,7 +55,7 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
 
     @Override
     public void setUpTest() throws Exception {
-        customizer = new IoamPotWriterCustomizer(jVppIoampot);
+        customizer = new IoamPotWriterCustomizer(jVppIoamPot);
     }
 
     private static PotProfileList generatePotProfileList() {
@@ -91,21 +91,21 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
     private void whenPotAddThenSuccess() {
         final PotProfileAddReply reply = new PotProfileAddReply();
         reply.context = 1;
-        doReturn(future(reply)).when(jVppIoampot).potProfileAdd(any(PotProfileAdd.class));
+        doReturn(future(reply)).when(jVppIoamPot).potProfileAdd(any(PotProfileAdd.class));
     }
 
     private void whenPotAddThenFailure() {
-        doReturn(failedFuture()).when(jVppIoampot).potProfileAdd(any(PotProfileAdd.class));
+        doReturn(failedFuture()).when(jVppIoamPot).potProfileAdd(any(PotProfileAdd.class));
     }
 
     private void whenPotDelThenSuccess() {
         final PotProfileDelReply reply = new PotProfileDelReply();
         reply.context = 1;
-        doReturn(future(reply)).when(jVppIoampot).potProfileDel(any(PotProfileDel.class));
+        doReturn(future(reply)).when(jVppIoamPot).potProfileDel(any(PotProfileDel.class));
     }
 
     private void whenPotDelThenFailure() {
-        doReturn(failedFuture()).when(jVppIoampot).potProfileDel(any(PotProfileDel.class));
+        doReturn(failedFuture()).when(jVppIoamPot).potProfileDel(any(PotProfileDel.class));
     }
 
     private static PotProfileAdd generatePotProfileAdd() {
@@ -141,7 +141,7 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
 
         customizer.writeCurrentAttributes(id, potProfileSet, writeContext);
 
-        verify(jVppIoampot).potProfileAdd(generatePotProfileAdd());
+        verify(jVppIoamPot).potProfileAdd(generatePotProfileAdd());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
         try {
             customizer.writeCurrentAttributes(id, potProfileSet, writeContext);
         } catch (WriteFailedException e) {
-            verify(jVppIoampot).potProfileAdd(generatePotProfileAdd());
+            verify(jVppIoamPot).potProfileAdd(generatePotProfileAdd());
 
             return;
         }
@@ -170,7 +170,7 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
 
         customizer.deleteCurrentAttributes(id, potProfileSet, writeContext);
 
-        verify(jVppIoampot).potProfileDel(generatePotProfileDel(POT_TEST_NAME));
+        verify(jVppIoamPot).potProfileDel(generatePotProfileDel(POT_TEST_NAME));
     }
 
     @Test
@@ -183,7 +183,7 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
         try {
             customizer.deleteCurrentAttributes(id, potProfileSet, writeContext);
         } catch (WriteFailedException e) {
-            verify(jVppIoampot).potProfileDel(generatePotProfileDel(POT_TEST_NAME));
+            verify(jVppIoamPot).potProfileDel(generatePotProfileDel(POT_TEST_NAME));
             return;
         }
         fail("WriteFailedException.DeleteFailedException was expected");

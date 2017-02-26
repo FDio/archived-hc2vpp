@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.hc2vpp.vppioam.impl.config;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
@@ -92,7 +93,7 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamtraceCustomizer
     }
 
     public TraceProfileAddReply addTraceConfig(TraceConfig traceConfig,
-                                               final InstanceIdentifier<TraceConfig> id) throws Exception {
+            final InstanceIdentifier<TraceConfig> id) throws Exception {
 
         TraceProfileAdd traceProfileAdd = new TraceProfileAdd();
         traceProfileAdd.traceType = traceConfig.getTraceType().byteValue(); //trace type
@@ -102,9 +103,9 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamtraceCustomizer
         traceProfileAdd.nodeId = traceConfig.getNodeId().intValue(); // nodeid
 
         /* Write to VPP */
-        final TraceProfileAddReply reply = getReplyForWrite((getFutureJVppIoamtrace().
-                                                            traceProfileAdd(traceProfileAdd).
-                                                            toCompletableFuture()), id);
+        final TraceProfileAddReply reply = getReplyForWrite((getFutureJVppIoamtrace()
+                                                            .traceProfileAdd(traceProfileAdd)
+                                                            .toCompletableFuture()), id);
         return reply;
     }
 

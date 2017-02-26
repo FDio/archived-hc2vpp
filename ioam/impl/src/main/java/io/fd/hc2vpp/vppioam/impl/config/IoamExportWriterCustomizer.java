@@ -36,8 +36,8 @@ public class IoamExportWriterCustomizer extends FutureJVppIoamexportCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(IoamExportWriterCustomizer.class);
 
-    public IoamExportWriterCustomizer(FutureJVppIoamexport jVppIoamexport){
-        super(jVppIoamexport);
+    public IoamExportWriterCustomizer(FutureJVppIoamexport jVppIoamExport){
+        super(jVppIoamExport);
     }
 
     @Override
@@ -67,10 +67,11 @@ public class IoamExportWriterCustomizer extends FutureJVppIoamexportCustomizer
     private IoamExportIp6EnableDisableReply addExportProfile(IoamExport ioamExport, InstanceIdentifier<IoamExport> id)
             throws WriteFailedException {
         IoamExportIp6EnableDisable request = new IoamExportIp6EnableDisable();
-        if (ioamExport.isDisable()==null)
+        if (ioamExport.isDisable() == null) {
             request.isDisable = 1;
-        else
-            request.isDisable = (byte)(ioamExport.isDisable()?1:0);
+        } else {
+            request.isDisable = (byte)(ioamExport.isDisable() ? 1 : 0);
+        }
         request.srcAddress = ipv4AddressNoZoneToArray(ioamExport.getSourceAddress().getValue());
         request.collectorAddress = ipv4AddressNoZoneToArray(ioamExport.getCollectorAddress().getValue());
         return getReplyForCreate(getFutureJVppIoamexport()

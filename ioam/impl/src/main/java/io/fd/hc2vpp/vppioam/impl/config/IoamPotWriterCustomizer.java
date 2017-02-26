@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.fd.hc2vpp.vppioam.impl.config;
 
 
@@ -114,8 +115,9 @@ public class IoamPotWriterCustomizer extends FutureJVppIoampotCustomizer impleme
         LOG.info("POT profile deleted iid={}, added {}", id, dataBefore);
     }
 
-    private void addPotProfile(PotProfileSet potProfileSet, InstanceIdentifier<PotProfileSet> id) throws WriteFailedException{
-        for(PotProfileList potProfileList:potProfileSet.getPotProfileList()) {
+    private void addPotProfile(PotProfileSet potProfileSet,
+            InstanceIdentifier<PotProfileSet> id) throws WriteFailedException {
+        for ( PotProfileList potProfileList : potProfileSet.getPotProfileList()) {
             writePotProfileList(potProfileList,potProfileSet.getName(),id);
         }
     }
@@ -123,18 +125,18 @@ public class IoamPotWriterCustomizer extends FutureJVppIoampotCustomizer impleme
     private PotProfileAddReply writePotProfileList(PotProfileList potProfileList, String name,
                                                    InstanceIdentifier<PotProfileSet> id) throws WriteFailedException{
         PotProfileAdd request = new PotProfileAdd();
-            request.id = potProfileList.getIndex().getValue().byteValue();
-            request.validator = (byte) (potProfileList.isValidator() ? 1 : 0);
-            request.secretShare = potProfileList.getSecretShare().longValue();
-            request.prime = potProfileList.getPrimeNumber().longValue();
-            request.secretKey = potProfileList.isValidator() ? potProfileList.getValidatorKey().longValue() : 0;
-            request.maxBits = potProfileList.getNumberOfBits().byteValue();
-            request.lpc = potProfileList.getLpc().longValue();
-            request.polynomialPublic = potProfileList.getPublicPolynomial().longValue();
-            request.listNameLen = (byte) name.getBytes(StandardCharsets.UTF_8).length;
-            request.listName = name.getBytes(StandardCharsets.UTF_8);
+        request.id = potProfileList.getIndex().getValue().byteValue();
+        request.validator = (byte) (potProfileList.isValidator() ? 1 : 0);
+        request.secretShare = potProfileList.getSecretShare().longValue();
+        request.prime = potProfileList.getPrimeNumber().longValue();
+        request.secretKey = potProfileList.isValidator() ? potProfileList.getValidatorKey().longValue() : 0;
+        request.maxBits = potProfileList.getNumberOfBits().byteValue();
+        request.lpc = potProfileList.getLpc().longValue();
+        request.polynomialPublic = potProfileList.getPublicPolynomial().longValue();
+        request.listNameLen = (byte) name.getBytes(StandardCharsets.UTF_8).length;
+        request.listName = name.getBytes(StandardCharsets.UTF_8);
 
-            return getReplyForWrite(getFutureJVppIoampot().potProfileAdd(request).toCompletableFuture(), id);
+        return getReplyForWrite(getFutureJVppIoampot().potProfileAdd(request).toCompletableFuture(), id);
     }
 
     private PotProfileDelReply delPotProfile(PotProfileSet potProfileSet, InstanceIdentifier<PotProfileSet> id)
