@@ -18,7 +18,9 @@ package io.fd.hc2vpp.dhcp;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+import io.fd.hc2vpp.dhcp.read.DhcpReaderFactory;
 import io.fd.hc2vpp.dhcp.write.DhcpWriterFactory;
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +37,12 @@ public final class DhcpModule extends AbstractModule {
         LOG.info("Installing DHCP module");
 
         LOG.info("Injecting writers factories");
-        // create writer factory binding
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writerFactoryBinder.addBinding().to(DhcpWriterFactory.class);
+
+        LOG.info("Injecting readers factories");
+        final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
+        readerFactoryBinder.addBinding().to(DhcpReaderFactory.class);
 
         LOG.info("Module DHCP successfully configured");
     }

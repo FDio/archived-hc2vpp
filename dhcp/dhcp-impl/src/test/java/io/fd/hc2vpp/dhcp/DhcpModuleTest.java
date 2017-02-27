@@ -30,8 +30,11 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
+import io.fd.hc2vpp.dhcp.read.DhcpReaderFactory;
 import io.fd.hc2vpp.dhcp.write.DhcpWriterFactory;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashSet;
@@ -60,6 +63,9 @@ public class DhcpModuleTest {
     @Inject
     private Set<WriterFactory> writerFactories = new HashSet<>();
 
+    @Inject
+    private Set<ReaderFactory> readerFactories = new HashSet<>();
+
     @Before
     public void setUp() {
         initMocks(this);
@@ -76,5 +82,17 @@ public class DhcpModuleTest {
         assertNotNull(registryBuilder.build());
         assertEquals(1, writerFactories.size());
         assertTrue(writerFactories.iterator().next() instanceof DhcpWriterFactory);
+    }
+
+    @Test
+    public void testReaderFactories() throws Exception {
+        assertThat(readerFactories, is(not(empty())));
+
+        // Test registration process (all dependencies present, topological order of readers does exist, etc.)
+        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder();
+        readerFactories.stream().forEach(factory -> factory.init(registryBuilder));
+        assertNotNull(registryBuilder.build());
+        assertEquals(1, readerFactories.size());
+        assertTrue(readerFactories.iterator().next() instanceof DhcpReaderFactory);
     }
 }
