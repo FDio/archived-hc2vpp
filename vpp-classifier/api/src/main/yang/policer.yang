@@ -1,0 +1,284 @@
+module policer {
+
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:policer";
+    prefix "policer";
+
+    description
+        "VPP specific configuration of policer messages. Mapped to policer API:
+         https://git.fd.io/vpp/tree/src/vnet/policer/policer.api
+
+         Partially based on
+         https://tools.ietf.org/html/draft-asechoud-netmod-qos-model-02";
+
+    reference
+        "https://docs.fd.io/vpp/17.04/clicmd_src_vnet_policer.html";
+
+    revision "2017-03-15" {
+        description "Initial revision of policer model";
+    }
+
+    import ietf-inet-types {
+      prefix inet;
+    }
+
+    typedef policer-ref {
+        type leafref {
+            path "/policers/policer/name";
+        }
+        description
+            "This type is used by data models that need to reference
+            configured policer.";
+    }
+
+    typedef color-classfier {
+        type enumeration {
+            enum conform-color;
+            enum exceed-color;
+        }
+        default conform-color;
+    }
+
+    typedef meter-type {
+        type enumeration {
+            enum 1r2c;
+            enum 1r3c;
+            enum 2r3c-2698;
+            enum 2r3c-4115;
+            enum 2r3c-mef5cf1;
+        }
+        default 1r2c;
+    }
+
+    typedef policer-round-type {
+        type enumeration {
+            enum closest;
+            enum up;
+            enum down;
+        }
+        default closest;
+    }
+
+    typedef policer-rate-type {
+        type enumeration {
+            enum kbps;
+            enum pps;
+        }
+        default kbps;
+    }
+
+    // adapted from draft-asechoud-netmod-qos-model-02
+    identity meter-action-type {
+      description
+        "action type in a meter";
+    }
+
+    identity meter-action-drop {
+      base meter-action-type;
+      description
+        "drop action type in a meter";
+    }
+
+    identity meter-action-mark-dscp {
+      base meter-action-type;
+      description
+        "dscp mark and transmit action type in a meter";
+    }
+
+    identity meter-action-transmit {
+      base meter-action-type;
+      description
+        "transmit action type in a meter";
+    }
+
+    typedef vpp-dcsp-type {
+        description
+            "DSCP field values supported by VPP";
+        type enumeration {
+            enum CS0 {
+                value 0;
+            }
+            enum CS1 {
+                value 8;
+            }
+            enum AF11 {
+                value 10;
+            }
+            enum AF12 {
+                value 12;
+            }
+            enum AF13 {
+                value 14;
+            }
+            enum CS2 {
+                value 16;
+            }
+            enum AF21 {
+                value 18;
+            }
+            enum AF22 {
+                value 20;
+            }
+            enum AF23 {
+                value 22;
+            }
+            enum CS3 {
+                value 24;
+            }
+            enum AF31 {
+                value 26;
+            }
+            enum AF32 {
+                value 28;
+            }
+            enum AF33 {
+                value 30;
+            }
+            enum CS4 {
+                value 32;
+            }
+            enum AF41 {
+                value 34;
+            }
+            enum AF42 {
+                value 36;
+            }
+            enum AF43 {
+                value 38;
+            }
+            enum CS5 {
+                value 40;
+            }
+            enum EF {
+                value 46;
+            }
+            enum CS6 {
+                value 48;
+            }
+            enum CS7 {
+                value 50;
+            }
+        }
+        default CS0;
+    }
+
+    typedef dcsp-type {
+        type union {
+            type vpp-dcsp-type;
+            type inet:dscp;
+        }
+    }
+
+    grouping meter-action-params {
+      description
+        "meter action parameters";
+      leaf meter-action-type {
+        mandatory true;
+        type identityref {
+          base meter-action-type;
+        }
+        description
+          "meter action type";
+      }
+      leaf dscp {
+        when "../meter-action-type = meter-action-mark-dscp";
+        type dcsp-type;
+        description
+          "dscp marking";
+      }
+    }
+
+    grouping policer-base-attributes {
+        leaf cir {
+            type uint32;
+        }
+        leaf eir {
+            type uint32;
+        }
+        leaf cb {
+            type uint64;
+            description "Committed Burst";
+        }
+        leaf eb {
+            type uint64;
+            description "Excess or Peak Bursnatt";
+        }
+        leaf rate-type {
+            type policer-rate-type;
+        }
+        leaf round-type {
+            type policer-round-type;
+        }
+        leaf type {
+            type meter-type;
+            description "policer algorithm";
+        }
+        leaf color-aware {
+            type boolean;
+        }
+        container conform-action {
+            uses meter-action-params;
+        }
+        container exceed-action {
+            uses meter-action-params;
+        }
+        container violate-action {
+            uses meter-action-params;
+        }
+    }
+
+    grouping policer-operational-attributes {
+        leaf single-rate {
+            type boolean;
+        }
+        leaf scale {
+            type uint32;
+        }
+        leaf cir-tokens-per-period {
+            type uint32;
+        }
+        leaf pir_tokens-per-period {
+            type uint32;
+        }
+        leaf current-limit {
+            type uint32;
+        }
+        leaf current-bucket {
+            type uint32;
+        }
+        leaf extended-limit {
+            type uint32;
+        }
+        leaf extended-bucket {
+            type uint32;
+        }
+        leaf last-update-time {
+            type uint64;
+        }
+    }
+
+    container policers {
+        list policer {
+            key name;
+            leaf name {
+                type string {
+                    length 1..63;
+                }
+            }
+            uses policer-base-attributes;
+        }
+    }
+
+    container policers-state {
+        list policer {
+            key name;
+            leaf name {
+                type string {
+                    length 1..63;
+                }
+            }
+            uses policer-base-attributes;
+            uses policer-operational-attributes;
+        }
+    }
+}

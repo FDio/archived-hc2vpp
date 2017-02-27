@@ -36,6 +36,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.OpaqueIndex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.session.attributes.next_node.Standard;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySessionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.vpp.classifier.ClassifyTable;
@@ -108,10 +109,11 @@ public class ClassifySessionWriter extends VppNodeWriter
 
         final ClassifyTable classifyTable =
                 getClassifyTable(writeContext, id.firstIdentifierOf(ClassifyTable.class), isAdd);
-        final int hitNextIndex = getNodeIndex(classifySession.getHitNext(), classifyTable, classifyTableContext,
+        final int hitNextIndex = getNodeIndex(((Standard)classifySession.getNextNode()).getHitNext(),
+            classifyTable, classifyTableContext,
                 writeContext.getMappingContext(), id);
         final int opaqueIndex =
-                getOpaqueIndex(classifySession.getOpaqueIndex(), classifyTable, writeContext.getMappingContext(), id);
+                getOpaqueIndex(((Standard)classifySession.getNextNode()).getOpaqueIndex(), classifyTable, writeContext.getMappingContext(), id);
 
         final CompletionStage<ClassifyAddDelSessionReply> createClassifyTableReplyCompletionStage = getFutureJVpp()
                 .classifyAddDelSession(

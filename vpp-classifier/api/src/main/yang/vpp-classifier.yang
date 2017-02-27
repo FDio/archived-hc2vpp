@@ -19,8 +19,14 @@ module vpp-classifier {
       "https://wiki.fd.io/view/VPP/Introduction_To_N-tuple_Classifiers";
   }
 
+  // TODO add revision (policer inclusion)
+
   import ietf-yang-types {
     prefix "yang";
+  }
+
+  import policer {
+    prefix "policer";
   }
 
   typedef classify-table-ref {
@@ -71,17 +77,35 @@ module vpp-classifier {
   grouping classify-session-attributes {
     description
       "Defines classify session attributes that are mapped to classify_add_del_session
-       and classify_session_details messages parameters.";
+       and classify_session_details messages parameters.
+       Either hit_next or policer_hit_next should be defined.";
 
-    leaf hit_next {
-      type vpp-node;
+    choice next_node {
       mandatory true;
       description
-        "Vpp node to which packet will be send when it produces a match.";
+        "Options for expressing the next node on classify hit and associated metadata to be passed";
+      case standard {
+        leaf hit_next {
+          mandatory true;
+          type vpp-node;
+          description
+            "Vpp node to which packet will be send when it produces a match.";
+        }
+        leaf opaque_index {
+          type opaque-index;
+        }
+      }
+      case policer {
+        leaf policer_hit_next {
+          mandatory true;
+          type policer:policer-ref;
+        }
+        leaf color_classfier {
+          type policer:color-classfier;
+        }
+      }
     }
-    leaf opaque_index {
-      type opaque-index;
-    }
+
     leaf advance {
       type int32;
       default 0;

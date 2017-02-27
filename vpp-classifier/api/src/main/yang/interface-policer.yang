@@ -1,0 +1,61 @@
+module interface-policer {
+
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:interface:policer";
+    prefix "ifc-policer";
+
+    description
+        "This YANG module defines policer configuration and
+        operational data for interfaces in VPP.
+        Mapped to policer_classify_set_interface:
+        https://git.fd.io/vpp/tree/src/vnet/classify/classify.api#n119";
+
+    revision "2017-03-15" {
+        description "Initial revision of policer model";
+    }
+
+    import vpp-classifier {
+        prefix "vpp-classifier";
+    }
+
+    import ietf-interfaces {
+        prefix "if";
+    }
+
+    import yang-ext {
+        prefix "ext";
+    }
+
+    grouping interface-policer-attributes {
+        description
+            "Defines references to policer classify tables.
+            At least one table reference should be specified.";
+        leaf l2-table {
+            type vpp-classifier:classify-table-ref;
+            description
+                "An L2 policer table";
+        }
+        leaf ip4-table {
+            type vpp-classifier:classify-table-ref;
+            description
+                "An IPv4 policer table";
+        }
+        leaf ip6-table {
+            type vpp-classifier:classify-table-ref;
+            description
+                "An IPv6 policer table";
+        }
+    }
+
+    augment /if:interfaces/if:interface {
+        ext:augment-identifier "policer-interface-augmentation";
+
+        uses interface-policer-attributes;
+    }
+
+    augment /if:interfaces-state/if:interface {
+        ext:augment-identifier "policer-interface-state-augmentation";
+
+        uses interface-policer-attributes;
+    }
+}

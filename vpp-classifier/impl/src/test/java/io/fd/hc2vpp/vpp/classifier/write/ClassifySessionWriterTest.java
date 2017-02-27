@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.clas
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppNodeName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.session.attributes.next_node.StandardBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySessionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySessionKey;
@@ -57,8 +58,11 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
     private static ClassifySession generateClassifySession(final long opaqueIndex, final String match) {
         final ClassifySessionBuilder builder = new ClassifySessionBuilder();
-        builder.setOpaqueIndex(new OpaqueIndex(opaqueIndex));
-        builder.setHitNext(new VppNode(PacketHandlingAction.Deny));
+        builder.setNextNode(
+            new StandardBuilder()
+                .setOpaqueIndex(new OpaqueIndex(opaqueIndex))
+                .setHitNext(new VppNode(PacketHandlingAction.Deny))
+                .build());
         builder.setAdvance(123);
         builder.setMatch(new HexString(match));
         return builder.build();

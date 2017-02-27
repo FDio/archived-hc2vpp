@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.OpaqueIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.VppNodeName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.session.attributes.next_node.StandardBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySessionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySessionKey;
@@ -105,15 +106,17 @@ public class ClassifySessionReader extends FutureJVppCustomizer
             final ClassifySessionDetails detail = classifySession.get();
             final Optional<VppNode> node =
                 readVppNode(detail.tableId, detail.hitNextIndex, classifyTableContext, ctx.getMappingContext(), LOG);
+            final StandardBuilder nextNode = new StandardBuilder();
             if (node.isPresent()) {
-                builder.setHitNext(node.get());
+                nextNode.setHitNext(node.get());
             } else {
-                builder.setHitNext(new VppNode(new VppNodeName("unknown"))); // TODO(HC2VPP-9): remove this workaround
+                nextNode.setHitNext(new VppNode(new VppNodeName("unknown")));
             }
             if (detail.opaqueIndex != ~0) {
                 // value is specified:
-                builder.setOpaqueIndex(readOpaqueIndex(detail.tableId, detail.opaqueIndex, ctx.getMappingContext()));
+                nextNode.setOpaqueIndex(readOpaqueIndex(detail.tableId, detail.opaqueIndex, ctx.getMappingContext()));
             }
+            builder.setNextNode(nextNode.build());
             builder.setAdvance(detail.advance);
             builder.setMatch(key.getMatch());
 
