@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.dhcp.write;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -25,6 +26,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.Dhcp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.Relays;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.Relay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.relay.attributes.Server;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -32,13 +34,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public final class DhcpWriterFactory implements WriterFactory {
 
-    private static final InstanceIdentifier<Relay> RELAY_ID = InstanceIdentifier.create(Dhcp.class).child(Relays.class).child(Relay.class);
+    private static final InstanceIdentifier<Relay> RELAY_ID =
+        InstanceIdentifier.create(Dhcp.class).child(Relays.class).child(Relay.class);
 
     @Inject
     private FutureJVppCore vppApi;
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
-        registry.add(new GenericListWriter<>(RELAY_ID, new DhcpRelayCustomizer(vppApi)));
+        registry.subtreeAdd(
+            ImmutableSet.of(InstanceIdentifier.create(Relay.class).child(Server.class)),
+            new GenericListWriter<>(RELAY_ID, new DhcpRelayCustomizer(vppApi))
+        );
     }
 }

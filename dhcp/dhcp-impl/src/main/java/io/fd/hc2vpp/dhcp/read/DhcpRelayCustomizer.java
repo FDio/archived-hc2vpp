@@ -35,6 +35,7 @@ import io.fd.vpp.jvpp.core.dto.DhcpProxyDetails;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -47,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.Relay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.RelayBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.RelayKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.relay.attributes.ServerBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -72,10 +74,10 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer
 
             final CompletionStage<DhcpProxyDetailsReplyDump> result = getFutureJVpp().dhcpProxyDump(new DhcpProxyDump())
                 .thenCombine(getFutureJVpp().dhcpProxyDump(request),
-                (ip4, ip6) -> {
-                    ip4.dhcpProxyDetails.addAll(ip6.dhcpProxyDetails);
-                    return ip4;
-                });
+                    (ip4, ip6) -> {
+                        ip4.dhcpProxyDetails.addAll(ip6.dhcpProxyDetails);
+                        return ip4;
+                    });
             return getReplyForRead(result.toCompletableFuture(), id);
         };
     }
@@ -136,8 +138,14 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer
             builder.setRxVrfId(key.getRxVrfId());
             final boolean isIp6 = byteToBoolean(detail.isIpv6);
             builder.setGatewayAddress(readAddress(detail.dhcpSrcAddress, isIp6));
-            builder.setServerAddress(readAddress(detail.dhcpServer, isIp6));
-            builder.setServerVrfId(UnsignedInts.toLong(detail.serverVrfId));
+            if (detail.servers != null) {
+                builder.setServer(Arrays.stream(detail.servers).map(
+                    server -> new ServerBuilder()
+                        .setAddress(readAddress(server.dhcpServer, isIp6))
+                        .setVrfId(UnsignedInts.toLong(server.serverVrfId))
+                        .build()
+                ).collect(Collectors.toList()));
+            }
         }
     }
 

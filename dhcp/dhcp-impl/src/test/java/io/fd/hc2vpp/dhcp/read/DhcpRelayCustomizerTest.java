@@ -28,6 +28,7 @@ import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyDetails;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyDump;
+import io.fd.vpp.jvpp.core.types.DhcpServer;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.Dhcp;
@@ -38,18 +39,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.Relay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.RelayBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.RelayKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.relay.attributes.Server;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTest<Relay, RelayKey, RelayBuilder> {
+    private static InstanceIdentifier<Relays> RELAYS = InstanceIdentifier.create(Dhcp.class).child(Relays.class);
+    private KeyedInstanceIdentifier<Relay, RelayKey> IP4_IID =
+        RELAYS.child(Relay.class, new RelayKey(Ipv4.class, 123L));
+    private KeyedInstanceIdentifier<Relay, RelayKey> IP6_IID =
+        RELAYS.child(Relay.class, new RelayKey(Ipv6.class, 321L));
     public DhcpRelayCustomizerTest() {
         super(Relay.class, RelaysBuilder.class);
     }
-
-    private static InstanceIdentifier<Relays> RELAYS = InstanceIdentifier.create(Dhcp.class).child(Relays.class);
-
-    private KeyedInstanceIdentifier<Relay, RelayKey> IP4_IID = RELAYS.child(Relay.class, new RelayKey(Ipv4.class, 123L));
-    private KeyedInstanceIdentifier<Relay, RelayKey> IP6_IID = RELAYS.child(Relay.class, new RelayKey(Ipv6.class, 321L));
 
     @Override
     protected ReaderCustomizer<Relay, RelayBuilder> initCustomizer() {
@@ -61,9 +63,14 @@ public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTes
         final DhcpProxyDetailsReplyDump ip4 = new DhcpProxyDetailsReplyDump();
         final DhcpProxyDetails ip4Proxy = new DhcpProxyDetails();
         ip4Proxy.rxVrfId = 123;
-        ip4Proxy.dhcpSrcAddress = new byte[]{1,2,3,4};
-        ip4Proxy.serverVrfId = 11;
-        ip4Proxy.dhcpServer = new byte[]{8,8,8,8};
+        ip4Proxy.dhcpSrcAddress = new byte[] {1, 2, 3, 4};
+        final DhcpServer ip4server1 = new DhcpServer();
+        ip4server1.serverVrfId = 11;
+        ip4server1.dhcpServer = new byte[] {8, 8, 8, 8};
+        final DhcpServer ip4server2 = new DhcpServer();
+        ip4server2.serverVrfId = 12;
+        ip4server2.dhcpServer = new byte[] {8, 8, 8, 4};
+        ip4Proxy.servers = new DhcpServer[] {ip4server1, ip4server2};
         ip4.dhcpProxyDetails.add(ip4Proxy);
         when(api.dhcpProxyDump(new DhcpProxyDump())).thenReturn(future(ip4));
 
@@ -71,12 +78,15 @@ public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTes
         final DhcpProxyDetails ip6Proxy = new DhcpProxyDetails();
         ip6Proxy.rxVrfId = 321;
         // 2001:0db8:0a0b:12f0:0000:0000:0000:0001
-        ip6Proxy.dhcpSrcAddress = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x01};
-        ip6Proxy.serverVrfId = 22;
-        ip6Proxy.isIpv6  = 1;
+        ip6Proxy.dhcpSrcAddress =
+            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0, 0, 0, 0, 0, 0, 0, 0x01};
+        final DhcpServer ip6server = new DhcpServer();
+        ip6server.serverVrfId = 22;
         // 2001:0db8:0a0b:12f0:0000:0000:0000:0002
-        ip6Proxy.dhcpServer = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
-
+        ip6server.dhcpServer =
+            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0, 0, 0, 0, 0, 0, 0, 0x02};
+        ip6Proxy.servers = new DhcpServer[] {ip6server};
+        ip6Proxy.isIpv6 = 1;
         final DhcpProxyDump ip6Dump = new DhcpProxyDump();
         ip6Dump.isIp6 = 1;
         ip6.dhcpProxyDetails.add(ip6Proxy);
@@ -96,9 +106,13 @@ public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTes
         getCustomizer().readCurrentAttributes(IP4_IID, builder, ctx);
         assertEquals(IP4_IID.getKey().getAddressType(), builder.getAddressType());
         assertEquals(IP4_IID.getKey().getRxVrfId(), builder.getRxVrfId());
-        assertEquals(11L, builder.getServerVrfId().longValue());
         assertArrayEquals("1.2.3.4".toCharArray(), builder.getGatewayAddress().getValue());
-        assertArrayEquals("8.8.8.8".toCharArray(), builder.getServerAddress().getValue());
+        final List<Server> server = builder.getServer();
+        assertEquals(2, server.size());
+        assertEquals(11L, server.get(0).getVrfId().longValue());
+        assertArrayEquals("8.8.8.8".toCharArray(), server.get(0).getAddress().getValue());
+        assertEquals(12L, server.get(1).getVrfId().longValue());
+        assertArrayEquals("8.8.8.4".toCharArray(), server.get(1).getAddress().getValue());
     }
 
     @Test
@@ -107,9 +121,9 @@ public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTes
         getCustomizer().readCurrentAttributes(IP6_IID, builder, ctx);
         assertEquals(IP6_IID.getKey().getAddressType(), builder.getAddressType());
         assertEquals(IP6_IID.getKey().getRxVrfId(), builder.getRxVrfId());
-        assertEquals(22L, builder.getServerVrfId().longValue());
+        assertEquals(22L, builder.getServer().get(0).getVrfId().longValue());
         assertArrayEquals("2001:db8:a0b:12f0::1".toCharArray(), builder.getGatewayAddress().getValue());
-        assertArrayEquals("2001:db8:a0b:12f0::2".toCharArray(), builder.getServerAddress().getValue());
+        assertArrayEquals("2001:db8:a0b:12f0::2".toCharArray(), builder.getServer().get(0).getAddress().getValue());
     }
 
     @Test

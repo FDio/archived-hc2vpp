@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.dhcp.write;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +42,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements SchemaContextTestHelper {
 
     private static final String RELAYS_PATH = "/dhcp:dhcp/dhcp:relays";
-    private static final InstanceIdentifier<Relays> RELAYS_IID = InstanceIdentifier.create(Dhcp.class).child(Relays.class);
+    private static final InstanceIdentifier<Relays> RELAYS_IID =
+        InstanceIdentifier.create(Dhcp.class).child(Relays.class);
 
     private DhcpRelayCustomizer customizer;
 
@@ -63,24 +63,29 @@ public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements Sch
         request.rxVrfId = rxVrfId;
         request.isIpv6 = 0;
         request.isAdd = 1;
-        request.dhcpServer = new byte[]{1,2,3,4};
-        request.dhcpSrcAddress = new byte[]{5,6,7,8};
+        request.dhcpServer = new byte[] {1, 2, 3, 4};
+        request.dhcpSrcAddress = new byte[] {5, 6, 7, 8};
+        verify(api).dhcpProxyConfig(request);
+        request.dhcpServer = new byte[] {1, 2, 3, 5};
         verify(api).dhcpProxyConfig(request);
     }
 
     @Test
-    public void testUpdate(@InjectTestData(resourcePath = "/relay/ipv6DhcpRelay.json", id = RELAYS_PATH) Relays relays)
+    public void testUpdate(
+        @InjectTestData(resourcePath = "/relay/ipv6DhcpRelayBefore.json", id = RELAYS_PATH) Relays relaysBefore,
+        @InjectTestData(resourcePath = "/relay/ipv6DhcpRelayAfter.json", id = RELAYS_PATH) Relays relayAfter)
         throws WriteFailedException {
-        final Relay data = relays.getRelay().get(0);
+        final Relay before = relaysBefore.getRelay().get(0);
+        final Relay after = relayAfter.getRelay().get(0);
         final int rxVrfId = 1;
-        customizer.updateCurrentAttributes(getId(rxVrfId, Ipv6.class), mock(Relay.class), data, writeContext);
+        customizer.updateCurrentAttributes(getId(rxVrfId, Ipv6.class), before, after, writeContext);
         final DhcpProxyConfig request = new DhcpProxyConfig();
         request.rxVrfId = rxVrfId;
         request.serverVrfId = 2;
         request.isIpv6 = 1;
-        request.isAdd = 1;
-        request.dhcpServer = new byte[]{0x20, 0x01, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x01};
-        request.dhcpSrcAddress = new byte[]{0x20, 0x01, 0, 0, 0, 0, 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
+        request.isAdd = 0;
+        request.dhcpServer = new byte[] {0x20, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x01};
+        request.dhcpSrcAddress = new byte[] {0x20, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x02};
         verify(api).dhcpProxyConfig(request);
     }
 
@@ -94,8 +99,10 @@ public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements Sch
         request.rxVrfId = rxVrfId;
         request.isIpv6 = 0;
         request.isAdd = 0;
-        request.dhcpServer = new byte[]{1,2,3,4};
-        request.dhcpSrcAddress = new byte[]{5,6,7,8};
+        request.dhcpServer = new byte[] {1, 2, 3, 4};
+        request.dhcpSrcAddress = new byte[] {5, 6, 7, 8};
+        verify(api).dhcpProxyConfig(request);
+        request.dhcpServer = new byte[] {1, 2, 3, 5};
         verify(api).dhcpProxyConfig(request);
     }
 

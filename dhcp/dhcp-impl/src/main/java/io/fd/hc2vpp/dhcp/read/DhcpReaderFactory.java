@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.dhcp.read;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
@@ -27,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.Relays;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.RelaysBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.Relay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.relay.attributes.Server;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -45,6 +47,9 @@ public final class DhcpReaderFactory implements ReaderFactory {
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
         registry.addStructuralReader(DHCP_ID, DhcpBuilder.class);
         registry.addStructuralReader(RELAYS_ID, RelaysBuilder.class);
-        registry.add(new GenericInitListReader<>(RELAY_ID, new io.fd.hc2vpp.dhcp.read.DhcpRelayCustomizer(vppApi)));
+        registry.subtreeAdd(
+            ImmutableSet.of(InstanceIdentifier.create(Relay.class).child(Server.class)),
+            new GenericInitListReader<>(RELAY_ID, new io.fd.hc2vpp.dhcp.read.DhcpRelayCustomizer(vppApi))
+        );
     }
 }

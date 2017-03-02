@@ -1,0 +1,21 @@
+{
+  "relays": {
+    "relay": [
+      {
+        "address-type": "ipv6",
+        "rx-vrf-id": 1,
+        "gateway-address": "2001::2",
+        "server" : [
+          {
+            "vrf-id": 2,
+            "address": "2001::1"
+          },
+          {
+            "vrf-id": 2,
+            "address": "2001::10"
+          }
+        ]
+      }
+    ]
+  }
+}

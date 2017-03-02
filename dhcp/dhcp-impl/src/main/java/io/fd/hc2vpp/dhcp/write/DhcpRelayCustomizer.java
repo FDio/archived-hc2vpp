@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.dhcp.write;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
@@ -26,11 +28,13 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.Relay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.dhcp.attributes.relays.RelayKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev170315.relay.attributes.Server;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +51,10 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Relay> id, @Nonnull final Relay dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         LOG.debug("Writing Relay {} dataAfter={}", id, dataAfter);
-        setRelay(id, dataAfter, writeContext, true);
+        checkArgument(dataAfter.getServer() != null && !dataAfter.getServer().isEmpty(), "At least one DHCP server needs to be configured");
+        for (final Server server : dataAfter.getServer()) {
+            setRelay(id, dataAfter, server, true);
+        }
     }
 
     @Override
@@ -55,26 +62,50 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
                                         @Nonnull final Relay dataAfter, @Nonnull final WriteContext writeContext)
         throws WriteFailedException {
         LOG.debug("Updating Relay {} before={} after={}", id, dataBefore, dataAfter);
-        setRelay(id, dataAfter, writeContext, true);
+        final List<Server> serversBefore = dataBefore.getServer();
+        checkArgument(serversBefore != null && !serversBefore.isEmpty(),
+            "At least one DHCP server needs to be configured before update operation");
+        final List<Server> serversAfter = dataAfter.getServer();
+        checkArgument(serversAfter != null && !serversAfter.isEmpty(),
+            "At least one DHCP server needs to be configured after update operation");
+
+        // remove old servers (we do not expect many, so no need for efficient search):
+        for (final Server server : serversBefore) {
+            if (!serversAfter.contains(server)) {
+                setRelay(id, dataAfter, server, false);
+            }
+        }
+        // and add new ones:
+        for (final Server server : serversAfter) {
+            if (!serversBefore.contains(server)) {
+                setRelay(id, dataAfter, server, true);
+            }
+        }
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Relay> id, @Nonnull final Relay dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         LOG.debug("Removing Relay {} dataBefore={}", id, dataBefore);
-        setRelay(id, dataBefore, writeContext, false);
+        checkArgument(dataBefore.getServer() != null && !dataBefore.getServer().isEmpty(),
+            "At least one DHCP server needs to be configured");
+        for (final Server server : dataBefore.getServer()) {
+            setRelay(id, dataBefore, server, false);
+        }
     }
 
-    private void setRelay(final InstanceIdentifier<Relay> id, final Relay relay, final WriteContext writeContext,
-                          final boolean isAdd) throws WriteFailedException {
+    private void setRelay(final InstanceIdentifier<Relay> id, final Relay relay, final Server server,
+                          final boolean isAdd)
+        throws WriteFailedException {
         final DhcpProxyConfig request = new DhcpProxyConfig();
         request.rxVrfId = relay.getRxVrfId().byteValue();
         final boolean isIpv6 = Ipv6.class == relay.getAddressType();
         request.isIpv6 = booleanToByte(isIpv6);
-        request.serverVrfId = relay.getServerVrfId().intValue();
+        request.serverVrfId = server.getVrfId().intValue();
         request.isAdd = booleanToByte(isAdd);
-        request.dhcpServer = parseAddress(relay.getServerAddress(), isIpv6);
+        request.dhcpServer = parseAddress(server.getAddress(), isIpv6);
         request.dhcpSrcAddress = parseAddress(relay.getGatewayAddress(), isIpv6);
+        LOG.debug("DHCP config change id={} request={}", id, request);
         getReplyForWrite(getFutureJVpp().dhcpProxyConfig(request).toCompletableFuture(), id);
     }
 
