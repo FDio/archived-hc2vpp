@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>samples-impl</artifactId>
-    <version>1.17.01-SNAPSHOT</version>
+    <version>1.17.04-SNAPSHOT</version>
 
     <dependencies>
         <!-- Api classes generated from yang model -->

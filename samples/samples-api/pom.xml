@@ -11,7 +11,7 @@
 
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>samples-api</artifactId>
-    <version>1.17.01-SNAPSHOT</version>
+    <version>1.17.04-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>
