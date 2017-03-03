@@ -30,8 +30,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.Ipv4SubnetValidator;
-import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.IpAddressDetailsReplyDump;
@@ -68,9 +66,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     private static final String IFACE_NAME = "eth0";
     private static final int IFACE_ID = 123;
 
-    @Mock
-    private Ipv4SubnetValidator subnetValidator;
-
     private NamingContext interfaceContext;
     private Ipv4AddressCustomizer customizer;
 
@@ -92,11 +87,9 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     public void setUpTest() throws Exception {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
 
-        customizer = new Ipv4AddressCustomizer(api, interfaceContext, subnetValidator);
+        customizer = new Ipv4AddressCustomizer(api, interfaceContext);
 
         doReturn(future(new IpAddressDetailsReplyDump())).when(api).ipAddressDump(any());
-        when(writeContext.readAfter(Mockito.any()))
-                .thenReturn(Optional.of(new Ipv4Builder().setAddress(Collections.emptyList()).build()));
     }
 
     private void whenSwInterfaceAddDelAddressThenSuccess() {
@@ -109,8 +102,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testAddPrefixLengthIpv4Address() throws Exception {
-        doNothing().when(subnetValidator).checkNotAddingToSameSubnet(Mockito.anyList());
-
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
         when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
@@ -149,39 +140,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
             return;
         }
         fail("WriteFailedException was expected");
-    }
-
-    @Test
-    public void testAddPrefixLengthIpv4AddressConflicted() throws Exception {
-
-        final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
-        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
-
-        Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
-        PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
-        Address data = new AddressBuilder().setIp(noZoneIp).setSubnet(length).build();
-        final List<Address> addressList = Arrays.asList(data);
-
-        //throws when validation invoked
-        Mockito.doThrow(SubnetValidationException.forConflictingData((short) 24, Arrays.asList(data))).when(subnetValidator)
-                .checkNotAddingToSameSubnet(addressList);
-
-        //fake data return from WriteContext
-        doReturn(Optional.of(new Ipv4Builder().setAddress(addressList).build())).when(writeContext)
-                .readAfter(argThat(matchInstanceIdentifier(Ipv4.class)));
-
-        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
-
-        try {
-            customizer.writeCurrentAttributes(id, data, writeContext);
-        } catch (WriteFailedException e) {
-            //verifies if cause of exception is correct type
-            assertTrue(e.getCause() instanceof SubnetValidationException);
-
-            //verify that validation call was invoked with data from writeContext
-            verify(subnetValidator, times(1)).checkNotAddingToSameSubnet(addressList);
-        }
-
     }
 
     @Test(expected =  WriteFailedException.UpdateFailedException.class)

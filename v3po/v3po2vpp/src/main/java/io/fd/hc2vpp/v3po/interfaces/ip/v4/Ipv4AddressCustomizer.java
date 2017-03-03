@@ -23,8 +23,6 @@ import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfaces.ip.IpWriter;
-import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.Ipv4SubnetValidator;
-import io.fd.hc2vpp.v3po.interfaces.ip.subnet.validation.SubnetValidationException;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -51,19 +49,11 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressCustomizer.class);
     private final NamingContext interfaceContext;
-    private final Ipv4SubnetValidator subnetValidator;
-
-    @VisibleForTesting
-    Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore, @Nonnull final NamingContext interfaceContext,
-                          @Nonnull final Ipv4SubnetValidator subnetValidator) {
-        super(futureJVppCore);
-        this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
-        this.subnetValidator = checkNotNull(subnetValidator, "Subnet validator cannot be null");
-    }
 
     public Ipv4AddressCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                  @Nonnull final NamingContext interfaceContext) {
-        this(futureJVppCore, interfaceContext, new Ipv4SubnetValidator());
+        super(futureJVppCore);
+        this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
     }
 
     @Override
@@ -72,21 +62,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
 
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, writeContext.getMappingContext());
-
-        // checks whether address is not from same subnet of some address already defined on this interface
-        try {
-
-            final InstanceIdentifier<Ipv4> parentId = RWUtils.cutId(id, InstanceIdentifier.create(Ipv4.class));
-            final Optional<Ipv4> ipv4Optional = writeContext.readAfter(parentId);
-
-            //no need to check isPresent() - we are inside of address customizer, therefore there must be Address data
-            //that is being processed by infrastructure
-
-            subnetValidator.checkNotAddingToSameSubnet(ipv4Optional.get().getAddress());
-        } catch (SubnetValidationException e) {
-            throw new WriteFailedException(id, e);
-        }
-
+        // TODO - HC2VPP-92 - Add more descriptive exception handling after https://jira.fd.io/browse/VPP-649
         setAddress(true, id, interfaceName, interfaceIndex, dataAfter, writeContext);
     }
 
