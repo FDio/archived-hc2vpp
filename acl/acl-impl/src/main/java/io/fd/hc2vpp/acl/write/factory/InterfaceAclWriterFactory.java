@@ -36,21 +36,24 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceAclWriterFactory extends AbstractAclWriterFactory implements WriterFactory {
 
-    private static final InstanceIdentifier<Acl> ACL_IID =
+    static final InstanceIdentifier<Acl> ACL_IID =
         InstanceIdentifier.create(Interfaces.class).child(Interface.class)
             .augmentation(VppAclInterfaceAugmentation.class).child(Acl.class);
+    private static final InstanceIdentifier<Interface> IFC_ID =
+        InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
-        registry.subtreeAdd(aclHandledChildren(InstanceIdentifier.create(Acl.class)),
+        registry.subtreeAddAfter(aclHandledChildren(InstanceIdentifier.create(Acl.class)),
             new GenericWriter<>(ACL_IID,
-                new InterfaceAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)));
+                new InterfaceAclCustomizer(futureAclFacade, interfaceContext, standardAclContext)), IFC_ID);
 
-        registry.add(new GenericWriter<>(ACL_IID.child(Ingress.class).child(VppMacipAcl.class),
-            new InterfaceAclMacIpCustomizer(futureAclFacade, macIpAClContext, interfaceContext)));
+        registry.addAfter(new GenericWriter<>(ACL_IID.child(Ingress.class).child(VppMacipAcl.class),
+            new InterfaceAclMacIpCustomizer(futureAclFacade, macIpAClContext, interfaceContext)), IFC_ID);
     }
 
-    private Set<InstanceIdentifier<?>> aclHandledChildren(final InstanceIdentifier<Acl> parentId) {
+    static Set<InstanceIdentifier<?>> aclHandledChildren(final InstanceIdentifier<Acl> parentId) {
         return ImmutableSet.of(parentId.child(Ingress.class),
             parentId.child(Ingress.class).child(VppAcls.class),
             parentId.child(Egress.class),

@@ -16,6 +16,9 @@
 
 package io.fd.hc2vpp.acl.write.factory;
 
+import static io.fd.hc2vpp.acl.write.factory.InterfaceAclWriterFactory.ACL_IID;
+import static io.fd.hc2vpp.acl.write.factory.InterfaceAclWriterFactory.aclHandledChildren;
+
 import io.fd.hc2vpp.acl.util.factory.AclFactory;
 import io.fd.hc2vpp.acl.write.VppAclCustomizer;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
@@ -32,8 +35,9 @@ public class VppAclWriterFactory extends AbstractAclWriterFactory implements Wri
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         final InstanceIdentifier<AccessLists> rootNode = InstanceIdentifier.create(AccessLists.class);
 
-        registry.subtreeAdd(vppAclChildren(InstanceIdentifier.create(Acl.class)),
+        registry.subtreeAddBefore(vppAclChildren(InstanceIdentifier.create(Acl.class)),
             new GenericListWriter<>(rootNode.child(Acl.class),
-                new VppAclCustomizer(futureAclFacade, standardAclContext, macIpAClContext)));
+                new VppAclCustomizer(futureAclFacade, standardAclContext, macIpAClContext)),
+            aclHandledChildren(ACL_IID));
     }
 }

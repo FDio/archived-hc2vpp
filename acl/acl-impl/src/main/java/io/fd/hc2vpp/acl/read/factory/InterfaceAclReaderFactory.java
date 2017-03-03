@@ -65,7 +65,7 @@ public class InterfaceAclReaderFactory implements ReaderFactory {
         IFC_ID = InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     private static final InstanceIdentifier<VppAclInterfaceStateAugmentation> VPP_ACL_AUG_IID =
         IFC_ID.augmentation(VppAclInterfaceStateAugmentation.class);
-    private static final InstanceIdentifier<Acl> ACL_IID = VPP_ACL_AUG_IID.child(Acl.class);
+    static final InstanceIdentifier<Acl> ACL_IID = VPP_ACL_AUG_IID.child(Acl.class);
     static final InstanceIdentifier<Ingress> ACL_INGRESS_IID = ACL_IID.child(Ingress.class);
     static final InstanceIdentifier<Egress> ACL_EGRESS_IID = ACL_IID.child(Egress.class);
 

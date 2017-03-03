@@ -56,15 +56,8 @@ public class AclReaderFactory implements ReaderFactory, AclFactory {
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
         registry.addStructuralReader(ACLS_ID, AccessListsBuilder.class);
 
-        // TODO(HONEYCOMB-331): initializer is not registered correctly when subtreeAddBefore is used,
-        // enable after fixing infra issue:
-
-//        registry.subtreeAddBefore(vppAclChildren(InstanceIdentifier.create(Acl.class)),
-//            new GenericInitListReader<>(ACL_ID,
-//                new AclCustomizer(futureAclFacade, standardAclContext, macIpAClContext)),
-//            ImmutableSet.of(ACL_INGRESS_IID, ACL_EGRESS_IID));
-
-        registry.addBefore(new GenericInitListReader<>(ACL_ID,
+        registry.subtreeAddBefore(vppAclChildren(InstanceIdentifier.create(Acl.class)),
+            new GenericInitListReader<>(ACL_ID,
                 new AclCustomizer(futureAclFacade, standardAclContext, macIpAClContext)),
             ImmutableSet.of(ACL_INGRESS_IID, ACL_EGRESS_IID));
     }
