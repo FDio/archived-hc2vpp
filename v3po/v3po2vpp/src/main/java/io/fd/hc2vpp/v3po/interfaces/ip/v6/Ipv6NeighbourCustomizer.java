@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
@@ -36,8 +35,6 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.NeighborKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.RoutingBaseAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,8 +67,7 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
                 "Mapping does not contains mapping for provider interface name ".concat(interfaceName));
 
         LOG.debug("Parent interface index found");
-        addDelNeighbourAndReply(id, true,
-                interfaceContext.getIndex(interfaceName, mappingContext), dataAfter, writeContext);
+        addDelNeighbourAndReply(id, true, interfaceContext.getIndex(interfaceName, mappingContext), dataAfter);
         LOG.debug("Neighbour successfully written");
     }
 
@@ -99,13 +95,12 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
 
         LOG.debug("Parent interface[{}] index found", interfaceName);
 
-        addDelNeighbourAndReply(id, false,
-                interfaceContext.getIndex(interfaceName, mappingContext), dataBefore, writeContext);
+        addDelNeighbourAndReply(id, false, interfaceContext.getIndex(interfaceName, mappingContext), dataBefore);
         LOG.debug("Neighbour {} successfully deleted", id);
     }
 
     private void addDelNeighbourAndReply(InstanceIdentifier<Neighbor> id, boolean add, int parentInterfaceIndex,
-                                         Neighbor data, WriteContext writeContext) throws WriteFailedException {
+                                         Neighbor data) throws WriteFailedException {
 
         IpNeighborAddDel request = new IpNeighborAddDel();
 
@@ -115,18 +110,6 @@ public class Ipv6NeighbourCustomizer extends FutureJVppCustomizer
         request.dstAddress = ipv6AddressNoZoneToArray(data.getIp());
         request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
         request.swIfIndex = parentInterfaceIndex;
-
-        final Optional<Interface> optIface = writeContext.readBefore(id.firstIdentifierOf(Interface.class));
-
-        // if routing set, reads vrf-id
-        // uses java.util.Optional(its internal behaviour suites this use better than guava one)
-        if (optIface.isPresent()) {
-            java.util.Optional.of(optIface.get())
-                    .map(iface -> iface.getAugmentation(VppInterfaceAugmentation.class))
-                    .map(VppInterfaceAugmentation::getRouting)
-                    .map(RoutingBaseAttributes::getIpv6VrfId)
-                    .ifPresent(vrf -> request.vrfId = vrf.byteValue());
-        }
         getReplyForWrite(getFutureJVpp().ipNeighborAddDel(request).toCompletableFuture(), id);
     }
 }

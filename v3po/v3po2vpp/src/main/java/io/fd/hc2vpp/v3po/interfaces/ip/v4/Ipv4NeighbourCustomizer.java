@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.v3po.interfaces.ip.v4;
 
-import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
@@ -33,8 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.RoutingBaseAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +67,6 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
             request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
             request.swIfIndex = interfaceContext
                     .getIndex(id.firstKeyOf(Interface.class).getName(), writeContext.getMappingContext());
-
-            bindVrfIfSpecified(writeContext, id, request);
-
             return request;
         }, getFutureJVpp());
         LOG.debug("Neighbour {} successfully written", id);
@@ -99,27 +93,8 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
             request.macAddress = parseMac(data.getLinkLayerAddress().getValue());
             request.swIfIndex = interfaceContext
                     .getIndex(id.firstKeyOf(Interface.class).getName(), writeContext.getMappingContext());
-
-            bindVrfIfSpecified(writeContext, id, request);
-
             return request;
         }, getFutureJVpp());
         LOG.debug("Neighbour {} successfully deleted", id);
-    }
-
-    private void bindVrfIfSpecified(final WriteContext writeContext,
-                                    final InstanceIdentifier<Neighbor> id,
-                                    IpNeighborAddDel request) {
-        final Optional<Interface> optIface = writeContext.readBefore(id.firstIdentifierOf(Interface.class));
-
-        // if routing set, reads vrf-id
-        // uses java.util.Optional(its internal behaviour suites this use better than guava one)
-        if (optIface.isPresent()) {
-            java.util.Optional.of(optIface.get())
-                    .map(iface -> iface.getAugmentation(VppInterfaceAugmentation.class))
-                    .map(VppInterfaceAugmentation::getRouting)
-                    .map(RoutingBaseAttributes::getIpv4VrfId)
-                    .ifPresent(vrf -> request.vrfId = vrf.byteValue());
-        }
     }
 }
