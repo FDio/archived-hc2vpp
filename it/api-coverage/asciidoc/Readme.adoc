@@ -1,0 +1,8 @@
+= api-coverage
+
+Provides integration test that measures VPP API coverage.
+To run the test, invoke:
+
+mvn test -pl it/api-coverage -Papi-coverage
+
+The test counts number of usages of each api method defined in jvpp jars.

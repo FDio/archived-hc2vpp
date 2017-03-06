@@ -35,6 +35,16 @@
         <module>api-test</module>
     </modules>
 
+    <profiles>
+        <!-- Activate from command line with mvn <goals> -Papi-coverage -->
+        <profile>
+            <id>api-coverage</id>
+            <modules>
+                <module>api-coverage</module>
+            </modules>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
