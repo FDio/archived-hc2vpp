@@ -1,0 +1,46 @@
+module nd-proxy {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:vpp:nd:proxy";
+    prefix "nd-proxy";
+    revision "2017-03-15" {
+        description "Initial revision of neighbour discovery proxy model for VPP";
+    }
+
+    import ietf-inet-types {
+        prefix "inet";
+    }
+    import ietf-interfaces {
+        prefix "if";
+    }
+    import ietf-ip {
+        prefix "ip";
+    }
+    import yang-ext {
+        prefix "ext";
+    }
+
+    augment /if:interfaces/if:interface/ip:ipv6  {
+        ext:augment-identifier "nd-proxy-ip6-augmentation";
+        container nd-proxies {
+            list nd-proxy {
+                key "address";
+                leaf address {
+                    type inet:ipv6-address-no-zone;
+                }
+            }
+        }
+    }
+
+    augment /if:interfaces-state/if:interface/ip:ipv6 {
+        ext:augment-identifier "nd-proxy-ip6-state-augmentation";
+        container nd-proxies {
+            list nd-proxy {
+                key "address";
+                leaf address {
+                    type inet:ipv6-address-no-zone;
+                }
+            }
+        }
+  }
+  // TODO(HC2VPP-7): move nd-proxy module to interfaces/ip plugin
+}
