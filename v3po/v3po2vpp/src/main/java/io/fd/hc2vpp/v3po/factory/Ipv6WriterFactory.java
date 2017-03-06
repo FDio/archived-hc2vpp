@@ -24,6 +24,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfaces.ip.v6.Ipv6AddressCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.ip.v6.Ipv6Customizer;
 import io.fd.hc2vpp.v3po.interfaces.ip.v6.Ipv6NeighbourCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.ip.v6.nd.NdProxyCustomizer;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -34,6 +35,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Neighbor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.NdProxyIp6Augmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -64,5 +68,9 @@ public class Ipv6WriterFactory implements WriterFactory {
 
         registry.addAfter(new GenericListWriter<>(ipv6Id.child(Neighbor.class),
                 new Ipv6NeighbourCustomizer(jvpp, ifcNamingContext)), ipv6AddressId);
+        //     ND Proxy
+        final InstanceIdentifier<NdProxy> ndProxyId =
+            ipv6Id.augmentation(NdProxyIp6Augmentation.class).child(NdProxies.class).child(NdProxy.class);
+        registry.addAfter(new GenericListWriter<>(ndProxyId, new NdProxyCustomizer(jvpp, ifcNamingContext)), ipv6Id);
     }
 }
