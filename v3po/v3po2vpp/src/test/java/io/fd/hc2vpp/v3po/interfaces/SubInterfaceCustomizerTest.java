@@ -140,6 +140,7 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
             : 0);
         request.dot1Ad = 1;
         request.outerVlanId = STAG_ID;
+        request.exactMatch = 1;
         return request;
     }
 

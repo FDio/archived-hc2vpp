@@ -21,11 +21,11 @@ import static io.fd.hc2vpp.v3po.util.SubInterfaceUtils.getNumberOfTags;
 import static io.fd.hc2vpp.v3po.util.SubInterfaceUtils.getSubInterfaceName;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.CreateSubif;
@@ -46,7 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.match.attributes.MatchType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.match.attributes.match.type.Default;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.match.attributes.match.type.vlan.tagged.VlanTagged;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.match.attributes.match.type.VlanTagged;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.tags.Tag;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -115,10 +115,11 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
 
         // TODO HONEYCOMB-183 match should be mandatory
         final MatchType matchType = subInterface.getMatch().getMatchType();
-        request.exactMatch =
-                booleanToByte(matchType instanceof VlanTagged && ((VlanTagged) matchType).isMatchExactTags());
+        request.exactMatch = booleanToByte(
+            matchType instanceof VlanTagged
+                && ((VlanTagged) matchType).getVlanTagged().isMatchExactTags()
+        );
         request.defaultSub = booleanToByte(matchType instanceof Default);
-
         if (numberOfTags > 0) {
             for (final Tag tag : subInterface.getTags().getTag()) {
                 if (tag.getIndex() == 0) {
