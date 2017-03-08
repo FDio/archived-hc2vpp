@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.v3po.factory;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -31,10 +30,8 @@ import io.fd.hc2vpp.v3po.interfacesstate.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanGpeCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.acl.ingress.AclCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.pbb.PbbRewriteStateCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.span.MirroredInterfacesCustomizer;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
@@ -46,8 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.L2;
@@ -58,12 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VxlanGpe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.mirrored.interfaces.MirroredInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip4Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip6Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.L2Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev161214.PbbRewriteStateInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev161214.PbbRewriteStateInterfaceAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev161214.interfaces.state._interface.PbbRewriteState;
@@ -73,7 +64,6 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
 
     private final NamingContext ifcNamingCtx;
     private final NamingContext bdNamingCtx;
-    private final VppClassifierContextManager classifyContext;
     private final DisabledInterfacesManager ifcDisableContext;
     private final FutureJVppCore jvpp;
 
@@ -85,12 +75,10 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
     public InterfacesStateReaderFactory(final FutureJVppCore jvpp,
                                         @Named("interface-context") final NamingContext ifcNamingCtx,
                                         @Named("bridge-domain-context") final NamingContext bdNamingCtx,
-                                        @Named("classify-table-context") final VppClassifierContextManager classifyContext,
                                         final DisabledInterfacesManager ifcDisableContext) {
         this.jvpp = jvpp;
         this.ifcNamingCtx = ifcNamingCtx;
         this.bdNamingCtx = bdNamingCtx;
-        this.classifyContext = classifyContext;
         this.ifcDisableContext = ifcDisableContext;
     }
 
@@ -135,18 +123,6 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         //    L2
         registry.add(new GenericInitReader<>(vppIfcAugId.child(L2.class),
                         new L2Customizer(jvpp, ifcNamingCtx, bdNamingCtx)));
-
-        //    Acl(Structural)
-        final InstanceIdentifier<Acl> aclIid = vppIfcAugId.child(Acl.class);
-        registry.addStructuralReader(aclIid, AclBuilder.class);
-        //    Ingress(Subtree)
-        final InstanceIdentifier<Ingress> ingressIdRelative = InstanceIdentifier.create(Ingress.class);
-        registry.subtreeAdd(
-                Sets.newHashSet(ingressIdRelative.child(L2Acl.class), ingressIdRelative.child(Ip4Acl.class),
-                        ingressIdRelative.child(Ip6Acl.class)),
-                new GenericInitReader<>(aclIid.child(Ingress.class),
-                        new AclCustomizer(jvpp, ifcNamingCtx, classifyContext)));
-
         // Span
         final InstanceIdentifier<Span> spanId = vppIfcAugId.child(Span.class);
         registry.addStructuralReader(spanId, SpanBuilder.class);

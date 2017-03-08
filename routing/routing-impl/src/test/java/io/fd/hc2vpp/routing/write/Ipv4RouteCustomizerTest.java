@@ -34,7 +34,7 @@ import io.fd.hc2vpp.routing.helpers.ClassifyTableTestHelper;
 import io.fd.hc2vpp.routing.helpers.RoutingRequestTestHelper;
 import io.fd.hc2vpp.routing.helpers.SchemaContextTestHelper;
 import io.fd.hc2vpp.routing.naming.Ipv4RouteNamesFactory;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;

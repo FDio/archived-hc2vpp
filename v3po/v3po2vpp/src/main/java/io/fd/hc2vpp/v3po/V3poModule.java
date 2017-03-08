@@ -21,8 +21,6 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.cfgattrs.V3poConfiguration;
-import io.fd.hc2vpp.v3po.factory.EgressIetfAClWriterProvider;
-import io.fd.hc2vpp.v3po.factory.IngressIetfAClWriterProvider;
 import io.fd.hc2vpp.v3po.factory.InterfacesStateReaderFactory;
 import io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory;
 import io.fd.hc2vpp.v3po.factory.Ipv4StateReaderFactory;
@@ -36,16 +34,10 @@ import io.fd.hc2vpp.v3po.factory.SubInterfaceStateIpv4ReaderFactory;
 import io.fd.hc2vpp.v3po.factory.SubInterfaceStateIpv6ReaderFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
-import io.fd.hc2vpp.v3po.factory.VppClassifierHoneycombWriterFactory;
-import io.fd.hc2vpp.v3po.factory.VppClassifierReaderFactory;
 import io.fd.hc2vpp.v3po.factory.VppHoneycombWriterFactory;
 import io.fd.hc2vpp.v3po.factory.VppStateHoneycombReaderFactory;
-import io.fd.hc2vpp.v3po.interfaces.acl.egress.EgressIetfAclWriter;
-import io.fd.hc2vpp.v3po.interfaces.acl.ingress.IngressIetfAclWriter;
 import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducer;
 import io.fd.hc2vpp.v3po.rpc.CliInbandService;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManagerImpl;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.rpc.RpcService;
 import io.fd.honeycomb.translate.read.ReaderFactory;
@@ -74,16 +66,11 @@ public class V3poModule extends AbstractModule {
         bind(NamingContext.class)
                 .annotatedWith(Names.named("bridge-domain-context"))
                 .toInstance(new NamingContext("bridge-domain-", "bridge-domain-context"));
-        bind(VppClassifierContextManager.class)
-                .annotatedWith(Names.named("classify-table-context"))
-                .toInstance(new VppClassifierContextManagerImpl("classify-table-"));
 
         // Executor needed for keepalives
         bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
 
-        // Utils
-        bind(IngressIetfAclWriter.class).toProvider(IngressIetfAClWriterProvider.class);
-        bind(EgressIetfAclWriter.class).toProvider(EgressIetfAClWriterProvider.class);
+
         // Context utility for deleted interfaces
         bind(DisabledInterfacesManager.class).toInstance(new DisabledInterfacesManager());
 
@@ -92,11 +79,10 @@ public class V3poModule extends AbstractModule {
         readerFactoryBinder.addBinding().to(InterfacesStateReaderFactory.class);
         readerFactoryBinder.addBinding().to(SubinterfaceStateAugmentationReaderFactory.class);
         readerFactoryBinder.addBinding().to(VppStateHoneycombReaderFactory.class);
-        readerFactoryBinder.addBinding().to(VppClassifierReaderFactory.class);
+
         // Expose disabled interfaces in operational data
         readerFactoryBinder.addBinding().to(DisabledInterfacesManager.ContextsReaderFactory.class);
-        // Expose vpp-classfier-context interfaces in operational data
-        readerFactoryBinder.addBinding().to(VppClassifierContextManagerImpl.ContextsReaderFactory.class);
+
         //Ipv4/Ipv6
         readerFactoryBinder.addBinding().to(Ipv4StateReaderFactory.class);
         readerFactoryBinder.addBinding().to(Ipv6StateReaderFactory.class);
@@ -109,7 +95,6 @@ public class V3poModule extends AbstractModule {
         writerFactoryBinder.addBinding().to(ProxyArpWriterFactory.class);
         writerFactoryBinder.addBinding().to(SubinterfaceAugmentationWriterFactory.class);
         writerFactoryBinder.addBinding().to(VppHoneycombWriterFactory.class);
-        writerFactoryBinder.addBinding().to(VppClassifierHoneycombWriterFactory.class);
 
         //Ipv4/Ipv6
         writerFactoryBinder.addBinding().to(Ipv4WriterFactory.class);

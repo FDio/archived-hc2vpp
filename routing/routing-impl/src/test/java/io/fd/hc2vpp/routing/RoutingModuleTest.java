@@ -33,7 +33,7 @@ import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.read.RoutingStateReaderFactory;
 import io.fd.hc2vpp.routing.write.RoutingWriterFactory;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.read.ReaderFactory;

@@ -105,8 +105,8 @@
         </dependency>
         <!-- Because of use of VppClassifierContext -->
         <dependency>
-            <groupId>io.fd.hc2vpp.v3po</groupId>
-            <artifactId>v3po2vpp</artifactId>
+            <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
+            <artifactId>vpp-classifier-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

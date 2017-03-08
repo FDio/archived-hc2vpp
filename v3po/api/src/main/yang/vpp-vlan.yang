@@ -33,9 +33,6 @@ module vpp-vlan {
   import v3po {
     prefix v3po;
   }
-  import vpp-classfier-acl {
-    prefix vpp-classfier-acl;
-  }
 
   typedef sub-interface-status {
     type enumeration {
@@ -165,24 +162,6 @@ module vpp-vlan {
       uses v3po:l2-base-attributes;
       container rewrite {
         uses tag-rewrite;
-      }
-    }
-
-    container acl {
-      container ingress {
-        uses vpp-classfier-acl:acl-base-attributes;
-      }
-      container egress {
-        uses vpp-classfier-acl:acl-base-attributes;
-      }
-    }
-
-    container ietf-acl {
-      container ingress {
-        uses vpp-classfier-acl:ietf-acl-base-attributes;
-      }
-      container egress {
-        uses vpp-classfier-acl:ietf-acl-base-attributes;
       }
     }
   }

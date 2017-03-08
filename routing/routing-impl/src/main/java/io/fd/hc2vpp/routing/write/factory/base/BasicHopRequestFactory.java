@@ -16,12 +16,11 @@
 
 package io.fd.hc2vpp.routing.write.factory.base;
 
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
-
-import javax.annotation.Nonnull;
-
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
+import javax.annotation.Nonnull;
 
 /**
  * Extension to {@code ClassifierContextHolder} to hold also {@code NamingContext}

@@ -1,0 +1,32 @@
+module vpp-interface-acl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:vpp:interface:acl";
+    prefix "vpp-ifc-acl";
+
+    revision "2016-12-14" {
+        description
+            "Initial revision of vpp-acl model.";
+    }
+
+    import ietf-interfaces {
+        prefix "if";
+    }
+
+    import vpp-classifier-acl {
+        prefix "vpp-classifier-acl";
+    }
+
+    import yang-ext {
+        prefix "ext";
+    }
+
+    augment /if:interfaces/if:interface {
+        ext:augment-identifier "vpp-interface-acl-augmentation";
+        uses vpp-classifier-acl:vpp-acl-attributes;
+    }
+
+    augment /if:interfaces-state/if:interface {
+        ext:augment-identifier "vpp-interface-acl-state-augmentation";
+        uses vpp-classifier-acl:vpp-acl-attributes;
+    }
+}

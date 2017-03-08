@@ -1,0 +1,36 @@
+module vpp-subinterface-acl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:vpp:subinterface:acl";
+    prefix "vpp-subifc-acl";
+
+    revision "2016-12-14" {
+        description
+            "Initial revision of vpp-acl model.";
+    }
+
+    import ietf-interfaces {
+        prefix "if";
+    }
+
+    import vpp-vlan {
+        prefix "vpp-vlan";
+    }
+
+    import vpp-classifier-acl {
+        prefix "vpp-classifier-acl";
+    }
+
+    import yang-ext {
+        prefix "ext";
+    }
+
+    augment /if:interfaces/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
+       ext:augment-identifier "vpp-subinterface-acl-augmentation";
+       uses vpp-classifier-acl:vpp-acl-attributes;
+    }
+
+    augment /if:interfaces-state/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
+       ext:augment-identifier "vpp-subinterface-acl-state-augmentation";
+       uses vpp-classifier-acl:vpp-acl-attributes;
+    }
+}

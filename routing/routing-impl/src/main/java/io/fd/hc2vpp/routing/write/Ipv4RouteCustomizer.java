@@ -25,7 +25,7 @@ import io.fd.hc2vpp.routing.trait.RouteMapper;
 import io.fd.hc2vpp.routing.write.factory.MultipathHopRequestFactory;
 import io.fd.hc2vpp.routing.write.factory.SimpleHopRequestFactory;
 import io.fd.hc2vpp.routing.write.factory.SpecialNextHopRequestFactory;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;

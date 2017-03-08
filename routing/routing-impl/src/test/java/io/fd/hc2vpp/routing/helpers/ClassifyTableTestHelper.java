@@ -19,7 +19,7 @@ package io.fd.hc2vpp.routing.helpers;
 
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 
 public interface ClassifyTableTestHelper {

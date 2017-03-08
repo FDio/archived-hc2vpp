@@ -16,9 +16,6 @@
 
 package io.fd.hc2vpp.v3po.factory;
 
-import static io.fd.hc2vpp.v3po.factory.VppClassifierHoneycombWriterFactory.CLASSIFY_SESSION_ID;
-import static io.fd.hc2vpp.v3po.factory.VppClassifierHoneycombWriterFactory.CLASSIFY_TABLE_ID;
-
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -34,10 +31,8 @@ import io.fd.hc2vpp.v3po.interfaces.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanGpeCustomizer;
-import io.fd.hc2vpp.v3po.interfaces.acl.ingress.AclCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.pbb.PbbRewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.span.MirroredInterfaceCustomizer;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -47,7 +42,6 @@ import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Gre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.L2;
@@ -58,12 +52,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VxlanGpe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.span.attributes.mirrored.interfaces.MirroredInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip4Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip6Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.L2Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev161214.PbbRewriteInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.pbb.rev161214.interfaces._interface.PbbRewrite;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -74,27 +64,22 @@ public final class InterfacesWriterFactory implements WriterFactory {
             InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     public static final InstanceIdentifier<VppInterfaceAugmentation> VPP_IFC_AUG_ID =
             IFC_ID.augmentation(VppInterfaceAugmentation.class);
-    public static final InstanceIdentifier<Acl> ACL_ID = VPP_IFC_AUG_ID.child(Acl.class);
-    public static final InstanceIdentifier<Ingress> INGRESS_ACL_ID = ACL_ID.child(Ingress.class);
     public static final InstanceIdentifier<L2> L2_ID = VPP_IFC_AUG_ID.child(L2.class);
 
     private final FutureJVppCore jvpp;
     private final NamingContext bdNamingContext;
     private final NamingContext ifcNamingContext;
-    private final VppClassifierContextManager classifyTableContext;
     private final DisabledInterfacesManager ifcDisableContext;
 
     @Inject
     public InterfacesWriterFactory(final FutureJVppCore vppJvppIfcDependency,
                                    @Named("bridge-domain-context") final NamingContext bridgeDomainContextDependency,
                                    @Named("interface-context") final NamingContext interfaceContextDependency,
-                                   @Named("classify-table-context") final VppClassifierContextManager classifyTableContext,
                                    final DisabledInterfacesManager ifcDisableContext) {
         this.jvpp = vppJvppIfcDependency;
         this.bdNamingContext = bridgeDomainContextDependency;
         this.ifcNamingContext = interfaceContextDependency;
         this.ifcDisableContext = ifcDisableContext;
-        this.classifyTableContext = classifyTableContext;
     }
 
     @Override
@@ -149,16 +134,6 @@ public final class InterfacesWriterFactory implements WriterFactory {
         // L2(Execute only after subinterface (and all other ifc types) =
         registry.addAfter(new GenericWriter<>(L2_ID, new L2Customizer(jvpp, ifcNamingContext, bdNamingContext)),
                 SubinterfaceAugmentationWriterFactory.SUB_IFC_ID);
-        // Ingress (execute after classify table and session writers)
-        // also handles L2Acl, Ip4Acl and Ip6Acl:
-        final InstanceIdentifier<Ingress> ingressId = InstanceIdentifier.create(Ingress.class);
-        registry
-                .subtreeAddAfter(
-                        Sets.newHashSet(ingressId.child(L2Acl.class), ingressId.child(Ip4Acl.class),
-                                ingressId.child(Ip6Acl.class)),
-                        new GenericWriter<>(INGRESS_ACL_ID,
-                                new AclCustomizer(jvpp, ifcNamingContext, classifyTableContext)),
-                        Sets.newHashSet(CLASSIFY_TABLE_ID, CLASSIFY_SESSION_ID));
 
         // Span writers
         //  Mirrored interfaces

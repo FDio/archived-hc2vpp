@@ -23,8 +23,6 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.RewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceL2Customizer;
-import io.fd.hc2vpp.v3po.interfacesstate.acl.ingress.SubInterfaceAclCustomizer;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
@@ -32,21 +30,15 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip4Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.Ip6Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classfier.acl.rev161214.acl.base.attributes.L2Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.SubinterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.SubinterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.SubInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.match.attributes.match.type.vlan.tagged.VlanTagged;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.Acl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.AclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.Tags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.acl.Ingress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.l2.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.tags.Tag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.tag.rewrite.PushTags;
@@ -57,17 +49,14 @@ public final class SubinterfaceStateAugmentationReaderFactory implements ReaderF
     private final FutureJVppCore jvpp;
     private final NamingContext ifcCtx;
     private final NamingContext bdCtx;
-    private final VppClassifierContextManager classifyCtx;
 
     @Inject
     public SubinterfaceStateAugmentationReaderFactory(final FutureJVppCore jvpp,
                                                       @Named("interface-context") final NamingContext ifcCtx,
-                                                      @Named("bridge-domain-context") final NamingContext bdCtx,
-                                                      @Named("classify-table-context") final VppClassifierContextManager classifyCtx) {
+                                                      @Named("bridge-domain-context") final NamingContext bdCtx) {
         this.jvpp = jvpp;
         this.ifcCtx = ifcCtx;
         this.bdCtx = bdCtx;
-        this.classifyCtx = classifyCtx;
     }
 
     @Override
@@ -98,16 +87,5 @@ public final class SubinterfaceStateAugmentationReaderFactory implements ReaderF
                 .child(
                     org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
             new GenericReader<>(l2Id.child(Rewrite.class), new RewriteCustomizer(jvpp, ifcCtx)));
-
-        //    Acl(Structural)
-        final InstanceIdentifier<Acl> aclIid = subIfcId.child(Acl.class);
-        registry.addStructuralReader(aclIid, AclBuilder.class);
-        //    Ingress(Subtree)
-        final InstanceIdentifier<Ingress> ingressIdRelative = InstanceIdentifier.create(Ingress.class);
-        registry.subtreeAdd(
-            Sets.newHashSet(ingressIdRelative.child(L2Acl.class), ingressIdRelative.child(Ip4Acl.class),
-                ingressIdRelative.child(Ip6Acl.class)),
-            new GenericInitReader<>(aclIid.child(Ingress.class),
-                new SubInterfaceAclCustomizer(jvpp, ifcCtx, classifyCtx)));
     }
 }

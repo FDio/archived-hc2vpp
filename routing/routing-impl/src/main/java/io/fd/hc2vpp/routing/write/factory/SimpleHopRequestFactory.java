@@ -19,7 +19,7 @@ package io.fd.hc2vpp.routing.write.factory;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.write.factory.base.BasicHopRequestFactory;
 import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
 import javax.annotation.Nonnull;

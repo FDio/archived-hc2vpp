@@ -16,6 +16,12 @@
 
 package io.fd.hc2vpp.routing.write.factory;
 
+import static io.fd.hc2vpp.routing.write.factory.SpecialNextHopRequestFactory.forContexts;
+import static org.junit.Assert.assertEquals;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Prohibit;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Receive;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Unreachable;
+
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.Ipv4RouteData;
@@ -23,7 +29,7 @@ import io.fd.hc2vpp.routing.helpers.ClassifyTableTestHelper;
 import io.fd.hc2vpp.routing.helpers.RoutingRequestTestHelper;
 import io.fd.hc2vpp.routing.helpers.SchemaContextTestHelper;
 import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
-import io.fd.hc2vpp.v3po.vppclassifier.VppClassifierContextManager;
+import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.MappingContext;
@@ -38,10 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicas
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
-
-import static io.fd.hc2vpp.routing.write.factory.SpecialNextHopRequestFactory.forContexts;
-import static org.junit.Assert.assertEquals;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.*;
 
 @RunWith(HoneycombTestRunner.class)
 public class SpecialNextHopRequestFactoryIpv4Test

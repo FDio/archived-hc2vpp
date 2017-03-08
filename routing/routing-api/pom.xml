@@ -61,8 +61,8 @@
             <artifactId>yang-ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.fd.hc2vpp.v3po</groupId>
-            <artifactId>v3po-api</artifactId>
+            <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
+            <artifactId>vpp-classifier-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
