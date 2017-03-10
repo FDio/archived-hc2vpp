@@ -91,7 +91,7 @@ module policer {
         "transmit action type in a meter";
     }
 
-    typedef vpp-dcsp-type {
+    typedef vpp-dscp-type {
         description
             "DSCP field values supported by VPP";
         type enumeration {
@@ -162,9 +162,9 @@ module policer {
         default CS0;
     }
 
-    typedef dcsp-type {
+    typedef dscp-type {
         type union {
-            type vpp-dcsp-type;
+            type vpp-dscp-type;
             type inet:dscp;
         }
     }
@@ -182,7 +182,7 @@ module policer {
       }
       leaf dscp {
         when "../meter-action-type = meter-action-mark-dscp";
-        type dcsp-type;
+        type dscp-type;
         description
           "dscp marking";
       }
@@ -217,12 +217,15 @@ module policer {
             type boolean;
         }
         container conform-action {
+            presence "Defines conform action";
             uses meter-action-params;
         }
         container exceed-action {
+            presence "Defines exceed action";
             uses meter-action-params;
         }
         container violate-action {
+            presence "Defines violate action";
             uses meter-action-params;
         }
     }

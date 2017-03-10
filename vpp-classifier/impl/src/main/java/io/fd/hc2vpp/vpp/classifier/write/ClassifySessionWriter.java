@@ -22,6 +22,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
@@ -36,6 +37,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.bind.DatatypeConverter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.OpaqueIndex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.session.attributes.NextNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.session.attributes.next_node.Policer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.session.attributes.next_node.Standard;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214.classify.table.base.attributes.ClassifySessionKey;
@@ -54,11 +57,14 @@ public class ClassifySessionWriter extends VppNodeWriter
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifySessionWriter.class);
     private final VppClassifierContextManager classifyTableContext;
+    private final NamingContext policerContext;
 
     public ClassifySessionWriter(@Nonnull final FutureJVppCore futureJVppCore,
-                                 @Nonnull final VppClassifierContextManager classifyTableContext) {
+                                 @Nonnull final VppClassifierContextManager classifyTableContext,
+                                 @Nonnull final NamingContext policerContext) {
         super(futureJVppCore);
         this.classifyTableContext = checkNotNull(classifyTableContext, "classifyTableContext should not be null");
+        this.policerContext = checkNotNull(policerContext, "policerContext should not be null");
     }
 
     @Override
@@ -109,17 +115,32 @@ public class ClassifySessionWriter extends VppNodeWriter
 
         final ClassifyTable classifyTable =
                 getClassifyTable(writeContext, id.firstIdentifierOf(ClassifyTable.class), isAdd);
-        final int hitNextIndex = getNodeIndex(((Standard)classifySession.getNextNode()).getHitNext(),
-            classifyTable, classifyTableContext,
-                writeContext.getMappingContext(), id);
-        final int opaqueIndex =
-                getOpaqueIndex(((Standard)classifySession.getNextNode()).getOpaqueIndex(), classifyTable, writeContext.getMappingContext(), id);
+        final ClassifyAddDelSession request = getClassifyAddDelSessionRequest(isAdd, classifySession, tableIndex);
 
+        // TODO(HC2VPP-9): registry of next_node translators would allow to weaken dependency between policer
+        // and vpp-classifier models
+        final NextNode nextNode = classifySession.getNextNode();
+        if (nextNode instanceof Standard) {
+            translateNode(request, id, (Standard)nextNode, classifyTable, writeContext.getMappingContext());
+        } else if (nextNode instanceof Policer) {
+            translateNode(request, (Policer)nextNode, writeContext.getMappingContext());
+        }
         final CompletionStage<ClassifyAddDelSessionReply> createClassifyTableReplyCompletionStage = getFutureJVpp()
-                .classifyAddDelSession(
-                        getClassifyAddDelSessionRequest(isAdd, classifySession, tableIndex, hitNextIndex, opaqueIndex));
+                .classifyAddDelSession(request);
 
         getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
+    }
+
+    private void translateNode(final ClassifyAddDelSession request, final InstanceIdentifier<ClassifySession> id,
+                               final Standard nextNode, final ClassifyTable classifyTable, final MappingContext ctx)
+        throws VppBaseCallException, WriteFailedException {
+        request.hitNextIndex = getNodeIndex(nextNode.getHitNext(), classifyTable, classifyTableContext, ctx, id);
+        request.opaqueIndex = getOpaqueIndex(nextNode.getOpaqueIndex(), classifyTable, ctx, id);
+    }
+
+    private void translateNode(final ClassifyAddDelSession request, final Policer policer, final MappingContext ctx) {
+        request.hitNextIndex = policerContext.getIndex(policer.getPolicerHitNext(), ctx);
+        request.opaqueIndex = policer.getColorClassfier().getIntValue();
     }
 
     private ClassifyTable getClassifyTable(final WriteContext writeContext,
@@ -136,14 +157,10 @@ public class ClassifySessionWriter extends VppNodeWriter
 
     private ClassifyAddDelSession getClassifyAddDelSessionRequest(final boolean isAdd,
                                                                   @Nonnull final ClassifySession classifySession,
-                                                                  final int tableIndex,
-                                                                  final int hitNextIndex,
-                                                                  final int opaqueIndex) {
+                                                                  final int tableIndex) {
         ClassifyAddDelSession request = new ClassifyAddDelSession();
         request.isAdd = booleanToByte(isAdd);
         request.tableIndex = tableIndex;
-        request.hitNextIndex = hitNextIndex;
-        request.opaqueIndex = opaqueIndex;
 
         // default 0:
         request.advance = classifySession.getAdvance();

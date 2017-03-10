@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
@@ -91,7 +92,7 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
     @Override
     public void setUpTest() throws Exception {
-        customizer = new ClassifySessionWriter(api, classfierContext);
+        customizer = new ClassifySessionWriter(api, classfierContext, new NamingContext("policer-", "policer-context-"));
 
         when(classfierContext.containsTable(TABLE_NAME, mappingContext)).thenReturn(true);
         when(classfierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);

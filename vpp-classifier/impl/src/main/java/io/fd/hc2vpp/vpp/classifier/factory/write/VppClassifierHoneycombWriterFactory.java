@@ -18,6 +18,7 @@ package io.fd.hc2vpp.vpp.classifier.factory.write;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.hc2vpp.vpp.classifier.write.ClassifySessionWriter;
 import io.fd.hc2vpp.vpp.classifier.write.ClassifyTableWriter;
@@ -41,12 +42,15 @@ public final class VppClassifierHoneycombWriterFactory implements WriterFactory 
 
     private final FutureJVppCore jvpp;
     private final VppClassifierContextManager classifyTableContext;
+    private NamingContext policerContext;
 
     @Inject
     public VppClassifierHoneycombWriterFactory(@Nonnull final FutureJVppCore jvpp,
-                                               @Named("classify-table-context") @Nonnull final VppClassifierContextManager classifyTableContext) {
+                                               @Named("classify-table-context") @Nonnull final VppClassifierContextManager classifyTableContext,
+                                               @Named("policer-context") @Nonnull final NamingContext policerContext) {
         this.jvpp = jvpp;
         this.classifyTableContext = classifyTableContext;
+        this.policerContext = policerContext;
     }
 
     @Override
@@ -58,7 +62,7 @@ public final class VppClassifierHoneycombWriterFactory implements WriterFactory 
                 CLASSIFY_SESSION_ID);
         //  ClassifyTableSession
         registry.addBefore(
-                new GenericListWriter<>(CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext)),
+                new GenericListWriter<>(CLASSIFY_SESSION_ID, new ClassifySessionWriter(jvpp, classifyTableContext, policerContext)),
                 InterfaceAclWriterFactory.ACL_ID);
     }
 }

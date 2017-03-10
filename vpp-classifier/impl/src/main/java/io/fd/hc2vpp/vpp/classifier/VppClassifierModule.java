@@ -19,6 +19,7 @@ package io.fd.hc2vpp.vpp.classifier;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManagerImpl;
 import io.fd.hc2vpp.vpp.classifier.factory.read.VppClassifierReaderFactory;
@@ -39,8 +40,12 @@ public class VppClassifierModule extends AbstractModule {
         install(ConfigurationModule.create());
 
         bind(VppClassifierContextManager.class)
-                .annotatedWith(Names.named("classify-table-context"))
-                .toInstance(new VppClassifierContextManagerImpl("classify-table-"));
+            .annotatedWith(Names.named("classify-table-context"))
+            .toInstance(new VppClassifierContextManagerImpl("classify-table-"));
+
+        bind(NamingContext.class)
+            .annotatedWith(Names.named("policer-context"))
+            .toInstance(new NamingContext("policer-", "policer-context"));
 
         // Writers
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);

@@ -60,6 +60,7 @@
       io.fd.hc2vpp.routing.RoutingModule,
       io.fd.hc2vpp.acl.AclModule,
       io.fd.hc2vpp.dhcp.DhcpModule,
+      io.fd.hc2vpp.policer.PolicerModule,
       // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
       // io.fd.hc2vpp.vppioam.impl.VppIoamModule

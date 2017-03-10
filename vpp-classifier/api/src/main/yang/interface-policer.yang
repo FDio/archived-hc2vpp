@@ -27,23 +27,25 @@ module interface-policer {
     }
 
     grouping interface-policer-attributes {
-        description
-            "Defines references to policer classify tables.
-            At least one table reference should be specified.";
-        leaf l2-table {
-            type vpp-classifier:classify-table-ref;
+        container policer {
             description
-                "An L2 policer table";
-        }
-        leaf ip4-table {
-            type vpp-classifier:classify-table-ref;
-            description
-                "An IPv4 policer table";
-        }
-        leaf ip6-table {
-            type vpp-classifier:classify-table-ref;
-            description
-                "An IPv6 policer table";
+                "Defines references to policer classify tables.
+                 At least one table reference should be specified.";
+            leaf l2-table {
+                type vpp-classifier:classify-table-ref;
+                description
+                    "An L2 policer table";
+            }
+            leaf ip4-table {
+                type vpp-classifier:classify-table-ref;
+                description
+                    "An IPv4 policer table";
+            }
+            leaf ip6-table {
+                type vpp-classifier:classify-table-ref;
+                description
+                    "An IPv6 policer table";
+            }
         }
     }
 
