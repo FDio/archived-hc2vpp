@@ -1,0 +1,46 @@
+module proxy-arp {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:vpp:proxy:arp";
+  prefix "proxy-arp";
+
+  revision "2017-03-15" {
+    description "Initial revision of proxy ARP model for VPP";
+  }
+
+  import ietf-inet-types {
+    prefix "inet";
+  }
+  import ietf-interfaces {
+    prefix "if";
+  }
+  import yang-ext {
+    prefix "ext";
+  }
+
+  container proxy-ranges {
+    list proxy-range {
+      key "vrf-id low-addr high-addr";
+      leaf vrf-id {
+        type uint32;
+      }
+      leaf low-addr {
+        type inet:ipv4-address;
+      }
+      leaf high-addr {
+        type inet:ipv4-address;
+      }
+      description
+        "Parameters for configuring Proxy ARP on interfaces.";
+    }
+  }
+
+  augment /if:interfaces/if:interface {
+    ext:augment-identifier "proxy-arp-interface-augmentation";
+
+    container proxy-arp {
+      presence "Enables proxy ARP on given interface";
+    }
+  }
+
+  // TODO(HC2VPP-86): add interfaces-state augmentation once VPP supports ARP proxy read (VPP-225)
+}

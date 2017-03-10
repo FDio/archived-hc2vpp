@@ -47,5 +47,6 @@
     <module>dhcp</module>
     <module>samples</module>
     <module>vpp-classifier</module>
+    <module>l3</module>
   </modules>
 </project>

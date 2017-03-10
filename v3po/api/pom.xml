@@ -49,6 +49,11 @@
       <artifactId>yang-ext</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.fd.hc2vpp.l3</groupId>
+      <artifactId>l3-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>io.fd.hc2vpp.common</groupId>
       <artifactId>naming-context-api</artifactId>
       <version>${project.version}</version>

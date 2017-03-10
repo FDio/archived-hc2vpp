@@ -60,6 +60,14 @@
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>yang-ext</artifactId>
         </dependency>
+
+        <!-- Ietf ip -->
+        <dependency>
+            <groupId>io.fd.hc2vpp.l3</groupId>
+            <artifactId>l3-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
             <artifactId>vpp-classifier-api</artifactId>

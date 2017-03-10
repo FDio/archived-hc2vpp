@@ -40,11 +40,15 @@
     <acl.version>1.17.04-SNAPSHOT</acl.version>
     <dhcp.version>1.17.04-SNAPSHOT</dhcp.version>
     <vpp.classifier.version>1.17.04-SNAPSHOT</vpp.classifier.version>
+    <l3-impl.version>1.17.04-SNAPSHOT</l3-impl.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
       io.fd.hc2vpp.lisp.LispModule,
       io.fd.hc2vpp.v3po.V3poModule,
+      io.fd.hc2vpp.l3.InterfaceL3Module,
+      io.fd.hc2vpp.l3.SubInterfaceL3Module,
+      io.fd.hc2vpp.l3.ProxyArpModule,
       io.fd.hc2vpp.vpp.classifier.VppClassifierModule,
       io.fd.hc2vpp.vpp.classifier.InterfaceClassifierAclModule,
       io.fd.hc2vpp.vpp.classifier.SubInterfaceClassifierAclModule,
@@ -101,6 +105,11 @@
       <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
       <artifactId>vpp-classifier-impl</artifactId>
       <version>${vpp.classifier.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.l3</groupId>
+      <artifactId>l3-impl</artifactId>
+      <version>${l3-impl.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.lisp</groupId>
