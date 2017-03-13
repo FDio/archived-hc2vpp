@@ -85,6 +85,34 @@ module lisp {
     reference
       "https://tools.ietf.org/html/rfc6830#section-6.1.4";
   }
+
+  typedef map-request-mode {
+    type enumeration {
+      enum destination-only {
+        value 0;
+        description "Normal map requests";
+      }
+      enum source-destination {
+        value 1;
+        description "Source/Destination map requests";
+      }
+    }
+  }
+
+  typedef hmac-key-type {
+    type enumeration {
+      enum no-key {
+        value 0;
+      }
+      enum sha-1-96-key {
+        value 1;
+      }
+      enum sha-256-128-key {
+        value 2;
+      }
+    }
+  }
+
   grouping locator-properties-grouping {
     description
       "Properties of a RLOC";
@@ -128,6 +156,21 @@ module lisp {
     description "Grouping for locator-sets";
   }
 
+  grouping hmac-key-grouping {
+    container hmac-key {
+      // not mandatory , but when specified, both must be present
+      // due to presence containers bug, will be checked internaly
+
+      leaf key-type {
+        type hmac-key-type;
+      }
+
+      leaf key {
+        type string;
+      }
+    }
+  }
+
   grouping adjacencies-grouping {
     container adjacencies {
       list adjacency {
@@ -169,6 +212,7 @@ module lisp {
           type locator-set-ref;
           description "Locator-set";
         }
+        uses hmac-key-grouping;
         description "Local mapping";
       }
       description "Local EID to locator-set mappings";
@@ -297,16 +341,73 @@ module lisp {
     }
     description "Map-Resolver grouping";
   }
+  grouping map-servers-grouping {
+    container map-servers {
+      //lisp_add_del_map_server
+      list map-server {
+        key ip-address;
+          leaf ip-address {
+            type inet:ip-address;
+            description "Map-server IP address";
+          }
+          description "List of map-servers";
+        }
+    }
+  }
+
   grouping pitr-cfg-grouping {
     // lisp_pitr_set_locator_set <ip>
     container pitr-cfg {
       leaf locator-set {
         type locator-set-ref;
+        default "N/A";
         description "Locator-set reference";
       }
       description "Proxy-ITR configuration";
     }
     description "PITR configuration grouping";
+  }
+
+  grouping use-petr-cfg-grouping {
+    // lisp_use_petr
+    container petr-cfg {
+      leaf petr-address {
+        type inet:ip-address;
+        description "PETR address";
+      }
+    }
+  }
+
+  grouping rloc-probing-grouping {
+    // lisp_rloc_probe_enable_disable
+    container rloc-probe {
+      leaf enabled {
+        type boolean;
+        default "false";
+        description "Enabled/disable RLOC probing";
+      }
+    }
+  }
+
+  grouping map-register-grouping {
+    // lisp_map_register_enable_disable
+    container map-register {
+      leaf enabled {
+        type boolean;
+        default "false";
+        description "Enabled/disable RLOC probing";
+      }
+    }
+  }
+
+  grouping map-request-mode-grouping {
+    // lisp_map_request_mode
+    container map-request-mode {
+      leaf mode {
+        type map-request-mode;
+        default "destination-only";
+      }
+    }
   }
 
   grouping itr-remote-locator-sets-grouping{
@@ -329,7 +430,12 @@ module lisp {
         uses locator-sets-grouping;
         uses eid-table-grouping;
         uses map-resolvers-grouping;
+        uses map-servers-grouping;
         uses pitr-cfg-grouping;
+        uses use-petr-cfg-grouping;
+        uses rloc-probing-grouping;
+        uses map-register-grouping;
+        uses map-request-mode-grouping;
         uses itr-remote-locator-sets-grouping;
     }
   }
