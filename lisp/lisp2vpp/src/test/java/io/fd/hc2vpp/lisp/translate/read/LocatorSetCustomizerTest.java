@@ -54,7 +54,7 @@ import static org.mockito.Mockito.when;
 @RunWith(HoneycombTestRunner.class)
 public class LocatorSetCustomizerTest
         extends InitializingListReaderCustomizerTest<LocatorSet, LocatorSetKey, LocatorSetBuilder>
-        implements InjectablesProcessor {
+        implements LispInitTest {
 
     private static final String LOC_1_PATH = "/lisp:lisp-state" +
             "/lisp:lisp-feature-data" +
@@ -105,11 +105,6 @@ public class LocatorSetCustomizerTest
 
         assertEquals(1, keys.size());
         assertEquals("loc-set", keys.get(0).getName());
-    }
-
-    @SchemaContextProvider
-    public ModuleInfoBackedContext schemaContext() {
-        return provideSchemaContextFor(ImmutableSet.of($YangModuleInfoImpl.getInstance()));
     }
 
     @Test

@@ -23,12 +23,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.HmacKeyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.LocalMappings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.LocalMappingsBuilder;
@@ -46,11 +51,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.EidTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTableKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.hmac.key.grouping.HmacKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 
 public class LocalMappingCustomizerTest extends
         ListReaderCustomizerTest<LocalMapping, LocalMappingKey, LocalMappingBuilder> implements EidTranslator {
@@ -82,11 +85,30 @@ public class LocalMappingCustomizerTest extends
                 .child(LocalMappings.class)
                 .child(LocalMapping.class, new LocalMappingKey(new MappingId("local-mapping")));
 
-        defineDumpData();
         defineMappings();
     }
 
     private void defineDumpData() {
+        LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
+        LispEidTableDetails detail = new LispEidTableDetails();
+        detail.action = 0;
+        detail.authoritative = 1;
+        detail.context = 4;
+        detail.eid = new byte[]{-64, -88, 2, 1};
+        detail.eidPrefixLen = 32;
+        detail.eidType = (byte) IPV4.getValue();
+        detail.isLocal = 1;
+        detail.locatorSetIndex = 1;
+        detail.ttl = 7;
+        detail.vni = 12;
+        detail.key = "abcdefgh".getBytes(StandardCharsets.UTF_8);
+        detail.keyId = 1;
+
+        replyDump.lispEidTableDetails = ImmutableList.of(detail);
+        when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+    }
+
+    private void defineDumpDataNoHmacKey() {
         LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
         LispEidTableDetails detail = new LispEidTableDetails();
         detail.action = 0;
@@ -117,7 +139,9 @@ public class LocalMappingCustomizerTest extends
     }
 
     @Test
-    public void readCurrentAttributes() throws Exception {
+    public void readCurrentAttributesNoHmacKey() throws ReadFailedException {
+        defineDumpDataNoHmacKey();
+
         LocalMappingBuilder builder = new LocalMappingBuilder();
         getCustomizer().readCurrentAttributes(validIdentifier, builder, ctx);
 
@@ -126,10 +150,29 @@ public class LocalMappingCustomizerTest extends
         assertNotNull(mapping);
         assertEquals(true, compareAddresses(EID_ADDRESS, mapping.getEid().getAddress()));
         assertEquals("loc-set", mapping.getLocatorSet());
+        assertEquals(HmacKeyType.NoKey, mapping.getHmacKey().getKeyType());
+    }
+
+    @Test
+    public void readCurrentAttributes() throws Exception {
+        defineDumpData();
+        LocalMappingBuilder builder = new LocalMappingBuilder();
+        getCustomizer().readCurrentAttributes(validIdentifier, builder, ctx);
+
+        final LocalMapping mapping = builder.build();
+
+        assertNotNull(mapping);
+        assertEquals(true, compareAddresses(EID_ADDRESS, mapping.getEid().getAddress()));
+        assertEquals("loc-set", mapping.getLocatorSet());
+
+        final HmacKey hmacKey = mapping.getHmacKey();
+        assertEquals("abcdefgh", hmacKey.getKey());
+        assertEquals(HmacKeyType.Sha196Key, hmacKey.getKeyType());
     }
 
     @Test
     public void getAllIds() throws Exception {
+        defineDumpData();
         final List<LocalMappingKey> keys = getCustomizer().getAllIds(emptyIdentifier, ctx);
 
         assertEquals(1, keys.size());

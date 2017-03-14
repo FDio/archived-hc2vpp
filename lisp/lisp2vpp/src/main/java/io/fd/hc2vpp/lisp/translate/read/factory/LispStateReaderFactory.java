@@ -18,17 +18,24 @@ package io.fd.hc2vpp.lisp.translate.read.factory;
 
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.read.LispStateCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.MapRegisterCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.MapRequestModeCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.PetrCfgCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.PitrCfgCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.RlocProbeCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.request.mode.grouping.MapRequestMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.rloc.probing.grouping.RlocProbe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.use.petr.cfg.grouping.PetrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import javax.annotation.Nonnull;
 
 
 /**
@@ -37,6 +44,8 @@ import javax.annotation.Nonnull;
 public class LispStateReaderFactory extends AbstractLispInfraFactoryBase implements ReaderFactory {
 
     private static final InstanceIdentifier<LispState> lispStateId = InstanceIdentifier.create(LispState.class);
+    static final InstanceIdentifier<LispFeatureData>
+            LISP_FEATURE_ID = lispStateId.child(LispFeatureData.class);
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
@@ -44,7 +53,19 @@ public class LispStateReaderFactory extends AbstractLispInfraFactoryBase impleme
         registry.add(new GenericInitReader<>(lispStateId, new LispStateCustomizer(vppApi)));
         registry.addStructuralReader(lispStateId.child(LispFeatureData.class), LispFeatureDataBuilder.class);
 
-        registry.add(new GenericInitReader<>(lispStateId.child(LispFeatureData.class).child(PitrCfg.class),
+        registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(PitrCfg.class),
                 new PitrCfgCustomizer(vppApi)));
+
+        registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(RlocProbe.class),
+                new RlocProbeCustomizer(vppApi)));
+
+        registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(PetrCfg.class),
+                new PetrCfgCustomizer(vppApi)));
+
+        registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(MapRegister.class),
+                new MapRegisterCustomizer(vppApi)));
+
+        registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(MapRequestMode.class),
+                new MapRequestModeCustomizer(vppApi)));
     }
 }

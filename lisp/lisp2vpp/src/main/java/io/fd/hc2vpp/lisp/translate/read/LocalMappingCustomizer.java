@@ -35,6 +35,7 @@ import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.HmacKeyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.LocalMappings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.LocalMappingsBuilder;
@@ -42,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.LocalMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.LocalMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.hmac.key.grouping.HmacKeyBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -133,6 +135,16 @@ public class LocalMappingCustomizer
         builder.setLocatorSet(locatorSetContext.getName(details.locatorSetIndex, ctx.getMappingContext()));
         builder.setKey(new LocalMappingKey(new MappingId(id.firstKeyOf(LocalMapping.class).getId())));
         builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid, details.vni));
+
+        if (details.key != null) {
+            builder.setHmacKey(
+                    new HmacKeyBuilder()
+                            .setKey(toString(details.key))
+                            .setKeyType(HmacKeyType.forValue(details.keyId))
+                            .build());
+        } else {
+            builder.setHmacKey(new HmacKeyBuilder().setKeyType(HmacKeyType.NoKey).build());
+        }
     }
 
     private Address getAddressFromDumpDetail(final LispEidTableDetails detail) {

@@ -22,26 +22,28 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDump
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV6;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.read.trait.MappingProducer;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEid;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.LocalMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.LocalMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.hmac.key.grouping.HmacKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEid;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
@@ -127,6 +129,14 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
             request.prefixLen = 32;
         } else if (request.eidType == IPV6.getValue()) {
             request.prefixLen = (byte) 128;
+        }
+
+        final HmacKey hmacKey = data.getHmacKey();
+        if (hmacKey != null) {
+            request.key = checkNotNull(hmacKey.getKey(), "HMAC key not specified")
+                    .getBytes(StandardCharsets.UTF_8);
+            request.keyId = (byte) checkNotNull(hmacKey.getKeyType(),
+                    "HMAC key type not specified").getIntValue();
         }
 
         getReply(getFutureJVpp().lispAddDelLocalEid(request).toCompletableFuture());

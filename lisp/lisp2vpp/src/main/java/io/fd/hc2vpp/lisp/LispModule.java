@@ -35,10 +35,12 @@ import io.fd.hc2vpp.lisp.translate.read.factory.EidTableReaderFactory;
 import io.fd.hc2vpp.lisp.translate.read.factory.LispStateReaderFactory;
 import io.fd.hc2vpp.lisp.translate.read.factory.LocatorSetReaderFactory;
 import io.fd.hc2vpp.lisp.translate.read.factory.MapResolverReaderFactory;
+import io.fd.hc2vpp.lisp.translate.read.factory.MapServerReaderFactory;
 import io.fd.hc2vpp.lisp.translate.write.factory.EidTableWriterFactory;
 import io.fd.hc2vpp.lisp.translate.write.factory.LispWriterFactory;
 import io.fd.hc2vpp.lisp.translate.write.factory.LocatorSetWriterFactory;
 import io.fd.hc2vpp.lisp.translate.write.factory.MapResolverWriterFactory;
+import io.fd.hc2vpp.lisp.translate.write.factory.MapServerWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import net.jmob.guice.conf.core.ConfigurationModule;
@@ -81,6 +83,7 @@ public class LispModule extends AbstractModule {
         readerFactoryBinder.addBinding().to(EidTableReaderFactory.class);
         readerFactoryBinder.addBinding().to(LocatorSetReaderFactory.class);
         readerFactoryBinder.addBinding().to(MapResolverReaderFactory.class);
+        readerFactoryBinder.addBinding().to(MapServerReaderFactory.class);
         LOG.info("Reader factories binded");
 
         LOG.info("Binding writer factories");
@@ -89,6 +92,7 @@ public class LispModule extends AbstractModule {
         writerFactoryBinder.addBinding().to(EidTableWriterFactory.class);
         writerFactoryBinder.addBinding().to(LocatorSetWriterFactory.class);
         writerFactoryBinder.addBinding().to(MapResolverWriterFactory.class);
+        writerFactoryBinder.addBinding().to(MapServerWriterFactory.class);
         LOG.info("Writer factories binded");
 
         final Multibinder<ReaderFactory> readerBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);

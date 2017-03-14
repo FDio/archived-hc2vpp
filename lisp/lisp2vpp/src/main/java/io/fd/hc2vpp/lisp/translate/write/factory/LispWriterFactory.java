@@ -21,14 +21,22 @@ import static io.fd.hc2vpp.lisp.translate.write.factory.LocatorSetWriterFactory.
 
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.write.LispCustomizer;
+import io.fd.hc2vpp.lisp.translate.write.MapRegisterCustomizer;
+import io.fd.hc2vpp.lisp.translate.write.MapRequestModeCustomizer;
+import io.fd.hc2vpp.lisp.translate.write.PetrCfgCustomizer;
 import io.fd.hc2vpp.lisp.translate.write.PitrCfgCustomizer;
+import io.fd.hc2vpp.lisp.translate.write.RlocProbeCustomizer;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.request.mode.grouping.MapRequestMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.rloc.probing.grouping.RlocProbe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.use.petr.cfg.grouping.PetrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
@@ -36,13 +44,27 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Initialize writers for {@link Lisp}
  */
 public final class LispWriterFactory extends AbstractLispInfraFactoryBase implements WriterFactory {
-    private final InstanceIdentifier<Lisp> lispInstanceIdentifier = InstanceIdentifier.create(Lisp.class);
+    private static final InstanceIdentifier<Lisp> LISP_INSTANCE_IDENTIFIER = InstanceIdentifier.create(Lisp.class);
+    private static final InstanceIdentifier<LispFeatureData> LISP_FEATURE_IDENTIFIER =
+            LISP_INSTANCE_IDENTIFIER.child(LispFeatureData.class);
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
-        registry.add(new GenericWriter<>(lispInstanceIdentifier, new LispCustomizer(vppApi)));
+        registry.add(new GenericWriter<>(LISP_INSTANCE_IDENTIFIER, new LispCustomizer(vppApi)));
 
-        registry.addAfter(new GenericWriter<>(lispInstanceIdentifier.child(LispFeatureData.class).child(PitrCfg.class),
-                new PitrCfgCustomizer(vppApi)),LOCATOR_SET_ID);
+        registry.addAfter(writer(LISP_FEATURE_IDENTIFIER.child(PitrCfg.class),
+                new PitrCfgCustomizer(vppApi)), LOCATOR_SET_ID);
+
+        registry.add(writer(LISP_FEATURE_IDENTIFIER.child(MapRegister.class),
+                new MapRegisterCustomizer(vppApi)));
+
+        registry.add(writer(LISP_FEATURE_IDENTIFIER.child(MapRequestMode.class),
+                new MapRequestModeCustomizer(vppApi)));
+
+        registry.add(writer(LISP_FEATURE_IDENTIFIER.child(PetrCfg.class),
+                new PetrCfgCustomizer(vppApi)));
+
+        registry.add(writer(LISP_FEATURE_IDENTIFIER.child(RlocProbe.class),
+                new RlocProbeCustomizer(vppApi)));
     }
 }
