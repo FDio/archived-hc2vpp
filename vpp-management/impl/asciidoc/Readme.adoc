@@ -1,0 +1,15 @@
+= vpp-management-impl
+
+Overview of vpp-management-impl
+
+Provides following features
+
+* Read support for VPP management attributes
+* Implementation of RPC support of CLI commands
+* Initialization of Keep-alive service
+
+Exposes following configuration
+
+*vpp-management.json*
+
+* keepalive-delay - delay period for keep-alive manager

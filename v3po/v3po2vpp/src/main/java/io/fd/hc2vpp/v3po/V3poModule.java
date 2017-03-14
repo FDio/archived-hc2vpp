@@ -20,22 +20,16 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.cfgattrs.V3poConfiguration;
 import io.fd.hc2vpp.v3po.factory.InterfacesStateReaderFactory;
 import io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory;
+import io.fd.hc2vpp.v3po.factory.L2HoneycombWriterFactory;
+import io.fd.hc2vpp.v3po.factory.L2StateHoneycombReaderFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
-import io.fd.hc2vpp.v3po.factory.VppHoneycombWriterFactory;
-import io.fd.hc2vpp.v3po.factory.VppStateHoneycombReaderFactory;
 import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducer;
-import io.fd.hc2vpp.v3po.rpc.CliInbandService;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
-import io.fd.honeycomb.rpc.RpcService;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import net.jmob.guice.conf.core.ConfigurationModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +40,6 @@ public class V3poModule extends AbstractModule {
     @Override
     protected void configure() {
         LOG.debug("Installing V3PO module");
-        install(ConfigurationModule.create());
-        requestInjection(V3poConfiguration.class);
 
         // TODO HONEYCOMB-173 put into constants
         // Naming contexts
@@ -58,10 +50,6 @@ public class V3poModule extends AbstractModule {
                 .annotatedWith(Names.named("bridge-domain-context"))
                 .toInstance(new NamingContext("bridge-domain-", "bridge-domain-context"));
 
-        // Executor needed for keepalives
-        bind(ScheduledExecutorService.class).toInstance(Executors.newScheduledThreadPool(1));
-
-
         // Context utility for deleted interfaces
         bind(DisabledInterfacesManager.class).toInstance(new DisabledInterfacesManager());
 
@@ -69,7 +57,7 @@ public class V3poModule extends AbstractModule {
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readerFactoryBinder.addBinding().to(InterfacesStateReaderFactory.class);
         readerFactoryBinder.addBinding().to(SubinterfaceStateAugmentationReaderFactory.class);
-        readerFactoryBinder.addBinding().to(VppStateHoneycombReaderFactory.class);
+        readerFactoryBinder.addBinding().to(L2StateHoneycombReaderFactory.class);
 
         // Expose disabled interfaces in operational data
         readerFactoryBinder.addBinding().to(DisabledInterfacesManager.ContextsReaderFactory.class);
@@ -78,16 +66,12 @@ public class V3poModule extends AbstractModule {
         final Multibinder<WriterFactory> writerFactoryBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writerFactoryBinder.addBinding().to(InterfacesWriterFactory.class);
         writerFactoryBinder.addBinding().to(SubinterfaceAugmentationWriterFactory.class);
-        writerFactoryBinder.addBinding().to(VppHoneycombWriterFactory.class);
+        writerFactoryBinder.addBinding().to(L2HoneycombWriterFactory.class);
 
         // Notifications
         final Multibinder<ManagedNotificationProducer> notifiersBinder =
                 Multibinder.newSetBinder(binder(), ManagedNotificationProducer.class);
         notifiersBinder.addBinding().to(InterfaceChangeNotificationProducer.class);
-
-        // RPCs
-        final Multibinder<RpcService> rpcsBinder = Multibinder.newSetBinder(binder(), RpcService.class);
-        rpcsBinder.addBinding().to(CliInbandService.class);
 
         LOG.info("Module V3PO successfully configured");
     }

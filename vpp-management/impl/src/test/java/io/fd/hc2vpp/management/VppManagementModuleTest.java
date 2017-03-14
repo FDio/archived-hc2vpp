@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,69 +14,47 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.v3po;
+package io.fd.hc2vpp.management;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
-import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.read.ReaderFactory;
-import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 
-public class V3poModuleTest {
-
-    @Named("honeycomb-context")
-    @Bind
-    @Mock
-    private MappingContext mappingContext;
-
-    @Named("honeycomb-initializer")
-    @Bind
-    @Mock
-    private DataBroker honeycombInitializer;
-
-    @Named("honeycomb-context")
-    @Bind
-    @Mock
-    private DataBroker honeycombContext;
+public class VppManagementModuleTest {
 
     @Bind
     @Mock
     private FutureJVppCore futureJVppCore;
 
     @Inject
-    private Set<ReaderFactory> readerFactories = new HashSet<>();
+    private VppManagementConfiguration configuration;
 
     @Inject
-    private Set<WriterFactory> writerFactories = new HashSet<>();
+    private Set<ReaderFactory> readerFactories = new HashSet<>();
 
     @Before
     public void setUp() {
         initMocks(this);
-        Guice.createInjector(new V3poModule(), BoundFieldModule.of(this)).injectMembers(this);
+        Guice.createInjector(new VppManagementModule(), BoundFieldModule.of(this)).injectMembers(this);
     }
 
     @Test
     public void testReaderFactories() throws Exception {
-        assertThat(readerFactories, is(not(empty())));
+        assertFalse(readerFactories.isEmpty());
 
         // Test registration process (all dependencies present, topological order of readers does exist, etc.)
         final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder();
@@ -85,14 +63,7 @@ public class V3poModuleTest {
     }
 
     @Test
-    public void testWriterFactories() throws Exception {
-        assertThat(writerFactories, is(not(empty())));
-
-        // Test registration process (all dependencies present, topological order of writers does exist, etc.)
-        final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder();
-        writerFactories.stream().forEach(factory -> factory.init(registryBuilder));
-        assertNotNull(registryBuilder.build());
+    public void testConfiguration() {
+        assertEquals(30, configuration.getKeepaliveDelay());
     }
-
-
 }

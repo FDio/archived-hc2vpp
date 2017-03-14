@@ -1,0 +1,54 @@
+module vpp-management {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:vpp:management";
+  prefix "vpp-m";
+
+  revision "2017-03-15" {
+    description
+        "This revision add support for
+           - Vpp state attributes read
+           - RPC cli support";
+  }
+
+  container vpp-state {
+      config false;
+
+      description
+        "VPP operational data";
+
+      container version {
+        leaf name {
+          type string;
+        }
+        leaf build-directory {
+          type string;
+        }
+        leaf build-date {
+          type string;
+        }
+        leaf branch {
+          type string;
+        }
+        leaf pid {
+          type uint32;
+          description
+            "PID of the vpp process";
+        }
+        description
+        "vlib version info";
+      }
+  }
+
+  rpc cli-inband {
+    input {
+      leaf cmd {
+        type string;
+      }
+    }
+    output {
+      leaf reply {
+        type string;
+      }
+    }
+  }
+}

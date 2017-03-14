@@ -41,9 +41,11 @@
     <dhcp.version>1.17.04-SNAPSHOT</dhcp.version>
     <vpp.classifier.version>1.17.04-SNAPSHOT</vpp.classifier.version>
     <l3-impl.version>1.17.04-SNAPSHOT</l3-impl.version>
+    <vpp-management-impl.version>1.17.04-SNAPSHOT</vpp-management-impl.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
+      io.fd.hc2vpp.management.VppManagementModule,
       io.fd.hc2vpp.lisp.LispModule,
       io.fd.hc2vpp.v3po.V3poModule,
       io.fd.hc2vpp.l3.InterfaceL3Module,
@@ -146,6 +148,11 @@
       <groupId>io.fd.hc2vpp.dhcp</groupId>
       <artifactId>dhcp-impl</artifactId>
       <version>${dhcp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.management</groupId>
+      <artifactId>vpp-management-impl</artifactId>
+      <version>${vpp-management-impl.version}</version>
     </dependency>
   </dependencies>
 </project>

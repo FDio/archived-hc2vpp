@@ -1,0 +1,9 @@
+= vpp-management-api
+
+Overview of vpp-management-api
+
+Provides model for two major features
+
+* Management attributes of underlaying vpp instance(version,pid,...)
+* RPC support for invoking CLI commands
+

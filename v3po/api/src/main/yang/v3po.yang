@@ -39,7 +39,7 @@ module v3po {
 
   typedef bridge-domain-ref {
     type leafref {
-      path "/vpp/bridge-domains/bridge-domain/name";
+      path "/bridge-domains/bridge-domain/name";
     }
     description
       "This type is used by to reference a bridge domain table";
@@ -585,24 +585,19 @@ module v3po {
     }
   }
 
-  container vpp {
-    description
-    "VPP config data";
+  container bridge-domains {
+    list bridge-domain {
+      key "name";
 
-    container bridge-domains {
-      list bridge-domain {
-        key "name";
-
-        leaf name {
-          type string;
-        }
-
-        uses bridge-domain-attributes;
-        uses l2-fib-attributes;
-
-        description
-          "bridge-domain configuration";
+      leaf name {
+        type string;
       }
+
+      uses bridge-domain-attributes;
+      uses l2-fib-attributes;
+
+      description
+        "bridge-domain configuration";
     }
   }
 
@@ -675,13 +670,7 @@ module v3po {
     }
   }
 
-  container vpp-state {
-    config false;
-
-    description
-      "VPP operational data";
-
-    container bridge-domains {
+  container bridge-domains-state {
       // FIXME: Should this live in bridge-domain.yang in a modular fashion ?
       list bridge-domain {
 
@@ -696,29 +685,6 @@ module v3po {
         description
           "bridge-domain operational data";
       }
-    }
-
-    container version {
-      leaf name {
-        type string;
-      }
-      leaf build-directory {
-        type string;
-      }
-      leaf build-date {
-        type string;
-      }
-      leaf branch {
-        type string;
-      }
-      leaf pid {
-        type uint32;
-        description
-          "PID of the vpp process";
-      }
-      description
-      "vlib version info";
-    }
   }
 
   // VPP Notifications
@@ -758,19 +724,6 @@ module v3po {
   notification interface-deleted {
     leaf name {
         type interface-name-or-index;
-    }
-  }
-
-  rpc cli-inband {
-    input {
-      leaf cmd {
-        type string;
-      }
-    }
-    output {
-      leaf reply {
-        type string;
-      }
     }
   }
 }
