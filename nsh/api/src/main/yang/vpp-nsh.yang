@@ -3,6 +3,11 @@ module vpp-nsh {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:nsh";
   prefix "vpp-nsh";
 
+  revision "2017-03-15" {
+    description
+    "This revision adds support for NSH-MD2 features";
+  }
+
   revision "2016-12-14" {
     description
     "This revision adds support for NSH-Proxy and NSH-Classifier features";
@@ -165,8 +170,28 @@ module vpp-nsh {
   }
 
   grouping nsh-md-type2-attributes {
-      leaf type {
-      type uint32;
+    list md2-data {
+      key "md2_class type";
+
+      leaf md2_class {
+        type uint32 {
+          range "0..65535";
+        }
+      }
+      leaf type
+      {
+        type uint8;
+      }
+      leaf len
+      {
+        type uint8;
+      }
+      leaf metadata
+      {
+        type string {
+          length 1..128;
+        }
+      }
     }
   }
 

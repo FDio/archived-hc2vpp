@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.vppnsh.impl.config;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -25,13 +26,15 @@ import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.NshMdType1Augment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.NshMdType2Augment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.VppNsh;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.NshEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.NshMaps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.entries.NshEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.maps.NshMap;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType1Augment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType2Augment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.VppNsh;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.NshEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.NshMaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.nsh.md.type2.attributes.Md2Data;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class VppNshWriterFactory implements WriterFactory {
@@ -65,9 +68,10 @@ public class VppNshWriterFactory implements WriterFactory {
         final InstanceIdentifier<NshEntries> nshEntriesId = InstanceIdentifier.create(VppNsh.class).child(NshEntries.class);
         final InstanceIdentifier<NshEntry> nshEntryId = nshEntriesId.child(NshEntry.class);
         registry.subtreeAdd(
-                Sets.newHashSet(
+                ImmutableSet.of(
                     InstanceIdentifier.create(NshEntry.class).augmentation(NshMdType1Augment.class),
-                    InstanceIdentifier.create(NshEntry.class).augmentation(NshMdType2Augment.class)),
+                    InstanceIdentifier.create(NshEntry.class).augmentation(NshMdType2Augment.class),
+                    InstanceIdentifier.create(NshEntry.class).augmentation(NshMdType2Augment.class).child(Md2Data.class)),
                 new GenericListWriter<>(nshEntryId, new NshEntryWriterCustomizer(jvppNsh, nshEntryContext)));
 
         // VppNsh has no handlers

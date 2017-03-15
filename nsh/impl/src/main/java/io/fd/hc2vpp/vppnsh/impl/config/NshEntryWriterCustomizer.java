@@ -32,16 +32,22 @@ import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntryReply;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Ethernet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.MdType1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.NshMdType1Augment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.entries.NshEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.entries.NshEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Ethernet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.MdType1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.MdType2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType1Augment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType2Augment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.nsh.md.type2.attributes.Md2Data;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Writer customizer responsible for NshEntry create/delete.
@@ -117,6 +123,37 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
         }
     }
 
+    private void getNshEntryMdType2Request(@Nonnull final NshEntry entry, @Nonnull NshAddDelEntry request) {
+        final List<Md2Data> md2Datas = entry.getAugmentation(NshMdType2Augment.class).getMd2Data();
+        final byte md2_len = (byte) (entry.getLength() * 4 - 8);
+        byte cur_len = 0;
+        byte option_len = 0;
+
+        LOG.debug("wr: md2_len={}", md2_len);
+        request.tlv = new byte[md2_len];
+        for (Md2Data md2data : md2Datas) {
+            option_len = (byte) md2data.getLen().shortValue();
+            LOG.debug("wr: option_len={}", option_len);
+            if ((cur_len + option_len + 4) <= md2_len) {
+                request.tlv[cur_len] = (byte) (md2data.getMd2Class().shortValue() >> 8);
+                request.tlv[cur_len + 1] = (byte) (md2data.getMd2Class().shortValue() & 0xF);
+                request.tlv[cur_len + 2] = (byte) md2data.getType().shortValue();
+                request.tlv[cur_len + 3] = option_len;
+
+                /* convert string to hex digits */
+                LOG.debug("wr: md2data.getMetadata()={}", md2data.getMetadata());
+                int length = md2data.getMetadata().length();
+                for (int i = 0; i < length / 2; ++i)
+                {
+                    request.tlv[(cur_len+4)+i] = (byte)(Integer.parseInt
+                            (md2data.getMetadata().substring(i*2, i*2+2), 16) & 0xff);
+                }
+                cur_len += (option_len + 4);
+            }
+        }
+        request.tlvLength = cur_len;
+    }
+
     private NshAddDelEntry getNshAddDelEntryRequest(final boolean isAdd, final int entryIndex,
                                                     @Nonnull final NshEntry entry,
                                                     @Nonnull final MappingContext ctx) {
@@ -138,8 +175,9 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
         if (entry.getMdType() == MdType1.class) {
             request.mdType = 1;
             getNshEntryMdType1Request(entry, request);
-        } else if (entry.getMdType() == MdType1.class) {
+        } else if (entry.getMdType() == MdType2.class) {
             request.mdType = 2;
+            getNshEntryMdType2Request(entry, request);
         } else {
             request.mdType = 0;
         }

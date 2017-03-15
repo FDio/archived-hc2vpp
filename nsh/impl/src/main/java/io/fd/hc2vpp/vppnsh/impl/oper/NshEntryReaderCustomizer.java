@@ -31,21 +31,27 @@ import io.fd.vpp.jvpp.nsh.dto.NshEntryDetailsReplyDump;
 import io.fd.vpp.jvpp.nsh.dto.NshEntryDump;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Ethernet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.MdType1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.NshMdType1StateAugment;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.NshMdType1StateAugmentBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.VppNsh;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.state.NshEntriesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.state.nsh.entries.NshEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.state.nsh.entries.NshEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.state.nsh.entries.NshEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Ethernet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.MdType1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType1StateAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType1StateAugmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.MdType2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType2StateAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType2StateAugmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.VppNsh;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.NshEntriesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.entries.NshEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.entries.NshEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.state.nsh.entries.NshEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.nsh.md.type2.attributes.Md2Data;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.nsh.md.type2.attributes.Md2DataBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -90,6 +96,37 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
         builder.addAugmentation(NshMdType1StateAugment.class, augmentBuilder.build());
     }
 
+    private void setNshEntryMdType2Augment(@Nonnull final NshEntryBuilder builder,
+                                           @Nonnull NshEntryDetails nshEntryDetails) {
+        final NshMdType2StateAugmentBuilder augmentBuilder = new NshMdType2StateAugmentBuilder();
+        final byte md2_len = (nshEntryDetails.tlvLength);
+        byte cur_len = 0;
+        byte option_len = 0;
+
+        LOG.debug("rd: md2_len={}", md2_len);
+        List<Md2Data> md2Datas = new ArrayList<>();
+        while(cur_len < md2_len ) {
+            Md2DataBuilder md2DataBuilder = new Md2DataBuilder();
+            long md2_class = (long)(nshEntryDetails.tlv[cur_len] & 0xFF)
+                              + (nshEntryDetails.tlv[cur_len+1] & 0xFF);
+            md2DataBuilder.setMd2Class(md2_class);
+            md2DataBuilder.setType((short)nshEntryDetails.tlv[cur_len+2]);
+            md2DataBuilder.setLen((short)nshEntryDetails.tlv[cur_len+3]);
+            option_len = nshEntryDetails.tlv[cur_len+3];
+            LOG.debug("rd: option_len={}", option_len);
+            byte[] opt_data = new byte[option_len];
+            System.arraycopy(nshEntryDetails.tlv, (cur_len+4), opt_data, 0, option_len);
+            md2DataBuilder.setMetadata(Arrays.toString(opt_data));
+            LOG.debug("rd: Arrays.toString(opt_data)={}", Arrays.toString(opt_data));
+            md2Datas.add(md2DataBuilder.build());
+
+            cur_len += (option_len + 4);
+        }
+        augmentBuilder.setMd2Data(md2Datas);
+
+        builder.addAugmentation(NshMdType2StateAugment.class, augmentBuilder.build());
+    }
+
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<NshEntry> id,
                                       @Nonnull final NshEntryBuilder builder, @Nonnull final ReadContext ctx)
@@ -110,7 +147,6 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
                 getFutureJVppNsh().nshEntryDump(request);
         final NshEntryDetailsReplyDump reply =
                 getReplyForRead(nshEntryDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
-
         if (reply == null || reply.nshEntryDetails == null || reply.nshEntryDetails.isEmpty()) {
             LOG.debug("Has no Nsh Entry {} in VPP. ", key.getName());
             return;
@@ -146,7 +182,8 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
                 break;
             }
             case 2: {
-                builder.setMdType(MdType1.class);
+                builder.setMdType(MdType2.class);
+                setNshEntryMdType2Augment(builder, nshEntryDetails);
                 break;
             }
             default:
@@ -199,15 +236,15 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.entries.NshEntry> init(
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntry> init(
             @Nonnull final InstanceIdentifier<NshEntry> id, @Nonnull final NshEntry readValue,
             @Nonnull final ReadContext ctx) {
         return Initialized.create(
                 InstanceIdentifier.create(VppNsh.class).child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.NshEntries.class).child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.entries.NshEntry.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.entries.NshEntryKey(id.firstKeyOf(NshEntry.class).getName())),
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev161214.vpp.nsh.nsh.entries.NshEntryBuilder(readValue)
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.NshEntries.class).child(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntry.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntryKey(id.firstKeyOf(NshEntry.class).getName())),
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntryBuilder(readValue)
                         .setName(readValue.getName())
                         .build());
     }
