@@ -49,10 +49,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.context.rev161214.mapping.entry.context.attributes.acl.mapping.entry.context.mapping.table.MappingEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev161214.InterfaceMode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev161214.ietf.acl.base.attributes.AccessLists;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev161214.ietf.acl.base.attributes.access.lists.Acl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev170315.InterfaceMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev170315.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpAndEth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev170315.ietf.acl.base.attributes.AccessLists;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev170315.ietf.acl.base.attributes.access.lists.Acl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +124,7 @@ public abstract class AbstractIetfAclWriter implements IetfAclWriter, JvppReplyC
             return true;  // L2 only rules are possible for IP4 traffic
         }
         if (aclType == AclType.ETH_AND_IP && ((AceIpAndEth) aceType).getAceIpAndEthNodes()
-            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv4) {
+            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev170315.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv4) {
             return true;
         }
         return false;
@@ -140,7 +140,7 @@ public abstract class AbstractIetfAclWriter implements IetfAclWriter, JvppReplyC
             return true;  // L2 only rules are possible for IP6 traffic
         }
         if (aclType == AclType.ETH_AND_IP && ((AceIpAndEth) aceType).getAceIpAndEthNodes()
-            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv6) {
+            .getAceIpVersion() instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.acl.rev170315.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.and.eth.ace.ip.and.eth.nodes.ace.ip.version.AceIpv6) {
             return true;
         }
         return false;

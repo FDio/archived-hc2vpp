@@ -19,8 +19,8 @@ package io.fd.hc2vpp.v3po.util;
 import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.Tags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev161214.sub._interface.base.attributes.tags.Tag;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170315.sub._interface.base.attributes.Tags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170315.sub._interface.base.attributes.tags.Tag;
 
 public final class SubInterfaceUtils {
 

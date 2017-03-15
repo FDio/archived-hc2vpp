@@ -3,9 +3,9 @@ module vpp-interface-acl {
     namespace "urn:opendaylight:params:xml:ns:yang:vpp:interface:acl";
     prefix "vpp-ifc-acl";
 
-    revision "2016-12-14" {
+    revision "2017-03-15" {
         description
-            "Initial revision of vpp-acl model.";
+            "Initial revision of vpp-interface-acl model.";
     }
 
     import ietf-interfaces {

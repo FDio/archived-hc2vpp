@@ -26,12 +26,12 @@ import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.BridgeDomains;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.bridge.domain.attributes.ArpTerminationTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.bridge.domains.BridgeDomain;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.fib.attributes.L2FibTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.l2.fib.attributes.l2.fib.table.L2FibEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.BridgeDomains;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.bridge.domain.attributes.ArpTerminationTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.bridge.domains.BridgeDomain;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.l2.fib.attributes.L2FibTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.l2.fib.attributes.l2.fib.table.L2FibEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 

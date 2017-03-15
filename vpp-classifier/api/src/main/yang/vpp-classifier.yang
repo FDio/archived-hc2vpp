@@ -3,6 +3,11 @@ module vpp-classifier {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier";
   prefix "vpp-classifier";
 
+  revision "2016-03-15" {
+    description
+      "This revision adds policer support";
+  }
+
   revision "2016-12-14" {
     description
       "This revision adds the following new features:

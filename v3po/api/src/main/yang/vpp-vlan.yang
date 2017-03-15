@@ -3,6 +3,12 @@ module vpp-vlan {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:vlan";
   prefix "vpp-vlan";
 
+  revision "2017-03-15" {
+    description
+      "Revision changes:
+       - acl and ietf-acl moved to vpp-subinterface-acl";
+  }
+
   revision "2016-12-14" {
     description
       "This revision adds the following new features:

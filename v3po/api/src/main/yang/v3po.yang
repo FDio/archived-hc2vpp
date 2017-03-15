@@ -3,6 +3,14 @@ module v3po {
   namespace "urn:opendaylight:params:xml:ns:yang:v3po";
   prefix "v3po";
 
+  revision "2017-03-15" {
+    description
+      "Revision changes:
+       - acl and ietf-acl moved to vpp-interface-acl
+       - vpp-state and rpc moved to vpp-management
+       - bridge domains moved to standalone container";
+  }
+
   revision "2016-12-14" {
     description
       "This revision adds the following new features:

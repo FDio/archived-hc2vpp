@@ -38,11 +38,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VhostUserRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VppInterfaceStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VhostUser;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces.state._interface.VhostUserBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.VhostUserRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.VppInterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.VppInterfaceStateAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces.state._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces.state._interface.VhostUserBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -82,7 +82,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
         if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index,
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.VhostUser.class,
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.VhostUser.class,
                 LOG)) {
             return;
         }
@@ -141,7 +141,7 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUser> init(
+    public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.VhostUser> init(
             @Nonnull final InstanceIdentifier<VhostUser> id,
             @Nonnull final VhostUser readValue,
             @Nonnull final ReadContext ctx) {
@@ -151,17 +151,17 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         final SwInterfaceDetails ifcDetails =
             InterfaceCustomizer.getCachedInterfaceDump(ctx.getModificationCache()).get(index);
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUserBuilder()
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.VhostUserBuilder()
                         .setRole(readValue.getRole())
                         .setSocket(readValue.getSocket())
                         .setTag(ifcDetails.tag[0] == 0 ? null : toString(ifcDetails.tag))
                         .build());
     }
 
-    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUser> getCfgId(
+    private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.VhostUser> getCfgId(
             final InstanceIdentifier<VhostUser> id) {
         return InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
                 .augmentation(VppInterfaceAugmentation.class)
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev161214.interfaces._interface.VhostUser.class);
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.VhostUser.class);
     }
 }

@@ -24,7 +24,15 @@ module lisp {
     operational data for LISP in VPP";
 
   revision 2017-03-15 {
-    description "Excludes lisp-state from config data";
+    description
+    "Excludes lisp-state from config data
+     Support for Lisp Control Plane Features
+        - Map request mode
+        - Multiple map servers
+        - Petr use
+        - RLoc probing
+        - Map Register
+        - Support for keys in local mappings";
   }
 
   revision 2016-12-14 {
