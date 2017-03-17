@@ -28,6 +28,7 @@
 
     <groupId>io.fd.hc2vpp.l3</groupId>
     <artifactId>l3-utils</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.17.04-SNAPSHOT</version>
 
     <dependencies>

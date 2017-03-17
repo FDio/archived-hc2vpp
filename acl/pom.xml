@@ -17,15 +17,17 @@
   <groupId>io.fd.hc2vpp.acl</groupId>
 
   <parent>
-    <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>honeycomb-parent</artifactId>
+    <groupId>io.fd.hc2vpp.common</groupId>
+    <artifactId>hc2vpp-parent</artifactId>
     <version>1.17.04-SNAPSHOT</version>
+    <relativePath>../common/hc2vpp-parent</relativePath>
   </parent>
   <artifactId>acl-aggregator</artifactId>
   <version>1.17.04-SNAPSHOT</version>
   <name>acl-aggregator</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
+  <description>Aggregator for Hc2vpp ACL plugin</description>
 
   <modules>
     <module>acl-api</module>

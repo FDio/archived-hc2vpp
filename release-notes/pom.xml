@@ -17,9 +17,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <parent>
-    <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>honeycomb-parent</artifactId>
+    <groupId>io.fd.hc2vpp.common</groupId>
+    <artifactId>hc2vpp-parent</artifactId>
     <version>1.17.04-SNAPSHOT</version>
+    <relativePath>../common/hc2vpp-parent</relativePath>
   </parent>
 
   <groupId>io.fd.hc2vpp</groupId>
@@ -28,7 +29,7 @@
   <name>${project.artifactId}</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
-  <description>Release notes</description>
+  <description>Hc2vpp release notes</description>
 
   <!-- Do not push, this is just a documentation producer -->
   <build>

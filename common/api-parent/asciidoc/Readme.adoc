@@ -1,0 +1,3 @@
+= api-parent
+
+Maven parent for api projects. Provides common yangtools plugin configuration.

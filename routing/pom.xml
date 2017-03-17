@@ -17,9 +17,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>io.fd.honeycomb.common</groupId>
-        <artifactId>honeycomb-parent</artifactId>
+        <groupId>io.fd.hc2vpp.common</groupId>
+        <artifactId>hc2vpp-parent</artifactId>
         <version>1.17.04-SNAPSHOT</version>
+        <relativePath>../common/hc2vpp-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.routing</groupId>
@@ -31,7 +32,7 @@
     <prerequisites>
         <maven>3.1.1</maven>
     </prerequisites>
-    <description>Aggregator for Honeycomb Routing plugin</description>
+    <description>Aggregator for Hc2vpp Routing plugin</description>
 
     <modules>
         <module>routing-api</module>

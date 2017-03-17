@@ -19,15 +19,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>hc2vpp-aggregator</artifactId>
-        <groupId>io.fd.hc2vpp</groupId>
+        <artifactId>hc2vpp-parent</artifactId>
+        <groupId>io.fd.hc2vpp.common</groupId>
         <version>1.17.04-SNAPSHOT</version>
+        <relativePath>../common/hc2vpp-parent</relativePath>
     </parent>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.hc2vpp.l3</groupId>
     <artifactId>l3-aggregator</artifactId>
+    <name>${project.artifactId}</name>
+    <description>Aggregator for Hc2vpp L3 plugin</description>
 
     <modules>
         <module>api</module>

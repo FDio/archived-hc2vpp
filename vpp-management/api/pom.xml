@@ -21,9 +21,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.fd.honeycomb.common</groupId>
+        <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>api-parent</artifactId>
         <version>1.17.04-SNAPSHOT</version>
+        <relativePath>../../common/api-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.management</groupId>

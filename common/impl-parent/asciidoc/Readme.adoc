@@ -1,0 +1,3 @@
+= impl-parent
+
+Common parent for projects implementing translation layer.

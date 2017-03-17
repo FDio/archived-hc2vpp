@@ -20,7 +20,7 @@
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
         <version>1.17.04-SNAPSHOT</version>
-        <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
+        <relativePath>../vpp-impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

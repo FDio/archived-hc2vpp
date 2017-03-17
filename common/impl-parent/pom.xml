@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.fd.hc2vpp.common</groupId>
+        <artifactId>hc2vpp-parent</artifactId>
+        <version>1.17.04-SNAPSHOT</version>
+        <relativePath>../hc2vpp-parent</relativePath>
+    </parent>
+
+    <groupId>io.fd.hc2vpp.common</groupId>
+    <artifactId>impl-parent</artifactId>
+    <name>${project.artifactId}</name>
+    <version>1.17.04-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <!-- import dependencies from honeycomb impl-parent  -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.fd.honeycomb.common</groupId>
+                <artifactId>impl-parent</artifactId>
+                <version>1.17.04-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

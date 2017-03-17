@@ -11,6 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>samples-impl</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.17.04-SNAPSHOT</version>
 
     <dependencies>

@@ -1,0 +1,3 @@
+= hc2vpp-aggregator
+
+Single maven parent for all hc2vpp projects. Provides documentation template used by site plugin.

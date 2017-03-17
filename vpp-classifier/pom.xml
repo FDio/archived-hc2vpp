@@ -19,15 +19,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.fd.honeycomb.common</groupId>
-        <artifactId>honeycomb-parent</artifactId>
+        <groupId>io.fd.hc2vpp.common</groupId>
+        <artifactId>hc2vpp-parent</artifactId>
         <version>1.17.04-SNAPSHOT</version>
+        <relativePath>../common/hc2vpp-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
     <artifactId>vpp-classifier-aggregator</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
+    <description>Aggregator for Hc2vpp vpp-classifier plugin</description>
 
     <modules>
         <module>api</module>

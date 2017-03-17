@@ -17,15 +17,17 @@
   <groupId>io.fd.hc2vpp.dhcp</groupId>
 
   <parent>
-    <groupId>io.fd.honeycomb.common</groupId>
-    <artifactId>honeycomb-parent</artifactId>
+    <groupId>io.fd.hc2vpp.common</groupId>
+    <artifactId>hc2vpp-parent</artifactId>
     <version>1.17.04-SNAPSHOT</version>
+    <relativePath>../common/hc2vpp-parent</relativePath>
   </parent>
   <artifactId>dhcp-aggregator</artifactId>
   <version>1.17.04-SNAPSHOT</version>
   <name>dhcp-aggregator</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
+  <description>Aggregator for Hc2vpp DHCP plugin</description>
 
   <modules>
     <module>dhcp-api</module>

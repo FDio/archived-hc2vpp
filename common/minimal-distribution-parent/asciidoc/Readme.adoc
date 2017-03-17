@@ -1,0 +1,3 @@
+= minimal-distribution-parent
+
+Maven parent for projects that provide honeycomb distribution.

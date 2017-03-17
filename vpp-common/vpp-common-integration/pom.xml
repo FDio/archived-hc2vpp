@@ -17,9 +17,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>io.fd.honeycomb.common</groupId>
+        <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>impl-parent</artifactId>
         <version>1.17.04-SNAPSHOT</version>
+        <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -102,7 +103,6 @@
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-testlib</artifactId>
-            <version>${guice.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
