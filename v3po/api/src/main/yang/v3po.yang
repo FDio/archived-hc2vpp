@@ -594,6 +594,7 @@ module v3po {
   }
 
   container bridge-domains {
+    presence "Bridge domains configuration";
     list bridge-domain {
       key "name";
 
@@ -680,6 +681,7 @@ module v3po {
 
   container bridge-domains-state {
       // FIXME: Should this live in bridge-domain.yang in a modular fashion ?
+      config "false";
       list bridge-domain {
 
         key "name";
