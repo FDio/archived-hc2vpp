@@ -122,7 +122,6 @@ final class PolicerCustomizer extends FutureJVppCustomizer
         builder.setName(toString(details.name));
         builder.setCir(UnsignedInts.toLong(details.cir));
         builder.setEir(UnsignedInts.toLong(details.eir));
-        // TODO(HC2VPP-117): policer init fails if cb is configured (looks like byte ordering issue on VPP side)
         builder.setCb(toUnsignedBigInteger(details.cb));
         builder.setEb(toUnsignedBigInteger(details.eb));
         builder.setRateType(PolicerRateType.forValue(details.rateType));

@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
@@ -173,10 +174,13 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
         customizer.deleteCurrentAttributes(id, classifyTable, writeContext);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
+    // TODO: uncomment after HC2VPP-10 is fixed
+    // (expected = UnsupportedOperationException.class)
     public void testUpdate() throws Exception {
         final ClassifyTable classifyTableBefore = generateClassifyTable(TABLE_NAME);
         final InstanceIdentifier<ClassifyTable> id = getClassifyTableId(TABLE_NAME);
         customizer.updateCurrentAttributes(id, classifyTableBefore, new ClassifyTableBuilder().build(), writeContext);
+        verifyZeroInteractions(api);
     }
 }

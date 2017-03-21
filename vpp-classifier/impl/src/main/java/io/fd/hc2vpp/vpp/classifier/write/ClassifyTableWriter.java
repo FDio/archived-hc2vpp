@@ -79,7 +79,10 @@ public class ClassifyTableWriter extends VppNodeWriter
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<ClassifyTable> id,
                                         @Nonnull final ClassifyTable dataBefore, @Nonnull final ClassifyTable dataAfter,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Classify table update is not supported");
+        // TODO(HC2VPP-10): memory_size is not part of classify table dump, so initialization triggers update,
+        // uncomment after VPP-208 is fixed
+        // throw new UnsupportedOperationException("Classify table update is not supported");
+        LOG.error("Classify table update is not supported, ignoring config");
     }
 
     @Override
