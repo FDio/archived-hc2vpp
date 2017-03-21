@@ -32,6 +32,7 @@ import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.read.InterfaceChildNodeTest;
+import io.fd.hc2vpp.l3.utils.ip.read.IfaceDumpFilter;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
@@ -254,8 +255,10 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         detailIfaceTwoAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceTwoAddressOne.prefixLength = 23;
 
-        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
-        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier), replyIfaceTwo);
+        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier, new IfaceDumpFilter(IFACE_ID, false)),
+            replyIfaceOne);
+        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier, new IfaceDumpFilter(IFACE_2_ID, false)),
+            replyIfaceTwo);
     }
 
     private void fillCacheForFirstIfaceSecondEmpty() {
@@ -266,7 +269,9 @@ public class Ipv4AddressCustomizerTest extends ListReaderCustomizerTest<Address,
         detailIfaceOneAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceOneAddressOne.prefixLength = 22;
 
-        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
-        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier), new IpAddressDetailsReplyDump());
+        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier, new IfaceDumpFilter(IFACE_ID, false)),
+            replyIfaceOne);
+        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier, new IfaceDumpFilter(IFACE_2_ID, false)),
+            new IpAddressDetailsReplyDump());
     }
 }

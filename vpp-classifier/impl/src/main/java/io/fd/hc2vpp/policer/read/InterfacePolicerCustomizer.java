@@ -87,8 +87,6 @@ final class InterfacePolicerCustomizer extends FutureJVppCustomizer
         throws ReadFailedException {
         final String ifcName = id.firstKeyOf(Interface.class).getName();
         final int ifcIndex = interfaceContext.getIndex(ifcName, ctx.getMappingContext());
-        // FIXME: only first dump will result in jvpp call, so either we improve
-        // DumpCacheManager(HONEYCOMB-348) or we need to do it directly (probably without caching):
         final Optional<Integer> ip4 = readTableIndex(id, ifcIndex, TABLE_IP4, ctx.getModificationCache());
         if (ip4.isPresent()) {
             builder.setIp4Table(classifyTableContext.getTableName(ip4.get(), ctx.getMappingContext()));

@@ -33,6 +33,7 @@ import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.l3.read.ipv4.subinterface.SubInterfaceIpv4AddressCustomizer;
+import io.fd.hc2vpp.l3.utils.ip.read.IfaceDumpFilter;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.CacheKeyFactory;
@@ -206,8 +207,10 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
         detailIfaceTwoAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceTwoAddressOne.prefixLength = 23;
 
-        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
-        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier), replyIfaceTwo);
+        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier, new IfaceDumpFilter(SUB_IF_INDEX, false)),
+            replyIfaceOne);
+        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier, new IfaceDumpFilter(SUB_IF_2_INDEX, false)),
+            replyIfaceTwo);
     }
 
     private void fillCacheForFirstIfaceSecondEmpty() {
@@ -218,8 +221,10 @@ public class SubInterfaceIpv4AddressCustomizerTest extends ListReaderCustomizerT
         detailIfaceOneAddressOne.ip = ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1")));
         detailIfaceOneAddressOne.prefixLength = 22;
 
-        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier), replyIfaceOne);
-        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier), new IpAddressDetailsReplyDump());
+        cache.put(cacheKeyFactory.createKey(ifaceOneAddressOneIdentifier, new IfaceDumpFilter(SUB_IF_INDEX, false)),
+            replyIfaceOne);
+        cache.put(cacheKeyFactory.createKey(ifaceTwoAddressOneIdentifier, new IfaceDumpFilter(SUB_IF_2_INDEX, false)),
+            new IpAddressDetailsReplyDump());
     }
 
     private IpAddressDetailsReplyDump dump() {
