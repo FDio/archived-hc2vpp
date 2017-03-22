@@ -26,7 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppCallbackException;
@@ -44,7 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.itr.remote.locator.sets.grouping.ItrRemoteLocatorSetBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class ItrRemoteLocatorSetCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
+public class ItrRemoteLocatorSetCustomizerTest extends LispWriterCustomizerTest implements ByteDataTranslator {
 
     private static final String VALID_NAME = "loc-set";
 
@@ -58,7 +57,7 @@ public class ItrRemoteLocatorSetCustomizerTest extends WriterCustomizerTest impl
     @Before
     public void setUpTest() throws Exception {
         initMocks(this);
-        customizer = new ItrRemoteLocatorSetCustomizer(api);
+        customizer = new ItrRemoteLocatorSetCustomizer(api, lispStateCheckService);
         validId = InstanceIdentifier.create(ItrRemoteLocatorSet.class);
         validData = new ItrRemoteLocatorSetBuilder().setRemoteLocatorSetName(VALID_NAME).build();
     }

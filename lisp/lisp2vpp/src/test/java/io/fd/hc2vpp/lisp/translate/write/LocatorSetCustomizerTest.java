@@ -24,11 +24,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
@@ -55,7 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class LocatorSetCustomizerTest extends WriterCustomizerTest {
+public class LocatorSetCustomizerTest extends LispWriterCustomizerTest {
 
     private static final InstanceIdentifier<EidTable>
             EID_TABLE_ID = InstanceIdentifier.create(Lisp.class)
@@ -68,9 +68,13 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
 
     private LocatorSetCustomizer customizer;
 
+    private final InstanceIdentifier<LocatorSet> EMPTY_ID = InstanceIdentifier.create(LocatorSet.class);
+    private final LocatorSet EMPTY_DATA = new LocatorSetBuilder().build();
+
     @Override
     public void setUpTest() {
-        customizer = new LocatorSetCustomizer(api, new NamingContext("locator-set", "locator-set-context"));
+        customizer = new LocatorSetCustomizer(api, new NamingContext("locator-set", "locator-set-context"),
+                lispStateCheckService);
     }
 
     @Test(expected = NullPointerException.class)
@@ -195,6 +199,30 @@ public class LocatorSetCustomizerTest extends WriterCustomizerTest {
             return;
         }
         fail("testDeleteReferenced should have failed");
+    }
+
+    @Test
+    public void testWriteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testDeleteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.deleteCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
     }
 
     private static Optional<EidTable> eidTableData() {

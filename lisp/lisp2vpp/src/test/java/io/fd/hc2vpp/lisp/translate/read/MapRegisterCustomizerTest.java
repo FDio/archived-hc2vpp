@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.ShowLispMapRegisterStateReply;
 import org.junit.Before;
@@ -30,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.register.grouping.MapRegisterBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class MapRegisterCustomizerTest extends InitializingReaderCustomizerTest implements LispInitTest {
+public class MapRegisterCustomizerTest extends LispInitializingReaderCustomizerTest implements LispInitTest {
     private static final InstanceIdentifier<MapRegister> STATE_IID = LISP_STATE_FTR_IID.child(MapRegister.class);
     private static final InstanceIdentifier<MapRegister> CONFIG_IID = LISP_FTR_IID.child(MapRegister.class);
 
@@ -44,6 +43,7 @@ public class MapRegisterCustomizerTest extends InitializingReaderCustomizerTest 
         final ShowLispMapRegisterStateReply reply = new ShowLispMapRegisterStateReply();
         reply.isEnabled = 1;
         when(api.showLispMapRegisterState(any())).thenReturn(future(reply));
+        mockLispEnabled();
     }
 
     @Test
@@ -61,6 +61,6 @@ public class MapRegisterCustomizerTest extends InitializingReaderCustomizerTest 
 
     @Override
     protected ReaderCustomizer initCustomizer() {
-        return new MapRegisterCustomizer(api);
+        return new MapRegisterCustomizer(api, lispStateCheckService);
     }
 }

@@ -17,9 +17,10 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -34,13 +35,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class RlocProbeCustomizer extends FutureJVppCustomizer
+public class RlocProbeCustomizer extends CheckedLispCustomizer
         implements InitializingReaderCustomizer<RlocProbe, RlocProbeBuilder>, JvppReplyConsumer, ByteDataTranslator,
         LispInitPathsMapper {
 
-    public RlocProbeCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    private static final Logger LOG  = LoggerFactory.getLogger(RlocProbeCustomizer.class);
+
+    public RlocProbeCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                               @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Nonnull
@@ -53,6 +59,11 @@ public class RlocProbeCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<RlocProbe> instanceIdentifier,
                                       @Nonnull RlocProbeBuilder rlocProbeBuilder,
                                       @Nonnull ReadContext readContext) throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(readContext)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
+
         final ShowLispRlocProbeStateReply read = getReplyForRead(getFutureJVpp()
                 .showLispRlocProbeState(new ShowLispRlocProbeState()).toCompletableFuture(), instanceIdentifier);
 

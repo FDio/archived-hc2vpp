@@ -36,6 +36,8 @@ import io.fd.hc2vpp.lisp.translate.read.factory.LispStateReaderFactory;
 import io.fd.hc2vpp.lisp.translate.read.factory.LocatorSetReaderFactory;
 import io.fd.hc2vpp.lisp.translate.read.factory.MapResolverReaderFactory;
 import io.fd.hc2vpp.lisp.translate.read.factory.MapServerReaderFactory;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckServiceImpl;
 import io.fd.hc2vpp.lisp.translate.write.factory.EidTableWriterFactory;
 import io.fd.hc2vpp.lisp.translate.write.factory.LispWriterFactory;
 import io.fd.hc2vpp.lisp.translate.write.factory.LocatorSetWriterFactory;
@@ -97,6 +99,8 @@ public class LispModule extends AbstractModule {
 
         final Multibinder<ReaderFactory> readerBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readerBinder.addBinding().toProvider(ContextsReaderFactoryProvider.class).in(Singleton.class);
+
+        bind(LispStateCheckService.class).to(LispStateCheckServiceImpl.class).in(Singleton.class);
 
         LOG.info("Module Lisp successfully configured");
     }

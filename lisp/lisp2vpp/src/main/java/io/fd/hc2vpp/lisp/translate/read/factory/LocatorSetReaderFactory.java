@@ -23,14 +23,13 @@ import io.fd.hc2vpp.lisp.translate.read.LocatorSetCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.LocatorSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.LocatorSetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import javax.annotation.Nonnull;
 
 
 /**
@@ -48,7 +47,7 @@ public class LocatorSetReaderFactory extends AbstractLispInfraFactoryBase implem
 
         registry.addStructuralReader(locatorSetsInstanceIdentifier, LocatorSetsBuilder.class);
         registry.add(new GenericInitListReader<>(locatorSetInstanceIdentifier,
-                new LocatorSetCustomizer(vppApi, locatorSetContext)));
+                new LocatorSetCustomizer(vppApi, locatorSetContext, lispStateCheckService)));
         registry.add(new GenericInitListReader<>(locatorSetInstanceIdentifier.child(Interface.class),
                 new InterfaceCustomizer(vppApi, interfaceContext, locatorSetContext)));
     }

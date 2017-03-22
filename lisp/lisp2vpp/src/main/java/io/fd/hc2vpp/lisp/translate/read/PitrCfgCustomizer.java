@@ -18,9 +18,10 @@ package io.fd.hc2vpp.lisp.translate.read;
 
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -29,6 +30,8 @@ import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.ShowLispPitr;
 import io.fd.vpp.jvpp.core.dto.ShowLispPitrReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfgBuilder;
@@ -38,21 +41,19 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.concurrent.TimeoutException;
-
 
 /**
  * Customizer for reading {@link PitrCfg}<br> Currently unsupported in jvpp
  */
-public class PitrCfgCustomizer extends FutureJVppCustomizer
+public class PitrCfgCustomizer extends CheckedLispCustomizer
         implements InitializingReaderCustomizer<PitrCfg, PitrCfgBuilder>, ByteDataTranslator, JvppReplyConsumer,
         LispInitPathsMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(PitrCfgCustomizer.class);
 
-    public PitrCfgCustomizer(FutureJVppCore futureJvpp) {
-        super(futureJvpp);
+    public PitrCfgCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                             @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJvpp, lispStateCheckService);
     }
 
     @Override
@@ -63,6 +64,10 @@ public class PitrCfgCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(InstanceIdentifier<PitrCfg> id, PitrCfgBuilder builder, ReadContext ctx)
             throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(ctx)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
         LOG.debug("Reading status for Lisp Pitr node {}", id);
 
         ShowLispPitrReply reply;

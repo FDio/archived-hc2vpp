@@ -38,6 +38,6 @@ public class MapServerReaderFactory extends AbstractLispInfraFactoryBase impleme
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
         registry.addStructuralReader(MAP_SERVERS_ID, MapServersBuilder.class);
         registry.add(new GenericInitListReader<>(MAP_SERVERS_ID.child(MapServer.class),
-                new MapServerCustomizer(vppApi)));
+                new MapServerCustomizer(vppApi, lispStateCheckService)));
     }
 }

@@ -18,8 +18,9 @@ package io.fd.hc2vpp.lisp.translate.write;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -30,22 +31,20 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.request.mode.grouping.MapRequestMode;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class MapRequestModeCustomizer extends FutureJVppCustomizer
+public class MapRequestModeCustomizer extends CheckedLispCustomizer
         implements WriterCustomizer<MapRequestMode>, JvppReplyConsumer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MapRequestModeCustomizer.class);
-
-    public MapRequestModeCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    public MapRequestModeCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                    @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<MapRequestMode> instanceIdentifier,
                                        @Nonnull MapRequestMode mapRequestMode,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         getReplyForWrite(mapRequestModeRequestFuture(mapRequestMode), instanceIdentifier);
     }
 
@@ -54,6 +53,7 @@ public class MapRequestModeCustomizer extends FutureJVppCustomizer
                                         @Nonnull MapRequestMode mapRequestModeBefore,
                                         @Nonnull MapRequestMode mapRequestModeAfter, @Nonnull WriteContext writeContext)
             throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         getReplyForUpdate(mapRequestModeRequestFuture(mapRequestModeAfter), instanceIdentifier,
                 mapRequestModeBefore, mapRequestModeAfter);
     }
@@ -62,8 +62,7 @@ public class MapRequestModeCustomizer extends FutureJVppCustomizer
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<MapRequestMode> instanceIdentifier,
                                         @Nonnull MapRequestMode mapRequestMode,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
-        //TODO - after HC2VPP-115 - change to throw UnsupportedOperationException
-        LOG.error("Map request mode cannot be deleted, ignoring");
+        throw new UnsupportedOperationException("Map request mode cannot be deleted");
     }
 
     private CompletableFuture<LispMapRequestModeReply> mapRequestModeRequestFuture(

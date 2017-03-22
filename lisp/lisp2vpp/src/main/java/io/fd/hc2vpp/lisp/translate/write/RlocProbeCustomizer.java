@@ -17,29 +17,31 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispRlocProbeEnableDisable;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.rloc.probing.grouping.RlocProbe;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import javax.annotation.Nonnull;
-
-public class RlocProbeCustomizer extends FutureJVppCustomizer
+public class RlocProbeCustomizer extends CheckedLispCustomizer
         implements WriterCustomizer<RlocProbe>, ByteDataTranslator, JvppReplyConsumer {
 
-    public RlocProbeCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    public RlocProbeCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                               @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<RlocProbe> instanceIdentifier,
                                        @Nonnull RlocProbe rlocProbe,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         enableDisableRlocProbe(rlocProbe.isEnabled(), instanceIdentifier);
     }
 
@@ -48,6 +50,7 @@ public class RlocProbeCustomizer extends FutureJVppCustomizer
                                         @Nonnull RlocProbe rlocProbeBefore,
                                         @Nonnull RlocProbe rlocProbeAfter,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         enableDisableRlocProbe(rlocProbeAfter.isEnabled(), instanceIdentifier);
     }
 
@@ -55,6 +58,7 @@ public class RlocProbeCustomizer extends FutureJVppCustomizer
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<RlocProbe> instanceIdentifier,
                                         @Nonnull RlocProbe rlocProbe,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         enableDisableRlocProbe(false, instanceIdentifier);
     }
 

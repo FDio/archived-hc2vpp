@@ -18,12 +18,13 @@ package io.fd.hc2vpp.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelMapServer;
@@ -40,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.servers.grouping.map.servers.MapServerKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class MapServerCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
+public class MapServerCustomizerTest extends LispWriterCustomizerTest implements ByteDataTranslator {
 
     private static final MapServerKey MAP_SERVER_KEY = new MapServerKey(
             new IpAddress(new Ipv4Address("192.168.2.1")));
@@ -49,13 +50,15 @@ public class MapServerCustomizerTest extends WriterCustomizerTest implements Byt
 
     private MapServerCustomizer customizer;
     private MapServer data;
+    private InstanceIdentifier<MapServer> EMPTY_ID = InstanceIdentifier.create(MapServer.class);
+    private MapServer EMPTY_DATA = new MapServerBuilder().build();
 
     @Captor
     private ArgumentCaptor<LispAddDelMapServer> requestCaptor;
 
     @Override
     protected void setUpTest() throws Exception {
-        customizer = new MapServerCustomizer(api);
+        customizer = new MapServerCustomizer(api, lispStateCheckService);
         data = new MapServerBuilder()
                 .setIpAddress(MAP_SERVER_KEY.getIpAddress())
                 .build();
@@ -84,6 +87,30 @@ public class MapServerCustomizerTest extends WriterCustomizerTest implements Byt
     public void deleteCurrentAttributes() throws Exception {
         customizer.deleteCurrentAttributes(ID, data, writeContext);
         verifyRequest(false);
+    }
+
+    @Test
+    public void testWriteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testDeleteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.deleteCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
     }
 
     private void verifyRequest(final boolean add) {

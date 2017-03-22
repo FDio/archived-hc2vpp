@@ -17,14 +17,16 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapRequestMode.DestinationOnly;
 import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapRequestMode.SourceDestination;
 
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispMapRequestMode;
 import io.fd.vpp.jvpp.core.dto.LispMapRequestModeReply;
 import org.junit.Test;
@@ -34,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.request.mode.grouping.MapRequestModeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class MapRequestModeCustomizerTest extends WriterCustomizerTest {
+public class MapRequestModeCustomizerTest extends LispWriterCustomizerTest {
 
     private static final InstanceIdentifier<MapRequestMode> ID = InstanceIdentifier.create(MapRequestMode.class);
     private MapRequestModeCustomizer customizer;
@@ -43,10 +45,12 @@ public class MapRequestModeCustomizerTest extends WriterCustomizerTest {
 
     @Captor
     private ArgumentCaptor<LispMapRequestMode> requestCaptor;
+    private InstanceIdentifier<MapRequestMode> EMPTY_ID = InstanceIdentifier.create(MapRequestMode.class);
+    private MapRequestMode EMPTY_DATA = new MapRequestModeBuilder().build();
 
     @Override
     protected void setUpTest() throws Exception {
-        customizer = new MapRequestModeCustomizer(api);
+        customizer = new MapRequestModeCustomizer(api, lispStateCheckService);
         sourceDestinationMode = new MapRequestModeBuilder()
                 .setMode(SourceDestination)
                 .build();
@@ -71,6 +75,30 @@ public class MapRequestModeCustomizerTest extends WriterCustomizerTest {
     @Test
     public void deleteCurrentAttributes() throws Exception {
         verify(api, times(0)).lispMapRequestMode(any());
+    }
+
+    @Test
+    public void testWriteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testUpdateLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA,EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
     }
 
     private void verifyModeRequest(

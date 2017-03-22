@@ -16,11 +16,14 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -31,6 +34,11 @@ import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.MapResolvers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.MapResolversBuilder;
@@ -43,15 +51,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
-public class MapResolverCustomizer extends FutureJVppCustomizer
+public class MapResolverCustomizer extends CheckedLispCustomizer
         implements InitializingListReaderCustomizer<MapResolver, MapResolverKey, MapResolverBuilder>, AddressTranslator,
         JvppReplyConsumer, LispInitPathsMapper {
 
@@ -59,8 +59,9 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
 
     private final DumpCacheManager<LispMapResolverDetailsReplyDump, Void> dumpManager;
 
-    public MapResolverCustomizer(FutureJVppCore futureJvpp) {
-        super(futureJvpp);
+    public MapResolverCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                                 @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJvpp, lispStateCheckService);
         this.dumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<LispMapResolverDetailsReplyDump, Void>()
                         .withExecutor((identifier, params) -> getReplyForRead(
@@ -78,6 +79,10 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(InstanceIdentifier<MapResolver> id, MapResolverBuilder builder, ReadContext ctx)
             throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(ctx)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
         LOG.debug("Reading attributes...");
 
         final Optional<LispMapResolverDetailsReplyDump> dumpOptional =
@@ -109,6 +114,10 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
     @Override
     public List<MapResolverKey> getAllIds(InstanceIdentifier<MapResolver> id, ReadContext context)
             throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(context)) {
+            LOG.info("Lisp feature must be enabled first");
+            return Collections.emptyList();
+        }
         LOG.debug("Dumping MapResolver...");
 
         final Optional<LispMapResolverDetailsReplyDump> dumpOptional =
@@ -131,7 +140,9 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
 
     @Nonnull
     @Override
-    public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<MapResolver> instanceIdentifier, @Nonnull MapResolver mapResolver, @Nonnull ReadContext readContext) {
-        return Initialized.create(lispFeaturesBasePath().child(MapResolvers.class).child(MapResolver.class, instanceIdentifier.firstKeyOf(MapResolver.class)), mapResolver);
+    public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<MapResolver> instanceIdentifier,
+                                                  @Nonnull MapResolver mapResolver, @Nonnull ReadContext readContext) {
+        return Initialized.create(lispFeaturesBasePath().child(MapResolvers.class)
+                .child(MapResolver.class, instanceIdentifier.firstKeyOf(MapResolver.class)), mapResolver);
     }
 }

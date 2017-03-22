@@ -19,12 +19,14 @@ package io.fd.hc2vpp.lisp.translate.write;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispUsePetr;
 import io.fd.vpp.jvpp.core.dto.LispUsePetrReply;
 import java.util.Arrays;
@@ -37,7 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.use.petr.cfg.grouping.PetrCfgBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class PetrCfgCustomizerTest extends WriterCustomizerTest {
+public class PetrCfgCustomizerTest extends LispWriterCustomizerTest {
 
     private static final InstanceIdentifier<PetrCfg> ID = InstanceIdentifier.create(PetrCfg.class);
 
@@ -47,10 +49,12 @@ public class PetrCfgCustomizerTest extends WriterCustomizerTest {
 
     @Captor
     private ArgumentCaptor<LispUsePetr> requestCaptor;
+    private InstanceIdentifier<PetrCfg> EMPTY_ID = InstanceIdentifier.create(PetrCfg.class);
+    private PetrCfg EMPTY_DATA = new PetrCfgBuilder().build();
 
     @Override
     public void setUpTest() throws Exception {
-        customizer = new PetrCfgCustomizer(api);
+        customizer = new PetrCfgCustomizer(api, lispStateCheckService);
         enabledCfg = new PetrCfgBuilder().setPetrAddress(new IpAddress(new Ipv4Address("192.168.2.1"))).build();
         disabledCfg = new PetrCfgBuilder().build();
         when(api.lispUsePetr(any(LispUsePetr.class))).thenReturn(future(new LispUsePetrReply()));
@@ -78,6 +82,42 @@ public class PetrCfgCustomizerTest extends WriterCustomizerTest {
     public void testDeleteCurrentAttributes() throws Exception {
         customizer.deleteCurrentAttributes(ID, disabledCfg, writeContext);
         verifyDisabledInvoked();
+    }
+
+    @Test
+    public void testWriteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testUpdateLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA,EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testDeleteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.deleteCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
     }
 
     private void verifyEnabledInvoked() {

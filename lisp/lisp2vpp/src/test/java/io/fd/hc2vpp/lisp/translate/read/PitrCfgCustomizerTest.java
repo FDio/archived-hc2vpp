@@ -22,19 +22,17 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.ShowLispPitrReply;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfgBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.ShowLispPitrReply;
 
 
-public class PitrCfgCustomizerTest extends ReaderCustomizerTest<PitrCfg, PitrCfgBuilder> {
+public class PitrCfgCustomizerTest extends LispInitializingReaderCustomizerTest<PitrCfg, PitrCfgBuilder> {
 
     private static final byte[] LOC_SET_NAME_BYTES = "loc-set".getBytes(StandardCharsets.UTF_8);
 
@@ -49,6 +47,7 @@ public class PitrCfgCustomizerTest extends ReaderCustomizerTest<PitrCfg, PitrCfg
         emptyId = InstanceIdentifier.create(PitrCfg.class);
 
         mockDumpData();
+        mockLispEnabled();
     }
 
     @Test
@@ -72,6 +71,6 @@ public class PitrCfgCustomizerTest extends ReaderCustomizerTest<PitrCfg, PitrCfg
 
     @Override
     protected ReaderCustomizer<PitrCfg, PitrCfgBuilder> initCustomizer() {
-        return new PitrCfgCustomizer(api);
+        return new PitrCfgCustomizer(api, lispStateCheckService);
     }
 }

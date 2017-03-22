@@ -18,38 +18,40 @@ package io.fd.hc2vpp.lisp.translate.write;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispAddDelMapResolver;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.map.resolvers.MapResolver;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.map.resolvers.MapResolverKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapResolver;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
  * Handles updates of {@link MapResolver} list
  */
-public class MapResolverCustomizer extends FutureJVppCustomizer
+public class MapResolverCustomizer extends CheckedLispCustomizer
         implements ListWriterCustomizer<MapResolver, MapResolverKey>, AddressTranslator,
         JvppReplyConsumer {
 
-    public MapResolverCustomizer(final FutureJVppCore vppApi) {
-        super(vppApi);
+    public MapResolverCustomizer(@Nonnull final FutureJVppCore vppApi,
+                                 @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(vppApi, lispStateCheckService);
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<MapResolver> id,
                                        @Nonnull final MapResolver dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-
+        lispStateCheckService.checkLispEnabled(writeContext);
         checkNotNull(dataAfter, "Data is null");
         checkNotNull(dataAfter.getIpAddress(), "Address is null");
 
@@ -71,7 +73,7 @@ public class MapResolverCustomizer extends FutureJVppCustomizer
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<MapResolver> id,
                                         @Nonnull final MapResolver dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-
+        lispStateCheckService.checkLispEnabled(writeContext);
         checkNotNull(dataBefore, "Data is null");
         checkNotNull(dataBefore.getIpAddress(), "Address is null");
 

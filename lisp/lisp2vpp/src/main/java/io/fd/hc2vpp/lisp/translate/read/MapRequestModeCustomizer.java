@@ -16,9 +16,10 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -33,13 +34,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class MapRequestModeCustomizer extends FutureJVppCustomizer
+public class MapRequestModeCustomizer extends CheckedLispCustomizer
         implements InitializingReaderCustomizer<MapRequestMode, MapRequestModeBuilder>,
         JvppReplyConsumer, LispInitPathsMapper {
 
-    public MapRequestModeCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    private static final Logger LOG = LoggerFactory.getLogger(MapRequestModeCustomizer.class);
+
+    public MapRequestModeCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                    @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Nonnull
@@ -52,6 +58,10 @@ public class MapRequestModeCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<MapRequestMode> instanceIdentifier,
                                       @Nonnull MapRequestModeBuilder mapRequestModeBuilder,
                                       @Nonnull ReadContext readContext) throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(readContext)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
         final ShowLispMapRequestModeReply reply = getReplyForRead(
                 getFutureJVpp().showLispMapRequestMode(new ShowLispMapRequestMode()).toCompletableFuture(),
                 instanceIdentifier);

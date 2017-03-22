@@ -17,32 +17,34 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelMapServer;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.servers.grouping.map.servers.MapServer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.servers.grouping.map.servers.MapServerKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import javax.annotation.Nonnull;
-
-public class MapServerCustomizer extends FutureJVppCustomizer
+public class MapServerCustomizer extends CheckedLispCustomizer
         implements ListWriterCustomizer<MapServer, MapServerKey>, AddressTranslator,
         JvppReplyConsumer {
 
-    public MapServerCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    public MapServerCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                               @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier,
                                        @Nonnull MapServer mapServer,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         addDelMapServer(true, instanceIdentifier, mapServer);
     }
 
@@ -57,6 +59,7 @@ public class MapServerCustomizer extends FutureJVppCustomizer
 
     @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier, @Nonnull MapServer mapServer, @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         addDelMapServer(false, instanceIdentifier, mapServer);
     }
 

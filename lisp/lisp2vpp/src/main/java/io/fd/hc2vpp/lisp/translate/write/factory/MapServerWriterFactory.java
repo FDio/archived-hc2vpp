@@ -32,6 +32,6 @@ public class MapServerWriterFactory extends AbstractLispInfraFactoryBase impleme
     public void init(@Nonnull ModifiableWriterRegistryBuilder registry) {
         registry.add(new GenericListWriter<>(
                 LISP_CONFIG_IDENTIFIER.child(LispFeatureData.class).child(MapServers.class).child(MapServer.class),
-                new MapServerCustomizer(vppApi)));
+                new MapServerCustomizer(vppApi, lispStateCheckService)));
     }
 }

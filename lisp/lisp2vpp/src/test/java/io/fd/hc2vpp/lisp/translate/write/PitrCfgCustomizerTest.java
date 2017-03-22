@@ -17,13 +17,14 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSet;
 import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSetReply;
@@ -32,15 +33,18 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfgBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
-public class PitrCfgCustomizerTest extends WriterCustomizerTest {
+public class PitrCfgCustomizerTest extends LispWriterCustomizerTest {
 
     private PitrCfgCustomizer customizer;
+    private InstanceIdentifier<PitrCfg> EMPTY_ID = InstanceIdentifier.create(PitrCfg.class);
+    private PitrCfg EMPTY_DATA = new PitrCfgBuilder().build();
 
     @Override
     public void setUpTest() {
-        customizer = new PitrCfgCustomizer(api);
+        customizer = new PitrCfgCustomizer(api, lispStateCheckService);
     }
 
     private void whenLispPitrSetLocatorSetThenSuccess() {
@@ -112,6 +116,42 @@ public class PitrCfgCustomizerTest extends WriterCustomizerTest {
         LispPitrSetLocatorSet request = cfgCaptor.getValue();
         assertEquals(0, request.isAdd);
         assertEquals("Locator", new String(request.lsName));
+    }
+
+    @Test
+    public void testWriteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testUpdateLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA,EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testDeleteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.deleteCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
     }
 
 }

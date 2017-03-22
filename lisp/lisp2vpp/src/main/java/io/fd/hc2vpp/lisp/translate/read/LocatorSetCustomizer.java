@@ -16,12 +16,16 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
 import io.fd.hc2vpp.lisp.translate.read.trait.LocatorSetReader;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -30,6 +34,10 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.LocatorSetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSetBuilder;
@@ -40,15 +48,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
-public class LocatorSetCustomizer extends FutureJVppCustomizer
+public class LocatorSetCustomizer extends CheckedLispCustomizer
         implements InitializingListReaderCustomizer<LocatorSet, LocatorSetKey, LocatorSetBuilder>, ByteDataTranslator,
         LocatorSetReader, LispInitPathsMapper {
 
@@ -58,8 +58,9 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
     private final NamingContext locatorSetContext;
 
     public LocatorSetCustomizer(@Nonnull final FutureJVppCore futureJvpp,
-                                @Nonnull final NamingContext locatorSetContext) {
-        super(futureJvpp);
+                                @Nonnull final NamingContext locatorSetContext,
+                                @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJvpp, lispStateCheckService);
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator Set mapping context cannot be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
                 .withExecutor(createExecutor(futureJvpp))
@@ -76,6 +77,10 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(InstanceIdentifier<LocatorSet> id, LocatorSetBuilder builder, ReadContext ctx)
             throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(ctx)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
         LOG.debug("Reading attributes for Locator Set {}", id);
 
         final Optional<LispLocatorSetDetailsReplyDump> dumpOptional =
@@ -105,6 +110,11 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
     @Override
     public List<LocatorSetKey> getAllIds(InstanceIdentifier<LocatorSet> id, ReadContext context)
             throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(context)) {
+            LOG.info("Lisp feature must be enabled first");
+            return Collections.emptyList();
+        }
+
         LOG.debug("Dumping Locator Set {}", id);
 
         final Optional<LispLocatorSetDetailsReplyDump> dumpOptional =

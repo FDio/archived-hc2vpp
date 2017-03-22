@@ -27,15 +27,15 @@ import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispState;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import javax.annotation.Nonnull;
 
 
 /**
@@ -73,6 +73,9 @@ public abstract class AbstractLispInfraFactoryBase {
     @Inject
     @Named(ADJACENCIES_IDENTIFICATION_CONTEXT)
     protected AdjacenciesMappingContext adjacenciesMappingContext;
+
+    @Inject
+    protected LispStateCheckService lispStateCheckService;
 
     @Nonnull
     protected <D extends DataObject> GenericWriter<D> writer(@Nonnull final InstanceIdentifier<D> type,

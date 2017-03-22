@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.ShowLispUsePetrReply;
 import org.junit.Test;
@@ -32,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.use.petr.cfg.grouping.PetrCfgBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class PetrCfgCustomizerTest extends InitializingReaderCustomizerTest implements LispInitTest {
+public class PetrCfgCustomizerTest extends LispInitializingReaderCustomizerTest implements LispInitTest {
     private static final InstanceIdentifier<PetrCfg> STATE_IID = LISP_STATE_FTR_IID.child(PetrCfg.class);
     private static final InstanceIdentifier<PetrCfg> CONFIG_IID = LISP_FTR_IID.child(PetrCfg.class);
 
@@ -52,6 +51,11 @@ public class PetrCfgCustomizerTest extends InitializingReaderCustomizerTest impl
         final ShowLispUsePetrReply reply = new ShowLispUsePetrReply();
         reply.status = 0;
         when(api.showLispUsePetr(any())).thenReturn(future(reply));
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        mockLispEnabled();
     }
 
     @Test
@@ -79,6 +83,6 @@ public class PetrCfgCustomizerTest extends InitializingReaderCustomizerTest impl
 
     @Override
     protected ReaderCustomizer initCustomizer() {
-        return new PetrCfgCustomizer(api);
+        return new PetrCfgCustomizer(api, lispStateCheckService);
     }
 }

@@ -54,18 +54,18 @@ public class LispStateReaderFactory extends AbstractLispInfraFactoryBase impleme
         registry.addStructuralReader(lispStateId.child(LispFeatureData.class), LispFeatureDataBuilder.class);
 
         registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(PitrCfg.class),
-                new PitrCfgCustomizer(vppApi)));
+                new PitrCfgCustomizer(vppApi, lispStateCheckService)));
 
         registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(RlocProbe.class),
-                new RlocProbeCustomizer(vppApi)));
+                new RlocProbeCustomizer(vppApi, lispStateCheckService)));
 
         registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(PetrCfg.class),
-                new PetrCfgCustomizer(vppApi)));
+                new PetrCfgCustomizer(vppApi, lispStateCheckService)));
 
         registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(MapRegister.class),
-                new MapRegisterCustomizer(vppApi)));
+                new MapRegisterCustomizer(vppApi, lispStateCheckService)));
 
         registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(MapRequestMode.class),
-                new MapRequestModeCustomizer(vppApi)));
+                new MapRequestModeCustomizer(vppApi, lispStateCheckService)));
     }
 }

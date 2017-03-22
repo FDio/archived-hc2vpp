@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
 import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
 import java.util.List;
@@ -40,7 +39,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public class MapResolverCustomizerTest
-        extends ListReaderCustomizerTest<MapResolver, MapResolverKey, MapResolverBuilder> {
+        extends LispInitializingListReaderCustomizerTest<MapResolver, MapResolverKey, MapResolverBuilder> {
 
     private static final IpAddress IP_ADDRESS_REVERTED =
             new IpAddress(new Ipv4AddressNoZone("1.2.168.192"));
@@ -59,6 +58,7 @@ public class MapResolverCustomizerTest
         validId = InstanceIdentifier.create(MapResolvers.class)
                 .child(MapResolver.class, new MapResolverKey(IP_ADDRESS_REVERTED));
         defineDumpData();
+        mockLispEnabled();
     }
 
     @Test
@@ -97,6 +97,6 @@ public class MapResolverCustomizerTest
 
     @Override
     protected ReaderCustomizer<MapResolver, MapResolverBuilder> initCustomizer() {
-        return new MapResolverCustomizer(api);
+        return new MapResolverCustomizer(api, lispStateCheckService);
     }
 }

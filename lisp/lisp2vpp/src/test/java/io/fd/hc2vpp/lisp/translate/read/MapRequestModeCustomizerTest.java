@@ -21,19 +21,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapRequestMode.DestinationOnly;
 
-import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
-import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.ShowLispMapRequestModeReply;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.request.mode.grouping.MapRequestMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.request.mode.grouping.MapRequestModeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class MapRequestModeCustomizerTest extends InitializingReaderCustomizerTest implements LispInitTest {
+public class MapRequestModeCustomizerTest extends LispInitializingReaderCustomizerTest implements LispInitTest {
     private static final InstanceIdentifier<MapRequestMode> STATE_IID = LISP_STATE_FTR_IID.child(MapRequestMode.class);
     private static final InstanceIdentifier<MapRequestMode> CONFIG_IID = LISP_FTR_IID.child(MapRequestMode.class);
 
@@ -47,6 +44,7 @@ public class MapRequestModeCustomizerTest extends InitializingReaderCustomizerTe
         final ShowLispMapRequestModeReply reply = new ShowLispMapRequestModeReply();
         reply.mode = ((byte) DestinationOnly.getIntValue());
         when(api.showLispMapRequestMode(any())).thenReturn(future(reply));
+        mockLispEnabled();
     }
 
     @Test
@@ -64,6 +62,6 @@ public class MapRequestModeCustomizerTest extends InitializingReaderCustomizerTe
 
     @Override
     protected ReaderCustomizer initCustomizer() {
-        return new MapRequestModeCustomizer(api);
+        return new MapRequestModeCustomizer(api, lispStateCheckService);
     }
 }

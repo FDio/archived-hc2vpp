@@ -19,11 +19,17 @@ package io.fd.hc2vpp.lisp.translate.read.factory;
 
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
-import io.fd.hc2vpp.lisp.translate.read.*;
+import io.fd.hc2vpp.lisp.translate.read.AdjacencyCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.BridgeDomainSubtableCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.LocalMappingCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.RemoteMappingCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.VniTableCustomizer;
+import io.fd.hc2vpp.lisp.translate.read.VrfSubtableCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.adjacencies.Adjacency;
@@ -47,8 +53,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import javax.annotation.Nonnull;
-
 
 /**
  * Factory that produces {@code Reader} for {@code EidTable}<br> with all its inhired child readers
@@ -71,7 +75,7 @@ public final class EidTableReaderFactory extends AbstractLispInfraFactoryBase im
         //EidTable
         registry.addStructuralReader(EID_TABLE_IID, EidTableBuilder.class);
         //EidTable -> VniTable
-        registry.add(new GenericInitListReader<>(VNI_TABLE_IID, new VniTableCustomizer(vppApi)));
+        registry.add(new GenericInitListReader<>(VNI_TABLE_IID, new VniTableCustomizer(vppApi, lispStateCheckService)));
 
         //EidTable -> VniTable -> VrfSubtable
         registry.add(new GenericInitReader<>(VRF_SUBTABLE_IID, new VrfSubtableCustomizer(vppApi)));

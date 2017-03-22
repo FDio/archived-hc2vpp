@@ -16,21 +16,23 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
-import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
-import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
 import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.$YangModuleInfoImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
@@ -39,21 +41,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSetKey;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
 @RunWith(HoneycombTestRunner.class)
 public class LocatorSetCustomizerTest
-        extends InitializingListReaderCustomizerTest<LocatorSet, LocatorSetKey, LocatorSetBuilder>
+        extends LispInitializingListReaderCustomizerTest<LocatorSet, LocatorSetKey, LocatorSetBuilder>
         implements LispInitTest {
 
     private static final String LOC_1_PATH = "/lisp:lisp-state" +
@@ -74,6 +67,7 @@ public class LocatorSetCustomizerTest
 
         defineDumpData();
         defineMapping(mappingContext, "loc-set", 1, "locator-set-context");
+        mockLispEnabled();
     }
 
     private void defineDumpData() {
@@ -125,6 +119,6 @@ public class LocatorSetCustomizerTest
 
     @Override
     protected ReaderCustomizer<LocatorSet, LocatorSetBuilder> initCustomizer() {
-        return new LocatorSetCustomizer(api, new NamingContext("loc", "locator-set-context"));
+        return new LocatorSetCustomizer(api, new NamingContext("loc", "locator-set-context"), lispStateCheckService);
     }
 }

@@ -17,26 +17,28 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
+import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispAddDelMapRequestItrRlocs;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapRequestItrRlocs;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
-public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer implements
+public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer implements
         WriterCustomizer<ItrRemoteLocatorSet>, ByteDataTranslator, JvppReplyConsumer {
 
-    public ItrRemoteLocatorSetCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    public ItrRemoteLocatorSetCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                         @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Override
@@ -44,7 +46,7 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer implemen
                                        @Nonnull final ItrRemoteLocatorSet dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         try {
-            addDelItrRemoteLocatorSet(true, dataAfter);
+            addDelItrRemoteLocatorSet(true, dataAfter, writeContext);
         } catch (TimeoutException | VppBaseCallException e) {
             throw new WriteFailedException.CreateFailedException(id, dataAfter, e);
         }
@@ -64,14 +66,16 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer implemen
                                         @Nonnull final ItrRemoteLocatorSet dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         try {
-            addDelItrRemoteLocatorSet(false, dataBefore);
+            addDelItrRemoteLocatorSet(false, dataBefore, writeContext);
         } catch (TimeoutException | VppBaseCallException e) {
             throw new WriteFailedException.DeleteFailedException(id, e);
         }
     }
 
-    private void addDelItrRemoteLocatorSet(final boolean add, @Nonnull final ItrRemoteLocatorSet data)
+    private void addDelItrRemoteLocatorSet(final boolean add, @Nonnull final ItrRemoteLocatorSet data,
+                                           @Nonnull final WriteContext context)
             throws TimeoutException, VppBaseCallException {
+        lispStateCheckService.checkLispEnabled(context);
 
         LispAddDelMapRequestItrRlocs request = new LispAddDelMapRequestItrRlocs();
         request.isAdd = booleanToByte(add);

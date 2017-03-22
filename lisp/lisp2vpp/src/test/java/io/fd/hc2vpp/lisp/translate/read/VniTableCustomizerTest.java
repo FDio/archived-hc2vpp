@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.vpp.jvpp.VppCallbackException;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
@@ -42,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class VniTableCustomizerTest extends ListReaderCustomizerTest<VniTable, VniTableKey, VniTableBuilder> {
+public class VniTableCustomizerTest extends LispInitializingListReaderCustomizerTest<VniTable, VniTableKey, VniTableBuilder> {
 
     private InstanceIdentifier<VniTable> validId;
 
@@ -53,6 +52,7 @@ public class VniTableCustomizerTest extends ListReaderCustomizerTest<VniTable, V
     @Before
     public void init() {
         validId = InstanceIdentifier.create(EidTable.class).child(VniTable.class, new VniTableKey(12L));
+        mockLispEnabled();
     }
 
     @Test
@@ -116,6 +116,6 @@ public class VniTableCustomizerTest extends ListReaderCustomizerTest<VniTable, V
 
     @Override
     protected ReaderCustomizer<VniTable, VniTableBuilder> initCustomizer() {
-        return new VniTableCustomizer(api);
+        return new VniTableCustomizer(api, lispStateCheckService);
     }
 }

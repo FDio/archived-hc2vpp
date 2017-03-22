@@ -17,9 +17,10 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -34,13 +35,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class PetrCfgCustomizer extends FutureJVppCustomizer
+public class PetrCfgCustomizer extends CheckedLispCustomizer
         implements InitializingReaderCustomizer<PetrCfg, PetrCfgBuilder>, JvppReplyConsumer,
         AddressTranslator, LispInitPathsMapper {
 
-    public PetrCfgCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    private static final Logger LOG = LoggerFactory.getLogger(PetrCfgCustomizer.class);
+
+    public PetrCfgCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                             @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Nonnull
@@ -61,11 +67,15 @@ public class PetrCfgCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<PetrCfg> instanceIdentifier,
                                       @Nonnull PetrCfgBuilder petrCfgBuilder,
                                       @Nonnull ReadContext readContext) throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(readContext)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
+
         final ShowLispUsePetrReply read = getReplyForRead(getFutureJVpp().showLispUsePetr(new ShowLispUsePetr())
                 .toCompletableFuture(), instanceIdentifier);
 
         if (read != null && read.status != 0) {
-            // TODO - https://jira.fd.io/browse/VPP-660 - returns address back in bad form
             petrCfgBuilder.setPetrAddress(arrayToIpAddress(!byteToBoolean(read.isIp4), read.address));
         }
     }

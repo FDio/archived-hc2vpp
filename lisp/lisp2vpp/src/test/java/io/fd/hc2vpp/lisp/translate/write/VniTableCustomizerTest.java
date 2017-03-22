@@ -18,12 +18,12 @@ package io.fd.hc2vpp.lisp.translate.write;
 
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
@@ -31,16 +31,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtableBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class VniTableCustomizerTest extends WriterCustomizerTest {
+public class VniTableCustomizerTest extends LispWriterCustomizerTest {
 
     private VniTableCustomizer customizer;
     private InstanceIdentifier<VniTable> validId;
     private VniTable validData;
+    private InstanceIdentifier<VniTable> EMPTY_ID = InstanceIdentifier.create(VniTable.class);
+    private VniTable EMPTY_DATA = new VniTableBuilder().build();
 
     @Before
     public void init() {
         initMocks(this);
-        customizer = new VniTableCustomizer(api);
+        customizer = new VniTableCustomizer(api, lispStateCheckService);
 
         validId = InstanceIdentifier.create(VniTable.class);
         validData = new VniTableBuilder()
@@ -83,6 +85,30 @@ public class VniTableCustomizerTest extends WriterCustomizerTest {
     public void testDeleteFailed() throws WriteFailedException {
         whenReadBeforeReturnInvalid();
         customizer.deleteCurrentAttributes(validId, validData, writeContext);
+    }
+
+    @Test
+    public void testWriteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testDeleteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.deleteCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
     }
 
     private void whenReadBeforeReturnValid() {

@@ -19,16 +19,17 @@ package io.fd.hc2vpp.lisp.translate.write;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +38,19 @@ import org.slf4j.LoggerFactory;
  * This customizer serves only as a check if user is not trying to define VniTable <br>
  * without mapping to vrf/bd
  */
-public class VniTableCustomizer extends FutureJVppCustomizer implements ListWriterCustomizer<VniTable, VniTableKey> {
+public class VniTableCustomizer extends CheckedLispCustomizer implements ListWriterCustomizer<VniTable, VniTableKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
-    public VniTableCustomizer(FutureJVppCore futureJvpp) {
-        super(futureJvpp);
+    public VniTableCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                              @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJvpp, lispStateCheckService);
     }
 
     @Override
     public void writeCurrentAttributes(InstanceIdentifier<VniTable> id, VniTable dataAfter, WriteContext writeContext)
             throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         checkAtLeastOnChildExists(id, writeContext, false);
     }
 
@@ -60,6 +63,7 @@ public class VniTableCustomizer extends FutureJVppCustomizer implements ListWrit
     @Override
     public void deleteCurrentAttributes(InstanceIdentifier<VniTable> id, VniTable dataBefore, WriteContext writeContext)
             throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         checkAtLeastOnChildExists(id, writeContext, true);
     }
 

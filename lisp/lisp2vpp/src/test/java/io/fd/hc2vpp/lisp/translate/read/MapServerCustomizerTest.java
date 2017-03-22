@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.LispMapServerDetails;
 import io.fd.vpp.jvpp.core.dto.LispMapServerDetailsReplyDump;
@@ -44,7 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapServerCustomizerTest
-        extends InitializingListReaderCustomizerTest<MapServer, MapServerKey, MapServerBuilder>
+        extends LispInitializingListReaderCustomizerTest<MapServer, MapServerKey, MapServerBuilder>
         implements LispInitTest {
 
     private static final MapServerKey
@@ -79,6 +78,7 @@ public class MapServerCustomizerTest
 
         reply.lispMapServerDetails = Arrays.asList(server1, server2, server3);
         when(api.lispMapServerDump(any(LispMapServerDump.class))).thenReturn(future(reply));
+        mockLispEnabled();
     }
 
     @Test
@@ -107,6 +107,6 @@ public class MapServerCustomizerTest
 
     @Override
     protected ReaderCustomizer<MapServer, MapServerBuilder> initCustomizer() {
-        return new MapServerCustomizer(api);
+        return new MapServerCustomizer(api, lispStateCheckService);
     }
 }

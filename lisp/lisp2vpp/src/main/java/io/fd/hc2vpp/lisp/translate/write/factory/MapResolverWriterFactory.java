@@ -38,6 +38,6 @@ public final class MapResolverWriterFactory extends AbstractLispInfraFactoryBase
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         registry.add(new GenericListWriter<>(
                 LISP_CONFIG_IDENTIFIER.child(LispFeatureData.class).child(MapResolvers.class).child(MapResolver.class),
-                new MapResolverCustomizer(vppApi)));
+                new MapResolverCustomizer(vppApi, lispStateCheckService)));
     }
 }

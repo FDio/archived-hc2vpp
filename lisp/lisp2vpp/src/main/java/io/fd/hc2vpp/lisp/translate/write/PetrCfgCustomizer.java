@@ -16,34 +16,35 @@
 
 package io.fd.hc2vpp.lisp.translate.write;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispUsePetr;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.use.petr.cfg.grouping.PetrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import javax.annotation.Nonnull;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class PetrCfgCustomizer extends FutureJVppCustomizer
+public class PetrCfgCustomizer extends CheckedLispCustomizer
         implements WriterCustomizer<PetrCfg>, AddressTranslator, JvppReplyConsumer {
 
-    public PetrCfgCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    public PetrCfgCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                             @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<PetrCfg> instanceIdentifier,
                                        @Nonnull PetrCfg petrCfg,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         enablePetrCfg(instanceIdentifier, petrCfg);
     }
 
@@ -52,6 +53,7 @@ public class PetrCfgCustomizer extends FutureJVppCustomizer
                                         @Nonnull PetrCfg petrCfgBefore,
                                         @Nonnull PetrCfg petrCfgAfter,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         if (petrCfgAfter.getPetrAddress() != null) {
             enablePetrCfg(instanceIdentifier, petrCfgAfter);
         } else {
@@ -61,6 +63,7 @@ public class PetrCfgCustomizer extends FutureJVppCustomizer
 
     @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<PetrCfg> instanceIdentifier, @Nonnull PetrCfg petrCfg, @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         disablePetrCfg(instanceIdentifier);
     }
 

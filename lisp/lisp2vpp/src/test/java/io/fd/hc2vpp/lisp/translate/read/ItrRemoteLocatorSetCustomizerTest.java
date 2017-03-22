@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.vpp.jvpp.VppCallbackException;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
@@ -46,7 +45,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public class ItrRemoteLocatorSetCustomizerTest
-        extends ReaderCustomizerTest<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder> {
+        extends LispInitializingReaderCustomizerTest<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder> {
 
     private static final String EXPECTED_LOCATOR_SET_NAME = "loc-set";
 
@@ -61,11 +60,12 @@ public class ItrRemoteLocatorSetCustomizerTest
     public void setUp() throws Exception {
         validId = InstanceIdentifier.create(ItrRemoteLocatorSet.class);
         builder = new ItrRemoteLocatorSetBuilder();
+        mockLispEnabled();
     }
 
     @Override
     protected ReaderCustomizer<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder> initCustomizer() {
-        return new ItrRemoteLocatorSetCustomizer(api);
+        return new ItrRemoteLocatorSetCustomizer(api, lispStateCheckService);
     }
 
     @Test

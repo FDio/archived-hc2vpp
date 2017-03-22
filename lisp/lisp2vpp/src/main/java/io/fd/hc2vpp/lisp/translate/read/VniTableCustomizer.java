@@ -16,9 +16,13 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+
 import com.google.common.base.Optional;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -29,6 +33,10 @@ import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispEidTableVniDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.EidTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.EidTableBuilder;
@@ -43,26 +51,19 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 /**
  * Handles the reads of {@link VniTable} nodes
  */
-public class VniTableCustomizer extends FutureJVppCustomizer
+public class VniTableCustomizer extends CheckedLispCustomizer
         implements InitializingListReaderCustomizer<VniTable, VniTableKey, VniTableBuilder>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
     private final DumpCacheManager<LispEidTableVniDetailsReplyDump, Void> dumpManager;
 
-    public VniTableCustomizer(@Nonnull final FutureJVppCore futureJvpp) {
-        super(futureJvpp);
+    public VniTableCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                              @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJvpp, lispStateCheckService);
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableVniDetailsReplyDump, Void>()
                 .withExecutor(((identifier, params) -> getReplyForRead(
                         futureJvpp.lispEidTableVniDump(new LispEidTableVniDump()).toCompletableFuture(), identifier)))
@@ -91,6 +92,10 @@ public class VniTableCustomizer extends FutureJVppCustomizer
     public List<VniTableKey> getAllIds(@Nonnull final InstanceIdentifier<VniTable> id,
                                        @Nonnull final ReadContext context)
             throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(context)) {
+            LOG.info("Lisp feature must be enabled first");
+            return Collections.emptyList();
+        }
         LOG.trace("Reading all IDS...");
 
         final Optional<LispEidTableVniDetailsReplyDump> optionalReply =
@@ -108,6 +113,10 @@ public class VniTableCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<VniTable> id,
                                       @Nonnull final VniTableBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(ctx)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
 
         checkState(id.firstKeyOf(VniTable.class) != null, "No VNI present");
         VniTableKey key = new VniTableKey(id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier());

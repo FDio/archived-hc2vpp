@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.read.InitializingReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.ShowLispRlocProbeStateReply;
 import org.junit.Before;
@@ -30,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.rloc.probing.grouping.RlocProbeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class RlocProbeCustomizerTest extends InitializingReaderCustomizerTest implements LispInitTest {
+public class RlocProbeCustomizerTest extends LispInitializingReaderCustomizerTest implements LispInitTest {
     private static final InstanceIdentifier<RlocProbe> STATE_IID = LISP_STATE_FTR_IID.child(RlocProbe.class);
     private static final InstanceIdentifier<RlocProbe> CONFIG_IID = LISP_FTR_IID.child(RlocProbe.class);
 
@@ -44,6 +43,7 @@ public class RlocProbeCustomizerTest extends InitializingReaderCustomizerTest im
         final ShowLispRlocProbeStateReply reply = new ShowLispRlocProbeStateReply();
         reply.isEnabled = 1;
         when(api.showLispRlocProbeState(any())).thenReturn(future(reply));
+        mockLispEnabled();
     }
 
     @Test
@@ -62,6 +62,6 @@ public class RlocProbeCustomizerTest extends InitializingReaderCustomizerTest im
 
     @Override
     protected ReaderCustomizer initCustomizer() {
-        return new RlocProbeCustomizer(api);
+        return new RlocProbeCustomizer(api, lispStateCheckService);
     }
 }

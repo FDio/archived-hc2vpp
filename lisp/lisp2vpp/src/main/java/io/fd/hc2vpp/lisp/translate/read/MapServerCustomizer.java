@@ -20,8 +20,9 @@ import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PA
 
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -49,15 +50,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class MapServerCustomizer extends FutureJVppCustomizer
+public class MapServerCustomizer extends CheckedLispCustomizer
         implements InitializingListReaderCustomizer<MapServer, MapServerKey, MapServerBuilder>, JvppReplyConsumer,
         AddressTranslator {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MapServerCustomizer.class);
+
     private final DumpCacheManager<LispMapServerDetailsReplyDump, Void> dumpManager;
 
-    public MapServerCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    public MapServerCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                               @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
         dumpManager = new DumpCacheManagerBuilder<LispMapServerDetailsReplyDump, Void>()
                 .acceptOnly(LispMapServerDetailsReplyDump.class)
                 .withExecutor((instanceIdentifier, aVoid) ->
@@ -83,6 +89,10 @@ public class MapServerCustomizer extends FutureJVppCustomizer
     @Override
     public List<MapServerKey> getAllIds(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier,
                                         @Nonnull ReadContext readContext) throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(readContext)) {
+            LOG.info("Lisp feature must be enabled first");
+            return Collections.emptyList();
+        }
 
         final Optional<LispMapServerDetailsReplyDump> dump =
                 dumpManager.getDump(instanceIdentifier, readContext.getModificationCache(), NO_PARAMS);
@@ -112,6 +122,10 @@ public class MapServerCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier,
                                       @Nonnull MapServerBuilder mapServerBuilder, @Nonnull ReadContext readContext)
             throws ReadFailedException {
+        if (!lispStateCheckService.lispEnabled(readContext)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
         final Optional<LispMapServerDetailsReplyDump> dump =
                 dumpManager.getDump(instanceIdentifier, readContext.getModificationCache(), NO_PARAMS);
 

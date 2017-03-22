@@ -17,11 +17,14 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -31,25 +34,27 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManag
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
 import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.itr.remote.locator.sets.grouping.ItrRemoteLocatorSetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
-public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
+public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer
         implements InitializingReaderCustomizer<ItrRemoteLocatorSet, ItrRemoteLocatorSetBuilder>, ByteDataTranslator,
         JvppReplyConsumer, LispInitPathsMapper {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ItrRemoteLocatorSetCustomizer.class);
+
     private final DumpCacheManager<LispGetMapRequestItrRlocsReply, Void> dumpCacheManager;
 
-    public ItrRemoteLocatorSetCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    public ItrRemoteLocatorSetCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                         @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
         dumpCacheManager = new DumpCacheManagerBuilder<LispGetMapRequestItrRlocsReply, Void>()
                 .withExecutor(((identifier, params) -> getReplyForRead(
                         futureJVppCore.lispGetMapRequestItrRlocs(new LispGetMapRequestItrRlocs()).toCompletableFuture(),
@@ -68,6 +73,11 @@ public class ItrRemoteLocatorSetCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<ItrRemoteLocatorSet> id,
                                       @Nonnull final ItrRemoteLocatorSetBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
+
+        if (!lispStateCheckService.lispEnabled(ctx)) {
+            LOG.info("Lisp feature must be enabled first");
+            return;
+        }
 
         final Optional<LispGetMapRequestItrRlocsReply> reply =
                 dumpCacheManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);

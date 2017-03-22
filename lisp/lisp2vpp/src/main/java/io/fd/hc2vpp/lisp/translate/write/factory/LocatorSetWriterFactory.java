@@ -45,7 +45,8 @@ public final class LocatorSetWriterFactory extends AbstractLispInfraFactoryBase 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         // LocatorSet must be written before eid table entries, because local mappings under eid-table are referencing it
-        registry.addBefore(new GenericListWriter<>(LOCATOR_SET_ID, new LocatorSetCustomizer(vppApi, locatorSetContext)),
+        registry.addBefore(new GenericListWriter<>(LOCATOR_SET_ID,
+                        new LocatorSetCustomizer(vppApi, locatorSetContext, lispStateCheckService)),
             Arrays.asList(VRF_SUBTABLE_ID.child(LocalMappings.class).child(LocalMapping.class),
                 BRIDGE_DOMAIN_SUBTABLE_ID.child(LocalMappings.class).child(LocalMapping.class)));
 

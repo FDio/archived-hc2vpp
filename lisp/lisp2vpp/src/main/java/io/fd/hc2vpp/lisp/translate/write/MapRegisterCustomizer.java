@@ -17,30 +17,31 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispMapRegisterEnableDisable;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.register.grouping.MapRegister;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import javax.annotation.Nonnull;
-
-public class MapRegisterCustomizer extends FutureJVppCustomizer
+public class MapRegisterCustomizer extends CheckedLispCustomizer
         implements WriterCustomizer<MapRegister>, ByteDataTranslator, JvppReplyConsumer {
 
-    public MapRegisterCustomizer(@Nonnull FutureJVppCore futureJVppCore) {
-        super(futureJVppCore);
+    public MapRegisterCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                 @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJVppCore, lispStateCheckService);
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<MapRegister> instanceIdentifier,
                                        @Nonnull MapRegister mapRegister,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        enableDisableMapRegister(mapRegister.isEnabled(), instanceIdentifier);
+        enableDisableMapRegister(mapRegister.isEnabled(), instanceIdentifier, writeContext);
     }
 
     @Override
@@ -48,17 +49,19 @@ public class MapRegisterCustomizer extends FutureJVppCustomizer
                                         @Nonnull MapRegister mapRegisterBefore,
                                         @Nonnull MapRegister mapRegisterAfter, @Nonnull
                                                 WriteContext writeContext) throws WriteFailedException {
-        enableDisableMapRegister(mapRegisterAfter.isEnabled(), instanceIdentifier);
+        enableDisableMapRegister(mapRegisterAfter.isEnabled(), instanceIdentifier, writeContext);
     }
 
     @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<MapRegister> instanceIdentifier,
                                         @Nonnull MapRegister mapRegister,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
-        enableDisableMapRegister(false, instanceIdentifier);
+        enableDisableMapRegister(false, instanceIdentifier, writeContext);
     }
 
-    private void enableDisableMapRegister(final boolean enable, @Nonnull final InstanceIdentifier<MapRegister> id) throws WriteFailedException {
+    private void enableDisableMapRegister(final boolean enable, @Nonnull final InstanceIdentifier<MapRegister> id,
+                                          @Nonnull final WriteContext context) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(context);
         LispMapRegisterEnableDisable request = new LispMapRegisterEnableDisable();
         request.isEnabled = booleanToByte(enable);
         getReplyForWrite(getFutureJVpp().lispMapRegisterEnableDisable(request).toCompletableFuture(), id);

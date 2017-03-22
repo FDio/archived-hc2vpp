@@ -17,12 +17,13 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispAddDelMapResolver;
@@ -34,15 +35,18 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.map.resolvers.MapResolver;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.resolvers.grouping.map.resolvers.MapResolverBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
-public class MapResolverCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
+public class MapResolverCustomizerTest extends LispWriterCustomizerTest implements Ipv4Translator {
 
     private MapResolverCustomizer customizer;
+    private InstanceIdentifier<MapResolver> EMPTY_ID = InstanceIdentifier.create(MapResolver.class);
+    private MapResolver EMPTY_DATA = new MapResolverBuilder().build();
 
     @Override
     public void setUpTest() {
-        customizer = new MapResolverCustomizer(api);
+        customizer = new MapResolverCustomizer(api, lispStateCheckService);
     }
 
     private void whenLispAddDelMapResolverThenSuccess() {
@@ -100,4 +104,27 @@ public class MapResolverCustomizerTest extends WriterCustomizerTest implements I
         assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.ipAddress).getValue());
     }
 
+    @Test
+    public void testWriteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testDeleteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.deleteCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
 }

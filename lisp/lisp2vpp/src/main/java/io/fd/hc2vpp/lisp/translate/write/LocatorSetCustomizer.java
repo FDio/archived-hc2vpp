@@ -22,10 +22,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.translate.util.ReferenceCheck;
 import io.fd.hc2vpp.lisp.translate.read.trait.LocatorSetReader;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -54,15 +55,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  *
  * @see LocatorSet
  */
-public class LocatorSetCustomizer extends FutureJVppCustomizer
+public class LocatorSetCustomizer extends CheckedLispCustomizer
         implements ListWriterCustomizer<LocatorSet, LocatorSetKey>, ByteDataTranslator,
         LocatorSetReader, ReferenceCheck {
 
     private final NamingContext locatorSetContext;
 
     public LocatorSetCustomizer(@Nonnull final FutureJVppCore futureJvpp,
-                                @Nonnull final NamingContext locatorSetContext) {
-        super(futureJvpp);
+                                @Nonnull final NamingContext locatorSetContext,
+                                @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJvpp, lispStateCheckService);
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator set context cannot be null");
     }
 
@@ -70,6 +72,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
                                        @Nonnull LocatorSet dataAfter,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         checkState(isNonEmptyLocatorSet(writeContext.readAfter(id).get()),
                 "Creating empty locator-sets is not allowed");
         final String locatorSetName = dataAfter.getName();
@@ -96,6 +99,7 @@ public class LocatorSetCustomizer extends FutureJVppCustomizer
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
                                         @Nonnull LocatorSet dataBefore,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         final String locatorSetName = dataBefore.getName();
 
         final Optional<EidTable> eidTableData = writeContext.readAfter(InstanceIdentifier.create(Lisp.class)

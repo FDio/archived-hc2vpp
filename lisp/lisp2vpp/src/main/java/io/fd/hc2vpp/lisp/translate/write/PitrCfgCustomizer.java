@@ -19,35 +19,39 @@ package io.fd.hc2vpp.lisp.translate.write;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
+import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
+import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import java.util.concurrent.TimeoutException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSet;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.pitr.cfg.grouping.PitrCfg;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 /**
  * Customizer for {@code PitrCfg}
  */
-public class PitrCfgCustomizer extends FutureJVppCustomizer
+public class PitrCfgCustomizer extends CheckedLispCustomizer
         implements WriterCustomizer<PitrCfg>, JvppReplyConsumer, ByteDataTranslator {
 
     private static final String DEFAULT_LOCATOR_SET_NAME = "N/A";
 
-    public PitrCfgCustomizer(FutureJVppCore futureJvpp) {
-        super(futureJvpp);
+    public PitrCfgCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                             @Nonnull final LispStateCheckService lispStateCheckService) {
+        super(futureJvpp, lispStateCheckService);
     }
 
     @Override
     public void writeCurrentAttributes(InstanceIdentifier<PitrCfg> id, PitrCfg dataAfter, WriteContext writeContext)
             throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         checkNotNull(dataAfter, "PitrCfg is null");
         checkNotNull(dataAfter.getLocatorSet(), "Locator set name is null");
 
@@ -61,6 +65,7 @@ public class PitrCfgCustomizer extends FutureJVppCustomizer
     @Override
     public void updateCurrentAttributes(InstanceIdentifier<PitrCfg> id, PitrCfg dataBefore, PitrCfg dataAfter,
                                         WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         checkNotNull(dataAfter, "PitrCfg is null");
         checkNotNull(dataAfter.getLocatorSet(), "Locator set name is null");
 
@@ -74,6 +79,7 @@ public class PitrCfgCustomizer extends FutureJVppCustomizer
     @Override
     public void deleteCurrentAttributes(InstanceIdentifier<PitrCfg> id, PitrCfg dataBefore, WriteContext writeContext)
             throws WriteFailedException {
+        lispStateCheckService.checkLispEnabled(writeContext);
         checkNotNull(dataBefore, "PitrCfg is null");
         checkNotNull(dataBefore.getLocatorSet(), "Locator set name is null");
 

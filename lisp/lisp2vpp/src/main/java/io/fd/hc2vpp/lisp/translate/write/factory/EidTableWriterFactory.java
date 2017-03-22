@@ -65,7 +65,7 @@ public final class EidTableWriterFactory extends AbstractLispInfraFactoryBase im
     @Override
     public void init(final ModifiableWriterRegistryBuilder registry) {
 
-        registry.add(new GenericListWriter<>(VNI_TABLE_ID, new VniTableCustomizer(vppApi)));
+        registry.add(new GenericListWriter<>(VNI_TABLE_ID, new VniTableCustomizer(vppApi, lispStateCheckService)));
 
         registry.add(new GenericWriter<>(VRF_SUBTABLE_ID, new VrfSubtableCustomizer(vppApi)));
         registry.add(new GenericWriter<>(BRIDGE_DOMAIN_SUBTABLE_ID,

@@ -17,13 +17,15 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.LispRlocProbeEnableDisable;
 import io.fd.vpp.jvpp.core.dto.LispRlocProbeEnableDisableReply;
 import org.junit.Test;
@@ -33,7 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.rloc.probing.grouping.RlocProbeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class RlocProbeCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
+public class RlocProbeCustomizerTest extends LispWriterCustomizerTest implements ByteDataTranslator {
 
     private static final InstanceIdentifier<RlocProbe> ID = InstanceIdentifier.create(RlocProbe.class);
     private RlocProbeCustomizer customizer;
@@ -42,10 +44,12 @@ public class RlocProbeCustomizerTest extends WriterCustomizerTest implements Byt
 
     @Captor
     private ArgumentCaptor<LispRlocProbeEnableDisable> requestCaptor;
+    private InstanceIdentifier<RlocProbe> EMPTY_ID = InstanceIdentifier.create(RlocProbe.class);
+    private RlocProbe EMPTY_DATA = new RlocProbeBuilder().build();
 
     @Override
     protected void setUpTest() throws Exception {
-        customizer = new RlocProbeCustomizer(api);
+        customizer = new RlocProbeCustomizer(api, lispStateCheckService);
         enabledProbe = rlocProbe(true);
         disabledProbe = rlocProbe(false);
         when(api.lispRlocProbeEnableDisable(any(LispRlocProbeEnableDisable.class)))
@@ -74,6 +78,42 @@ public class RlocProbeCustomizerTest extends WriterCustomizerTest implements Byt
     public void testDeleteCurrentAttributes() throws Exception {
         customizer.deleteCurrentAttributes(ID, disabledProbe, writeContext);
         verifyRequest(false);
+    }
+
+    @Test
+    public void testWriteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testUpdateLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA,EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
+    }
+
+    @Test
+    public void testDeleteLispDisabled() throws WriteFailedException {
+        mockLispDisabled();
+        try {
+            customizer.deleteCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
+        } catch (IllegalArgumentException e) {
+            verifyZeroInteractions(api);
+            return;
+        }
+        fail("Test should have thrown IllegalArgumentException");
     }
 
     private static RlocProbe rlocProbe(final boolean enabled) {
