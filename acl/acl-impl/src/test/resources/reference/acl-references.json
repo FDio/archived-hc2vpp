@@ -1,0 +1,57 @@
+{
+  "interfaces": {
+    "interface": [
+      {
+        "name": "eth0",
+        "acl": {
+          "ingress": {
+            "vpp-acls": [
+              {
+                "type": "vpp-acl",
+                "name": "acl1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "eth1",
+        "acl": {
+          "egress": {
+            "vpp-acls": [
+              {
+                "type": "vpp-acl",
+                "name": "acl1"
+              }
+            ]
+          },
+          "ingress": {
+            "vpp-acls": [
+              {
+                "type": "vpp-acl",
+                "name": "acl2"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "eth2",
+        "acl": {
+          "ingress": {
+            "vpp-acls": [
+              {
+                "type": "vpp-acl",
+                "name": "acl1"
+              }
+            ],
+            "vpp-macip-acl": {
+              "name": "acl4",
+              "type": "vpp-macip-acl"
+            }
+          }
+        }
+      }
+    ]
+  }
+}
