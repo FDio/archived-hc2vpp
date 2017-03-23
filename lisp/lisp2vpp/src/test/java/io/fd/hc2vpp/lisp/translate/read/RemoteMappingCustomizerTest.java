@@ -23,12 +23,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
@@ -97,7 +97,7 @@ public class RemoteMappingCustomizerTest
         detail.eid = new byte[]{-64, -88, 2, 1};
         detail.eidPrefixLen = 32;
         detail.isLocal = 0;
-        detail.locatorSetIndex = 1;
+        detail.locatorSetIndex = -1;
         detail.ttl = 7;
         detail.vni = 12;
 
@@ -119,7 +119,7 @@ public class RemoteMappingCustomizerTest
         detail.eid = new byte[]{-64, -88, 2, 1};
         detail.eidPrefixLen = 32;
         detail.isLocal = 0;
-        detail.locatorSetIndex = 1;
+        detail.locatorSetIndex = -1 ;
         detail.ttl = 7;
         detail.vni = 12;
 

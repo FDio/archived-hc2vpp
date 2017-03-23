@@ -16,6 +16,12 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.valueOf;
+import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.FilterType;
+import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.MappingsDumpParamsBuilder;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
@@ -45,6 +51,10 @@ import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
 import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapReplyAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
@@ -71,18 +81,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.valueOf;
-import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.FilterType;
-import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.MappingsDumpParamsBuilder;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapReplyAction.NoAction;
 
 /**
  * Customizer for reading {@code RemoteMapping}<br>
@@ -236,13 +234,9 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                                  final ModificationCache cache,
                                  final MappingContext mappingContext) throws ReadFailedException {
 
-        if (details.action != 0) {
-            // in this case ,negative action was defined
+        if (details.locatorSetIndex == -1) {
             bindNegativeMapping(builder, MapReplyAction.forValue(details.action));
         } else {
-            // in this case, there is no clear determination whether negative action with NO_ACTION(value == 0) was defined,
-            // or if its default value and remote locators, are defined, so only chance to determine so, is to dump locators for this mapping
-
             // cache key needs to have locator set scope to not mix with cached data
             final Optional<LispLocatorDetailsReplyDump> reply;
 
@@ -260,13 +254,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                                 e.getCause()));
             }
 
-            if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
-                // no remote locators exist, therefore there was NO_ACTION defined
-                bindNegativeMapping(builder, NoAction);
-            } else {
-                // bind remote locators
-                bindPositiveMapping(builder, reply.get());
-            }
+            bindPositiveMapping(builder, reply.or(new LispLocatorDetailsReplyDump()));
         }
     }
 
