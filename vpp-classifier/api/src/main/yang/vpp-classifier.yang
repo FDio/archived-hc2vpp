@@ -3,6 +3,12 @@ module vpp-classifier {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier";
   prefix "vpp-classifier";
 
+  revision "2017-03-27" {
+    description
+      "This revision updates classify table ref to be compatible with LeafRefContext
+        (ODL tool for checking leafrefs in runtime)";
+  }
+
   revision "2016-03-15" {
     description
       "This revision adds policer support";
@@ -36,7 +42,7 @@ module vpp-classifier {
 
   typedef classify-table-ref {
     type leafref {
-      path "/vpp-classifier:vpp-classifier/classify-table/name";
+      path "/vpp-classifier/classify-table/name";
     }
     description
       "This type is used by data models that need to reference

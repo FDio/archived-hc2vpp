@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev161214;
+package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev170327;
 
 
 /**
@@ -26,14 +26,15 @@ package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.cla
  * loss of user code.
  *
  */
-public class OpaqueIndexBuilder {
+public class VppNodeBuilder {
 
-    public static OpaqueIndex getDefaultInstance(java.lang.String defaultValue) {
-        try {
-            final long value = Long.parseLong(defaultValue); // u32 value
-            return new OpaqueIndex(value);
-        } catch (NumberFormatException e) {
-            return new OpaqueIndex(VppNodeBuilder.getDefaultInstance(defaultValue));
+    public static VppNode getDefaultInstance(java.lang.String defaultValue) {
+        if (PacketHandlingAction.Deny.toString().equalsIgnoreCase(defaultValue)) {
+            return new VppNode(PacketHandlingAction.Deny);
+        } else if (PacketHandlingAction.Permit.toString().equalsIgnoreCase(defaultValue)) {
+            return new VppNode(PacketHandlingAction.Permit);
+        } else {
+            return new VppNode(new VppNodeName(defaultValue));
         }
     }
 
