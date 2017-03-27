@@ -51,5 +51,6 @@
     <module>vpp-classifier</module>
     <module>l3</module>
     <module>vpp-management</module>
+    <module>it</module>
   </modules>
 </project>
