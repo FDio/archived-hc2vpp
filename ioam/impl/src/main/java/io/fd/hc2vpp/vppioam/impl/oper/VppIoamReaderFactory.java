@@ -17,14 +17,17 @@
 package io.fd.hc2vpp.vppioam.impl.oper;
 
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfig;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfig;
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.IoamTraceConfig;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.IoamTraceConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.ioam.trace.config.TraceConfig;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.PotProfiles;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.PotProfilesBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profile.PotProfileList;
@@ -32,12 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profiles.PotProfileSetBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.ioam.sb.pot.rev170112.pot.profiles.PotProfileSetKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class VppIoamReaderFactory implements ReaderFactory {
 

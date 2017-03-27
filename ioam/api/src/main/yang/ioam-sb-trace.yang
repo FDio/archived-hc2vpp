@@ -3,7 +3,7 @@ module ioam-sb-trace {
   namespace "urn:cisco:params:xml:ns:yang:ioam-sb-trace";
   prefix ioam-sb-trace;
 
-  import ietf-interfaces { prefix ietf-if; }
+  import ietf-interfaces { prefix if; }
 
   organization "Cisco Systems, Inc.";
 
@@ -16,6 +16,12 @@ module ioam-sb-trace {
     configuration of in-band OAM device configuration for
     trace elements.
     ";
+
+  revision 2017-03-27 {
+    description
+      "ietf-interfaces prefix changed to default value to be compatible with LeafRefContext
+        (ODL tool for checking leafrefs in runtime)";
+  }
 
   revision 2016-05-12 {
     description
@@ -154,7 +160,7 @@ module ioam-sb-trace {
       }
 
       leaf intf-name {
-        type ietf-if:interface-ref;
+        type if:interface-ref;
         mandatory true;
         description
           "Instance of ietf-interfaces:interface-ref";

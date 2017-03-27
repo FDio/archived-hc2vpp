@@ -29,11 +29,11 @@ import io.fd.vpp.jvpp.ioamtrace.dto.TraceProfileShowConfigReply;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfig;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.IoamTraceConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfig;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev160512.ioam.trace.config.TraceConfigKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.IoamTraceConfig;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.IoamTraceConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.ioam.trace.config.TraceConfig;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.ioam.trace.config.TraceConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.trace.rev170327.ioam.trace.config.TraceConfigKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class TraceProfileReaderCustomizerTest extends ListReaderCustomizerTest<TraceConfig, TraceConfigKey, TraceConfigBuilder> {
