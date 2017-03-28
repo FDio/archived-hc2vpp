@@ -3,5 +3,5 @@ set -xe
 DIR=$(dirname $0)
 DIR=$(readlink -f ${DIR})
 
-BUILD_FOLDER=$(${DIR}/../common/prepare.sh ${DIR} ${DIR}/debian honeycomb.conf /etc/init/)
+BUILD_FOLDER=$(${DIR}/../common/prepare.sh ${DIR} ${DIR}/debian honeycomb.conf /etc/init/ ${DIR}/build_dependencies)
 ${DIR}/../common/debuild.sh ${BUILD_FOLDER}

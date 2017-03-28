@@ -2,6 +2,7 @@
 %define __jar_repack 0
 %define _version %(./version)
 %define _release %(./release)
+%define _vpp_dependencies %(./vpp_dependencies)
 
 Name:       honeycomb
 Version:    %{_version}
@@ -18,7 +19,7 @@ License:    Apache-1.0
 URL:        http://www.fd.io
 Source0:     vpp-integration-distribution-%{_version}-SNAPSHOT-hc.zip
 Source1:     honeycomb.service
-Requires:    vpp >= 17.04, vpp < 17.08, vpp-plugins >= 17.04, vpp-plugins < 17.08, java >= 1:1.8.0
+Requires:    %{_vpp_dependencies}, java >= 1:1.8.0
 # Required for creating honeycomb group
 Requires(pre): shadow-utils
 # Required for configuring systemd
