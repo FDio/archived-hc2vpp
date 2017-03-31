@@ -19,7 +19,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
-    <version>1.17.04-SNAPSHOT</version>
+    <version>1.17.04-RC2</version>
     <relativePath>../../common/minimal-distribution-parent</relativePath>
   </parent>
 
@@ -27,22 +27,22 @@
   <groupId>io.fd.hc2vpp.integration</groupId>
   <artifactId>vpp-integration-distribution</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.04-SNAPSHOT</version>
+  <version>1.17.04-RC2</version>
 
   <properties>
     <main.class>io.fd.honeycomb.infra.distro.Main</main.class>
-    <v3po.version>1.17.04-SNAPSHOT</v3po.version>
-    <lisp.version>1.17.04-SNAPSHOT</lisp.version>
-    <vpp.common.integration.version>1.17.04-SNAPSHOT</vpp.common.integration.version>
-    <vppnsh.version>1.17.04-SNAPSHOT</vppnsh.version>
-    <nat.version>1.17.04-SNAPSHOT</nat.version>
-    <ioam.version>1.17.04-SNAPSHOT</ioam.version>
-    <routing.version>1.17.04-SNAPSHOT</routing.version>
-    <acl.version>1.17.04-SNAPSHOT</acl.version>
-    <dhcp.version>1.17.04-SNAPSHOT</dhcp.version>
-    <vpp.classifier.version>1.17.04-SNAPSHOT</vpp.classifier.version>
-    <l3-impl.version>1.17.04-SNAPSHOT</l3-impl.version>
-    <vpp-management-impl.version>1.17.04-SNAPSHOT</vpp-management-impl.version>
+    <v3po.version>1.17.04-RC2</v3po.version>
+    <lisp.version>1.17.04-RC2</lisp.version>
+    <vpp.common.integration.version>1.17.04-RC2</vpp.common.integration.version>
+    <vppnsh.version>1.17.04-RC2</vppnsh.version>
+    <nat.version>1.17.04-RC2</nat.version>
+    <ioam.version>1.17.04-RC2</ioam.version>
+    <routing.version>1.17.04-RC2</routing.version>
+    <acl.version>1.17.04-RC2</acl.version>
+    <dhcp.version>1.17.04-RC2</dhcp.version>
+    <vpp.classifier.version>1.17.04-RC2</vpp.classifier.version>
+    <l3-impl.version>1.17.04-RC2</l3-impl.version>
+    <vpp-management-impl.version>1.17.04-RC2</vpp-management-impl.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
