@@ -17,7 +17,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>impl-parent</artifactId>
-    <version>1.17.04-SNAPSHOT</version>
+    <version>1.17.07-SNAPSHOT</version>
     <relativePath>../../common/impl-parent</relativePath>
   </parent>
 
@@ -25,7 +25,7 @@
   <groupId>io.fd.hc2vpp.nsh</groupId>
   <artifactId>vppnsh-impl</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.04-SNAPSHOT</version>
+  <version>1.17.07-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
@@ -89,12 +89,12 @@
     <dependency>
         <groupId>io.fd.vpp</groupId>
         <artifactId>jvpp-registry</artifactId>
-        <version>17.04-SNAPSHOT</version>
+        <version>17.07-SNAPSHOT</version>
     </dependency>
     <dependency>
         <groupId>io.fd.nsh_sfc</groupId>
         <artifactId>nsh-sfc</artifactId>
-        <version>17.04-SNAPSHOT</version>
+        <version>17.07-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.common</groupId>

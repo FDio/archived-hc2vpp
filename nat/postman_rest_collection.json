@@ -290,7 +290,7 @@
 			"helperAttributes": {},
 			"time": 1487676902330,
 			"name": "Add single address to pool",
-			"description": "CLI: vppctl snat add address 172.16.2.123\n\nCan be verified with\nvat# snat_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/SNAT\nhttps://docs.fd.io/vpp/17.04/clicmd_src_plugins_snat.html#clicmd_set_interface_snat",
+			"description": "CLI: vppctl snat add address 172.16.2.123\n\nCan be verified with\nvat# snat_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/SNAT\nhttps://docs.fd.io/vpp/17.07/clicmd_src_plugins_snat.html#clicmd_set_interface_snat",
 			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
 			"responses": [],
 			"rawModeData": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 2,\r\n\t\t\"external-ip-pool\": \"172.16.2.123/32\"\r\n\t}\r\n}"
@@ -310,7 +310,7 @@
 			"helperAttributes": {},
 			"time": 1487678215755,
 			"name": "Delete single address",
-			"description": "CLI: vppctl snat del address 172.16.2.123\n\nCan be verified with\nvat# snat_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/SNAT\nhttps://docs.fd.io/vpp/17.04/clicmd_src_plugins_snat.html#clicmd_set_interface_snat",
+			"description": "CLI: vppctl snat del address 172.16.2.123\n\nCan be verified with\nvat# snat_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/SNAT\nhttps://docs.fd.io/vpp/17.07/clicmd_src_plugins_snat.html#clicmd_set_interface_snat",
 			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
 			"responses": [],
 			"rawModeData": ""
@@ -330,7 +330,7 @@
 			"helperAttributes": {},
 			"time": 1487676498064,
 			"name": "Add SNAT address pool",
-			"description": "CLI: vppctl snat add address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvat# snat_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/SNAT\nhttps://docs.fd.io/vpp/17.04/clicmd_src_plugins_snat.html#clicmd_set_interface_snat",
+			"description": "CLI: vppctl snat add address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvat# snat_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/SNAT\nhttps://docs.fd.io/vpp/17.07/clicmd_src_plugins_snat.html#clicmd_set_interface_snat",
 			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
 			"responses": [],
 			"rawModeData": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 1,\r\n\t\t\"external-ip-pool\": \"172.16.2.0/30\"\r\n\t}\r\n}"
@@ -350,7 +350,7 @@
 			"helperAttributes": {},
 			"time": 1487678255065,
 			"name": "Delete SNAT address pool",
-			"description": "CLI: vppctl snat del address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvat# snat_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/SNAT\nhttps://docs.fd.io/vpp/17.04/clicmd_src_plugins_snat.html#clicmd_set_interface_snat",
+			"description": "CLI: vppctl snat del address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvat# snat_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/SNAT\nhttps://docs.fd.io/vpp/17.07/clicmd_src_plugins_snat.html#clicmd_set_interface_snat",
 			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
 			"responses": [],
 			"rawModeData": ""

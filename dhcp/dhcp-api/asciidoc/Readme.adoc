@@ -11,4 +11,4 @@ Operational data model is not supported
 * DHCP relay configuration is based on dhcp_proxy_config_2 message API:
   https://git.fd.io/vpp/tree/src/vnet/dhcp/dhcp.api#n48
 * More info regarding functionality provided by VPP can be found
-  at https://docs.fd.io/vpp/17.04/clicmd_src_vnet_dhcp.html#clicmd_set_dhcp_proxy
+  at https://docs.fd.io/vpp/17.07/clicmd_src_vnet_dhcp.html#clicmd_set_dhcp_proxy
