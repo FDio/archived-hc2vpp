@@ -14,9 +14,9 @@ BUILD_DEPENDENCIES=$($5)
 
 # Copy and unpack the archive with vpp-integration distribution
 ARCHIVE_DIR=${SOURCE_DIR}/../../../vpp-integration/minimal-distribution/target/
-ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT-hc.tar.gz
+ARCHIVE=${ARCHIVE_DIR}/vpp-integration-distribution-${VERSION}-RC1-hc.tar.gz
 cp ${ARCHIVE} ${SOURCE_DIR}
-ARCHIVE=${SOURCE_DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT-hc.tar.gz
+ARCHIVE=${SOURCE_DIR}/vpp-integration-distribution-${VERSION}-RC1-hc.tar.gz
 tar -xf ${ARCHIVE} -C ${SOURCE_DIR}/
 
 # Create packaging root
@@ -24,7 +24,7 @@ rm -rf ${BUILD_DIR}
 mkdir ${BUILD_DIR}
 
 # Copy contents of tar.gz
-mv ${SOURCE_DIR}/vpp-integration-distribution-${VERSION}-SNAPSHOT/ ${BUILD_DIR}/
+mv ${SOURCE_DIR}/vpp-integration-distribution-${VERSION}-RC1/ ${BUILD_DIR}/
 cp -r $2 ${BUILD_DIR}
 
 # OS service definition
@@ -41,7 +41,7 @@ EOT
 
 # Install instructions
 cat <<EOT >> ${BUILD_DIR}/debian/install
-vpp-integration-distribution-${VERSION}-SNAPSHOT/* /opt/honeycomb/
+vpp-integration-distribution-${VERSION}-RC1/* /opt/honeycomb/
 $3 $4
 EOT
 
