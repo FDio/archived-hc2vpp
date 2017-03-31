@@ -7,14 +7,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>hc2vpp-parent</artifactId>
-        <version>1.17.04-RC1</version>
+        <version>1.17.04-SNAPSHOT</version>
         <relativePath>../hc2vpp-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>impl-parent</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.17.04-RC1</version>
+    <version>1.17.04-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <!-- import dependencies from honeycomb impl-parent  -->
@@ -23,7 +23,7 @@
             <dependency>
                 <groupId>io.fd.honeycomb.common</groupId>
                 <artifactId>impl-parent</artifactId>
-                <version>1.17.04-RC1</version>
+                <version>1.17.04-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
