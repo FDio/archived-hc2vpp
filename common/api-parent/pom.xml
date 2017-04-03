@@ -29,7 +29,7 @@
                         <dependency>
                             <groupId>org.opendaylight.mdsal</groupId>
                             <artifactId>maven-sal-api-gen-plugin</artifactId>
-                            <version>0.8.4-Beryllium-SR4</version>
+                            <version>${salGenerator.version}</version>
                             <type>jar</type>
                         </dependency>
                     </dependencies>
