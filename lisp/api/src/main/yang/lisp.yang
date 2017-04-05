@@ -12,6 +12,9 @@ module lisp {
   import ietf-lisp-address-types {
     prefix "lisp-types";
   }
+  import v3po {
+    prefix "v3po";
+  }
   organization
     "FD.io Overlay Forwarding Engine (ONE) project";
   contact
@@ -319,8 +322,8 @@ module lisp {
         container bridge-domain-subtable {
           presence "Enable L2 mapping";
           leaf bridge-domain-ref {
-            type string;
-            description "Name reference to existing bridge domain";
+            type v3po:bridge-domain-ref;
+            description "Reference to existing bridge domain";
             // TODO - HC2VPP-73 - commented due to ODL Boron issues
             // mandatory true;
           }

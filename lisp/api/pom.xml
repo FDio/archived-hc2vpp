@@ -52,5 +52,12 @@
             <artifactId>naming-context-api</artifactId>
             <version>${naming.context.version}</version>
         </dependency>
+
+        <!-- Bridge domains reference -->
+        <dependency>
+            <groupId>io.fd.hc2vpp.v3po</groupId>
+            <artifactId>v3po-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
