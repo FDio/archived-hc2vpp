@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.hmac.key.grouping.HmacKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -103,7 +104,7 @@ public final class EidTableReaderFactory extends AbstractLispInfraFactoryBase im
 
         final InstanceIdentifier<LocalMapping> localMappingSubtreeId = InstanceIdentifier.create(LocalMapping.class);
         final ImmutableSet<InstanceIdentifier<?>> localMappingHandledChildren = ImmutableSet.of(localMappingSubtreeId
-                .child(Eid.class));
+                .child(Eid.class), localMappingSubtreeId.child(HmacKey.class));
 
         registry.addStructuralReader(vrfTableLocalMappingsId, LocalMappingsBuilder.class);
         registry.addStructuralReader(bridgeDomainLocalMappingsId, LocalMappingsBuilder.class);

@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.hmac.key.grouping.HmacKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -84,7 +85,7 @@ public final class EidTableWriterFactory extends AbstractLispInfraFactoryBase im
         final InstanceIdentifier<LocalMapping> localMappingSubtreeId = InstanceIdentifier.create(LocalMapping.class);
 
         final ImmutableSet<InstanceIdentifier<?>> localMappingHandledChildren =
-                ImmutableSet.of(localMappingSubtreeId.child(Eid.class));
+                ImmutableSet.of(localMappingSubtreeId.child(Eid.class), localMappingSubtreeId.child(HmacKey.class));
         registry.subtreeAdd(localMappingHandledChildren,
                 new GenericListWriter<>(VRF_SUBTABLE_ID.child(LocalMappings.class).child(LocalMapping.class),
                         new LocalMappingCustomizer(vppApi, localMappingContext)));
