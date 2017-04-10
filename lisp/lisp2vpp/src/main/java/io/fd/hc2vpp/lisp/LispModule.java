@@ -67,12 +67,12 @@ public class LispModule extends AbstractModule {
         LOG.info("Binding Eid context[{}]", LOCAL_MAPPING_CONTEXT);
         bind(EidMappingContext.class)
                 .annotatedWith(Names.named(LOCAL_MAPPING_CONTEXT))
-                .toInstance(new EidMappingContext(LOCAL_MAPPING_CONTEXT));
+                .toInstance(new EidMappingContext(LOCAL_MAPPING_CONTEXT, "local-mapping-"));
 
         LOG.info("Binding Eid context[{}]", REMOTE_MAPPING_CONTEXT);
         bind(EidMappingContext.class)
                 .annotatedWith(Names.named(REMOTE_MAPPING_CONTEXT))
-                .toInstance(new EidMappingContext(REMOTE_MAPPING_CONTEXT));
+                .toInstance(new EidMappingContext(REMOTE_MAPPING_CONTEXT, "remote-mapping-"));
 
         LOG.info("Binding Adjacencies context");
         bind(AdjacenciesMappingContext.class)

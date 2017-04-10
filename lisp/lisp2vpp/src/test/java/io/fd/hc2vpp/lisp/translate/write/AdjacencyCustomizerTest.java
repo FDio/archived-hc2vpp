@@ -30,10 +30,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.util.EidMappingContextHelper;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.LispAddDelAdjacency;
 import io.fd.vpp.jvpp.core.dto.LispAddDelAdjacencyReply;
 import org.junit.Before;
@@ -87,8 +87,8 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
 
     @Before
     public void init() {
-        localMappingContext = new EidMappingContext("local-mapping-context");
-        remoteMappingContext = new EidMappingContext("remote-mapping-context");
+        localMappingContext = new EidMappingContext("local-mapping-context", "local-mapping-");
+        remoteMappingContext = new EidMappingContext("remote-mapping-context", "remote-mapping-");
         customizer = new AdjacencyCustomizer(api, localMappingContext, remoteMappingContext, adjacenciesMappingContext);
 
         emptyId = InstanceIdentifier.create(Adjacency.class);

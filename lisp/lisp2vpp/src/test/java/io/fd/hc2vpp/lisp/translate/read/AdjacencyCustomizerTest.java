@@ -29,14 +29,14 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.util.EidMetadataProvider;
 import io.fd.hc2vpp.lisp.util.AdjacencyMappingContextTestHelper;
 import io.fd.hc2vpp.lisp.util.EidMappingContextHelper;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.vpp.jvpp.core.dto.LispAdjacenciesGetReply;
 import io.fd.vpp.jvpp.core.types.LispAdjacency;
 import java.util.List;
@@ -115,8 +115,8 @@ public class AdjacencyCustomizerTest
 
     @Override
     protected ReaderCustomizer<Adjacency, AdjacencyBuilder> initCustomizer() {
-        return new AdjacencyCustomizer(api, new EidMappingContext("local-mapping-context"),
-                new EidMappingContext("remote-mapping-context"),
+        return new AdjacencyCustomizer(api, new EidMappingContext("local-mapping-context", "local-mapping-"),
+                new EidMappingContext("remote-mapping-context", "remote-mapping-"),
                 new AdjacenciesMappingContext("adjacencies-mapping-context"));
     }
 

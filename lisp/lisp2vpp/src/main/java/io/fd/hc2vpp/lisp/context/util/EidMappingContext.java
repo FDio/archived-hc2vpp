@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.lisp.context.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
@@ -36,8 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility class allowing {@link MappingId} to {@link Eid} mapping
@@ -48,16 +45,18 @@ public class EidMappingContext implements EidTranslator {
 
     private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.EidMappingContext, EidMappingContextKey>
             namingContextIid;
+    private final String artificialPrefix;
 
     /**
      * Create new naming context
      *
      * @param instanceName name of this context instance. Will be used as list item identifier within context data tree
      */
-    public EidMappingContext(@Nonnull final String instanceName) {
+    public EidMappingContext(@Nonnull final String instanceName, @Nonnull final String artificialPrefix) {
         namingContextIid = InstanceIdentifier.create(Contexts.class).child(
                 org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.EidMappingContext.class,
                 new EidMappingContextKey(instanceName));
+        this.artificialPrefix = artificialPrefix;
     }
 
     /**
@@ -73,13 +72,21 @@ public class EidMappingContext implements EidTranslator {
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
-        checkState(read.isPresent(), "Mapping for eid: %s is not present. But should be", remoteEid);
+        if (!read.isPresent()) {
+            final MappingId artificialMappingId = getMappingId(remoteEid.toString(), artificialPrefix);
+            addEid(artificialMappingId, remoteEid, mappingContext);
+            return artificialMappingId;
+        }
 
         return read.get().getMapping()
                 .stream()
                 //cannot split to map + filtering,because its collecting mappings,not eid's
                 .filter(mapping -> compareEids(mapping.getEid(), remoteEid))
                 .collect(SINGLE_ITEM_COLLECTOR).getId();
+    }
+
+    private static MappingId getMappingId(final String eidValue, final String artificialPrefix) {
+        return new MappingId(artificialPrefix.concat(eidValue));
     }
 
     /**
@@ -95,8 +102,11 @@ public class EidMappingContext implements EidTranslator {
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
-        //don't create artificial name as naming context, to not create reference to some artificial(in vpp non-existing)eid
-        checkState(read.isPresent(), "Mapping for eid: %s is not present. But should be", eid);
+        if (!read.isPresent()) {
+            final MappingId artificialMappingId = getMappingId(eid.toString(), artificialPrefix);
+            addEid(artificialMappingId, eid, mappingContext);
+            return artificialMappingId;
+        }
 
         return read.get().getMapping().stream()
                 .filter(mapping -> compareEids(mapping.getEid(), eid))
