@@ -17,6 +17,9 @@
 package io.fd.hc2vpp.lisp.context.util;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import io.fd.hc2vpp.lisp.util.EidMappingContextHelper;
 import io.fd.honeycomb.translate.MappingContext;
 import org.junit.Before;
@@ -29,9 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.addres
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.Eid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.EidBuilder;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class EidMappingContextTest implements EidMappingContextHelper {
 
@@ -51,7 +51,7 @@ public class EidMappingContextTest implements EidMappingContextHelper {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        eidMappingContext = new EidMappingContext(EID_MAPPING_CONTEXT_NAME);
+        eidMappingContext = new EidMappingContext(EID_MAPPING_CONTEXT_NAME, "eid-ctx-");
 
         localEid =
                 new EidBuilder().setAddress(new Ipv4Builder().setIpv4(new Ipv4Address("192.168.2.1")).build()).build();
