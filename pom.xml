@@ -17,13 +17,13 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>hc2vpp-parent</artifactId>
-    <version>1.17.04-RC2</version>
+    <version>1.17.04-SNAPSHOT</version>
     <relativePath>common/hc2vpp-parent</relativePath>
   </parent>
 
   <groupId>io.fd.hc2vpp</groupId>
   <artifactId>hc2vpp-aggregator</artifactId>
-  <version>1.17.04-RC2</version>
+  <version>1.17.04-SNAPSHOT</version>
   <name>hc2vpp</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
