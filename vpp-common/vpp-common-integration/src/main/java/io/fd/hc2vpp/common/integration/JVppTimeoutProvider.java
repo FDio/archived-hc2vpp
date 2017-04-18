@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,22 @@
 
 package io.fd.hc2vpp.common.integration;
 
-import net.jmob.guice.conf.core.BindConfig;
-import net.jmob.guice.conf.core.InjectConfig;
-import net.jmob.guice.conf.core.Syntax;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 
-@BindConfig(value = "jvpp", syntax = Syntax.JSON)
-public class VppConfigAttributes {
+class JVppTimeoutProvider implements Provider<JVppTimeoutProvider.JVppTimeoutInit> {
 
-    @InjectConfig("jvpp-connection-name")
-    public String jvppConnectionName;
+    @Inject
+    private VppConfigAttributes configAttributes;
 
-    @InjectConfig("jvpp-request-timeout")
-    public int jvppRequestTimeout;
+    @Override
+    public JVppTimeoutInit get() {
+        JvppReplyConsumer.JvppReplyTimeoutHolder.setupTimeout(configAttributes.jvppRequestTimeout);
+        return new JVppTimeoutInit() {
+        };
+    }
+
+    interface JVppTimeoutInit {
+    }
 }

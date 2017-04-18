@@ -35,6 +35,7 @@ public final class VppCommonModule extends AbstractModule {
         bind(VppStatusListener.class).toInstance(new VppStatusListener());
         bind(JVppRegistry.class).toProvider(JVppRegistryProvider.class).in(Singleton.class);
         bind(FutureJVppCore.class).toProvider(JVppCoreProvider.class).in(Singleton.class);
+        bind(JVppTimeoutProvider.JVppTimeoutInit.class).toProvider(JVppTimeoutProvider.class).asEagerSingleton();
 
         // Naming contexts reader exposing context storage over REST/HONEYCOMB_NETCONF
         final Multibinder<ReaderFactory> readerBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);

@@ -19,6 +19,7 @@ package io.fd.hc2vpp.common.integration;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -27,9 +28,11 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -49,5 +52,14 @@ public class VppCommonModuleTest {
         initMocks(this);
         Guice.createInjector(new VppCommonModule(), BoundFieldModule.of(this)).injectMembers(this);
         assertThat(readerFactories, is(not(empty())));
+        assertEquals(15, JvppReplyConsumer.JvppReplyTimeoutHolder.getTimeout());
+    }
+
+    public void testConfigureJVppTimeoutIgnoreOnRetry() {
+        initMocks(this);
+        Guice.createInjector(new VppCommonModule(), BoundFieldModule.of(this)).injectMembers(this);
+        JvppReplyConsumer.JvppReplyTimeoutHolder.setupTimeout(1);
+        // reconfiguration is ignored
+        assertEquals(15, JvppReplyConsumer.JvppReplyTimeoutHolder.getTimeout());
     }
 }

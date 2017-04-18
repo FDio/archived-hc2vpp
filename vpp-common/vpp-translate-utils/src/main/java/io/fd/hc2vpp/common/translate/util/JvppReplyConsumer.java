@@ -20,6 +20,7 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.dto.JVppReply;
+import java.util.Optional;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -29,15 +30,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Trait providing logic for consuming reply's to jvpp api calls
  */
 public interface JvppReplyConsumer {
-
-    int DEFAULT_TIMEOUT_IN_SECONDS = 5;
 
     JvppReplyConsumer INSTANCE = new JvppReplyConsumer() {
     };
@@ -50,7 +52,8 @@ public interface JvppReplyConsumer {
     default <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
                                                             @Nonnull final InstanceIdentifier<?> replyType)
             throws WriteFailedException {
-        return getReplyForWrite(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
+
+        return getReplyForWrite(future, replyType, JvppReplyTimeoutHolder.getTimeout());
     }
 
     /**
@@ -79,7 +82,7 @@ public interface JvppReplyConsumer {
                                                              @Nonnull final InstanceIdentifier<?> replyType,
                                                              @Nonnull final DataObject data)
             throws WriteFailedException {
-        return getReplyForCreate(future, replyType, data, DEFAULT_TIMEOUT_IN_SECONDS);
+        return getReplyForCreate(future, replyType, data, JvppReplyTimeoutHolder.getTimeout());
     }
 
     /**
@@ -107,7 +110,7 @@ public interface JvppReplyConsumer {
                                                              @Nonnull final DataObject dataBefore,
                                                              @Nonnull final DataObject dataAfter)
             throws WriteFailedException {
-        return getReplyForUpdate(future, replyType, dataBefore, dataAfter, DEFAULT_TIMEOUT_IN_SECONDS);
+        return getReplyForUpdate(future, replyType, dataBefore, dataAfter, JvppReplyTimeoutHolder.getTimeout());
     }
 
     /**
@@ -134,7 +137,7 @@ public interface JvppReplyConsumer {
     default <REP extends JVppReply<?>> REP getReplyForDelete(@Nonnull Future<REP> future,
                                                              @Nonnull final InstanceIdentifier<?> replyType)
             throws WriteFailedException {
-        return getReplyForDelete(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
+        return getReplyForDelete(future, replyType, JvppReplyTimeoutHolder.getTimeout());
     }
 
     /**
@@ -156,7 +159,7 @@ public interface JvppReplyConsumer {
     default <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
                                                            @Nonnull final InstanceIdentifier<?> replyType)
             throws ReadFailedException {
-        return getReplyForRead(future, replyType, DEFAULT_TIMEOUT_IN_SECONDS);
+        return getReplyForRead(future, replyType, JvppReplyTimeoutHolder.getTimeout());
     }
 
     default <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
@@ -174,7 +177,7 @@ public interface JvppReplyConsumer {
 
     default <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future)
             throws TimeoutException, VppBaseCallException {
-        return getReply(future, DEFAULT_TIMEOUT_IN_SECONDS);
+        return getReply(future, JvppReplyTimeoutHolder.getTimeout());
     }
 
     default <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future,
@@ -193,6 +196,28 @@ public interface JvppReplyConsumer {
                 throw (VppBaseCallException) (e.getCause());
             }
             throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Wrapper for reply timeout
+     */
+    class JvppReplyTimeoutHolder {
+        private static final Logger LOG = LoggerFactory.getLogger(JvppReplyTimeoutHolder.class);
+        private static Optional<Integer> timeout = Optional.empty();
+
+        public static void setupTimeout(@Nonnegative final int jvppTimeout) {
+            if (timeout.isPresent()) {
+                // do not fail on reconfigure, to not disturb restarts
+                LOG.warn("JVpp timeout already configured");
+                return;
+            }
+            timeout = Optional.of(jvppTimeout);
+            LOG.info("Jvpp reply timeout configured to {} seconds", timeout.get());
+        }
+
+        public static int getTimeout() {
+            return timeout.orElse(5);
         }
     }
 }

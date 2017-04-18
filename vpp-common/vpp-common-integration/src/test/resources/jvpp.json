@@ -1,3 +1,4 @@
 {
-  "jvpp-connection-name": "honeycomb"
+  "jvpp-connection-name": "honeycomb",
+  "jvpp-request-timeout":15
 }
