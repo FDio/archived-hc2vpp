@@ -52,5 +52,6 @@
     <module>l3</module>
     <module>vpp-management</module>
     <module>it</module>
+    <module>interface-role</module>
   </modules>
 </project>

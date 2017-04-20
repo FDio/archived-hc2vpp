@@ -1,0 +1,78 @@
+module interface-role {
+
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:interface:role";
+  prefix "if-role";
+
+  // TODO - update revision number to 17.07 release date
+  revision "2017-03-15" {
+    description "Basic specification of interface roles";
+  }
+
+  import ietf-interfaces {
+    prefix "if";
+  }
+
+  import yang-ext {
+    prefix "ext";
+  }
+
+  identity network-role-base {
+    description "Base identity for network interface roles";
+  }
+
+  identity virtual-domain-interface {
+    base network-role-base;
+    description "Tenant network interface. Interface must be enabled and have ip assigned";
+  }
+
+  identity public-interface {
+    base network-role-base;
+    description "Public interface for external access. Interface must be enabled and have ip assigned";
+  }
+
+  typedef network-role {
+    type identityref {
+      base network-role-base;
+    }
+    description "Base type for network interface roles";
+  }
+
+  grouping interface-role-grouping {
+    container roles {
+      list role {
+        key role-name;
+
+        leaf role-name {
+          type string;
+          description "Unique name for role";
+          mandatory true;
+        }
+
+        leaf role-type {
+          type network-role;
+          description "Specifies type of network role";
+          mandatory true;
+        }
+
+        leaf description {
+          type string;
+          description "Any additional metadata for this assignment of network role";
+        }
+      }
+    }
+  }
+
+  augment /if:interfaces/if:interface {
+    ext:augment-identifier "interface-role-augmentation";
+
+    uses interface-role-grouping;
+  }
+
+  augment /if:interfaces-state/if:interface {
+    ext:augment-identifier "interface-role-state-augmentation";
+
+    uses interface-role-grouping;
+  }
+}
+
