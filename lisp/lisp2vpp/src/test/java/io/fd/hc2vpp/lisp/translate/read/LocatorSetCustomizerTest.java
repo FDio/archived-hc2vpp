@@ -22,7 +22,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
@@ -119,6 +118,6 @@ public class LocatorSetCustomizerTest
 
     @Override
     protected ReaderCustomizer<LocatorSet, LocatorSetBuilder> initCustomizer() {
-        return new LocatorSetCustomizer(api, new NamingContext("loc", "locator-set-context"), lispStateCheckService);
+        return new LocatorSetCustomizer(api, lispStateCheckService);
     }
 }

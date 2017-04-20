@@ -17,17 +17,26 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
+
+import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.lisp.translate.read.trait.LocatorSetReader;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.ShowLispStatus;
 import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.LispState;
@@ -38,20 +47,27 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.concurrent.TimeoutException;
-
 
 /**
  * Customizer that handles reads of {@code LispState}
  */
 public class LispStateCustomizer extends FutureJVppCustomizer
-        implements InitializingReaderCustomizer<LispState, LispStateBuilder>, JvppReplyConsumer, ByteDataTranslator {
+        implements InitializingReaderCustomizer<LispState, LispStateBuilder>, JvppReplyConsumer, ByteDataTranslator,
+        LocatorSetReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(LispStateCustomizer.class);
 
-    public LispStateCustomizer(FutureJVppCore futureJvpp) {
+    private final NamingContext locatorSetContext;
+    private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
+
+    public LispStateCustomizer(@Nonnull final FutureJVppCore futureJvpp,
+                               @Nonnull final NamingContext locatorSetContext) {
         super(futureJvpp);
+        this.locatorSetContext = locatorSetContext;
+        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
+                .withExecutor(createExecutor(futureJvpp))
+                .acceptOnly(LispLocatorSetDetailsReplyDump.class)
+                .build();
     }
 
     @Override
@@ -82,8 +98,37 @@ public class LispStateCustomizer extends FutureJVppCustomizer
     public Initialized<Lisp> init(
             @Nonnull final InstanceIdentifier<LispState> id, @Nonnull final LispState readValue,
             @Nonnull final ReadContext ctx) {
-        return Initialized.create(InstanceIdentifier.create(Lisp.class),
+        /* TODO - HONEYCOMB-354 - must be done here(most upper node), because of ordering issues
+          In this case it will work fully, locator sets are not referenced from any outside model
+          */
+        final Optional<LispLocatorSetDetailsReplyDump> dumpOptional;
+        try {
+            dumpOptional = dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+        } catch (ReadFailedException e) {
+            throw new IllegalStateException("Unable to initialize locator set context mapping", e);
+        }
 
+        if (dumpOptional.isPresent() && !dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
+            LOG.debug("Initializing locator set context for {}", dumpOptional.get());
+            dumpOptional.get().lispLocatorSetDetails
+                    .forEach(set -> {
+                        final String locatorSetName = toString(set.lsName);
+                        //creates mapping for existing locator-set(if it is'nt already existing one)
+                        synchronized (locatorSetContext) {
+                            if (!locatorSetContext.containsIndex(locatorSetName, ctx.getMappingContext())) {
+                                locatorSetContext.addName(set.lsIndex, locatorSetName, ctx.getMappingContext());
+                            }
+                        }
+
+                        LOG.trace("Locator Set with name: {}, VPP name: {} and index: {} found in VPP",
+                                locatorSetContext.getName(set.lsIndex, ctx.getMappingContext()),
+                                locatorSetName,
+                                set.lsIndex);
+                    });
+            LOG.debug("Locator set context initialized");
+        }
+
+        return Initialized.create(InstanceIdentifier.create(Lisp.class),
                 // set everything from LispState to LispBuilder
                 // this is necessary in cases, when HC connects to a running VPP with some LISP configuration. HC needs to
                 // reconstruct configuration based on what's present in VPP in order to support subsequent configuration changes

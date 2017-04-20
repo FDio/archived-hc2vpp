@@ -16,12 +16,10 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
 import io.fd.hc2vpp.lisp.translate.read.trait.LocatorSetReader;
 import io.fd.hc2vpp.lisp.translate.service.LispStateCheckService;
@@ -55,13 +53,10 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(LocatorSetCustomizer.class);
 
     private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
-    private final NamingContext locatorSetContext;
 
     public LocatorSetCustomizer(@Nonnull final FutureJVppCore futureJvpp,
-                                @Nonnull final NamingContext locatorSetContext,
                                 @Nonnull final LispStateCheckService lispStateCheckService) {
         super(futureJvpp, lispStateCheckService);
-        this.locatorSetContext = checkNotNull(locatorSetContext, "Locator Set mapping context cannot be null");
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
                 .withExecutor(createExecutor(futureJvpp))
                 .acceptOnly(LispLocatorSetDetailsReplyDump.class)
@@ -125,21 +120,6 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
         }
 
         return dumpOptional.get().lispLocatorSetDetails.stream()
-                .map(set -> {
-
-                    final String locatorSetName = toString(set.lsName);
-                    //creates mapping for existing locator-set(if it is'nt already existing one)
-                    if (!locatorSetContext.containsIndex(locatorSetName, context.getMappingContext())) {
-                        locatorSetContext.addName(set.lsIndex, locatorSetName, context.getMappingContext());
-                    }
-
-                    LOG.trace("Locator Set with name: {}, VPP name: {} and index: {} found in VPP",
-                            locatorSetContext.getName(set.lsIndex, context.getMappingContext()),
-                            locatorSetName,
-                            set.lsIndex);
-
-                    return set;
-                })
                 .map(set -> new LocatorSetKey(toString(set.lsName)))
                 .collect(Collectors.toList());
     }
