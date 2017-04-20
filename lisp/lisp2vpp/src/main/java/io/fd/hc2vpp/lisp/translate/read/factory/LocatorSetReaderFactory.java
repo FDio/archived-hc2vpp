@@ -47,7 +47,7 @@ public class LocatorSetReaderFactory extends AbstractLispInfraFactoryBase implem
 
         registry.addStructuralReader(locatorSetsInstanceIdentifier, LocatorSetsBuilder.class);
         registry.add(new GenericInitListReader<>(locatorSetInstanceIdentifier,
-                new LocatorSetCustomizer(vppApi, locatorSetContext, lispStateCheckService)));
+                new LocatorSetCustomizer(vppApi, lispStateCheckService)));
         registry.add(new GenericInitListReader<>(locatorSetInstanceIdentifier.child(Interface.class),
                 new InterfaceCustomizer(vppApi, interfaceContext, locatorSetContext)));
     }

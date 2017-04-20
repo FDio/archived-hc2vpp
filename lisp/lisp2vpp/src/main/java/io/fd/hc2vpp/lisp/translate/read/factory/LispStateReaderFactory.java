@@ -50,7 +50,7 @@ public class LispStateReaderFactory extends AbstractLispInfraFactoryBase impleme
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
 
-        registry.add(new GenericInitReader<>(lispStateId, new LispStateCustomizer(vppApi)));
+        registry.add(new GenericInitReader<>(lispStateId, new LispStateCustomizer(vppApi, locatorSetContext)));
         registry.addStructuralReader(lispStateId.child(LispFeatureData.class), LispFeatureDataBuilder.class);
 
         registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(PitrCfg.class),
