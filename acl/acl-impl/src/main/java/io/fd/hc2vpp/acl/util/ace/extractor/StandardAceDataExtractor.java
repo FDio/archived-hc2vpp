@@ -23,6 +23,7 @@ import io.fd.vpp.jvpp.acl.types.AclRule;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.acl.access.list.entries.ace.ActionsBuilder;
@@ -36,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv4HeaderFields;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160708.AclIpv6HeaderFields;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.AclIpProtocolHeaderFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.actions.packet.handling.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.actions.packet.handling.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.VppAce;
@@ -44,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.ip.protocol.header.fields.ip.protocol.IcmpV6;
 
 public interface StandardAceDataExtractor extends AddressExtractor, ProtoPreBindRuleProducer, IpProtocolReader {
 
@@ -60,13 +63,24 @@ public interface StandardAceDataExtractor extends AddressExtractor, ProtoPreBind
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Unable to create VppAce from %s", ace)));
     }
 
-    default boolean standardIsIpv6(@Nonnull final Ace ace) {
-        return Optional.ofNullable(ace.getMatches())
+    default boolean standardIsIpv6(@Nonnull final VppAce ace, @Nullable final Matches matches) {
+        final Optional<AceIpVersion> aceIpVersion = Optional.ofNullable(matches)
                 .map(Matches::getAceType)
                 .map(VppAce.class::cast)
                 .map(VppAce::getVppAceNodes)
-                .map(VppAceNodes::getAceIpVersion)
-                .map(aceIpVersion -> aceIpVersion instanceof AceIpv6)
+                .map(VppAceNodes::getAceIpVersion);
+
+        // tries to detect version by ace-ip-version
+        if(aceIpVersion.isPresent()){
+            return aceIpVersion
+                    .map(version -> version instanceof AceIpv6)
+                    .orElse(false);
+        }
+
+        // otherwise goes by ip-protocol
+        return Optional.ofNullable(ace.getVppAceNodes())
+                .map(AclIpProtocolHeaderFields::getIpProtocol)
+                .map(ipProtocol -> ipProtocol instanceof IcmpV6)
                 .orElse(false);
     }
 
