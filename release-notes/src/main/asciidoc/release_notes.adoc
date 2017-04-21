@@ -4,23 +4,38 @@ Release notes for honeycomb for VPP {project-version}. Based on VPP {project-vpp
 and honeycomb {project-version}.
 
 == Release plan
-https://wiki.fd.io/view/Honeycomb/Release_Plans/Release_Plan_{project-public-version}[Release plan]
+https://wiki.fd.io/view/Hc2vpp/Release_Plans/Release_Plan_{project-public-version}[Release plan]
 
 == Features
-Adding to the list of existing features: https://wiki.fd.io/view/Honeycomb/Releases/1701#Features[1701 feature list]:
+Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.01/release-notes-aggregator/release_notes.html#_features[1701 feature list]:
 
 === New features
-* https://jira.fd.io/browse/HC2VPP-33[SLAAC]
+* https://jira.fd.io/browse/HC2VPP-33[SLAAC configuration]
+* https://jira.fd.io/browse/HC2VPP-53[DHCP relay management]
+* https://jira.fd.io/browse/HC2VPP-34[ND Proxy management]
+* https://jira.fd.io/browse/HC2VPP-39[Policer management]
+* https://jira.fd.io/browse/HC2VPP-28[Lisp Control Plane Support]
 
 === Removed features
 
 === Modified features
+* https://jira.fd.io/browse/HC2VPP-54[Proxy ARP]
+
+Added support for multiple ranges
+
+* IOAM
+** https://gerrit.fd.io/r/#/c/4401/[export plugin]
+
+* NSH
+** https://gerrit.fd.io/r/#/c/5136/[egress classifier]
+** https://gerrit.fd.io/r/#/c/5751/[MD2]
 
 === Deprecated features
+* ACL management in terms of ietf-acl model based on vpp classifier
 
 == Backlog
 
-* https://jira.fd.io/projects/HONEYCOMB/versions/{project-version-in-jira}[JIRA]
+* https://jira.fd.io/projects/HC2VPP/versions/{project-version-in-jira}[JIRA]
 * https://jira.fd.io/jira/secure/ReleaseNote.jspa?projectId=10601&version={project-version-in-jira}[Release notes]
 
 include::install_guide/install_guide.adoc[]
