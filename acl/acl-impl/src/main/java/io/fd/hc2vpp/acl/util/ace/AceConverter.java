@@ -80,7 +80,7 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
 
                     rule.isPermit = standardAction(ace);
 
-                    if (standardIsIpv6(ace)) {
+                    if (standardIsIpv6(standardAce, ace.getMatches())) {
                         rule.isIpv6 = 1;
                         rule.srcIpAddr = ipv6SourceAddress(standardAce);
                         rule.srcIpPrefixLen = ipv6SourceAddressPrefix(standardAce);

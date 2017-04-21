@@ -41,6 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.access.lists.acl.access.list.entries.ace.matches.ace.type.vpp.ace.vpp.ace.nodes.ace.ip.version.AceIpv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.ip.protocol.header.fields.ip.protocol.IcmpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.acl.ip.protocol.header.fields.ip.protocol.IcmpV6Builder;
 
 
 public class StandardAceDataExtractorTest extends AceDataExtractorTestCase implements StandardAceDataExtractor,
@@ -58,17 +60,27 @@ public class StandardAceDataExtractorTest extends AceDataExtractorTestCase imple
     }
 
     @Test
-    public void testStandardIsIpv6() {
-        assertFalse(standardIsIpv6(new AceBuilder().build()));
-        assertFalse(standardIsIpv6(new AceBuilder().setMatches(new MatchesBuilder().build()).build()));
-        assertFalse(standardIsIpv6(
-                new AceBuilder().setMatches(new MatchesBuilder().setAceType(new VppAceBuilder().build()).build())
-                        .build()));
-        assertFalse(standardIsIpv6(new AceBuilder().setMatches(new MatchesBuilder()
-                .setAceType(new VppAceBuilder().setVppAceNodes(new VppAceNodesBuilder().build()).build()).build())
-                .build()));
-        assertTrue(standardIsIpv6(new AceBuilder().setMatches(new MatchesBuilder().setAceType(new VppAceBuilder()
-                .setVppAceNodes(new VppAceNodesBuilder().setAceIpVersion(new AceIpv6Builder().build()).build()).build())
+    public void testStandardIsIpv6WithoutMatch() {
+        assertFalse(standardIsIpv6(new VppAceBuilder().build(), null));
+        assertFalse(standardIsIpv6(new VppAceBuilder().setVppAceNodes(new VppAceNodesBuilder().build()).build(), null));
+        assertFalse(standardIsIpv6(new VppAceBuilder().setVppAceNodes(new VppAceNodesBuilder()
+                .setIpProtocol(new IcmpBuilder().build()).build()).build(), null));
+        assertTrue(standardIsIpv6(new VppAceBuilder().setVppAceNodes(new VppAceNodesBuilder()
+                .setIpProtocol(new IcmpV6Builder().build()).build()).build(), null));
+    }
+
+    @Test
+    public void testStandardIsIpv6WithMatch() {
+        final VppAce ipv6Ace = new VppAceBuilder().setVppAceNodes(new VppAceNodesBuilder()
+                .setIpProtocol(new IcmpV6Builder().build()).build()).build();
+
+        assertTrue(standardIsIpv6(ipv6Ace, new MatchesBuilder().build()));
+        assertTrue(standardIsIpv6(ipv6Ace, new MatchesBuilder().setAceType(new VppAceBuilder().build()).build()));
+        assertTrue(standardIsIpv6(ipv6Ace, new MatchesBuilder().setAceType(new VppAceBuilder()
+                .setVppAceNodes(new VppAceNodesBuilder().build())
+                .build()).build()));
+        assertFalse(standardIsIpv6(ipv6Ace, new MatchesBuilder().setAceType(new VppAceBuilder()
+                .setVppAceNodes(new VppAceNodesBuilder().setAceIpVersion(new AceIpv4Builder().build()).build())
                 .build()).build()));
     }
 
