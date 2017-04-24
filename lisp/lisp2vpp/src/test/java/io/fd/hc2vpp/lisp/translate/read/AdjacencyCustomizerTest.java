@@ -37,8 +37,8 @@ import io.fd.hc2vpp.lisp.translate.util.EidMetadataProvider;
 import io.fd.hc2vpp.lisp.util.AdjacencyMappingContextTestHelper;
 import io.fd.hc2vpp.lisp.util.EidMappingContextHelper;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.LispAdjacenciesGetReply;
-import io.fd.vpp.jvpp.core.types.LispAdjacency;
+import io.fd.vpp.jvpp.core.dto.OneAdjacenciesGetReply;
+import io.fd.vpp.jvpp.core.types.OneAdjacency;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,7 +122,7 @@ public class AdjacencyCustomizerTest
 
 
     private void mockApi() {
-        LispAdjacency adjacencyOne = new LispAdjacency();
+        OneAdjacency adjacencyOne = new OneAdjacency();
         adjacencyOne.eidType = 0;
         adjacencyOne.leid = new byte[]{-64, -88, 2, 1};
         adjacencyOne.leidPrefixLen = 32;
@@ -130,16 +130,16 @@ public class AdjacencyCustomizerTest
         adjacencyOne.reidPrefixLen = 32;
 
 
-        LispAdjacency adjacencyTwo = new LispAdjacency();
+        OneAdjacency adjacencyTwo = new OneAdjacency();
         adjacencyTwo.eidType = 0;
         adjacencyTwo.leid = new byte[]{-64, -88, 2, 2};
         adjacencyTwo.leidPrefixLen = 32;
         adjacencyTwo.reid = new byte[]{-64, -88, 2, 4};
         adjacencyTwo.reidPrefixLen = 32;
 
-        LispAdjacenciesGetReply reply = new LispAdjacenciesGetReply();
-        reply.adjacencies = new LispAdjacency[]{adjacencyOne, adjacencyTwo};
+        OneAdjacenciesGetReply reply = new OneAdjacenciesGetReply();
+        reply.adjacencies = new OneAdjacency[]{adjacencyOne, adjacencyTwo};
 
-        when(api.lispAdjacenciesGet(any())).thenReturn(future(reply));
+        when(api.oneAdjacenciesGet(any())).thenReturn(future(reply));
     }
 }

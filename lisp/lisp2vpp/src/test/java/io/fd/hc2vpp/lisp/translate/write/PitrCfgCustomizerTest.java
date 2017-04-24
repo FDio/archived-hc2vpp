@@ -26,8 +26,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSet;
-import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSetReply;
+import io.fd.vpp.jvpp.core.dto.OnePitrSetLocatorSet;
+import io.fd.vpp.jvpp.core.dto.OnePitrSetLocatorSetReply;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -48,7 +48,7 @@ public class PitrCfgCustomizerTest extends LispWriterCustomizerTest {
     }
 
     private void whenLispPitrSetLocatorSetThenSuccess() {
-        when(api.lispPitrSetLocatorSet(any(LispPitrSetLocatorSet.class))).thenReturn(future(new LispPitrSetLocatorSetReply()));
+        when(api.onePitrSetLocatorSet(any(OnePitrSetLocatorSet.class))).thenReturn(future(new OnePitrSetLocatorSetReply()));
     }
 
     @Test(expected = NullPointerException.class)
@@ -68,10 +68,10 @@ public class PitrCfgCustomizerTest extends LispWriterCustomizerTest {
         whenLispPitrSetLocatorSetThenSuccess();
         customizer.writeCurrentAttributes(null, cfg, null);
 
-        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
-        verify(api, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
+        ArgumentCaptor<OnePitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(OnePitrSetLocatorSet.class);
+        verify(api, times(1)).onePitrSetLocatorSet(cfgCaptor.capture());
 
-        LispPitrSetLocatorSet request = cfgCaptor.getValue();
+        OnePitrSetLocatorSet request = cfgCaptor.getValue();
         assertEquals(1, request.isAdd);
         assertEquals("Locator", new String(request.lsName));
     }
@@ -84,10 +84,10 @@ public class PitrCfgCustomizerTest extends LispWriterCustomizerTest {
 
         customizer.writeCurrentAttributes(null, cfg, null);
 
-        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
-        verify(api, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
+        ArgumentCaptor<OnePitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(OnePitrSetLocatorSet.class);
+        verify(api, times(1)).onePitrSetLocatorSet(cfgCaptor.capture());
 
-        LispPitrSetLocatorSet request = cfgCaptor.getValue();
+        OnePitrSetLocatorSet request = cfgCaptor.getValue();
         assertEquals(1, request.isAdd);
         assertEquals("Locator", new String(request.lsName));
     }
@@ -110,10 +110,10 @@ public class PitrCfgCustomizerTest extends LispWriterCustomizerTest {
 
         customizer.deleteCurrentAttributes(null, cfg, null);
 
-        ArgumentCaptor<LispPitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(LispPitrSetLocatorSet.class);
-        verify(api, times(1)).lispPitrSetLocatorSet(cfgCaptor.capture());
+        ArgumentCaptor<OnePitrSetLocatorSet> cfgCaptor = ArgumentCaptor.forClass(OnePitrSetLocatorSet.class);
+        verify(api, times(1)).onePitrSetLocatorSet(cfgCaptor.capture());
 
-        LispPitrSetLocatorSet request = cfgCaptor.getValue();
+        OnePitrSetLocatorSet request = cfgCaptor.getValue();
         assertEquals(0, request.isAdd);
         assertEquals("Locator", new String(request.lsName));
     }

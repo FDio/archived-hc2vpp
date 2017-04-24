@@ -20,10 +20,12 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.vpp.jvpp.core.dto.OneLocatorDetails;
+import io.fd.vpp.jvpp.core.dto.OneLocatorDetailsReplyDump;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
 
 public class InterfaceCustomizerTest
         extends ListReaderCustomizerTest<Interface, InterfaceKey, InterfaceBuilder> {
@@ -60,9 +60,9 @@ public class InterfaceCustomizerTest
     }
 
     private void defineDumpData() {
-        final LispLocatorDetailsReplyDump dump = new LispLocatorDetailsReplyDump();
+        final OneLocatorDetailsReplyDump dump = new OneLocatorDetailsReplyDump();
 
-        final LispLocatorDetails detail1 = new LispLocatorDetails();
+        final OneLocatorDetails detail1 = new OneLocatorDetails();
         detail1.swIfIndex = 1;
         detail1.ipAddress = new byte[]{-64, -88, 2, 1};
         detail1.isIpv6 = 0;
@@ -70,7 +70,7 @@ public class InterfaceCustomizerTest
         detail1.priority = 1;
         detail1.weight = 2;
 
-        final LispLocatorDetails detail2 = new LispLocatorDetails();
+        final OneLocatorDetails detail2 = new OneLocatorDetails();
         detail2.swIfIndex = 2;
         detail2.ipAddress = new byte[]{-64, -88, 2, 2};
         detail2.isIpv6 = 0;
@@ -78,9 +78,9 @@ public class InterfaceCustomizerTest
         detail2.priority = 2;
         detail2.weight = 3;
 
-        dump.lispLocatorDetails = ImmutableList.of(detail1, detail2);
+        dump.oneLocatorDetails = ImmutableList.of(detail1, detail2);
 
-        when(api.lispLocatorDump(Mockito.any())).thenReturn(future(dump));
+        when(api.oneLocatorDump(Mockito.any())).thenReturn(future(dump));
     }
 
     private void defineMappings() {

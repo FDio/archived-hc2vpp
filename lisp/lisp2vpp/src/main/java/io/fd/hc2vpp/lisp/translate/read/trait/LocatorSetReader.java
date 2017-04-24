@@ -16,10 +16,10 @@
 
 package io.fd.hc2vpp.lisp.translate.read.trait;
 
-import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDump;
+import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSet;
@@ -29,13 +29,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
  */
 public interface LocatorSetReader extends JvppReplyConsumer {
 
-    default EntityDumpExecutor<LispLocatorSetDetailsReplyDump, Void> createExecutor(
+    default EntityDumpExecutor<OneLocatorSetDetailsReplyDump, Void> createExecutor(
             @Nonnull final FutureJVppCore vppApi) {
         return (identifier, params) -> {
-            final LispLocatorSetDump request = new LispLocatorSetDump();
+            final OneLocatorSetDump request = new OneLocatorSetDump();
             //only local
             request.filter = 1;
-            return getReplyForRead(vppApi.lispLocatorSetDump(request).toCompletableFuture(), identifier);
+            return getReplyForRead(vppApi.oneLocatorSetDump(request).toCompletableFuture(), identifier);
         };
     }
 }

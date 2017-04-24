@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispRlocProbeStateReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneRlocProbeStateReply;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
@@ -40,9 +40,9 @@ public class RlocProbeCustomizerTest extends LispInitializingReaderCustomizerTes
     @Override
     @Before
     public void setUp() throws Exception {
-        final ShowLispRlocProbeStateReply reply = new ShowLispRlocProbeStateReply();
+        final ShowOneRlocProbeStateReply reply = new ShowOneRlocProbeStateReply();
         reply.isEnabled = 1;
-        when(api.showLispRlocProbeState(any())).thenReturn(future(reply));
+        when(api.showOneRlocProbeState(any())).thenReturn(future(reply));
         mockLispEnabled();
     }
 

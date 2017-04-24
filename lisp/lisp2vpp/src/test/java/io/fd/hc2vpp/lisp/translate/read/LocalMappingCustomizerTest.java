@@ -30,8 +30,8 @@ import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetailsReplyDump;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.Test;
@@ -89,8 +89,8 @@ public class LocalMappingCustomizerTest extends
     }
 
     private void defineDumpData() {
-        LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
-        LispEidTableDetails detail = new LispEidTableDetails();
+        OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
+        OneEidTableDetails detail = new OneEidTableDetails();
         detail.action = 0;
         detail.authoritative = 1;
         detail.context = 4;
@@ -104,13 +104,13 @@ public class LocalMappingCustomizerTest extends
         detail.key = "abcdefgh".getBytes(StandardCharsets.UTF_8);
         detail.keyId = 1;
 
-        replyDump.lispEidTableDetails = ImmutableList.of(detail);
-        when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+        replyDump.oneEidTableDetails = ImmutableList.of(detail);
+        when(api.oneEidTableDump(any())).thenReturn(future(replyDump));
     }
 
     private void defineDumpDataNoHmacKey() {
-        LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
-        LispEidTableDetails detail = new LispEidTableDetails();
+        OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
+        OneEidTableDetails detail = new OneEidTableDetails();
         detail.action = 0;
         detail.authoritative = 1;
         detail.context = 4;
@@ -122,8 +122,8 @@ public class LocalMappingCustomizerTest extends
         detail.ttl = 7;
         detail.vni = 12;
 
-        replyDump.lispEidTableDetails = ImmutableList.of(detail);
-        when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+        replyDump.oneEidTableDetails = ImmutableList.of(detail);
+        when(api.oneEidTableDump(any())).thenReturn(future(replyDump));
     }
 
     private void defineMappings() {

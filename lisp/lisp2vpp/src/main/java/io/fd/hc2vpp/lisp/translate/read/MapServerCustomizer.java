@@ -30,9 +30,9 @@ import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
-import io.fd.vpp.jvpp.core.dto.LispMapServerDetails;
-import io.fd.vpp.jvpp.core.dto.LispMapServerDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispMapServerDump;
+import io.fd.vpp.jvpp.core.dto.OneMapServerDetails;
+import io.fd.vpp.jvpp.core.dto.OneMapServerDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneMapServerDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,16 +59,16 @@ public class MapServerCustomizer extends CheckedLispCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(MapServerCustomizer.class);
 
-    private final DumpCacheManager<LispMapServerDetailsReplyDump, Void> dumpManager;
+    private final DumpCacheManager<OneMapServerDetailsReplyDump, Void> dumpManager;
 
     public MapServerCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                @Nonnull final LispStateCheckService lispStateCheckService) {
         super(futureJVppCore, lispStateCheckService);
-        dumpManager = new DumpCacheManagerBuilder<LispMapServerDetailsReplyDump, Void>()
-                .acceptOnly(LispMapServerDetailsReplyDump.class)
+        dumpManager = new DumpCacheManagerBuilder<OneMapServerDetailsReplyDump, Void>()
+                .acceptOnly(OneMapServerDetailsReplyDump.class)
                 .withExecutor((instanceIdentifier, aVoid) ->
                         getReplyForRead(getFutureJVpp()
-                                .lispMapServerDump(new LispMapServerDump()).toCompletableFuture(), instanceIdentifier))
+                                .oneMapServerDump(new OneMapServerDump()).toCompletableFuture(), instanceIdentifier))
                 .build();
     }
 
@@ -94,11 +94,11 @@ public class MapServerCustomizer extends CheckedLispCustomizer
             return Collections.emptyList();
         }
 
-        final Optional<LispMapServerDetailsReplyDump> dump =
+        final Optional<OneMapServerDetailsReplyDump> dump =
                 dumpManager.getDump(instanceIdentifier, readContext.getModificationCache(), NO_PARAMS);
 
-        if (dump.isPresent() && dump.get().lispMapServerDetails != null) {
-            return dump.get().lispMapServerDetails.stream()
+        if (dump.isPresent() && dump.get().oneMapServerDetails != null) {
+            return dump.get().oneMapServerDetails.stream()
                     .map(detail -> arrayToIpAddress(byteToBoolean(detail.isIpv6), detail.ipAddress))
                     .map(MapServerKey::new)
                     .collect(Collectors.toList());
@@ -126,13 +126,13 @@ public class MapServerCustomizer extends CheckedLispCustomizer
             LOG.info("Lisp feature must be enabled first");
             return;
         }
-        final Optional<LispMapServerDetailsReplyDump> dump =
+        final Optional<OneMapServerDetailsReplyDump> dump =
                 dumpManager.getDump(instanceIdentifier, readContext.getModificationCache(), NO_PARAMS);
 
-        if (dump.isPresent() && dump.get().lispMapServerDetails != null) {
+        if (dump.isPresent() && dump.get().oneMapServerDetails != null) {
             final IpAddress currentAddress = instanceIdentifier.firstKeyOf(MapServer.class).getIpAddress();
 
-            final LispMapServerDetails currentDetail = dump.get().lispMapServerDetails.stream()
+            final OneMapServerDetails currentDetail = dump.get().oneMapServerDetails.stream()
                     .filter(detail -> Arrays.equals(currentAddress.getValue(),
                             arrayToIpAddress(byteToBoolean(detail.isIpv6), detail.ipAddress).getValue()))
                     .collect(RWUtils.singleItemCollector());

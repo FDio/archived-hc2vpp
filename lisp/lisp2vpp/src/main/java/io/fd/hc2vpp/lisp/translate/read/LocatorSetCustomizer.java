@@ -29,8 +29,8 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
@@ -52,14 +52,14 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(LocatorSetCustomizer.class);
 
-    private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
+    private final DumpCacheManager<OneLocatorSetDetailsReplyDump, Void> dumpManager;
 
     public LocatorSetCustomizer(@Nonnull final FutureJVppCore futureJvpp,
                                 @Nonnull final LispStateCheckService lispStateCheckService) {
         super(futureJvpp, lispStateCheckService);
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
+        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<OneLocatorSetDetailsReplyDump, Void>()
                 .withExecutor(createExecutor(futureJvpp))
-                .acceptOnly(LispLocatorSetDetailsReplyDump.class)
+                .acceptOnly(OneLocatorSetDetailsReplyDump.class)
                 .build();
     }
 
@@ -78,17 +78,17 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
         }
         LOG.debug("Reading attributes for Locator Set {}", id);
 
-        final Optional<LispLocatorSetDetailsReplyDump> dumpOptional =
+        final Optional<OneLocatorSetDetailsReplyDump> dumpOptional =
                 dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
 
-        if (!dumpOptional.isPresent() || dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
+        if (!dumpOptional.isPresent() || dumpOptional.get().oneLocatorSetDetails.isEmpty()) {
             return;
         }
 
         String keyName = id.firstKeyOf(LocatorSet.class).getName();
-        LispLocatorSetDetailsReplyDump dump = dumpOptional.get();
+        OneLocatorSetDetailsReplyDump dump = dumpOptional.get();
 
-        java.util.Optional<LispLocatorSetDetails> details = dump.lispLocatorSetDetails.stream()
+        java.util.Optional<OneLocatorSetDetails> details = dump.oneLocatorSetDetails.stream()
                 .filter(n -> keyName.equals(toString(n.lsName)))
                 .findFirst();
 
@@ -112,14 +112,14 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
 
         LOG.debug("Dumping Locator Set {}", id);
 
-        final Optional<LispLocatorSetDetailsReplyDump> dumpOptional =
+        final Optional<OneLocatorSetDetailsReplyDump> dumpOptional =
                 dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
 
-        if (!dumpOptional.isPresent() || dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
+        if (!dumpOptional.isPresent() || dumpOptional.get().oneLocatorSetDetails.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return dumpOptional.get().lispLocatorSetDetails.stream()
+        return dumpOptional.get().oneLocatorSetDetails.stream()
                 .map(set -> new LocatorSetKey(toString(set.lsName)))
                 .collect(Collectors.toList());
     }

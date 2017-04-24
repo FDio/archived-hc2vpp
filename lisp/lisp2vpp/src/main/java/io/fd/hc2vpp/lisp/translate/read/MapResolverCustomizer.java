@@ -30,9 +30,9 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDump;
+import io.fd.vpp.jvpp.core.dto.OneMapResolverDetails;
+import io.fd.vpp.jvpp.core.dto.OneMapResolverDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneMapResolverDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,17 +57,17 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(MapResolverCustomizer.class);
 
-    private final DumpCacheManager<LispMapResolverDetailsReplyDump, Void> dumpManager;
+    private final DumpCacheManager<OneMapResolverDetailsReplyDump, Void> dumpManager;
 
     public MapResolverCustomizer(@Nonnull final FutureJVppCore futureJvpp,
                                  @Nonnull final LispStateCheckService lispStateCheckService) {
         super(futureJvpp, lispStateCheckService);
         this.dumpManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<LispMapResolverDetailsReplyDump, Void>()
+                new DumpCacheManager.DumpCacheManagerBuilder<OneMapResolverDetailsReplyDump, Void>()
                         .withExecutor((identifier, params) -> getReplyForRead(
-                                futureJvpp.lispMapResolverDump(new LispMapResolverDump()).toCompletableFuture(),
+                                futureJvpp.oneMapResolverDump(new OneMapResolverDump()).toCompletableFuture(),
                                 identifier))
-                        .acceptOnly(LispMapResolverDetailsReplyDump.class)
+                        .acceptOnly(OneMapResolverDetailsReplyDump.class)
                         .build();
     }
 
@@ -85,17 +85,17 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
         }
         LOG.debug("Reading attributes...");
 
-        final Optional<LispMapResolverDetailsReplyDump> dumpOptional =
+        final Optional<OneMapResolverDetailsReplyDump> dumpOptional =
                 dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
 
-        if (!dumpOptional.isPresent() || dumpOptional.get().lispMapResolverDetails.isEmpty()) {
+        if (!dumpOptional.isPresent() || dumpOptional.get().oneMapResolverDetails.isEmpty()) {
             LOG.warn("No data dumped");
             return;
         }
 
         final MapResolverKey key = id.firstKeyOf(MapResolver.class);
-        final LispMapResolverDetails mapResolverDetails =
-                dumpOptional.get().lispMapResolverDetails.stream()
+        final OneMapResolverDetails mapResolverDetails =
+                dumpOptional.get().oneMapResolverDetails.stream()
                         .filter(a -> addressesEqual(key.getIpAddress(),
                                 arrayToIpAddress(byteToBoolean(a.isIpv6), a.ipAddress)))
                         .collect(RWUtils.singleItemCollector());
@@ -120,14 +120,14 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
         }
         LOG.debug("Dumping MapResolver...");
 
-        final Optional<LispMapResolverDetailsReplyDump> dumpOptional =
+        final Optional<OneMapResolverDetailsReplyDump> dumpOptional =
                 dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
 
-        if (!dumpOptional.isPresent() || dumpOptional.get().lispMapResolverDetails.isEmpty()) {
+        if (!dumpOptional.isPresent() || dumpOptional.get().oneMapResolverDetails.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return dumpOptional.get().lispMapResolverDetails.stream()
+        return dumpOptional.get().oneMapResolverDetails.stream()
                 .map(resolver -> new MapResolverKey(
                         arrayToIpAddress(byteToBoolean(resolver.isIpv6), resolver.ipAddress)))
                 .collect(Collectors.toList());

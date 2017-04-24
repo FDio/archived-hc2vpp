@@ -25,8 +25,8 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispRlocProbeState;
-import io.fd.vpp.jvpp.core.dto.ShowLispRlocProbeStateReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneRlocProbeState;
+import io.fd.vpp.jvpp.core.dto.ShowOneRlocProbeStateReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
@@ -64,8 +64,8 @@ public class RlocProbeCustomizer extends CheckedLispCustomizer
             return;
         }
 
-        final ShowLispRlocProbeStateReply read = getReplyForRead(getFutureJVpp()
-                .showLispRlocProbeState(new ShowLispRlocProbeState()).toCompletableFuture(), instanceIdentifier);
+        final ShowOneRlocProbeStateReply read = getReplyForRead(getFutureJVpp()
+                .showOneRlocProbeState(new ShowOneRlocProbeState()).toCompletableFuture(), instanceIdentifier);
 
         if (read != null) {
             rlocProbeBuilder.setEnabled(byteToBoolean(read.isEnabled));

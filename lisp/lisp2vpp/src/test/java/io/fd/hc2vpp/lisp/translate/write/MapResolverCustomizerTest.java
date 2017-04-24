@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapResolver;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapResolverReply;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapResolver;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapResolverReply;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -49,9 +49,9 @@ public class MapResolverCustomizerTest extends LispWriterCustomizerTest implemen
         customizer = new MapResolverCustomizer(api, lispStateCheckService);
     }
 
-    private void whenLispAddDelMapResolverThenSuccess() {
-        when(api.lispAddDelMapResolver(any(LispAddDelMapResolver.class)))
-            .thenReturn(future(new LispAddDelMapResolverReply()));
+    private void whenOneAddDelMapResolverThenSuccess() {
+        when(api.oneAddDelMapResolver(any(OneAddDelMapResolver.class)))
+            .thenReturn(future(new OneAddDelMapResolverReply()));
     }
 
     @Test(expected = NullPointerException.class)
@@ -69,14 +69,14 @@ public class MapResolverCustomizerTest extends LispWriterCustomizerTest implemen
         Ipv4Address address = new Ipv4Address("192.168.2.1");
         MapResolver resolver = new MapResolverBuilder().setIpAddress(new IpAddress(address)).build();
 
-        whenLispAddDelMapResolverThenSuccess();
+        whenOneAddDelMapResolverThenSuccess();
 
         customizer.writeCurrentAttributes(null, resolver, null);
 
-        ArgumentCaptor<LispAddDelMapResolver> resolverCaptor = ArgumentCaptor.forClass(LispAddDelMapResolver.class);
-        verify(api, times(1)).lispAddDelMapResolver(resolverCaptor.capture());
+        ArgumentCaptor<OneAddDelMapResolver> resolverCaptor = ArgumentCaptor.forClass(OneAddDelMapResolver.class);
+        verify(api, times(1)).oneAddDelMapResolver(resolverCaptor.capture());
 
-        LispAddDelMapResolver request = resolverCaptor.getValue();
+        OneAddDelMapResolver request = resolverCaptor.getValue();
         assertEquals(1, request.isAdd);
         assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.ipAddress).getValue());
     }
@@ -92,14 +92,14 @@ public class MapResolverCustomizerTest extends LispWriterCustomizerTest implemen
         Ipv4Address address = new Ipv4Address("192.168.2.1");
         MapResolver resolver = new MapResolverBuilder().setIpAddress(new IpAddress(address)).build();
 
-        whenLispAddDelMapResolverThenSuccess();
+        whenOneAddDelMapResolverThenSuccess();
 
         customizer.deleteCurrentAttributes(null, resolver, null);
 
-        ArgumentCaptor<LispAddDelMapResolver> resolverCaptor = ArgumentCaptor.forClass(LispAddDelMapResolver.class);
-        verify(api, times(1)).lispAddDelMapResolver(resolverCaptor.capture());
+        ArgumentCaptor<OneAddDelMapResolver> resolverCaptor = ArgumentCaptor.forClass(OneAddDelMapResolver.class);
+        verify(api, times(1)).oneAddDelMapResolver(resolverCaptor.capture());
 
-        LispAddDelMapResolver request = resolverCaptor.getValue();
+        OneAddDelMapResolver request = resolverCaptor.getValue();
         assertEquals(0, request.isAdd);
         assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.ipAddress).getValue());
     }

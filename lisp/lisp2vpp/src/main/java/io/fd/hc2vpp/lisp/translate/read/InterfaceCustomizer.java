@@ -17,6 +17,9 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
@@ -32,9 +35,13 @@ import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneLocatorDetails;
+import io.fd.vpp.jvpp.core.dto.OneLocatorDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.LocatorSetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.Interface;
@@ -44,14 +51,6 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 
 /**
@@ -63,7 +62,7 @@ public class InterfaceCustomizer
 
     private final NamingContext interfaceContext;
     private final NamingContext locatorSetContext;
-    private final DumpCacheManager<LispLocatorDetailsReplyDump, LocatorDumpParams> dumpCacheManager;
+    private final DumpCacheManager<OneLocatorDetailsReplyDump, LocatorDumpParams> dumpCacheManager;
 
     public InterfaceCustomizer(@Nonnull final FutureJVppCore futureJvpp, @Nonnull final NamingContext interfaceContext,
                                @Nonnull final NamingContext locatorSetContext) {
@@ -71,10 +70,10 @@ public class InterfaceCustomizer
         this.interfaceContext = checkNotNull(interfaceContext, "Interface context cannot be null");
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator set context cannot be null");
         this.dumpCacheManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorDetailsReplyDump, LocatorDumpParams>()
+                new DumpCacheManager.DumpCacheManagerBuilder<OneLocatorDetailsReplyDump, LocatorDumpParams>()
                         .withExecutor(createLocatorDumpExecutor(futureJvpp))
                         // must be cached per locator set
-                        .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(LispLocatorDetailsReplyDump.class, ImmutableSet.of(LocatorSet.class)))
+                        .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(OneLocatorDetailsReplyDump.class, ImmutableSet.of(LocatorSet.class)))
                         .build();
     }
 
@@ -102,15 +101,15 @@ public class InterfaceCustomizer
         final LocatorDumpParams params =
                 new LocatorDumpParamsBuilder().setLocatorSetIndex(locatorSetIndexIndex).build();
 
-        final Optional<LispLocatorDetailsReplyDump> reply =
+        final Optional<OneLocatorDetailsReplyDump> reply =
                 dumpCacheManager.getDump(id, ctx.getModificationCache(), params);
 
-        if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
+        if (!reply.isPresent() || reply.get().oneLocatorDetails.isEmpty()) {
             return;
         }
 
-        final LispLocatorDetails details = reply.get()
-                .lispLocatorDetails
+        final OneLocatorDetails details = reply.get()
+                .oneLocatorDetails
                 .stream()
                 .filter(a -> a.swIfIndex == referencedInterfaceIndex)
                 .collect(RWUtils.singleItemCollector());
@@ -134,15 +133,15 @@ public class InterfaceCustomizer
         final LocatorDumpParams params = new LocatorDumpParamsBuilder()
                 .setLocatorSetIndex(locatorSetContext.getIndex(name, context.getMappingContext())).build();
 
-        final Optional<LispLocatorDetailsReplyDump> reply =
+        final Optional<OneLocatorDetailsReplyDump> reply =
                 dumpCacheManager.getDump(id, context.getModificationCache(), params);
 
-        if (!reply.isPresent() || reply.get().lispLocatorDetails.isEmpty()) {
+        if (!reply.isPresent() || reply.get().oneLocatorDetails.isEmpty()) {
             return Collections.emptyList();
         }
 
         return reply.get()
-                .lispLocatorDetails
+                .oneLocatorDetails
                 .stream()
                 .map(a -> new InterfaceKey(interfaceContext.getName(a.swIfIndex, context.getMappingContext())))
                 .collect(Collectors.toList());

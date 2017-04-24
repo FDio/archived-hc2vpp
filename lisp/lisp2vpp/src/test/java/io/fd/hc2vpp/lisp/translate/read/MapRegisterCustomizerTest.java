@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispMapRegisterStateReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterStateReply;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
@@ -40,9 +40,9 @@ public class MapRegisterCustomizerTest extends LispInitializingReaderCustomizerT
     @Override
     @Before
     public void setUp() throws Exception {
-        final ShowLispMapRegisterStateReply reply = new ShowLispMapRegisterStateReply();
+        final ShowOneMapRegisterStateReply reply = new ShowOneMapRegisterStateReply();
         reply.isEnabled = 1;
-        when(api.showLispMapRegisterState(any())).thenReturn(future(reply));
+        when(api.showOneMapRegisterState(any())).thenReturn(future(reply));
         mockLispEnabled();
     }
 

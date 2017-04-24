@@ -20,13 +20,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocator;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
@@ -34,9 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.locator.sets.grouping.locator.sets.locator.set.InterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocator;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
@@ -109,7 +109,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
     private void addDelInterfaceAndReply(boolean add, Interface data, int interfaceIndex, String locatorSetName)
             throws VppBaseCallException, TimeoutException, UnsupportedEncodingException {
-        LispAddDelLocator request = new LispAddDelLocator();
+        OneAddDelLocator request = new OneAddDelLocator();
 
         request.isAdd = booleanToByte(add);
         request.priority = data.getPriority().byteValue();
@@ -117,6 +117,6 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         request.swIfIndex = interfaceIndex;
         request.locatorSetName = locatorSetName.getBytes(UTF_8);
 
-        getReply(getFutureJVpp().lispAddDelLocator(request).toCompletableFuture());
+        getReply(getFutureJVpp().oneAddDelLocator(request).toCompletableFuture());
     }
 }

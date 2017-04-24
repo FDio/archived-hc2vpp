@@ -21,17 +21,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType;
 
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelAdjacency;
+import io.fd.vpp.jvpp.core.dto.OneAddDelAdjacency;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
@@ -138,7 +138,7 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         checkArgument(localEidType ==
                 remoteEidType, "Local[%s] and Remote[%s] eid types must be the same", localEidType, remoteEidType);
 
-        LispAddDelAdjacency request = new LispAddDelAdjacency();
+        OneAddDelAdjacency request = new OneAddDelAdjacency();
 
         request.isAdd = booleanToByte(add);
         request.leid = getEidAsByteArray(localEid);
@@ -148,7 +148,7 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         request.eidType = (byte) localEidType.getValue();
         request.vni = vni;
 
-        getReply(getFutureJVpp().lispAddDelAdjacency(request).toCompletableFuture());
+        getReply(getFutureJVpp().oneAddDelAdjacency(request).toCompletableFuture());
     }
 
     private LocalEid verifiedLocalEid(final LocalEid localEid, final WriteContext writeContext) {

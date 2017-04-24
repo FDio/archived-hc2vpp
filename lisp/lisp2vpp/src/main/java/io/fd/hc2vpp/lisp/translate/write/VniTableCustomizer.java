@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -39,8 +37,6 @@ import org.slf4j.LoggerFactory;
  * without mapping to vrf/bd
  */
 public class VniTableCustomizer extends CheckedLispCustomizer implements ListWriterCustomizer<VniTable, VniTableKey> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
     public VniTableCustomizer(@Nonnull final FutureJVppCore futureJvpp,
                               @Nonnull final LispStateCheckService lispStateCheckService) {

@@ -29,8 +29,8 @@ import static org.mockito.Mockito.when;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.VppCallbackException;
-import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
-import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
+import io.fd.vpp.jvpp.core.dto.OneGetMapRequestItrRlocs;
+import io.fd.vpp.jvpp.core.dto.OneGetMapRequestItrRlocsReply;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -84,7 +84,7 @@ public class ItrRemoteLocatorSetCustomizerTest
 
         assertNotNull(builder);
         assertEquals(EXPECTED_LOCATOR_SET_NAME, builder.getRemoteLocatorSetName());
-        verifyLispGetMapRequestItrRlocsInvokedOnce();
+        verifyOneGetMapRequestItrRlocsInvokedOnce();
     }
 
     @Test
@@ -104,7 +104,7 @@ public class ItrRemoteLocatorSetCustomizerTest
             assertNotNull(builder);
             assertNull(builder.getRemoteLocatorSetName());
 
-            verifyLispGetMapRequestItrRlocsInvokedOnce();
+            verifyOneGetMapRequestItrRlocsInvokedOnce();
             return;
         }
 
@@ -123,42 +123,42 @@ public class ItrRemoteLocatorSetCustomizerTest
 
 
     private void doReturnValidDataOnDump() {
-        LispGetMapRequestItrRlocsReply reply = new LispGetMapRequestItrRlocsReply();
+        OneGetMapRequestItrRlocsReply reply = new OneGetMapRequestItrRlocsReply();
         reply.locatorSetName = EXPECTED_LOCATOR_SET_NAME.getBytes(StandardCharsets.UTF_8);
 
-        when(api.lispGetMapRequestItrRlocs(any(LispGetMapRequestItrRlocs.class)))
+        when(api.oneGetMapRequestItrRlocs(any(OneGetMapRequestItrRlocs.class)))
                 .thenReturn(CompletableFuture.completedFuture(reply));
     }
 
     private void doReturnNullDataOnDump() {
-        when(api.lispGetMapRequestItrRlocs(any(LispGetMapRequestItrRlocs.class)))
+        when(api.oneGetMapRequestItrRlocs(any(OneGetMapRequestItrRlocs.class)))
                 .thenReturn(CompletableFuture.completedFuture(null));
     }
 
     private void doReturnEmptyDataOnDump() {
-        when(api.lispGetMapRequestItrRlocs(any(LispGetMapRequestItrRlocs.class)))
-                .thenReturn(CompletableFuture.completedFuture(new LispGetMapRequestItrRlocsReply()));
+        when(api.oneGetMapRequestItrRlocs(any(OneGetMapRequestItrRlocs.class)))
+                .thenReturn(CompletableFuture.completedFuture(new OneGetMapRequestItrRlocsReply()));
     }
 
     private void doThrowExceptionOnDump() {
-        when(api.lispGetMapRequestItrRlocs(any(LispGetMapRequestItrRlocs.class))).
-                thenReturn(new CompletableFuture<LispGetMapRequestItrRlocsReply>() {
+        when(api.oneGetMapRequestItrRlocs(any(OneGetMapRequestItrRlocs.class))).
+                thenReturn(new CompletableFuture<OneGetMapRequestItrRlocsReply>() {
                     @Override
-                    public LispGetMapRequestItrRlocsReply get(final long l, final TimeUnit timeUnit)
+                    public OneGetMapRequestItrRlocsReply get(final long l, final TimeUnit timeUnit)
                             throws InterruptedException, ExecutionException, TimeoutException {
-                        throw new ExecutionException(new VppCallbackException("lispGetMapRequestItrRlocs", 1, -2));
+                        throw new ExecutionException(new VppCallbackException("oneGetMapRequestItrRlocs", 1, -2));
                     }
                 });
     }
 
-    private void verifyLispGetMapRequestItrRlocsInvokedOnce() {
-        verify(api, times(1)).lispGetMapRequestItrRlocs(any(LispGetMapRequestItrRlocs.class));
+    private void verifyOneGetMapRequestItrRlocsInvokedOnce() {
+        verify(api, times(1)).oneGetMapRequestItrRlocs(any(OneGetMapRequestItrRlocs.class));
     }
 
     private void verifyInvalidDataCase(final ItrRemoteLocatorSetBuilder builder) {
         assertNotNull(builder);
         assertNull(builder.getRemoteLocatorSetName());
 
-        verifyLispGetMapRequestItrRlocsInvokedOnce();
+        verifyOneGetMapRequestItrRlocsInvokedOnce();
     }
 }

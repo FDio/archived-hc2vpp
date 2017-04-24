@@ -24,8 +24,8 @@ import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispMapRequestMode;
-import io.fd.vpp.jvpp.core.dto.LispMapRequestModeReply;
+import io.fd.vpp.jvpp.core.dto.OneMapRequestMode;
+import io.fd.vpp.jvpp.core.dto.OneMapRequestModeReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
@@ -65,11 +65,11 @@ public class MapRequestModeCustomizer extends CheckedLispCustomizer
         throw new UnsupportedOperationException("Map request mode cannot be deleted");
     }
 
-    private CompletableFuture<LispMapRequestModeReply> mapRequestModeRequestFuture(
+    private CompletableFuture<OneMapRequestModeReply> mapRequestModeRequestFuture(
             @Nonnull final MapRequestMode mapRequestMode) {
-        LispMapRequestMode request = new LispMapRequestMode();
+        OneMapRequestMode request = new OneMapRequestMode();
         request.mode = (byte) checkNotNull(mapRequestMode.getMode(),
                 "Mode not specified").getIntValue();
-        return getFutureJVpp().lispMapRequestMode(request).toCompletableFuture();
+        return getFutureJVpp().oneMapRequestMode(request).toCompletableFuture();
     }
 }

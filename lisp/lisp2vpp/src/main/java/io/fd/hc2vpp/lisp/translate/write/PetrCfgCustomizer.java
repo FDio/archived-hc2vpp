@@ -25,7 +25,7 @@ import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispUsePetr;
+import io.fd.vpp.jvpp.core.dto.OneUsePetr;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -68,18 +68,18 @@ public class PetrCfgCustomizer extends CheckedLispCustomizer
     }
 
     private void enablePetrCfg(@Nonnull final InstanceIdentifier<PetrCfg> id, @Nonnull final PetrCfg data) throws WriteFailedException {
-        LispUsePetr request = new LispUsePetr();
+        OneUsePetr request = new OneUsePetr();
 
         final IpAddress petrAddress = checkNotNull(data.getPetrAddress(), "PETR address not defined");
         request.isAdd = 1;
         request.address = ipAddressToArray(petrAddress);
         request.isIp4 = booleanToByte(!isIpv6(petrAddress));
-        getReplyForWrite(getFutureJVpp().lispUsePetr(request).toCompletableFuture(), id);
+        getReplyForWrite(getFutureJVpp().oneUsePetr(request).toCompletableFuture(), id);
     }
 
     private void disablePetrCfg(@Nonnull final InstanceIdentifier<PetrCfg> id) throws WriteFailedException {
-        LispUsePetr request = new LispUsePetr();
+        OneUsePetr request = new OneUsePetr();
         request.isAdd = 0;
-        getReplyForDelete(getFutureJVpp().lispUsePetr(request).toCompletableFuture(), id);
+        getReplyForDelete(getFutureJVpp().oneUsePetr(request).toCompletableFuture(), id);
     }
 }

@@ -17,6 +17,12 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.hc2vpp.lisp.translate.write.RemoteMappingCustomizer.LocatorListType.NEGATIVE;
+import static io.fd.hc2vpp.lisp.translate.write.RemoteMappingCustomizer.LocatorListType.POSITIVE;
+
 import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
@@ -28,9 +34,13 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMapping;
+import io.fd.vpp.jvpp.core.dto.OneAddDelRemoteMapping;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import io.fd.vpp.jvpp.core.types.RemoteLocator;
+import io.fd.vpp.jvpp.core.types.OneRemoteLocator;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapReplyAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.RemoteMapping;
@@ -41,15 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.Rlocs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.TimeoutException;
-
-import static com.google.common.base.Preconditions.*;
-import static io.fd.hc2vpp.lisp.translate.write.RemoteMappingCustomizer.LocatorListType.NEGATIVE;
-import static io.fd.hc2vpp.lisp.translate.write.RemoteMappingCustomizer.LocatorListType.POSITIVE;
 
 
 /**
@@ -119,7 +120,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
     private void addDelRemoteMappingAndReply(boolean add, RemoteMapping data, int vni)
             throws VppBaseCallException, TimeoutException, IOException {
 
-        LispAddDelRemoteMapping request = new LispAddDelRemoteMapping();
+        OneAddDelRemoteMapping request = new OneAddDelRemoteMapping();
 
         request.isAdd = booleanToByte(add);
         request.vni = vni;
@@ -133,13 +134,13 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 .equals(resolveType(data.getLocatorList()))) {
             request.action = (byte) extractAction(data.getLocatorList()).getIntValue();
         } else {
-            Rlocs rlocs = extractRemoteLocators(data.getLocatorList());
+            Rlocs rlocs = extractOneRemoteLocators(data.getLocatorList());
 
             checkArgument(rlocs != null, "No remote locators set for Positive mapping");
 
             request.rlocs = rlocs.getLocator().stream()
                     .map(locator -> {
-                        RemoteLocator remoteLocator = new RemoteLocator();
+                        OneRemoteLocator remoteLocator = new OneRemoteLocator();
                         remoteLocator.addr = ipAddressToArray(locator.getAddress());
                         remoteLocator.isIp4 = booleanToByte(!isIpv6(locator.getAddress()));
                         Optional.ofNullable(locator.getPriority())
@@ -148,11 +149,11 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                                 .ifPresent(weight -> remoteLocator.weight = weight.byteValue());
 
                         return remoteLocator;
-                    }).toArray(RemoteLocator[]::new);
+                    }).toArray(OneRemoteLocator[]::new);
             request.rlocNum = Integer.valueOf(rlocs.getLocator().size()).byteValue();
         }
 
-        getReply(getFutureJVpp().lispAddDelRemoteMapping(request).toCompletableFuture());
+        getReply(getFutureJVpp().oneAddDelRemoteMapping(request).toCompletableFuture());
     }
 
     private static LocatorListType resolveType(LocatorList locatorList) {
@@ -173,7 +174,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         return ((NegativeMapping) locatorList).getMapReply().getMapReplyAction();
     }
 
-    private static Rlocs extractRemoteLocators(LocatorList locatorList) {
+    private static Rlocs extractOneRemoteLocators(LocatorList locatorList) {
         checkNotNull(locatorList, "Locator List cannot be null");
         Preconditions.checkArgument(POSITIVE.equals(resolveType(locatorList)),
                 "RLocs can be extracted only from Positive Mapping");

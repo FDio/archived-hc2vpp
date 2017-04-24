@@ -19,11 +19,11 @@ package io.fd.hc2vpp.common.integration;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.hc2vpp.common.translate.util.VppStatusListener;
-import net.jmob.guice.conf.core.ConfigurationModule;
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import net.jmob.guice.conf.core.ConfigurationModule;
 
 public final class VppCommonModule extends AbstractModule {
     protected void configure() {
@@ -41,5 +41,4 @@ public final class VppCommonModule extends AbstractModule {
         final Multibinder<ReaderFactory> readerBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readerBinder.addBinding().toProvider(ContextsReaderFactoryProvider.class).in(Singleton.class);
     }
-
 }

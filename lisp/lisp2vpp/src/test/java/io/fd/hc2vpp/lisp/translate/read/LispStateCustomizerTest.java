@@ -34,9 +34,9 @@ import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
 import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.ShowOneStatusReply;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.Before;
@@ -75,10 +75,10 @@ public class LispStateCustomizerTest extends InitializingReaderCustomizerTest<Li
     @Before
     public void setUp() {
         identifier = InstanceIdentifier.create(LispState.class);
-        final ShowLispStatusReply reply = new ShowLispStatusReply();
+        final ShowOneStatusReply reply = new ShowOneStatusReply();
         reply.featureStatus = 1;
 
-        when(api.showLispStatus(Mockito.any())).thenReturn(future(reply));
+        when(api.showOneStatus(Mockito.any())).thenReturn(future(reply));
         locatorSetContext = new NamingContext("loc-set", "locator-set-context");
     }
 
@@ -103,7 +103,7 @@ public class LispStateCustomizerTest extends InitializingReaderCustomizerTest<Li
         final InstanceIdentifier<LispState> operationalPath = InstanceIdentifier.create(LispState.class);
         final InstanceIdentifier<Lisp> configPath = InstanceIdentifier.create(Lisp.class);
 
-        when(api.lispLocatorSetDump(any())).thenReturn(future(new LispLocatorSetDetailsReplyDump()));
+        when(api.oneLocatorSetDump(any())).thenReturn(future(new OneLocatorSetDetailsReplyDump()));
 
         invokeInitTest(operationalPath, operational, configPath, config);
     }
@@ -149,17 +149,17 @@ public class LispStateCustomizerTest extends InitializingReaderCustomizerTest<Li
     }
 
     private void mockLocatorSetDump() {
-        LispLocatorSetDetailsReplyDump replyDump = new LispLocatorSetDetailsReplyDump();
-        LispLocatorSetDetails locator1 = new LispLocatorSetDetails();
+        OneLocatorSetDetailsReplyDump replyDump = new OneLocatorSetDetailsReplyDump();
+        OneLocatorSetDetails locator1 = new OneLocatorSetDetails();
         locator1.lsIndex = 0;
         locator1.lsName = "loc_1".getBytes(StandardCharsets.UTF_8);
-        LispLocatorSetDetails locator2 = new LispLocatorSetDetails();
+        OneLocatorSetDetails locator2 = new OneLocatorSetDetails();
         locator2.lsIndex = 1;
         locator2.lsName = "loc_2".getBytes(StandardCharsets.UTF_8);
 
-        replyDump.lispLocatorSetDetails = Arrays.asList(locator1, locator2);
+        replyDump.oneLocatorSetDetails = Arrays.asList(locator1, locator2);
 
-        when(api.lispLocatorSetDump(any())).thenReturn(future(replyDump));
+        when(api.oneLocatorSetDump(any())).thenReturn(future(replyDump));
     }
 
     @Override

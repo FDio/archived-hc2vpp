@@ -25,8 +25,8 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispUsePetr;
-import io.fd.vpp.jvpp.core.dto.ShowLispUsePetrReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneUsePetr;
+import io.fd.vpp.jvpp.core.dto.ShowOneUsePetrReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
@@ -72,7 +72,7 @@ public class PetrCfgCustomizer extends CheckedLispCustomizer
             return;
         }
 
-        final ShowLispUsePetrReply read = getReplyForRead(getFutureJVpp().showLispUsePetr(new ShowLispUsePetr())
+        final ShowOneUsePetrReply read = getReplyForRead(getFutureJVpp().showOneUsePetr(new ShowOneUsePetr())
                 .toCompletableFuture(), instanceIdentifier);
 
         if (read != null && read.status != 0) {

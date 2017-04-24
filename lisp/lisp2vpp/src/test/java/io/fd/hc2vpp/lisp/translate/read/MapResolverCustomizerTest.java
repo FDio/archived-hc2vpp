@@ -23,8 +23,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetails;
-import io.fd.vpp.jvpp.core.dto.LispMapResolverDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneMapResolverDetails;
+import io.fd.vpp.jvpp.core.dto.OneMapResolverDetailsReplyDump;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,15 +84,15 @@ public class MapResolverCustomizerTest
     }
 
     private void defineDumpData() {
-        final LispMapResolverDetailsReplyDump replyDump = new LispMapResolverDetailsReplyDump();
-        final LispMapResolverDetails detail = new LispMapResolverDetails();
+        final OneMapResolverDetailsReplyDump replyDump = new OneMapResolverDetailsReplyDump();
+        final OneMapResolverDetails detail = new OneMapResolverDetails();
         detail.context = 5;
         detail.ipAddress = new byte[]{1, 2, -88, -64};
         detail.isIpv6 = 0;
 
-        replyDump.lispMapResolverDetails = ImmutableList.of(detail);
+        replyDump.oneMapResolverDetails = ImmutableList.of(detail);
 
-        when(api.lispMapResolverDump(any())).thenReturn(future(replyDump));
+        when(api.oneMapResolverDump(any())).thenReturn(future(replyDump));
     }
 
     @Override

@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispRlocProbeEnableDisable;
-import io.fd.vpp.jvpp.core.dto.LispRlocProbeEnableDisableReply;
+import io.fd.vpp.jvpp.core.dto.OneRlocProbeEnableDisable;
+import io.fd.vpp.jvpp.core.dto.OneRlocProbeEnableDisableReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -43,7 +43,7 @@ public class RlocProbeCustomizerTest extends LispWriterCustomizerTest implements
     private RlocProbe disabledProbe;
 
     @Captor
-    private ArgumentCaptor<LispRlocProbeEnableDisable> requestCaptor;
+    private ArgumentCaptor<OneRlocProbeEnableDisable> requestCaptor;
     private InstanceIdentifier<RlocProbe> EMPTY_ID = InstanceIdentifier.create(RlocProbe.class);
     private RlocProbe EMPTY_DATA = new RlocProbeBuilder().build();
 
@@ -52,8 +52,8 @@ public class RlocProbeCustomizerTest extends LispWriterCustomizerTest implements
         customizer = new RlocProbeCustomizer(api, lispStateCheckService);
         enabledProbe = rlocProbe(true);
         disabledProbe = rlocProbe(false);
-        when(api.lispRlocProbeEnableDisable(any(LispRlocProbeEnableDisable.class)))
-                .thenReturn(future(new LispRlocProbeEnableDisableReply()));
+        when(api.oneRlocProbeEnableDisable(any(OneRlocProbeEnableDisable.class)))
+                .thenReturn(future(new OneRlocProbeEnableDisableReply()));
     }
 
     @Test
@@ -121,8 +121,8 @@ public class RlocProbeCustomizerTest extends LispWriterCustomizerTest implements
     }
 
     private void verifyRequest(final boolean enabled) {
-        verify(api, times(1)).lispRlocProbeEnableDisable(requestCaptor.capture());
-        final LispRlocProbeEnableDisable request = requestCaptor.getValue();
+        verify(api, times(1)).oneRlocProbeEnableDisable(requestCaptor.capture());
+        final OneRlocProbeEnableDisable request = requestCaptor.getValue();
         assertEquals(booleanToByte(enabled), request.isEnabled);
     }
 }

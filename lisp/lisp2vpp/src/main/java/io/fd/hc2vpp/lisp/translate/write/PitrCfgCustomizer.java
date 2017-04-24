@@ -27,7 +27,7 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispPitrSetLocatorSet;
+import io.fd.vpp.jvpp.core.dto.OnePitrSetLocatorSet;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
@@ -100,11 +100,11 @@ public class PitrCfgCustomizer extends CheckedLispCustomizer
             return;
         }
 
-        LispPitrSetLocatorSet request = new LispPitrSetLocatorSet();
+        OnePitrSetLocatorSet request = new OnePitrSetLocatorSet();
         request.isAdd = booleanToByte(add);
         request.lsName = data.getLocatorSet().getBytes(UTF_8);
 
-        getReply(getFutureJVpp().lispPitrSetLocatorSet(request).toCompletableFuture());
+        getReply(getFutureJVpp().onePitrSetLocatorSet(request).toCompletableFuture());
     }
 
 }

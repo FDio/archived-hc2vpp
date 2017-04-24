@@ -22,15 +22,13 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDump
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDumpParams.MapLevel.L3;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDumpParams.SubtableDumpParamsBuilder;
 
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDumpParams;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtable;
 
 /**
  * Provides common logic for reading Eid subtables
@@ -40,12 +38,12 @@ public interface SubtableReader extends JvppReplyConsumer {
     SubtableDumpParams L2_PARAMS = new SubtableDumpParamsBuilder().setL2(L2).build();
     SubtableDumpParams L3_PARAMS = new SubtableDumpParamsBuilder().setL2(L3).build();
 
-    default EntityDumpExecutor<LispEidTableMapDetailsReplyDump, SubtableDumpParams> createExecutor(
+    default EntityDumpExecutor<OneEidTableMapDetailsReplyDump, SubtableDumpParams> createExecutor(
             @Nonnull final FutureJVppCore vppApi) {
         return (identifier, params) -> {
-            final LispEidTableMapDump request = new LispEidTableMapDump();
+            final OneEidTableMapDump request = new OneEidTableMapDump();
             request.isL2 = checkNotNull(params, "Cannot bind null params").isL2();
-            return getReplyForRead(vppApi.lispEidTableMapDump(request).toCompletableFuture(), identifier);
+            return getReplyForRead(vppApi.oneEidTableMapDump(request).toCompletableFuture(), identifier);
         };
     }
 }

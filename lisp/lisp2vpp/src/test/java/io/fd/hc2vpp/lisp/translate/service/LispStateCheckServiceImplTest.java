@@ -27,7 +27,7 @@ import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneStatusReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,15 +79,15 @@ public class LispStateCheckServiceImplTest implements FutureProducer {
 
     @Test
     public void testLispEnabledDisabledDump() throws Exception {
-        when(vppApi.showLispStatus(any())).thenReturn(future(new ShowLispStatusReply()));
+        when(vppApi.showOneStatus(any())).thenReturn(future(new ShowOneStatusReply()));
         assertFalse(impl.lispEnabled(readContext));
     }
 
     @Test
     public void testLispEnabledEnabledDump() throws Exception {
-        final ShowLispStatusReply reply = new ShowLispStatusReply();
+        final ShowOneStatusReply reply = new ShowOneStatusReply();
         reply.featureStatus = 1;
-        when(vppApi.showLispStatus(any())).thenReturn(future(reply));
+        when(vppApi.showOneStatus(any())).thenReturn(future(reply));
         assertTrue(impl.lispEnabled(readContext));
     }
 }

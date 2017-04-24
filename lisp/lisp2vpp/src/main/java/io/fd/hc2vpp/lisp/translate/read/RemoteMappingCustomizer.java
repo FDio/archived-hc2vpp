@@ -46,10 +46,10 @@ import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.TypeAwareIdentifierCacheKeyFactory;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneLocatorDetails;
+import io.fd.vpp.jvpp.core.dto.OneLocatorDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
@@ -91,8 +91,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(RemoteMappingCustomizer.class);
 
-    private final DumpCacheManager<LispEidTableDetailsReplyDump, MappingsDumpParams> dumpManager;
-    private final DumpCacheManager<LispLocatorDetailsReplyDump, LocatorDumpParams> locatorsDumpManager;
+    private final DumpCacheManager<OneEidTableDetailsReplyDump, MappingsDumpParams> dumpManager;
+    private final DumpCacheManager<OneLocatorDetailsReplyDump, LocatorDumpParams> locatorsDumpManager;
     private final NamingContext locatorSetContext;
     private final EidMappingContext remoteMappingContext;
 
@@ -104,16 +104,16 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         this.remoteMappingContext = checkNotNull(remoteMappingContext, "Remote mappings not present");
         // this one should have default scope == RemoteMapping
         this.dumpManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
+                new DumpCacheManager.DumpCacheManagerBuilder<OneEidTableDetailsReplyDump, MappingsDumpParams>()
                         .withExecutor(createMappingDumpExecutor(futureJvpp))
-                        .acceptOnly(LispEidTableDetailsReplyDump.class)
+                        .acceptOnly(OneEidTableDetailsReplyDump.class)
                         .build();
 
         // cache key needs to have locator set scope to not mix with cached data
         this.locatorsDumpManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorDetailsReplyDump, LocatorDumpParams>()
+                new DumpCacheManager.DumpCacheManagerBuilder<OneLocatorDetailsReplyDump, LocatorDumpParams>()
                         .withExecutor(createLocatorDumpExecutor(futureJvpp))
-                        .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(LispLocatorDetailsReplyDump.class,
+                        .withCacheKeyFactory(new TypeAwareIdentifierCacheKeyFactory(OneLocatorDetailsReplyDump.class,
                                 ImmutableSet.of(LocatorSet.class)))
                         .build();
     }
@@ -160,16 +160,16 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
-        final Optional<LispEidTableDetailsReplyDump> replyOptional =
+        final Optional<OneEidTableDetailsReplyDump> replyOptional =
                 dumpManager.getDump(id, ctx.getModificationCache(), dumpParams);
 
-        if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
+        if (!replyOptional.isPresent() || replyOptional.get().oneEidTableDetails.isEmpty()) {
             return;
         }
 
         LOG.debug("Valid dump loaded");
 
-        LispEidTableDetails details = replyOptional.get().lispEidTableDetails.stream()
+        OneEidTableDetails details = replyOptional.get().oneEidTableDetails.stream()
                 .filter(subtableFilterForRemoteMappings(id))
                 .filter(a -> compareAddresses(eid.getAddress(),
                         getArrayAsEidLocal(valueOf(a.eidType), a.eid, a.vni).getAddress()))
@@ -205,15 +205,15 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
-        final Optional<LispEidTableDetailsReplyDump> replyOptional =
+        final Optional<OneEidTableDetailsReplyDump> replyOptional =
                 dumpManager.getDump(id, context.getModificationCache(), dumpParams);
 
-        if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
+        if (!replyOptional.isPresent() || replyOptional.get().oneEidTableDetails.isEmpty()) {
             return Collections.emptyList();
         }
 
         return replyOptional.get()
-                .lispEidTableDetails
+                .oneEidTableDetails
                 .stream()
                 .filter(a -> a.vni == vni)
                 .filter(subtableFilterForRemoteMappings(id))
@@ -230,7 +230,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
     }
 
     private void resolveMappings(final InstanceIdentifier id, final RemoteMappingBuilder builder,
-                                 final LispEidTableDetails details,
+                                 final OneEidTableDetails details,
                                  final ModificationCache cache,
                                  final MappingContext mappingContext) throws ReadFailedException {
 
@@ -238,7 +238,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
             bindNegativeMapping(builder, MapReplyAction.forValue(details.action));
         } else {
             // cache key needs to have locator set scope to not mix with cached data
-            final Optional<LispLocatorDetailsReplyDump> reply;
+            final Optional<OneLocatorDetailsReplyDump> reply;
 
             // this will serve to achieve that locators have locator set scope
             final InstanceIdentifier<Interface> locatorIfaceIdentifier = InstanceIdentifier.create(LocatorSets.class)
@@ -254,7 +254,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                                 e.getCause()));
             }
 
-            bindPositiveMapping(builder, reply.or(new LispLocatorDetailsReplyDump()));
+            bindPositiveMapping(builder, reply.or(new OneLocatorDetailsReplyDump()));
         }
     }
 
@@ -265,13 +265,13 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                         .build());
     }
 
-    private void bindPositiveMapping(final RemoteMappingBuilder builder, final LispLocatorDetailsReplyDump reply) {
+    private void bindPositiveMapping(final RemoteMappingBuilder builder, final OneLocatorDetailsReplyDump reply) {
         builder.setLocatorList(
                 new PositiveMappingBuilder()
                         .setRlocs(
                                 new RlocsBuilder()
                                         .setLocator(reply
-                                                .lispLocatorDetails
+                                                .oneLocatorDetails
                                                 .stream()
                                                 .map(this::detailsToLocator)
                                                 .collect(Collectors.toList()))
@@ -281,7 +281,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         );
     }
 
-    private Locator detailsToLocator(final LispLocatorDetails details) {
+    private Locator detailsToLocator(final OneLocatorDetails details) {
         final IpAddress address = arrayToIpAddress(byteToBoolean(details.isIpv6), details.ipAddress);
         return new LocatorBuilder()
                 .setAddress(address)

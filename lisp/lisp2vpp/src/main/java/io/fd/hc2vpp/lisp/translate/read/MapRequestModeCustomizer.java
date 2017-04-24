@@ -24,8 +24,8 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispMapRequestMode;
-import io.fd.vpp.jvpp.core.dto.ShowLispMapRequestModeReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRequestMode;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRequestModeReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
@@ -62,8 +62,8 @@ public class MapRequestModeCustomizer extends CheckedLispCustomizer
             LOG.info("Lisp feature must be enabled first");
             return;
         }
-        final ShowLispMapRequestModeReply reply = getReplyForRead(
-                getFutureJVpp().showLispMapRequestMode(new ShowLispMapRequestMode()).toCompletableFuture(),
+        final ShowOneMapRequestModeReply reply = getReplyForRead(
+                getFutureJVpp().showOneMapRequestMode(new ShowOneMapRequestMode()).toCompletableFuture(),
                 instanceIdentifier);
 
         if (reply != null) {

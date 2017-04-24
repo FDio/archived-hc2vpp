@@ -29,8 +29,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppCallbackException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapRequestItrRlocs;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapRequestItrRlocsReply;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapRequestItrRlocs;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapRequestItrRlocsReply;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +48,7 @@ public class ItrRemoteLocatorSetCustomizerTest extends LispWriterCustomizerTest 
     private static final String VALID_NAME = "loc-set";
 
     @Captor
-    private ArgumentCaptor<LispAddDelMapRequestItrRlocs> requestCaptor;
+    private ArgumentCaptor<OneAddDelMapRequestItrRlocs> requestCaptor;
 
     private ItrRemoteLocatorSetCustomizer customizer;
     private InstanceIdentifier<ItrRemoteLocatorSet> validId;
@@ -119,25 +119,25 @@ public class ItrRemoteLocatorSetCustomizerTest extends LispWriterCustomizerTest 
     }
 
     private void onWriteSuccess() {
-        when(api.lispAddDelMapRequestItrRlocs(any(LispAddDelMapRequestItrRlocs.class)))
-                .thenReturn(CompletableFuture.completedFuture(new LispAddDelMapRequestItrRlocsReply()));
+        when(api.oneAddDelMapRequestItrRlocs(any(OneAddDelMapRequestItrRlocs.class)))
+                .thenReturn(CompletableFuture.completedFuture(new OneAddDelMapRequestItrRlocsReply()));
     }
 
     private void onWriteThrow() {
-        when(api.lispAddDelMapRequestItrRlocs(any(LispAddDelMapRequestItrRlocs.class)))
-                .thenReturn(new CompletableFuture<LispAddDelMapRequestItrRlocsReply>() {
+        when(api.oneAddDelMapRequestItrRlocs(any(OneAddDelMapRequestItrRlocs.class)))
+                .thenReturn(new CompletableFuture<OneAddDelMapRequestItrRlocsReply>() {
                     @Override
-                    public LispAddDelMapRequestItrRlocsReply get(final long l, final TimeUnit timeUnit)
+                    public OneAddDelMapRequestItrRlocsReply get(final long l, final TimeUnit timeUnit)
                             throws InterruptedException, ExecutionException, TimeoutException {
-                        throw new ExecutionException(new VppCallbackException("lispAddDelMapRequestItrRlocs", 1, -2));
+                        throw new ExecutionException(new VppCallbackException("oneAddDelMapRequestItrRlocs", 1, -2));
                     }
                 });
     }
 
     private void verifyWriteInvoked(final boolean add, final String name) {
-        verify(api, times(1)).lispAddDelMapRequestItrRlocs(requestCaptor.capture());
+        verify(api, times(1)).oneAddDelMapRequestItrRlocs(requestCaptor.capture());
 
-        final LispAddDelMapRequestItrRlocs request = requestCaptor.getValue();
+        final OneAddDelMapRequestItrRlocs request = requestCaptor.getValue();
         assertNotNull(request);
         assertEquals(booleanToByte(add), request.isAdd);
         assertEquals(name, toString(request.locatorSetName));

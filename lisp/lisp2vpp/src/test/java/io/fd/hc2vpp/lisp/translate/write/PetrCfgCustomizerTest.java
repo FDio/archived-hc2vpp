@@ -27,8 +27,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispUsePetr;
-import io.fd.vpp.jvpp.core.dto.LispUsePetrReply;
+import io.fd.vpp.jvpp.core.dto.OneUsePetr;
+import io.fd.vpp.jvpp.core.dto.OneUsePetrReply;
 import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -48,7 +48,7 @@ public class PetrCfgCustomizerTest extends LispWriterCustomizerTest {
     private PetrCfg disabledCfg;
 
     @Captor
-    private ArgumentCaptor<LispUsePetr> requestCaptor;
+    private ArgumentCaptor<OneUsePetr> requestCaptor;
     private InstanceIdentifier<PetrCfg> EMPTY_ID = InstanceIdentifier.create(PetrCfg.class);
     private PetrCfg EMPTY_DATA = new PetrCfgBuilder().build();
 
@@ -57,7 +57,7 @@ public class PetrCfgCustomizerTest extends LispWriterCustomizerTest {
         customizer = new PetrCfgCustomizer(api, lispStateCheckService);
         enabledCfg = new PetrCfgBuilder().setPetrAddress(new IpAddress(new Ipv4Address("192.168.2.1"))).build();
         disabledCfg = new PetrCfgBuilder().build();
-        when(api.lispUsePetr(any(LispUsePetr.class))).thenReturn(future(new LispUsePetrReply()));
+        when(api.oneUsePetr(any(OneUsePetr.class))).thenReturn(future(new OneUsePetrReply()));
     }
 
     @Test
@@ -121,18 +121,18 @@ public class PetrCfgCustomizerTest extends LispWriterCustomizerTest {
     }
 
     private void verifyEnabledInvoked() {
-        verify(api, times(1)).lispUsePetr(requestCaptor.capture());
+        verify(api, times(1)).oneUsePetr(requestCaptor.capture());
 
-        final LispUsePetr cfg = requestCaptor.getValue();
+        final OneUsePetr cfg = requestCaptor.getValue();
         assertEquals(1, cfg.isIp4);
         assertTrue(Arrays.equals(new byte[]{-64, -88, 2, 1}, cfg.address));
         assertEquals(1, cfg.isAdd);
     }
 
     private void verifyDisabledInvoked() {
-        verify(api, times(1)).lispUsePetr(requestCaptor.capture());
+        verify(api, times(1)).oneUsePetr(requestCaptor.capture());
 
-        final LispUsePetr cfg = requestCaptor.getValue();
+        final OneUsePetr cfg = requestCaptor.getValue();
         assertNull(cfg.address);
         assertEquals(0, cfg.isAdd);
     }

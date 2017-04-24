@@ -30,7 +30,7 @@ import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocatorSet;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collection;
 import java.util.Collections;
@@ -146,11 +146,11 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
     private int addDelLocatorSetAndReply(final boolean add, final String name, final InstanceIdentifier<LocatorSet> id)
             throws WriteFailedException {
 
-        LispAddDelLocatorSet addDelSet = new LispAddDelLocatorSet();
+        OneAddDelLocatorSet addDelSet = new OneAddDelLocatorSet();
 
         addDelSet.isAdd = booleanToByte(add);
         addDelSet.locatorSetName = name.getBytes(UTF_8);
 
-        return getReplyForWrite(getFutureJVpp().lispAddDelLocatorSet(addDelSet).toCompletableFuture(), id).lsIndex;
+        return getReplyForWrite(getFutureJVpp().oneAddDelLocatorSet(addDelSet).toCompletableFuture(), id).lsIndex;
     }
 }

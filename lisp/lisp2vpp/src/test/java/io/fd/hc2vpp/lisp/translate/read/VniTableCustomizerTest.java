@@ -27,8 +27,8 @@ import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.VppCallbackException;
-import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableVniDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableVniDetailsReplyDump;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
@@ -57,7 +57,7 @@ public class VniTableCustomizerTest extends LispInitializingListReaderCustomizer
 
     @Test
     public void testReadAllSuccessfull() throws ReadFailedException {
-        whenLispEidTableVniDumpReturnValid();
+        whenOneEidTableVniDumpReturnValid();
         final List<VniTableKey> keys = getCustomizer().getAllIds(validId, ctx);
 
         assertNotNull(keys);
@@ -69,7 +69,7 @@ public class VniTableCustomizerTest extends LispInitializingListReaderCustomizer
 
     @Test
     public void testReadAllFailed() {
-        whenLispEidTableVniDumpThrowException();
+        whenOneEidTableVniDumpThrowException();
         try {
             getCustomizer().getAllIds(validId, ctx);
         } catch (ReadFailedException e) {
@@ -82,7 +82,7 @@ public class VniTableCustomizerTest extends LispInitializingListReaderCustomizer
 
     @Test
     public void testReadAttributes() throws ReadFailedException {
-        whenLispEidTableVniDumpReturnValid();
+        whenOneEidTableVniDumpReturnValid();
         VniTableBuilder builder = new VniTableBuilder();
 
         customizer.readCurrentAttributes(validId, builder, ctx);
@@ -92,25 +92,25 @@ public class VniTableCustomizerTest extends LispInitializingListReaderCustomizer
         assertEquals(12L, table.getVirtualNetworkIdentifier().longValue());
     }
 
-    private void whenLispEidTableVniDumpReturnValid() {
+    private void whenOneEidTableVniDumpReturnValid() {
 
-        LispEidTableVniDetailsReplyDump dump = new LispEidTableVniDetailsReplyDump();
-        LispEidTableVniDetails details1 = new LispEidTableVniDetails();
+        OneEidTableVniDetailsReplyDump dump = new OneEidTableVniDetailsReplyDump();
+        OneEidTableVniDetails details1 = new OneEidTableVniDetails();
         details1.vni = 14;
 
-        LispEidTableVniDetails details2 = new LispEidTableVniDetails();
+        OneEidTableVniDetails details2 = new OneEidTableVniDetails();
         details2.vni = 12;
 
-        LispEidTableVniDetails details3 = new LispEidTableVniDetails();
+        OneEidTableVniDetails details3 = new OneEidTableVniDetails();
         details3.vni = 16;
 
-        dump.lispEidTableVniDetails = ImmutableList.of(details1, details2, details3);
+        dump.oneEidTableVniDetails = ImmutableList.of(details1, details2, details3);
 
-        when(api.lispEidTableVniDump(Mockito.any())).thenReturn(CompletableFuture.completedFuture(dump));
+        when(api.oneEidTableVniDump(Mockito.any())).thenReturn(CompletableFuture.completedFuture(dump));
     }
 
-    private void whenLispEidTableVniDumpThrowException() {
-        when(api.lispEidTableVniDump(Mockito.any()))
+    private void whenOneEidTableVniDumpThrowException() {
+        when(api.oneEidTableVniDump(Mockito.any()))
                 .thenReturn(failedFuture());
     }
 

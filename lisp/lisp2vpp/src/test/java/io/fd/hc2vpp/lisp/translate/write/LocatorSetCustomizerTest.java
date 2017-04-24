@@ -31,10 +31,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSet;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorSetReply;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocatorSet;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocatorSetReply;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -99,22 +99,22 @@ public class LocatorSetCustomizerTest extends LispWriterCustomizerTest {
                 InstanceIdentifier.create(LocatorSets.class).child(LocatorSet.class, new LocatorSetKey("Locator"));
 
 
-        ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
+        ArgumentCaptor<OneAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(OneAddDelLocatorSet.class);
 
-        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class)))
-                .thenReturn(future(new LispAddDelLocatorSetReply()));
+        when(api.oneAddDelLocatorSet(any(OneAddDelLocatorSet.class)))
+                .thenReturn(future(new OneAddDelLocatorSetReply()));
         when(writeContext.readAfter(validId)).thenReturn(Optional.of(locatorSet));
 
-        final LispLocatorSetDetailsReplyDump reply = new LispLocatorSetDetailsReplyDump();
-        LispLocatorSetDetails details = new LispLocatorSetDetails();
+        final OneLocatorSetDetailsReplyDump reply = new OneLocatorSetDetailsReplyDump();
+        OneLocatorSetDetails details = new OneLocatorSetDetails();
         details.lsName = "Locator".getBytes(StandardCharsets.UTF_8);
-        reply.lispLocatorSetDetails = ImmutableList.of(details);
+        reply.oneLocatorSetDetails = ImmutableList.of(details);
 
         customizer.writeCurrentAttributes(validId, locatorSet, writeContext);
 
-        verify(api, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
+        verify(api, times(1)).oneAddDelLocatorSet(locatorSetCaptor.capture());
 
-        LispAddDelLocatorSet request = locatorSetCaptor.getValue();
+        OneAddDelLocatorSet request = locatorSetCaptor.getValue();
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
@@ -166,16 +166,16 @@ public class LocatorSetCustomizerTest extends LispWriterCustomizerTest {
     }
 
     private void verifySuccessfullDelete(final LocatorSet locatorSet) throws WriteFailedException {
-        ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
+        ArgumentCaptor<OneAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(OneAddDelLocatorSet.class);
 
-        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class)))
-                .thenReturn(future(new LispAddDelLocatorSetReply()));
+        when(api.oneAddDelLocatorSet(any(OneAddDelLocatorSet.class)))
+                .thenReturn(future(new OneAddDelLocatorSetReply()));
 
         customizer.deleteCurrentAttributes(null, locatorSet, writeContext);
 
-        verify(api, times(1)).lispAddDelLocatorSet(locatorSetCaptor.capture());
+        verify(api, times(1)).oneAddDelLocatorSet(locatorSetCaptor.capture());
 
-        LispAddDelLocatorSet request = locatorSetCaptor.getValue();
+        OneAddDelLocatorSet request = locatorSetCaptor.getValue();
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
@@ -187,15 +187,15 @@ public class LocatorSetCustomizerTest extends LispWriterCustomizerTest {
         when(writeContext.readAfter(EID_TABLE_ID))
                 .thenReturn(eidTableData());
 
-        ArgumentCaptor<LispAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(LispAddDelLocatorSet.class);
+        ArgumentCaptor<OneAddDelLocatorSet> locatorSetCaptor = ArgumentCaptor.forClass(OneAddDelLocatorSet.class);
 
-        when(api.lispAddDelLocatorSet(any(LispAddDelLocatorSet.class)))
-                .thenReturn(future(new LispAddDelLocatorSetReply()));
+        when(api.oneAddDelLocatorSet(any(OneAddDelLocatorSet.class)))
+                .thenReturn(future(new OneAddDelLocatorSetReply()));
 
         try {
             customizer.deleteCurrentAttributes(null, LOCATOR_SET_TO_DELETE, writeContext);
         } catch (IllegalStateException e) {
-            verify(api, times(0)).lispAddDelLocatorSet(locatorSetCaptor.capture());
+            verify(api, times(0)).oneAddDelLocatorSet(locatorSetCaptor.capture());
             return;
         }
         fail("testDeleteReferenced should have failed");

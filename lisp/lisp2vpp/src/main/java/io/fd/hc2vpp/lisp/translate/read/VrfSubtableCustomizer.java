@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.SubtableDumpParams;
@@ -27,9 +29,13 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
 import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtable;
@@ -40,22 +46,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class VrfSubtableCustomizer extends FutureJVppCustomizer
         implements InitializingReaderCustomizer<VrfSubtable, VrfSubtableBuilder>, SubtableReader, LispInitPathsMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(VrfSubtableCustomizer.class);
 
-    private final DumpCacheManager<LispEidTableMapDetailsReplyDump, SubtableDumpParams> dumpManager;
+    private final DumpCacheManager<OneEidTableMapDetailsReplyDump, SubtableDumpParams> dumpManager;
 
     public VrfSubtableCustomizer(@Nonnull final FutureJVppCore futureJvpp) {
         super(futureJvpp);
-        dumpManager = new DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
+        dumpManager = new DumpCacheManagerBuilder<OneEidTableMapDetailsReplyDump, SubtableDumpParams>()
                 .withExecutor(createExecutor(futureJvpp))
                 .acceptOnly(LispEidTableMapDetailsReplyDump.class)
                 .build();
@@ -75,19 +75,19 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
         final int vni = checkNotNull(id.firstKeyOf(VniTable.class), "Cannot find parent VNI Table")
                 .getVirtualNetworkIdentifier().intValue();
 
-        final Optional<LispEidTableMapDetailsReplyDump> reply = dumpManager.getDump(id, ctx.getModificationCache(), L3_PARAMS);
+        final Optional<OneEidTableMapDetailsReplyDump> reply = dumpManager.getDump(id, ctx.getModificationCache(), L3_PARAMS);
 
-        if (!reply.isPresent() || reply.get().lispEidTableMapDetails.isEmpty()) {
+        if (!reply.isPresent() || reply.get().oneEidTableMapDetails.isEmpty()) {
             return;
         }
 
         // Single item collector cant be used in this case,because vrf-subtable is container
         // so read is invoked every time parent is defined
-        final List<LispEidTableMapDetails> details =
-                reply.get().lispEidTableMapDetails.stream().filter(a -> a.vni == vni)
+        final List<OneEidTableMapDetails> details =
+                reply.get().oneEidTableMapDetails.stream().filter(a -> a.vni == vni)
                         .collect(Collectors.toList());
         if (details.size() == 1) {
-            final LispEidTableMapDetails detail = details.get(0);
+            final OneEidTableMapDetails detail = details.get(0);
             builder.setTableId(Integer.valueOf(detail.dpTable).longValue());
 
             LOG.debug("Attributes for {} successfully loaded", id);

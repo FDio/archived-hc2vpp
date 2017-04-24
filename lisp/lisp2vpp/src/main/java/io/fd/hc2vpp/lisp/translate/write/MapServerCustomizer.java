@@ -23,7 +23,7 @@ import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapServer;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapServer;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -66,7 +66,7 @@ public class MapServerCustomizer extends CheckedLispCustomizer
     private void addDelMapServer(final boolean add,
                                  @Nonnull final InstanceIdentifier<MapServer> id,
                                  @Nonnull final MapServer data) throws WriteFailedException {
-        LispAddDelMapServer request = new LispAddDelMapServer();
+        OneAddDelMapServer request = new OneAddDelMapServer();
 
         final IpAddress ipAddress = data.getIpAddress();
 
@@ -74,6 +74,6 @@ public class MapServerCustomizer extends CheckedLispCustomizer
         request.isIpv6 = booleanToByte(isIpv6(ipAddress));
         request.ipAddress = ipAddressToArray(ipAddress);
 
-        getReplyForWrite(getFutureJVpp().lispAddDelMapServer(request).toCompletableFuture(), id);
+        getReplyForWrite(getFutureJVpp().oneAddDelMapServer(request).toCompletableFuture(), id);
     }
 }

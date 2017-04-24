@@ -26,8 +26,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispMapRegisterEnableDisable;
-import io.fd.vpp.jvpp.core.dto.LispMapRegisterEnableDisableReply;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisable;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisableReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -43,7 +43,7 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
     private MapRegister disabledRegister;
 
     @Captor
-    private ArgumentCaptor<LispMapRegisterEnableDisable> requestCaptor;
+    private ArgumentCaptor<OneMapRegisterEnableDisable> requestCaptor;
     private InstanceIdentifier<MapRegister> EMPTY_ID = InstanceIdentifier.create(MapRegister.class);
     private MapRegister EMPTY_DATA = new MapRegisterBuilder().setEnabled(false).build();
 
@@ -60,8 +60,8 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
                 .setEnabled(false)
                 .build();
 
-        when(api.lispMapRegisterEnableDisable(any(LispMapRegisterEnableDisable.class)))
-                .thenReturn(future(new LispMapRegisterEnableDisableReply()));
+        when(api.oneMapRegisterEnableDisable(any(OneMapRegisterEnableDisable.class)))
+                .thenReturn(future(new OneMapRegisterEnableDisableReply()));
     }
 
     @Test
@@ -125,9 +125,9 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
     }
 
     private void verifyRequest(final boolean enabled) {
-        verify(api, times(1)).lispMapRegisterEnableDisable(requestCaptor.capture());
+        verify(api, times(1)).oneMapRegisterEnableDisable(requestCaptor.capture());
 
-        final LispMapRegisterEnableDisable request = requestCaptor.getValue();
+        final OneMapRegisterEnableDisable request = requestCaptor.getValue();
         assertEquals(booleanToByte(enabled), request.isEnabled);
     }
 }

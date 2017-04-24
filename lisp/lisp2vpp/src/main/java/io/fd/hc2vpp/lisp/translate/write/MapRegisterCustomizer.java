@@ -23,7 +23,7 @@ import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispMapRegisterEnableDisable;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisable;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.register.grouping.MapRegister;
@@ -62,8 +62,8 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
     private void enableDisableMapRegister(final boolean enable, @Nonnull final InstanceIdentifier<MapRegister> id,
                                           @Nonnull final WriteContext context) throws WriteFailedException {
         lispStateCheckService.checkLispEnabled(context);
-        LispMapRegisterEnableDisable request = new LispMapRegisterEnableDisable();
+        OneMapRegisterEnableDisable request = new OneMapRegisterEnableDisable();
         request.isEnabled = booleanToByte(enable);
-        getReplyForWrite(getFutureJVpp().lispMapRegisterEnableDisable(request).toCompletableFuture(), id);
+        getReplyForWrite(getFutureJVpp().oneMapRegisterEnableDisable(request).toCompletableFuture(), id);
     }
 }

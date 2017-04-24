@@ -17,21 +17,21 @@
 package io.fd.hc2vpp.lisp.translate.write;
 
 import com.google.common.base.Preconditions;
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.OneEnableDisable;
+import io.fd.vpp.jvpp.core.dto.OneEnableDisableReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispEnableDisable;
-import io.fd.vpp.jvpp.core.dto.LispEnableDisableReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 
 /**
@@ -84,14 +84,14 @@ public class LispCustomizer extends FutureJVppCustomizer
 
 
     private void enableDisableLisp(final boolean enable) throws VppBaseCallException, TimeoutException {
-        final CompletionStage<LispEnableDisableReply> lispEnableDisableReplyCompletionStage =
-                getFutureJVpp().lispEnableDisable(getRequest(enable));
-        getReply(lispEnableDisableReplyCompletionStage.toCompletableFuture());
+        final CompletionStage<OneEnableDisableReply> oneEnableDisableReplyCompletionStage =
+                getFutureJVpp().oneEnableDisable(getRequest(enable));
+        getReply(oneEnableDisableReplyCompletionStage.toCompletableFuture());
     }
 
-    private LispEnableDisable getRequest(final boolean enable) {
-        final LispEnableDisable lispEnableDisable = new LispEnableDisable();
-        lispEnableDisable.isEn = booleanToByte(enable);
-        return lispEnableDisable;
+    private OneEnableDisable getRequest(final boolean enable) {
+        final OneEnableDisable oneEnableDisable = new OneEnableDisable();
+        oneEnableDisable.isEn = booleanToByte(enable);
+        return oneEnableDisable;
     }
 }

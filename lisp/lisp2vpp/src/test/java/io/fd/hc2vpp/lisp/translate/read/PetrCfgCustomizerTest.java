@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispUsePetrReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneUsePetrReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -40,17 +40,17 @@ public class PetrCfgCustomizerTest extends LispInitializingReaderCustomizerTest 
     }
 
     private void mockEnabledReply() {
-        final ShowLispUsePetrReply reply = new ShowLispUsePetrReply();
+        final ShowOneUsePetrReply reply = new ShowOneUsePetrReply();
         reply.address = new byte[]{-64, -88, 2, 1};
         reply.status = 1;
         reply.isIp4 = 1;
-        when(api.showLispUsePetr(any())).thenReturn(future(reply));
+        when(api.showOneUsePetr(any())).thenReturn(future(reply));
     }
 
     private void mockDisabledReply() {
-        final ShowLispUsePetrReply reply = new ShowLispUsePetrReply();
+        final ShowOneUsePetrReply reply = new ShowOneUsePetrReply();
         reply.status = 0;
-        when(api.showLispUsePetr(any())).thenReturn(future(reply));
+        when(api.showOneUsePetr(any())).thenReturn(future(reply));
     }
 
     @Override

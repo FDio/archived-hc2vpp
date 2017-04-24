@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispEnableDisable;
-import io.fd.vpp.jvpp.core.dto.LispEnableDisableReply;
+import io.fd.vpp.jvpp.core.dto.OneEnableDisable;
+import io.fd.vpp.jvpp.core.dto.OneEnableDisableReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
@@ -42,7 +42,7 @@ public class LispCustomizerTest extends WriterCustomizerTest {
     }
 
     private void whenlispEnableDisableThenSuccess() {
-        when(api.lispEnableDisable(any(LispEnableDisable.class))).thenReturn(future(new LispEnableDisableReply()));
+        when(api.oneEnableDisable(any(OneEnableDisable.class))).thenReturn(future(new OneEnableDisableReply()));
     }
 
     @Test(expected = NullPointerException.class)
@@ -57,10 +57,10 @@ public class LispCustomizerTest extends WriterCustomizerTest {
         whenlispEnableDisableThenSuccess();
         customizer.writeCurrentAttributes(null, intf, null);
 
-        ArgumentCaptor<LispEnableDisable> mappingCaptor = ArgumentCaptor.forClass(LispEnableDisable.class);
-        verify(api, times(1)).lispEnableDisable(mappingCaptor.capture());
+        ArgumentCaptor<OneEnableDisable> mappingCaptor = ArgumentCaptor.forClass(OneEnableDisable.class);
+        verify(api, times(1)).oneEnableDisable(mappingCaptor.capture());
 
-        LispEnableDisable request = mappingCaptor.getValue();
+        OneEnableDisable request = mappingCaptor.getValue();
 
         assertNotNull(request);
         assertEquals(1, request.isEn);
@@ -78,10 +78,10 @@ public class LispCustomizerTest extends WriterCustomizerTest {
         whenlispEnableDisableThenSuccess();
         customizer.updateCurrentAttributes(null, null, lisp, null);
 
-        ArgumentCaptor<LispEnableDisable> lispCaptor = ArgumentCaptor.forClass(LispEnableDisable.class);
-        verify(api, times(1)).lispEnableDisable(lispCaptor.capture());
+        ArgumentCaptor<OneEnableDisable> lispCaptor = ArgumentCaptor.forClass(OneEnableDisable.class);
+        verify(api, times(1)).oneEnableDisable(lispCaptor.capture());
 
-        LispEnableDisable request = lispCaptor.getValue();
+        OneEnableDisable request = lispCaptor.getValue();
 
         assertNotNull(request);
         assertEquals(1, request.isEn);
@@ -99,10 +99,10 @@ public class LispCustomizerTest extends WriterCustomizerTest {
         whenlispEnableDisableThenSuccess();
         customizer.deleteCurrentAttributes(null, lisp, null);
 
-        ArgumentCaptor<LispEnableDisable> lispCaptor = ArgumentCaptor.forClass(LispEnableDisable.class);
-        verify(api, times(1)).lispEnableDisable(lispCaptor.capture());
+        ArgumentCaptor<OneEnableDisable> lispCaptor = ArgumentCaptor.forClass(OneEnableDisable.class);
+        verify(api, times(1)).oneEnableDisable(lispCaptor.capture());
 
-        LispEnableDisable request = lispCaptor.getValue();
+        OneEnableDisable request = lispCaptor.getValue();
 
         assertNotNull(request);
         assertEquals(0, request.isEn);

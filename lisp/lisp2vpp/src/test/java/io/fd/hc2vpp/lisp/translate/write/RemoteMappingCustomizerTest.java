@@ -16,13 +16,28 @@
 
 package io.fd.hc2vpp.lisp.translate.write;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMapping;
-import io.fd.vpp.jvpp.core.dto.LispAddDelRemoteMappingReply;
-import io.fd.vpp.jvpp.core.types.RemoteLocator;
+import io.fd.vpp.jvpp.core.dto.OneAddDelRemoteMapping;
+import io.fd.vpp.jvpp.core.dto.OneAddDelRemoteMappingReply;
+import io.fd.vpp.jvpp.core.types.OneRemoteLocator;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -52,20 +67,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-
 public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
 
     @Captor
-    private ArgumentCaptor<LispAddDelRemoteMapping> mappingCaptor;
+    private ArgumentCaptor<OneAddDelRemoteMapping> mappingCaptor;
 
     private MappingId mappingId;
     private RemoteMappingCustomizer customizer;
@@ -130,24 +135,24 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
         customizer = new RemoteMappingCustomizer(api, remoteMappingContext);
 
-        when(api.lispAddDelRemoteMapping(any())).thenReturn(future(new LispAddDelRemoteMappingReply()));
+        when(api.oneAddDelRemoteMapping(any())).thenReturn(future(new OneAddDelRemoteMappingReply()));
     }
 
     @Test
     public void testWritePositiveMappingNoPrioNoWeight() throws WriteFailedException {
         customizer.writeCurrentAttributes(id, positiveMappingNoPrioNoWeight, writeContext);
-        verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
+        verify(api, times(1)).oneAddDelRemoteMapping(mappingCaptor.capture());
 
-        final LispAddDelRemoteMapping request = mappingCaptor.getValue();
+        final OneAddDelRemoteMapping request = mappingCaptor.getValue();
         assertNotNull(request);
         assertEquals(1, request.isAdd);
         assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.eid).getValue());
         assertEquals(25, request.vni);
 
-        final List<RemoteLocator> remoteLocators = Arrays.stream(request.rlocs).collect(Collectors.toList());
-        assertThat(remoteLocators, hasSize(1));
+        final List<OneRemoteLocator> oneRemoteLocators = Arrays.stream(request.rlocs).collect(Collectors.toList());
+        assertThat(oneRemoteLocators, hasSize(1));
 
-        final RemoteLocator locator = remoteLocators.get(0);
+        final OneRemoteLocator locator = oneRemoteLocators.get(0);
         assertArrayEquals(new byte[]{-64, -88, 2, 2}, locator.addr);
         assertEquals(1, locator.isIp4);
         assertEquals(0, locator.priority);
@@ -157,18 +162,18 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     @Test
     public void testWritePositiveMappingPrioWeight() throws WriteFailedException {
         customizer.writeCurrentAttributes(id, positiveMappingPrioWeight, writeContext);
-        verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
+        verify(api, times(1)).oneAddDelRemoteMapping(mappingCaptor.capture());
 
-        final LispAddDelRemoteMapping request = mappingCaptor.getValue();
+        final OneAddDelRemoteMapping request = mappingCaptor.getValue();
         assertNotNull(request);
         assertEquals(1, request.isAdd);
         assertEquals("192.168.2.1", arrayToIpv4AddressNoZone(request.eid).getValue());
         assertEquals(25, request.vni);
 
-        final List<RemoteLocator> remoteLocators = Arrays.stream(request.rlocs).collect(Collectors.toList());
-        assertThat(remoteLocators, hasSize(1));
+        final List<OneRemoteLocator> oneRemoteLocators = Arrays.stream(request.rlocs).collect(Collectors.toList());
+        assertThat(oneRemoteLocators, hasSize(1));
 
-        final RemoteLocator locator = remoteLocators.get(0);
+        final OneRemoteLocator locator = oneRemoteLocators.get(0);
         assertArrayEquals(new byte[]{-64, -88, 2, 3}, locator.addr);
         assertEquals(1, locator.isIp4);
         assertEquals(2, locator.priority);
@@ -189,9 +194,9 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     public void testWriteCurrentAttributes() throws WriteFailedException {
         customizer.writeCurrentAttributes(id, negativeMapping, writeContext);
 
-        verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
+        verify(api, times(1)).oneAddDelRemoteMapping(mappingCaptor.capture());
 
-        LispAddDelRemoteMapping request = mappingCaptor.getValue();
+        OneAddDelRemoteMapping request = mappingCaptor.getValue();
 
         assertNotNull(request);
         assertEquals(1, request.isAdd);
@@ -214,9 +219,9 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
         when(remoteMappingContext.containsEid(any(), eq(mappingContext))).thenReturn(true);
         customizer.deleteCurrentAttributes(id, negativeMapping, writeContext);
 
-        verify(api, times(1)).lispAddDelRemoteMapping(mappingCaptor.capture());
+        verify(api, times(1)).oneAddDelRemoteMapping(mappingCaptor.capture());
 
-        LispAddDelRemoteMapping request = mappingCaptor.getValue();
+        OneAddDelRemoteMapping request = mappingCaptor.getValue();
 
         assertNotNull(request);
         assertEquals(0, request.isAdd);

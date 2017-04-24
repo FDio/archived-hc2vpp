@@ -24,22 +24,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
-import io.fd.vpp.jvpp.core.dto.LispEidTableAddDelMap;
-import io.fd.vpp.jvpp.core.dto.LispEidTableAddDelMapReply;
+import io.fd.vpp.jvpp.core.dto.OneEidTableAddDelMap;
+import io.fd.vpp.jvpp.core.dto.OneEidTableAddDelMapReply;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 
 public class SubtableWriterTestCase extends WriterCustomizerTest implements SubtableWriter {
     @Captor
-    protected ArgumentCaptor<LispEidTableAddDelMap> requestCaptor;
+    protected ArgumentCaptor<OneEidTableAddDelMap> requestCaptor;
 
 
     protected void verifyAddDelEidTableAddDelMapInvokedCorrectly(final int addDel, final int vni, final int tableId,
                                                                  final int isL2) {
-        verify(api, times(1)).lispEidTableAddDelMap(requestCaptor.capture());
+        verify(api, times(1)).oneEidTableAddDelMap(requestCaptor.capture());
 
-        final LispEidTableAddDelMap request = requestCaptor.getValue();
+        final OneEidTableAddDelMap request = requestCaptor.getValue();
         assertNotNull(request);
         assertEquals(addDel, request.isAdd);
         assertEquals(vni, request.vni);
@@ -48,12 +48,12 @@ public class SubtableWriterTestCase extends WriterCustomizerTest implements Subt
     }
 
     protected void whenAddDelEidTableAddDelMapSuccess() {
-        when(api.lispEidTableAddDelMap(Mockito.any(LispEidTableAddDelMap.class)))
-                .thenReturn(future(new LispEidTableAddDelMapReply()));
+        when(api.oneEidTableAddDelMap(Mockito.any(OneEidTableAddDelMap.class)))
+                .thenReturn(future(new OneEidTableAddDelMapReply()));
     }
 
     protected void whenAddDelEidTableAddDelMapFail() {
-        when(api.lispEidTableAddDelMap(Mockito.any(LispEidTableAddDelMap.class)))
+        when(api.oneEidTableAddDelMap(Mockito.any(OneEidTableAddDelMap.class)))
                 .thenReturn(failedFuture());
     }
 }

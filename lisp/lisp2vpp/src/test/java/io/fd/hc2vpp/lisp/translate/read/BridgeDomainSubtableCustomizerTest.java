@@ -24,10 +24,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.translate.read.trait.SubtableReaderTestCase;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.VppCallbackException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.EidTable;
@@ -63,7 +63,7 @@ public class BridgeDomainSubtableCustomizerTest
         BridgeDomainSubtableBuilder builder = new BridgeDomainSubtableBuilder();
         customizer.readCurrentAttributes(validId, builder, ctx);
 
-        verifyLispEidTableMapDumpCalled(L2);
+        verifyOneEidTableMapDumpCalled(L2);
 
         final BridgeDomainSubtable subtable = builder.build();
         assertNotNull(subtable);
@@ -77,7 +77,7 @@ public class BridgeDomainSubtableCustomizerTest
         BridgeDomainSubtableBuilder builder = new BridgeDomainSubtableBuilder();
         customizer.readCurrentAttributes(validId, builder, ctx);
 
-        verifyLispEidTableMapDumpCalled(L2);
+        verifyOneEidTableMapDumpCalled(L2);
 
         final BridgeDomainSubtable subtable = builder.build();
         assertNotNull(subtable);
@@ -93,7 +93,7 @@ public class BridgeDomainSubtableCustomizerTest
         } catch (ReadFailedException e) {
             assertTrue(e.getCause() instanceof VppCallbackException);
             assertNull(builder.getBridgeDomainRef());
-            verifyLispEidTableMapDumpNotCalled();
+            verifyOneEidTableMapDumpNotCalled();
 
             return;
         }

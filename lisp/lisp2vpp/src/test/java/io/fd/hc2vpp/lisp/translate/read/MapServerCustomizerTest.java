@@ -24,9 +24,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.LispMapServerDetails;
-import io.fd.vpp.jvpp.core.dto.LispMapServerDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispMapServerDump;
+import io.fd.vpp.jvpp.core.dto.OneMapServerDetails;
+import io.fd.vpp.jvpp.core.dto.OneMapServerDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneMapServerDump;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
@@ -60,24 +60,24 @@ public class MapServerCustomizerTest
     @Override
     @Before
     public void setUp() throws Exception {
-        final LispMapServerDetailsReplyDump reply = new LispMapServerDetailsReplyDump();
-        LispMapServerDetails server1 = new LispMapServerDetails();
+        final OneMapServerDetailsReplyDump reply = new OneMapServerDetailsReplyDump();
+        OneMapServerDetails server1 = new OneMapServerDetails();
         //192.168.2.2
         server1.ipAddress = new byte[]{-64, -88, 2, 1};
         server1.isIpv6 = 0;
 
-        LispMapServerDetails server2 = new LispMapServerDetails();
+        OneMapServerDetails server2 = new OneMapServerDetails();
         //192.168.2.2
         server2.ipAddress = new byte[]{-64, -88, 2, 2};
         server2.isIpv6 = 0;
 
-        LispMapServerDetails server3 = new LispMapServerDetails();
+        OneMapServerDetails server3 = new OneMapServerDetails();
         //2001:0db8:0a0b:12f0:0000:0000:0000:0001
         server3.ipAddress = new byte[]{32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1};
         server3.isIpv6 = 1;
 
-        reply.lispMapServerDetails = Arrays.asList(server1, server2, server3);
-        when(api.lispMapServerDump(any(LispMapServerDump.class))).thenReturn(future(reply));
+        reply.oneMapServerDetails = Arrays.asList(server1, server2, server3);
+        when(api.oneMapServerDump(any(OneMapServerDump.class))).thenReturn(future(reply));
         mockLispEnabled();
     }
 

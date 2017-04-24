@@ -25,8 +25,8 @@ import com.google.common.collect.ImmutableList;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetails;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.Before;
@@ -70,15 +70,15 @@ public class LocatorSetCustomizerTest
     }
 
     private void defineDumpData() {
-        LispLocatorSetDetailsReplyDump dump = new LispLocatorSetDetailsReplyDump();
-        LispLocatorSetDetails detail = new LispLocatorSetDetails();
+        OneLocatorSetDetailsReplyDump dump = new OneLocatorSetDetailsReplyDump();
+        OneLocatorSetDetails detail = new OneLocatorSetDetails();
         detail.context = 4;
         detail.lsName = "loc-set".getBytes(StandardCharsets.UTF_8);
         detail.lsIndex = 1;
 
-        dump.lispLocatorSetDetails = ImmutableList.of(detail);
+        dump.oneLocatorSetDetails = ImmutableList.of(detail);
 
-        when(api.lispLocatorSetDump(any())).thenReturn(future(dump));
+        when(api.oneLocatorSetDump(any())).thenReturn(future(dump));
     }
 
 

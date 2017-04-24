@@ -25,8 +25,8 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispMapRegisterState;
-import io.fd.vpp.jvpp.core.dto.ShowLispMapRegisterStateReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterState;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterStateReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
@@ -64,8 +64,8 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
             return;
         }
 
-        final ShowLispMapRegisterStateReply read = getReplyForRead(getFutureJVpp()
-                .showLispMapRegisterState(new ShowLispMapRegisterState()).toCompletableFuture(), instanceIdentifier);
+        final ShowOneMapRegisterStateReply read = getReplyForRead(getFutureJVpp()
+                .showOneMapRegisterState(new ShowOneMapRegisterState()).toCompletableFuture(), instanceIdentifier);
 
         if (read != null) {
             mapRegisterBuilder.setEnabled(byteToBoolean(read.isEnabled));

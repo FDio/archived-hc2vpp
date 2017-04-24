@@ -31,8 +31,8 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
-import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocs;
-import io.fd.vpp.jvpp.core.dto.LispGetMapRequestItrRlocsReply;
+import io.fd.vpp.jvpp.core.dto.OneGetMapRequestItrRlocs;
+import io.fd.vpp.jvpp.core.dto.OneGetMapRequestItrRlocsReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
@@ -50,16 +50,16 @@ public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(ItrRemoteLocatorSetCustomizer.class);
 
-    private final DumpCacheManager<LispGetMapRequestItrRlocsReply, Void> dumpCacheManager;
+    private final DumpCacheManager<OneGetMapRequestItrRlocsReply, Void> dumpCacheManager;
 
     public ItrRemoteLocatorSetCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                          @Nonnull final LispStateCheckService lispStateCheckService) {
         super(futureJVppCore, lispStateCheckService);
-        dumpCacheManager = new DumpCacheManagerBuilder<LispGetMapRequestItrRlocsReply, Void>()
+        dumpCacheManager = new DumpCacheManagerBuilder<OneGetMapRequestItrRlocsReply, Void>()
                 .withExecutor(((identifier, params) -> getReplyForRead(
-                        futureJVppCore.lispGetMapRequestItrRlocs(new LispGetMapRequestItrRlocs()).toCompletableFuture(),
+                        futureJVppCore.oneGetMapRequestItrRlocs(new OneGetMapRequestItrRlocs()).toCompletableFuture(),
                         identifier)))
-                .acceptOnly(LispGetMapRequestItrRlocsReply.class)
+                .acceptOnly(OneGetMapRequestItrRlocsReply.class)
                 .build();
     }
 
@@ -79,7 +79,7 @@ public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer
             return;
         }
 
-        final Optional<LispGetMapRequestItrRlocsReply> reply =
+        final Optional<OneGetMapRequestItrRlocsReply> reply =
                 dumpCacheManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
         if (!reply.isPresent() || reply.get().locatorSetName == null) {
             return;

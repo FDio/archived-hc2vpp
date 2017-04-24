@@ -29,10 +29,10 @@ import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetails;
-import io.fd.vpp.jvpp.core.dto.LispLocatorDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneLocatorDetails;
+import io.fd.vpp.jvpp.core.dto.OneLocatorDetailsReplyDump;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -89,8 +89,8 @@ public class RemoteMappingCustomizerTest
 
 
     private void mockDumpDataActionZero() {
-        LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
-        LispEidTableDetails detail = new LispEidTableDetails();
+        OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
+        OneEidTableDetails detail = new OneEidTableDetails();
         detail.action = 0;
         detail.authoritative = 1;
         detail.context = 4;
@@ -101,18 +101,18 @@ public class RemoteMappingCustomizerTest
         detail.ttl = 7;
         detail.vni = 12;
 
-        replyDump.lispEidTableDetails = ImmutableList.of(detail);
+        replyDump.oneEidTableDetails = ImmutableList.of(detail);
 
-        when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+        when(api.oneEidTableDump(any())).thenReturn(future(replyDump));
 
-        LispLocatorDetailsReplyDump rlocs = new LispLocatorDetailsReplyDump();
-        rlocs.lispLocatorDetails = Collections.emptyList();
-        when(api.lispLocatorDump(any())).thenReturn(future(rlocs));
+        OneLocatorDetailsReplyDump rlocs = new OneLocatorDetailsReplyDump();
+        rlocs.oneLocatorDetails = Collections.emptyList();
+        when(api.oneLocatorDump(any())).thenReturn(future(rlocs));
     }
 
     private void mockDumpDataActionOne() {
-        LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
-        LispEidTableDetails detail = new LispEidTableDetails();
+        OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
+        OneEidTableDetails detail = new OneEidTableDetails();
         detail.action = 1;
         detail.authoritative = 1;
         detail.context = 4;
@@ -123,14 +123,14 @@ public class RemoteMappingCustomizerTest
         detail.ttl = 7;
         detail.vni = 12;
 
-        replyDump.lispEidTableDetails = ImmutableList.of(detail);
+        replyDump.oneEidTableDetails = ImmutableList.of(detail);
 
-        when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+        when(api.oneEidTableDump(any())).thenReturn(future(replyDump));
     }
 
     private void mockDumpDataActionZeroWithRemotes() {
-        LispEidTableDetailsReplyDump replyDump = new LispEidTableDetailsReplyDump();
-        LispEidTableDetails detail = new LispEidTableDetails();
+        OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
+        OneEidTableDetails detail = new OneEidTableDetails();
         detail.action = 0;
         detail.authoritative = 1;
         detail.context = 4;
@@ -141,20 +141,20 @@ public class RemoteMappingCustomizerTest
         detail.ttl = 7;
         detail.vni = 12;
 
-        replyDump.lispEidTableDetails = ImmutableList.of(detail);
+        replyDump.oneEidTableDetails = ImmutableList.of(detail);
 
-        when(api.lispEidTableDump(any())).thenReturn(future(replyDump));
+        when(api.oneEidTableDump(any())).thenReturn(future(replyDump));
 
-        LispLocatorDetailsReplyDump rlocs = new LispLocatorDetailsReplyDump();
-        LispLocatorDetails rloc = new LispLocatorDetails();
+        OneLocatorDetailsReplyDump rlocs = new OneLocatorDetailsReplyDump();
+        OneLocatorDetails rloc = new OneLocatorDetails();
         rloc.ipAddress = new byte[]{-64, -88, 2, 1};
         rloc.isIpv6 = 0;
         rloc.priority = 1;
         rloc.weight = 2;
 
-        rlocs.lispLocatorDetails = ImmutableList.of(rloc);
+        rlocs.oneLocatorDetails = ImmutableList.of(rloc);
 
-        when(api.lispLocatorDump(any())).thenReturn(future(rlocs));
+        when(api.oneLocatorDump(any())).thenReturn(future(rlocs));
     }
 
 

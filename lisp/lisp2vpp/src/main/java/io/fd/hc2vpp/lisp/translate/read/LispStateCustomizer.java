@@ -31,9 +31,9 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispLocatorSetDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatus;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
+import io.fd.vpp.jvpp.core.dto.OneLocatorSetDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.ShowOneStatus;
+import io.fd.vpp.jvpp.core.dto.ShowOneStatusReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
@@ -58,15 +58,15 @@ public class LispStateCustomizer extends FutureJVppCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(LispStateCustomizer.class);
 
     private final NamingContext locatorSetContext;
-    private final DumpCacheManager<LispLocatorSetDetailsReplyDump, Void> dumpManager;
+    private final DumpCacheManager<OneLocatorSetDetailsReplyDump, Void> dumpManager;
 
     public LispStateCustomizer(@Nonnull final FutureJVppCore futureJvpp,
                                @Nonnull final NamingContext locatorSetContext) {
         super(futureJvpp);
         this.locatorSetContext = locatorSetContext;
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispLocatorSetDetailsReplyDump, Void>()
+        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<OneLocatorSetDetailsReplyDump, Void>()
                 .withExecutor(createExecutor(futureJvpp))
-                .acceptOnly(LispLocatorSetDetailsReplyDump.class)
+                .acceptOnly(OneLocatorSetDetailsReplyDump.class)
                 .build();
     }
 
@@ -79,9 +79,9 @@ public class LispStateCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(InstanceIdentifier<LispState> id, LispStateBuilder builder, ReadContext ctx)
             throws ReadFailedException {
 
-        ShowLispStatusReply reply;
+        ShowOneStatusReply reply;
         try {
-            reply = getReply(getFutureJVpp().showLispStatus(new ShowLispStatus()).toCompletableFuture());
+            reply = getReply(getFutureJVpp().showOneStatus(new ShowOneStatus()).toCompletableFuture());
         } catch (TimeoutException | VppBaseCallException e) {
             throw new ReadFailedException(id, e);
         }
@@ -101,16 +101,16 @@ public class LispStateCustomizer extends FutureJVppCustomizer
         /* TODO - HONEYCOMB-354 - must be done here(most upper node), because of ordering issues
           In this case it will work fully, locator sets are not referenced from any outside model
           */
-        final Optional<LispLocatorSetDetailsReplyDump> dumpOptional;
+        final Optional<OneLocatorSetDetailsReplyDump> dumpOptional;
         try {
             dumpOptional = dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to initialize locator set context mapping", e);
         }
 
-        if (dumpOptional.isPresent() && !dumpOptional.get().lispLocatorSetDetails.isEmpty()) {
+        if (dumpOptional.isPresent() && !dumpOptional.get().oneLocatorSetDetails.isEmpty()) {
             LOG.debug("Initializing locator set context for {}", dumpOptional.get());
-            dumpOptional.get().lispLocatorSetDetails
+            dumpOptional.get().oneLocatorSetDetails
                     .forEach(set -> {
                         final String locatorSetName = toString(set.lsName);
                         //creates mapping for existing locator-set(if it is'nt already existing one)

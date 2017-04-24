@@ -27,8 +27,8 @@ import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.l
 import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapRequestMode.SourceDestination;
 
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispMapRequestMode;
-import io.fd.vpp.jvpp.core.dto.LispMapRequestModeReply;
+import io.fd.vpp.jvpp.core.dto.OneMapRequestMode;
+import io.fd.vpp.jvpp.core.dto.OneMapRequestModeReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -44,7 +44,7 @@ public class MapRequestModeCustomizerTest extends LispWriterCustomizerTest {
     private MapRequestMode destinationOnlyMode;
 
     @Captor
-    private ArgumentCaptor<LispMapRequestMode> requestCaptor;
+    private ArgumentCaptor<OneMapRequestMode> requestCaptor;
     private InstanceIdentifier<MapRequestMode> EMPTY_ID = InstanceIdentifier.create(MapRequestMode.class);
     private MapRequestMode EMPTY_DATA = new MapRequestModeBuilder().build();
 
@@ -57,7 +57,7 @@ public class MapRequestModeCustomizerTest extends LispWriterCustomizerTest {
         destinationOnlyMode = new MapRequestModeBuilder()
                 .setMode(DestinationOnly)
                 .build();
-        when(api.lispMapRequestMode(any(LispMapRequestMode.class))).thenReturn(future(new LispMapRequestModeReply()));
+        when(api.oneMapRequestMode(any(OneMapRequestMode.class))).thenReturn(future(new OneMapRequestModeReply()));
     }
 
     @Test
@@ -103,9 +103,9 @@ public class MapRequestModeCustomizerTest extends LispWriterCustomizerTest {
 
     private void verifyModeRequest(
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapRequestMode mode) {
-        verify(api, times(1)).lispMapRequestMode(requestCaptor.capture());
+        verify(api, times(1)).oneMapRequestMode(requestCaptor.capture());
 
-        final LispMapRequestMode request = requestCaptor.getValue();
+        final OneMapRequestMode request = requestCaptor.getValue();
         assertEquals(mode.getIntValue(), request.mode);
     }
 }

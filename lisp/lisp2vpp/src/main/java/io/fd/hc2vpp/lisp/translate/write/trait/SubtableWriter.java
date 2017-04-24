@@ -21,6 +21,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.OneEidTableAddDelMap;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
@@ -28,9 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.VrfSubtable;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispEidTableAddDelMap;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 
 /**
@@ -64,14 +64,14 @@ public interface SubtableWriter extends ByteDataTranslator, JvppReplyConsumer {
 
         checkNotNull(vppApi, "VPP Api refference cannot be null");
 
-        LispEidTableAddDelMap request = new LispEidTableAddDelMap();
+        OneEidTableAddDelMap request = new OneEidTableAddDelMap();
 
         request.isAdd = booleanToByte(addDel);
         request.vni = vni;
         request.dpTable = tableId;
         request.isL2 = booleanToByte(isL2);
 
-        getReply(vppApi.lispEidTableAddDelMap(request).toCompletableFuture());
+        getReply(vppApi.oneEidTableAddDelMap(request).toCompletableFuture());
     }
 
     default int extractVni(@Nonnull final InstanceIdentifier<? extends ChildOf<VniTable>> id) {

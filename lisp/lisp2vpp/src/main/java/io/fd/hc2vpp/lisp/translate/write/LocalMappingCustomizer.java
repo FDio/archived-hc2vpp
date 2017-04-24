@@ -32,7 +32,7 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEid;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocalEid;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -116,7 +116,7 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
     private void addDelMappingAndReply(boolean add, LocalMapping data, int vni) throws VppBaseCallException,
             TimeoutException, UnsupportedEncodingException {
 
-        LispAddDelLocalEid request = new LispAddDelLocalEid();
+        OneAddDelLocalEid request = new OneAddDelLocalEid();
 
         request.isAdd = booleanToByte(add);
         request.eid = getEidAsByteArray(data.getEid());
@@ -139,7 +139,7 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
                     "HMAC key type not specified").getIntValue();
         }
 
-        getReply(getFutureJVpp().lispAddDelLocalEid(request).toCompletableFuture());
+        getReply(getFutureJVpp().oneAddDelLocalEid(request).toCompletableFuture());
     }
 
 }

@@ -34,8 +34,8 @@ import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.lisp.context.util.AdjacenciesMappingContext;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.hc2vpp.lisp.util.EidMappingContextHelper;
-import io.fd.vpp.jvpp.core.dto.LispAddDelAdjacency;
-import io.fd.vpp.jvpp.core.dto.LispAddDelAdjacencyReply;
+import io.fd.vpp.jvpp.core.dto.OneAddDelAdjacency;
+import io.fd.vpp.jvpp.core.dto.OneAddDelAdjacencyReply;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -67,7 +67,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class AdjacencyCustomizerTest extends WriterCustomizerTest implements EidMappingContextHelper {
 
     @Captor
-    private ArgumentCaptor<LispAddDelAdjacency> requestCaptor;
+    private ArgumentCaptor<OneAddDelAdjacency> requestCaptor;
 
     private EidMappingContext localMappingContext;
 
@@ -126,7 +126,7 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
                         .setAddressType(Ipv4Afi.class)
                         .setAddress(new Ipv4Builder().setIpv4(ADDRESS_THREE).build()).build()).build();
 
-        when(api.lispAddDelAdjacency(any())).thenReturn(future(new LispAddDelAdjacencyReply()));
+        when(api.oneAddDelAdjacency(any())).thenReturn(future(new OneAddDelAdjacencyReply()));
     }
 
     @Test
@@ -134,7 +134,7 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
         try {
             customizer.writeCurrentAttributes(emptyId, emptyData, writeContext);
         } catch (NullPointerException e) {
-            verify(api, times(0)).lispAddDelAdjacency(any());
+            verify(api, times(0)).oneAddDelAdjacency(any());
             return;
         }
 
@@ -146,7 +146,7 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
         try {
             customizer.writeCurrentAttributes(emptyId, invalidData, writeContext);
         } catch (NullPointerException e) {
-            verify(api, times(0)).lispAddDelAdjacency(any());
+            verify(api, times(0)).oneAddDelAdjacency(any());
             return;
         }
 
@@ -159,7 +159,7 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
         defineEidMapping(mappingContext, LOCAL_EID_ONE, new MappingId("local-eid-one"), "local-mapping-context");
         defineEidMapping(mappingContext, REMOTE_EID_ONE, new MappingId("remote-eid-one"), "remote-mapping-context");
         customizer.writeCurrentAttributes(validId, validData, writeContext);
-        verify(api, times(1)).lispAddDelAdjacency(requestCaptor.capture());
+        verify(api, times(1)).oneAddDelAdjacency(requestCaptor.capture());
         verifyRequest(requestCaptor.getValue(), 1, new byte[]{-64, -88, 2, 1}, 32, new byte[]{-64, -88, 2, 3},
                 32, IPV4.getValue(), 2);
         verify(adjacenciesMappingContext, times(1))
@@ -173,7 +173,7 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
         try {
             customizer.writeCurrentAttributes(validId, validData, writeContext);
         } catch (IllegalStateException e) {
-            verify(api, times(0)).lispAddDelAdjacency(any());
+            verify(api, times(0)).oneAddDelAdjacency(any());
             return;
         }
 
@@ -188,7 +188,7 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
         try {
             customizer.writeCurrentAttributes(validId, validData, writeContext);
         } catch (IllegalStateException e) {
-            verify(api, times(0)).lispAddDelAdjacency(any());
+            verify(api, times(0)).oneAddDelAdjacency(any());
             return;
         }
 
@@ -205,7 +205,7 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
         try {
             customizer.deleteCurrentAttributes(emptyId, emptyData, writeContext);
         } catch (NullPointerException e) {
-            verify(api, times(0)).lispAddDelAdjacency(any());
+            verify(api, times(0)).oneAddDelAdjacency(any());
             return;
         }
 
@@ -220,13 +220,13 @@ public class AdjacencyCustomizerTest extends WriterCustomizerTest implements Eid
     @Test
     public void deleteCurrentAttributes() throws Exception {
         customizer.deleteCurrentAttributes(validId, validData, writeContext);
-        verify(api, times(1)).lispAddDelAdjacency(requestCaptor.capture());
+        verify(api, times(1)).oneAddDelAdjacency(requestCaptor.capture());
         verifyRequest(requestCaptor.getValue(), 0, new byte[]{-64, -88, 2, 1}, 32, new byte[]{-64, -88, 2, 3},
                 32, IPV4.getValue(), 2);
         verify(adjacenciesMappingContext, times(1)).removeForIndex("adj-one", mappingContext);
     }
 
-    private static void verifyRequest(final LispAddDelAdjacency request, final int isAdd, final byte[] leid,
+    private static void verifyRequest(final OneAddDelAdjacency request, final int isAdd, final byte[] leid,
                                       final int leidLen, final byte[] reid, final int reidLen, final int eidType,
                                       final int vni) {
 

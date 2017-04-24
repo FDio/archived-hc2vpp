@@ -23,7 +23,7 @@ import io.fd.hc2vpp.lisp.translate.util.CheckedLispCustomizer;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispRlocProbeEnableDisable;
+import io.fd.vpp.jvpp.core.dto.OneRlocProbeEnableDisable;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.rloc.probing.grouping.RlocProbe;
@@ -63,10 +63,10 @@ public class RlocProbeCustomizer extends CheckedLispCustomizer
     }
 
     private void enableDisableRlocProbe(final boolean enable, @Nonnull final InstanceIdentifier<RlocProbe> id) throws WriteFailedException {
-        LispRlocProbeEnableDisable request = new LispRlocProbeEnableDisable();
+        OneRlocProbeEnableDisable request = new OneRlocProbeEnableDisable();
 
         request.isEnabled = booleanToByte(enable);
 
-        getReplyForWrite(getFutureJVpp().lispRlocProbeEnableDisable(request).toCompletableFuture(), id);
+        getReplyForWrite(getFutureJVpp().oneRlocProbeEnableDisable(request).toCompletableFuture(), id);
     }
 }

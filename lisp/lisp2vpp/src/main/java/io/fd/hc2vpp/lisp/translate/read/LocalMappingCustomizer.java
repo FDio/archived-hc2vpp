@@ -16,6 +16,13 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.valueOf;
+import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.FilterType;
+import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.MappingsDumpParamsBuilder;
+import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.QuantityType;
+
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -30,9 +37,13 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.mappings.mapping.Eid;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.HmacKeyType;
@@ -51,16 +62,6 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.valueOf;
-import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.*;
-
 /**
  * Customizer for reading {@code LocalMapping}<br> Currently unsupported by jvpp
  */
@@ -71,7 +72,7 @@ public class LocalMappingCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalMappingCustomizer.class);
 
-    private final DumpCacheManager<LispEidTableDetailsReplyDump, MappingsDumpParams> dumpManager;
+    private final DumpCacheManager<OneEidTableDetailsReplyDump, MappingsDumpParams> dumpManager;
     private final NamingContext locatorSetContext;
     private final EidMappingContext localMappingContext;
 
@@ -81,9 +82,9 @@ public class LocalMappingCustomizer
         this.locatorSetContext = checkNotNull(locatorSetContext, "Locator Set Mapping Context cannot be null");
         this.localMappingContext = checkNotNull(localMappingsContext, "Local mappings context cannot be null");
         this.dumpManager =
-                new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableDetailsReplyDump, MappingsDumpParams>()
+                new DumpCacheManager.DumpCacheManagerBuilder<OneEidTableDetailsReplyDump, MappingsDumpParams>()
                         .withExecutor(createMappingDumpExecutor(futureJvpp))
-                        .acceptOnly(LispEidTableDetailsReplyDump.class)
+                        .acceptOnly(OneEidTableDetailsReplyDump.class)
                         .build();
     }
 
@@ -117,14 +118,14 @@ public class LocalMappingCustomizer
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
-        final Optional<LispEidTableDetailsReplyDump> replyOptional =
+        final Optional<OneEidTableDetailsReplyDump> replyOptional =
                 dumpManager.getDump(id, ctx.getModificationCache(), dumpParams);
 
-        if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
+        if (!replyOptional.isPresent() || replyOptional.get().oneEidTableDetails.isEmpty()) {
             return;
         }
 
-        LispEidTableDetails details = replyOptional.get().lispEidTableDetails.stream()
+        OneEidTableDetails details = replyOptional.get().oneEidTableDetails.stream()
                 .filter(subtableFilterForLocalMappings(id))
                 .filter(detail -> compareAddresses(eid.getAddress(), getAddressFromDumpDetail(detail)))
                 .collect(RWUtils.singleItemCollector());
@@ -147,7 +148,7 @@ public class LocalMappingCustomizer
         }
     }
 
-    private Address getAddressFromDumpDetail(final LispEidTableDetails detail) {
+    private Address getAddressFromDumpDetail(final OneEidTableDetails detail) {
         return getArrayAsEidLocal(valueOf(detail.eidType), detail.eid, detail.vni).getAddress();
     }
 
@@ -172,15 +173,15 @@ public class LocalMappingCustomizer
                 .build();
 
         LOG.debug("Dumping data for LocalMappings(id={})", id);
-        final Optional<LispEidTableDetailsReplyDump> replyOptional =
+        final Optional<OneEidTableDetailsReplyDump> replyOptional =
                 dumpManager.getDump(id, context.getModificationCache(), dumpParams);
 
-        if (!replyOptional.isPresent() || replyOptional.get().lispEidTableDetails.isEmpty()) {
+        if (!replyOptional.isPresent() || replyOptional.get().oneEidTableDetails.isEmpty()) {
             return Collections.emptyList();
         }
 
 
-        return replyOptional.get().lispEidTableDetails.stream()
+        return replyOptional.get().oneEidTableDetails.stream()
                 .filter(a -> a.vni == vni)
                 .filter(subtableFilterForLocalMappings(id))
                 .map(detail -> getArrayAsEidLocal(valueOf(detail.eidType), detail.eid, detail.vni))

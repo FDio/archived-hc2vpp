@@ -22,7 +22,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispPitrReply;
+import io.fd.vpp.jvpp.core.dto.ShowOnePitrReply;
 import java.nio.charset.StandardCharsets;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,11 +62,11 @@ public class PitrCfgCustomizerTest extends LispInitializingReaderCustomizerTest<
     }
 
     private void mockDumpData() {
-        ShowLispPitrReply replyDump = new ShowLispPitrReply();
+        ShowOnePitrReply replyDump = new ShowOnePitrReply();
         replyDump.locatorSetName = LOC_SET_NAME_BYTES;
         replyDump.status = 1;
 
-        when(api.showLispPitr(any())).thenReturn(future(replyDump));
+        when(api.showOnePitr(any())).thenReturn(future(replyDump));
     }
 
     @Override

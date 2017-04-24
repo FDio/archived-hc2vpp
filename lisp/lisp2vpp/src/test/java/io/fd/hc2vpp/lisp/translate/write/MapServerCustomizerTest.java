@@ -27,8 +27,8 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapServer;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapServerReply;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapServer;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapServerReply;
 import java.util.Arrays;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -54,7 +54,7 @@ public class MapServerCustomizerTest extends LispWriterCustomizerTest implements
     private MapServer EMPTY_DATA = new MapServerBuilder().build();
 
     @Captor
-    private ArgumentCaptor<LispAddDelMapServer> requestCaptor;
+    private ArgumentCaptor<OneAddDelMapServer> requestCaptor;
 
     @Override
     protected void setUpTest() throws Exception {
@@ -62,7 +62,7 @@ public class MapServerCustomizerTest extends LispWriterCustomizerTest implements
         data = new MapServerBuilder()
                 .setIpAddress(MAP_SERVER_KEY.getIpAddress())
                 .build();
-        when(api.lispAddDelMapServer(any())).thenReturn(future(new LispAddDelMapServerReply()));
+        when(api.oneAddDelMapServer(any())).thenReturn(future(new OneAddDelMapServerReply()));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class MapServerCustomizerTest extends LispWriterCustomizerTest implements
         } catch (WriteFailedException e) {
             assertTrue(e instanceof WriteFailedException.UpdateFailedException);
             assertTrue(e.getCause() instanceof UnsupportedOperationException);
-            verify(api, times(0)).lispAddDelMapServer(any());
+            verify(api, times(0)).oneAddDelMapServer(any());
         }
     }
 
@@ -114,9 +114,9 @@ public class MapServerCustomizerTest extends LispWriterCustomizerTest implements
     }
 
     private void verifyRequest(final boolean add) {
-        verify(api, times(1)).lispAddDelMapServer(requestCaptor.capture());
+        verify(api, times(1)).oneAddDelMapServer(requestCaptor.capture());
 
-        final LispAddDelMapServer request = requestCaptor.getValue();
+        final OneAddDelMapServer request = requestCaptor.getValue();
 
         assertEquals(booleanToByte(add), request.isAdd);
         assertEquals(0, request.isIpv6);

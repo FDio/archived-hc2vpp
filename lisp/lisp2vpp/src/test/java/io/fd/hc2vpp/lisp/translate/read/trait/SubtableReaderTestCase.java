@@ -23,21 +23,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
-import io.fd.vpp.jvpp.VppCallbackException;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDump;
 import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -51,7 +44,7 @@ public abstract class SubtableReaderTestCase<D extends DataObject, B extends Bui
     protected final int expectedTableId = 14;
 
     @Captor
-    protected ArgumentCaptor<LispEidTableMapDump> requestCaptor;
+    protected ArgumentCaptor<OneEidTableMapDump> requestCaptor;
 
     public SubtableReaderTestCase(final Class<D> dataObjectClass,
                                   final Class<? extends Builder<? extends DataObject>> parentBuilderClass) {
@@ -59,39 +52,39 @@ public abstract class SubtableReaderTestCase<D extends DataObject, B extends Bui
     }
 
     protected void doReturnValidNonEmptyDataOnDump() {
-        LispEidTableMapDetailsReplyDump reply = new LispEidTableMapDetailsReplyDump();
-        LispEidTableMapDetails detailFirst = new LispEidTableMapDetails();
+        OneEidTableMapDetailsReplyDump reply = new OneEidTableMapDetailsReplyDump();
+        OneEidTableMapDetails detailFirst = new OneEidTableMapDetails();
         detailFirst.vni = Long.valueOf(expectedVni).intValue();
         detailFirst.dpTable = expectedTableId;
 
-        LispEidTableMapDetails detailSecond = new LispEidTableMapDetails();
+        OneEidTableMapDetails detailSecond = new OneEidTableMapDetails();
         detailSecond.vni = 13;
         detailSecond.dpTable = 15;
 
-        reply.lispEidTableMapDetails = ImmutableList.of(detailFirst, detailSecond);
+        reply.oneEidTableMapDetails = ImmutableList.of(detailFirst, detailSecond);
 
-        when(api.lispEidTableMapDump(any(LispEidTableMapDump.class)))
+        when(api.oneEidTableMapDump(any(OneEidTableMapDump.class)))
                 .thenReturn(future(reply));
     }
 
     protected void doReturnEmptyDataOnDump() {
-        LispEidTableMapDetailsReplyDump reply = new LispEidTableMapDetailsReplyDump();
-        reply.lispEidTableMapDetails = Collections.emptyList();
-        when(api.lispEidTableMapDump(any(LispEidTableMapDump.class)))
+        OneEidTableMapDetailsReplyDump reply = new OneEidTableMapDetailsReplyDump();
+        reply.oneEidTableMapDetails = Collections.emptyList();
+        when(api.oneEidTableMapDump(any(OneEidTableMapDump.class)))
                 .thenReturn(future(reply));
     }
 
     protected void doThrowOnDump() {
-        when(api.lispEidTableMapDump(any(LispEidTableMapDump.class)))
+        when(api.oneEidTableMapDump(any(OneEidTableMapDump.class)))
                 .thenReturn(failedFuture());
     }
 
-    protected void verifyLispEidTableMapDumpCalled(@Nonnull final MapLevel expectedLevel) {
-        verify(api, times(1)).lispEidTableMapDump(requestCaptor.capture());
+    protected void verifyOneEidTableMapDumpCalled(@Nonnull final MapLevel expectedLevel) {
+        verify(api, times(1)).oneEidTableMapDump(requestCaptor.capture());
         assertEquals(expectedLevel.getValue(), requestCaptor.getValue().isL2);
     }
 
-    protected void verifyLispEidTableMapDumpNotCalled() {
-        verify(api, times(1)).lispEidTableMapDump(any());
+    protected void verifyOneEidTableMapDumpNotCalled() {
+        verify(api, times(1)).oneEidTableMapDump(any());
     }
 }

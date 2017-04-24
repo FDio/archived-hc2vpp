@@ -25,7 +25,7 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapRequestItrRlocs;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapRequestItrRlocs;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
@@ -77,10 +77,10 @@ public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer impleme
             throws TimeoutException, VppBaseCallException {
         lispStateCheckService.checkLispEnabled(context);
 
-        LispAddDelMapRequestItrRlocs request = new LispAddDelMapRequestItrRlocs();
+        OneAddDelMapRequestItrRlocs request = new OneAddDelMapRequestItrRlocs();
         request.isAdd = booleanToByte(add);
         request.locatorSetName = data.getRemoteLocatorSetName().getBytes(StandardCharsets.UTF_8);
 
-        getReply(getFutureJVpp().lispAddDelMapRequestItrRlocs(request).toCompletableFuture());
+        getReply(getFutureJVpp().oneAddDelMapRequestItrRlocs(request).toCompletableFuture());
     }
 }

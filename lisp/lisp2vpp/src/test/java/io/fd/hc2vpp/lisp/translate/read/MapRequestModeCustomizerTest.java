@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapRequestMode.DestinationOnly;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.core.dto.ShowLispMapRequestModeReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRequestModeReply;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.lisp.feature.data.grouping.LispFeatureDataBuilder;
@@ -41,9 +41,9 @@ public class MapRequestModeCustomizerTest extends LispInitializingReaderCustomiz
     @Override
     @Before
     public void setUp() throws Exception {
-        final ShowLispMapRequestModeReply reply = new ShowLispMapRequestModeReply();
+        final ShowOneMapRequestModeReply reply = new ShowOneMapRequestModeReply();
         reply.mode = ((byte) DestinationOnly.getIntValue());
-        when(api.showLispMapRequestMode(any())).thenReturn(future(reply));
+        when(api.showOneMapRequestMode(any())).thenReturn(future(reply));
         mockLispEnabled();
     }
 

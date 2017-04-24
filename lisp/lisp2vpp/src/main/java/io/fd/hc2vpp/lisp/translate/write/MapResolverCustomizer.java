@@ -26,7 +26,7 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelMapResolver;
+import io.fd.vpp.jvpp.core.dto.OneAddDelMapResolver;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
@@ -87,7 +87,7 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
     private void addDelMapResolverAndReply(boolean add, MapResolver data) throws VppBaseCallException,
             TimeoutException {
 
-        LispAddDelMapResolver request = new LispAddDelMapResolver();
+        OneAddDelMapResolver request = new OneAddDelMapResolver();
         request.isAdd = booleanToByte(add);
 
 
@@ -96,6 +96,6 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
         request.isIpv6 = booleanToByte(ipv6);
         request.ipAddress = ipAddressToArray(ipv6, data.getIpAddress());
 
-        getReply(getFutureJVpp().lispAddDelMapResolver(request).toCompletableFuture());
+        getReply(getFutureJVpp().oneAddDelMapResolver(request).toCompletableFuture());
     }
 }

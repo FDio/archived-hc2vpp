@@ -28,8 +28,8 @@ import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocator;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocatorReply;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocator;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocatorReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -46,7 +46,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class InterfaceCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 
     @Captor
-    private ArgumentCaptor<LispAddDelLocator> intfCaptor;
+    private ArgumentCaptor<OneAddDelLocator> intfCaptor;
 
     private InstanceIdentifier<Interface> id;
     private Interface intf;
@@ -72,7 +72,7 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
 
         customizer = new InterfaceCustomizer(api, new NamingContext("PREFIX", ifcCtxName));
 
-        when(api.lispAddDelLocator(any(LispAddDelLocator.class))).thenReturn(future(new LispAddDelLocatorReply()));
+        when(api.oneAddDelLocator(any(OneAddDelLocator.class))).thenReturn(future(new OneAddDelLocatorReply()));
     }
 
     @Test(expected = NullPointerException.class)
@@ -102,9 +102,9 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
     public void testWriteCurrentAttributes() throws WriteFailedException {
         customizer.writeCurrentAttributes(id, intf, writeContext);
 
-        verify(api, times(1)).lispAddDelLocator(intfCaptor.capture());
+        verify(api, times(1)).oneAddDelLocator(intfCaptor.capture());
 
-        LispAddDelLocator request = intfCaptor.getValue();
+        OneAddDelLocator request = intfCaptor.getValue();
 
         assertNotNull(request);
         assertEquals(1, request.isAdd);
@@ -146,9 +146,9 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
     public void testDeleteCurrentAttributes() throws WriteFailedException {
         customizer.deleteCurrentAttributes(id, intf, writeContext);
 
-        verify(api, times(1)).lispAddDelLocator(intfCaptor.capture());
+        verify(api, times(1)).oneAddDelLocator(intfCaptor.capture());
 
-        LispAddDelLocator request = intfCaptor.getValue();
+        OneAddDelLocator request = intfCaptor.getValue();
 
         assertNotNull(request);
         assertEquals(0, request.isAdd);

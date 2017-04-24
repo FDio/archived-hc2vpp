@@ -27,8 +27,8 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
 import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatus;
-import io.fd.vpp.jvpp.core.dto.ShowLispStatusReply;
+import io.fd.vpp.jvpp.core.dto.ShowOneStatus;
+import io.fd.vpp.jvpp.core.dto.ShowOneStatusReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
@@ -38,17 +38,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class LispStateCheckServiceImpl implements LispStateCheckService, JvppReplyConsumer, ByteDataTranslator {
 
     private static final Lisp STATIC_LISP_INSTANCE = new LispBuilder().setEnable(false).build();
-    private static final ShowLispStatusReply DEFAULT_REPLY = new ShowLispStatusReply();
+    private static final ShowOneStatusReply DEFAULT_REPLY = new ShowOneStatusReply();
     private static final InstanceIdentifier<Lisp> IDENTIFIER = InstanceIdentifier.create(Lisp.class);
 
-    private final DumpCacheManager<ShowLispStatusReply, Void> dumpManager;
+    private final DumpCacheManager<ShowOneStatusReply, Void> dumpManager;
 
     @Inject
     public LispStateCheckServiceImpl(@Nonnull final FutureJVppCore vppApi) {
-        dumpManager = new DumpCacheManagerBuilder<ShowLispStatusReply, Void>()
-                .withExecutor((instanceIdentifier, aVoid) -> getReplyForRead(vppApi.showLispStatus(new ShowLispStatus())
+        dumpManager = new DumpCacheManagerBuilder<ShowOneStatusReply, Void>()
+                .withExecutor((instanceIdentifier, aVoid) -> getReplyForRead(vppApi.showOneStatus(new ShowOneStatus())
                         .toCompletableFuture(), instanceIdentifier))
-                .acceptOnly(ShowLispStatusReply.class)
+                .acceptOnly(ShowOneStatusReply.class)
                 .build();
     }
 

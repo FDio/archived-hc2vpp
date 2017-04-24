@@ -29,9 +29,9 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableVniDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispEidTableVniDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableVniDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableVniDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableVniDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
@@ -59,19 +59,19 @@ public class VniTableCustomizer extends CheckedLispCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(VniTableCustomizer.class);
 
-    private final DumpCacheManager<LispEidTableVniDetailsReplyDump, Void> dumpManager;
+    private final DumpCacheManager<OneEidTableVniDetailsReplyDump, Void> dumpManager;
 
     public VniTableCustomizer(@Nonnull final FutureJVppCore futureJvpp,
                               @Nonnull final LispStateCheckService lispStateCheckService) {
         super(futureJvpp, lispStateCheckService);
-        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<LispEidTableVniDetailsReplyDump, Void>()
+        this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<OneEidTableVniDetailsReplyDump, Void>()
                 .withExecutor(((identifier, params) -> getReplyForRead(
-                        futureJvpp.lispEidTableVniDump(new LispEidTableVniDump()).toCompletableFuture(), identifier)))
-                .acceptOnly(LispEidTableVniDetailsReplyDump.class)
+                        futureJvpp.oneEidTableVniDump(new OneEidTableVniDump()).toCompletableFuture(), identifier)))
+                .acceptOnly(OneEidTableVniDetailsReplyDump.class)
                 .build();
     }
 
-    private static VniTableKey detailsToKey(final LispEidTableVniDetails lispEidTableMapDetails) {
+    private static VniTableKey detailsToKey(final OneEidTableVniDetails lispEidTableMapDetails) {
         return new VniTableKey(Integer.valueOf(lispEidTableMapDetails.vni).longValue());
 
     }
@@ -98,14 +98,14 @@ public class VniTableCustomizer extends CheckedLispCustomizer
         }
         LOG.trace("Reading all IDS...");
 
-        final Optional<LispEidTableVniDetailsReplyDump> optionalReply =
+        final Optional<OneEidTableVniDetailsReplyDump> optionalReply =
                 dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
 
-        if (!optionalReply.isPresent() || optionalReply.get().lispEidTableVniDetails.isEmpty()) {
+        if (!optionalReply.isPresent() || optionalReply.get().oneEidTableVniDetails.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return optionalReply.get().lispEidTableVniDetails.stream().map(VniTableCustomizer::detailsToKey)
+        return optionalReply.get().oneEidTableVniDetails.stream().map(VniTableCustomizer::detailsToKey)
                 .collect(Collectors.toList());
     }
 
@@ -121,16 +121,16 @@ public class VniTableCustomizer extends CheckedLispCustomizer
         checkState(id.firstKeyOf(VniTable.class) != null, "No VNI present");
         VniTableKey key = new VniTableKey(id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier());
 
-        final Optional<LispEidTableVniDetailsReplyDump> optionalReply =
+        final Optional<OneEidTableVniDetailsReplyDump> optionalReply =
                 dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
 
-        if (!optionalReply.isPresent() || optionalReply.get().lispEidTableVniDetails.isEmpty()) {
+        if (!optionalReply.isPresent() || optionalReply.get().oneEidTableVniDetails.isEmpty()) {
             return;
         }
 
         //transforming right away to single detail(specific request should do the magic)
-        final LispEidTableVniDetails details = optionalReply.get()
-                .lispEidTableVniDetails
+        final OneEidTableVniDetails details = optionalReply.get()
+                .oneEidTableVniDetails
                 .stream()
                 .filter(a -> a.vni == key.getVirtualNetworkIdentifier().intValue())
                 .collect(RWUtils.singleItemCollector());

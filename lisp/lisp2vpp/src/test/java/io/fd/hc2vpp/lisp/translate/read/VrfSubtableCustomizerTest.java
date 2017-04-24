@@ -58,7 +58,7 @@ public class VrfSubtableCustomizerTest extends SubtableReaderTestCase<VrfSubtabl
         VrfSubtableBuilder builder = new VrfSubtableBuilder();
         customizer.readCurrentAttributes(validId, builder, ctx);
 
-        verifyLispEidTableMapDumpCalled(L3);
+        verifyOneEidTableMapDumpCalled(L3);
 
         final VrfSubtable subtable = builder.build();
         assertNotNull(subtable);
@@ -71,7 +71,7 @@ public class VrfSubtableCustomizerTest extends SubtableReaderTestCase<VrfSubtabl
         VrfSubtableBuilder builder = new VrfSubtableBuilder();
         customizer.readCurrentAttributes(validId, builder, ctx);
 
-        verifyLispEidTableMapDumpCalled(L3);
+        verifyOneEidTableMapDumpCalled(L3);
 
         final VrfSubtable subtable = builder.build();
         assertNotNull(subtable);
@@ -87,7 +87,7 @@ public class VrfSubtableCustomizerTest extends SubtableReaderTestCase<VrfSubtabl
         } catch (ReadFailedException e) {
             assertTrue(e.getCause() instanceof VppCallbackException);
             assertTrue(builder.getTableId() == null);
-            verifyLispEidTableMapDumpNotCalled();
+            verifyOneEidTableMapDumpNotCalled();
 
             return;
         }

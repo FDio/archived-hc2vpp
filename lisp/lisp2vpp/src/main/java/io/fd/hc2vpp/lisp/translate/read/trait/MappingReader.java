@@ -21,12 +21,12 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDump
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV6;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.MAC;
 
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.LispEidTableDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
@@ -41,13 +41,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public interface MappingReader extends JvppReplyConsumer {
 
-    Predicate<LispEidTableDetails> BRIDGE_DOMAIN_MAPPINGS_ONLY =
-            (LispEidTableDetails detail) -> detail.eidType == MAC.getValue();
+    Predicate<OneEidTableDetails> BRIDGE_DOMAIN_MAPPINGS_ONLY =
+            (OneEidTableDetails detail) -> detail.eidType == MAC.getValue();
 
-    Predicate<LispEidTableDetails> VRF_MAPPINGS_ONLY =
-            (LispEidTableDetails detail) -> detail.eidType == IPV4.getValue() || detail.eidType == IPV6.getValue();
+    Predicate<OneEidTableDetails> VRF_MAPPINGS_ONLY =
+            (OneEidTableDetails detail) -> detail.eidType == IPV4.getValue() || detail.eidType == IPV6.getValue();
 
-    default Predicate<LispEidTableDetails> subtableFilterForLocalMappings(
+    default Predicate<OneEidTableDetails> subtableFilterForLocalMappings(
             @Nonnull final InstanceIdentifier<LocalMapping> identifier) {
 
         if (identifier.firstIdentifierOf(VrfSubtable.class) != null) {
@@ -59,7 +59,7 @@ public interface MappingReader extends JvppReplyConsumer {
         }
     }
 
-    default Predicate<LispEidTableDetails> subtableFilterForRemoteMappings(
+    default Predicate<OneEidTableDetails> subtableFilterForRemoteMappings(
             @Nonnull final InstanceIdentifier<RemoteMapping> identifier) {
 
         if (identifier.firstIdentifierOf(VrfSubtable.class) != null) {
@@ -71,12 +71,12 @@ public interface MappingReader extends JvppReplyConsumer {
         }
     }
 
-    default EntityDumpExecutor<LispEidTableDetailsReplyDump, MappingsDumpParams> createMappingDumpExecutor(
+    default EntityDumpExecutor<OneEidTableDetailsReplyDump, MappingsDumpParams> createMappingDumpExecutor(
             @Nonnull final FutureJVppCore vppApi) {
         return (identifier, params) -> {
             checkNotNull(params, "Params for dump request not present");
 
-            LispEidTableDump request = new LispEidTableDump();
+            OneEidTableDump request = new OneEidTableDump();
             request.eid = params.getEid();
             request.eidSet = params.getEidSet();
             request.eidType = params.getEidType();
@@ -84,7 +84,7 @@ public interface MappingReader extends JvppReplyConsumer {
             request.vni = params.getVni();
             request.filter = params.getFilter();
 
-            return getReplyForRead(vppApi.lispEidTableDump(request).toCompletableFuture(), identifier);
+            return getReplyForRead(vppApi.oneEidTableDump(request).toCompletableFuture(), identifier);
         };
     }
 }

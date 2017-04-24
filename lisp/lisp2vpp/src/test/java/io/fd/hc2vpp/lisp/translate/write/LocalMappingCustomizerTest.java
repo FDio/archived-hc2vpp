@@ -31,8 +31,8 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.lisp.context.util.EidMappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEid;
-import io.fd.vpp.jvpp.core.dto.LispAddDelLocalEidReply;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocalEid;
+import io.fd.vpp.jvpp.core.dto.OneAddDelLocalEidReply;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -65,7 +65,7 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
     @Mock
     private EidMappingContext eidMappingContext;
     @Captor
-    private ArgumentCaptor<LispAddDelLocalEid> mappingCaptor;
+    private ArgumentCaptor<OneAddDelLocalEid> mappingCaptor;
 
     private InstanceIdentifier<LocalMapping> id;
     private LocalMapping mapping;
@@ -106,7 +106,7 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
 
         customizer = new LocalMappingCustomizer(api, eidMappingContext);
 
-        when(api.lispAddDelLocalEid(any(LispAddDelLocalEid.class))).thenReturn(future(new LispAddDelLocalEidReply()));
+        when(api.oneAddDelLocalEid(any(OneAddDelLocalEid.class))).thenReturn(future(new OneAddDelLocalEidReply()));
     }
 
 
@@ -138,9 +138,9 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
     public void testWriteCurrentAttributes() throws WriteFailedException {
         customizer.writeCurrentAttributes(id, mapping, writeContext);
 
-        verify(api, times(1)).lispAddDelLocalEid(mappingCaptor.capture());
+        verify(api, times(1)).oneAddDelLocalEid(mappingCaptor.capture());
 
-        LispAddDelLocalEid request = mappingCaptor.getValue();
+        OneAddDelLocalEid request = mappingCaptor.getValue();
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
@@ -155,9 +155,9 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
     public void testWriteCurrentAttributesWithHmacKey() throws WriteFailedException {
         customizer.writeCurrentAttributes(id, mappingWithHmacKey, writeContext);
 
-        verify(api, times(1)).lispAddDelLocalEid(mappingCaptor.capture());
+        verify(api, times(1)).oneAddDelLocalEid(mappingCaptor.capture());
 
-        LispAddDelLocalEid request = mappingCaptor.getValue();
+        OneAddDelLocalEid request = mappingCaptor.getValue();
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
@@ -180,9 +180,9 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
         when(eidMappingContext.containsEid(any(), eq(mappingContext))).thenReturn(true);
         customizer.deleteCurrentAttributes(id, mapping, writeContext);
 
-        verify(api, times(1)).lispAddDelLocalEid(mappingCaptor.capture());
+        verify(api, times(1)).oneAddDelLocalEid(mappingCaptor.capture());
 
-        LispAddDelLocalEid request = mappingCaptor.getValue();
+        OneAddDelLocalEid request = mappingCaptor.getValue();
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));
@@ -198,9 +198,9 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
         when(eidMappingContext.containsEid(any(), eq(mappingContext))).thenReturn(true);
         customizer.deleteCurrentAttributes(id, mappingWithHmacKey, writeContext);
 
-        verify(api, times(1)).lispAddDelLocalEid(mappingCaptor.capture());
+        verify(api, times(1)).oneAddDelLocalEid(mappingCaptor.capture());
 
-        LispAddDelLocalEid request = mappingCaptor.getValue();
+        OneAddDelLocalEid request = mappingCaptor.getValue();
 
         assertNotNull(request);
         assertEquals("Locator", new String(request.locatorSetName));

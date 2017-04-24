@@ -27,8 +27,8 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.ShowLispPitr;
-import io.fd.vpp.jvpp.core.dto.ShowLispPitrReply;
+import io.fd.vpp.jvpp.core.dto.ShowOnePitr;
+import io.fd.vpp.jvpp.core.dto.ShowOnePitrReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
@@ -70,7 +70,7 @@ public class PitrCfgCustomizer extends CheckedLispCustomizer
         }
         LOG.debug("Reading status for Lisp Pitr node {}", id);
 
-        ShowLispPitrReply reply;
+        ShowOnePitrReply reply;
 
         try {
             reply = getPitrStatus();
@@ -87,8 +87,8 @@ public class PitrCfgCustomizer extends CheckedLispCustomizer
         ((LispFeatureDataBuilder) parentBuilder).setPitrCfg(readValue);
     }
 
-    public ShowLispPitrReply getPitrStatus() throws TimeoutException, VppBaseCallException {
-        return getReply(getFutureJVpp().showLispPitr(new ShowLispPitr()).toCompletableFuture());
+    public ShowOnePitrReply getPitrStatus() throws TimeoutException, VppBaseCallException {
+        return getReply(getFutureJVpp().showOnePitr(new ShowOnePitr()).toCompletableFuture());
     }
 
     @Nonnull

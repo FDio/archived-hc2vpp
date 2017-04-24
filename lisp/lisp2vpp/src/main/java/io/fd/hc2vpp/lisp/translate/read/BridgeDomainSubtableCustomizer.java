@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -28,9 +30,12 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetails;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetails;
+import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
@@ -41,18 +46,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer implements
         InitializingReaderCustomizer<BridgeDomainSubtable, BridgeDomainSubtableBuilder>, SubtableReader, LispInitPathsMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(BridgeDomainSubtableCustomizer.class);
 
-    private final DumpCacheManager<LispEidTableMapDetailsReplyDump, SubtableDumpParams>
+    private final DumpCacheManager<OneEidTableMapDetailsReplyDump, SubtableDumpParams>
             dumpManager;
     private final NamingContext bridgeDomainContext;
 
@@ -60,9 +59,9 @@ public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer impleme
                                           @Nonnull final NamingContext bridgeDomainContext) {
         super(futureJvppCore);
         dumpManager =
-                new DumpCacheManagerBuilder<LispEidTableMapDetailsReplyDump, SubtableDumpParams>()
+                new DumpCacheManagerBuilder<OneEidTableMapDetailsReplyDump, SubtableDumpParams>()
                         .withExecutor(createExecutor(futureJvppCore))
-                        .acceptOnly(LispEidTableMapDetailsReplyDump.class)
+                        .acceptOnly(OneEidTableMapDetailsReplyDump.class)
                         .build();
         this.bridgeDomainContext = checkNotNull(bridgeDomainContext, "Bridge domain context cannot be null");
     }
@@ -81,20 +80,20 @@ public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer impleme
                 .getVirtualNetworkIdentifier().intValue();
         LOG.debug("Read attributes for id {}", id);
         //dumps only L2(bridge domains)
-        final Optional<LispEidTableMapDetailsReplyDump> reply =
+        final Optional<OneEidTableMapDetailsReplyDump> reply =
                 dumpManager.getDump(id, ctx.getModificationCache(), L2_PARAMS);
 
-        if (!reply.isPresent() || reply.get().lispEidTableMapDetails.isEmpty()) {
+        if (!reply.isPresent() || reply.get().oneEidTableMapDetails.isEmpty()) {
             return;
         }
 
         // Single item collector cant be used in this case,because bridge-domain-subtable is container
         // so read is invoked every time parent is defined
-        final List<LispEidTableMapDetails>
-                details = reply.get().lispEidTableMapDetails.stream().filter(a -> a.vni == vni)
+        final List<OneEidTableMapDetails>
+                details = reply.get().oneEidTableMapDetails.stream().filter(a -> a.vni == vni)
                 .collect(Collectors.toList());
         if (details.size() == 1) {
-            final LispEidTableMapDetails detail = details.get(0);
+            final OneEidTableMapDetails detail = details.get(0);
             builder.setBridgeDomainRef(bridgeDomainContext.getName(detail.dpTable, ctx.getMappingContext()));
             LOG.debug("Attributes for {} successfully loaded", id);
         }
