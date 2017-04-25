@@ -1,0 +1,8 @@
+#!/bin/sh
+echo 'RELEASE'
+
+# Determines which VPP version to use in hc2vpp-integration job.
+# 'RELEASE' will use the latest VPP in the respective branch.
+# Alternatively use a specific VPP version.
+# Do not include the suffix ('_amd64', '.x86_64'), it will be appended.
+# Examples: '17.04-release', '17.07-rc0~151-g6bc8c64~b2254', ...
