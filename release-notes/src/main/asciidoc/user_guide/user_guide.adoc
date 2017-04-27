@@ -16,12 +16,12 @@ Honeycomb's configuration files present within its distribution:
 ** {project-infra-git-web}/infra/minimal-distribution/src/main/resources/honeycomb-minimal-resources/config/honeycomb.json?h={project-branch}[Honeycomb base configuration]
 * Honeycomb vpp plugins commons:
 ** {project-git-web}/vpp-common/vpp-common-integration/src/main/resources/honeycomb-minimal-resources/config/jvpp.json?h={project-branch}[VPP plugins common configuration]
-* V3PO plugin:
-** {project-git-web}/v3po/v3po2vpp/src/main/resources/honeycomb-minimal-resources/config/v3po.json?h={project-branch}[V3PO plugin for Honeycomb configuration]
-* LISP plugin
+* LISP plugin:
 ** {project-git-web}/lisp/lisp2vpp/src/main/resources/honeycomb-minimal-resources/config/lisp.json?h={project-branch}[LISP plugin for Honeycomb configuration]
 * Routing plugin:
 ** {project-git-web}/routing/routing-impl/src/main/resources/honeycomb-minimal-resources/config/routing.json?h={project-branch}[Routing plugin for Honeycomb configuration]
+* VPP management plugin:
+** {project-git-web}/vpp-management/impl/src/main/resources/honeycomb-minimal-resources/config/vpp-management.json?h={project-branch}[VPP management plugin configuration]
 
 === YANG models
 
@@ -41,6 +41,14 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/acl/acl-api/src/main/yang?h={project-branch}[ACL YANG models]
 * Context models
 ** {project-git-web}/vpp-common/naming-context-api/src/main/yang?h={project-branch}[Context YANG models]
+* VPP management plugin
+** {project-git-web}/vpp-management/api/src/main/yang?h={project-branch}[VPP management YANG models]
+* L3 plugin
+** {project-git-web}/l3/api/src/main/yang?h={project-branch}[L3 YANG models]
+* DHCP plugin
+** {project-git-web}/dhcp/dhcp-api/src/main/yang?h={project-branch}[DHCP YANG models]
+* VPP classifier plugin
+** {project-git-web}/vpp-classifier/api/src/main/yang?h={project-branch}[VPP classifier YANG models]
 
 === POSTMAN collections
 
@@ -56,5 +64,15 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/ioam/ioam_postman_collection.json?h={project-branch}[IOAM postman collection]
 * Routing plugin
 ** {project-git-web}/routing/routing_postman_collection.json?h={project-branch}[Routing postman collection]
+** {project-git-web}/routing/routing_adv_postman_collection.json?h={project-branch}[Routing advertisements postman collection]
 * ACL plugin
 ** {project-git-web}/acl/acl_postman_collection.json?h={project-branch}[ACL postman collection]
+* VPP management plugin
+** {project-git-web}/vpp-management/vpp_management_postman_collection.json?h={project-branch}[VPP management postman collection]
+* L3 plugin
+** {project-git-web}/l3/impl/l3_postman_collection.json?h={project-branch}[L3 postman collection]
+* DHCP plugin
+** {project-git-web}/dhcp/dhcp_postman_collection.json?h={project-branch}[DHCP postman collection]
+* VPP classifier plugin
+** {project-git-web}/vpp-classifier/vpp_classifier_postman_collection.json?h={project-branch}[VPP classifier postman collection]
+** {project-git-web}/vpp-classifier/policer_postman_collection.json?h={project-branch}[Policer postman collection]

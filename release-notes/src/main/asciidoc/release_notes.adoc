@@ -19,6 +19,16 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.01/relea
 === Removed features
 
 === Modified features
+* V3PO module
+
+Some of the features provided by v3po module were moved to separate modules:
+
+** https://gerrit.fd.io/r/#/c/5530/[VPP classifier]
+** https://gerrit.fd.io/r/#/c/5643/[L3]
+** https://gerrit.fd.io/r/#/c/5706/[VPP management]
+
+for more details
+
 * https://jira.fd.io/browse/HC2VPP-54[Proxy ARP]
 
 Added support for multiple ranges

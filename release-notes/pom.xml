@@ -78,15 +78,11 @@
                 <project-version>${project.version}</project-version>
                 <project-public-version>17.04</project-public-version>
                 <project-version-in-jira>10601</project-version-in-jira>
-                <project-branch>master</project-branch>
+                <project-branch>stable/1704</project-branch>
                 <project-vpp-version>17.04</project-vpp-version>
-                <!-- TODO set snapshot version to project-vpp-version after VPP is released-->
-                <!--<project-vpp-snapshot-version>17.04</project-vpp-snapshot-version>-->
-                <project-vpp-snapshot-version>17.04-SNAPSHOT</project-vpp-snapshot-version>
+                <project-vpp-snapshot-version>17.04</project-vpp-snapshot-version>
                 <project-snat-version>17.04</project-snat-version>
-                <!-- TODO set snapshot version to project-snat-version after VPP is released-->
-                <!--<project-snat-snapshot-version>17.04</project-snat-snapshot-version>-->
-                <project-snat-snapshot-version>17.04-SNAPSHOT</project-snat-snapshot-version>
+                <project-snat-snapshot-version>17.04</project-snat-snapshot-version>
                 <project-git-web>https://git.fd.io/cgit/hc2vpp/tree</project-git-web>
                 <project-infra-git-web>https://git.fd.io/cgit/honeycomb/tree</project-infra-git-web>
               </attributes>
