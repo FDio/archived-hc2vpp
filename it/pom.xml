@@ -29,6 +29,7 @@
     <groupId>io.fd.hc2vpp.infra</groupId>
     <artifactId>it-aggregator</artifactId>
     <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
 
     <modules>
         <module>api-test</module>
