@@ -1,8 +1,12 @@
 module vpp-routing-ra {
 
-    namespace "urn:ietf:params:xml:ns:yang:vpp-routing";
+    namespace "urn:ietf:params:xml:ns:yang:vpp-routing-ra";
     prefix "vpp-routing";
     description "General extensions for routing advertisments message configuration provided by VPP APIs";
+
+    revision 2017-05-02 {
+        description "Changed namespace";
+    }
 
     revision 2017-03-15 {
         description "Initial revision.";

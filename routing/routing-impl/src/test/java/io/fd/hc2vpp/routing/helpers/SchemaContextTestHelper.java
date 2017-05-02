@@ -42,7 +42,7 @@ public interface SchemaContextTestHelper extends InjectablesProcessor {
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev161214.$YangModuleInfoImpl
                         .getInstance(),
                 // Vpp routing RA
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170315.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev170502.$YangModuleInfoImpl
                     .getInstance()));
     }
 }
