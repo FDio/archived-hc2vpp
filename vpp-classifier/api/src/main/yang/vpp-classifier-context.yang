@@ -1,10 +1,14 @@
 module vpp-classifier-context {
   yang-version 1;
-  namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier";
+  namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier:context";
   prefix "vpp-classifier-context";
 
   description
     "This module contains vpp classfier metadata definition";
+
+  revision "2017-05-02" {
+    description "Changed namespace";
+  }
 
   revision "2016-09-09" {
     description
