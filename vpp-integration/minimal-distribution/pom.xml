@@ -55,10 +55,6 @@
       io.fd.hc2vpp.vpp.classifier.VppClassifierModule,
       io.fd.hc2vpp.vpp.classifier.InterfaceClassifierAclModule,
       io.fd.hc2vpp.vpp.classifier.SubInterfaceClassifierAclModule,
-      <!-- Classifier Acl's module disabled by default, can't run in the same time with AclModule -->
-      // io.fd.hc2vpp.vpp.classifier.VppClassifierAclModule,
-      // io.fd.hc2vpp.vpp.classifier.InterfaceClassifierIetfAclModule,
-      // io.fd.hc2vpp.vpp.classifier.SubInterfaceClassifierIetfAclModule,
       io.fd.hc2vpp.nat.NatModule,
       io.fd.hc2vpp.routing.RoutingModule,
       io.fd.hc2vpp.acl.AclModule,

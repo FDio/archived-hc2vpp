@@ -63,11 +63,8 @@ public class VppClassifierModuleTest {
         ifcContext = new NamingContext("interface-", "interface-context");
         Guice.createInjector(
                 new VppClassifierModule(),
-                new VppClassifierAclModule(),
                 new InterfaceClassifierAclModule(),
-                new InterfaceClassifierIetfAclModule(),
                 new SubInterfaceClassifierAclModule(),
-                new SubInterfaceClassifierIetfAclModule(),
                 BoundFieldModule.of(this)).injectMembers(this);
     }
 
