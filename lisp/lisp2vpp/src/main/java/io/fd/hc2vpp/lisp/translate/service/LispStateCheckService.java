@@ -26,9 +26,18 @@ import javax.annotation.Nonnull;
 public interface LispStateCheckService {
 
     /**
-     * Checks whether lisp is enabled while operating inside {@link WriteContext}
+     * Checks whether lisp is enabled while operating inside {@link WriteContext}.
+     * Covers cases when removing lisp data
+     * @throws IllegalStateException if lisp feature is disabled
      */
-    void checkLispEnabled(@Nonnull final WriteContext ctx);
+    void checkLispEnabledBefore(@Nonnull final WriteContext ctx);
+
+    /**
+     * Checks whether lisp is enabled while operating inside {@link WriteContext}
+     * Covers cases when creating/updating lisp data
+     * @throws IllegalStateException if lisp feature is disabled
+     */
+    void checkLispEnabledAfter(@Nonnull final WriteContext ctx);
 
     /**
      * Checks whether lisp is enabled while operating inside {@link ReadContext}

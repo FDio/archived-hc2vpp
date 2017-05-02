@@ -44,7 +44,7 @@ public class PetrCfgCustomizer extends CheckedLispCustomizer
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<PetrCfg> instanceIdentifier,
                                        @Nonnull PetrCfg petrCfg,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         enablePetrCfg(instanceIdentifier, petrCfg);
     }
 
@@ -53,7 +53,7 @@ public class PetrCfgCustomizer extends CheckedLispCustomizer
                                         @Nonnull PetrCfg petrCfgBefore,
                                         @Nonnull PetrCfg petrCfgAfter,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         if (petrCfgAfter.getPetrAddress() != null) {
             enablePetrCfg(instanceIdentifier, petrCfgAfter);
         } else {
@@ -63,7 +63,7 @@ public class PetrCfgCustomizer extends CheckedLispCustomizer
 
     @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<PetrCfg> instanceIdentifier, @Nonnull PetrCfg petrCfg, @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledBefore(writeContext);
         disablePetrCfg(instanceIdentifier);
     }
 

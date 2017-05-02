@@ -72,7 +72,7 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
                                        @Nonnull LocatorSet dataAfter,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         checkState(isNonEmptyLocatorSet(writeContext.readAfter(id).get()),
                 "Creating empty locator-sets is not allowed");
         final String locatorSetName = dataAfter.getName();
@@ -99,7 +99,7 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
                                         @Nonnull LocatorSet dataBefore,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledBefore(writeContext);
         final String locatorSetName = dataBefore.getName();
 
         final Optional<EidTable> eidTableData = writeContext.readAfter(InstanceIdentifier.create(Lisp.class)

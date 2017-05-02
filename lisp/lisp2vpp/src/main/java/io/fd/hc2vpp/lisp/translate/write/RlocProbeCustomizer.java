@@ -41,7 +41,7 @@ public class RlocProbeCustomizer extends CheckedLispCustomizer
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<RlocProbe> instanceIdentifier,
                                        @Nonnull RlocProbe rlocProbe,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         enableDisableRlocProbe(rlocProbe.isEnabled(), instanceIdentifier);
     }
 
@@ -50,7 +50,7 @@ public class RlocProbeCustomizer extends CheckedLispCustomizer
                                         @Nonnull RlocProbe rlocProbeBefore,
                                         @Nonnull RlocProbe rlocProbeAfter,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         enableDisableRlocProbe(rlocProbeAfter.isEnabled(), instanceIdentifier);
     }
 
@@ -58,7 +58,7 @@ public class RlocProbeCustomizer extends CheckedLispCustomizer
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<RlocProbe> instanceIdentifier,
                                         @Nonnull RlocProbe rlocProbe,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledBefore(writeContext);
         enableDisableRlocProbe(false, instanceIdentifier);
     }
 

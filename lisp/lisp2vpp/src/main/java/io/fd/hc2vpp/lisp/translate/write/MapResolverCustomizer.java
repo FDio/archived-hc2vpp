@@ -51,7 +51,7 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<MapResolver> id,
                                        @Nonnull final MapResolver dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         checkNotNull(dataAfter, "Data is null");
         checkNotNull(dataAfter.getIpAddress(), "Address is null");
 
@@ -73,7 +73,7 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<MapResolver> id,
                                         @Nonnull final MapResolver dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledBefore(writeContext);
         checkNotNull(dataBefore, "Data is null");
         checkNotNull(dataBefore.getIpAddress(), "Address is null");
 

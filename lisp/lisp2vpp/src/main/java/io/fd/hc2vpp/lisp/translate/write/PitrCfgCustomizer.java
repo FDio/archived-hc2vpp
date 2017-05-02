@@ -51,7 +51,7 @@ public class PitrCfgCustomizer extends CheckedLispCustomizer
     @Override
     public void writeCurrentAttributes(InstanceIdentifier<PitrCfg> id, PitrCfg dataAfter, WriteContext writeContext)
             throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         checkNotNull(dataAfter, "PitrCfg is null");
         checkNotNull(dataAfter.getLocatorSet(), "Locator set name is null");
 
@@ -65,7 +65,7 @@ public class PitrCfgCustomizer extends CheckedLispCustomizer
     @Override
     public void updateCurrentAttributes(InstanceIdentifier<PitrCfg> id, PitrCfg dataBefore, PitrCfg dataAfter,
                                         WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         checkNotNull(dataAfter, "PitrCfg is null");
         checkNotNull(dataAfter.getLocatorSet(), "Locator set name is null");
 
@@ -79,7 +79,7 @@ public class PitrCfgCustomizer extends CheckedLispCustomizer
     @Override
     public void deleteCurrentAttributes(InstanceIdentifier<PitrCfg> id, PitrCfg dataBefore, WriteContext writeContext)
             throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledBefore(writeContext);
         checkNotNull(dataBefore, "PitrCfg is null");
         checkNotNull(dataBefore.getLocatorSet(), "Locator set name is null");
 

@@ -86,7 +86,7 @@ public class PetrCfgCustomizerTest extends LispWriterCustomizerTest {
 
     @Test
     public void testWriteLispDisabled() throws WriteFailedException {
-        mockLispDisabled();
+        mockLispDisabledAfter();
         try {
             customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
         } catch (IllegalArgumentException e) {
@@ -98,7 +98,7 @@ public class PetrCfgCustomizerTest extends LispWriterCustomizerTest {
 
     @Test
     public void testUpdateLispDisabled() throws WriteFailedException {
-        mockLispDisabled();
+        mockLispDisabledAfter();
         try {
             customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA,EMPTY_DATA, writeContext);
         } catch (IllegalArgumentException e) {
@@ -110,7 +110,7 @@ public class PetrCfgCustomizerTest extends LispWriterCustomizerTest {
 
     @Test
     public void testDeleteLispDisabled() throws WriteFailedException {
-        mockLispDisabled();
+        mockLispDisabledBefore();
         try {
             customizer.deleteCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
         } catch (IllegalArgumentException e) {

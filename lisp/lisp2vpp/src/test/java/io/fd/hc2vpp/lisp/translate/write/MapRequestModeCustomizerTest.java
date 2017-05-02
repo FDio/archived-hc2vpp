@@ -79,7 +79,7 @@ public class MapRequestModeCustomizerTest extends LispWriterCustomizerTest {
 
     @Test
     public void testWriteLispDisabled() throws WriteFailedException {
-        mockLispDisabled();
+        mockLispDisabledAfter();
         try {
             customizer.writeCurrentAttributes(EMPTY_ID, EMPTY_DATA, writeContext);
         } catch (IllegalArgumentException e) {
@@ -91,7 +91,7 @@ public class MapRequestModeCustomizerTest extends LispWriterCustomizerTest {
 
     @Test
     public void testUpdateLispDisabled() throws WriteFailedException {
-        mockLispDisabled();
+        mockLispDisabledAfter();
         try {
             customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA,EMPTY_DATA, writeContext);
         } catch (IllegalArgumentException e) {

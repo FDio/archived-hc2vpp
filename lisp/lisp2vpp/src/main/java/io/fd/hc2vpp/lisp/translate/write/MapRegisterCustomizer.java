@@ -41,6 +41,7 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<MapRegister> instanceIdentifier,
                                        @Nonnull MapRegister mapRegister,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         enableDisableMapRegister(mapRegister.isEnabled(), instanceIdentifier, writeContext);
     }
 
@@ -49,6 +50,7 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
                                         @Nonnull MapRegister mapRegisterBefore,
                                         @Nonnull MapRegister mapRegisterAfter, @Nonnull
                                                 WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         enableDisableMapRegister(mapRegisterAfter.isEnabled(), instanceIdentifier, writeContext);
     }
 
@@ -56,12 +58,12 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<MapRegister> instanceIdentifier,
                                         @Nonnull MapRegister mapRegister,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
+        lispStateCheckService.checkLispEnabledBefore(writeContext);
         enableDisableMapRegister(false, instanceIdentifier, writeContext);
     }
 
     private void enableDisableMapRegister(final boolean enable, @Nonnull final InstanceIdentifier<MapRegister> id,
                                           @Nonnull final WriteContext context) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(context);
         OneMapRegisterEnableDisable request = new OneMapRegisterEnableDisable();
         request.isEnabled = booleanToByte(enable);
         getReplyForWrite(getFutureJVpp().oneMapRegisterEnableDisable(request).toCompletableFuture(), id);

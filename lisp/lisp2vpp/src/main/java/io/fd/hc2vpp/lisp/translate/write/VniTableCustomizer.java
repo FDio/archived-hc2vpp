@@ -46,7 +46,7 @@ public class VniTableCustomizer extends CheckedLispCustomizer implements ListWri
     @Override
     public void writeCurrentAttributes(InstanceIdentifier<VniTable> id, VniTable dataAfter, WriteContext writeContext)
             throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         checkAtLeastOnChildExists(id, writeContext, false);
     }
 
@@ -59,7 +59,7 @@ public class VniTableCustomizer extends CheckedLispCustomizer implements ListWri
     @Override
     public void deleteCurrentAttributes(InstanceIdentifier<VniTable> id, VniTable dataBefore, WriteContext writeContext)
             throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledBefore(writeContext);
         checkAtLeastOnChildExists(id, writeContext, true);
     }
 

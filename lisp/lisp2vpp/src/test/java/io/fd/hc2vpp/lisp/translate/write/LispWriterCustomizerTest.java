@@ -29,9 +29,14 @@ public abstract class LispWriterCustomizerTest extends WriterCustomizerTest{
     @Mock
     protected LispStateCheckService lispStateCheckService;
 
-    protected void mockLispDisabled(){
+    protected void mockLispDisabledAfter(){
         doThrow(IllegalArgumentException.class)
-                .when(lispStateCheckService).checkLispEnabled(any(WriteContext.class));
+                .when(lispStateCheckService).checkLispEnabledAfter(any(WriteContext.class));
+    }
+
+    protected void mockLispDisabledBefore(){
+        doThrow(IllegalArgumentException.class)
+                .when(lispStateCheckService).checkLispEnabledBefore(any(WriteContext.class));
     }
 
 

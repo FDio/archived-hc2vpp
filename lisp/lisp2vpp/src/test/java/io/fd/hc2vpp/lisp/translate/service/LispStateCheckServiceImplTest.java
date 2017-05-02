@@ -57,24 +57,45 @@ public class LispStateCheckServiceImplTest implements FutureProducer {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testCheckLispEnabledNoConfig() throws Exception {
-        when(writeContext.readAfter(InstanceIdentifier.create(Lisp.class))).thenReturn(Optional.absent());
-        impl.checkLispEnabled(writeContext);
+    public void testCheckLispEnabledBeforeNoConfig() throws Exception {
+        when(writeContext.readBefore(InstanceIdentifier.create(Lisp.class))).thenReturn(Optional.absent());
+        impl.checkLispEnabledBefore(writeContext);
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testCheckLispEnabledDisabledConfig() throws Exception {
-        when(writeContext.readAfter(InstanceIdentifier.create(Lisp.class)))
+    public void testCheckLispEnabledBeforeDisabledConfig() throws Exception {
+        when(writeContext.readBefore(InstanceIdentifier.create(Lisp.class)))
                 .thenReturn(Optional.of(new LispBuilder().setEnable(false).build()));
-        impl.checkLispEnabled(writeContext);
+        impl.checkLispEnabledBefore(writeContext);
     }
 
     @Test
-    public void testCheckLispEnabledEnabledConfig() throws Exception {
+    public void testCheckLispEnabledBeforeEnabledConfig() throws Exception {
+        // no exception should be thrown here
+        when(writeContext.readBefore(InstanceIdentifier.create(Lisp.class)))
+                .thenReturn(Optional.of(new LispBuilder().setEnable(true).build()));
+        impl.checkLispEnabledBefore(writeContext);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCheckLispEnabledAfterNoConfig() throws Exception {
+        when(writeContext.readAfter(InstanceIdentifier.create(Lisp.class))).thenReturn(Optional.absent());
+        impl.checkLispEnabledAfter(writeContext);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCheckLispEnabledAfterDisabledConfig() throws Exception {
+        when(writeContext.readAfter(InstanceIdentifier.create(Lisp.class)))
+                .thenReturn(Optional.of(new LispBuilder().setEnable(false).build()));
+        impl.checkLispEnabledAfter(writeContext);
+    }
+
+    @Test
+    public void testCheckLispEnabledAfterEnabledConfig() throws Exception {
         // no exception should be thrown here
         when(writeContext.readAfter(InstanceIdentifier.create(Lisp.class)))
                 .thenReturn(Optional.of(new LispBuilder().setEnable(true).build()));
-        impl.checkLispEnabled(writeContext);
+        impl.checkLispEnabledAfter(writeContext);
     }
 
     @Test

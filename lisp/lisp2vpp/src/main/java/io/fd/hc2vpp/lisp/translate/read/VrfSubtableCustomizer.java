@@ -29,7 +29,6 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager.DumpCacheManagerBuilder;
-import io.fd.vpp.jvpp.core.dto.LispEidTableMapDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetails;
 import io.fd.vpp.jvpp.core.dto.OneEidTableMapDetailsReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -57,7 +56,7 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
         super(futureJvpp);
         dumpManager = new DumpCacheManagerBuilder<OneEidTableMapDetailsReplyDump, SubtableDumpParams>()
                 .withExecutor(createExecutor(futureJvpp))
-                .acceptOnly(LispEidTableMapDetailsReplyDump.class)
+                .acceptOnly(OneEidTableMapDetailsReplyDump.class)
                 .build();
     }
 

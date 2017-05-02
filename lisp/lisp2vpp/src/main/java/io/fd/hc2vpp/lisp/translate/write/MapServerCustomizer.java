@@ -44,7 +44,7 @@ public class MapServerCustomizer extends CheckedLispCustomizer
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier,
                                        @Nonnull MapServer mapServer,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         addDelMapServer(true, instanceIdentifier, mapServer);
     }
 
@@ -59,7 +59,7 @@ public class MapServerCustomizer extends CheckedLispCustomizer
 
     @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier, @Nonnull MapServer mapServer, @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledBefore(writeContext);
         addDelMapServer(false, instanceIdentifier, mapServer);
     }
 

@@ -75,7 +75,11 @@ public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer impleme
     private void addDelItrRemoteLocatorSet(final boolean add, @Nonnull final ItrRemoteLocatorSet data,
                                            @Nonnull final WriteContext context)
             throws TimeoutException, VppBaseCallException {
-        lispStateCheckService.checkLispEnabled(context);
+        if (add) {
+            lispStateCheckService.checkLispEnabledAfter(context);
+        } else {
+            lispStateCheckService.checkLispEnabledBefore(context);
+        }
 
         OneAddDelMapRequestItrRlocs request = new OneAddDelMapRequestItrRlocs();
         request.isAdd = booleanToByte(add);

@@ -44,7 +44,7 @@ public class MapRequestModeCustomizer extends CheckedLispCustomizer
     public void writeCurrentAttributes(@Nonnull InstanceIdentifier<MapRequestMode> instanceIdentifier,
                                        @Nonnull MapRequestMode mapRequestMode,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         getReplyForWrite(mapRequestModeRequestFuture(mapRequestMode), instanceIdentifier);
     }
 
@@ -53,7 +53,7 @@ public class MapRequestModeCustomizer extends CheckedLispCustomizer
                                         @Nonnull MapRequestMode mapRequestModeBefore,
                                         @Nonnull MapRequestMode mapRequestModeAfter, @Nonnull WriteContext writeContext)
             throws WriteFailedException {
-        lispStateCheckService.checkLispEnabled(writeContext);
+        lispStateCheckService.checkLispEnabledAfter(writeContext);
         getReplyForUpdate(mapRequestModeRequestFuture(mapRequestModeAfter), instanceIdentifier,
                 mapRequestModeBefore, mapRequestModeAfter);
     }
