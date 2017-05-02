@@ -15,6 +15,7 @@
     <artifactId>interface-role-aggregator</artifactId>
     <packaging>pom</packaging>
     <version>1.17.07-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
 
     <modules>
         <module>api</module>
