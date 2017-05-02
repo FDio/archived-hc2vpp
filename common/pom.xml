@@ -7,14 +7,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>hc2vpp-parent</artifactId>
-        <version>1.17.04</version>
+        <version>1.17.04.1-SNAPSHOT</version>
         <relativePath>hc2vpp-parent</relativePath>
     </parent>
 
 
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>hc2vpp-common-aggregator</artifactId>
-    <version>1.17.04</version>
+    <version>1.17.04.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     <description>Aggregator for common maven parents providing base configuration for Hc2vpp modules</description>

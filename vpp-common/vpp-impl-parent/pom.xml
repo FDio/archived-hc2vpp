@@ -19,7 +19,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>impl-parent</artifactId>
-    <version>1.17.04</version>
+    <version>1.17.04.1-SNAPSHOT</version>
     <relativePath>../../common/impl-parent</relativePath>
   </parent>
 
@@ -27,11 +27,11 @@
   <groupId>io.fd.hc2vpp.common</groupId>
   <artifactId>vpp-impl-parent</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.04</version>
+  <version>1.17.04.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
-    <jvpp.version>17.04</jvpp.version>
+    <jvpp.version>17.04-SNAPSHOT</jvpp.version>
   </properties>
 
   <dependencyManagement>
