@@ -1,0 +1,3 @@
+= interface-role-aggregator
+
+This module contains api and implementation(TODO: HC2VPP-128) for interface role specification (config only feature)
