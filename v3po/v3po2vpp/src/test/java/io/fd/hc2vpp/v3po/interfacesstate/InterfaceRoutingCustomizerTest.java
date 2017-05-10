@@ -36,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces.state._interface.RoutingBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class RoutingCustomizerTest extends ReaderCustomizerTest<Routing, RoutingBuilder> {
+public class InterfaceRoutingCustomizerTest extends ReaderCustomizerTest<Routing, RoutingBuilder> {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IF_NAME = "local0";
@@ -46,7 +46,7 @@ public class RoutingCustomizerTest extends ReaderCustomizerTest<Routing, Routing
 
     private NamingContext interfacesContext;
 
-    public RoutingCustomizerTest() {
+    public InterfaceRoutingCustomizerTest() {
         super(Routing.class, VppInterfaceStateAugmentationBuilder.class);
     }
 
@@ -58,7 +58,7 @@ public class RoutingCustomizerTest extends ReaderCustomizerTest<Routing, Routing
 
     @Override
     protected ReaderCustomizer<Routing, RoutingBuilder> initCustomizer() {
-        return new RoutingCustomizer(api, interfacesContext);
+        return new InterfaceRoutingCustomizer(api, interfacesContext);
     }
 
     private InstanceIdentifier<Routing> getRoutingId(final String name) {

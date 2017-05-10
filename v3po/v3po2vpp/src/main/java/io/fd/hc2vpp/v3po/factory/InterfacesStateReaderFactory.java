@@ -24,8 +24,8 @@ import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
 import io.fd.hc2vpp.v3po.interfacesstate.EthernetCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.InterfaceRoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.L2Customizer;
-import io.fd.hc2vpp.v3po.interfacesstate.RoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
@@ -107,7 +107,7 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
             new EthernetCustomizer(jvpp, ifcNamingCtx)));
         //    Routing
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Routing.class),
-            new RoutingCustomizer(jvpp, ifcNamingCtx)));
+            new InterfaceRoutingCustomizer(jvpp, ifcNamingCtx)));
         //    Tap
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Tap.class), new TapCustomizer(jvpp, ifcNamingCtx)));
         //    VhostUser

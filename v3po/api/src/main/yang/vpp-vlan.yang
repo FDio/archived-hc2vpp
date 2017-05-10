@@ -3,6 +3,11 @@ module vpp-vlan {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:vlan";
   prefix "vpp-vlan";
 
+  revision "2017-05-09" {
+    description "Revision changes:
+        - add support for ipv4/6 vrf id for sub interfaces";
+  }
+
   revision "2017-03-15" {
     description
       "Revision changes:
@@ -384,6 +389,13 @@ module vpp-vlan {
     }
   }
 
+  grouping sub-interface-routing-attributes {
+    description "Provides basic attributes for ipv4/6 vrf configuration";
+    container routing {
+      uses v3po:routing-base-attributes;
+    }
+  }
+
   augment /if:interfaces/if:interface {
     ext:augment-identifier "subinterface-augmentation";
 
@@ -401,6 +413,7 @@ module vpp-vlan {
         uses sub-interface-config-attributes;
         uses sub-interface-ip4-attributes;
         uses sub-interface-ip6-attributes;
+        uses sub-interface-routing-attributes;
       }
     }
   }
@@ -421,6 +434,7 @@ module vpp-vlan {
         uses sub-interface-operational-attributes;
         uses sub-interface-ip4-attributes;
         uses sub-interface-ip6-attributes;
+        uses sub-interface-routing-attributes;
       }
     }
   }

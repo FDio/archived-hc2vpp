@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.RoutingBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class RoutingCustomizerTest extends WriterCustomizerTest {
+public class InterfaceRoutingCustomizerTest extends WriterCustomizerTest {
     private static final String IFACE_CTX_NAME = "interface-ctx";
     private static final String IF_NAME = "eth1";
     private static final int IF_INDEX = 1;
@@ -42,11 +42,11 @@ public class RoutingCustomizerTest extends WriterCustomizerTest {
             InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME))
                     .augmentation(VppInterfaceAugmentation.class).child(Routing.class);
 
-    private RoutingCustomizer customizer;
+    private InterfaceRoutingCustomizer customizer;
 
     @Override
     protected void setUpTest() throws Exception {
-        customizer = new RoutingCustomizer(api, new NamingContext("ifacePrefix", IFACE_CTX_NAME));
+        customizer = new InterfaceRoutingCustomizer(api, new NamingContext("ifacePrefix", IFACE_CTX_NAME));
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFACE_CTX_NAME);
     }
 
