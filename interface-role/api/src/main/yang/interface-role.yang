@@ -4,8 +4,7 @@ module interface-role {
   namespace "urn:opendaylight:params:xml:ns:yang:interface:role";
   prefix "if-role";
 
-  // TODO - update revision number to 17.07 release date
-  revision "2017-03-15" {
+  revision "2017-06-15" {
     description "Basic specification of interface roles";
   }
 
@@ -65,12 +64,6 @@ module interface-role {
 
   augment /if:interfaces/if:interface {
     ext:augment-identifier "interface-role-augmentation";
-
-    uses interface-role-grouping;
-  }
-
-  augment /if:interfaces-state/if:interface {
-    ext:augment-identifier "interface-role-state-augmentation";
 
     uses interface-role-grouping;
   }

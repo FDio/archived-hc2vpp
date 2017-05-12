@@ -18,9 +18,7 @@ package io.fd.hc2vpp.iface.role;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
-import io.fd.hc2vpp.iface.role.read.InterfaceRoleReaderFactory;
 import io.fd.hc2vpp.iface.role.write.InterfaceRoleWriterFactory;
-import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +30,6 @@ public class InterfaceRoleModule extends AbstractModule {
     @Override
     protected void configure() {
         LOG.info("Configuring interface role module");
-        Multibinder.newSetBinder(binder(), ReaderFactory.class).addBinding().to(InterfaceRoleReaderFactory.class);
         Multibinder.newSetBinder(binder(), WriterFactory.class).addBinding().to(InterfaceRoleWriterFactory.class);
         LOG.info("Interface role module configured");
     }
