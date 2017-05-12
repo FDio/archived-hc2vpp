@@ -1,0 +1,44 @@
+module unnumbered-interfaces {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:unnumbered:interfaces";
+  prefix "uni";
+
+  revision "2017-05-10" {
+    description
+      "Initialial revision";
+  }
+
+  import ietf-interfaces {
+    prefix "if";
+  }
+
+  import vpp-vlan {
+    prefix "vpp-vlan";
+  }
+
+  import yang-ext {
+    prefix "ext";
+  }
+
+  grouping unnumbered-config-attributes {
+    container unnumbered {
+      presence "Sets interface as unnumbered";
+      leaf use {
+        type string;
+        mandatory true;
+        description
+          "Name of interface or subinterface which IP is to be borrowed.";
+      }
+    }
+  }
+
+  augment /if:interfaces/if:interface {
+    ext:augment-identifier "interface-unnumbered-augmentation";
+    uses unnumbered-config-attributes;
+  }
+
+  augment /if:interfaces/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
+    ext:augment-identifier "subinterface-unnumbered-augmentation";
+    uses unnumbered-config-attributes;
+  }
+}
