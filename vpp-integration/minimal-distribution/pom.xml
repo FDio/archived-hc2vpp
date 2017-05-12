@@ -43,12 +43,14 @@
     <vpp.classifier.version>1.17.07-SNAPSHOT</vpp.classifier.version>
     <l3-impl.version>1.17.07-SNAPSHOT</l3-impl.version>
     <vpp-management-impl.version>1.17.07-SNAPSHOT</vpp-management-impl.version>
+    <iface.role.version>1.17.07-SNAPSHOT</iface.role.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
       io.fd.hc2vpp.management.VppManagementModule,
       io.fd.hc2vpp.lisp.LispModule,
       io.fd.hc2vpp.v3po.V3poModule,
+      io.fd.hc2vpp.iface.role.InterfaceRoleModule,
       io.fd.hc2vpp.l3.InterfaceL3Module,
       io.fd.hc2vpp.l3.SubInterfaceL3Module,
       io.fd.hc2vpp.l3.ProxyArpModule,
@@ -150,6 +152,11 @@
       <groupId>io.fd.hc2vpp.management</groupId>
       <artifactId>vpp-management-impl</artifactId>
       <version>${vpp-management-impl.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.iface.role</groupId>
+      <artifactId>impl</artifactId>
+      <version>${iface.role.version}</version>
     </dependency>
   </dependencies>
 </project>

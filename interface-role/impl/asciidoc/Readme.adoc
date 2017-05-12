@@ -1,0 +1,12 @@
+= impl
+
+Add support for configuration of following interface roles:
+
+* virtual-domain-interface(Tenant network interface)
+
+
+* public-interface(Public interface for external access)
+
+
+Data stored in configuration storage only.
+Does not support operational read.
