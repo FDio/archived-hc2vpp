@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.nat.write;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,10 +82,17 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
-    public void testUpdate() throws WriteFailedException {
-        final MappingEntry data = mock(MappingEntry.class);
-        customizer.updateCurrentAttributes(IID, data, data, writeContext);
+    @Test
+    public void testUpdate(
+        @InjectTestData(resourcePath = "/nat/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable before,
+        @InjectTestData(resourcePath = "/nat/static-mapping-address-update.json", id = MAPPING_TABLE_PATH) MappingTable after)
+        throws WriteFailedException {
+        customizer.updateCurrentAttributes(IID, extractMappingEntry(before), extractMappingEntry(after), writeContext);
+        final SnatAddStaticMapping expectedDeleteRequest = getExpectedRequest();
+        verify(jvppSnat).snatAddStaticMapping(expectedDeleteRequest);
+        final SnatAddStaticMapping expectedUpdateRequest = getExpectedUpdateRequest();
+        expectedUpdateRequest.isAdd = 1;
+        verify(jvppSnat).snatAddStaticMapping(expectedUpdateRequest);
     }
 
     @Test
@@ -111,6 +117,18 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         expectedRequest.externalSwIfIndex = -1;
         expectedRequest.localIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 87};
         expectedRequest.externalIpAddress = new byte[] {45, 1, 5, 7};
+        return expectedRequest;
+    }
+
+    private static SnatAddStaticMapping getExpectedUpdateRequest() {
+        final SnatAddStaticMapping expectedRequest = new SnatAddStaticMapping();
+        expectedRequest.isIp4 = 1;
+        expectedRequest.addrOnly = 1;
+        expectedRequest.protocol = 17; // udp
+        expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
+        expectedRequest.externalSwIfIndex = -1;
+        expectedRequest.localIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 86};
+        expectedRequest.externalIpAddress = new byte[] {45, 1, 5, 6};
         return expectedRequest;
     }
 }
