@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.v3po.interfaces.span;
 
+import static io.fd.honeycomb.translate.util.RWUtils.cutId;
+
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -24,48 +26,41 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSpanEnableDisable;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.SpanState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.mirrored.interfaces.MirroredInterfaceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class MirroredInterfaceCustomizer
-        extends FutureJVppCustomizer
+public final class MirroredInterfaceCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<MirroredInterface, MirroredInterfaceKey>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(MirroredInterfaceCustomizer.class);
 
     private final NamingContext ifcContext;
+    private final Function<InstanceIdentifier<MirroredInterfaces>, String> destinationInterfaceNameExtractor;
 
-    public MirroredInterfaceCustomizer(@Nonnull final FutureJVppCore futureJVppCore, final NamingContext ifcContext) {
+    public MirroredInterfaceCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                       @Nonnull final NamingContext ifcContext,
+                                       @Nonnull final Function<InstanceIdentifier<MirroredInterfaces>, String> destinationInterfaceNameExtractor) {
         super(futureJVppCore);
         this.ifcContext = ifcContext;
+        this.destinationInterfaceNameExtractor = destinationInterfaceNameExtractor;
     }
 
-    private SwInterfaceSpanEnableDisable getSpanAddDelRequest(final int dstId, final Integer srcId, final boolean isAdd,
-                                                              @Nullable final SpanState state) {
-        final SwInterfaceSpanEnableDisable spanAddDel = new SwInterfaceSpanEnableDisable();
-        spanAddDel.state = (byte) (isAdd
-                ? state != null
-                ? state.getIntValue()
-                : 0
-                : 0);// either one of 1(rx),2(tx),3(both) or 0 for disable/delete
-        spanAddDel.swIfIndexFrom = srcId;
-        spanAddDel.swIfIndexTo = dstId;
-        return spanAddDel;
-    }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<MirroredInterface> instanceIdentifier,
+    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<MirroredInterface> id,
                                        @Nonnull final MirroredInterface mirroredInterface,
                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        final String destinationInterfaceName = instanceIdentifier.firstKeyOf(Interface.class).getName();
+        final String destinationInterfaceName =
+                destinationInterfaceNameExtractor.apply(cutId(id, MirroredInterfaces.class));
         final String sourceInterfaceName = mirroredInterface.getIfaceRef();
         final SpanState spanState = mirroredInterface.getState();
 
@@ -78,7 +73,7 @@ public final class MirroredInterfaceCustomizer
                         interfaceId(writeContext, ifcContext, sourceInterfaceName),
                         true,
                         spanState))
-                .toCompletableFuture(), instanceIdentifier);
+                .toCompletableFuture(), id);
         LOG.debug("Span for source interface {} | destination interface {} | state {} successfully enabled",
                 sourceInterfaceName, destinationInterfaceName, spanState);
     }
@@ -94,10 +89,11 @@ public final class MirroredInterfaceCustomizer
     }
 
     @Override
-    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<MirroredInterface> instanceIdentifier,
+    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<MirroredInterface> id,
                                         @Nonnull final MirroredInterface mirroredInterface,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        final String destinationInterfaceName = instanceIdentifier.firstKeyOf(Interface.class).getName();
+        final String destinationInterfaceName =
+                destinationInterfaceNameExtractor.apply(cutId(id, MirroredInterfaces.class));
         final String sourceInterfaceName = mirroredInterface.getIfaceRef();
         LOG.debug("Disabling span for source interface {} | destination interface {} ", sourceInterfaceName,
                 destinationInterfaceName);
@@ -108,9 +104,22 @@ public final class MirroredInterfaceCustomizer
                         interfaceId(writeContext, ifcContext, sourceInterfaceName),
                         false,
                         null))
-                .toCompletableFuture(), instanceIdentifier);
+                .toCompletableFuture(), id);
         LOG.debug("Span for source interface {} | destination interface {} successfully disabled",
                 sourceInterfaceName, destinationInterfaceName);
+    }
+
+    private SwInterfaceSpanEnableDisable getSpanAddDelRequest(final int dstId, final Integer srcId, final boolean isAdd,
+                                                              @Nullable final SpanState state) {
+        final SwInterfaceSpanEnableDisable spanAddDel = new SwInterfaceSpanEnableDisable();
+        spanAddDel.state = (byte) (isAdd
+                ? state != null
+                ? state.getIntValue()
+                : 0
+                : 0);// either one of 1(rx),2(tx),3(both) or 0 for disable/delete
+        spanAddDel.swIfIndexFrom = srcId;
+        spanAddDel.swIfIndexTo = dstId;
+        return spanAddDel;
     }
 
     private static int interfaceId(final WriteContext writeContext, final NamingContext ifcContext, final String name) {

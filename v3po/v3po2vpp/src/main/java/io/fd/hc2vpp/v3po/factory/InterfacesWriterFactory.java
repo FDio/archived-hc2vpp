@@ -141,8 +141,8 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 .child(Span.class)
                 .child(MirroredInterfaces.class)
                 .child(MirroredInterface.class);
-        registry.addAfter(new GenericWriter<>(mirroredIfcId, new MirroredInterfaceCustomizer(jvpp, ifcNamingContext)),
-                ifcId);
+        registry.addAfter(new GenericWriter<>(mirroredIfcId, new MirroredInterfaceCustomizer(jvpp, ifcNamingContext,
+                        id -> id.firstKeyOf(Interface.class).getName())), ifcId);
     }
 
     private void addPbbAugmentationWriters(final InstanceIdentifier<Interface> ifcId,

@@ -41,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.mirrored.interfaces.MirroredInterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class MirroredInterfaceCustomizerTest extends WriterCustomizerTest {
+public class MirroredInterfacesCustomizerTest extends WriterCustomizerTest {
 
     private static final String IFACE_NAME = "iface";
     private static final int IFACE_INDEX = 3;
@@ -59,7 +59,8 @@ public class MirroredInterfaceCustomizerTest extends WriterCustomizerTest {
 
     public void setUpTest() {
         interfaceContext = new NamingContext("iface", "iface-context");
-        customizer = new MirroredInterfaceCustomizer(api, interfaceContext);
+        customizer =
+                new MirroredInterfaceCustomizer(api, interfaceContext, id -> id.firstKeyOf(Interface.class).getName());
         defineMapping(mappingContext, IFACE_NAME, IFACE_INDEX, "iface-context");
         defineMapping(mappingContext, SRC_IFACE_NAME, SRC_IFACE_INDEX, "iface-context");
 

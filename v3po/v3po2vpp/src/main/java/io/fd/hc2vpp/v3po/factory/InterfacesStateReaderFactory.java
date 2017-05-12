@@ -31,7 +31,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanGpeCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.pbb.PbbRewriteStateCustomizer;
-import io.fd.hc2vpp.v3po.interfacesstate.span.MirroredInterfacesCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.span.InterfaceMirroredInterfacesCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
@@ -130,7 +130,7 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         registry.subtreeAdd(
                 ImmutableSet.of(InstanceIdentifier.create(MirroredInterfaces.class).child(MirroredInterface.class)),
                 new GenericInitReader<>(spanId.child(MirroredInterfaces.class),
-                        new MirroredInterfacesCustomizer(jvpp, ifcNamingCtx)));
+                        new InterfaceMirroredInterfacesCustomizer(jvpp, ifcNamingCtx)));
     }
 
     private void initPbbRewriteAugmentation(final ModifiableReaderRegistryBuilder registry,

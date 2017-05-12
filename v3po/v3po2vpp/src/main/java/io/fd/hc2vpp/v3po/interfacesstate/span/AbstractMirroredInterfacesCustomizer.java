@@ -19,45 +19,42 @@ package io.fd.hc2vpp.v3po.interfacesstate.span;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
-import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSpanDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSpanDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.SpanState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.Span;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces.state._interface.SpanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.MirroredInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.mirrored.interfaces.MirroredInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.mirrored.interfaces.MirroredInterfaceKey;
-import org.opendaylight.yangtools.concepts.Builder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class MirroredInterfacesCustomizer
+abstract class AbstractMirroredInterfacesCustomizer
         extends FutureJVppCustomizer
         implements InitializingReaderCustomizer<MirroredInterfaces, MirroredInterfacesBuilder>, JvppReplyConsumer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MirroredInterfacesCustomizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractMirroredInterfacesCustomizer.class);
 
     private final NamingContext ifcContext;
+    private final Function<InstanceIdentifier<MirroredInterfaces>, String> destinationInterfaceNameExtractor;
 
-    public MirroredInterfacesCustomizer(@Nonnull final FutureJVppCore futureJVppCore, final NamingContext ifcContext) {
+    protected AbstractMirroredInterfacesCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                                                   @Nonnull final NamingContext ifcContext,
+                                                   @Nonnull final Function<InstanceIdentifier<MirroredInterfaces>, String> destinationInterfaceNameExtractor) {
         super(futureJVppCore);
         this.ifcContext = ifcContext;
+        this.destinationInterfaceNameExtractor = destinationInterfaceNameExtractor;
     }
 
     @Nonnull
@@ -71,8 +68,7 @@ public final class MirroredInterfacesCustomizer
                                       @Nonnull final MirroredInterfacesBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         LOG.trace("Reading mirrored interfaces under: {}", id);
-        final int dstId =
-                ifcContext.getIndex(id.firstKeyOf(Interface.class).getName(), ctx.getMappingContext());
+        final int dstId = destinationInterfaceIndex(id, ctx.getMappingContext());
 
         final SwInterfaceSpanDetailsReplyDump replyForRead;
         if (ctx.getModificationCache().containsKey(getCacheKey())) {
@@ -110,22 +106,9 @@ public final class MirroredInterfacesCustomizer
         return getClass().getName();
     }
 
-    @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> parentBuilder,
-                      @Nonnull final MirroredInterfaces readValue) {
-        ((SpanBuilder) parentBuilder).setMirroredInterfaces(readValue);
-    }
-
-    @Nonnull
-    @Override
-    public Initialized<? extends DataObject> init(@Nonnull final InstanceIdentifier<MirroredInterfaces> id,
-                                                  @Nonnull final MirroredInterfaces readValue,
-                                                  @Nonnull final ReadContext ctx) {
-        final InstanceIdentifier<MirroredInterfaces> cfgId =
-                InterfaceCustomizer.getCfgId(RWUtils.cutId(id, Interface.class))
-                        .augmentation(VppInterfaceAugmentation.class)
-                        .child(Span.class)
-                        .child(MirroredInterfaces.class);
-        return Initialized.create(cfgId, readValue);
+    private int destinationInterfaceIndex(@Nonnull final InstanceIdentifier<MirroredInterfaces> id,
+                                          @Nonnull final MappingContext mappingContext) {
+        final String destinationInterfaceName = destinationInterfaceNameExtractor.apply(id);
+        return ifcContext.getIndex(destinationInterfaceName, mappingContext);
     }
 }

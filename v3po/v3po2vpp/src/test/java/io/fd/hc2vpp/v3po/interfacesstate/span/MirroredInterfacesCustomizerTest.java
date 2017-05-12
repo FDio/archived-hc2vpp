@@ -124,6 +124,6 @@ public class MirroredInterfacesCustomizerTest
 
     @Override
     protected ReaderCustomizer<MirroredInterfaces, MirroredInterfacesBuilder> initCustomizer() {
-        return new MirroredInterfacesCustomizer(api, interfaceContext);
+        return new InterfaceMirroredInterfacesCustomizer(api, interfaceContext);
     }
 }

@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.base.attributes.Tags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.base.attributes.tags.Tag;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.routing.attributes.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class SubInterfaceUtils {
@@ -39,7 +38,7 @@ public final class SubInterfaceUtils {
         return String.format("%s.%d", superIfName, subIfaceId);
     }
 
-    public static String subInterfaceFullNameConfig(final @Nonnull InstanceIdentifier<Routing> instanceIdentifier) {
+    public static String subInterfaceFullNameConfig(final @Nonnull InstanceIdentifier<?> instanceIdentifier) {
         final String parentInterfaceName =
                 checkNotNull(instanceIdentifier.firstKeyOf(Interface.class), "Configuration identifier expected")
                         .getName();
@@ -47,7 +46,7 @@ public final class SubInterfaceUtils {
         return SubInterfaceUtils.getSubInterfaceName(parentInterfaceName, subIfId.intValue());
     }
 
-    public static String subInterfaceFullNameOperational(final @Nonnull InstanceIdentifier<Routing> instanceIdentifier) {
+    public static String subInterfaceFullNameOperational(final @Nonnull InstanceIdentifier<?> instanceIdentifier) {
         final String parentInterfaceName = checkNotNull(instanceIdentifier.firstKeyOf(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class),
                 "Operational identifier expected").getName();
