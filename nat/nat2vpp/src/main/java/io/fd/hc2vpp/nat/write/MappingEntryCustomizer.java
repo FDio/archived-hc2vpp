@@ -107,8 +107,8 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
                                         @Nonnull final MappingEntry dataBefore,
                                         @Nonnull final MappingEntry dataAfter,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Mapping entry update not supported"));
+        deleteCurrentAttributes(id, dataBefore, writeContext);
+        writeCurrentAttributes(id, dataAfter, writeContext);
     }
 
     @Override
