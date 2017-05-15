@@ -17,7 +17,9 @@
 package io.fd.hc2vpp.l3.write.factory;
 
 import static io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory.IFC_ID;
+import static io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory.VPP_IFC_AUG_ID;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -34,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv4WriterFactory implements WriterFactory {
@@ -52,8 +55,9 @@ public class Ipv4WriterFactory implements WriterFactory {
 
         // Ipv4(after interface)
         final InstanceIdentifier<Ipv4> ipv4Id = ifc1AugId.child(Ipv4.class);
+        // changing ip table for interface that has ip address assigned is illegal action(internal vpp behaviour)
         registry.addAfter(new GenericWriter<>(ipv4Id, new Ipv4Customizer(jvpp)),
-                IFC_ID);
+                ImmutableSet.of(IFC_ID, VPP_IFC_AUG_ID.child(Routing.class)));
         //  Address(after Ipv4) =
         final InstanceIdentifier<Address> ipv4AddressId = ipv4Id.child(Address.class);
         registry.addAfter(new GenericListWriter<>(ipv4AddressId, new Ipv4AddressCustomizer(jvpp, ifcNamingContext)),

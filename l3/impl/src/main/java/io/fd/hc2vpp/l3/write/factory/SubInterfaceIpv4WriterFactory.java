@@ -20,6 +20,7 @@ package io.fd.hc2vpp.l3.write.factory;
 import static io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory.L2_ID;
 import static io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory.SUB_IFC_ID;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -34,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip4.attributes.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip4.attributes.ipv4.Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip4.attributes.ipv4.Neighbor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.routing.attributes.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubInterfaceIpv4WriterFactory implements WriterFactory{
@@ -53,7 +55,8 @@ public class SubInterfaceIpv4WriterFactory implements WriterFactory{
         //   Ipv4(handled after L2 and L2/rewrite is done) =
         final InstanceIdentifier<Address> ipv4SubifcAddressId = SUB_IFC_ID.child(Ipv4.class).child(Address.class);
         registry.addAfter(new GenericListWriter<>(ipv4SubifcAddressId,
-                new SubInterfaceIpv4AddressCustomizer(jvpp, ifcNamingContext)), rewriteId);
+                        new SubInterfaceIpv4AddressCustomizer(jvpp, ifcNamingContext)),
+                ImmutableSet.of(rewriteId, SUB_IFC_ID.child(Routing.class)));
         final InstanceIdentifier<Neighbor> ipv4NeighborId = SUB_IFC_ID.child(Ipv4.class).child(Neighbor.class);
         registry.addAfter(new GenericListWriter<>(ipv4NeighborId,
                 new SubInterfaceIpv4NeighbourCustomizer(jvpp, ifcNamingContext)), rewriteId);

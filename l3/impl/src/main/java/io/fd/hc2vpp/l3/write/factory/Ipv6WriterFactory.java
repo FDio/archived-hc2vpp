@@ -17,7 +17,9 @@
 package io.fd.hc2vpp.l3.write.factory;
 
 import static io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory.IFC_ID;
+import static io.fd.hc2vpp.v3po.factory.InterfacesWriterFactory.VPP_IFC_AUG_ID;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -37,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv6.Neighbor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.NdProxyIp6Augmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.NdProxies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nd.proxy.rev170315.interfaces._interface.ipv6.nd.proxies.NdProxy;
@@ -59,7 +62,9 @@ public class Ipv6WriterFactory implements WriterFactory {
 
         // Ipv6(after interface) =
         final InstanceIdentifier<Ipv6> ipv6Id = ifc1AugId.child(Ipv6.class);
-        registry.addAfter(new GenericWriter<>(ipv6Id, new Ipv6Customizer(jvpp)), IFC_ID);
+        // changing ip table for interface that has ip address assigned is illegal action(internal vpp behaviour)
+        registry.addAfter(new GenericWriter<>(ipv6Id, new Ipv6Customizer(jvpp)), ImmutableSet
+                .of(IFC_ID, VPP_IFC_AUG_ID.child(Routing.class)));
 
         final InstanceIdentifier<Address>
                 ipv6AddressId = ipv6Id.child(Address.class);

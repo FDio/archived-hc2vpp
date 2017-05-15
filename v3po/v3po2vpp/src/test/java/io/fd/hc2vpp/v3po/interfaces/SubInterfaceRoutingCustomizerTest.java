@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
@@ -39,7 +40,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.SubinterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.interfaces._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.interfaces._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.interfaces._interface.sub.interfaces.SubInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.interfaces._interface.sub.interfaces.SubInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip4.attributes.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip4.attributes.ipv4.AddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip6.attributes.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.routing.attributes.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.routing.attributes.RoutingBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -74,8 +79,23 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
         when(api.swInterfaceSetTable(any())).thenReturn(future(new SwInterfaceSetTableReply()));
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testWriteFailedV4AddressPresent() throws WriteFailedException {
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.of(v4AddressPresent()));
+        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(4L).build();
+        customizer.writeCurrentAttributes(VALID_ID, v4Routing, writeContext);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testWriteFailedV6AddressPresent() throws WriteFailedException {
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.of(v6AddressPresent()));
+        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(4L).build();
+        customizer.writeCurrentAttributes(VALID_ID, v4Routing, writeContext);
+    }
+
     @Test
     public void testWriteIpv4Vrf() throws WriteFailedException {
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
         final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(4L).build();
         customizer.writeCurrentAttributes(VALID_ID, v4Routing, writeContext);
         verifySetTableRequest(1, Collections.singleton(request(false, SUBIF_INDEX, 4)));
@@ -84,6 +104,7 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
 
     @Test
     public void testWriteIpv6Vrf() throws WriteFailedException {
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
         final Routing v6Routing = new RoutingBuilder().setIpv6VrfId(3L).build();
         customizer.writeCurrentAttributes(VALID_ID, v6Routing, writeContext);
         verifySetTableRequest(1, Collections.singleton(request(true, SUBIF_INDEX, 3)));
@@ -91,6 +112,7 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
 
     @Test
     public void testUpdateIpv4Vrf() throws WriteFailedException {
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
         final Routing routingBefore = new RoutingBuilder().setIpv6VrfId(3L).setIpv4VrfId(4L).build();
         final Routing routingAfter = new RoutingBuilder().setIpv6VrfId(3L).setIpv4VrfId(5L).build();
         customizer.updateCurrentAttributes(VALID_ID, routingBefore, routingAfter, writeContext);
@@ -100,6 +122,7 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
 
     @Test
     public void testUpdateIpv6Vrf() throws WriteFailedException {
+        when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
         final Routing routingBefore = new RoutingBuilder().setIpv6VrfId(3L).setIpv4VrfId(4L).build();
         final Routing routingAfter = new RoutingBuilder().setIpv6VrfId(8L).setIpv4VrfId(4L).build();
         customizer.updateCurrentAttributes(VALID_ID, routingBefore, routingAfter, writeContext);
@@ -109,6 +132,7 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
 
     @Test
     public void testDeleteIpv4Vrf() throws WriteFailedException {
+        when(writeContext.readAfter(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
         final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(4L).build();
         customizer.deleteCurrentAttributes(VALID_ID, v4Routing, writeContext);
         verifySetTableRequest(1, Collections.singleton(request(false, SUBIF_INDEX, DISABLE_VRF)));
@@ -117,6 +141,7 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
 
     @Test
     public void testDeleteIpv6Vrf() throws WriteFailedException {
+        when(writeContext.readAfter(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
         final Routing v6Routing = new RoutingBuilder().setIpv6VrfId(3L).build();
         customizer.deleteCurrentAttributes(VALID_ID, v6Routing, writeContext);
         verifySetTableRequest(1, Collections.singleton(request(true, SUBIF_INDEX, DISABLE_VRF)));
@@ -133,5 +158,21 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
     private void verifySetTableRequest(final int times, final Set<SwInterfaceSetTable> requests) {
         verify(api, times(times)).swInterfaceSetTable(requestCaptor.capture());
         requestCaptor.getAllValues().containsAll(requests);
+    }
+
+    private static SubInterface v4AddressPresent() {
+        return new SubInterfaceBuilder()
+                .setIpv4(new Ipv4Builder()
+                        .setAddress(Collections.singletonList(new AddressBuilder().build()))
+                        .build())
+                .build();
+    }
+
+    private static SubInterface v6AddressPresent(){
+        return new SubInterfaceBuilder()
+                .setIpv6(new Ipv6Builder()
+                        .setAddress(Collections.singletonList(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip6.attributes.ipv6.AddressBuilder().build()))
+                        .build())
+                .build();
     }
 }

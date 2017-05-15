@@ -20,6 +20,7 @@ package io.fd.hc2vpp.l3.write.factory;
 import static io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory.L2_ID;
 import static io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory.SUB_IFC_ID;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -33,6 +34,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.base.attributes.l2.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip6.attributes.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip6.attributes.ipv6.Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.routing.attributes.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubInterfaceIpv6WriterFactory implements WriterFactory {
@@ -54,7 +56,8 @@ public class SubInterfaceIpv6WriterFactory implements WriterFactory {
                 ipv6SubifcAddressId = SUB_IFC_ID.child(Ipv6.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip6.attributes.ipv6.Address.class);
         registry.addAfter(new GenericListWriter<>(ipv6SubifcAddressId,
-                new SubInterfaceIpv6AddressCustomizer(jvpp, ifcNamingContext)), rewriteId);
+                new SubInterfaceIpv6AddressCustomizer(jvpp, ifcNamingContext)), ImmutableSet
+                .of(rewriteId, SUB_IFC_ID.child(Routing.class)));
         final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip6.attributes.ipv6.Neighbor>
                 ipv6NeighborId = SUB_IFC_ID.child(Ipv6.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.sub._interface.ip6.attributes.ipv6.Neighbor.class);
