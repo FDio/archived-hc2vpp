@@ -100,7 +100,8 @@
 				"65e4713c-3977-7b96-9b46-198a9fe3a592",
 				"4afe77aa-43c0-29ba-c910-4cbbea95ee07",
 				"3357ff20-66dd-9f5a-7b70-dfe57c6e2e57",
-				"67e79c2e-77b7-8000-de1f-10f2136cd718"
+				"67e79c2e-77b7-8000-de1f-10f2136cd718",
+				"80af4336-c89b-a717-4d12-37b43c8c5b7b"
 			],
 			"owner": "45557"
 		},
@@ -1086,6 +1087,28 @@
 			"helperAttributes": {},
 			"folder": "0ef5f1df-d43a-17fe-b006-249f83c88552",
 			"rawModeData": "{\r\n            \"address\": [{\r\n                \"ip\" : \"1.2.3.4\",\r\n                \"prefix-length\" : \"8\"\r\n            }]\r\n}"
+		},
+		{
+			"id": "80af4336-c89b-a717-4d12-37b43c8c5b7b",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/unnumbered-interfaces:unnumbered",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "PUT",
+			"collectionId": "5bad4634-e5cf-900e-9733-0976aa9bea64",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Set local0 as unnumbered (use GigabitEthernet0/8/0)",
+			"description": "Make local0 borrow ip from GigabiteEthernet0/8/0.\nEquivalent of\n\nset interface unnumbered local0 use GigabitEthernet0/8/0\n\nCan be verified with\n\nvppctl show interface address",
+			"descriptionFormat": "html",
+			"time": 1494845609339,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "0ef5f1df-d43a-17fe-b006-249f83c88552",
+			"rawModeData": "{\r\n    \"unnumbered\": {\r\n    \t\"use\": \"GigabitEthernet0/8/0\"\r\n    }\r\n}"
 		},
 		{
 			"id": "6cc318f9-94ec-b0c0-a3f9-69b085613f59",
