@@ -25,6 +25,7 @@ import io.fd.hc2vpp.v3po.interfaces.EthernetCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.GreCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.InterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.InterfaceRoutingCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.InterfaceUnnumberedCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.L2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.LoopbackCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.TapCustomizer;
@@ -41,6 +42,8 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.InterfaceUnnumberedAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.unnumbered.config.attributes.Unnumbered;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.interfaces._interface.Gre;
@@ -143,6 +146,12 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 .child(MirroredInterface.class);
         registry.addAfter(new GenericWriter<>(mirroredIfcId, new MirroredInterfaceCustomizer(jvpp, ifcNamingContext,
                         id -> id.firstKeyOf(Interface.class).getName())), ifcId);
+
+        // Unnumbered =
+        final InstanceIdentifier<Unnumbered> unnumberedId =
+            IFC_ID.augmentation(InterfaceUnnumberedAugmentation.class).child(Unnumbered.class);
+        registry.addAfter(new GenericWriter<>(unnumberedId, new InterfaceUnnumberedCustomizer(jvpp, ifcNamingContext)),
+            ifcId);
     }
 
     private void addPbbAugmentationWriters(final InstanceIdentifier<Interface> ifcId,

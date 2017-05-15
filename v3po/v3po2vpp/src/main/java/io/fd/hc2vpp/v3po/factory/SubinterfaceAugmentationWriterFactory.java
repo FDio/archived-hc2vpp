@@ -24,6 +24,7 @@ import io.fd.hc2vpp.v3po.interfaces.RewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceL2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.SubInterfaceRoutingCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.SubInterfaceUnnumberedCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.span.MirroredInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
@@ -34,6 +35,8 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.or.any.Dot1qTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170510.VppSubinterfaceSpanAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170510.interfaces._interface.sub.interfaces.sub._interface.Span;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.SubinterfaceUnnumberedAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.unnumbered.config.attributes.Unnumbered;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.mirrored.interfaces.MirroredInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.SubinterfaceAugmentation;
@@ -110,5 +113,11 @@ public final class SubinterfaceAugmentationWriterFactory implements WriterFactor
         registry.addAfter(new GenericListWriter<>(mirroredId,
                         new MirroredInterfaceCustomizer(jvpp, ifcContext, SubInterfaceUtils::subInterfaceFullNameConfig)),
                 SUB_IFC_ID);
+
+        // Unnumbered =
+        final InstanceIdentifier<Unnumbered> unnumberedId =
+            SUB_IFC_ID.augmentation(SubinterfaceUnnumberedAugmentation.class).child(Unnumbered.class);
+        registry.addAfter(new GenericWriter<>(unnumberedId, new SubInterfaceUnnumberedCustomizer(jvpp, ifcContext)),
+            SUB_IFC_ID);
     }
 }
