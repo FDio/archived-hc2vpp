@@ -3,73 +3,194 @@
 	"name": "Lisp Postman Collection L2 copy",
 	"description": "",
 	"order": [
-		"c99e6e24-5d9c-040a-68f3-5a0dbed98cc1",
-		"da8d61ce-1f0d-8ab8-e1de-50d094a266e2",
-		"e5b786a5-cab9-9fd7-4a23-20840e00098a",
-		"b1c9fcf9-89bf-86c5-a350-60535b748ee9",
-		"0ce07f8f-0e45-ea05-4c62-76d7076a444f",
-		"c0611a78-1410-52b6-a886-ca84e4dacb8e",
-		"14239ebd-752b-e2f6-ba5f-4fdb79819b92",
-		"3fe6bbb8-eca4-8b49-9092-1300aeac51e0",
-		"4b606776-aa33-ff85-9784-f76d2e457dea",
-		"385ab15d-6e4e-9fe9-9f4a-244a64f90c21",
-		"61af7f4c-6071-e881-cfbc-548abab4ba9f",
-		"7beac5a7-38d0-dd68-2e65-352418c285fd",
-		"44c349c4-c0ca-f5d9-53e1-8bf92eca5c73",
-		"b19d4109-d47a-c368-a7d4-1e5baad88d6d",
-		"4ceea4ca-a442-edc1-30d4-4e28e1d15ac3",
-		"3c3d5346-fd09-0c1b-31dc-5e549c1a4adb",
-		"bad5a024-ed9f-93d6-da06-1686d675dc50",
-		"32cdac07-fe1b-ae10-1e3d-9c5e64c8fbe7",
-		"7eaaefcc-784b-897f-dde1-0d47741dfe56",
-		"2506fe37-668b-7d0b-a76e-a592263dee65",
-		"1e18c440-3841-2cdd-9a88-cd4bde729a17",
-		"a517428f-a35e-5e75-5e5b-7f560d42332b",
-		"d106d7bf-ff65-6c13-397d-7cb765c71124",
-		"8f3ede8b-aab7-ac3b-3041-9cdb7bc0e6ec",
-		"eef057eb-f4a5-4903-1e31-06082511d677",
-		"0b807adc-2277-db3f-8e3e-c6b74888018d",
-		"5462a723-5b0c-34f0-1359-5e53a77e3a52",
-		"cd18d003-6bc9-cfff-46e8-7dffcd1f8497",
-		"1493eeb4-7306-9770-a2ed-4a59763240d1",
-		"523f68fe-ee0f-8e28-2a8a-87f6a459e03b",
-		"7a748095-2530-5bbd-7e5d-6d1cbd225c65",
-		"749351c9-3d31-cd54-500f-a628c7e134cd",
-		"54de6ea7-94a6-e8f2-1ed5-c209d8e3c25f",
-		"49cc1e34-af2a-0ccc-3beb-dab09c4a7869",
-		"fceee914-148f-c74e-3ad5-c2dbb988edf2",
-		"ad739651-3137-a535-5066-28a313cf7aa2",
-		"d01b27de-fef9-a333-3075-f431412a56d8",
-		"0ce2444e-3779-c247-6f0a-e9aabc7536eb",
-		"e6c236d4-96f6-b999-5e4e-9e8c93be6090",
-		"f18a7c8a-1c04-18b8-75d8-e2d8d08c3ef0",
-		"70790149-793f-242a-ebb8-032188d5bce5",
-		"32abc7d1-bdcf-26f3-c726-a385b3b86ec5",
-		"11cf57b3-d985-6dc2-805a-8d408679b35b",
-		"f6c1d4a8-9e5a-bac2-7476-c5ded4a545cc",
-		"c52b0be2-67d4-642b-fd7b-43598f2c4e3f",
-		"5ac994f5-18e3-5101-23c1-32995dae6ec9",
-		"f8d1b8a6-7a79-8be1-dbf3-fc02c5688df4",
-		"c50bc4c0-1a64-7130-4b8b-e1f12f55d4d7",
-		"65167fb8-0d64-d13e-27ad-0f7d3e8c7fe4",
-		"2ab426c2-1c94-fe0b-08a4-c2579f6fea3d",
-		"459bacc9-b049-b78f-5d50-7f2a0f8a182e",
-		"d547003e-cb16-6971-a5f9-66c400a921a1",
-		"1a65220c-e906-c56c-9d32-4ee27e30cfbd",
-		"080a7c73-3ffc-86f9-8d67-fc9a64bd2f46",
-		"531ac705-5ed0-04bc-fb4b-43e729b7c4e4",
-		"29c9a114-5552-701b-787d-895a8b03f2a6",
-		"1a6bbb6d-467d-dba6-0fc9-230cbcd85c47",
-		"ac4e4f66-fab7-fbbc-ca89-00bafd242361",
-		"1d0a2f13-a4d5-69da-2960-e368a67e9129",
-		"a0babf59-f72b-3412-3146-52e6312e063f",
-		"b1746c42-9991-7992-b8da-80c025981e9d",
-		"1d1c7d25-94af-2dfa-97ec-33710f47d04d",
-		"7a314526-67d0-d126-009a-656e6cf99f1e",
-		"8c8ee757-8bac-5e86-d5d6-3cb8c89ccac5",
-		"36a847e5-e3b8-ff07-4e88-f5a841fcaca6"
+		"c99e6e24-5d9c-040a-68f3-5a0dbed98cc1"
 	],
-	"folders": [],
+	"folders": [
+		{
+			"id": "7e8099bb-e5d7-4e89-cc42-45b186b76c3c",
+			"name": "Adjacency",
+			"description": "",
+			"order": [
+				"32abc7d1-bdcf-26f3-c726-a385b3b86ec5",
+				"929f03e4-aeba-3599-1bf2-1730913bdea6",
+				"11cf57b3-d985-6dc2-805a-8d408679b35b",
+				"f6c1d4a8-9e5a-bac2-7476-c5ded4a545cc"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
+			"name": "Bridge domain",
+			"description": "",
+			"order": [
+				"bad5a024-ed9f-93d6-da06-1686d675dc50",
+				"32cdac07-fe1b-ae10-1e3d-9c5e64c8fbe7",
+				"7eaaefcc-784b-897f-dde1-0d47741dfe56",
+				"2506fe37-668b-7d0b-a76e-a592263dee65",
+				"1e18c440-3841-2cdd-9a88-cd4bde729a17"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
+			"name": "Lisp",
+			"description": "",
+			"order": [
+				"da8d61ce-1f0d-8ab8-e1de-50d094a266e2",
+				"e5b786a5-cab9-9fd7-4a23-20840e00098a",
+				"b1c9fcf9-89bf-86c5-a350-60535b748ee9",
+				"36a847e5-e3b8-ff07-4e88-f5a841fcaca6"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
+			"name": "Local mapping",
+			"description": "",
+			"order": [
+				"8f3ede8b-aab7-ac3b-3041-9cdb7bc0e6ec",
+				"368c6c84-05ac-217f-32ed-0225db44f1cd",
+				"3bd39b05-9986-ffc0-6977-c41d41c98060",
+				"eef057eb-f4a5-4903-1e31-06082511d677",
+				"0b807adc-2277-db3f-8e3e-c6b74888018d",
+				"0b756f48-88b5-c015-a271-01b69a9ab2a4",
+				"5462a723-5b0c-34f0-1359-5e53a77e3a52",
+				"cd18d003-6bc9-cfff-46e8-7dffcd1f8497",
+				"1493eeb4-7306-9770-a2ed-4a59763240d1"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "a48c17bb-504b-f843-5098-b9d550a67301",
+			"name": "Locator Set",
+			"description": "",
+			"order": [
+				"0ce07f8f-0e45-ea05-4c62-76d7076a444f",
+				"c0611a78-1410-52b6-a886-ca84e4dacb8e",
+				"14239ebd-752b-e2f6-ba5f-4fdb79819b92",
+				"3fe6bbb8-eca4-8b49-9092-1300aeac51e0",
+				"4b606776-aa33-ff85-9784-f76d2e457dea",
+				"385ab15d-6e4e-9fe9-9f4a-244a64f90c21",
+				"61af7f4c-6071-e881-cfbc-548abab4ba9f"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "ec468419-e334-7311-2b34-2b6ddde851f0",
+			"name": "Map Server",
+			"description": "",
+			"order": [
+				"1d1c7d25-94af-2dfa-97ec-33710f47d04d",
+				"7a314526-67d0-d126-009a-656e6cf99f1e",
+				"8c8ee757-8bac-5e86-d5d6-3cb8c89ccac5"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "48325084-4625-703e-d6fd-3f11351ded23",
+			"name": "Map register",
+			"description": "",
+			"order": [
+				"1a65220c-e906-c56c-9d32-4ee27e30cfbd",
+				"080a7c73-3ffc-86f9-8d67-fc9a64bd2f46",
+				"531ac705-5ed0-04bc-fb4b-43e729b7c4e4"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "829d2e08-2373-756e-8a7d-1451610f45b3",
+			"name": "Map request mode",
+			"description": "",
+			"order": [
+				"1d0a2f13-a4d5-69da-2960-e368a67e9129",
+				"a0babf59-f72b-3412-3146-52e6312e063f",
+				"b1746c42-9991-7992-b8da-80c025981e9d"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "383c8da3-cd29-79aa-e0d1-36e3b7bd3e9c",
+			"name": "Map resolver",
+			"description": "",
+			"order": [
+				"c52b0be2-67d4-642b-fd7b-43598f2c4e3f",
+				"5ac994f5-18e3-5101-23c1-32995dae6ec9",
+				"f8d1b8a6-7a79-8be1-dbf3-fc02c5688df4"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "fa3ffa80-51de-1e69-1f1e-4f77e69876b1",
+			"name": "Petr use",
+			"description": "",
+			"order": [
+				"2ab426c2-1c94-fe0b-08a4-c2579f6fea3d",
+				"459bacc9-b049-b78f-5d50-7f2a0f8a182e",
+				"d547003e-cb16-6971-a5f9-66c400a921a1"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "da8bf0a1-22cf-8f24-0673-531e1a82de9b",
+			"name": "Pitr cfg",
+			"description": "",
+			"order": [
+				"c50bc4c0-1a64-7130-4b8b-e1f12f55d4d7",
+				"65167fb8-0d64-d13e-27ad-0f7d3e8c7fe4"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
+			"name": "Remote mapping",
+			"description": "",
+			"order": [
+				"523f68fe-ee0f-8e28-2a8a-87f6a459e03b",
+				"6a13d31b-937d-0f94-cc96-fe5b152fad52",
+				"cf99137e-694d-8a9c-45f0-9361840f4c25",
+				"7a748095-2530-5bbd-7e5d-6d1cbd225c65",
+				"749351c9-3d31-cd54-500f-a628c7e134cd",
+				"27ee8b67-7986-d169-bb89-ad147c7fb57c",
+				"54de6ea7-94a6-e8f2-1ed5-c209d8e3c25f",
+				"49cc1e34-af2a-0ccc-3beb-dab09c4a7869",
+				"fceee914-148f-c74e-3ad5-c2dbb988edf2",
+				"ad739651-3137-a535-5066-28a313cf7aa2",
+				"d01b27de-fef9-a333-3075-f431412a56d8",
+				"0ce2444e-3779-c247-6f0a-e9aabc7536eb",
+				"e6c236d4-96f6-b999-5e4e-9e8c93be6090",
+				"f18a7c8a-1c04-18b8-75d8-e2d8d08c3ef0",
+				"70790149-793f-242a-ebb8-032188d5bce5"
+			],
+			"owner": "658985",
+			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075"
+		},
+		{
+			"id": "113ca8db-2c5a-398e-7a97-cbcecae624de",
+			"name": "Rloc probe",
+			"description": "",
+			"order": [
+				"29c9a114-5552-701b-787d-895a8b03f2a6",
+				"1a6bbb6d-467d-dba6-0fc9-230cbcd85c47",
+				"ac4e4f66-fab7-fbbc-ca89-00bafd242361"
+			],
+			"owner": "658985"
+		},
+		{
+			"id": "e9d9c898-2a90-945e-34a8-106d16062ba8",
+			"name": "Vrf",
+			"description": "",
+			"order": [
+				"44c349c4-c0ca-f5d9-53e1-8bf92eca5c73",
+				"b19d4109-d47a-c368-a7d4-1e5baad88d6d",
+				"4ceea4ca-a442-edc1-30d4-4e28e1d15ac3",
+				"3c3d5346-fd09-0c1b-31dc-5e549c1a4adb",
+				"7beac5a7-38d0-dd68-2e65-352418c285fd",
+				"a517428f-a35e-5e75-5e5b-7f560d42332b",
+				"d106d7bf-ff65-6c13-397d-7cb765c71124"
+			],
+			"owner": "658985"
+		}
+	],
 	"timestamp": 0,
 	"owner": "658985",
 	"public": false,
@@ -91,10 +212,30 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "48325084-4625-703e-d6fd-3f11351ded23",
 			"rawModeData": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n\t}\n}"
 		},
 		{
-			"folder": null,
+			"id": "0b756f48-88b5-c015-a271-01b69a9ab2a4",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_10",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1494599860466,
+			"name": "Get local mapping loc_map_10 Operational ",
+			"description": "Get details about local mapping\n\nequivalent of\n    \n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1",
+			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
+			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
+		},
+		{
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
 			"id": "0b807adc-2277-db3f-8e3e-c6b74888018d",
 			"name": "Get local mapping loc_map_1 Operational",
 			"dataMode": "raw",
@@ -113,7 +254,7 @@
 			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
 			"id": "0ce07f8f-0e45-ea05-4c62-76d7076a444f",
 			"name": "Negative Case -  Locator set loc_1 as empty",
 			"dataMode": "raw",
@@ -132,7 +273,7 @@
 			"rawModeData": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\"\n   }\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "0ce2444e-3779-c247-6f0a-e9aabc7536eb",
 			"name": "Get remote positive mapping - Operational - Vrf",
 			"dataMode": "raw",
@@ -151,7 +292,7 @@
 			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "7e8099bb-e5d7-4e89-cc42-45b186b76c3c",
 			"id": "11cf57b3-d985-6dc2-805a-8d408679b35b",
 			"name": "Get adjacency - Config",
 			"dataMode": "raw",
@@ -170,7 +311,7 @@
 			"rawModeData": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
 			"id": "14239ebd-752b-e2f6-ba5f-4fdb79819b92",
 			"name": "Add Locator set loc_1 with locator for local0 copy",
 			"dataMode": "raw",
@@ -189,7 +330,7 @@
 			"rawModeData": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
 		},
 		{
-			"folder": null,
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
 			"id": "1493eeb4-7306-9770-a2ed-4a59763240d1",
 			"name": "Add local mapping loc_map_2 Operational",
 			"dataMode": "raw",
@@ -224,6 +365,7 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "48325084-4625-703e-d6fd-3f11351ded23",
 			"rawModeData": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n\t}\n}"
 		},
 		{
@@ -243,6 +385,7 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "113ca8db-2c5a-398e-7a97-cbcecae624de",
 			"rawModeData": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
 		},
 		{
@@ -262,6 +405,7 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "829d2e08-2373-756e-8a7d-1451610f45b3",
 			"rawModeData": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
 		},
 		{
@@ -281,10 +425,11 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "ec468419-e334-7311-2b34-2b6ddde851f0",
 			"rawModeData": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:db8:a0b:12f0::1\"\n\t\t\t}\n\t\t]\n\t}\n}"
 		},
 		{
-			"folder": null,
+			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
 			"id": "1e18c440-3841-2cdd-9a88-cd4bde729a17",
 			"name": "Get Bridge Domain Subtable 10 Operational",
 			"dataMode": "raw",
@@ -303,7 +448,7 @@
 			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
 			"id": "2506fe37-668b-7d0b-a76e-a592263dee65",
 			"name": "Get Bridge Domain Subtable 10 Config",
 			"dataMode": "raw",
@@ -322,6 +467,25 @@
 			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
 		},
 		{
+			"id": "27ee8b67-7986-d169-bb89-ad147c7fb57c",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_10",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1494600878314,
+			"name": "Get remote  negative mapping 10 -  Vrf - Prefix based",
+			"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
+			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
+			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_10\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv6-prefix\":\"2001:0db8:85a3:0000:0000:8a2e:0370:7334/64\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+		},
+		{
 			"id": "29c9a114-5552-701b-787d-895a8b03f2a6",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
 			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/rloc-probe",
@@ -338,6 +502,7 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "113ca8db-2c5a-398e-7a97-cbcecae624de",
 			"rawModeData": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
 		},
 		{
@@ -356,10 +521,11 @@
 			"name": "Add Petr use",
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "fa3ffa80-51de-1e69-1f1e-4f77e69876b1",
 			"rawModeData": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"2001:db8:a0b:12f0::2\"\n    }  \n}"
 		},
 		{
-			"folder": null,
+			"folder": "7e8099bb-e5d7-4e89-cc42-45b186b76c3c",
 			"id": "32abc7d1-bdcf-26f3-c726-a385b3b86ec5",
 			"name": "Add adjacency",
 			"dataMode": "raw",
@@ -378,7 +544,7 @@
 			"rawModeData": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
 			"id": "32cdac07-fe1b-ae10-1e3d-9c5e64c8fbe7",
 			"name": "Delete bridge testBD",
 			"dataMode": "raw",
@@ -397,7 +563,26 @@
 			"rawModeData": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"testBD\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
 		},
 		{
-			"folder": null,
+			"id": "368c6c84-05ac-217f-32ed-0225db44f1cd",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_10",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1494833563002,
+			"name": "Add local mapping loc_map_10 - prefix based",
+			"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.3.8 prefix_len 24 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 24 vni 12 eid_type 0 eid 192.168.3.8 filter 1\n    \n",
+			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
+			"rawModeData": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_10\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4-prefix\":\"192.168.3.8/8\"\n            },\n            \"locator-set\":\"loc_1\"\n         }\n\n}"
+		},
+		{
+			"folder": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
 			"id": "36a847e5-e3b8-ff07-4e88-f5a841fcaca6",
 			"name": "Delete Lisp",
 			"dataMode": "raw",
@@ -416,7 +601,7 @@
 			"rawModeData": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\",\r\n        \"eid-table\": {\r\n              \"vni-table\": [\r\n                {\r\n                  \"virtual-network-identifier\": 0,\r\n                  \"remote-mappings\": {},\r\n                  \"table-id\": 0,\r\n                  \"local-mappings\": {},\r\n                  \"adjacencies\": {}\r\n                }\r\n              ]\r\n            },\r\n        \"pitr-cfg\":{\r\n            \"locator-set\":\"N/A\"\r\n        }\r\n    }    \r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
 			"id": "385ab15d-6e4e-9fe9-9f4a-244a64f90c21",
 			"name": "Add Locator for GigabitEthernet0/8/0",
 			"dataMode": "raw",
@@ -435,7 +620,26 @@
 			"rawModeData": "{\r\n   \"interface\":{\r\n       \"interface-ref\":\"GigabitEthernet0/8/0\",\r\n       \"priority\":\"2\",\r\n       \"weight\":\"3\"\r\n   }\r\n}"
 		},
 		{
-			"folder": null,
+			"id": "3bd39b05-9986-ffc0-6977-c41d41c98060",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1491553886750,
+			"name": "Add local mapping with hmac key",
+			"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n",
+			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
+			"rawModeData": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.1\"\n            },\n            \"locator-set\":\"loc_1\",\n            \"hmac-key\":{\n            \t\"key-type\":\"sha-1-96-key\",\n            \t\"key\":\"abcd1234\"\n            }\n         }\n\n}"
+		},
+		{
+			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
 			"id": "3c3d5346-fd09-0c1b-31dc-5e549c1a4adb",
 			"name": "Get Vrf Subtable 10 Operational",
 			"dataMode": "raw",
@@ -454,7 +658,7 @@
 			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
 			"id": "3fe6bbb8-eca4-8b49-9092-1300aeac51e0",
 			"name": "Get Locator set loc_1 Config",
 			"dataMode": "raw",
@@ -473,7 +677,7 @@
 			"rawModeData": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
 		},
 		{
-			"folder": null,
+			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
 			"id": "44c349c4-c0ca-f5d9-53e1-8bf92eca5c73",
 			"name": "Add subtable subtree",
 			"dataMode": "raw",
@@ -507,10 +711,11 @@
 			"name": "Get Petr Config",
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "fa3ffa80-51de-1e69-1f1e-4f77e69876b1",
 			"rawModeData": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"192.168.2.1\"\n    }  \n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "49cc1e34-af2a-0ccc-3beb-dab09c4a7869",
 			"name": "Get remote  negative mapping Config -  Bridge Domain",
 			"dataMode": "raw",
@@ -529,7 +734,7 @@
 			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:aa:aa:aa:aa\"\r\n        },\r\n        \"map-reply-action\":\"no-action\"\r\n        \r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
 			"id": "4b606776-aa33-ff85-9784-f76d2e457dea",
 			"name": "Get Locator set loc_1 Operational",
 			"dataMode": "raw",
@@ -548,7 +753,7 @@
 			"rawModeData": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
 			"id": "4ceea4ca-a442-edc1-30d4-4e28e1d15ac3",
 			"name": "Get Vrf Subtable 10 Config",
 			"dataMode": "raw",
@@ -567,7 +772,7 @@
 			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "523f68fe-ee0f-8e28-2a8a-87f6a459e03b",
 			"name": "Add remote  negative mapping -  Vrf",
 			"dataMode": "raw",
@@ -602,10 +807,11 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "48325084-4625-703e-d6fd-3f11351ded23",
 			"rawModeData": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n\t}\n}"
 		},
 		{
-			"folder": null,
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
 			"id": "5462a723-5b0c-34f0-1359-5e53a77e3a52",
 			"name": "Add local mapping loc_map_2 - Bridge Domain",
 			"dataMode": "raw",
@@ -624,7 +830,7 @@
 			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:aa:aa:aa:aa:aa\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "54de6ea7-94a6-e8f2-1ed5-c209d8e3c25f",
 			"name": "Add remote  negative mapping -  Bridge Domain",
 			"dataMode": "raw",
@@ -643,7 +849,7 @@
 			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:aa:aa:aa:aa\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "383c8da3-cd29-79aa-e0d1-36e3b7bd3e9c",
 			"id": "5ac994f5-18e3-5101-23c1-32995dae6ec9",
 			"name": "Get map resolver - Config",
 			"dataMode": "raw",
@@ -662,7 +868,7 @@
 			"rawModeData": "{\r\n   \"map-resolver\":{\r\n       \"ip-address\":\"192.168.2.1\"\r\n   }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
 			"id": "61af7f4c-6071-e881-cfbc-548abab4ba9f",
 			"name": "Get Locator for GigabitEthernet0/8/0",
 			"dataMode": "raw",
@@ -681,7 +887,7 @@
 			"rawModeData": "{\r\n    \"locator-set\":{\r\n        \"name\":\"loc_1\"\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "da8bf0a1-22cf-8f24-0673-531e1a82de9b",
 			"id": "65167fb8-0d64-d13e-27ad-0f7d3e8c7fe4",
 			"name": "Get Pitr-cfg ",
 			"dataMode": "raw",
@@ -700,7 +906,26 @@
 			"rawModeData": "{\n    \"pitr-cfg\": {\n      \"locator-set\": \"N/A\"\n        }  \n}"
 		},
 		{
-			"folder": null,
+			"id": "6a13d31b-937d-0f94-cc96-fe5b152fad52",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_10",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1494600828746,
+			"name": "Add remote  negative mapping 10 -  Vrf - Prefix based",
+			"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
+			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
+			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_10\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv6-prefix\":\"2001:0db8:85a3:0000:0000:8a2e:0370:7334/64\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+		},
+		{
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "70790149-793f-242a-ebb8-032188d5bce5",
 			"name": "Get remote positive mapping - Operational - Bridge Domain",
 			"dataMode": "raw",
@@ -719,7 +944,7 @@
 			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "749351c9-3d31-cd54-500f-a628c7e134cd",
 			"name": "Get remote negative mapping Operational - Vrf",
 			"dataMode": "raw",
@@ -754,10 +979,11 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "ec468419-e334-7311-2b34-2b6ddde851f0",
 			"rawModeData": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t\t\t}\n\t\t]\n\t}\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "7a748095-2530-5bbd-7e5d-6d1cbd225c65",
 			"name": "Get remote negative mapping Config - Vrf",
 			"dataMode": "raw",
@@ -776,7 +1002,7 @@
 			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.2\",\r\n                \"priority\":1,\r\n                \"weight\":1\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
 			"id": "7beac5a7-38d0-dd68-2e65-352418c285fd",
 			"name": "Negative Case - Add VNI Table 12",
 			"dataMode": "raw",
@@ -795,7 +1021,7 @@
 			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\"\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
 			"id": "7eaaefcc-784b-897f-dde1-0d47741dfe56",
 			"name": "Add Bridge Domain Subtable 10",
 			"dataMode": "raw",
@@ -830,10 +1056,11 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "ec468419-e334-7311-2b34-2b6ddde851f0",
 			"rawModeData": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t\t\t}\n\t\t]\n\t}\n}"
 		},
 		{
-			"folder": null,
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
 			"id": "8f3ede8b-aab7-ac3b-3041-9cdb7bc0e6ec",
 			"name": "Add local mapping loc_map_1 - Vrf ",
 			"dataMode": "raw",
@@ -852,6 +1079,24 @@
 			"rawModeData": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.1\"\n            },\n            \"locator-set\":\"loc_1\"\n         }\n\n}"
 		},
 		{
+			"id": "929f03e4-aeba-3599-1bf2-1730913bdea6",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_11/adjacencies/adjacency/adj_10",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1494844965761,
+			"name": "Add adjacency prefix based",
+			"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api",
+			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"rawModeData": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_10\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.3.8/8\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.2.4/24\"\r\n        }\r\n    }\r\n}"
+		},
+		{
 			"id": "a0babf59-f72b-3412-3146-52e6312e063f",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
 			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-request-mode",
@@ -868,10 +1113,11 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "829d2e08-2373-756e-8a7d-1451610f45b3",
 			"rawModeData": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
 		},
 		{
-			"folder": null,
+			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
 			"id": "a517428f-a35e-5e75-5e5b-7f560d42332b",
 			"name": "Get VNI Table 12 Config",
 			"dataMode": "raw",
@@ -906,10 +1152,11 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "113ca8db-2c5a-398e-7a97-cbcecae624de",
 			"rawModeData": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "ad739651-3137-a535-5066-28a313cf7aa2",
 			"name": "Add remote positive mapping - VrfSubtable",
 			"dataMode": "raw",
@@ -944,10 +1191,11 @@
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
+			"folder": "829d2e08-2373-756e-8a7d-1451610f45b3",
 			"rawModeData": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
 		},
 		{
-			"folder": null,
+			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
 			"id": "b19d4109-d47a-c368-a7d4-1e5baad88d6d",
 			"name": "Add Vrf Subtable 10",
 			"dataMode": "raw",
@@ -966,7 +1214,7 @@
 			"rawModeData": "{\r\n    \"vrf-subtable\":{\r\n      \"table-id\":10\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
 			"id": "b1c9fcf9-89bf-86c5-a350-60535b748ee9",
 			"name": "Get Lisp Operational",
 			"dataMode": "raw",
@@ -985,26 +1233,26 @@
 			"rawModeData": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
 		},
 		{
-			"folder": null,
 			"id": "bad5a024-ed9f-93d6-da06-1686d675dc50",
-			"name": "Create bridge testBD",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": "html",
-			"description": "Creates bridgfe domain. Corresponds to invoking:\n\nvat#  bridge_domain_add_del bd_id [bd_id] learn 0 forward 0 uu-flood 0 flood 1 arp-term 0\n\nTo verify run:\n\nvppctl show bridge-domain [bd_id] detail",
 			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/v3po:vpp/bridge-domains/bridge-domain/testBD",
+			"url": "http://localhost:8183/restconf/config/v3po:bridge-domains/bridge-domain/testBD",
 			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
 			"tests": "",
 			"currentHelper": "normal",
 			"helperAttributes": {},
+			"time": 1494593326359,
+			"name": "Create bridge testBD",
+			"description": "Creates bridgfe domain. Corresponds to invoking:\n\nvat#  bridge_domain_add_del bd_id [bd_id] learn 0 forward 0 uu-flood 0 flood 1 arp-term 0\n\nTo verify run:\n\nvppctl show bridge-domain [bd_id] detail",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
 			"rawModeData": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"testBD\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
 			"id": "c0611a78-1410-52b6-a886-ca84e4dacb8e",
 			"name": "Add Locator set loc_1 with locator for local0",
 			"dataMode": "raw",
@@ -1023,7 +1271,7 @@
 			"rawModeData": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
 		},
 		{
-			"folder": null,
+			"folder": "da8bf0a1-22cf-8f24-0673-531e1a82de9b",
 			"id": "c50bc4c0-1a64-7130-4b8b-e1f12f55d4d7",
 			"name": "Add Pitr-cfg",
 			"dataMode": "raw",
@@ -1042,7 +1290,7 @@
 			"rawModeData": "{\n    \"pitr-cfg\": {\n      \"locator-set\": \"loc_1\"\n    }  \n}"
 		},
 		{
-			"folder": null,
+			"folder": "383c8da3-cd29-79aa-e0d1-36e3b7bd3e9c",
 			"id": "c52b0be2-67d4-642b-fd7b-43598f2c4e3f",
 			"name": "Add map resolver",
 			"dataMode": "raw",
@@ -1080,7 +1328,7 @@
 			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
 			"id": "cd18d003-6bc9-cfff-46e8-7dffcd1f8497",
 			"name": "Add local mapping loc_map_2 Config",
 			"dataMode": "raw",
@@ -1099,7 +1347,25 @@
 			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"id": "cf99137e-694d-8a9c-45f0-9361840f4c25",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_11",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1494844942341,
+			"name": "Add remote  negative mapping 11 -  Vrf - Prefix based",
+			"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
+			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_11\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.2.4/24\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+		},
+		{
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "d01b27de-fef9-a333-3075-f431412a56d8",
 			"name": "Get remote positive mapping - Config -  Vrf",
 			"dataMode": "raw",
@@ -1118,7 +1384,7 @@
 			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
 			"id": "d106d7bf-ff65-6c13-397d-7cb765c71124",
 			"name": "Get VNI Table 12 Operational",
 			"dataMode": "raw",
@@ -1152,6 +1418,7 @@
 			"name": "Get Petr Operational",
 			"description": "",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "fa3ffa80-51de-1e69-1f1e-4f77e69876b1",
 			"rawModeData": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"192.168.2.1\"\n    }  \n}"
 		},
 		{
@@ -1170,10 +1437,11 @@
 			"name": "Enable Lisp",
 			"description": "Enables Lisp feature\n\nequivalent of \n\n    lisp_enable_disable is_en 1\n\ncan be verified with \n\n    show_lisp_status",
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+			"folder": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
 			"rawModeData": "{\n  \"lisp\": {\n    \"enable\": true,\n    \"lisp-feature-data\": {\n      \"pitr-cfg\": {\n        \"locator-set\": \"N/A\"\n      },\n      \"rloc-probe\": {\n        \"enabled\": false\n      },\n      \"map-register\": {\n        \"enabled\": false\n      },\n      \"map-request-mode\": {\n        \"mode\": \"destination-only\"\n      },\n      \"eid-table\": {\n        \"vni-table\": [\n          {\n            \"virtual-network-identifier\": 0,\n            \"vrf-subtable\": {\n              \"table-id\": 0\n            }\n          }\n        ]\n      }\n    }\n  }\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
 			"id": "e5b786a5-cab9-9fd7-4a23-20840e00098a",
 			"name": "Get Lisp Config",
 			"dataMode": "raw",
@@ -1192,7 +1460,7 @@
 			"rawModeData": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "e6c236d4-96f6-b999-5e4e-9e8c93be6090",
 			"name": "Add remote positive mapping - Bridge Domain",
 			"dataMode": "raw",
@@ -1211,7 +1479,7 @@
 			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_4\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:cc:aa:bb:cc\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.3\",\r\n                \"priority\":1,\r\n                \"weight\":2\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
 			"id": "eef057eb-f4a5-4903-1e31-06082511d677",
 			"name": "Get local mapping loc_map_1 Config",
 			"dataMode": "raw",
@@ -1230,7 +1498,7 @@
 			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "f18a7c8a-1c04-18b8-75d8-e2d8d08c3ef0",
 			"name": "Get remote positive mapping - Config - Bridge Domain",
 			"dataMode": "raw",
@@ -1249,7 +1517,7 @@
 			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "7e8099bb-e5d7-4e89-cc42-45b186b76c3c",
 			"id": "f6c1d4a8-9e5a-bac2-7476-c5ded4a545cc",
 			"name": "Get adjacency - Operational",
 			"dataMode": "raw",
@@ -1268,7 +1536,7 @@
 			"rawModeData": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "383c8da3-cd29-79aa-e0d1-36e3b7bd3e9c",
 			"id": "f8d1b8a6-7a79-8be1-dbf3-fc02c5688df4",
 			"name": "Get map resolver - Operational",
 			"dataMode": "raw",
@@ -1287,7 +1555,7 @@
 			"rawModeData": "{\r\n   \"map-resolver\":{\r\n       \"ip-address\":\"192.168.2.1\"\r\n   }\r\n}"
 		},
 		{
-			"folder": null,
+			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
 			"id": "fceee914-148f-c74e-3ad5-c2dbb988edf2",
 			"name": "Get remote  negative mapping Operational -  Bridge Domain",
 			"dataMode": "raw",

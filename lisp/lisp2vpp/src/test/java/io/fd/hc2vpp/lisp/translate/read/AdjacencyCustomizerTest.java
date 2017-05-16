@@ -19,8 +19,12 @@ package io.fd.hc2vpp.lisp.translate.read;
 import static io.fd.hc2vpp.lisp.translate.AdjacencyData.ADDRESS_ONE;
 import static io.fd.hc2vpp.lisp.translate.AdjacencyData.ADDRESS_THREE;
 import static io.fd.hc2vpp.lisp.translate.AdjacencyData.LOCAL_EID_ONE;
+import static io.fd.hc2vpp.lisp.translate.AdjacencyData.LOCAL_EID_PREFIX_ONE;
+import static io.fd.hc2vpp.lisp.translate.AdjacencyData.LOCAL_EID_PREFIX_TWO;
 import static io.fd.hc2vpp.lisp.translate.AdjacencyData.LOCAL_EID_TWO;
 import static io.fd.hc2vpp.lisp.translate.AdjacencyData.REMOTE_EID_ONE;
+import static io.fd.hc2vpp.lisp.translate.AdjacencyData.REMOTE_EID_PREFIX_ONE;
+import static io.fd.hc2vpp.lisp.translate.AdjacencyData.REMOTE_EID_PREFIX_TWO;
 import static io.fd.hc2vpp.lisp.translate.AdjacencyData.REMOTE_EID_TWO;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -43,6 +47,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.AdjacenciesBuilder;
@@ -63,6 +68,8 @@ public class AdjacencyCustomizerTest
         extends ListReaderCustomizerTest<Adjacency, AdjacencyKey, AdjacencyBuilder>
         implements ByteDataTranslator, EidMetadataProvider, EidMappingContextHelper, AdjacencyMappingContextTestHelper {
 
+    public static final String NORMALIZED_PREFIX_ONE = "192.168.2.0/24";
+    public static final String NORMALIZED_PREFIX_THREE = "192.168.0.0/16";
     private InstanceIdentifier<Adjacency> identifier;
 
     public AdjacencyCustomizerTest() {
@@ -78,23 +85,30 @@ public class AdjacencyCustomizerTest
                 .child(RemoteMapping.class, new RemoteMappingKey(new MappingId("remote-mapping")))
                 .child(Adjacencies.class)
                 .child(Adjacency.class, new AdjacencyKey("adj-one"));
-
-
-        mockApi();
-        defineEidMapping(mappingContext, LOCAL_EID_ONE, new MappingId("local-eid-one"), "local-mapping-context");
-        defineEidMapping(mappingContext, LOCAL_EID_TWO, new MappingId("local-eid-two"), "local-mapping-context");
-        defineEidMapping(mappingContext, REMOTE_EID_ONE, new MappingId("remote-eid-one"), "remote-mapping-context");
-        defineEidMapping(mappingContext, REMOTE_EID_TWO, new MappingId("remote-eid-two"), "remote-mapping-context");
-
         defineAdjacencyMapping(mappingContext, "local-eid-one", "remote-eid-one", "adj-one",
                 "adjacencies-mapping-context");
         defineAdjacencyMapping(mappingContext, "local-eid-two", "remote-eid-two", "adj-two",
                 "adjacencies-mapping-context");
-        mockApi();
+    }
+
+    private void defineEidAddressMapping() {
+        defineEidMapping(mappingContext, LOCAL_EID_ONE, new MappingId("local-eid-one"), "local-mapping-context");
+        defineEidMapping(mappingContext, LOCAL_EID_TWO, new MappingId("local-eid-two"), "local-mapping-context");
+        defineEidMapping(mappingContext, REMOTE_EID_ONE, new MappingId("remote-eid-one"), "remote-mapping-context");
+        defineEidMapping(mappingContext, REMOTE_EID_TWO, new MappingId("remote-eid-two"), "remote-mapping-context");
+    }
+
+    private void defineEidPrefixMapping() {
+        defineEidMapping(mappingContext, LOCAL_EID_PREFIX_ONE, new MappingId("local-eid-one"), "local-mapping-context");
+        defineEidMapping(mappingContext, LOCAL_EID_PREFIX_TWO, new MappingId("local-eid-two"), "local-mapping-context");
+        defineEidMapping(mappingContext, REMOTE_EID_PREFIX_ONE, new MappingId("remote-eid-one"), "remote-mapping-context");
+        defineEidMapping(mappingContext, REMOTE_EID_PREFIX_TWO, new MappingId("remote-eid-two"), "remote-mapping-context");
     }
 
     @Test
     public void getAllIds() throws Exception {
+        mockAddressDump();
+        defineEidAddressMapping();
         final List<AdjacencyKey> keys = getCustomizer().getAllIds(identifier, ctx);
 
         assertThat(keys, hasSize(2));
@@ -103,6 +117,8 @@ public class AdjacencyCustomizerTest
 
     @Test
     public void readCurrentAttributes() throws Exception {
+        mockAddressDump();
+        defineEidAddressMapping();
         final AdjacencyBuilder builder = new AdjacencyBuilder();
         getCustomizer().readCurrentAttributes(identifier, builder, ctx);
 
@@ -113,6 +129,21 @@ public class AdjacencyCustomizerTest
                 Ipv4.class.cast(builder.getRemoteEid().getAddress()).getIpv4().getValue());
     }
 
+    @Test
+    public void readCurrentAttributesPrefixBased() throws Exception {
+        mockPrefixDump();
+        defineEidPrefixMapping();
+        final AdjacencyBuilder builder = new AdjacencyBuilder();
+        getCustomizer().readCurrentAttributes(identifier, builder, ctx);
+
+        assertEquals("adj-one", builder.getId());
+        assertEquals(new AdjacencyKey("adj-one"), builder.getKey());
+        assertEquals(NORMALIZED_PREFIX_ONE,
+                Ipv4Prefix.class.cast(builder.getLocalEid().getAddress()).getIpv4Prefix().getValue());
+        assertEquals(NORMALIZED_PREFIX_THREE,
+                Ipv4Prefix.class.cast(builder.getRemoteEid().getAddress()).getIpv4Prefix().getValue());
+    }
+
     @Override
     protected ReaderCustomizer<Adjacency, AdjacencyBuilder> initCustomizer() {
         return new AdjacencyCustomizer(api, new EidMappingContext("local-mapping-context", "local-mapping-"),
@@ -121,7 +152,7 @@ public class AdjacencyCustomizerTest
     }
 
 
-    private void mockApi() {
+    private void mockAddressDump() {
         OneAdjacency adjacencyOne = new OneAdjacency();
         adjacencyOne.eidType = 0;
         adjacencyOne.leid = new byte[]{-64, -88, 2, 1};
@@ -136,6 +167,28 @@ public class AdjacencyCustomizerTest
         adjacencyTwo.leidPrefixLen = 32;
         adjacencyTwo.reid = new byte[]{-64, -88, 2, 4};
         adjacencyTwo.reidPrefixLen = 32;
+
+        OneAdjacenciesGetReply reply = new OneAdjacenciesGetReply();
+        reply.adjacencies = new OneAdjacency[]{adjacencyOne, adjacencyTwo};
+
+        when(api.oneAdjacenciesGet(any())).thenReturn(future(reply));
+    }
+
+    private void mockPrefixDump() {
+        OneAdjacency adjacencyOne = new OneAdjacency();
+        adjacencyOne.eidType = 0;
+        adjacencyOne.leid = new byte[]{-64, -88, 2, 1};
+        adjacencyOne.leidPrefixLen = 24;
+        adjacencyOne.reid = new byte[]{-64, -88, 2, 3};
+        adjacencyOne.reidPrefixLen = 16;
+
+
+        OneAdjacency adjacencyTwo = new OneAdjacency();
+        adjacencyTwo.eidType = 0;
+        adjacencyTwo.leid = new byte[]{-64, -88, 2, 2};
+        adjacencyTwo.leidPrefixLen = 28;
+        adjacencyTwo.reid = new byte[]{-64, -88, 2, 4};
+        adjacencyTwo.reidPrefixLen = 8;
 
         OneAdjacenciesGetReply reply = new OneAdjacenciesGetReply();
         reply.adjacencies = new OneAdjacency[]{adjacencyOne, adjacencyTwo};

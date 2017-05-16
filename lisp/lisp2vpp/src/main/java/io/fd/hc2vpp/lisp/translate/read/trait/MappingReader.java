@@ -37,15 +37,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Trait providing predicates to filter mappings to respective subtables
+ * Trait providing predicates to filter mappings to respective sub-tables
  */
 public interface MappingReader extends JvppReplyConsumer {
 
     Predicate<OneEidTableDetails> BRIDGE_DOMAIN_MAPPINGS_ONLY =
-            (OneEidTableDetails detail) -> detail.eidType == MAC.getValue();
+            (OneEidTableDetails detail) -> detail.eidType == MAC.getVppTypeBinding();
 
     Predicate<OneEidTableDetails> VRF_MAPPINGS_ONLY =
-            (OneEidTableDetails detail) -> detail.eidType == IPV4.getValue() || detail.eidType == IPV6.getValue();
+            (OneEidTableDetails detail) -> detail.eidType == IPV4.getVppTypeBinding() || detail.eidType == IPV6.getVppTypeBinding();
 
     default Predicate<OneEidTableDetails> subtableFilterForLocalMappings(
             @Nonnull final InstanceIdentifier<LocalMapping> identifier) {

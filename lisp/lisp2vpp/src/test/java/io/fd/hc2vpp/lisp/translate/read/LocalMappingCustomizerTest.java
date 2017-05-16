@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV4;
+import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV4_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
@@ -40,6 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.HmacKeyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.LocalMappings;
@@ -60,6 +63,9 @@ public class LocalMappingCustomizerTest extends
 
     private static final Ipv4
             EID_ADDRESS = new Ipv4Builder().setIpv4(new Ipv4Address("192.168.2.1")).build();
+
+    private static final Ipv4Prefix
+            EID_V4_PREFIX_ADDRESS = new Ipv4PrefixBuilder().setIpv4Prefix(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix("192.168.2.1/28")).build();
 
     @Mock
     private EidMappingContext localMappingContext;
@@ -84,11 +90,9 @@ public class LocalMappingCustomizerTest extends
                 .child(VrfSubtable.class)
                 .child(LocalMappings.class)
                 .child(LocalMapping.class, new LocalMappingKey(new MappingId("local-mapping")));
-
-        defineMappings();
     }
 
-    private void defineDumpData() {
+    private void defineV4AddressDumpData() {
         OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
         OneEidTableDetails detail = new OneEidTableDetails();
         detail.action = 0;
@@ -96,7 +100,27 @@ public class LocalMappingCustomizerTest extends
         detail.context = 4;
         detail.eid = new byte[]{-64, -88, 2, 1};
         detail.eidPrefixLen = 32;
-        detail.eidType = (byte) IPV4.getValue();
+        detail.eidType = (byte) IPV4.getVppTypeBinding();
+        detail.isLocal = 1;
+        detail.locatorSetIndex = 1;
+        detail.ttl = 7;
+        detail.vni = 12;
+        detail.key = "abcdefgh".getBytes(StandardCharsets.UTF_8);
+        detail.keyId = 1;
+
+        replyDump.oneEidTableDetails = ImmutableList.of(detail);
+        when(api.oneEidTableDump(any())).thenReturn(future(replyDump));
+    }
+
+    private void defineV4PrefixDumpData() {
+        OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
+        OneEidTableDetails detail = new OneEidTableDetails();
+        detail.action = 0;
+        detail.authoritative = 1;
+        detail.context = 4;
+        detail.eid = new byte[]{-64, -88, 2, 1};
+        detail.eidPrefixLen = 28;
+        detail.eidType = (byte) IPV4_PREFIX.getVppTypeBinding();
         detail.isLocal = 1;
         detail.locatorSetIndex = 1;
         detail.ttl = 7;
@@ -116,7 +140,7 @@ public class LocalMappingCustomizerTest extends
         detail.context = 4;
         detail.eid = new byte[]{-64, -88, 2, 1};
         detail.eidPrefixLen = 32;
-        detail.eidType = (byte) IPV4.getValue();
+        detail.eidType = (byte) IPV4.getVppTypeBinding();
         detail.isLocal = 1;
         detail.locatorSetIndex = 1;
         detail.ttl = 7;
@@ -126,7 +150,7 @@ public class LocalMappingCustomizerTest extends
         when(api.oneEidTableDump(any())).thenReturn(future(replyDump));
     }
 
-    private void defineMappings() {
+    private void defineAddressMappings() {
         //eid mapping
 
         when(localMappingContext.getId(any(Eid.class), any(MappingContext.class)))
@@ -138,8 +162,21 @@ public class LocalMappingCustomizerTest extends
         defineMapping(mappingContext, "loc-set", 1, "locator-set-context");
     }
 
+    private void definePrefixMappings() {
+        //eid mapping
+
+        when(localMappingContext.getId(any(Eid.class), any(MappingContext.class)))
+                .thenReturn(new MappingId("local-mapping"));
+        when(localMappingContext.containsEid(new MappingId("local-mapping"), mappingContext)).thenReturn(true);
+        when(localMappingContext.getEid(new MappingId("local-mapping"), mappingContext)).thenReturn(new EidBuilder()
+                .setAddress(EID_V4_PREFIX_ADDRESS).build());
+        //naming context for locator
+        defineMapping(mappingContext, "loc-set", 1, "locator-set-context");
+    }
+
     @Test
     public void readCurrentAttributesNoHmacKey() throws ReadFailedException {
+        defineAddressMappings();
         defineDumpDataNoHmacKey();
 
         LocalMappingBuilder builder = new LocalMappingBuilder();
@@ -155,7 +192,8 @@ public class LocalMappingCustomizerTest extends
 
     @Test
     public void readCurrentAttributes() throws Exception {
-        defineDumpData();
+        defineAddressMappings();
+        defineV4AddressDumpData();
         LocalMappingBuilder builder = new LocalMappingBuilder();
         getCustomizer().readCurrentAttributes(validIdentifier, builder, ctx);
 
@@ -171,8 +209,27 @@ public class LocalMappingCustomizerTest extends
     }
 
     @Test
+    public void readCurrentAttributesPrefixBased() throws Exception {
+        definePrefixMappings();
+        defineV4PrefixDumpData();
+        LocalMappingBuilder builder = new LocalMappingBuilder();
+        getCustomizer().readCurrentAttributes(validIdentifier, builder, ctx);
+
+        final LocalMapping mapping = builder.build();
+
+        assertNotNull(mapping);
+        assertEquals(true, compareAddresses(EID_V4_PREFIX_ADDRESS, mapping.getEid().getAddress()));
+        assertEquals("loc-set", mapping.getLocatorSet());
+
+        final HmacKey hmacKey = mapping.getHmacKey();
+        assertEquals("abcdefgh", hmacKey.getKey());
+        assertEquals(HmacKeyType.Sha196Key, hmacKey.getKeyType());
+    }
+
+    @Test
     public void getAllIds() throws Exception {
-        defineDumpData();
+        defineAddressMappings();
+        defineV4AddressDumpData();
         final List<LocalMappingKey> keys = getCustomizer().getAllIds(emptyIdentifier, ctx);
 
         assertEquals(1, keys.size());

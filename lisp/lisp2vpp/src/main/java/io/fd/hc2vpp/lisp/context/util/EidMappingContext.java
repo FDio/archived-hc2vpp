@@ -188,13 +188,13 @@ public class EidMappingContext implements EidTranslator {
 
     private Eid copyEid(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.Eid eid) {
-        return new EidBuilder().setAddress(eid.getAddress()).setAddressType(eid.getAddressType())
+        return new EidBuilder().setAddress(normalizeIfPrefixBased(eid.getAddress())).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }
 
     private Eid copyEid(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.Eid eid) {
-        return new EidBuilder().setAddress(eid.getAddress()).setAddressType(eid.getAddressType())
+        return new EidBuilder().setAddress(normalizeIfPrefixBased(eid.getAddress())).setAddressType(eid.getAddressType())
                 .setVirtualNetworkId(eid.getVirtualNetworkId()).build();
     }
 

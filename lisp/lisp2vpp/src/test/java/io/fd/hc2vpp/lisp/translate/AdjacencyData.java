@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.InstanceIdType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv4Afi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4PrefixBuilder;
 
 public class AdjacencyData {
 
@@ -31,6 +32,11 @@ public class AdjacencyData {
     public static final Ipv4Address ADDRESS_TWO = new Ipv4Address("192.168.2.2");
     public static final Ipv4Address ADDRESS_THREE = new Ipv4Address("192.168.2.3");
     public static final Ipv4Address ADDRESS_FOUR = new Ipv4Address("192.168.2.4");
+
+    public static final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix PREFIX_ADDRESS_ONE = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix("192.168.2.1/24");
+    public static final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix PREFIX_ADDRESS_TWO = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix("192.168.2.2/28");
+    public static final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix PREFIX_ADDRESS_THREE = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix("192.168.2.3/16");
+    public static final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix PREFIX_ADDRESS_FOUR = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix("192.168.2.4/8");
 
     public static final Eid LOCAL_EID_ONE = new EidBuilder()
             .setAddressType(Ipv4Afi.class)
@@ -55,5 +61,26 @@ public class AdjacencyData {
             .setAddress(new Ipv4Builder().setIpv4(ADDRESS_FOUR).build())
             .build();
 
+    public static final Eid LOCAL_EID_PREFIX_ONE = new EidBuilder()
+            .setAddressType(Ipv4Afi.class)
+            .setVirtualNetworkId(new InstanceIdType(VNI))
+            .setAddress(new Ipv4PrefixBuilder().setIpv4Prefix(PREFIX_ADDRESS_ONE).build())
+            .build();
 
+    public static final Eid LOCAL_EID_PREFIX_TWO = new EidBuilder()
+            .setAddressType(Ipv4Afi.class)
+            .setVirtualNetworkId(new InstanceIdType(VNI))
+            .setAddress(new Ipv4PrefixBuilder().setIpv4Prefix(PREFIX_ADDRESS_TWO).build())
+            .build();
+
+    public static final Eid REMOTE_EID_PREFIX_ONE = new EidBuilder()
+            .setAddressType(Ipv4Afi.class)
+            .setVirtualNetworkId(new InstanceIdType(VNI))
+            .setAddress(new Ipv4PrefixBuilder().setIpv4Prefix(PREFIX_ADDRESS_THREE).build())
+            .build();
+    public static final Eid REMOTE_EID_PREFIX_TWO = new EidBuilder()
+            .setAddressType(Ipv4Afi.class)
+            .setVirtualNetworkId(new InstanceIdType(VNI))
+            .setAddress(new Ipv4PrefixBuilder().setIpv4Prefix(PREFIX_ADDRESS_FOUR).build())
+            .build();
 }

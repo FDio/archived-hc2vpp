@@ -145,9 +145,11 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         builder.setId(currentAdjacencyId)
                 .setKey(new AdjacencyKey(currentAdjacencyId))
                 .setLocalEid(getArrayAsLocalEid(
-                        MappingsDumpParams.EidType.valueOf(currentAdjacency.eidType), currentAdjacency.leid, vni))
+                        MappingsDumpParams.EidType.valueOf(currentAdjacency.eidType), currentAdjacency.leid,
+                        currentAdjacency.leidPrefixLen, vni))
                 .setRemoteEid(getArrayAsRemoteEid(
-                        MappingsDumpParams.EidType.valueOf(currentAdjacency.eidType), currentAdjacency.reid, vni));
+                        MappingsDumpParams.EidType.valueOf(currentAdjacency.eidType), currentAdjacency.reid,
+                        currentAdjacency.reidPrefixLen, vni));
     }
 
     private EntityDumpExecutor<OneAdjacenciesGetReply, AdjacencyDumpParams> createExecutor() {
@@ -199,9 +201,11 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
                                         final MappingContext mappingContext) {
             return new EidIdentificatorPairBuilder()
                     .setLocalEidId(new MappingId(localMappingContext.getId(getArrayAsEidLocal(
-                            MappingsDumpParams.EidType.valueOf(data.eidType), data.leid, vni), mappingContext)))
+                            MappingsDumpParams.EidType.valueOf(data.eidType), data.leid, data.leidPrefixLen, vni),
+                            mappingContext)))
                     .setRemoteEidId(new MappingId(remoteMappingContext.getId(getArrayAsEidLocal(
-                            MappingsDumpParams.EidType.valueOf(data.eidType), data.reid, vni), mappingContext)))
+                            MappingsDumpParams.EidType.valueOf(data.eidType), data.reid, data.reidPrefixLen, vni),
+                            mappingContext)))
                     .build();
         }
     }

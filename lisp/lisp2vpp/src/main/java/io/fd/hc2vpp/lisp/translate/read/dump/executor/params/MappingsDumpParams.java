@@ -16,7 +16,9 @@
 
 package io.fd.hc2vpp.lisp.translate.read.dump.executor.params;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Parameters for executing dump of mappings
@@ -82,15 +84,27 @@ public final class MappingsDumpParams {
     public enum EidType {
         IPV4(0),
         IPV6(1),
-        MAC(2);
+        MAC(2),
+        IPV4_PREFIX(3),
+        IPV6_PREFIX(4);
 
+        /**
+         * From vpp api perspective, ipv4 is the same as ipv4-prefix, it differs just in prefix value.
+         * Respectively for ipv6/ipv6-prefix
+         */
+        private static final Map<EidType, Integer> VPP_EID_TYPE_REGISTER = ImmutableMap.of(
+                IPV4, 0, IPV6, 1, MAC, 2, IPV4_PREFIX, 0, IPV6_PREFIX, 1);
+
+        /**
+         * This value should be use just for our logic, do not use it to bind vpp requests
+         */
         private final int value;
 
         private EidType(final int value) {
             this.value = value;
         }
 
-        public static final EidType valueOf(int value) {
+        public static EidType valueOf(int value) {
             switch (value) {
                 case 0:
                     return IPV4;
@@ -98,13 +112,17 @@ public final class MappingsDumpParams {
                     return IPV6;
                 case 2:
                     return MAC;
+                case 3:
+                    return IPV4_PREFIX;
+                case 4:
+                    return IPV6_PREFIX;
                 default:
                     throw new IllegalArgumentException("Illegal value");
             }
         }
 
-        public final int getValue() {
-            return this.value;
+        public final int getVppTypeBinding() {
+            return VPP_EID_TYPE_REGISTER.get(this);
         }
     }
 
@@ -150,10 +168,6 @@ public final class MappingsDumpParams {
         private byte[] eid;
         private byte filter;
 
-        public static final MappingsDumpParamsBuilder newInstance() {
-            return new MappingsDumpParamsBuilder();
-        }
-
         public MappingsDumpParamsBuilder setEidSet(final QuantityType quantityType) {
             this.eidSet = (byte) quantityType.getValue();
             return this;
@@ -170,7 +184,7 @@ public final class MappingsDumpParams {
         }
 
         public MappingsDumpParamsBuilder setEidType(final EidType eidType) {
-            this.eidType = (byte) eidType.getValue();
+            this.eidType = (byte) eidType.getVppTypeBinding();
             return this;
         }
 

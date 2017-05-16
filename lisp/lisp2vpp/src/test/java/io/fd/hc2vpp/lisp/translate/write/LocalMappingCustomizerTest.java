@@ -24,6 +24,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
@@ -41,8 +42,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv4Afi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.HmacKeyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
@@ -70,6 +73,12 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
     private InstanceIdentifier<LocalMapping> id;
     private LocalMapping mapping;
     private LocalMapping mappingWithHmacKey;
+
+    private LocalMapping failUpdateBefore;
+    private LocalMapping failUpdateAfter;
+    private LocalMapping ignoreUpdateBefore;
+    private LocalMapping ignoreUpdateAfter;
+
     private LocalMappingCustomizer customizer;
 
     @Override
@@ -93,6 +102,28 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
                         .setKey("abcd")
                         .setKeyType(HmacKeyType.Sha256128Key)
                         .build())
+                .build();
+
+        failUpdateBefore = new LocalMappingBuilder()
+                .setEid(new EidBuilder().setAddress(new Ipv4PrefixBuilder()
+                        .setIpv4Prefix(new Ipv4Prefix("192.168.2.1/24"))
+                        .build()).build())
+                .build();
+        failUpdateAfter = new LocalMappingBuilder()
+                .setEid(new EidBuilder().setAddress(new Ipv4PrefixBuilder()
+                        .setIpv4Prefix(new Ipv4Prefix("192.168.2.1/16"))
+                        .build()).build())
+                .build();
+
+        ignoreUpdateBefore = new LocalMappingBuilder()
+                .setEid(new EidBuilder().setAddress(new Ipv4PrefixBuilder()
+                        .setIpv4Prefix(new Ipv4Prefix("192.168.2.1/24"))
+                        .build()).build())
+                .build();
+        ignoreUpdateAfter = new LocalMappingBuilder()
+                .setEid(new EidBuilder().setAddress(new Ipv4PrefixBuilder()
+                        .setIpv4Prefix(new Ipv4Prefix("192.168.2.4/24"))
+                        .build()).build())
                 .build();
 
         id = InstanceIdentifier.builder(Lisp.class)
@@ -171,8 +202,14 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testUpdateCurrentAttributes() throws WriteFailedException {
-        customizer.updateCurrentAttributes(null, null, null, writeContext);
+    public void testUpdateCurrentAttributesFail() throws WriteFailedException {
+        customizer.updateCurrentAttributes(null, failUpdateBefore, failUpdateAfter, writeContext);
+    }
+
+    @Test
+    public void testUpdateCurrentAttributesIgnore() throws WriteFailedException {
+        customizer.updateCurrentAttributes(null, ignoreUpdateBefore, ignoreUpdateAfter, writeContext);
+        verifyZeroInteractions(api);
     }
 
     @Test
@@ -194,7 +231,8 @@ public class LocalMappingCustomizerTest extends WriterCustomizerTest implements 
     }
 
     @Test
-    public void testDeleteCurrentAttributesWithHmacKey() throws WriteFailedException, InterruptedException, ExecutionException {
+    public void testDeleteCurrentAttributesWithHmacKey()
+            throws WriteFailedException, InterruptedException, ExecutionException {
         when(eidMappingContext.containsEid(any(), eq(mappingContext))).thenReturn(true);
         customizer.deleteCurrentAttributes(id, mappingWithHmacKey, writeContext);
 

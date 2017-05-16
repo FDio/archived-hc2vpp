@@ -51,6 +51,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.remote.mappings.remote.mapping.locator.list.positive.mapping.Rlocs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -59,6 +61,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class RemoteMappingCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<RemoteMapping, RemoteMappingKey>, EidTranslator,
         AddressTranslator, JvppReplyConsumer, MappingProducer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RemoteMappingCustomizer.class);
 
     private final EidMappingContext remoteMappingContext;
 
@@ -92,7 +96,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
     public void updateCurrentAttributes(InstanceIdentifier<RemoteMapping> id, RemoteMapping dataBefore,
                                         RemoteMapping dataAfter, WriteContext writeContext)
             throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
+        // case that happens during initialization
+        checkIgnoredSubnetUpdate(dataBefore.getEid().getAddress(), dataAfter.getEid().getAddress(), LOG);
     }
 
     @Override
@@ -124,7 +129,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
         request.isAdd = booleanToByte(add);
         request.vni = vni;
-        request.eidType = (byte) getEidType(data.getEid()).getValue();
+        request.eidType = (byte) getEidType(data.getEid()).getVppTypeBinding();
         request.eid = getEidAsByteArray(data.getEid());
 
         //this is not length of eid array,but prefix length(bad naming by vpp)

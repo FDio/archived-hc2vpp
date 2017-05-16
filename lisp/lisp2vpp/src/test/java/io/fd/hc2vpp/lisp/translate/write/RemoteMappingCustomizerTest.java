@@ -26,6 +26,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
@@ -44,8 +45,10 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv4Afi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv6PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapReplyAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
@@ -77,6 +80,12 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     private RemoteMapping negativeMapping;
     private RemoteMapping positiveMappingNoPrioNoWeight;
     private RemoteMapping positiveMappingPrioWeight;
+
+    private RemoteMapping failUpdateBefore;
+    private RemoteMapping failUpdateAfter;
+    private RemoteMapping ignoreUpdateBefore;
+    private RemoteMapping ignoreUpdateAfter;
+
     private InstanceIdentifier<RemoteMapping> id;
 
     @Mock
@@ -94,6 +103,28 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
 
         mappingId = new MappingId("REMOTE");
         final RemoteMappingKey key = new RemoteMappingKey(mappingId);
+
+        failUpdateBefore = new RemoteMappingBuilder()
+                .setEid(new EidBuilder().setAddress(new Ipv6PrefixBuilder()
+                        .setIpv6Prefix(new Ipv6Prefix("2001:0db8:85a3:0000:0000:8a2e:0370:7334/64"))
+                        .build()).build())
+                .build();
+        failUpdateAfter = new RemoteMappingBuilder()
+                .setEid(new EidBuilder().setAddress(new Ipv6PrefixBuilder()
+                        .setIpv6Prefix(new Ipv6Prefix("2001:0db8:85a3:0000:0000:8a2e:0370:7334/48"))
+                        .build()).build())
+                .build();
+
+        ignoreUpdateBefore = new RemoteMappingBuilder()
+                .setEid(new EidBuilder().setAddress(new Ipv6PrefixBuilder()
+                        .setIpv6Prefix(new Ipv6Prefix("2001:0db8:85a3:0000:0000:8a2e:0370:7334/64"))
+                        .build()).build())
+                .build();
+        ignoreUpdateAfter = new RemoteMappingBuilder()
+                .setEid(new EidBuilder().setAddress(new Ipv6PrefixBuilder()
+                        .setIpv6Prefix(new Ipv6Prefix("2001:0db8:85a3:0000:0000:8a2e:0370:7348/64"))
+                        .build()).build())
+                .build();
 
         negativeMapping = new RemoteMappingBuilder()
                 .setEid(eid)
@@ -205,8 +236,14 @@ public class RemoteMappingCustomizerTest extends WriterCustomizerTest implements
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testUpdateCurrentAttributes() throws WriteFailedException {
-        customizer.updateCurrentAttributes(null, null, null, writeContext);
+    public void testUpdateCurrentAttributesFail() throws WriteFailedException {
+        customizer.updateCurrentAttributes(null, failUpdateBefore, failUpdateAfter, writeContext);
+    }
+
+    @Test
+    public void testUpdateCurrentAttributesIgnore() throws WriteFailedException {
+        customizer.updateCurrentAttributes(null, ignoreUpdateBefore, ignoreUpdateAfter, writeContext);
+        verifyZeroInteractions(api);
     }
 
     @Test(expected = NullPointerException.class)

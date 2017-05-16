@@ -33,6 +33,7 @@
     <properties>
         <project.vpp.groupId>io.fd.hc2vpp.common</project.vpp.groupId>
         <project.honeycomb.groupId>io.fd.honeycomb</project.honeycomb.groupId>
+        <ipaddress.version>2.0.0</ipaddress.version>
     </properties>
 
     <dependencies>
@@ -78,6 +79,13 @@
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-multibindings</artifactId>
+        </dependency>
+
+        <!-- Prefix optimization -->
+        <dependency>
+            <groupId>com.github.seancfoley</groupId>
+            <artifactId>ipaddress</artifactId>
+            <version>${ipaddress.version}</version>
         </dependency>
 
         <!-- Testing Dependencies -->

@@ -18,8 +18,6 @@ package io.fd.hc2vpp.lisp.translate.write;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV4;
-import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV6;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
@@ -44,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.hmac.key.grouping.HmacKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -52,6 +52,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class LocalMappingCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<LocalMapping, LocalMappingKey>, ByteDataTranslator, EidTranslator,
         JvppReplyConsumer, MappingProducer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LocalMappingCustomizer.class);
 
     private final EidMappingContext localMappingsContext;
 
@@ -85,7 +87,8 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
     public void updateCurrentAttributes(InstanceIdentifier<LocalMapping> id, LocalMapping dataBefore,
                                         LocalMapping dataAfter, WriteContext writeContext)
             throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
+        // case that happens during initialization
+        checkIgnoredSubnetUpdate(dataBefore.getEid().getAddress(), dataAfter.getEid().getAddress(), LOG);
     }
 
     @Override
@@ -120,16 +123,12 @@ public class LocalMappingCustomizer extends FutureJVppCustomizer
 
         request.isAdd = booleanToByte(add);
         request.eid = getEidAsByteArray(data.getEid());
-        request.eidType = (byte) getEidType(data.getEid()).getValue();
+        request.eidType = (byte) getEidType(data.getEid()).getVppTypeBinding();
         request.locatorSetName = data.getLocatorSet().getBytes(UTF_8);
         request.vni = vni;
 
         //default prefixes
-        if (request.eidType == IPV4.getValue()) {
-            request.prefixLen = 32;
-        } else if (request.eidType == IPV6.getValue()) {
-            request.prefixLen = (byte) 128;
-        }
+        request.prefixLen = getPrefixLength(data.getEid());
 
         final HmacKey hmacKey = data.getHmacKey();
         if (hmacKey != null) {

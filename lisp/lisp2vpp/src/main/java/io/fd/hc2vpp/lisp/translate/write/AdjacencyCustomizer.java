@@ -41,10 +41,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.adjacencies.grouping.adjacencies.adjacency.RemoteEid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.eid.table.grouping.eid.table.VniTable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AdjacencyCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<Adjacency, AdjacencyKey>, ByteDataTranslator, EidTranslator,
         JvppReplyConsumer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AdjacencyCustomizer.class);
 
     private final EidMappingContext localEidsMappingContext;
     private final EidMappingContext remoteEidsMappingContext;
@@ -97,7 +101,9 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
     public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Adjacency> id,
                                         @Nonnull final Adjacency dataBefore, @Nonnull final Adjacency dataAfter,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
+        // case that happens during initialization
+        checkIgnoredSubnetUpdate(dataBefore.getLocalEid().getAddress(), dataAfter.getLocalEid().getAddress(), LOG);
+        checkIgnoredSubnetUpdate(dataBefore.getRemoteEid().getAddress(), dataAfter.getRemoteEid().getAddress(), LOG);
     }
 
     @Override
@@ -145,7 +151,7 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
         request.leidLen = getPrefixLength(localEid);
         request.reid = getEidAsByteArray(remoteEid);
         request.reidLen = getPrefixLength(remoteEid);
-        request.eidType = (byte) localEidType.getValue();
+        request.eidType = (byte) localEidType.getVppTypeBinding();
         request.vni = vni;
 
         getReply(getFutureJVpp().oneAddDelAdjacency(request).toCompletableFuture());

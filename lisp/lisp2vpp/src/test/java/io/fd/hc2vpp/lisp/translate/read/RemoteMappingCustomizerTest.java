@@ -42,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv4PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapReplyAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MappingId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.RemoteMappings;
@@ -66,6 +68,9 @@ public class RemoteMappingCustomizerTest
     private static final Ipv4
             EID_ADDRESS = new Ipv4Builder().setIpv4(new Ipv4Address("192.168.2.1")).build();
 
+    private static final Ipv4Prefix
+            EID_V4_PREFIX_ADDRESS = new Ipv4PrefixBuilder().setIpv4Prefix(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix("192.168.2.1/24")).build();
+
     @Mock
     private EidMappingContext eidMappingContext;
 
@@ -83,12 +88,11 @@ public class RemoteMappingCustomizerTest
                 .child(VrfSubtable.class)
                 .child(RemoteMappings.class)
                 .child(RemoteMapping.class, new RemoteMappingKey(new MappingId("remote-mapping")));
-        mockMappings();
         defineMapping(mappingContext,"loc-set",1,"loc-set-context");
     }
 
 
-    private void mockDumpDataActionZero() {
+    private void mockDumpDataAddressActionZero() {
         OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
         OneEidTableDetails detail = new OneEidTableDetails();
         detail.action = 0;
@@ -110,7 +114,29 @@ public class RemoteMappingCustomizerTest
         when(api.oneLocatorDump(any())).thenReturn(future(rlocs));
     }
 
-    private void mockDumpDataActionOne() {
+    private void mockDumpDataPrefixActionZero() {
+        OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
+        OneEidTableDetails detail = new OneEidTableDetails();
+        detail.action = 0;
+        detail.authoritative = 1;
+        detail.context = 4;
+        detail.eid = new byte[]{-64, -88, 2, 1};
+        detail.eidPrefixLen = 24;
+        detail.isLocal = 0;
+        detail.locatorSetIndex = -1;
+        detail.ttl = 7;
+        detail.vni = 12;
+
+        replyDump.oneEidTableDetails = ImmutableList.of(detail);
+
+        when(api.oneEidTableDump(any())).thenReturn(future(replyDump));
+
+        OneLocatorDetailsReplyDump rlocs = new OneLocatorDetailsReplyDump();
+        rlocs.oneLocatorDetails = Collections.emptyList();
+        when(api.oneLocatorDump(any())).thenReturn(future(rlocs));
+    }
+
+    private void mockDumpDataAddressActionOne() {
         OneEidTableDetailsReplyDump replyDump = new OneEidTableDetailsReplyDump();
         OneEidTableDetails detail = new OneEidTableDetails();
         detail.action = 1;
@@ -158,19 +184,28 @@ public class RemoteMappingCustomizerTest
     }
 
 
-    private void mockMappings() {
+    private void mockAddressMappings() {
 
         when(eidMappingContext.getId(any(Eid.class), any(MappingContext.class)))
                 .thenReturn(new MappingId("remote-mapping"));
         when(eidMappingContext.containsEid(new MappingId("remote-mapping"), mappingContext)).thenReturn(true);
         when(eidMappingContext.getEid(new MappingId("remote-mapping"), mappingContext))
                 .thenReturn(new EidBuilder().setAddress(EID_ADDRESS).build());
+    }
 
+    private void mockPrefixMappings() {
+
+        when(eidMappingContext.getId(any(Eid.class), any(MappingContext.class)))
+                .thenReturn(new MappingId("remote-mapping"));
+        when(eidMappingContext.containsEid(new MappingId("remote-mapping"), mappingContext)).thenReturn(true);
+        when(eidMappingContext.getEid(new MappingId("remote-mapping"), mappingContext))
+                .thenReturn(new EidBuilder().setAddress(EID_V4_PREFIX_ADDRESS).build());
     }
 
     @Test
     public void readCurrentAttributesNegativeMappingOne() throws Exception {
-        mockDumpDataActionOne();
+        mockAddressMappings();
+        mockDumpDataAddressActionOne();
         RemoteMappingBuilder builder = new RemoteMappingBuilder();
         getCustomizer().readCurrentAttributes(validId, builder, ctx);
 
@@ -187,7 +222,8 @@ public class RemoteMappingCustomizerTest
 
     @Test
     public void readCurrentAttributesNegativeMappingZero() throws Exception {
-        mockDumpDataActionZero();
+        mockAddressMappings();
+        mockDumpDataAddressActionZero();
         RemoteMappingBuilder builder = new RemoteMappingBuilder();
         getCustomizer().readCurrentAttributes(validId, builder, ctx);
 
@@ -202,7 +238,25 @@ public class RemoteMappingCustomizerTest
     }
 
     @Test
+    public void readCurrentAttributesPrefixBasedNegativeMappingZero() throws Exception {
+        mockPrefixMappings();
+        mockDumpDataPrefixActionZero();
+        RemoteMappingBuilder builder = new RemoteMappingBuilder();
+        getCustomizer().readCurrentAttributes(validId, builder, ctx);
+
+        RemoteMapping mapping = builder.build();
+
+        assertNotNull(mapping);
+        assertEquals(true, compareAddresses(EID_V4_PREFIX_ADDRESS, mapping.getEid().getAddress()));
+        assertEquals(true, mapping.getAuthoritative().isA());
+        assertEquals(7L, mapping.getTtl().longValue());
+        assertEquals(MapReplyAction.NoAction,
+                ((NegativeMapping) mapping.getLocatorList()).getMapReply().getMapReplyAction());
+    }
+
+    @Test
     public void readCurrentAttributesPositiveMapping() throws Exception {
+        mockAddressMappings();
         mockDumpDataActionZeroWithRemotes();
         RemoteMappingBuilder builder = new RemoteMappingBuilder();
         getCustomizer().readCurrentAttributes(validId, builder, ctx);
@@ -223,10 +277,10 @@ public class RemoteMappingCustomizerTest
         assertEquals(2, locator.getWeight().shortValue());
     }
 
-
     @Test
     public void getAllIds() throws Exception {
-        mockDumpDataActionOne();
+        mockAddressMappings();
+        mockDumpDataAddressActionOne();
         final List<RemoteMappingKey> keys = getCustomizer().getAllIds(validId, ctx);
 
         assertNotNull(keys);

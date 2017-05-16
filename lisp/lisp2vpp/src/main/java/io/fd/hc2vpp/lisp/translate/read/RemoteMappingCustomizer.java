@@ -148,7 +148,6 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 "No mapping stored for id %s", mappingId);
 
         final long vni = id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier();
-        final String remoteMappingId = id.firstKeyOf(RemoteMapping.class).getId().getValue();
         final Eid eid = copyEid(remoteMappingContext.getEid(mappingId, ctx.getMappingContext()));
         final MappingsDumpParams dumpParams = new MappingsDumpParamsBuilder()
                 .setVni(Long.valueOf(vni).intValue())
@@ -172,11 +171,11 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         OneEidTableDetails details = replyOptional.get().oneEidTableDetails.stream()
                 .filter(subtableFilterForRemoteMappings(id))
                 .filter(a -> compareAddresses(eid.getAddress(),
-                        getArrayAsEidLocal(valueOf(a.eidType), a.eid, a.vni).getAddress()))
+                        getArrayAsEidLocal(valueOf(a.eidType), a.eid, a.eidPrefixLen, a.vni).getAddress()))
                 .collect(
                         RWUtils.singleItemCollector());
 
-        builder.setEid(getArrayAsEidRemote(valueOf(details.eidType), details.eid, details.vni));
+        builder.setEid(getArrayAsEidRemote(valueOf(details.eidType), details.eid, details.eidPrefixLen, details.vni));
         builder.setKey(new RemoteMappingKey(new MappingId(id.firstKeyOf(RemoteMapping.class).getId())));
         builder.setTtl(resolveTtl(details.ttl));
         builder.setAuthoritative(
@@ -217,7 +216,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 .stream()
                 .filter(a -> a.vni == vni)
                 .filter(subtableFilterForRemoteMappings(id))
-                .map(detail -> getArrayAsEidRemote(valueOf(detail.eidType), detail.eid, detail.vni))
+                .map(detail -> getArrayAsEidRemote(valueOf(detail.eidType), detail.eid, detail.eidPrefixLen, detail.vni))
                 .map(remoteEid -> remoteMappingContext.getId(remoteEid, context.getMappingContext()))
                 .map(MappingId::new)
                 .map(RemoteMappingKey::new)

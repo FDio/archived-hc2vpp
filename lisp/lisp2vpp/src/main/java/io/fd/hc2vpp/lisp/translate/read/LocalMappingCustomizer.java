@@ -105,7 +105,6 @@ public class LocalMappingCustomizer
 
         final long vni = id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier();
 
-        final String localMappingId = id.firstKeyOf(LocalMapping.class).getId().getValue();
         final Eid eid = localMappingContext.getEid(mappingId, ctx.getMappingContext());
 
         //Requesting for specific mapping dump,only from local mappings with specified eid/vni/eid type
@@ -135,7 +134,7 @@ public class LocalMappingCustomizer
                 "No Locator Set name found for index %s", details.locatorSetIndex);
         builder.setLocatorSet(locatorSetContext.getName(details.locatorSetIndex, ctx.getMappingContext()));
         builder.setKey(new LocalMappingKey(new MappingId(id.firstKeyOf(LocalMapping.class).getId())));
-        builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid, details.vni));
+        builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid, details.eidPrefixLen, details.vni));
 
         if (details.key != null) {
             builder.setHmacKey(
@@ -149,7 +148,7 @@ public class LocalMappingCustomizer
     }
 
     private Address getAddressFromDumpDetail(final OneEidTableDetails detail) {
-        return getArrayAsEidLocal(valueOf(detail.eidType), detail.eid, detail.vni).getAddress();
+        return getArrayAsEidLocal(valueOf(detail.eidType), detail.eid, detail.eidPrefixLen, detail.vni).getAddress();
     }
 
     @Override
@@ -184,7 +183,7 @@ public class LocalMappingCustomizer
         return replyOptional.get().oneEidTableDetails.stream()
                 .filter(a -> a.vni == vni)
                 .filter(subtableFilterForLocalMappings(id))
-                .map(detail -> getArrayAsEidLocal(valueOf(detail.eidType), detail.eid, detail.vni))
+                .map(detail -> getArrayAsEidLocal(valueOf(detail.eidType), detail.eid, detail.eidPrefixLen, detail.vni))
                 .map(localEid -> localMappingContext.getId(localEid, context.getMappingContext()))
                 .map(MappingId::new)
                 .map(LocalMappingKey::new)

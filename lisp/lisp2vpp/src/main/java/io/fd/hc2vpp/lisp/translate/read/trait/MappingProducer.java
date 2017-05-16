@@ -16,10 +16,14 @@
 
 package io.fd.hc2vpp.lisp.translate.read.trait;
 
+import com.google.common.collect.ImmutableSet;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv4Afi;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv4PrefixAfi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv6Afi;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.Ipv6PrefixAfi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.LispAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.MacAfi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.LocalMapping;
@@ -33,15 +37,21 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public interface MappingProducer {
 
+    Set<Class<? extends LispAddressFamily>> VRF_ALLOWED_ADDRESS_TYPES = ImmutableSet.of(
+            Ipv4Afi.class,
+            Ipv6Afi.class,
+            Ipv4PrefixAfi.class,
+            Ipv6PrefixAfi.class);
+
     /**
-     * Checks whether provided {@link LocalMapping} can be written under subtree idenfied by {@link InstanceIdentifier}
+     * Checks whether provided {@link LocalMapping} can be written under subtree identified by {@link InstanceIdentifier}
      */
     default void checkAllowedCombination(@Nonnull final InstanceIdentifier<LocalMapping> identifier,
                                          @Nonnull final LocalMapping data) throws WriteFailedException {
         final Class<? extends LispAddressFamily> eidAddressType = data.getEid().getAddressType();
 
         if (identifier.firstIdentifierOf(VrfSubtable.class) != null) {
-            if (Ipv4Afi.class != eidAddressType && Ipv6Afi.class != eidAddressType) {
+            if (!VRF_ALLOWED_ADDRESS_TYPES.contains(eidAddressType)) {
                 throw new WriteFailedException.CreateFailedException(identifier, data,
                         new IllegalArgumentException("Only Ipv4/Ipv6 eid's are allowed for Vrf Subtable"));
             }
@@ -58,7 +68,7 @@ public interface MappingProducer {
         final Class<? extends LispAddressFamily> eidAddressType = data.getEid().getAddressType();
 
         if (identifier.firstIdentifierOf(VrfSubtable.class) != null) {
-            if (Ipv4Afi.class != eidAddressType && Ipv6Afi.class != eidAddressType) {
+            if (!VRF_ALLOWED_ADDRESS_TYPES.contains(eidAddressType)) {
                 throw new WriteFailedException.CreateFailedException(identifier, data,
                         new IllegalArgumentException("Only Ipv4/Ipv6 eid's are allowed for Vrf Subtable"));
             }
