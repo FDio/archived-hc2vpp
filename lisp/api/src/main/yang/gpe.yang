@@ -1,0 +1,108 @@
+module gpe {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:gpe";
+  prefix "gpe";
+
+  import lisp {
+    prefix "lisp";
+  }
+
+  import ietf-inet-types {
+    prefix "inet";
+  }
+
+  import ietf-lisp-address-types {
+    prefix "lisp-types";
+  }
+
+  revision 2017-05-18 {
+    description
+    "Add support for defining lisp gpe forward entries";
+  }
+
+  grouping locator-pair {
+    container locator-pair {
+      leaf local-locator {
+        type inet:ip-address;
+        description "Local locator address";
+      }
+      leaf remote-locator {
+        type inet:ip-address;
+        description "Remote locator address";
+      }
+      leaf weight {
+        type uint8;
+        description "Weight";
+      }
+    }
+  }
+  grouping gpe-entry-table-grouping {
+    container gpe-entry-table {
+      when "../enable = 'true'";
+
+      list gpe-entry {
+        key id;
+        leaf id {
+          type string;
+          description "GPE entry ID";
+        }
+        leaf dp-table {
+          type uint32;
+          mandatory true;
+          description "VRF/BD index";
+        }
+        leaf vni {
+          type uint32;
+          mandatory true;
+          description "Virtual Network Identifier";
+        }
+        container local-eid {
+          uses lisp-types:lisp-address;
+          description "Local EID that must be a local address";
+        }
+        container remote-eid {
+          uses lisp-types:lisp-address;
+          description "Remote EID";
+        }
+        list locator-pairs {
+          key id;
+          leaf id {
+            type string;
+            description "Locator Pair ID";
+          }
+          uses locator-pair;
+        }
+        leaf action {
+          type lisp:map-reply-action;
+          description "Forwarding action for negative entries";
+        }
+      }
+    }
+  }
+
+  grouping gpe-feature-data-grouping {
+    //aggregation of all gpe data, restricted by GPE being enabled
+    container gpe-feature-data {
+      leaf enable {
+        type boolean;
+        description "Enable/disable GPE feature";
+      }
+
+      uses gpe-entry-table-grouping;
+    }
+  }
+
+  container gpe {
+    // gpe_enable_disable
+
+    uses gpe-feature-data-grouping;
+    description "GPE configuration";
+  }
+
+  container gpe-state {
+    //gpe_enable_disable_status_dump
+
+    uses gpe-feature-data-grouping;
+    description "GPE state";
+  }
+}
