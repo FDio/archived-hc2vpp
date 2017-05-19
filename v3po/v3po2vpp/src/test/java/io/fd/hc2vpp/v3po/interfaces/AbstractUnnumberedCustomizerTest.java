@@ -25,10 +25,6 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetUnnumbered;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetUnnumberedReply;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.InterfaceUnnumberedAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.unnumbered.config.attributes.Unnumbered;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.unnumbered.config.attributes.UnnumberedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -41,50 +37,50 @@ abstract class AbstractUnnumberedCustomizerTest extends WriterCustomizerTest imp
     private static final int TARGET_IFC0_ID = 0;
     private static final String TARGET_IFC1_NAME = "eth1";
     private static final int TARGET_IFC1_ID = 1;
-    private static final String UNNUMBERED_IFC_NAME = "eth2";
-    private static final int UNNUMBERED_IFC_ID = 2;
-    private static final InstanceIdentifier<Unnumbered> UNNUMBERED_IFC_IID = InstanceIdentifier.create(Interfaces.class)
-        .child(Interface.class, new InterfaceKey(UNNUMBERED_IFC_NAME))
-        .augmentation(InterfaceUnnumberedAugmentation.class)
-        .child(Unnumbered.class);
+
 
     @Override
     public void setUpTest() {
         customizer = getCustomizer();
         defineMapping(mappingContext, TARGET_IFC0_NAME, TARGET_IFC0_ID, IFC_CTX_NAME);
         defineMapping(mappingContext, TARGET_IFC1_NAME, TARGET_IFC1_ID, IFC_CTX_NAME);
-        defineMapping(mappingContext, UNNUMBERED_IFC_NAME, UNNUMBERED_IFC_ID, IFC_CTX_NAME);
+        defineMapping(mappingContext, getUnnumberedIfcName(), getUnnumberedIfcId(), IFC_CTX_NAME);
         when(api.swInterfaceSetUnnumbered(any())).thenReturn(future(new SwInterfaceSetUnnumberedReply()));
     }
+
+    protected abstract int getUnnumberedIfcId();
+
+    protected abstract String getUnnumberedIfcName();
+
+    protected abstract InstanceIdentifier<Unnumbered> getUnnumberedIfcIId();
 
     protected abstract AbstractUnnumberedCustomizer getCustomizer();
 
     @Test
     public void testWrite() throws Exception {
         final Unnumbered data = new UnnumberedBuilder().setUse(TARGET_IFC0_NAME).build();
-        customizer.writeCurrentAttributes(UNNUMBERED_IFC_IID, data, writeContext);
+        customizer.writeCurrentAttributes(getUnnumberedIfcIId(), data, writeContext);
         verify(api).swInterfaceSetUnnumbered(expectedRequest(true, TARGET_IFC0_ID));
     }
-
     @Test
     public void testUpdate() throws Exception {
         final Unnumbered before = new UnnumberedBuilder().setUse(TARGET_IFC0_NAME).build();
         final Unnumbered after = new UnnumberedBuilder().setUse(TARGET_IFC1_NAME).build();
-        customizer.updateCurrentAttributes(UNNUMBERED_IFC_IID, before, after, writeContext);
+        customizer.updateCurrentAttributes(getUnnumberedIfcIId(), before, after, writeContext);
         verify(api).swInterfaceSetUnnumbered(expectedRequest(true, TARGET_IFC1_ID));
     }
 
     @Test
     public void testDelete() throws Exception {
         final Unnumbered data = new UnnumberedBuilder().setUse(TARGET_IFC0_NAME).build();
-        customizer.deleteCurrentAttributes(UNNUMBERED_IFC_IID, data, writeContext);
+        customizer.deleteCurrentAttributes(getUnnumberedIfcIId(), data, writeContext);
         verify(api).swInterfaceSetUnnumbered(expectedRequest(false, TARGET_IFC0_ID));
     }
 
     private SwInterfaceSetUnnumbered expectedRequest(final boolean isAdd, int swIfIntex) {
         final SwInterfaceSetUnnumbered request = new SwInterfaceSetUnnumbered();
         request.swIfIndex = swIfIntex;
-        request.unnumberedSwIfIndex = UNNUMBERED_IFC_ID;
+        request.unnumberedSwIfIndex = getUnnumberedIfcId();
         request.isAdd = booleanToByte(isAdd);
         return request;
     }
