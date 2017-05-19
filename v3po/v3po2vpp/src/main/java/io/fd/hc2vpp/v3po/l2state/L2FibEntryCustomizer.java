@@ -18,18 +18,18 @@ package io.fd.hc2vpp.v3po.l2state;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceDataTranslator;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDetails;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.L2FibTableDump;
-import io.fd.vpp.jvpp.core.dto.L2FibTableEntry;
-import io.fd.vpp.jvpp.core.dto.L2FibTableEntryReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +59,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(L2FibEntryCustomizer.class);
 
-    private static final Collector<L2FibTableEntry, ?, L2FibTableEntry> SINGLE_ITEM_COLLECTOR =
+    private static final Collector<L2FibTableDetails, ?, L2FibTableDetails> SINGLE_ITEM_COLLECTOR =
             RWUtils.singleItemCollector();
 
     private final NamingContext bdContext;
@@ -84,7 +84,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
 
         try {
             // TODO HONEYCOMB-186 use cached l2FibTable
-            final L2FibTableEntry entry = dumpL2Fibs(id, bdId).stream().filter(e -> key.getPhysAddress()
+            final L2FibTableDetails entry = dumpL2Fibs(id, bdId).stream().filter(e -> key.getPhysAddress()
                     .equals(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(e.mac), 2))))
                     .collect(SINGLE_ITEM_COLLECTOR);
 
@@ -105,20 +105,20 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
     }
 
     @Nonnull
-    private List<L2FibTableEntry> dumpL2Fibs(final InstanceIdentifier<L2FibEntry> id, final int bdId)
+    private List<L2FibTableDetails> dumpL2Fibs(final InstanceIdentifier<L2FibEntry> id, final int bdId)
             throws ReadFailedException {
         final L2FibTableDump l2FibRequest = new L2FibTableDump();
         l2FibRequest.bdId = bdId;
 
-        final CompletableFuture<L2FibTableEntryReplyDump> l2FibTableDumpCompletableFuture =
+        final CompletableFuture<L2FibTableDetailsReplyDump> l2FibTableDumpCompletableFuture =
                 getFutureJVpp().l2FibTableDump(l2FibRequest).toCompletableFuture();
 
-        final L2FibTableEntryReplyDump dump = getReplyForRead(l2FibTableDumpCompletableFuture, id);
+        final L2FibTableDetailsReplyDump dump = getReplyForRead(l2FibTableDumpCompletableFuture, id);
 
-        if (null == dump || null == dump.l2FibTableEntry) {
+        if (null == dump || null == dump.l2FibTableDetails) {
             return Collections.emptyList();
         } else {
-            return dump.l2FibTableEntry;
+            return dump.l2FibTableDetails;
         }
     }
 

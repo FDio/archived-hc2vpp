@@ -21,9 +21,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.types.BridgeDomainSwIf;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,11 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.l2.base.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.l2.base.attributes.interconnection.BridgeBasedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainSwIfDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 
@@ -73,24 +73,21 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
                 VppInterfaceStateAugmentation.class).child(L2.class);
     }
 
-    private void whenBridgeDomainSwIfDumpThenReturn(final List<BridgeDomainSwIfDetails> bdSwIfList,
-                                                    final List<BridgeDomainDetails> bridgeDomainDetailses) {
+    private void whenBridgeDomainDumpThenReturn(final List<BridgeDomainDetails> bridgeDomainDetails) {
         final BridgeDomainDetailsReplyDump reply = new BridgeDomainDetailsReplyDump();
-        reply.bridgeDomainSwIfDetails = bdSwIfList;
-        reply.bridgeDomainDetails = bridgeDomainDetailses;
-        when(api.bridgeDomainSwIfDump(any(BridgeDomainDump.class))).thenReturn(future(reply));
+        reply.bridgeDomainDetails = bridgeDomainDetails;
+        when(api.bridgeDomainDump(any(BridgeDomainDump.class))).thenReturn(future(reply));
     }
 
 
-    private BridgeDomainSwIfDetails generateBdSwIfDetails(final int ifId, final int bdId) {
-        final BridgeDomainSwIfDetails bdSwIfDetails = new BridgeDomainSwIfDetails();
+    private BridgeDomainSwIf generateBdSwIfDetails(final int ifId) {
+        final BridgeDomainSwIf bdSwIfDetails = new BridgeDomainSwIf();
         bdSwIfDetails.swIfIndex = ifId;
         bdSwIfDetails.shg = 1;
-        bdSwIfDetails.bdId = bdId;
         return bdSwIfDetails;
     }
 
-    private Interconnection generateInterconnection(final int ifId, final String bdName, final Boolean bvi) {
+    private Interconnection generateInterconnection(final String bdName, final Boolean bvi) {
         final BridgeBasedBuilder bbBuilder = new BridgeBasedBuilder();
         bbBuilder.setBridgeDomain(bdName);
         bbBuilder.setSplitHorizonGroup((short) 1);
@@ -118,28 +115,28 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
         // BVIinterfaceContext
-        whenBridgeDomainSwIfDumpThenReturn(Collections.singletonList(generateBdSwIfDetails(ifId, bdId)),
-            Collections.singletonList(generateBdDetails(ifId, bdId)));
+        whenBridgeDomainDumpThenReturn(Collections.singletonList(generateBdDetails(ifId, ifId, bdId)));
 
         L2Builder builder = mock(L2Builder.class);
         getCustomizer().readCurrentAttributes(getL2Id(ifName), builder, ctx);
 
-        verify(builder).setInterconnection(generateInterconnection(ifId, bdName, true));
+        verify(builder).setInterconnection(generateInterconnection(bdName, true));
 
         // Not BVI
-        whenBridgeDomainSwIfDumpThenReturn(Collections.singletonList(generateBdSwIfDetails(ifId, bdId)),
-            Collections.singletonList(generateBdDetails(99 /* Different ifc is marked as BVI in bd details */, bdId)));
+        whenBridgeDomainDumpThenReturn(Collections
+            .singletonList(generateBdDetails(ifId, 99 /* Different ifc is marked as BVI in bd details */, bdId)));
 
         builder = mock(L2Builder.class);
         getCustomizer().readCurrentAttributes(getL2Id(ifName), builder, ctx);
 
-        verify(builder).setInterconnection(generateInterconnection(ifId, bdName, null));
+        verify(builder).setInterconnection(generateInterconnection(bdName, null));
     }
 
-    private BridgeDomainDetails generateBdDetails(final int ifId, final int bdId) {
+    private BridgeDomainDetails generateBdDetails(final int ifId, final int bviSwIfIndex, int bdId) {
         final BridgeDomainDetails bridgeDomainDetails = new BridgeDomainDetails();
-        bridgeDomainDetails.bviSwIfIndex = ifId;
+        bridgeDomainDetails.bviSwIfIndex = bviSwIfIndex;
         bridgeDomainDetails.bdId = bdId;
+        bridgeDomainDetails.swIfDetails = new BridgeDomainSwIf[] {generateBdSwIfDetails(ifId)};
         return bridgeDomainDetails;
     }
 }

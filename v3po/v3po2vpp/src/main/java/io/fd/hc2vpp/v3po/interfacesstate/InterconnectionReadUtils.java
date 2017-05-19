@@ -19,15 +19,16 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
-import io.fd.vpp.jvpp.core.dto.BridgeDomainSwIfDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.BridgeDomainSwIf;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
@@ -68,40 +69,41 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
         final BridgeDomainDetailsReplyDump dumpReply = getDumpReply(id);
-        final Optional<BridgeDomainSwIfDetails> bdForInterface = getBridgeDomainForInterface(ifaceId, dumpReply);
-        if (bdForInterface.isPresent()) {
-            final BridgeDomainSwIfDetails bdSwIfDetails = bdForInterface.get();
-            final BridgeBasedBuilder bbBuilder = new BridgeBasedBuilder();
-            bbBuilder.setBridgeDomain(bridgeDomainContext.getName(bdSwIfDetails.bdId, ctx.getMappingContext()));
+        for (final BridgeDomainDetails bd : dumpReply.bridgeDomainDetails) {
+            final Optional<BridgeDomainSwIf> bdIfAssignment = getBridgeDomainSwIf(ifaceId, bd);
+            if (bdIfAssignment.isPresent()) {
+                final BridgeDomainSwIf bridgeDomainSwIf = bdIfAssignment.get();
+                final BridgeBasedBuilder bbBuilder = new BridgeBasedBuilder();
+                bbBuilder.setBridgeDomain(bridgeDomainContext.getName(bd.bdId, ctx.getMappingContext()));
 
-            // Set BVI if the bridgeDomainDetails.bviSwIfIndex == current sw if index
-            final Optional<BridgeDomainDetails> bridgeDomainForInterface =
-                    getBridgeDomainForInterface(dumpReply, bdForInterface.get().bdId);
-            // Since we already found an interface assigned to a bridge domain, the details for BD must be present
-            checkState(bridgeDomainForInterface.isPresent());
-            if (bridgeDomainForInterface.get().bviSwIfIndex == ifaceId) {
-                bbBuilder.setBridgedVirtualInterface(true);
-            } else {
-                bbBuilder.setBridgedVirtualInterface(false);
-            }
+                // Set BVI if the bridgeDomainDetails.bviSwIfIndex == current sw if index
+                final Optional<BridgeDomainDetails> bridgeDomainForInterface =
+                    getBridgeDomainForInterface(dumpReply, bd.bdId);
+                // Since we already found an interface assigned to a bridge domain, the details for BD must be present
+                checkState(bridgeDomainForInterface.isPresent());
+                if (bridgeDomainForInterface.get().bviSwIfIndex == ifaceId) {
+                    bbBuilder.setBridgedVirtualInterface(true);
+                } else {
+                    bbBuilder.setBridgedVirtualInterface(false);
+                }
 
-            if (bdSwIfDetails.shg != 0) {
-                bbBuilder.setSplitHorizonGroup((short) bdSwIfDetails.shg);
+                if (bridgeDomainSwIf.shg != 0) {
+                    bbBuilder.setSplitHorizonGroup((short) bridgeDomainSwIf.shg);
+                }
+                return bbBuilder.build();
             }
-            return bbBuilder.build();
         }
         // TODO HONEYCOMB-190 is there a way to check if interconnection is XconnectBased?
 
         return null;
     }
 
-    private Optional<BridgeDomainSwIfDetails> getBridgeDomainForInterface(final int ifaceId,
-                                                                          final BridgeDomainDetailsReplyDump reply) {
-        if (null == reply || null == reply.bridgeDomainSwIfDetails || reply.bridgeDomainSwIfDetails.isEmpty()) {
+    private Optional<BridgeDomainSwIf> getBridgeDomainSwIf(final int ifaceId, @Nonnull final BridgeDomainDetails bd) {
+        if (null == bd.swIfDetails) {
             return Optional.empty();
         }
         // interface can be added to only one BD only
-        return reply.bridgeDomainSwIfDetails.stream().filter(a -> a.swIfIndex == ifaceId).findFirst();
+        return Arrays.stream(bd.swIfDetails).filter(el -> el.swIfIndex == ifaceId).findFirst();
     }
 
     private Optional<BridgeDomainDetails> getBridgeDomainForInterface(final BridgeDomainDetailsReplyDump reply,
@@ -112,13 +114,13 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
     private BridgeDomainDetailsReplyDump getDumpReply(@Nonnull final InstanceIdentifier<?> id)
             throws ReadFailedException {
         // We need to perform full bd dump, because there is no way
-        // to ask VPP for BD details given interface id/name (TODO HONEYCOMB-190 add it to vpp.api?)
-        // TODO HONEYCOMB-190 cache dump result
+        // to ask VPP for BD details given interface id/name (TODO HC2VPP-22 add it to vpp.api?)
+        // TODO HC2VPP-22 cache dump result
         final BridgeDomainDump request = new BridgeDomainDump();
         request.bdId = -1;
 
         final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
-                futureJVppCore.bridgeDomainSwIfDump(request).toCompletableFuture();
+                futureJVppCore.bridgeDomainDump(request).toCompletableFuture();
         return getReplyForRead(bdCompletableFuture, id);
 
     }

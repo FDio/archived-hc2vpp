@@ -22,15 +22,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDetails;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDump;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.BridgeDomains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.BridgeDomainsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.L2FibForward;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.bridge.domains.state.BridgeDomain;
@@ -41,10 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.l2.fib.attributes.l2.fib.table.L2FibEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.l2.fib.attributes.l2.fib.table.L2FibEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.L2FibTableDump;
-import io.fd.vpp.jvpp.core.dto.L2FibTableEntry;
-import io.fd.vpp.jvpp.core.dto.L2FibTableEntryReplyDump;
 
 public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntry, L2FibEntryKey, L2FibEntryBuilder> {
 
@@ -78,10 +77,10 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
             .child(L2FibTable.class).child(L2FibEntry.class, new L2FibEntryKey(address));
     }
 
-    private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> l2FibTableEntryList)
+    private void whenL2FibTableDumpThenReturn(final List<L2FibTableDetails> l2FibTableEntryList)
         throws ExecutionException, InterruptedException, VppInvocationException {
-        final L2FibTableEntryReplyDump reply = new L2FibTableEntryReplyDump();
-        reply.l2FibTableEntry = l2FibTableEntryList;
+        final L2FibTableDetailsReplyDump reply = new L2FibTableDetailsReplyDump();
+        reply.l2FibTableDetails = l2FibTableEntryList;
         when(api.l2FibTableDump(any(L2FibTableDump.class))).thenReturn(future(reply));
     }
 
@@ -104,8 +103,8 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
         verify(builder).setKey(new L2FibEntryKey(address));
     }
 
-    private L2FibTableEntry generateL2FibEntry(final long mac) {
-        final L2FibTableEntry entry = new L2FibTableEntry();
+    private L2FibTableDetails generateL2FibEntry(final long mac) {
+        final L2FibTableDetails entry = new L2FibTableDetails();
         entry.mac = mac;
         entry.swIfIndex = IFACE_ID;
         return entry;

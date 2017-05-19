@@ -40,9 +40,9 @@ import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDetails;
+import io.fd.vpp.jvpp.core.dto.L2FibTableDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.L2FibTableDump;
-import io.fd.vpp.jvpp.core.dto.L2FibTableEntry;
-import io.fd.vpp.jvpp.core.dto.L2FibTableEntryReplyDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Arrays;
 import java.util.Collections;
@@ -107,9 +107,9 @@ public class L2StateTest implements FutureProducer, NamingContextHelper {
         readerRegistry = getVppStateReader(api, bdContext);
     }
 
-    private void whenL2FibTableDumpThenReturn(final List<L2FibTableEntry> entryList) {
-        final L2FibTableEntryReplyDump reply = new L2FibTableEntryReplyDump();
-        reply.l2FibTableEntry = entryList;
+    private void whenL2FibTableDumpThenReturn(final List<L2FibTableDetails> entryList) {
+        final L2FibTableDetailsReplyDump reply = new L2FibTableDetailsReplyDump();
+        reply.l2FibTableDetails = entryList;
         when(api.l2FibTableDump(any(L2FibTableDump.class))).thenReturn(future(reply));
     }
 
