@@ -75,7 +75,7 @@ public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer
             throws ReadFailedException {
 
         if (!lispStateCheckService.lispEnabled(ctx)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", id);
             return;
         }
 

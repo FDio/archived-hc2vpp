@@ -93,7 +93,7 @@ public class VniTableCustomizer extends CheckedLispCustomizer
                                        @Nonnull final ReadContext context)
             throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(context)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", id);
             return Collections.emptyList();
         }
         LOG.trace("Reading all IDS...");
@@ -114,7 +114,7 @@ public class VniTableCustomizer extends CheckedLispCustomizer
                                       @Nonnull final VniTableBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(ctx)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", id);
             return;
         }
 

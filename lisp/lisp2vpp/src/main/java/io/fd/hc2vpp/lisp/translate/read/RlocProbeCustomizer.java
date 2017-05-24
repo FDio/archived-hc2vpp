@@ -60,7 +60,7 @@ public class RlocProbeCustomizer extends CheckedLispCustomizer
                                       @Nonnull RlocProbeBuilder rlocProbeBuilder,
                                       @Nonnull ReadContext readContext) throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(readContext)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", instanceIdentifier);
             return;
         }
 

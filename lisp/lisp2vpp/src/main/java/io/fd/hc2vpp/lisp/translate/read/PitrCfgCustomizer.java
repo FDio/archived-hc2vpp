@@ -65,7 +65,7 @@ public class PitrCfgCustomizer extends CheckedLispCustomizer
     public void readCurrentAttributes(InstanceIdentifier<PitrCfg> id, PitrCfgBuilder builder, ReadContext ctx)
             throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(ctx)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", id);
             return;
         }
         LOG.debug("Reading status for Lisp Pitr node {}", id);

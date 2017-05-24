@@ -80,7 +80,7 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
     public void readCurrentAttributes(InstanceIdentifier<MapResolver> id, MapResolverBuilder builder, ReadContext ctx)
             throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(ctx)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", id);
             return;
         }
         LOG.debug("Reading attributes...");
@@ -115,7 +115,7 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
     public List<MapResolverKey> getAllIds(InstanceIdentifier<MapResolver> id, ReadContext context)
             throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(context)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", id);
             return Collections.emptyList();
         }
         LOG.debug("Dumping MapResolver...");

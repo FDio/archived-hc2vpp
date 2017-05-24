@@ -90,7 +90,7 @@ public class MapServerCustomizer extends CheckedLispCustomizer
     public List<MapServerKey> getAllIds(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier,
                                         @Nonnull ReadContext readContext) throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(readContext)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", instanceIdentifier);
             return Collections.emptyList();
         }
 
@@ -123,7 +123,7 @@ public class MapServerCustomizer extends CheckedLispCustomizer
                                       @Nonnull MapServerBuilder mapServerBuilder, @Nonnull ReadContext readContext)
             throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(readContext)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", instanceIdentifier);
             return;
         }
         final Optional<OneMapServerDetailsReplyDump> dump =

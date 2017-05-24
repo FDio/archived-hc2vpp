@@ -59,7 +59,7 @@ public class MapRequestModeCustomizer extends CheckedLispCustomizer
                                       @Nonnull MapRequestModeBuilder mapRequestModeBuilder,
                                       @Nonnull ReadContext readContext) throws ReadFailedException {
         if (!lispStateCheckService.lispEnabled(readContext)) {
-            LOG.info("Lisp feature must be enabled first");
+            LOG.debug("Failed to read {}. Lisp feature must be enabled first", instanceIdentifier);
             return;
         }
         final ShowOneMapRequestModeReply reply = getReplyForRead(
