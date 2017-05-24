@@ -1,0 +1,38 @@
+{
+  "gpe-entry-table": {
+    "gpe-entry": {
+      "id": "gpe-fwd-entry-1",
+      "dp-table": 10,
+      "vni": 12,
+      "local-eid": {
+        "address-type": "ietf-lisp-address-types:ipv4-prefix-afi",
+        "virtual-network-id": 12,
+        "ipv4-prefix": "192.168.2.0/24"
+      },
+      "remote-eid": {
+        "address-type": "ietf-lisp-address-types:ipv4-prefix-afi",
+        "virtual-network-id": 12,
+        "ipv4-prefix": "192.168.3.0/16"
+      },
+      "locator-pairs": [
+        {
+          "id": "gpe-fwd-entry-pair-1",
+          "locator-pair": {
+            "local-locator": "192.168.4.1",
+            "remote-locator": "192.168.4.2",
+            "weight": 3
+          }
+        },
+        {
+          "id": "gpe-fwd-entry-pair-2",
+          "locator-pair": {
+            "local-locator": "192.168.5.1",
+            "remote-locator": "192.168.5.2",
+            "weight": 2
+          }
+        }
+      ],
+      "action": "natively-forward"
+    }
+  }
+}

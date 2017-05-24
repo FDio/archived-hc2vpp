@@ -49,6 +49,7 @@
       io.fd.hc2vpp.common.integration.VppCommonModule,
       io.fd.hc2vpp.management.VppManagementModule,
       io.fd.hc2vpp.lisp.LispModule,
+      io.fd.hc2vpp.lisp.gpe.GpeModule,
       io.fd.hc2vpp.v3po.V3poModule,
       io.fd.hc2vpp.iface.role.InterfaceRoleModule,
       io.fd.hc2vpp.l3.InterfaceL3Module,

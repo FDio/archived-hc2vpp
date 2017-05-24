@@ -1,0 +1,70 @@
+module gpe-entry-identification-context {
+    yang-version 1;
+    namespace "urn:honeycomb:params:xml:ns:yang:gpe:entry:identification:context";
+    prefix "gpe-entry-identification-context";
+
+    description
+            "This module contains mappings between gpe entry identificator and actual unique combination of
+             remote/local eid and vni in vpp";
+
+    revision "2017-05-17" {
+        description
+            "Initial revision.";
+    }
+
+    import lisp {prefix "lisp";}
+    import ietf-lisp-address-types {prefix "lisp-types";}
+    import yang-ext {prefix "ext";}
+    import naming-context { prefix "nc";}
+
+    grouping gpe-entry-identification-context-attributes{
+
+        container gpe-entry-identification-contexts {
+
+            list gpe-entry-identification {
+
+                key "name";
+
+                leaf name {
+                    type string;
+                }
+
+                container mappings{
+                    list mapping {
+
+                        key "id";
+
+                        leaf id {
+                          type string;
+                          description "Id that uniquely identifies gpe entry";
+                        }
+
+                        container gpe-entry-identificator{
+                            // these three attributes allow to identificated gpe entry
+                            container local-eid {
+                              uses lisp-types:lisp-address;
+                              description "Local EID that must be a local address";
+                            }
+
+                            container remote-eid {
+                              uses lisp-types:lisp-address;
+                              description "Remote EID";
+                            }
+
+                            leaf vni {
+                              type uint32;
+                              mandatory true;
+                              description "Virtual Network Identifier";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+     augment /nc:contexts {
+            ext:augment-identifier "gpe-entry-identification-ctx-augmentation";
+            uses gpe-entry-identification-context-attributes;
+     }
+}

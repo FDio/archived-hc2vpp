@@ -1,0 +1,19 @@
+{
+  "gpe-entry-table": {
+    "gpe-entry": {
+      "id": "gpe-fwd-entry-1",
+      "dp-table": 10,
+      "vni": 12,
+      "local-eid": {
+        "address-type": "ietf-lisp-address-types:ipv4-prefix-afi",
+        "virtual-network-id": 12,
+        "ipv4-prefix": "192.168.2.0/24"
+      },
+      "remote-eid": {
+        "address-type": "ietf-lisp-address-types:ipv4-prefix-afi",
+        "virtual-network-id": 12,
+        "ipv4-prefix": "192.168.3.0/16"
+      }
+    }
+  }
+}
