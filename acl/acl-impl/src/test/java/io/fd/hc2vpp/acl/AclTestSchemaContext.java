@@ -18,7 +18,7 @@ package io.fd.hc2vpp.acl;
 
 import com.google.common.collect.ImmutableSet;
 import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 
 
 public interface AclTestSchemaContext {

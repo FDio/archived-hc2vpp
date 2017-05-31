@@ -41,6 +41,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.$YangModuleInfoImpl;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.MultiMappingCtxAugmentation;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.MultiNamingContexts;
@@ -53,7 +54,6 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.namin
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.mapping.ValueBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.multi.naming.contexts.attributes.multi.naming.contexts.multi.naming.mappings.mapping.ValueKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
-import org.opendaylight.yangtools.sal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
