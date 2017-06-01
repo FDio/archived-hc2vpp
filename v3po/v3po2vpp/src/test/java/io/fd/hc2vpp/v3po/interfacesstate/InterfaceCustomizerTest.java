@@ -155,9 +155,11 @@ public class InterfaceCustomizerTest extends ListReaderCustomizerTest<Interface,
 
         final SwInterfaceDetails swIf0 = new SwInterfaceDetails();
         swIf0.swIfIndex = 0;
+        swIf0.supSwIfIndex = 0;
         swIf0.interfaceName = IFACE0_NAME.getBytes();
         final SwInterfaceDetails swIf1 = new SwInterfaceDetails();
         swIf1.swIfIndex = 1;
+        swIf1.supSwIfIndex = 1;
         swIf1.interfaceName = IFACE1_NAME.getBytes();
         final SwInterfaceDetails swSubIf1 = new SwInterfaceDetails();
         swSubIf1.swIfIndex = 2;

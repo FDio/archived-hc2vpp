@@ -87,7 +87,8 @@ public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInte
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = VLAN_IF_ID;
         ifaceDetails.interfaceName = VLAN_IF_NAME.getBytes();
-        ifaceDetails.subDot1Ad = 1;
+        ifaceDetails.swIfIndex = 2;
+        ifaceDetails.supSwIfIndex = SUPER_IF_INDEX;
         defineMapping(mappingContext, SUPER_IF_NAME, SUPER_IF_INDEX, IFC_CTX_NAME);
         defineMapping(mappingContext, VLAN_IF_NAME, VLAN_IF_INDEX, IFC_CTX_NAME);
         ifaceDetails.subNumberOfTags = 2;

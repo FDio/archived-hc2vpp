@@ -93,7 +93,7 @@ public class RewriteCustomizer extends FutureJVppCustomizer
                 interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache(), LOG);
         LOG.debug("VPP sub-interface details: {}", iface);
 
-        checkState(iface.subId != 0, "Interface returned by the VPP is not a sub-interface");
+        checkState(isSubInterface(iface), "Interface returned by the VPP is not a sub-interface");
 
         final TagRewriteOperation operation = TagRewriteOperation.get(iface.vtrOp);
         if (TagRewriteOperation.disabled == operation) {
