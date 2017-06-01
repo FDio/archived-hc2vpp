@@ -97,6 +97,8 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
         ifaceDetails.vtrTag1 = 123;
         ifaceDetails.vtrTag2 = 321;
         ifaceDetails.vtrPushDot1Q = 1;
+        ifaceDetails.swIfIndex= VLAN_IF_INDEX;
+        ifaceDetails.supSwIfIndex = 2;
         cachedInterfaceDump.put(VLAN_IF_INDEX, ifaceDetails);
         cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 

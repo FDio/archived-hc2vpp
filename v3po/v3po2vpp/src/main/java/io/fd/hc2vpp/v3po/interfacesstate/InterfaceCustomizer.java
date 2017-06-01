@@ -16,6 +16,9 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.ModificationCache;
@@ -23,9 +26,6 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
@@ -84,10 +84,6 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                 ? new HashMap<>()
                 // allow customizers to update the cache
                 : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
-    }
-
-    private static boolean isRegularInterface(final SwInterfaceDetails iface) {
-        return iface.subId == 0;
     }
 
     @Nonnull
@@ -183,7 +179,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                     return elt;
                 })
                 // filter out sub-interfaces
-                .filter(InterfaceCustomizer::isRegularInterface)
+                .filter(InterfaceDataTranslator.INSTANCE::isRegularInterface)
                 .map(elt -> elt.swIfIndex)
                 .collect(Collectors.toSet());
 

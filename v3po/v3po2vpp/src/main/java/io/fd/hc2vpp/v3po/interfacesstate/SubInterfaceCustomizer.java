@@ -144,7 +144,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         final List<SubInterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
                 .filter(elt -> elt != null)
                 // accept only sub-interfaces for current iface:
-                .filter(elt -> elt.subId != 0 && elt.supSwIfIndex == ifaceId)
+                .filter(elt -> isSubInterface(elt) && elt.supSwIfIndex == ifaceId)
                 .map(details -> new SubInterfaceKey(new Long(details.subId)))
                 .collect(Collectors.toList());
 
@@ -175,9 +175,9 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
                 interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache(), LOG);
         LOG.debug("VPP sub-interface details: {}", iface);
 
-        checkState(iface.subId != 0, "Interface returned by the VPP is not a sub-interface");
+        checkState(isSubInterface(iface), "Interface returned by the VPP is not a sub-interface");
 
-        builder.setIdentifier(Long.valueOf(iface.subId));
+        builder.setIdentifier((long) iface.subId);
         builder.setKey(new SubInterfaceKey(builder.getIdentifier()));
 
         // sub-interface-base-attributes:

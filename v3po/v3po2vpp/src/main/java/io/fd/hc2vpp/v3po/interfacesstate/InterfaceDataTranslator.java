@@ -19,11 +19,11 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
@@ -49,6 +49,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 
 public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyConsumer {
+
+    InterfaceDataTranslator INSTANCE = new InterfaceDataTranslator() {
+    };
 
     Gauge64 vppLinkSpeed0 = new Gauge64(BigInteger.ZERO);
     Gauge64 vppLinkSpeed1 = new Gauge64(BigInteger.valueOf(10L * 1000000));
@@ -258,5 +261,32 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
     default boolean isInterfaceOfType(final Class<? extends InterfaceType> ifcType,
                                       final SwInterfaceDetails cachedDetails) {
         return ifcType.equals(getInterfaceType(toString(cachedDetails.interfaceName)));
+    }
+
+    /**
+     * Checks whether provided {@link SwInterfaceDetails} is detail of sub-interface<br>
+     * <li>subId == unique number of sub-interface within set of sub-interfaces of single interface
+     * <li>swIfIndex == unique index of interface/sub-interface within all interfaces
+     * <li>supSwIfIndex == unique index of parent interface
+     * <li>in case of interface , swIfIndex value equals supSwIfIndex
+     * <li>in case of subinterface, supSwIfIndex equals index of parent interface,
+     * swIfIndex is index of subinterface itselt
+     */
+    default boolean isSubInterface(@Nonnull final SwInterfaceDetails elt) {
+        //cant check by subId != 0, because you can pick 0 as value
+        return elt.supSwIfIndex != elt.swIfIndex;
+    }
+
+    /**
+     * Checks whether provided {@link SwInterfaceDetails} is detail of interface<br>
+     * <li>subId == unique number of subinterface within set of subinterfaces of single interface
+     * <li>swIfIndex == unique index of interface/subinterface within all interfaces
+     * <li>supSwIfIndex == unique index of parent interface
+     * <li>in case of interface , swIfIndex value equals supSwIfIndex
+     * <li>in case of subinterface, supSwIfIndex equals index of parent interface,
+     * swIfIndex is index of subinterface itselt
+     */
+    default boolean isRegularInterface(@Nonnull final SwInterfaceDetails elt) {
+        return !isSubInterface(elt);
     }
 }
