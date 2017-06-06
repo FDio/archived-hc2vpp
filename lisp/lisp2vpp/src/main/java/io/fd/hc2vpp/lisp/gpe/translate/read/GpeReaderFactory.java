@@ -19,8 +19,8 @@ package io.fd.hc2vpp.lisp.gpe.translate.read;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.gpe.GpeModule;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.service.GpeStateCheckService;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
@@ -60,7 +60,7 @@ public class GpeReaderFactory implements ReaderFactory {
 
     @Inject
     @Named(GpeModule.GPE_ENTRY_MAPPING_CTX)
-    private GpeEntryMappingContext gpeEntryMappingContext;
+    private NamingContext gpeEntryMappingContext;
 
     @Inject
     @Named(GpeModule.GPE_TO_LOCATOR_PAIR_CTX)

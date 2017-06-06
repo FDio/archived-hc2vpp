@@ -57,10 +57,12 @@ module gpe {
           description "Virtual Network Identifier";
         }
         container local-eid {
+          presence "Enforce mandatory only if present";
           uses lisp-types:lisp-address;
           description "Local EID that must be a local address";
         }
         container remote-eid {
+          presence "Enforce mandatory only if present";
           uses lisp-types:lisp-address;
           description "Remote EID";
         }

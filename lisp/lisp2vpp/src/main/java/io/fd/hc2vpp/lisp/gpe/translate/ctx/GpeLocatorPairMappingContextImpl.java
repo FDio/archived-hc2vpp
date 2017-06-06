@@ -19,6 +19,7 @@ package io.fd.hc2vpp.lisp.gpe.translate.ctx;
 import static java.lang.String.format;
 
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.util.RWUtils;
 import java.util.Collections;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.locator.pair.identification.context.rev170517.GpeLocatorPairIdentificationCtxAugmentation;
@@ -76,16 +77,29 @@ public class GpeLocatorPairMappingContextImpl implements GpeLocatorPairMappingCo
     public LocatorPairMapping getMapping(@Nonnull final String entryId,
                                          @Nonnull final GpeLocatorPair pair,
                                          @Nonnull final MappingContext mappingContext) {
+
+        if (!contains(entryId, pair, mappingContext)) {
+            final String artificialLocatorId = artificialLocatorPairId(entryId, pair);
+            addMapping(entryId, artificialLocatorId, pair, mappingContext);
+            return getMapping(entryId, artificialLocatorId, mappingContext);
+        }
+
         return mappingContext.read(getMappingId(entryId))
                 .or(new MappingBuilder().setLocatorPairMapping(Collections.emptyList()).build())
                 .getLocatorPairMapping()
                 .stream()
                 .filter(mapping -> pair.isSame(mapping.getPair()))
-                .findAny().orElseGet(() -> {
-                    final String artificialLocatorId = artificialLocatorPairId(entryId, pair);
-                    addMapping(entryId, artificialLocatorId, pair, mappingContext);
-                    return getMapping(entryId, artificialLocatorId, mappingContext);
-                });
+                .collect(RWUtils.singleItemCollector());
+    }
+
+    private boolean contains(final String entryId,
+                             final GpeLocatorPair pair,
+                             final MappingContext mappingContext) {
+        return mappingContext.read(getMappingId(entryId))
+                .or(new MappingBuilder().setLocatorPairMapping(Collections.emptyList()).build())
+                .getLocatorPairMapping()
+                .stream()
+                .anyMatch(mapping -> pair.isSame(mapping.getPair()));
     }
 
     @Override

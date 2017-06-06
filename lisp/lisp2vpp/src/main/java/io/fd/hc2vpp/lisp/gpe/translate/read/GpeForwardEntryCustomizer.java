@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.lisp.gpe.translate.read;
 
-import static io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryIdentifier.fromDumpDetail;
 import static io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPair.fromDumpDetail;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.lang.String.format;
@@ -24,8 +23,7 @@ import static java.lang.String.format;
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryIdentifier;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryMappingContext;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPair;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.service.GpeStateCheckService;
@@ -52,7 +50,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.entry.identification.context.rev170517.gpe.entry.identification.context.attributes.gpe.entry.identification.contexts.gpe.entry.identification.mappings.mapping.GpeEntryIdentificator;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.locator.pair.identification.context.rev170517.gpe.locator.pair.identification.context.attributes.gpe.locator.pair.identification.contexts.gpe.locator.pair.identification.mappings.mapping.LocatorPairMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.Gpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.GpeEntryTable;
@@ -76,13 +73,13 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
     private final DumpCacheManager<GpeFwdEntriesGetReply, Integer> entryDumpManager;
     private final DumpCacheManager<GpeFwdEntryPathDetailsReplyDump, Integer> entryDumpCacheManager;
     private final DumpCacheManager<GpeFwdEntryVnisGetReply, Void> activeVnisDumpManager;
-    private final GpeEntryMappingContext gpeEntryMappingContext;
+    private final NamingContext gpeEntryMappingContext;
     private final GpeLocatorPairMappingContext gpeLocatorsMappingContext;
     private final GpeStateCheckService gpeStateCheckService;
 
     public GpeForwardEntryCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                      @Nonnull final GpeStateCheckService gpeStateCheckService,
-                                     @Nonnull final GpeEntryMappingContext gpeEntryMappingContext,
+                                     @Nonnull final NamingContext gpeEntryMappingContext,
                                      @Nonnull final GpeLocatorPairMappingContext gpeLocatorsMappingContext) {
         super(futureJVppCore);
         this.gpeStateCheckService = gpeStateCheckService;
@@ -159,23 +156,25 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
 
         final String entryId = id.firstKeyOf(GpeEntry.class).getId();
 
-        final GpeEntryIdentificator identificator =
-                gpeEntryMappingContext.getIdentificatorById(entryId, ctx.getMappingContext());
-
         // reads configured vni's, then reads entries for them and filter out current one
         final java.util.Optional<GpeFwdEntry> entryCandicate = activeVnis(id, ctx.getModificationCache())
                 .flatMap(vni -> getEntriesForVni(id, vni, ctx).stream())
-                .filter(entry -> fromDumpDetail(entry).isSame(identificator))
+                .filter(entry -> entryId
+                        .equals(gpeEntryMappingContext.getName(entry.fwdEntryIndex, ctx.getMappingContext())))
                 .findAny();
 
         if (entryCandicate.isPresent()) {
             final GpeFwdEntry gpeFwdEntry = entryCandicate.get();
 
             final int entryVni = gpeFwdEntry.vni;
+
+            if (!matchUndefinedEid(gpeFwdEntry.leid)) {
+                builder.setLocalEid(getArrayAsGpeLocalEid(MappingsDumpParams.EidType.valueOf(gpeFwdEntry.eidType),
+                        gpeFwdEntry.leid, gpeFwdEntry.leidPrefixLen, entryVni));
+            }
+
             builder.setId(entryId)
                     .setDpTable((long) gpeFwdEntry.dpTable)
-                    .setLocalEid(getArrayAsGpeLocalEid(MappingsDumpParams.EidType.valueOf(gpeFwdEntry.eidType),
-                            gpeFwdEntry.leid, gpeFwdEntry.leidPrefixLen, entryVni))
                     .setRemoteEid(getArrayAsGpeRemoteEid(MappingsDumpParams.EidType.valueOf(gpeFwdEntry.eidType),
                             gpeFwdEntry.reid, gpeFwdEntry.reidPrefixLen, entryVni))
                     .setVni((long) entryVni);
@@ -204,6 +203,12 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
         }
     }
 
+    // not matching by specifically sized array, easier to adapt if vpp going to change size of arrays they send
+    // addresses , because for lisp eid there are at least 3 possible sizes(v4 - 4,mac - 6,v6 - 16)
+    private static boolean matchUndefinedEid(byte[] addr) {
+        return addr == null || Arrays.equals(addr, new byte[addr.length]);
+    }
+
     private List<GpeFwdEntry> getEntriesForVni(final InstanceIdentifier<GpeEntry> id, final int vni,
                                                final ReadContext context) {
         final Optional<GpeFwdEntriesGetReply> dump = getEntiesDump(id, vni, context);
@@ -221,9 +226,7 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
         final Optional<GpeFwdEntriesGetReply> dump = getEntiesDump(id, vni, context);
         if (dump.isPresent()) {
             return Arrays.stream(java.util.Optional.ofNullable(dump.get().entries).orElse(new GpeFwdEntry[]{}))
-                    .map(GpeEntryIdentifier::fromDumpDetail)
-                    .map(identifier -> gpeEntryMappingContext
-                            .getIdByEntryIdentifier(identifier, context.getMappingContext()))
+                    .map(entry -> gpeEntryMappingContext.getName(entry.fwdEntryIndex, context.getMappingContext()))
                     .map(GpeEntryKey::new)
                     .collect(Collectors.toList());
         }

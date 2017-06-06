@@ -18,13 +18,12 @@ package io.fd.hc2vpp.lisp.gpe.translate.write;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryIdentifier.fromEntry;
 import static io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPair.fromLocatorPair;
 import static java.util.Objects.nonNull;
 
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryMappingContext;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.service.GpeStateCheckService;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType;
@@ -37,10 +36,12 @@ import io.fd.vpp.jvpp.core.dto.GpeAddDelFwdEntry;
 import io.fd.vpp.jvpp.core.dto.GpeAddDelFwdEntryReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import io.fd.vpp.jvpp.core.types.GpeLocator;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntry;
@@ -55,12 +56,12 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<GpeEntry, GpeEntryKey>, EidTranslator, JvppReplyConsumer {
 
     private final GpeStateCheckService gpeStateCheckService;
-    private final GpeEntryMappingContext entryMappingCtx;
+    private final NamingContext entryMappingCtx;
     private final GpeLocatorPairMappingContext locatorPairCtx;
 
     public GpeForwardEntryCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                      @Nonnull final GpeStateCheckService gpeStateCheckService,
-                                     @Nonnull final GpeEntryMappingContext entryMappingCtx,
+                                     @Nonnull final NamingContext entryMappingCtx,
                                      @Nonnull final GpeLocatorPairMappingContext locatorPairCtx) {
         super(futureJVppCore);
         this.gpeStateCheckService = gpeStateCheckService;
@@ -73,8 +74,9 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
                                        @Nonnull final GpeEntry dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         gpeStateCheckService.checkGpeEnabledAfter(writeContext);
-        getReplyForWrite(sendRequestAndMap(true, dataAfter, writeContext.getMappingContext()).toCompletableFuture(),
-                id);
+        final GpeAddDelFwdEntryReply replyForWrite =
+                getReplyForWrite(sendRequestAndMap(true, dataAfter).toCompletableFuture(), id);
+        addDelMapping(true, dataAfter, replyForWrite, writeContext.getMappingContext());
     }
 
 
@@ -84,10 +86,13 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
                                         @Nonnull final GpeEntry dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         gpeStateCheckService.checkGpeEnabledAfter(writeContext);
-        getReplyForDelete(sendRequestAndMap(false, dataBefore, writeContext.getMappingContext()).toCompletableFuture(),
-                id);
-        getReplyForUpdate(sendRequestAndMap(true, dataAfter, writeContext.getMappingContext()).toCompletableFuture(),
-                id, dataBefore, dataAfter);
+        final GpeAddDelFwdEntryReply replyForDelete = getReplyForDelete(
+                sendRequestAndMap(false, dataBefore).toCompletableFuture(), id);
+        addDelMapping(false, dataBefore, replyForDelete, writeContext.getMappingContext());
+
+        final GpeAddDelFwdEntryReply replyForUpdate = getReplyForUpdate(
+                sendRequestAndMap(true, dataAfter).toCompletableFuture(), id, dataBefore, dataAfter);
+        addDelMapping(true, dataAfter, replyForUpdate, writeContext.getMappingContext());
     }
 
     @Override
@@ -95,35 +100,37 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
                                         @Nonnull final GpeEntry dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
         gpeStateCheckService.checkGpeEnabledBefore(writeContext);
-        getReplyForDelete(sendRequestAndMap(false, dataBefore, writeContext.getMappingContext()).toCompletableFuture(),
-                id);
+        final GpeAddDelFwdEntryReply replyForDelete =
+                getReplyForDelete(sendRequestAndMap(false, dataBefore).toCompletableFuture(), id);
+        addDelMapping(false, dataBefore, replyForDelete, writeContext.getMappingContext());
     }
 
     private CompletableFuture<GpeAddDelFwdEntryReply> sendRequestAndMap(final boolean add,
-                                                                        final GpeEntry data,
-                                                                        final MappingContext mappingContext) {
-        final CompletableFuture<GpeAddDelFwdEntryReply> reply =
-                getFutureJVpp().gpeAddDelFwdEntry(bindRequest(add, data)).toCompletableFuture();
+                                                                        final GpeEntry data) {
+        return getFutureJVpp().gpeAddDelFwdEntry(bindRequest(add, data)).toCompletableFuture();
+    }
 
-        /*
+    private void addDelMapping(final boolean add,
+                            final GpeEntry data,
+                            final GpeAddDelFwdEntryReply reply,
+                            final MappingContext mappingContext){
+         /*
          * sync to disallow synchronization issues
          */
         synchronized (entryMappingCtx) {
             synchronized (locatorPairCtx) {
                 if (add) {
-                    entryMappingCtx.addMapping(data.getId(), fromEntry(data), mappingContext);
+                    entryMappingCtx.addName(reply.fwdEntryIndex,data.getId(),mappingContext);
                     Optional.ofNullable(data.getLocatorPairs()).orElse(Collections.emptyList()).forEach(
                             locatorPair -> locatorPairCtx
                                     .addMapping(data.getId(), locatorPair.getId(), fromLocatorPair(locatorPair),
                                             mappingContext));
                 } else {
-                    entryMappingCtx.removeMapping(data.getId(), mappingContext);
+                    entryMappingCtx.removeName(data.getId(),mappingContext);
                     locatorPairCtx.removeMapping(data.getId(), mappingContext);
                 }
             }
         }
-
-        return reply;
     }
 
     private GpeAddDelFwdEntry bindRequest(final boolean add, @Nonnull final GpeEntry entry) {
@@ -132,21 +139,22 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
         request.vni = entry.getVni().byteValue();
         request.dpTable = entry.getDpTable().byteValue();
 
-        final LocalEid localEid = Optional.ofNullable(entry.getLocalEid())
-                .orElseThrow(() -> new IllegalArgumentException("Local eid cannot be null"));
         final RemoteEid remoteEid = Optional.ofNullable(entry.getRemoteEid())
                 .orElseThrow(() -> new IllegalArgumentException("Remote eid cannot be null"));
-
-        final EidType localEidType = getEidType(localEid);
         final EidType remoteEidType = getEidType(remoteEid);
-        checkArgument(localEidType == remoteEidType, "Different eid type detected - Local[%s]/Remote[%s]",
-                localEidType,
-                remoteEidType);
 
-        request.eidType = (byte) localEidType.getVppTypeBinding();
-        request.lclEid = getEidAsByteArray(localEid);
-        request.lclLen = getPrefixLength(localEid);
+        // for gpe entries, local eid does not have to be specified
+        final LocalEid localEid = entry.getLocalEid();
+        if (localEid != null) {
+            final EidType localEidType = getEidType(localEid);
+            checkArgument(localEidType == remoteEidType, "Different eid type detected - Local[%s]/Remote[%s]",
+                    localEidType,
+                    remoteEidType);
+            request.lclEid = getEidAsByteArray(localEid);
+            request.lclLen = getPrefixLength(localEid);
+        }
 
+        request.eidType = (byte) remoteEidType.getVppTypeBinding();
         request.rmtEid = getEidAsByteArray(remoteEid);
         request.rmtLen = getPrefixLength(remoteEid);
 
@@ -167,8 +175,8 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
     // Pair is translated to two locators, one(local) with local address and weight, second one(remote) with remote
     // address
     private GpeLocator[] toRequestLocators(final List<LocatorPairs> pairs) {
-        return pairs.stream()
-                .flatMap(locatorPairContainer -> {
+        final List<GpeLocator> localLocators = pairs.stream()
+                .map(locatorPairContainer -> {
                     final LocatorPair locatorPair =
                             checkNotNull(locatorPairContainer.getLocatorPair(), "Locator pair cannot be null");
 
@@ -183,21 +191,22 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
                     localLocator.addr = ipAddressToArray(locatorPair.getLocalLocator());
                     localLocator.isIp4 = booleanToByte(!isLocalIpv6);
                     localLocator.weight = locatorPair.getWeight().byteValue();
+                    return localLocator;
+                }).collect(Collectors.toList());
+
+        final List<GpeLocator> remoteLocators = pairs.stream()
+                .map(locatorPairContainer -> {
+                    final LocatorPair locatorPair = locatorPairContainer.getLocatorPair();
+
+                    final boolean isRemoteIpv6 = isIpv6(locatorPair.getRemoteLocator());
+
 
                     GpeLocator remoteLocator = new GpeLocator();
                     remoteLocator.addr = ipAddressToArray(locatorPair.getRemoteLocator());
                     remoteLocator.isIp4 = booleanToByte(!isRemoteIpv6);
+                    return remoteLocator;
+                }).collect(Collectors.toList());
 
-                    return Stream.of(localLocator, remoteLocator);
-                })
-                .sorted((first, second) -> {
-                    if (first.weight == 0 && second.weight == 0) {
-                        return 0;
-                    } else if (first.weight == 0) {
-                        return 1;
-                    } else {
-                        return -1;
-                    }
-                }).toArray(GpeLocator[]::new);
+        return Stream.of(localLocators,remoteLocators).flatMap(Collection::stream).toArray(GpeLocator[]::new);
     }
 }

@@ -18,14 +18,14 @@ package io.fd.hc2vpp.lisp.gpe.translate.read;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryIdentifier;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryMappingContext;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPair;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.service.GpeStateCheckService;
@@ -83,6 +83,7 @@ public class GpeForwardEntryCustomizerTest
         implements AddressTranslator, EidTranslator {
 
     private static final String V4_ENTRY_ID = "v4-entry";
+    private static final String V4_ENTRY_NO_LEID_ID = "v4-entry-no-leid-id";
     private static final String V4_ENTRY_LOCATOR = "v4-entry-locator";
     private static final int V4_ENTRY_DP_TABLE = 10;
     private static final int V4_ENTRY_FWD_INDEX = 4;
@@ -90,6 +91,9 @@ public class GpeForwardEntryCustomizerTest
     private static final KeyedInstanceIdentifier<GpeEntry, GpeEntryKey> V4_IDENTIFIER =
             InstanceIdentifier.create(GpeEntryTable.class)
                     .child(GpeEntry.class, new GpeEntryKey(V4_ENTRY_ID));
+    private static final KeyedInstanceIdentifier<GpeEntry, GpeEntryKey> V4_NO_LEID_IDENTIFIER =
+            InstanceIdentifier.create(GpeEntryTable.class)
+                    .child(GpeEntry.class, new GpeEntryKey(V4_ENTRY_NO_LEID_ID));
     private static final Ipv4Prefix
             V4_ENTRY_LOCAL_ADDRESS = new Ipv4Prefix("192.168.2.0/24");
     private static final Ipv4Prefix
@@ -132,13 +136,14 @@ public class GpeForwardEntryCustomizerTest
             MAC_LOCATOR_LOCAL_ADDRESS = new Ipv4AddressNoZone("192.168.7.4");
     private static final Ipv4AddressNoZone
             MAC_LOCATOR_REMOTE_ADDRESS = new Ipv4AddressNoZone("192.168.2.4");
-    public static final int V6_LOCATOR_LOCAL_WEIGHT = 3;
-    public static final int MAC_LOCATOR_LOCAL_WEIGHT = 7;
-    public static final int V4_LOCATOR_LOCAL_WEIGHT = 2;
+    private static final int V6_LOCATOR_LOCAL_WEIGHT = 3;
+    private static final int MAC_LOCATOR_LOCAL_WEIGHT = 7;
+    private static final int V4_LOCATOR_LOCAL_WEIGHT = 2;
+    private static final int V4_ENTRY_NO_LEID_FWD_INDEX = 12;
 
+    private static final String GPE_ENTRY_CTX = "gpe-entry-ctx";
 
-    @Mock
-    private GpeEntryMappingContext gpeEntryMappingContext;
+    private NamingContext gpeEntryMappingContext;
 
     @Mock
     private GpeLocatorPairMappingContext gpeLocatorPairMappingContext;
@@ -158,6 +163,7 @@ public class GpeForwardEntryCustomizerTest
 
     @Override
     protected void setUp() throws Exception {
+        gpeEntryMappingContext = new NamingContext("gpe-entry-", GPE_ENTRY_CTX);
         when(gpeStateCheckService.isGpeEnabled(ctx)).thenReturn(true);
         when(api.gpeFwdEntriesGet(entryRequest(V4_ENTRY_VNI)))
                 .thenReturn(future(getGpeEntryDumpReply(getV4GpeEntry())));
@@ -166,7 +172,7 @@ public class GpeForwardEntryCustomizerTest
         when(api.gpeFwdEntriesGet(entryRequest(MAC_ENTRY_VNI)))
                 .thenReturn(future(getGpeEntryDumpReply(getMacGpeEntry())));
         when(api.gpeFwdEntryVnisGet(any())).thenReturn(future(activeVnisDump()));
-        mockMappingsForGpeEntries();
+        defineMappingsForGpeEntries();
         mockMappingsForLocators();
     }
 
@@ -192,6 +198,34 @@ public class GpeForwardEntryCustomizerTest
                 .build(), builder.getLocalEid().getAddress()));
         assertEquals(Ipv4PrefixAfi.class, builder.getLocalEid().getAddressType());
         assertEquals(V4_ENTRY_VNI, builder.getLocalEid().getVirtualNetworkId().getValue().intValue());
+        assertTrue(compareAddresses(new Ipv4PrefixBuilder()
+                .setIpv4Prefix(V4_ENTRY_REMOTE_ADDRESS)
+                .build(), builder.getRemoteEid().getAddress()));
+        assertEquals(Ipv4PrefixAfi.class, builder.getRemoteEid().getAddressType());
+        assertEquals(V4_ENTRY_VNI, builder.getRemoteEid().getVirtualNetworkId().getValue().intValue());
+        assertTrue(V4_ENTRY_VNI == builder.getVni());
+        assertEquals(1, builder.getLocatorPairs().size());
+
+        final LocatorPairs locatorPair = builder.getLocatorPairs().get(0);
+        assertEquals(V4_ENTRY_LOCATOR, locatorPair.getId());
+
+        final LocatorPair pair = locatorPair.getLocatorPair();
+        assertEquals(V4_LOCATOR_LOCAL_ADDRESS, pair.getLocalLocator().getIpv4Address());
+        assertEquals(V4_LOCATOR_REMOTE_ADDRESS, pair.getRemoteLocator().getIpv4Address());
+        assertEquals(V4_LOCATOR_LOCAL_WEIGHT, pair.getWeight().byteValue());
+    }
+
+    @Test
+    public void testReadCurrentV4EntryNoLeid() throws ReadFailedException {
+        when(api.gpeFwdEntriesGet(entryRequest(V4_ENTRY_VNI)))
+                .thenReturn(future(getGpeEntryDumpReply(getV4GpeNoLeidEntry())));
+        mockLocatorDump();
+        final GpeEntryBuilder builder = new GpeEntryBuilder();
+        getCustomizer().readCurrentAttributes(V4_NO_LEID_IDENTIFIER, builder, ctx);
+
+        assertEquals(V4_ENTRY_NO_LEID_ID, builder.getId());
+        assertEquals(10, builder.getDpTable().intValue());
+        assertNull(builder.getLocalEid());
         assertTrue(compareAddresses(new Ipv4PrefixBuilder()
                 .setIpv4Prefix(V4_ENTRY_REMOTE_ADDRESS)
                 .build(), builder.getRemoteEid().getAddress()));
@@ -313,6 +347,7 @@ public class GpeForwardEntryCustomizerTest
 
     private void mockLocatorDump() {
         when(api.gpeFwdEntryPathDump(pathRequest(V4_ENTRY_FWD_INDEX))).thenReturn(future(locatorDumpForV4EntryReply()));
+        when(api.gpeFwdEntryPathDump(pathRequest(V4_ENTRY_NO_LEID_FWD_INDEX))).thenReturn(future(locatorDumpForV4EntryReply()));
         when(api.gpeFwdEntryPathDump(pathRequest(V6_ENTRY_FWD_INDEX))).thenReturn(future(locatorDumpForV6EntryReply()));
         when(api.gpeFwdEntryPathDump(pathRequest(MAC_ENTRY_FWD_INDEX)))
                 .thenReturn(future(locatorDumpForMacEntryReply()));
@@ -324,25 +359,11 @@ public class GpeForwardEntryCustomizerTest
         return request;
     }
 
-    private void mockMappingsForGpeEntries() {
-        when(gpeEntryMappingContext
-                .getIdByEntryIdentifier(GpeEntryIdentifier.fromDumpDetail(getV4GpeEntry()), mappingContext))
-                .thenReturn(V4_ENTRY_ID);
-        when(gpeEntryMappingContext
-                .getIdentificatorById(V4_ENTRY_ID, mappingContext))
-                .thenReturn(fromDumpDetail(getV4GpeEntry()));
-        when(gpeEntryMappingContext
-                .getIdByEntryIdentifier(GpeEntryIdentifier.fromDumpDetail(getV6GpeEntry()), mappingContext))
-                .thenReturn(V6_ENTRY_ID);
-        when(gpeEntryMappingContext
-                .getIdentificatorById(V6_ENTRY_ID, mappingContext))
-                .thenReturn(fromDumpDetail(getV6GpeEntry()));
-        when(gpeEntryMappingContext
-                .getIdByEntryIdentifier(GpeEntryIdentifier.fromDumpDetail(getMacGpeEntry()), mappingContext))
-                .thenReturn(MAC_ENTRY_ID);
-        when(gpeEntryMappingContext
-                .getIdentificatorById(MAC_ENTRY_ID, mappingContext))
-                .thenReturn(fromDumpDetail(getMacGpeEntry()));
+    private void defineMappingsForGpeEntries() {
+        defineMapping(mappingContext, V4_ENTRY_ID, V4_ENTRY_FWD_INDEX, GPE_ENTRY_CTX);
+        defineMapping(mappingContext, V4_ENTRY_NO_LEID_ID, V4_ENTRY_NO_LEID_FWD_INDEX, GPE_ENTRY_CTX);
+        defineMapping(mappingContext, V6_ENTRY_ID, V6_ENTRY_FWD_INDEX, GPE_ENTRY_CTX);
+        defineMapping(mappingContext, MAC_ENTRY_ID, MAC_ENTRY_FWD_INDEX, GPE_ENTRY_CTX);
     }
 
     private void mockMappingsForLocators() {
@@ -356,6 +377,8 @@ public class GpeForwardEntryCustomizerTest
         final GpeFwdEntryPathDetails v4LocatorOne = forV4EntryReply.gpeFwdEntryPathDetails.get(0);
         final GpeLocatorPair v4LocatorPairOne = GpeLocatorPair.fromDumpDetail(v4LocatorOne);
         when(gpeLocatorPairMappingContext.getMapping(V4_ENTRY_ID, v4LocatorPairOne, mappingContext))
+                .thenReturn(fromDump(V4_ENTRY_LOCATOR, v4LocatorOne));
+        when(gpeLocatorPairMappingContext.getMapping(V4_ENTRY_NO_LEID_ID, v4LocatorPairOne, mappingContext))
                 .thenReturn(fromDump(V4_ENTRY_LOCATOR, v4LocatorOne));
     }
 
@@ -384,25 +407,6 @@ public class GpeForwardEntryCustomizerTest
                         .setLocalAddress(arrayToIpAddress(!localV4, dump.lclLoc.addr))
                         .setRemoteAddress(arrayToIpAddress(!remoteV4, dump.rmtLoc.addr))
                         .build())
-                .build();
-    }
-
-    private GpeEntryIdentificator fromDumpDetail(final GpeFwdEntry entry) {
-        final EidType eidType = EidType.valueOf(entry.eidType);
-        final Eid localEid = getArrayAsEidLocal(eidType, entry.leid, entry.leidPrefixLen, entry.vni);
-        final Eid remoteEid = getArrayAsEidLocal(eidType, entry.reid, entry.reidPrefixLen, entry.vni);
-        return new GpeEntryIdentificatorBuilder()
-                .setLocalEid(new LocalEidBuilder()
-                        .setAddress(localEid.getAddress())
-                        .setAddressType(localEid.getAddressType())
-                        .setVirtualNetworkId(localEid.getVirtualNetworkId())
-                        .build())
-                .setRemoteEid(new RemoteEidBuilder()
-                        .setAddress(remoteEid.getAddress())
-                        .setAddressType(remoteEid.getAddressType())
-                        .setVirtualNetworkId(remoteEid.getVirtualNetworkId())
-                        .build())
-                .setVni((long) entry.vni)
                 .build();
     }
 
@@ -513,6 +517,18 @@ public class GpeForwardEntryCustomizerTest
         entryOne.fwdEntryIndex = V4_ENTRY_FWD_INDEX;
         entryOne.leid = ipv4AddressPrefixToArray(V4_ENTRY_LOCAL_ADDRESS);
         entryOne.leidPrefixLen = 24;
+        entryOne.reid = ipv4AddressPrefixToArray(V4_ENTRY_REMOTE_ADDRESS);
+        entryOne.reidPrefixLen = 24;
+        return entryOne;
+    }
+
+    private GpeFwdEntry getV4GpeNoLeidEntry() {
+        GpeFwdEntry entryOne = new GpeFwdEntry();
+        entryOne.dpTable = V4_ENTRY_DP_TABLE;
+        entryOne.vni = V4_ENTRY_VNI;
+        entryOne.eidType = 0;
+        entryOne.action = 3;
+        entryOne.fwdEntryIndex = V4_ENTRY_NO_LEID_FWD_INDEX;
         entryOne.reid = ipv4AddressPrefixToArray(V4_ENTRY_REMOTE_ADDRESS);
         entryOne.reidPrefixLen = 24;
         return entryOne;

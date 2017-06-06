@@ -20,8 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryMappingContext;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryMappingContextImpl;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContextImpl;
 import io.fd.hc2vpp.lisp.gpe.translate.read.GpeReaderFactory;
@@ -38,8 +37,8 @@ public class GpeModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(GpeEntryMappingContext.class).annotatedWith(Names.named(GPE_ENTRY_MAPPING_CTX))
-                .toInstance(new GpeEntryMappingContextImpl(GPE_ENTRY_MAPPING_CTX));
+        bind(NamingContext.class).annotatedWith(Names.named(GPE_ENTRY_MAPPING_CTX))
+                .toInstance(new NamingContext("gpe-entry-", GPE_ENTRY_MAPPING_CTX));
 
         bind(GpeLocatorPairMappingContext.class).annotatedWith(Names.named(GPE_TO_LOCATOR_PAIR_CTX))
                 .toInstance(new GpeLocatorPairMappingContextImpl(GPE_TO_LOCATOR_PAIR_CTX));

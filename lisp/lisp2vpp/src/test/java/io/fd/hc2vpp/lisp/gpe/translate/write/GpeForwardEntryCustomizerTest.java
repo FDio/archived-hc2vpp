@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.lisp.gpe.translate.write;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -27,8 +28,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryIdentifier;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeEntryMappingContext;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPair;
 import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.service.GpeStateCheckService;
@@ -68,12 +68,13 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
     private static final byte[] PAIR_1_REMOTE_ADDRESS = {-64, -88, 4, 2};
     private static final int LOCAL_EID_PREFIX = 24;
     private static final int REMOTE_EID_PREFIX = 16;
+    public static final String GPE_ENTRY_CTX = "gpe-entry-ctx";
+    public static final int GPE_FWD_ENTRY_INDEX = 4;
+
+    private NamingContext gpeEntryMappingContext;
 
     @Captor
     private ArgumentCaptor<GpeAddDelFwdEntry> requestCaptor;
-
-    @Mock
-    private GpeEntryMappingContext gpeEntryMappingContext;
 
     @Mock
     private GpeLocatorPairMappingContext gpeLocatorPairMappingContext;
@@ -86,6 +87,7 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
 
     @Override
     protected void setUpTest() throws Exception {
+        gpeEntryMappingContext = new NamingContext("gpe-entry-", GPE_ENTRY_CTX);
         id = InstanceIdentifier.create(GpeEntryTable.class)
                 .child(GpeEntry.class, new GpeEntryKey(GPE_ENTRY_ID));
         customizer = new GpeForwardEntryCustomizer(api, gpeStateCheckService, gpeEntryMappingContext,
@@ -104,13 +106,13 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
     @Test
     public void testWriteCurrentAttributesFull(@InjectTestData(resourcePath = "/gpe/gpe-fwd-entry-full.json",
             id = GPE_ENTRY_PATH) GpeEntryTable entryTable) throws Exception {
-        when(api.gpeAddDelFwdEntry(any())).thenReturn(future(new GpeAddDelFwdEntryReply()));
+        when(api.gpeAddDelFwdEntry(any())).thenReturn(future(entryReply()));
         final GpeEntry entry = entryTable.getGpeEntry().get(0);
         customizer.writeCurrentAttributes(id, entry, writeContext);
         verify(api, times(1)).gpeAddDelFwdEntry(requestCaptor.capture());
         assertEquals(expectedFullRequest(true), requestCaptor.getValue());
-        verify(gpeEntryMappingContext, times(1))
-                .addMapping(entry.getId(), GpeEntryIdentifier.fromEntry(entry), mappingContext);
+        verify(mappingContext, times(1))
+                .put(mappingIid(entry.getId(), GPE_ENTRY_CTX), mapping(entry.getId(), GPE_FWD_ENTRY_INDEX).get());
 
         final LocatorPairs locatorPairFirst = entry.getLocatorPairs().get(0);
         final LocatorPairs locatorPairSecond = entry.getLocatorPairs().get(1);
@@ -122,17 +124,23 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
                         GpeLocatorPair.fromLocatorPair(locatorPairSecond), mappingContext);
     }
 
+    private static GpeAddDelFwdEntryReply entryReply() {
+        final GpeAddDelFwdEntryReply reply = new GpeAddDelFwdEntryReply();
+        reply.fwdEntryIndex = GPE_FWD_ENTRY_INDEX;
+        return reply;
+    }
+
     @Test
     public void testWriteCurrentAttributesWithoutLocators(
             @InjectTestData(resourcePath = "/gpe/gpe-fwd-entry-without-locators.json",
                     id = GPE_ENTRY_PATH) GpeEntryTable entryTable) throws Exception {
-        when(api.gpeAddDelFwdEntry(any())).thenReturn(future(new GpeAddDelFwdEntryReply()));
+        when(api.gpeAddDelFwdEntry(any())).thenReturn(future(entryReply()));
         final GpeEntry entry = entryTable.getGpeEntry().get(0);
         customizer.writeCurrentAttributes(id, entry, writeContext);
         verify(api, times(1)).gpeAddDelFwdEntry(requestCaptor.capture());
         assertEquals(expectedLocatorLessRequest(true), requestCaptor.getValue());
-        verify(gpeEntryMappingContext, times(1))
-                .addMapping(entry.getId(), GpeEntryIdentifier.fromEntry(entry), mappingContext);
+        verify(mappingContext, times(1))
+                .put(mappingIid(entry.getId(), GPE_ENTRY_CTX), mapping(entry.getId(), GPE_FWD_ENTRY_INDEX).get());
         verifyZeroInteractions(gpeLocatorPairMappingContext);
     }
 
@@ -140,27 +148,39 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
     public void testWriteCurrentAttributesWithoutAction(
             @InjectTestData(resourcePath = "/gpe/gpe-fwd-entry-without-action.json",
                     id = GPE_ENTRY_PATH) GpeEntryTable entryTable) throws Exception {
-        when(api.gpeAddDelFwdEntry(any())).thenReturn(future(new GpeAddDelFwdEntryReply()));
+        when(api.gpeAddDelFwdEntry(any())).thenReturn(future(entryReply()));
         final GpeEntry entry = entryTable.getGpeEntry().get(0);
         customizer.writeCurrentAttributes(id, entry, writeContext);
         verify(api, times(1)).gpeAddDelFwdEntry(requestCaptor.capture());
         assertEquals(expectedActionLessRequest(true), requestCaptor.getValue());
-        verify(gpeEntryMappingContext, times(1))
-                .addMapping(entry.getId(), GpeEntryIdentifier.fromEntry(entry), mappingContext);
+        verify(mappingContext, times(1))
+                .put(mappingIid(entry.getId(), GPE_ENTRY_CTX), mapping(entry.getId(), GPE_FWD_ENTRY_INDEX).get());
         verifyZeroInteractions(gpeLocatorPairMappingContext);
     }
 
+    /**
+     * Gpe entry allows no local eid
+     * */
     @Test
-    public void testWriteCurrentAttributesFailNoLocalEid(
+    public void testWriteCurrentAttributesNoLocalEid(
             @InjectTestData(resourcePath = "/gpe/invalid/invalid-gpe-fwd-entry-no-local-eid.json",
                     id = GPE_ENTRY_PATH) GpeEntryTable entryTable) throws Exception {
-        try {
-            customizer.writeCurrentAttributes(id, entryTable.getGpeEntry().get(0), writeContext);
-        } catch (IllegalArgumentException e) {
-            verifyZeroInteractions(api);
-            return;
-        }
-        fail("Test should have failed");
+        when(api.gpeAddDelFwdEntry(any())).thenReturn(future(entryReply()));
+        final GpeEntry entry = entryTable.getGpeEntry().get(0);
+        customizer.writeCurrentAttributes(id, entry, writeContext);
+        verify(api, times(1)).gpeAddDelFwdEntry(requestCaptor.capture());
+        assertEquals(expectedActionLessNoLeidRequest(true), requestCaptor.getValue());
+        verify(mappingContext, times(1))
+                .put(mappingIid(entry.getId(), GPE_ENTRY_CTX), mapping(entry.getId(), GPE_FWD_ENTRY_INDEX).get());
+
+        final LocatorPairs locatorPairFirst = entry.getLocatorPairs().get(0);
+        final LocatorPairs locatorPairSecond = entry.getLocatorPairs().get(1);
+        verify(gpeLocatorPairMappingContext, times(1))
+                .addMapping(entry.getId(), locatorPairFirst.getId(),
+                        GpeLocatorPair.fromLocatorPair(locatorPairFirst), mappingContext);
+        verify(gpeLocatorPairMappingContext, times(1))
+                .addMapping(entry.getId(), locatorPairSecond.getId(),
+                        GpeLocatorPair.fromLocatorPair(locatorPairSecond), mappingContext);
     }
 
     @Test
@@ -184,8 +204,7 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
         customizer.deleteCurrentAttributes(id, entry, writeContext);
         verify(api, times(1)).gpeAddDelFwdEntry(requestCaptor.capture());
         assertEquals(expectedFullRequest(false), requestCaptor.getValue());
-        verify(gpeEntryMappingContext, times(1))
-                .removeMapping(entry.getId(), mappingContext);
+        verify(mappingContext, times(1)).delete(mappingIid(entry.getId(), GPE_ENTRY_CTX));
         verify(gpeLocatorPairMappingContext, times(1))
                 .removeMapping(entry.getId(), mappingContext);
     }
@@ -199,8 +218,7 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
         customizer.deleteCurrentAttributes(id, entry, writeContext);
         verify(api, times(1)).gpeAddDelFwdEntry(requestCaptor.capture());
         assertEquals(expectedLocatorLessRequest(false), requestCaptor.getValue());
-        verify(gpeEntryMappingContext, times(1))
-                .removeMapping(entry.getId(), mappingContext);
+        verify(mappingContext, times(1)).delete(mappingIid(entry.getId(), GPE_ENTRY_CTX));
         verify(gpeLocatorPairMappingContext, times(1))
                 .removeMapping(entry.getId(), mappingContext);
     }
@@ -214,23 +232,23 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
         customizer.deleteCurrentAttributes(id, entry, writeContext);
         verify(api, times(1)).gpeAddDelFwdEntry(requestCaptor.capture());
         assertEquals(expectedActionLessRequest(false), requestCaptor.getValue());
-        verify(gpeEntryMappingContext, times(1))
-                .removeMapping(entry.getId(), mappingContext);
+        verify(mappingContext, times(1)).delete(mappingIid(entry.getId(), GPE_ENTRY_CTX));
         verify(gpeLocatorPairMappingContext, times(1))
                 .removeMapping(entry.getId(), mappingContext);
     }
 
     @Test
-    public void testDeleteCurrentAttributesFailNoLocalEid(
+    public void testDeleteCurrentAttributesNoLocalEid(
             @InjectTestData(resourcePath = "/gpe/invalid/invalid-gpe-fwd-entry-no-local-eid.json",
                     id = GPE_ENTRY_PATH) GpeEntryTable entryTable) throws Exception {
-        try {
-            customizer.deleteCurrentAttributes(id, entryTable.getGpeEntry().get(0), writeContext);
-        } catch (IllegalArgumentException e) {
-            verifyZeroInteractions(api);
-            return;
-        }
-        fail("Test should have failed");
+        when(api.gpeAddDelFwdEntry(any())).thenReturn(future(new GpeAddDelFwdEntryReply()));
+        final GpeEntry entry = entryTable.getGpeEntry().get(0);
+        customizer.deleteCurrentAttributes(id, entry, writeContext);
+        verify(api, times(1)).gpeAddDelFwdEntry(requestCaptor.capture());
+        assertEquals(expectedActionLessNoLeidRequest(false), requestCaptor.getValue());
+        verify(mappingContext, times(1)).delete(mappingIid(entry.getId(), GPE_ENTRY_CTX));
+        verify(gpeLocatorPairMappingContext, times(1))
+                .removeMapping(entry.getId(), mappingContext);
     }
 
     @Test
@@ -244,6 +262,26 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
             return;
         }
         fail("Test should have failed");
+    }
+
+    private GpeAddDelFwdEntry expectedActionLessNoLeidRequest(final boolean add) {
+        final GpeAddDelFwdEntry request = new GpeAddDelFwdEntry();
+
+        request.isAdd = booleanToByte(add);
+        request.dpTable = 10;
+        request.vni = 12;
+        request.eidType = 0;
+        request.action = 0;
+        request.rmtEid = REMOTE_EID_ADDRESS;
+        request.rmtLen = REMOTE_EID_PREFIX;
+        request.locNum = 4;
+        request.locs = new GpeLocator[]{
+                gpeLocator(PAIR_1_LOCAL_ADDRESS, 1, 3),
+                gpeLocator(PAIR_2_LOCAL_ADDRESS, 1, 2),
+                gpeLocator(PAIR_1_REMOTE_ADDRESS, 1, 0),
+                gpeLocator(PAIR_2_REMOTE_ADDRESS, 1, 0)
+        };
+        return request;
     }
 
     private GpeAddDelFwdEntry expectedActionLessRequest(final boolean add) {
@@ -293,8 +331,8 @@ public class GpeForwardEntryCustomizerTest extends WriterCustomizerTest
         request.rmtLen = REMOTE_EID_PREFIX;
         request.locNum = 4;
         request.locs = new GpeLocator[]{
-                gpeLocator(PAIR_2_LOCAL_ADDRESS, 1, 2),
                 gpeLocator(PAIR_1_LOCAL_ADDRESS, 1, 3),
+                gpeLocator(PAIR_2_LOCAL_ADDRESS, 1, 2),
                 gpeLocator(PAIR_1_REMOTE_ADDRESS, 1, 0),
                 gpeLocator(PAIR_2_REMOTE_ADDRESS, 1, 0)
         };
