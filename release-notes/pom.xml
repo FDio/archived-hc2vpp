@@ -79,10 +79,10 @@
                 <project-public-version>17.04</project-public-version>
                 <project-version-in-jira>10601</project-version-in-jira>
                 <project-branch>stable/1704</project-branch>
-                <project-vpp-version>17.04</project-vpp-version>
-                <project-vpp-snapshot-version>17.04</project-vpp-snapshot-version>
-                <project-snat-version>17.04</project-snat-version>
-                <project-snat-snapshot-version>17.04</project-snat-snapshot-version>
+                <project-vpp-version>17.04.2</project-vpp-version>
+                <project-vpp-snapshot-version>17.04.2-SNAPSHOT</project-vpp-snapshot-version>
+                <project-snat-version>17.04.2</project-snat-version>
+                <project-snat-snapshot-version>17.04.2-SNAPSHOT</project-snat-snapshot-version>
                 <project-git-web>https://git.fd.io/cgit/hc2vpp/tree</project-git-web>
                 <project-infra-git-web>https://git.fd.io/cgit/honeycomb/tree</project-infra-git-web>
               </attributes>
