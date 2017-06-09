@@ -24,12 +24,17 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170510.VppSubinterfaceSpanAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170510.interfaces._interface.sub.interfaces.sub._interface.Span;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170510.interfaces.state._interface.sub.interfaces.sub._interface.SpanStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.span.attributes.MirroredInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170509.interfaces.state._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170607.VppSubinterfaceSpanAugmentation;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170607.interfaces._interface.sub.interfaces.sub._interface.Span;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170607.interfaces.state._interface.sub.interfaces.sub._interface.SpanStateBuilder;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.state.attributes.MirroredInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -48,13 +53,26 @@ public class SubInterfaceMirroredInterfacesCustomizer extends AbstractMirroredIn
     public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<MirroredInterfaces> id,
                                                   @Nonnull MirroredInterfaces readValue,
                                                   @Nonnull ReadContext readContext) {
-        final InstanceIdentifier<MirroredInterfaces> cfgId =
+        final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.attributes.MirroredInterfaces> cfgId =
                 SubInterfaceCustomizer.getCfgId(RWUtils.cutId(id, SubInterface.class))
                         .augmentation(VppSubinterfaceSpanAugmentation.class)
                         .child(Span.class)
-                        .child(MirroredInterfaces.class);
+                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.attributes.MirroredInterfaces.class);
 
-        return Initialized.create(cfgId, readValue);
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.attributes.MirroredInterfaces
+                cfgValue = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.attributes.MirroredInterfacesBuilder()
+                .setMirroredInterface(
+                        Optional.ofNullable(readValue.getMirroredInterface()).orElse(Collections.emptyList())
+                                .stream()
+                                .map(mirroredInterface -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.attributes.mirrored.interfaces.MirroredInterfaceBuilder()
+                                        .setKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.attributes.mirrored.interfaces.MirroredInterfaceKey(mirroredInterface.getKey().getIfaceRef()))
+                                        .setIfaceRef(mirroredInterface.getIfaceRef())
+                                        .setState(mirroredInterface.getState())
+                                        .build())
+                                .collect(Collectors.toList()))
+                .build();
+
+        return Initialized.create(cfgId, cfgValue);
     }
 
     @Override

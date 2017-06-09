@@ -27,7 +27,7 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceGetTableReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170315.RoutingBaseAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.RoutingBaseAttributes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 abstract class RoutingCustomizer extends FutureJVppCustomizer implements JvppReplyConsumer {

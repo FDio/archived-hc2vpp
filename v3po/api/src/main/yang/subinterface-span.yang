@@ -11,6 +11,10 @@ module subinterface-span {
         - Src: interface |Dst: subinterface - covered by this model";
   }
 
+  revision "2017-06-07" {
+    description "Eliminated config leafrefs in operational tree";
+  }
+
   import v3po {
     prefix "v3po";
   }
@@ -34,7 +38,7 @@ module subinterface-span {
   augment /if:interfaces-state/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
       ext:augment-identifier "vpp-subinterface-span-state-augmentation";
       container span-state {
-        uses v3po:span-attributes;
+        uses v3po:span-state-attributes;
       }
   }
 }

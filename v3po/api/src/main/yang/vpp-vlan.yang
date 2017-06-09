@@ -26,6 +26,10 @@ module vpp-vlan {
      Reuses some concepts from draft-wilton-netmod-intf-vlan-yang-02 model.";
   }
 
+  revision "2017-06-07" {
+    description "Eliminated config leafrefs in operational tree";
+  }
+
   import ietf-interfaces {
     prefix "if";
   }
@@ -168,12 +172,25 @@ module vpp-vlan {
        "The match used to classify frames to this interface";
       uses match-attributes;
     }
+  }
 
-    container l2 {
-      uses v3po:l2-base-attributes;
-      container rewrite {
+  grouping rewrite-attributes {
+    container rewrite {
         uses tag-rewrite;
-      }
+    }
+  }
+
+  grouping sub-interface-l2-config-attributes {
+    container l2 {
+      uses v3po:l2-config-attributes;
+      uses rewrite-attributes;
+    }
+  }
+
+  grouping sub-interface-l2-state-attributes {
+    container l2 {
+      uses v3po:l2-state-attributes;
+      uses rewrite-attributes;
     }
   }
 
@@ -414,6 +431,7 @@ module vpp-vlan {
         uses sub-interface-ip4-attributes;
         uses sub-interface-ip6-attributes;
         uses sub-interface-routing-attributes;
+        uses sub-interface-l2-config-attributes;
       }
     }
   }
@@ -435,6 +453,7 @@ module vpp-vlan {
         uses sub-interface-ip4-attributes;
         uses sub-interface-ip6-attributes;
         uses sub-interface-routing-attributes;
+        uses sub-interface-l2-state-attributes;
       }
     }
   }
