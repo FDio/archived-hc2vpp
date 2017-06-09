@@ -37,6 +37,7 @@ import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuild
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
@@ -80,7 +81,7 @@ public class L2StateTest implements FutureProducer, NamingContextHelper {
      */
     private static ReaderRegistry getVppStateReader(@Nonnull final FutureJVppCore jVpp,
                                             @Nonnull final NamingContext bdContext) {
-        final CompositeReaderRegistryBuilder registry = new CompositeReaderRegistryBuilder();
+        final CompositeReaderRegistryBuilder registry = new CompositeReaderRegistryBuilder(new YangDAG());
 
         //  BridgeDomains(Structural)
         bridgeDomainsId = InstanceIdentifier.create(BridgeDomainsState.class);

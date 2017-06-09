@@ -32,6 +32,7 @@ import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.registry.ReaderRegistry;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.vpp.jvpp.core.dto.ShowVersion;
 import io.fd.vpp.jvpp.core.dto.ShowVersionReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -64,7 +65,7 @@ public class VppStateTest implements FutureProducer {
      * Create root VppState reader with all its children wired.
      */
     private static ReaderRegistry getVppStateReader(@Nonnull final FutureJVppCore jVpp) {
-        final CompositeReaderRegistryBuilder registry = new CompositeReaderRegistryBuilder();
+        final CompositeReaderRegistryBuilder registry = new CompositeReaderRegistryBuilder(new YangDAG());
 
         // VppState(Structural)
         final InstanceIdentifier<VppState> vppStateId = InstanceIdentifier.create(VppState.class);

@@ -27,6 +27,7 @@ import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,7 +58,7 @@ public class VppManagementModuleTest {
         assertFalse(readerFactories.isEmpty());
 
         // Test registration process (all dependencies present, topological order of readers does exist, etc.)
-        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder();
+        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder(new YangDAG());
         readerFactories.stream().forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
     }

@@ -16,6 +16,14 @@
 
 package io.fd.hc2vpp.nat;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.empty;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -29,8 +37,11 @@ import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuild
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,17 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 public class NatModuleTest {
 
@@ -102,7 +102,7 @@ public class NatModuleTest {
         assertThat(readerFactories, is(not(empty())));
 
         // Test registration process (all dependencies present, topological order of readers does exist, etc.)
-        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder();
+        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder(new YangDAG());
         readerFactories.forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
     }
@@ -112,7 +112,7 @@ public class NatModuleTest {
         assertThat(writerFactories, is(not(empty())));
 
         // Test registration process (all dependencies present, topological order of writers does exist, etc.)
-        final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         writerFactories.forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
     }

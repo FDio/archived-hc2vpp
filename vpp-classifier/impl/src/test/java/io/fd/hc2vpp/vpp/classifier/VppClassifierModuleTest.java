@@ -30,6 +30,7 @@ import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashSet;
@@ -73,7 +74,7 @@ public class VppClassifierModuleTest {
         assertThat(writerFactories, is(not(empty())));
 
         // Test registration process (all dependencies present, topological order of writers does exist, etc.)
-        final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         writerFactories.stream().forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
     }

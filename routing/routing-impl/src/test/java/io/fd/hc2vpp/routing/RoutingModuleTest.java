@@ -37,6 +37,7 @@ import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.read.ReaderFactory;
+import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashSet;
@@ -89,7 +90,7 @@ public class RoutingModuleTest {
         assertThat(readerFactories, is(not(empty())));
 
         // Test registration process (all dependencies present, topological order of readers does exist, etc.)
-        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder();
+        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder(new YangDAG());
         readerFactories.stream().forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
         assertEquals(1, readerFactories.size());
@@ -101,7 +102,7 @@ public class RoutingModuleTest {
         assertThat(writerFactories, is(not(empty())));
 
         // Test registration process (all dependencies present, topological order of writers does exist, etc.)
-        final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder();
+        final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         writerFactories.stream().forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
         assertEquals(1, writerFactories.size());
