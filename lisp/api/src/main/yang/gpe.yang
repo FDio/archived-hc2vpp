@@ -103,6 +103,7 @@ module gpe {
 
   container gpe-state {
     //gpe_enable_disable_status_dump
+    config false;
 
     uses gpe-feature-data-grouping;
     description "GPE state";
