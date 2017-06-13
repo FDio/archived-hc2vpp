@@ -7,6 +7,10 @@ module gpe {
     prefix "lisp";
   }
 
+  import ietf-interfaces {
+    prefix "if";
+  }
+
   import ietf-inet-types {
     prefix "inet";
   }
@@ -107,5 +111,52 @@ module gpe {
 
     uses gpe-feature-data-grouping;
     description "GPE state";
+  }
+
+  container native-forward-paths-tables {
+    // gpe_add_del_native_fwd_rpath
+    list native-forward-paths-table{
+      key table-id;
+
+      leaf table-id {
+        type uint32;
+      }
+
+      list native-forward-path {
+        key next-hop-address;
+
+        leaf next-hop-address {
+          type inet:ip-address;
+        }
+
+        leaf next-hop-interface {
+          type if:interface-ref;
+        }
+      }
+    }
+  }
+
+  container native-forward-paths-tables-state {
+    // gpe_native_fwd_rpaths_get
+    config false;
+    list native-forward-paths-table{
+      key table-id;
+
+      leaf table-id {
+        type uint32;
+      }
+
+      list native-forward-path {
+        key next-hop-address;
+
+        leaf next-hop-address {
+          type inet:ip-address;
+        }
+
+        leaf next-hop-interface {
+          type if:interface-state-ref;
+        }
+      }
+    }
   }
 }
