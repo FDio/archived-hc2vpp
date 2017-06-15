@@ -8,6 +8,11 @@ module vpp-acl {
       "Initial revision of vpp-acl model.";
   }
 
+  revision "2017-06-15" {
+    description
+      "Renamed stateful/permit leaf to permit-and-reflect";
+  }
+
   import ietf-access-control-list {
     prefix "acl";
   }
@@ -32,7 +37,7 @@ module vpp-acl {
     ext:augment-identifier "stateful-acl-action-augmentation";
     when "../acl:matches/acl:ace-type = 'vpp-acl:vpp-acl'";
     case stateful {
-      leaf permit {
+      leaf permit-and-reflect {
         type empty;
         description
           "Permits egress TCP/UDP traffic and ingress in reverse direction by creating reflexive ACEs.";

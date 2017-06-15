@@ -39,7 +39,7 @@ public interface AclTestSchemaContext {
                                 .getInstance(),
                         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.$YangModuleInfoImpl
                                 .getInstance(),
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.$YangModuleInfoImpl
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.$YangModuleInfoImpl
                                 .getInstance()));
         return context;
     }

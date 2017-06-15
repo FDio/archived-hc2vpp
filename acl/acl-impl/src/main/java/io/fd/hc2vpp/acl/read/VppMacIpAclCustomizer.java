@@ -131,7 +131,7 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
                 if (macIpDumpReply.isPresent() && !macIpDumpReply.get().macipAclDetails.isEmpty()) {
                     builder.setName(macIpAclContext.getAclName(aclIndex, mappingContext));
                     builder.setType(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAcl.class);
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppMacipAcl.class);
                     return;
                 } else {
                     // this is invalid state(Interface in VPP will act as "deny-all" for security reasons), but generally

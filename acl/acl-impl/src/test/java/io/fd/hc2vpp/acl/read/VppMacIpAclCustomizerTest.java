@@ -58,7 +58,7 @@ public class VppMacIpAclCustomizerTest extends InitializingReaderCustomizerTest<
     private static final String ACL_NAME = "acl-name";
     private static final int ACL_ID = 1;
     private static final Class<? extends AclBase> ACL_TYPE =
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev161214.VppMacipAcl.class;
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppMacipAcl.class;
     @Mock
     protected FutureJVppAclFacade aclApi;
     protected NamingContext interfaceContext = new NamingContext("iface", IFC_CTX_NAME);
