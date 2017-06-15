@@ -4,7 +4,7 @@ module interface-nat {
   prefix "ifc-nat";
 
   revision "2016-12-14" {
-    description "Initial revision of v3po model";
+    description "Initial revision of interface-nat model";
   }
 
   import ietf-interfaces {
