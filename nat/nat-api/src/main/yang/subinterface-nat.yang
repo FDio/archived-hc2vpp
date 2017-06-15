@@ -1,0 +1,36 @@
+module subinterface-nat {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:subinterface:nat";
+  prefix "ifc-nat";
+
+  revision "2017-06-15" {
+    description "Initial revision of subinterface-nat model";
+  }
+
+  import ietf-interfaces {
+    prefix "if";
+  }
+  import vpp-vlan {
+    prefix "vpp-vlan";
+  }
+  import interface-nat {
+    prefix "ifc-nat";
+  }
+  import yang-ext {
+    prefix "ext";
+  }
+
+  description "Augmentations to subinterfaces model to connect subinterfaces with nat configuration";
+
+  augment  /if:interfaces/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
+    ext:augment-identifier "nat-subinterface-augmentation";
+
+    uses ifc-nat:interface-nat-attributes;
+  }
+
+  augment /if:interfaces-state/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
+    ext:augment-identifier "nat-subinterface-state-augmentation";
+
+    uses ifc-nat:interface-nat-attributes;
+  }
+}

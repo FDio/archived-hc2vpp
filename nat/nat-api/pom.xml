@@ -53,6 +53,12 @@
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>yang-ext</artifactId>
     </dependency>
+    <!-- TODO(HC2VPP-99): only vpp-vlan model is used from v3po-api -->
+    <dependency>
+      <groupId>io.fd.hc2vpp.v3po</groupId>
+      <artifactId>v3po-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.common</groupId>
       <artifactId>naming-context-api</artifactId>
