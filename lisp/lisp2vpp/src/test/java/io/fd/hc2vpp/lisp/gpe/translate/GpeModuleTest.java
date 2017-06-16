@@ -25,8 +25,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.lisp.gpe.GpeModule;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
@@ -52,9 +54,14 @@ public class GpeModuleTest {
     @Inject
     private Set<WriterFactory> writerFactories = new HashSet<>();
 
+    @Named("interface-context")
+    @Bind
+    private NamingContext interfaceContext;
+
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        interfaceContext = new NamingContext("interfaceContext", "interfaceContext");
         Guice.createInjector(new GpeModule(), BoundFieldModule.of(this)).injectMembers(this);
     }
 

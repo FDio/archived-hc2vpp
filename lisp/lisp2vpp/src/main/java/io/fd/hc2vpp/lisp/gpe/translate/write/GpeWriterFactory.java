@@ -32,6 +32,9 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.Gpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.NativeForwardPathsTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518._native.forward.paths.tables.NativeForwardPathsTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518._native.forward.paths.tables._native.forward.paths.table.NativeForwardPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.GpeEntryTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocalEid;
@@ -52,7 +55,7 @@ public class GpeWriterFactory implements WriterFactory {
             GPE_FEATURE_ID = GPE_ID.child(GpeFeatureData.class);
     private static final InstanceIdentifier<GpeEntry>
             GPE_ENTRY_ID = GPE_FEATURE_ID.child(GpeEntryTable.class).child(GpeEntry.class);
-    public static final InstanceIdentifier<Interface>
+    private static final InstanceIdentifier<Interface>
             IFC_ID = InstanceIdentifier.create(Interfaces.class).child(Interface.class);
 
     @Inject
@@ -68,6 +71,10 @@ public class GpeWriterFactory implements WriterFactory {
     @Inject
     @Named(GpeModule.GPE_TO_LOCATOR_PAIR_CTX)
     private GpeLocatorPairMappingContext gpeLocatorPairMappingContext;
+
+    @Inject
+    @Named("interface-context")
+    private NamingContext interfaceContext;
 
 
     @Override
@@ -92,6 +99,13 @@ public class GpeWriterFactory implements WriterFactory {
                 IFC_ID.augmentation(SubinterfaceAugmentation.class).child(SubInterfaces.class)
                         .child(SubInterface.class));
 
-
+        final InstanceIdentifier<NativeForwardPathsTable> nativeEntryTableId =
+                InstanceIdentifier.create(NativeForwardPathsTables.class).child(NativeForwardPathsTable.class);
+        // gpe_add_del_iface is used to create fib table, so must be written before interfaces, to ensure
+        // byproduct iface is created before there's an attempt to set its flags
+        registry.addBefore(new GenericListWriter<>(nativeEntryTableId, new NativeForwardPathsTableCustomizer(api)),
+                IFC_ID);
+        registry.add(new GenericListWriter<>(nativeEntryTableId.child(NativeForwardPath.class),
+                new NativeForwardPathCustomizer(api, interfaceContext)));
     }
 }
