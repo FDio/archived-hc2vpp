@@ -11,7 +11,7 @@ module interface-policer {
         https://git.fd.io/vpp/tree/src/vnet/classify/classify.api#n119";
 
     revision "2017-03-15" {
-        description "Initial revision of policer model";
+        description "Initial revision of interface-policer model";
     }
 
     import vpp-classifier {
