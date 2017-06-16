@@ -3,6 +3,10 @@ module vpp-vlan {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:vlan";
   prefix "vpp-vlan";
 
+  revision "2017-06-07" {
+    description "Eliminated config leafrefs in operational tree";
+  }
+
   revision "2017-05-09" {
     description "Revision changes:
         - add support for ipv4/6 vrf id for sub interfaces";
@@ -24,10 +28,6 @@ module vpp-vlan {
     description
     "Initial revision of vlan model for VPP.
      Reuses some concepts from draft-wilton-netmod-intf-vlan-yang-02 model.";
-  }
-
-  revision "2017-06-07" {
-    description "Eliminated config leafrefs in operational tree";
   }
 
   import ietf-interfaces {

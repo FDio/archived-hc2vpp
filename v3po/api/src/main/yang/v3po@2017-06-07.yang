@@ -3,6 +3,10 @@ module v3po {
   namespace "urn:opendaylight:params:xml:ns:yang:v3po";
   prefix "v3po";
 
+  revision "2017-06-07" {
+    description "Eliminated config leafrefs in operational tree";
+  }
+
   revision "2017-03-15" {
     description
       "Revision changes:
@@ -21,11 +25,6 @@ module v3po {
        - added support for Loopback interfaces
        - added support for port mirroring";
   }
-
-  revision "2017-06-07" {
-    description "Eliminated config leafrefs in operational tree";
-  }
-
 
   revision "2015-01-05" {
     description "Initial revision of v3po model";
