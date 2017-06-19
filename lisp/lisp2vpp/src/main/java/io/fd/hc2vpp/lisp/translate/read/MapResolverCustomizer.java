@@ -105,12 +105,6 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
                 arrayToIpAddress(byteToBoolean(mapResolverDetails.isIpv6), mapResolverDetails.ipAddress));
     }
 
-    // safest way to compare addresses - prevents returning false while using different types from hierarchy
-    // Ex. Key for MapResolver contains Ipv4Address as value but we translate addresses from binary data to Ipv4AddressNoZone
-    private boolean addressesEqual(final IpAddress left, final IpAddress right) {
-        return Arrays.equals(left.getValue(), right.getValue());
-    }
-
     @Override
     public List<MapResolverKey> getAllIds(InstanceIdentifier<MapResolver> id, ReadContext context)
             throws ReadFailedException {

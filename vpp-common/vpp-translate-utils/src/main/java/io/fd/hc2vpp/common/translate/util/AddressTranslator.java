@@ -18,6 +18,7 @@ package io.fd.hc2vpp.common.translate.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Arrays;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -67,5 +68,11 @@ public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTr
         } else {
             return new IpAddress(arrayToIpv4AddressNoZone(ip));
         }
+    }
+
+    // safest way to compare addresses - prevents returning false while using different types from hierarchy
+    // Ex. Key for MapResolver contains Ipv4Address as value but we translate addresses from binary data to Ipv4AddressNoZone
+    default boolean addressesEqual(final IpAddress left, final IpAddress right) {
+        return Arrays.equals(left.getValue(), right.getValue());
     }
 }

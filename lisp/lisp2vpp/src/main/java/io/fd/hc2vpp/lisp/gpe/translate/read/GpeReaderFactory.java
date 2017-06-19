@@ -31,6 +31,10 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.GpeState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.GpeStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.NativeForwardPathsTablesState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.NativeForwardPathsTablesStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518._native.forward.paths.tables.state.NativeForwardPathsTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518._native.forward.paths.tables.state._native.forward.paths.table.NativeForwardPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.GpeEntryTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.GpeEntryTableBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntry;
@@ -66,6 +70,10 @@ public class GpeReaderFactory implements ReaderFactory {
     @Named(GpeModule.GPE_TO_LOCATOR_PAIR_CTX)
     private GpeLocatorPairMappingContext gpeLocatorPairMappingContext;
 
+    @Inject
+    @Named("interface-context")
+    private NamingContext interfaceContext;
+
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
         registry.addStructuralReader(GPE_STATE_ID, GpeStateBuilder.class);
@@ -81,5 +89,15 @@ public class GpeReaderFactory implements ReaderFactory {
                 new GenericInitListReader<>(GPE_ENTRY_ID,
                         new GpeForwardEntryCustomizer(api, gpeStateCheckService, gpeEntryMappingContext,
                                 gpeLocatorPairMappingContext)));
+
+        final InstanceIdentifier<NativeForwardPathsTablesState> tablesId =
+                InstanceIdentifier.create(NativeForwardPathsTablesState.class);
+        registry.addStructuralReader(tablesId, NativeForwardPathsTablesStateBuilder.class);
+
+        final InstanceIdentifier<NativeForwardPathsTable> tableId = tablesId.child(NativeForwardPathsTable.class);
+        registry.add(new GenericInitListReader<>(tableId, new NativeForwardPathsTableCustomizer(api)));
+
+        final InstanceIdentifier<NativeForwardPath> pathId = tableId.child(NativeForwardPath.class);
+        registry.add(new GenericInitListReader<>(pathId, new NativeForwardPathCustomizer(api, interfaceContext)));
     }
 }
