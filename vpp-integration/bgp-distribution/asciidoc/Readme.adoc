@@ -1,0 +1,3 @@
+= bgp-distribution
+
+Adds bgp to vpp-integration-distribution (preserving all features).
