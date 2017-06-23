@@ -1,0 +1,3 @@
+= bgp-aggregator
+
+This is a Honeycomb plugin providing mapping code between BGP routes and VPP core APIs.

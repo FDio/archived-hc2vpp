@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>io.fd.hc2vpp.common</groupId>
+        <artifactId>vpp-impl-parent</artifactId>
+        <version>1.17.07-SNAPSHOT</version>
+        <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.fd.hc2vpp.bgp</groupId>
+    <artifactId>bgp-inet</artifactId>
+    <name>${project.artifactId}</name>
+    <version>1.17.07-SNAPSHOT</version>
+
+    <dependencies>
+        <!-- Honeycomb infrastructure -->
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>bgp-translate-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- BGP api -->
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-inet</artifactId>
+            <version>${bgpcep.version}</version>
+        </dependency>
+        <!-- Translation -->
+        <dependency>
+            <groupId>io.fd.hc2vpp.common</groupId>
+            <artifactId>vpp-translate-utils</artifactId>
+        </dependency>
+        <!-- DI -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-multibindings</artifactId>
+        </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.hc2vpp.common</groupId>
+            <artifactId>vpp-translate-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

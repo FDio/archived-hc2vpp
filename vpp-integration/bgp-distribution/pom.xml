@@ -33,6 +33,7 @@
         <main.class>io.fd.honeycomb.infra.bgp.distro.Main</main.class>
         <honeycomb.min.distro.version>${project.version}</honeycomb.min.distro.version>
         <distribution.modules>
+            io.fd.hc2vpp.bgp.inet.BgpInetModule
         </distribution.modules>
     </properties>
 
@@ -60,6 +61,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>io.fd.hc2vpp.bgp</groupId>
+            <artifactId>bgp-inet</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>bgp-distribution</artifactId>

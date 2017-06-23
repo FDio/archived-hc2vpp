@@ -53,5 +53,6 @@
     <module>vpp-management</module>
     <module>it</module>
     <module>interface-role</module>
+    <module>bgp</module>
   </modules>
 </project>
