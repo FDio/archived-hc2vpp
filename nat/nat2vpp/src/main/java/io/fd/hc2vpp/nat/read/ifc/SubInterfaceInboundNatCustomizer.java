@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,24 +26,28 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214.NatInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.Nat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.NatBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.nat.Inbound;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev161214._interface.nat.attributes.nat.InboundBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.nat.rev170615.NatSubinterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.SubinterfaceAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces._interface.SubInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces._interface.sub.interfaces.SubInterfaceKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer<Inbound, InboundBuilder> {
+final class SubInterfaceInboundNatCustomizer extends AbstractSubInterfaceNatCustomizer<Inbound, InboundBuilder> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceInboundNatCustomizer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceInboundNatCustomizer.class);
 
-    InterfaceInboundNatCustomizer(
-            @Nonnull final DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> dumpMgr,
-            @Nonnull final NamingContext ifcContext) {
+    SubInterfaceInboundNatCustomizer(
+        @Nonnull final DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> dumpMgr,
+        @Nonnull final NamingContext ifcContext) {
         super(dumpMgr, ifcContext);
     }
 
@@ -75,11 +79,16 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
                                                   @Nonnull final Inbound readValue,
                                                   @Nonnull final ReadContext ctx) {
         final InstanceIdentifier<Inbound> cfgId =
-                InstanceIdentifier.create(Interfaces.class)
+            InstanceIdentifier.create(Interfaces.class)
                 .child(Interface.class,
-                        new InterfaceKey(id.firstKeyOf(
+                    new InterfaceKey(id.firstKeyOf(
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class).getName()))
-                .augmentation(NatInterfaceAugmentation.class)
+                .augmentation(SubinterfaceAugmentation.class)
+                .child(SubInterfaces.class)
+                .child(SubInterface.class,
+                    new SubInterfaceKey(id.firstKeyOf(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface.class).getIdentifier()))
+                .augmentation(NatSubinterfaceAugmentation.class)
                 .child(Nat.class)
                 .child(Inbound.class);
         return Initialized.create(cfgId, readValue);

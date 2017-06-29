@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2017 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ abstract class AbstractInterfaceNatCustomizer<D extends DataObject> implements J
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<D> id, @Nonnull final D dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        final String ifcName = id.firstKeyOf(Interface.class).getName();
+        final String ifcName = getName(id);
         getLog().debug("Enabling " + getType() + " NAT on interface: {}", ifcName);
         getLog().debug("Enabling " + getType() + " NAT: {}", id);
 
@@ -69,7 +69,7 @@ abstract class AbstractInterfaceNatCustomizer<D extends DataObject> implements J
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                         @Nonnull final D dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        final String ifcName = id.firstKeyOf(Interface.class).getName();
+        final String ifcName = getName(id);
         getLog().debug("Disabling " + getType() + " NAT on interface: {}", ifcName);
         getLog().debug("Disabling " + getType() + " NAT: {}", id);
 
@@ -79,6 +79,10 @@ abstract class AbstractInterfaceNatCustomizer<D extends DataObject> implements J
 
         final SnatInterfaceAddDelFeatureReply reply = getReplyForWrite(future.toCompletableFuture(), id);
         getLog().debug("NAT " + getType() + " disabled successfully on: {}, reply: {}", ifcName, reply);
+    }
+
+    protected String getName(final InstanceIdentifier<D> id) {
+        return id.firstKeyOf(Interface.class).getName();
     }
 
     enum NatType {

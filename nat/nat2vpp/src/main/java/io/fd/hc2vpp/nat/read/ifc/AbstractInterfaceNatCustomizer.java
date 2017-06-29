@@ -17,11 +17,11 @@
 package io.fd.hc2vpp.nat.read.ifc;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
 import javax.annotation.Nonnull;
@@ -52,7 +52,7 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
 
     @Override
     public boolean isPresent(final InstanceIdentifier<C> id, final C built, final ReadContext ctx) throws ReadFailedException {
-        final String ifcName = id.firstKeyOf(Interface.class).getName();
+        final String ifcName = getName(id);
         getLog().debug("Reading NAT features on interface: {}", ifcName);
         final int index = ifcContext.getIndex(ifcName, ctx.getMappingContext());
 
@@ -67,6 +67,10 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
                 .findFirst()
                 .isPresent();
         // Not setting data, just marking the builder to propagate empty container to indicate presence
+    }
+
+    protected String getName(final InstanceIdentifier<C> id) {
+        return id.firstKeyOf(Interface.class).getName();
     }
 
     protected abstract Logger getLog();

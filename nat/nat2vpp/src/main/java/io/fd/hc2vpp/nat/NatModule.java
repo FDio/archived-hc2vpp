@@ -24,9 +24,11 @@ import com.google.inject.multibindings.Multibinder;
 import io.fd.hc2vpp.nat.jvpp.JVppSnatProvider;
 import io.fd.hc2vpp.nat.read.NatReaderFactory;
 import io.fd.hc2vpp.nat.read.ifc.IfcNatReaderFactory;
+import io.fd.hc2vpp.nat.read.ifc.SubIfcNatReaderFactory;
 import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.hc2vpp.nat.write.NatWriterFactory;
 import io.fd.hc2vpp.nat.write.ifc.IfcNatWriterFactory;
+import io.fd.hc2vpp.nat.write.ifc.SubIfcNatWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
@@ -62,10 +64,12 @@ public final class NatModule extends AbstractModule {
 
         final Multibinder<ReaderFactory> readBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
         readBinder.addBinding().to(IfcNatReaderFactory.class).in(Singleton.class);
+        readBinder.addBinding().to(SubIfcNatReaderFactory.class).in(Singleton.class);
         readBinder.addBinding().to(NatReaderFactory.class).in(Singleton.class);
 
         final Multibinder<WriterFactory> writeBinder = Multibinder.newSetBinder(binder(), WriterFactory.class);
         writeBinder.addBinding().to(IfcNatWriterFactory.class).in(Singleton.class);
+        writeBinder.addBinding().to(SubIfcNatWriterFactory.class).in(Singleton.class);
         writeBinder.addBinding().to(NatWriterFactory.class).in(Singleton.class);
         LOG.info("Module NAT successfully configured");
     }
