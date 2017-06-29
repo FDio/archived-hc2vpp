@@ -37,6 +37,19 @@
 			],
 			"owner": "45557",
 			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde"
+		},
+		{
+			"id": "70e5612d-2e65-a822-975f-33134dcf16ff",
+			"name": "sub-interfaces",
+			"description": "",
+			"order": [
+				"df514a31-847e-768d-a309-a47b7bb48c98",
+				"6dbf92c2-398d-70f6-dd89-c5f130800d75",
+				"f87359f5-e9a0-3b7f-8ad8-c92e2bf65f0d",
+				"45a50c66-4afd-6a1f-27f3-b99c74056b36"
+			],
+			"owner": "45557",
+			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde"
 		}
 	],
 	"timestamp": 1475147449190,
@@ -354,6 +367,156 @@
 			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
 			"responses": [],
 			"rawModeData": ""
+		},
+		{
+			"id": "df514a31-847e-768d-a309-a47b7bb48c98",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/inbound",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": "",
+			"method": "PUT",
+			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Set NAT inbound for subifc - cfg",
+			"description": "Setting sub-intarface NAT inbound feature\n\nCLI: set interface snat in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/SNAT",
+			"descriptionFormat": "html",
+			"time": 1498726706031,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"isFromCollection": true,
+			"collectionRequestId": "df514a31-847e-768d-a309-a47b7bb48c98",
+			"folder": "70e5612d-2e65-a822-975f-33134dcf16ff",
+			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+		},
+		{
+			"id": "6dbf92c2-398d-70f6-dd89-c5f130800d75",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/inbound",
+			"queryParams": [],
+			"preRequestScript": "",
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1498726948962,
+			"name": "Disable NAT inbound for subifc - cfg",
+			"description": "Unsetting sub-intarface NAT inbound feature\n\nCLI: set interface snat in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/SNAT",
+			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
+			"responses": [],
+			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+		},
+		{
+			"id": "f87359f5-e9a0-3b7f-8ad8-c92e2bf65f0d",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/outbound",
+			"queryParams": [],
+			"preRequestScript": "",
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1498726954006,
+			"name": "Set NAT outbound for subifc - cfg",
+			"description": "Setting sub-intarface NAT outbound feature\n\nCLI: set interface snat in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/SNAT",
+			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
+			"responses": [],
+			"rawModeData": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
+		},
+		{
+			"id": "45a50c66-4afd-6a1f-27f3-b99c74056b36",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": "",
+			"method": "DELETE",
+			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Disable NAT outbound for subifc - cfg",
+			"description": "Unsetting sub-intarface NAT outbound feature\n\nCLI: set interface snat in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/SNAT",
+			"descriptionFormat": "html",
+			"time": 1498726898787,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "70e5612d-2e65-a822-975f-33134dcf16ff",
+			"rawModeData": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
 		}
 	]
 }
