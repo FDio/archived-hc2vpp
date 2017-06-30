@@ -6,9 +6,9 @@
 
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
-        <artifactId>hc2vpp-parent</artifactId>
+        <artifactId>impl-parent</artifactId>
         <version>1.17.07-SNAPSHOT</version>
-        <relativePath>../hc2vpp-parent</relativePath>
+        <relativePath>../impl-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.common</groupId>
@@ -55,31 +55,17 @@
                                 <classpathMavenRepositoryLayout>true</classpathMavenRepositoryLayout>
                             </manifest>
                             <manifestEntries>
-                                <Class-Path>config/ cert/ modules/</Class-Path>
+                                <Class-Path>config/ cert/ modules/ yang-mapping/</Class-Path>
                             </manifestEntries>
                         </archive>
                     </configuration>
                 </plugin>
 
-                <!-- Copy all dependencies -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.10</version>
                     <executions>
-                        <execution>
-                            <id>copy-dependencies</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>copy-dependencies</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                                <useBaseVersion>true</useBaseVersion>
-                                <useRepositoryLayout>true</useRepositoryLayout>
-                                <excludeArtifactIds>yang-jmx-generator</excludeArtifactIds>
-                            </configuration>
-                        </execution>
                         <execution>
                             <id>unpack-configuration</id>
                             <phase>prepare-package</phase>
@@ -123,6 +109,18 @@
                             <configuration>
                                 <source>
                                     io.fd.honeycomb.common.scripts.ModulesListGenerator.generate(project, properties, log)
+                                </source>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>generate-module-to-yang-index</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <configuration>
+                                <source>
+                                    io.fd.honeycomb.common.scripts.ModuleYangIndexGenerator.pairDistributionModulesWithYangModules(project, log)
                                 </source>
                             </configuration>
                         </execution>

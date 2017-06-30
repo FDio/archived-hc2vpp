@@ -29,4 +29,82 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Must be done impl parent, to unpack jars for all projects that we generate yang module index for.
+                     Extracted /lib folder is used while generating yang-module-index -->
+                <!-- Copy all dependencies -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.10</version>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies</id>
+                            <phase>process-sources</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                <useBaseVersion>true</useBaseVersion>
+                                <useRepositoryLayout>true</useRepositoryLayout>
+                                <excludeArtifactIds>yang-jmx-generator,test-api</excludeArtifactIds>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- Generate module to yang provider index -->
+                <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>groovy-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>generate-yang-index</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <configuration>
+                                <source>
+                                    io.fd.honeycomb.common.scripts.ModuleYangIndexGenerator.generateIndexForPresentModules(project, log)
+                                </source>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.fd.honeycomb.common</groupId>
+                            <artifactId>common-scripts</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.build.outputDirectory}</directory>
+                <includes>
+                    <include>**/yang-modules-binding/yang-modules</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
