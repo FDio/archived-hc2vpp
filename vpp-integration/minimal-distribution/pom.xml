@@ -45,6 +45,7 @@
     <l3-impl.version>1.17.07-SNAPSHOT</l3-impl.version>
     <vpp-management-impl.version>1.17.07-SNAPSHOT</vpp-management-impl.version>
     <iface.role.version>1.17.07-SNAPSHOT</iface.role.version>
+    <hc2vpp.bgp.version>1.17.07-SNAPSHOT</hc2vpp.bgp.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
@@ -66,8 +67,10 @@
       io.fd.hc2vpp.policer.PolicerModule,
       // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
-      // io.fd.hc2vpp.vppioam.impl.VppIoamModule
+      // io.fd.hc2vpp.vppioam.impl.VppIoamModule,
       <!-- iOAM module by default disabled, because it needs ioam plugin (not part of vpp codebase.)-->
+      // io.fd.hc2vpp.bgp.inet.BgpInetModule
+      <!-- BgpInetModule by default disabled, because it BGP northbound interface is not enabled by default -->
     </distribution.modules>
   </properties>
 
@@ -164,6 +167,11 @@
       <groupId>io.fd.hc2vpp.iface.role</groupId>
       <artifactId>impl</artifactId>
       <version>${iface.role.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.bgp</groupId>
+      <artifactId>bgp-inet</artifactId>
+      <version>${hc2vpp.bgp.version}</version>
     </dependency>
   </dependencies>
 </project>

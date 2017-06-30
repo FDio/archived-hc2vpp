@@ -29,11 +29,10 @@
     <version>1.17.07-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
-    <description>Aggregator for Honeycomb's VPP distributions. Aggregating all Hc2vpp plugins.</description>
+    <description>Aggregator for Honeycomb's VPP distribution. Aggregating all Hc2vpp plugins.</description>
 
     <modules>
         <module>minimal-distribution</module>
-        <module>bgp-distribution</module>
     </modules>
 
     <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
