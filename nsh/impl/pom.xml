@@ -108,7 +108,7 @@
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
-      <artifactId>minimal-distribution</artifactId>
+      <artifactId>minimal-distribution-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
