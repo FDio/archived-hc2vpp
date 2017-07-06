@@ -18,7 +18,7 @@ package io.fd.hc2vpp.acl;
 
 import com.google.inject.Inject;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.acl.JVppAclImpl;

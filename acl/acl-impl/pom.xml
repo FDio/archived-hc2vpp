@@ -68,7 +68,12 @@
         </dependency>
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
-            <artifactId>minimal-distribution-core</artifactId>
+            <artifactId>translate-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>binding-init</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.common.integration;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import java.io.IOException;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.core.JVppCoreImpl;

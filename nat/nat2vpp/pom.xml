@@ -60,7 +60,7 @@
         <!-- Honeycomb infrastructure-->
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
-            <artifactId>minimal-distribution-core</artifactId>
+            <artifactId>binding-init</artifactId>
             <version>${honeycomb.infra.version}</version>
         </dependency>
 
@@ -73,6 +73,12 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-spi</artifactId>
+            <version>${honeycomb.infra.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>translate-impl</artifactId>
             <version>${honeycomb.infra.version}</version>
         </dependency>
 

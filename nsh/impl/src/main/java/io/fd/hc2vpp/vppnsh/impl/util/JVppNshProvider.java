@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.vppnsh.impl.util;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.infra.distro.ProviderTrait;
+import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.nsh.JVppNshImpl;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
