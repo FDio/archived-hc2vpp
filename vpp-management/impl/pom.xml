@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.17.07-SNAPSHOT</version>
+        <version>1.17.07-RC1</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
@@ -29,7 +29,7 @@
 
     <groupId>io.fd.hc2vpp.management</groupId>
     <artifactId>vpp-management-impl</artifactId>
-    <version>1.17.07-SNAPSHOT</version>
+    <version>1.17.07-RC1</version>
 
     <dependencies>
         <!-- Api -->
