@@ -7,7 +7,7 @@ and honeycomb {project-version}.
 https://wiki.fd.io/view/Hc2vpp/Release_Plans/Release_Plan_{project-public-version}[Release plan]
 
 == Features
-Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.04/hc2vpp-parent/release-notes-aggregator/release_notes.html#_features[1704 feature list]:
+Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.07/hc2vpp-parent/release-notes-aggregator/release_notes.html#_features[1707 feature list]:
 
 === New features
 
