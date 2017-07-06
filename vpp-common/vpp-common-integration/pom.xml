@@ -60,7 +60,7 @@
     <dependencies>
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
-            <artifactId>minimal-distribution</artifactId>
+            <artifactId>minimal-distribution-core</artifactId>
             <version>${honeycomb.min.distro.version}</version>
         </dependency>
         <dependency>
