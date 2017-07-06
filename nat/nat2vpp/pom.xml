@@ -54,7 +54,7 @@
         <dependency>
             <groupId>io.fd.vpp</groupId>
             <artifactId>jvpp-snat</artifactId>
-            <version>17.07-SNAPSHOT</version>
+            <version>17.10-SNAPSHOT</version>
         </dependency>
 
         <!-- Honeycomb infrastructure-->
