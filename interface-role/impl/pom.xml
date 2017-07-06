@@ -23,13 +23,13 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.17.07-RC1</version>
+        <version>1.17.07-SNAPSHOT</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.iface.role</groupId>
     <artifactId>impl</artifactId>
-    <version>1.17.07-RC1</version>
+    <version>1.17.07-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <dependencies>

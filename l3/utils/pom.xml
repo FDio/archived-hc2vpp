@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.17.07-RC1</version>
+        <version>1.17.07-SNAPSHOT</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +29,7 @@
     <groupId>io.fd.hc2vpp.l3</groupId>
     <artifactId>l3-utils</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.17.07-RC1</version>
+    <version>1.17.07-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

@@ -21,14 +21,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.17.07-RC1</version>
+        <version>1.17.07-SNAPSHOT</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.hc2vpp.it</groupId>
     <artifactId>api-coverage</artifactId>
-    <version>1.17.07-RC1</version>
+    <version>1.17.07-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <properties>
