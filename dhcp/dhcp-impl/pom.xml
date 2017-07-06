@@ -16,7 +16,7 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.17.07-SNAPSHOT</version>
+        <version>1.17.10-SNAPSHOT</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
@@ -24,7 +24,7 @@
     <groupId>io.fd.hc2vpp.dhcp</groupId>
     <artifactId>dhcp-impl</artifactId>
     <name>dhcp-impl</name>
-    <version>1.17.07-SNAPSHOT</version>
+    <version>1.17.10-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-impl</artifactId>
-            <version>1.17.07-SNAPSHOT</version>
+            <version>1.17.10-SNAPSHOT</version>
         </dependency>
 
 

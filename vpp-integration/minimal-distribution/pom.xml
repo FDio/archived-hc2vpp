@@ -19,7 +19,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
-    <version>1.17.07-SNAPSHOT</version>
+    <version>1.17.10-SNAPSHOT</version>
     <relativePath>../../common/minimal-distribution-parent</relativePath>
   </parent>
 
@@ -27,25 +27,25 @@
   <groupId>io.fd.hc2vpp.integration</groupId>
   <artifactId>vpp-integration-distribution</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.07-SNAPSHOT</version>
+  <version>1.17.10-SNAPSHOT</version>
 
   <properties>
     <main.class>io.fd.honeycomb.infra.distro.Main</main.class>
-    <v3po.version>1.17.07-SNAPSHOT</v3po.version>
-    <lisp.version>1.17.07-SNAPSHOT</lisp.version>
-    <hc.infra.version>1.17.07-SNAPSHOT</hc.infra.version>
-    <vpp.common.integration.version>1.17.07-SNAPSHOT</vpp.common.integration.version>
-    <vppnsh.version>1.17.07-SNAPSHOT</vppnsh.version>
-    <nat.version>1.17.07-SNAPSHOT</nat.version>
-    <ioam.version>1.17.07-SNAPSHOT</ioam.version>
-    <routing.version>1.17.07-SNAPSHOT</routing.version>
-    <acl.version>1.17.07-SNAPSHOT</acl.version>
-    <dhcp.version>1.17.07-SNAPSHOT</dhcp.version>
-    <vpp.classifier.version>1.17.07-SNAPSHOT</vpp.classifier.version>
-    <l3-impl.version>1.17.07-SNAPSHOT</l3-impl.version>
-    <vpp-management-impl.version>1.17.07-SNAPSHOT</vpp-management-impl.version>
-    <iface.role.version>1.17.07-SNAPSHOT</iface.role.version>
-    <hc2vpp.bgp.version>1.17.07-SNAPSHOT</hc2vpp.bgp.version>
+    <v3po.version>1.17.10-SNAPSHOT</v3po.version>
+    <lisp.version>1.17.10-SNAPSHOT</lisp.version>
+    <hc.infra.version>1.17.10-SNAPSHOT</hc.infra.version>
+    <vpp.common.integration.version>1.17.10-SNAPSHOT</vpp.common.integration.version>
+    <vppnsh.version>1.17.10-SNAPSHOT</vppnsh.version>
+    <nat.version>1.17.10-SNAPSHOT</nat.version>
+    <ioam.version>1.17.10-SNAPSHOT</ioam.version>
+    <routing.version>1.17.10-SNAPSHOT</routing.version>
+    <acl.version>1.17.10-SNAPSHOT</acl.version>
+    <dhcp.version>1.17.10-SNAPSHOT</dhcp.version>
+    <vpp.classifier.version>1.17.10-SNAPSHOT</vpp.classifier.version>
+    <l3-impl.version>1.17.10-SNAPSHOT</l3-impl.version>
+    <vpp-management-impl.version>1.17.10-SNAPSHOT</vpp-management-impl.version>
+    <iface.role.version>1.17.10-SNAPSHOT</iface.role.version>
+    <hc2vpp.bgp.version>1.17.10-SNAPSHOT</hc2vpp.bgp.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
