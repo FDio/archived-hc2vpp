@@ -65,6 +65,10 @@ public final class RoutingWriterFactory implements WriterFactory, Ipv4WriteRouti
     private static final InstanceIdentifier<Prefix> PREFIX_ID =
         ROUTING_ADVERTISMENT_ID.child(PrefixList.class).child(Prefix.class);
 
+    private static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> IFACE_ID =
+            InstanceIdentifier.create(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces.class)
+            .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class);
+
     @Inject
     private FutureJVppCore vppApi;
 
@@ -106,12 +110,12 @@ public final class RoutingWriterFactory implements WriterFactory, Ipv4WriteRouti
         final InstanceIdentifier<Route> ipv4RouteIdentifier = ipv4RouteIdentifier(staticRoutesInstanceIdentifier);
         final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route>
                 ipv6RouteIdentifier = ipv6RouteIdentifier(staticRoutesInstanceIdentifier);
-        registry.subtreeAdd(ipv4RoutingHandledChildren(ipv4RouteSubtree()), new GenericWriter<>(ipv4RouteIdentifier,
+        registry.subtreeAddAfter(ipv4RoutingHandledChildren(ipv4RouteSubtree()), new GenericWriter<>(ipv4RouteIdentifier,
                 new Ipv4RouteCustomizer(vppApi, interfaceContext, routeContext, routingProtocolContext, routHopContext,
-                        vppClassifierContextManager)));
-        registry.subtreeAdd(ipv6RoutingHandledChildren(ipv6RouteSubtree()), new GenericWriter<>(ipv6RouteIdentifier,
+                        vppClassifierContextManager)), IFACE_ID);
+        registry.subtreeAddAfter(ipv6RoutingHandledChildren(ipv6RouteSubtree()), new GenericWriter<>(ipv6RouteIdentifier,
                 new Ipv6RouteCustomizer(vppApi, interfaceContext, routeContext, routingProtocolContext, routHopContext,
-                        vppClassifierContextManager)));
+                        vppClassifierContextManager)), IFACE_ID);
         registry.add(new GenericWriter<>(ROUTING_INTERFACE_ID, new RoutingInterfaceCustomizer()));
         registry.subtreeAdd(raHandledChildren(),
             new GenericWriter<>(ROUTING_ADVERTISMENT_ID, new RouterAdvertisementsCustomizer(vppApi, interfaceContext)));
