@@ -125,7 +125,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 ifcId);
 
 
-        final Set<InstanceIdentifier<?>> specificIfcTypes = Sets.newHashSet(vhostId, vxlanGpeId, vxlanGpeId, tapId);
+        final Set<InstanceIdentifier<?>> specificIfcTypes = Sets.newHashSet(vhostId, vxlanId, vxlanGpeId, tapId, loopbackId);
 
         // Ethernet =
         registry.add(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class),
