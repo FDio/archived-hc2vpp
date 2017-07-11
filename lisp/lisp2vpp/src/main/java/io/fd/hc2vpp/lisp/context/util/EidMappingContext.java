@@ -22,8 +22,10 @@ import com.google.common.base.Optional;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
+
 import java.util.stream.Collector;
 import javax.annotation.Nonnull;
+
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.Contexts;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.EidMappingContextKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.eid.mapping.context.rev160801.contexts.eid.mapping.context.Mappings;
@@ -72,7 +74,13 @@ public class EidMappingContext implements EidTranslator {
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
-        if (!read.isPresent()) {
+        // create artificial mapping if no mapping present or does not contain key
+        // !read.isPresent() - no mappings are present,
+        // for example after restart and clean of persistence
+        // !containsId() - can happen with case described above after first mapping is
+        // created or if trying to find mapping for some eid that was created by vpp as
+        // byproduct of other call, or while trying to find mapping for default data
+        if (!read.isPresent() || !containsId(remoteEid, mappingContext)) {
             final MappingId artificialMappingId = getMappingId(remoteEid.toString(), artificialPrefix);
             addEid(artificialMappingId, remoteEid, mappingContext);
             return artificialMappingId;
@@ -102,7 +110,13 @@ public class EidMappingContext implements EidTranslator {
             @Nonnull final MappingContext mappingContext) {
 
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
-        if (!read.isPresent()) {
+        // create artificial mapping if no mapping present or does not contain key
+        // !read.isPresent() - no mappings are present,
+        // for example after restart and clean of persistence
+        // !containsId() - can happen with case described above after first mapping is
+        // created or if trying to find mapping for some eid that was created by vpp as
+        // byproduct of other call, or while trying to find mapping for default data
+        if (!read.isPresent() || !containsId(eid, mappingContext)) {
             final MappingId artificialMappingId = getMappingId(eid.toString(), artificialPrefix);
             addEid(artificialMappingId, eid, mappingContext);
             return artificialMappingId;
