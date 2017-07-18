@@ -19,14 +19,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>hc2vpp-parent</artifactId>
-        <version>1.17.07-RC2</version>
+        <version>1.17.07-SNAPSHOT</version>
         <relativePath>../common/hc2vpp-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.integration</groupId>
     <artifactId>vpp-integration</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.17.07-RC2</version>
+    <version>1.17.07-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
     <description>Aggregator for Honeycomb's VPP distribution. Aggregating all Hc2vpp plugins.</description>
