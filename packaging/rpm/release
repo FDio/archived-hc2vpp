@@ -7,4 +7,7 @@
 # Increasing the build number by a certain margin.
 # Necessary due to honeycomb - hc2vpp split. Build_number counter was reset
 # rewriting older packages
-echo $(expr $BUILD_NUMBER + 2000)
+# $(expr $BUILD_NUMBER + 2000)
+# echo RC1~$(expr $BUILD_NUMBER + 2000)
+echo RC2~$(expr $BUILD_NUMBER + 2000)
+# echo RELEASE~$(expr $BUILD_NUMBER + 2000)
