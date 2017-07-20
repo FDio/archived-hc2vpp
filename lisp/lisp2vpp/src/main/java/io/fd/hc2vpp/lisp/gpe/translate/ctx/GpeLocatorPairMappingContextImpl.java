@@ -69,7 +69,11 @@ public class GpeLocatorPairMappingContextImpl implements GpeLocatorPairMappingCo
     public void removeMapping(@Nonnull final String entryId,
                               @Nonnull final MappingContext mappingContext) {
         LOG.debug("Removing all mappings for Gpe entry[id={}]", entryId);
-        mappingContext.delete(getMappingId(entryId));
+        KeyedInstanceIdentifier<Mapping, MappingKey> mappingId = getMappingId(entryId);
+        // if no mapping present, no need to invoke delete(it would throw error because of non existing parent data)
+        if (mappingContext.read(mappingId).isPresent()) {
+            mappingContext.delete(mappingId);
+        }
         LOG.debug("All mappings for Gpe entry[id={}] removed", entryId);
     }
 
