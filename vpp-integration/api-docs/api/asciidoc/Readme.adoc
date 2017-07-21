@@ -1,0 +1,13 @@
+= docs-api
+
+Defines general api for VPP binary api coverage
+
+== Elements
+
+* PluginCoverage - Contains coverage data for single JVPP plugin, including supported
+ VPP binary equivalents in JVpp, what Yang nodes are bind to such api and what operations are
+ supported
+* VppApiMessage - Reference to single VPP binary api with link to its documentation
+* JavaApiMessage - Reference to JVpp equivalent of VPP binary api
+* YangType - Reference to single Yang type with link to its model
+* Operation - reference to single CRUD operation with link to binding class

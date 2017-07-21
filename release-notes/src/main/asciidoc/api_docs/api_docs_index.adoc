@@ -1,0 +1,19 @@
+== VPP api to Yang index
+
+// TODO - generate this file based on list of JVPP plugins used
+
+Mapping between VPP binary apis and JVpp binding in hc2vpp
+
+include::api_docs/futurejvppcore-yang-config-index.adoc[JVpp Core plugin docs]
+
+include::api_docs/futurejvppacl-yang-config-index.adoc[JVpp Acl plugin docs]
+
+include::api_docs/futurejvppsnat-yang-config-index.adoc[JVpp Snat plugin docs]
+
+include::api_docs/futurejvppnsh-yang-config-index.adoc[JVpp Nsh plugin docs]
+
+include::api_docs/futurejvppioamtrace-yang-config-index.adoc[JVpp Ioam Trace plugin docs]
+
+include::api_docs/futurejvppioampot-yang-config-index.adoc[JVpp Ioam Pot plugin docs]
+
+include::api_docs/futurejvppioamexport-yang-config-index.adoc[JVpp Ioam Export plugin docs]

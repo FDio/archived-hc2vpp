@@ -27,3 +27,5 @@ include::install_guide/install_guide.adoc[]
 include::user_guide/user_guide.adoc[]
 
 include::devel_guide/devel_guide.adoc[]
+
+include::api_docs/api_docs.adoc[]

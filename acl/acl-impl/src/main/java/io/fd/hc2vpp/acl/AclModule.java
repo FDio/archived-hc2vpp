@@ -52,7 +52,7 @@ public class AclModule extends AbstractModule {
     }
 
     @VisibleForTesting
-    AclModule(@Nonnull final Class<? extends Provider<FutureJVppAclFacade>> jvppAclProviderClass) {
+    protected AclModule(@Nonnull final Class<? extends Provider<FutureJVppAclFacade>> jvppAclProviderClass) {
         this.jvppAclProviderClass = jvppAclProviderClass;
     }
 

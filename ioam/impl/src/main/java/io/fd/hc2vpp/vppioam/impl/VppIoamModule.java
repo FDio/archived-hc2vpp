@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 /*
  * Glue code necessary for Honeycomb distribution to pick up the plugin classes
  */
-public final class VppIoamModule extends AbstractModule {
+public class VppIoamModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppIoamModule.class);
     private final Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamTraceProviderClass;
@@ -52,7 +52,7 @@ public final class VppIoamModule extends AbstractModule {
     }
 
     @VisibleForTesting
-    VppIoamModule(Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamTraceProvider,
+    protected VppIoamModule(Class<? extends Provider<FutureJVppIoamtraceFacade>> jvppIoamTraceProvider,
                   Class<? extends Provider<FutureJVppIoampotFacade>> jvppIoamPotProviderClass,
                   Class<? extends Provider<FutureJVppIoamexportFacade>> jvppIoamExportProviderClass) {
         this.jvppIoamTraceProviderClass = jvppIoamTraceProvider;
