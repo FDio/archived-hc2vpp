@@ -31,6 +31,14 @@
   <modelVersion>4.0.0</modelVersion>
   <description>Hc2vpp release notes</description>
 
+  <dependencies>
+    <dependency>
+        <groupId>io.fd.hc2vpp.docs</groupId>
+        <artifactId>docs</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
   <!-- Do not push, this is just a documentation producer -->
   <build>
     <plugins>
@@ -50,6 +58,25 @@
       </plugin>
 
       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-dependency-plugin</artifactId>
+         <version>2.10</version>
+         <executions>
+            <execution>
+                <id>unpack-configuration</id>
+                <phase>generate-sources</phase>
+                <goals>
+                    <goal>unpack-dependencies</goal>
+                </goals>
+                <configuration>
+                    <includes>*.adoc</includes>
+                    <outputDirectory>${project.build.directory}/raw-adoc/api_docs</outputDirectory>
+                </configuration>
+            </execution>
+         </executions>
+      </plugin>
+
+     <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
         <version>${asciidoctor.maven.plugin.version}</version>
@@ -63,6 +90,9 @@
             <configuration>
               <!-- https://github.com/asciidoctor/asciidoctor-maven-plugin -->
               <!-- http://asciidoctor.org/docs/asciidoc-syntax-quick-reference -->
+              <!-- raw-adoc folder combines docs from src folder + generated api docs files,
+              in order to have them all available while generating site -->
+              <baseDir>${project.build.directory}/raw-adoc</baseDir>
               <backend>html5</backend>
               <doctype>docbook</doctype>
               <sourceHighlighter>coderay</sourceHighlighter>
@@ -100,6 +130,21 @@
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
+          <execution>
+            <id>copy-raw-adoc</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>copy-resources</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>${project.build.directory}/raw-adoc</outputDirectory>
+                <resources>
+                  <resource>
+                    <directory>${project.basedir}/src/main/asciidoc/</directory>
+                  </resource>
+                </resources>
+             </configuration>
+          </execution>
           <execution>
             <id>copy-release-notes-to-site</id>
             <phase>site</phase>

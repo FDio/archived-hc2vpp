@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 Cisco and/or its affiliates.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at:
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.fd.hc2vpp.docs</groupId>
+    <artifactId>docs</artifactId>
+    <version>1.17.10-SNAPSHOT</version>
+
+    <properties>
+        <!-- List of modules that are used to extract Writer/Reader factories, and therefore generate api documentation -->
+        <api.docs.modules>
+            io.fd.hc2vpp.docs.core.mock.binding.MockBindingModule,
+            io.fd.hc2vpp.docs.core.mock.binding.MockAclModule,
+            io.fd.hc2vpp.docs.core.mock.binding.MockNshModule,
+            io.fd.hc2vpp.docs.core.mock.binding.MockIoamModule,
+            io.fd.hc2vpp.docs.core.mock.binding.MockNatModule,
+            io.fd.hc2vpp.iface.role.InterfaceRoleModule,
+            io.fd.hc2vpp.l3.InterfaceL3Module,
+            io.fd.hc2vpp.l3.ProxyArpModule,
+            io.fd.hc2vpp.l3.SubInterfaceL3Module,
+            io.fd.hc2vpp.lisp.LispModule,
+            io.fd.hc2vpp.lisp.gpe.GpeModule,
+            io.fd.hc2vpp.management.VppManagementModule,
+            io.fd.hc2vpp.policer.PolicerModule,
+            io.fd.hc2vpp.routing.RoutingModule,
+            io.fd.hc2vpp.v3po.V3poModule,
+            io.fd.hc2vpp.vpp.classifier.InterfaceClassifierAclModule,
+            io.fd.hc2vpp.vpp.classifier.SubInterfaceClassifierAclModule,
+            io.fd.hc2vpp.vpp.classifier.VppClassifierModule,
+            io.fd.hc2vpp.dhcp.DhcpModule,
+            io.fd.hc2vpp.bgp.inet.BgpInetModule
+        </api.docs.modules>
+        <project.root.folder>${project.basedir}/../../..</project.root.folder>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-coverage-doc</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                io.fd.hc2vpp.docs.scripts.ApiDocsIndexGenerator.generate(project, log)
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.fd.hc2vpp.docs</groupId>
+                        <artifactId>scripts</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>

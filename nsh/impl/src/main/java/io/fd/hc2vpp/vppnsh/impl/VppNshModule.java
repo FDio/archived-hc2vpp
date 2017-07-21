@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is some glue code necessary for Honeycomb distribution to pick up the plugin classes
  */
-public final class VppNshModule extends AbstractModule {
+public class VppNshModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(VppNshModule.class);
     private final Class<? extends Provider<FutureJVppNshFacade>> jvppNshProviderClass;
@@ -45,7 +45,7 @@ public final class VppNshModule extends AbstractModule {
         this(JVppNshProvider.class);
     }
     @VisibleForTesting
-    VppNshModule(Class<? extends Provider<FutureJVppNshFacade>> jvppNshProvider) {
+    protected VppNshModule(Class<? extends Provider<FutureJVppNshFacade>> jvppNshProvider) {
         this.jvppNshProviderClass = jvppNshProvider;
     }
 

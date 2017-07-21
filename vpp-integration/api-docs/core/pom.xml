@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 Cisco and/or its affiliates.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at:
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>hc2vpp-parent</artifactId>
+        <groupId>io.fd.hc2vpp.common</groupId>
+        <version>1.17.10-SNAPSHOT</version>
+        <relativePath>../../../common/hc2vpp-parent</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.fd.hc2vpp.docs</groupId>
+    <artifactId>docs-core</artifactId>
+    <version>1.17.10-SNAPSHOT</version>
+
+    <properties>
+        <mockito-core.version>1.10.19</mockito-core.version>
+        <junit.version>4.12</junit.version>
+        <guice.version>4.1.0</guice.version>
+        <asm.version>5.2</asm.version>
+        <asciidoctorj.version>1.5.4</asciidoctorj.version>
+        <slf4j-simple.version>1.7.25</slf4j-simple.version>
+        <jvpp.version>17.10-SNAPSHOT</jvpp.version>
+        <guava.version>19.0</guava.version>
+        <reflections.version>0.9.11</reflections.version>
+
+        <coverage.modules/>
+        <!-- If covered project is lower that 2 levels under root, must be overridden -->
+        <project.root.folder>${project.basedir}/../..</project.root.folder>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.hc2vpp.docs</groupId>
+            <artifactId>docs-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-core</artifactId>
+            <version>${jvpp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-registry</artifactId>
+            <version>${jvpp.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>${guice.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>translate-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>translate-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>${reflections.version}</version>
+        </dependency>
+
+    </dependencies>
+</project>

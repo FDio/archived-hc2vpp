@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Module class instantiating nat plugin components.
  */
-public final class NatModule extends AbstractModule {
+public class NatModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatModule.class);
     private final Class<? extends Provider<FutureJVppSnatFacade>> jvppSnatProviderClass;
@@ -48,7 +48,7 @@ public final class NatModule extends AbstractModule {
     }
 
     @VisibleForTesting
-    NatModule(Class<? extends Provider<FutureJVppSnatFacade>> jvppSnatProvider) {
+    protected NatModule(Class<? extends Provider<FutureJVppSnatFacade>> jvppSnatProvider) {
         this.jvppSnatProviderClass = jvppSnatProvider;
     }
 
