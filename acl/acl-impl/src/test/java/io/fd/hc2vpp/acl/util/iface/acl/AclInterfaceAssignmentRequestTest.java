@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -39,7 +38,6 @@ import io.fd.vpp.jvpp.acl.dto.AclInterfaceSetAclList;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceSetAclListReply;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import java.util.Arrays;
-import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -113,15 +111,6 @@ public class AclInterfaceAssignmentRequestTest implements NamingContextHelper, F
         verifyVariant(create(mappingContext).identifier(validIdentifier));
 
         verifyVariant(create(mappingContext).identifier(validIdentifier).interfaceContext(interfaceContext));
-
-        verifyVariant(create(mappingContext).identifier(validIdentifier).interfaceContext(interfaceContext)
-                .standardAclContext(aclContext));
-
-        verifyVariant(create(mappingContext).identifier(validIdentifier).interfaceContext(interfaceContext)
-                .standardAclContext(aclContext).inputAclNames(Collections.emptyList()));
-
-        verifyVariant(create(mappingContext).identifier(validIdentifier).interfaceContext(interfaceContext)
-                .standardAclContext(aclContext).outputAclNames(Collections.emptyList()));
     }
 
     private void verifyVariant(final AclInterfaceAssignmentRequest request) throws WriteFailedException {
@@ -132,13 +121,46 @@ public class AclInterfaceAssignmentRequestTest implements NamingContextHelper, F
 
     @Test
     public void executeAsCreate() throws Exception {
-
         createValidRequest().executeAsCreate(api);
+
+        verify(api).aclInterfaceSetAclList(requestCaptor.capture());
+        verifyValidRequest(requestCaptor.getValue());
+    }
+
+    @Test
+    public void executeAsUpdate() throws Exception {
         createValidRequest().executeAsUpdate(api, mock(Acl.class), mock(Acl.class));
+
+        verify(api).aclInterfaceSetAclList(requestCaptor.capture());
+        verifyValidRequest(requestCaptor.getValue());
+    }
+
+    @Test
+    public void executeAsDelete() throws Exception {
+        create(mappingContext)
+            .identifier(validIdentifier)
+            .standardAclContext(aclContext)
+            .interfaceContext(interfaceContext)
+            .executeAsDelete(api);
+
+        verify(api).aclInterfaceSetAclList(requestCaptor.capture());
+        final AclInterfaceSetAclList request = requestCaptor.getValue();
+        assertNotNull(request);
+        assertEquals(0, request.count);
+        assertEquals(0, request.nInput);
+        assertTrue(Arrays.equals(new int[] {}, request.acls));
+    }
+
+    @Test
+    public void executeAsDeleteWithAclNames() throws Exception {
         createValidRequest().executeAsDelete(api);
 
-        verify(api, times(3)).aclInterfaceSetAclList(requestCaptor.capture());
-        requestCaptor.getAllValues().forEach(AclInterfaceAssignmentRequestTest::verifyValidRequest);
+        verify(api).aclInterfaceSetAclList(requestCaptor.capture());
+        final AclInterfaceSetAclList request = requestCaptor.getValue();
+        assertNotNull(request);
+        assertEquals(0, request.count);
+        assertEquals(0, request.nInput);
+        assertTrue(Arrays.equals(new int[]{}, request.acls));
     }
 
     private AclInterfaceAssignmentRequest createValidRequest() {
