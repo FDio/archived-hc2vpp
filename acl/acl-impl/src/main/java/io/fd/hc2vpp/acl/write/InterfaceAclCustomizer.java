@@ -82,8 +82,6 @@ public class InterfaceAclCustomizer extends FutureJVppAclCustomizer implements W
                 .standardAclContext(standardAclContext)
                 .interfaceContext(interfaceContext)
                 .identifier(id)
-                .inputAclNames(getAclNames(dataBefore.getIngress()))
-                .outputAclNames(getAclNames(dataBefore.getEgress()))
                 .executeAsDelete(getjVppAclFacade());
     }
 

@@ -19,6 +19,7 @@ package io.fd.hc2vpp.acl.util.iface.acl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -27,6 +28,7 @@ import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceSetAclList;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -45,8 +47,8 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
 
     private final MappingContext mappingContext;
     private InstanceIdentifier<Acl> identifier;
-    private List<String> inputAclNames;
-    private List<String> outputAclNames;
+    private List<String> inputAclNames = Collections.emptyList();
+    private List<String> outputAclNames = Collections.emptyList();
     private AclContextManager standardAclContext;
     private NamingContext interfaceContext;
 
@@ -66,12 +68,14 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
     }
 
     public AclInterfaceAssignmentRequest inputAclNames(@Nonnull final List<String> inputAclNames) {
-        this.inputAclNames = inputAclNames;
+        checkNotNull(inputAclNames, "Input ACL names cannot be null");
+        this.inputAclNames = ImmutableList.copyOf(inputAclNames);
         return this;
     }
 
     public AclInterfaceAssignmentRequest outputAclNames(@Nonnull final List<String> outputAclNames) {
-        this.outputAclNames = outputAclNames;
+        checkNotNull(outputAclNames, "Output ACL names cannot be null");
+        this.outputAclNames = ImmutableList.copyOf(outputAclNames);
         return this;
     }
 
@@ -87,8 +91,6 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
 
     private void checkValidRequest() {
         checkNotNull(identifier, "Identifier cannot be null");
-        checkNotNull(inputAclNames, "Input ACL names cannot be null");
-        checkNotNull(outputAclNames, "Output ACL names cannot be null");
         checkNotNull(standardAclContext, "ACL context cannot be null");
         checkNotNull(interfaceContext, "Interface context cannot be null");
     }
@@ -140,6 +142,10 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
                     "Executing acl interface assignment delete request for interface={}, input ACL's={},output ACL's={}",
                     interfaceName, inputAclNames, outputAclNames);
 
+            // remove all ACLs, just in case they were set by AclInterfaceAssignmentRequest user
+            inputAclNames = Collections.emptyList();
+            outputAclNames = Collections.emptyList();
+
             getReplyForDelete(api.aclInterfaceSetAclList(createRequest(interfaceName)).toCompletableFuture(),
                     identifier);
             LOG.debug(
@@ -153,6 +159,7 @@ public class AclInterfaceAssignmentRequest implements JvppReplyConsumer, ByteDat
 
         AclInterfaceSetAclList request = new AclInterfaceSetAclList();
         request.swIfIndex = interfaceContext.getIndex(interfaceName, mappingContext);
+        // FIXME (HC2VPP-201): possible overflow
         request.nInput = (byte) inputAclNames.size();
         request.count = (byte) (inputAclNames.size() + outputAclNames.size());
         request.acls = Stream.concat(inputAclNames.stream(), outputAclNames.stream())

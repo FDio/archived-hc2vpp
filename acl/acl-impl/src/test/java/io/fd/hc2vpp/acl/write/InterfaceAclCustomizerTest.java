@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.acl.write;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +28,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceSetAclList;
 import io.fd.vpp.jvpp.acl.dto.AclInterfaceSetAclListReply;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
+import java.util.Collections;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -35,6 +37,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.Acl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.AclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214._interface.acl.attributes.acl.IngressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAcls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.vpp.acls.base.attributes.VppAclsBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceAclCustomizerTest extends WriterCustomizerTest implements AclTestSchemaContext {
@@ -83,7 +88,15 @@ public class InterfaceAclCustomizerTest extends WriterCustomizerTest implements 
 
     @Test
     public void testDelete() throws Exception {
-        final Acl acl = new AclBuilder().build();
+        final VppAcls
+            element = mock(VppAcls.class);
+        final Acl acl = new AclBuilder()
+            .setIngress(new IngressBuilder()
+                .setVppAcls(Collections.singletonList(new VppAclsBuilder()
+                    .setName("asd")
+                    .build()))
+                .build())
+            .build();
         customizer.deleteCurrentAttributes(ACL_ID, acl, writeContext);
         final AclInterfaceSetAclList list = new AclInterfaceSetAclList();
         list.swIfIndex = IFACE_ID;
