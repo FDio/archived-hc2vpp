@@ -26,14 +26,14 @@ public class JavaApiMessage {
     /**
      * Name of the call
      */
-    private final String api;
+    private final String name;
 
-    public JavaApiMessage(final String api) {
-        this.api = api;
+    public JavaApiMessage(final String name) {
+        this.name = name;
     }
 
-    public String getApi() {
-        return api;
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -46,11 +46,11 @@ public class JavaApiMessage {
         }
 
         final JavaApiMessage that = (JavaApiMessage) o;
-        return Objects.equals(this.api, that.api);
+        return Objects.equals(this.name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(api);
+        return Objects.hash(name);
     }
 }

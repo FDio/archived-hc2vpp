@@ -34,7 +34,7 @@ import io.fd.hc2vpp.docs.api.PluginCoverage;
 import io.fd.hc2vpp.docs.api.YangType;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import java.lang.reflect.Field;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,53 +63,62 @@ public class CoverageGenerator implements VppApiUtils {
 
         final Set<CoverageUnit> coverageUnits = writerBuilder.getWriteHandlers().stream()
                 .flatMap(handler -> {
+                    LOG.debug("Processing writer handling nodes: {}", handler.getHandledNodes());
                     // extracts customizer class from handler
                     final Class<?> customizerClass = getCustomizerClass(handler.getWriter());
 
                     // scans within write method
                     final Set<PluginMethodReference> writeReferences =
                             new CoverageScanner(customizerClass, WRITE, pluginClass).scan();
+                    LOG.debug("writeReferences: {}", writeReferences);
 
                     // scans within update method
                     final Set<PluginMethodReference> updateReferences =
                             new CoverageScanner(customizerClass, UPDATE, pluginClass).scan();
+                    LOG.debug("updateReferences: {}", updateReferences);
 
                     // scans within delete method
                     final Set<PluginMethodReference> deleteReferences =
                             new CoverageScanner(customizerClass, DELETE, pluginClass).scan();
+                    LOG.debug("deleteReferences: {}", deleteReferences);
 
                     return Stream.of(writeReferences.stream(), updateReferences.stream(), deleteReferences.stream())
-                            .flatMap(pluginMethodReferenceStream -> pluginMethodReferenceStream)
-                            .map(reference -> {
-                                final CoverageUnit.CoverageUnitBuilder builder = new CoverageUnit.CoverageUnitBuilder();
+                        .flatMap(pluginMethodReferenceStream -> pluginMethodReferenceStream)
+                        .collect(Collectors.groupingBy(PluginMethodReference::getName)).entrySet().stream()
+                        .map(vppMessageReferenceByName -> {
+                            final String jvppMethodName = vppMessageReferenceByName.getKey();
+                            final CoverageUnit.CoverageUnitBuilder builder = new CoverageUnit.CoverageUnitBuilder();
 
-                                // binds vpp api name and generateLink bind with version
-                                builder.setVppApi(fromJvppApi(version, reference.getName()));
+                            // binds vpp api name and generateLink bind with version
+                            builder.setVppApi(fromJvppApi(version, jvppMethodName));
 
-                                //binds java api reference
-                                builder.setJavaApi(new JavaApiMessage(reference.getName()));
+                            //binds java api reference
+                            builder.setJavaApi(new JavaApiMessage(jvppMethodName));
 
-                                // binds Yang types with links from pre-build index
-                                // TODO - use deserialized yii e.g. /module:parent-node/child-node
-                                builder.setYangTypes(handler.getHandledNodes().stream()
-                                        .map(type -> new YangType(type, yangTypeIndex.getLinkForType(type)))
-                                        .collect(Collectors.toList()));
+                            // binds Yang types with links from pre-build index
+                            // TODO - use deserialized yii e.g. /module:parent-node/child-node
+                            builder.setYangTypes(handler.getHandledNodes().stream()
+                                .map(type -> new YangType(type, yangTypeIndex.getLinkForType(type)))
+                                .collect(Collectors.toList()));
 
-                                final String callerClassLink = classPathIndex.linkForClass(reference.getCaller());
-                                final List<Operation> supportedOperations = new LinkedList<>();
-                                if (writeReferences.contains(reference)) {
-                                    supportedOperations.add(new Operation(callerClassLink, WRITE));
+
+                            final Set<Operation> supportedOperations = new HashSet<>();
+                            vppMessageReferenceByName.getValue().stream().forEach(
+                                reference -> {
+                                    final String callerClassLink = classPathIndex.linkForClass(reference.getCaller());
+                                    if (writeReferences.contains(reference)) {
+                                        supportedOperations.add(new Operation(callerClassLink, WRITE));
+                                    }
+                                    if (updateReferences.contains(reference)) {
+                                        supportedOperations.add(new Operation(callerClassLink, UPDATE));
+                                    }
+                                    if (deleteReferences.contains(reference)) {
+                                        supportedOperations.add(new Operation(callerClassLink, DELETE));
+                                    }
                                 }
-
-                                if (updateReferences.contains(reference)) {
-                                    supportedOperations.add(new Operation(callerClassLink, UPDATE));
-                                }
-
-                                if (deleteReferences.contains(reference)) {
-                                    supportedOperations.add(new Operation(callerClassLink, DELETE));
-                                }
-                                return builder.setSupportedOperations(supportedOperations).build();
-                            });
+                            );
+                            return builder.setSupportedOperations(supportedOperations).build();
+                        });
                 }).collect(Collectors.toSet());
 
         return new PluginCoverage(pluginClass.getSimpleName(), coverageUnits, true);

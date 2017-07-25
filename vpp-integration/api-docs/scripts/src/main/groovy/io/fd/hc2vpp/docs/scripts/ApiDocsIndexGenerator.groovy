@@ -139,14 +139,14 @@ class ApiDocsIndexGenerator {
     }
 
     private static String javaApi(final JavaApiMessage javaApi) {
-        "$TABLE_PART_MARK${javaApi.api}$NL"
+        "$TABLE_PART_MARK${javaApi.name}$NL"
     }
 
     private static String yangTypes(final List<YangType> yangTypes) {
         "$NL$TABLE_PART_MARK$NL ${yangTypes.stream().map { yangType -> " ${yangType.link}[${yangType.type}]" }.collect(Collectors.joining(NL))}"
     }
 
-    private static String supportedOperations(final List<Operation> operations) {
+    private static String supportedOperations(final Collection<Operation> operations) {
         "$NL$TABLE_PART_MARK${operations.stream().map { reference -> " ${reference.link}[${reference.operation}]" }.collect(Collectors.joining(NL))}"
     }
 
