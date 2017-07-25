@@ -53,4 +53,9 @@ public class PluginMethodReference {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+            return "PluginMethodReference{name=" + this.name + ", caller=" + this.caller + ", owner=" + this.owner + ", " + "}";
+    }
 }

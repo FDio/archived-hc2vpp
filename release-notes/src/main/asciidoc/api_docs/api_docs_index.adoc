@@ -1,4 +1,4 @@
-== VPP api to Yang index
+== VPP API to Yang index
 
 // TODO - generate this file based on list of JVPP plugins used
 

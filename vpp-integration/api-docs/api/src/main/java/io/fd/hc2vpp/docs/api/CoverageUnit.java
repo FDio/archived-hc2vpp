@@ -16,8 +16,10 @@
 
 package io.fd.hc2vpp.docs.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Represents mapping between single supported VPP binary api and its binding
@@ -42,11 +44,11 @@ public class CoverageUnit {
     /**
      * Operations supported for this api
      */
-    private final List<Operation> supportedOperations;
+    private final Collection<Operation> supportedOperations;
 
     private CoverageUnit(final VppApiMessage vppApi, final JavaApiMessage javaApi,
                          final List<YangType> yangTypes,
-                         final List<Operation> supportedOperations) {
+                         final Collection<Operation> supportedOperations) {
         this.vppApi = vppApi;
         this.javaApi = javaApi;
         this.yangTypes = yangTypes;
@@ -65,7 +67,7 @@ public class CoverageUnit {
         return yangTypes;
     }
 
-    public List<Operation> getSupportedOperations() {
+    public Collection<Operation> getSupportedOperations() {
         return supportedOperations;
     }
 
@@ -95,7 +97,7 @@ public class CoverageUnit {
         private VppApiMessage vppApi;
         private JavaApiMessage javaApi;
         private List<YangType> yangTypes;
-        private List<Operation> supportedOperations;
+        private Set<Operation> supportedOperations;
 
         public CoverageUnitBuilder setVppApi(final VppApiMessage vppApi) {
             this.vppApi = vppApi;
@@ -112,7 +114,7 @@ public class CoverageUnit {
             return this;
         }
 
-        public CoverageUnitBuilder setSupportedOperations(final List<Operation> supportedOperations) {
+        public CoverageUnitBuilder setSupportedOperations(final Set<Operation> supportedOperations) {
             this.supportedOperations = supportedOperations;
             return this;
         }
