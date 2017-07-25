@@ -138,6 +138,17 @@
 
     <build>
         <plugins>
+            <!-- Module is used just for build, so skip site
+                 In case we change our minds, we need to provide distributionManagement
+             -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                    <skipDeploy>true</skipDeploy>
+                </configuration>
+            </plugin>
             <!-- Extract plugins and resources from them -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
