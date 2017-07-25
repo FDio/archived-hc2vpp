@@ -36,39 +36,46 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public class CollectingWriterBuilder implements ModifiableWriterRegistryBuilder {
 
-    private final List<Writer<? extends DataObject>> singleNodeHandlers;
-    private final List<MultiNodeWriteHandler> multiNodeWriteHandlers;
+    private final List<WriteHandler> writeHandlers;
 
     public CollectingWriterBuilder() {
-        singleNodeHandlers = new LinkedList<>();
-        multiNodeWriteHandlers = new LinkedList<>();
+        writeHandlers = new LinkedList<>();
+    }
+
+    private void addHandler(final Writer<? extends DataObject> handler) {
+        writeHandlers.add(new WriteHandler(handler));
+    }
+
+    private void addHandler(final Writer<? extends DataObject> handler,
+                            final Set<InstanceIdentifier<?>> handledChildren) {
+        writeHandlers.add(new WriteHandler(handler, handledChildren));
     }
 
     @Override
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> add(
             @Nonnull Writer<? extends DataObject> handler) {
-        singleNodeHandlers.add(handler);
+        addHandler(handler);
         return this;
     }
 
     @Override
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> subtreeAdd(
             @Nonnull Set<InstanceIdentifier<?>> handledChildren, @Nonnull Writer<? extends DataObject> handler) {
-        multiNodeWriteHandlers.add(new MultiNodeWriteHandler(handler, handledChildren));
+        addHandler(handler, handledChildren);
         return this;
     }
 
     @Override
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> addBefore(
             @Nonnull Writer<? extends DataObject> handler, @Nonnull InstanceIdentifier<?> relatedType) {
-        multiNodeWriteHandlers.add(new MultiNodeWriteHandler(handler, Collections.singleton(relatedType)));
+        addHandler(handler, Collections.singleton(relatedType));
         return this;
     }
 
     @Override
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> addBefore(
             @Nonnull Writer<? extends DataObject> handler, @Nonnull Collection<InstanceIdentifier<?>> relatedTypes) {
-        singleNodeHandlers.add(handler);
+        addHandler(handler);
         return this;
     }
 
@@ -76,7 +83,7 @@ public class CollectingWriterBuilder implements ModifiableWriterRegistryBuilder 
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> subtreeAddBefore(
             @Nonnull Set<InstanceIdentifier<?>> handledChildren, @Nonnull Writer<? extends DataObject> handler,
             @Nonnull InstanceIdentifier<?> relatedType) {
-        multiNodeWriteHandlers.add(new MultiNodeWriteHandler(handler, handledChildren));
+        addHandler(handler, handledChildren);
         return null;
     }
 
@@ -84,21 +91,21 @@ public class CollectingWriterBuilder implements ModifiableWriterRegistryBuilder 
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> subtreeAddBefore(
             @Nonnull Set<InstanceIdentifier<?>> handledChildren, @Nonnull Writer<? extends DataObject> handler,
             @Nonnull Collection<InstanceIdentifier<?>> relatedTypes) {
-        multiNodeWriteHandlers.add(new MultiNodeWriteHandler(handler, handledChildren));
+        addHandler(handler, handledChildren);
         return this;
     }
 
     @Override
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> addAfter(
             @Nonnull Writer<? extends DataObject> handler, @Nonnull InstanceIdentifier<?> relatedType) {
-        singleNodeHandlers.add(handler);
+        addHandler(handler);
         return this;
     }
 
     @Override
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> addAfter(
             @Nonnull Writer<? extends DataObject> handler, @Nonnull Collection<InstanceIdentifier<?>> relatedTypes) {
-        singleNodeHandlers.add(handler);
+        addHandler(handler);
         return this;
     }
 
@@ -106,7 +113,7 @@ public class CollectingWriterBuilder implements ModifiableWriterRegistryBuilder 
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> subtreeAddAfter(
             @Nonnull Set<InstanceIdentifier<?>> handledChildren, @Nonnull Writer<? extends DataObject> handler,
             @Nonnull InstanceIdentifier<?> relatedType) {
-        multiNodeWriteHandlers.add(new MultiNodeWriteHandler(handler, Collections.singleton(relatedType)));
+        addHandler(handler, handledChildren);
         return this;
     }
 
@@ -114,40 +121,41 @@ public class CollectingWriterBuilder implements ModifiableWriterRegistryBuilder 
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> subtreeAddAfter(
             @Nonnull Set<InstanceIdentifier<?>> handledChildren, @Nonnull Writer<? extends DataObject> handler,
             @Nonnull Collection<InstanceIdentifier<?>> relatedTypes) {
-        multiNodeWriteHandlers.add(new MultiNodeWriteHandler(handler, handledChildren));
+        addHandler(handler, handledChildren);
         return this;
     }
 
-    public List<Writer<? extends DataObject>> getSingleNodeHandlers() {
-        return singleNodeHandlers;
+    public List<WriteHandler> getWriteHandlers() {
+        return writeHandlers;
     }
 
-    public List<MultiNodeWriteHandler> getMultiNodeWriteHandlers() {
-        return multiNodeWriteHandlers;
-    }
-
-    public static class MultiNodeWriteHandler {
+    public static class WriteHandler {
         private final Writer<? extends DataObject> writer;
-        private final Set<String> handledChildren;
+        private final Set<String> handledNodes;
 
-
-        public MultiNodeWriteHandler(Writer<? extends DataObject> writer, Set<InstanceIdentifier<?>> handledChildren) {
+        public WriteHandler(Writer<? extends DataObject> writer, Set<InstanceIdentifier<?>> handledChildren) {
             this.writer = writer;
-            this.handledChildren = ImmutableSet.<String>builder()
-                    .add(writer.getManagedDataObjectType().getTargetType().getName())
-                    .addAll(handledChildren.stream()
-                            .map(InstanceIdentifier::getTargetType)
-                            .map(Class::getName)
-                            .collect(Collectors.toSet()))
-                    .build();
+            this.handledNodes = ImmutableSet.<String>builder()
+                // add node managed by writer
+                .add(writer.getManagedDataObjectType().getTargetType().getName())
+                // and set of handled children (may be empty in case of non subtree writers)
+                .addAll(handledChildren.stream()
+                    .map(InstanceIdentifier::getTargetType)
+                    .map(Class::getName)
+                    .collect(Collectors.toSet()))
+                .build();
+        }
+
+        public WriteHandler(final Writer<? extends DataObject> writer) {
+            this(writer, Collections.emptySet());
         }
 
         public Writer<? extends DataObject> getWriter() {
             return writer;
         }
 
-        public Set<String> getHandledChildren() {
-            return handledChildren;
+        public Set<String> getHandledNodes() {
+            return handledNodes;
         }
     }
 }

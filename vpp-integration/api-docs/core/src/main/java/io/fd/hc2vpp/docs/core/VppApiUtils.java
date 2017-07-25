@@ -22,11 +22,7 @@ import io.fd.hc2vpp.docs.api.VppApiMessage;
 
 public interface VppApiUtils {
 
-    static String vppApiFromJavaApi(final String jvppApi) {
-        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, jvppApi);
-    }
-
-    static String generateVppApiDocLink(final String version, final String vppApi) {
+    static String generateVppApiDocLink(final String version, final String vppMessageName) {
         //https://docs.fd.io/vpp/17.07/d9/d1d/structvl__api__create__subif__t.html
         // links are using double underscore
         //final String doubleUnderscoreApiName = vppApi.replace("_", "__");
@@ -36,8 +32,8 @@ public interface VppApiUtils {
         return "https://docs.fd.io/vpp/17.07/annotated.html";
     }
 
-    default VppApiMessage fromJvppApi(final String version, final PluginMethodReference jvppApi) {
-        final String vppApi = vppApiFromJavaApi(jvppApi.getName());
-        return new VppApiMessage(vppApi, generateVppApiDocLink(version, vppApi));
+    default VppApiMessage fromJvppApi(final String version, final String jvppMethodName) {
+        final String vppMessageName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, jvppMethodName);
+        return new VppApiMessage(vppMessageName, generateVppApiDocLink(version, vppMessageName));
     }
 }
