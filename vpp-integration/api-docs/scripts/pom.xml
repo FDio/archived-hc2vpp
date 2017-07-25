@@ -32,6 +32,7 @@
         <jvpp.version>17.10-SNAPSHOT</jvpp.version>
         <junit.version>4.12</junit.version>
         <reflections.version>0.9.11</reflections.version>
+        <sonar.skip>true</sonar.skip>
     </properties>
 
     <dependencies>
