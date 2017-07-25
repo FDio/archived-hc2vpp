@@ -44,6 +44,7 @@
         <coverage.modules/>
         <!-- If covered project is lower that 2 levels under root, must be overridden -->
         <project.root.folder>${project.basedir}/../..</project.root.folder>
+        <sonar.skip>true</sonar.skip>
     </properties>
 
     <dependencies>

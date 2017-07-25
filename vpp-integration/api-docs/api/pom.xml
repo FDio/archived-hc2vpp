@@ -26,6 +26,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <artifactId>docs-api</artifactId>
     <groupId>io.fd.hc2vpp.docs</groupId>
     <version>1.17.07-SNAPSHOT</version>
