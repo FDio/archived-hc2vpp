@@ -139,9 +139,10 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Module is used just for build, so skip site
-                     In case we change our minds, we need to provide distributionManagement
-                 -->
+                <!--
+                    Module is used just for build (docs are rendered in release-notes), so skip site.
+                    In case we change our minds, we need to provide distributionManagement.
+                -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
