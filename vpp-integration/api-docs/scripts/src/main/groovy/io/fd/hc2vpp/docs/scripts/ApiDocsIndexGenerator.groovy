@@ -123,7 +123,7 @@ class ApiDocsIndexGenerator {
     }
 
     private static String generateConfigTableContent(final Set<CoverageUnit> coverage) {
-        coverage.stream()
+        coverage.stream().sorted()
                 .map { unit ->
             "$NL" +
                     "${vppApiWithLink(unit.vppApi)}" +

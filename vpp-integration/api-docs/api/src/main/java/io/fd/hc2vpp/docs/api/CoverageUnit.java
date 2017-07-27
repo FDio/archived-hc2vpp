@@ -16,15 +16,18 @@
 
 package io.fd.hc2vpp.docs.api;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Represents mapping between single supported VPP binary api and its binding
  */
-public class CoverageUnit {
+public class CoverageUnit implements Comparable<CoverageUnit> {
 
     /**
      * VPP binary api reference
@@ -46,13 +49,13 @@ public class CoverageUnit {
      */
     private final Collection<Operation> supportedOperations;
 
-    private CoverageUnit(final VppApiMessage vppApi, final JavaApiMessage javaApi,
-                         final List<YangType> yangTypes,
-                         final Collection<Operation> supportedOperations) {
-        this.vppApi = vppApi;
-        this.javaApi = javaApi;
-        this.yangTypes = yangTypes;
-        this.supportedOperations = supportedOperations;
+    private CoverageUnit(@Nonnull final VppApiMessage vppApi, @Nonnull final JavaApiMessage javaApi,
+                         @Nonnull final List<YangType> yangTypes,
+                         @Nonnull final Collection<Operation> supportedOperations) {
+        this.vppApi = requireNonNull(vppApi, "vppApi should not be null");
+        this.javaApi = requireNonNull(javaApi, "javaApi should not be null");
+        this.yangTypes = requireNonNull(yangTypes, "yangTypes should not be null");
+        this.supportedOperations = requireNonNull(supportedOperations, "supportedOperations should not be null");
     }
 
     public VppApiMessage getVppApi() {
@@ -91,6 +94,11 @@ public class CoverageUnit {
     @Override
     public int hashCode() {
         return Objects.hash(vppApi, javaApi, yangTypes, supportedOperations);
+    }
+
+    @Override
+    public int compareTo(final CoverageUnit o) {
+        return vppApi.getName().compareTo(o.getVppApi().getName());
     }
 
     public static class CoverageUnitBuilder {

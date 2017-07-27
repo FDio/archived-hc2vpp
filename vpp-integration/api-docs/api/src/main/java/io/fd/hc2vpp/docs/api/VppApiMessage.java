@@ -16,7 +16,10 @@
 
 package io.fd.hc2vpp.docs.api;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Objects;
+import javax.annotation.Nonnull;
 
 /**
  * Represents reference to VPP binary api
@@ -34,9 +37,9 @@ public class VppApiMessage {
     // TODO - check if possible to add direct link for specific api
     private final String link;
 
-    public VppApiMessage(final String name, final String link) {
-        this.name = name;
-        this.link = link;
+    public VppApiMessage(@Nonnull final String name, @Nonnull final String link) {
+        this.name = requireNonNull(name, "name should not be null");
+        this.link = requireNonNull(link, "link should not be null");
     }
 
     public String getName() {
