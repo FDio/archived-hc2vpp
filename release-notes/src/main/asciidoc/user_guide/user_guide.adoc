@@ -81,3 +81,5 @@ Honeycomb's configuration files present within its distribution:
 * VPP classifier plugin
 ** {project-git-web}/vpp-classifier/vpp_classifier_postman_collection.json?h={project-branch}[VPP classifier postman collection]
 ** {project-git-web}/vpp-classifier/policer_postman_collection.json?h={project-branch}[Policer postman collection]
+* BGP plugin
+** {project-git-web}/bgp/bgp_postman_collection?h={project-branch}[BGP postman collection].

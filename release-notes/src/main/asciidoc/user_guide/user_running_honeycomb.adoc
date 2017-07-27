@@ -117,3 +117,7 @@ NOTE: All POSTMAN collections are listed under User Guide.
 
 ==== Listening for notifications
 Notifications over RESTCONF are not supported due to ODL's RESTCONF limitations.
+
+=== Using BGP
+
+* link:bgp_in_honeycomb_user_guide.html[BGP configuration in Honeycomb]

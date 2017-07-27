@@ -1,0 +1,833 @@
+= Overview
+
+link:release_notes.html[< Home]
+
+Honeycomb uses link:https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP_Use_Cases[Opendaylight's BGP]
+as a part of default distribution.
+
+Following guide is based on ODL's link:http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#overview[BGP User Guide].
+
+== Basic configuration
+
+BGP HC modules are disabled by default. To enable it, edit
+
+  modules/io-fd-honeycomb_minimal-distribution_1-17-07-module-config
+
+in distribution dir (/opt/honeycomb in case honeycomb was installed from package):
+
+[source]
+----
+[...]
+io.fd.honeycomb.infra.bgp.BgpModule
+io.fd.honeycomb.infra.bgp.BgpReadersModule
+io.fd.honeycomb.infra.bgp.BgpWritersModule
+----
+
+=== BGP server configuration
+
+Use config/bgp.json to configure BGP server:
+
+[source,json]
+----
+{
+  "bgp-binding-address": "127.0.0.1",
+  "bgp-port": 1790,
+  "bgp-as-number": 65000,
+  "bgp-receive-multiple-paths": "true",
+  "bgp-send-max-paths": 0,
+  "bgp-network-instance-name": "global-bgp",
+  "bgp-protocol-instance-name": "hc-bgp-instance",
+  "bgp-netty-threads": 2
+}
+----
+
+NOTE: bgp-binding-address is also used as identifier of BGP speaker.
+
+=== Running BGP
+
+After enabling BGP modules and configuring BGP server,
+link:user_running_honeycomb.html#_starting_honeycomb_agent[start honeycomb].
+
+BGP server configuration can be verified using RESTCONF/NETCONF. We
+
+  curl -u admin:admin http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance
+
+[source,json]
+----
+{
+    "rib": [
+        {
+            "id": "hc-bgp-instance",
+            "loc-rib": {
+                "tables": [
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {},
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-labeled-unicast:labeled-unicast-subsequent-address-family",
+                        "bgp-labeled-unicast:labeled-unicast-routes": {},
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+----
+
+== BGP peer configuration
+
+Here is a sample basic neighbor configuration:
+
+*URL:* http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/127.0.0.2
+
+*Method:* PUT
+
+*Request body:*
+
+[source,json]
+----
+{
+	"neighbor": {
+  "neighbor-address": "127.0.0.2",
+  "config": {
+    "peer-type": "INTERNAL"
+  },
+  "timers": {
+    "config": {
+      "connect-retry": 10,
+      "hold-time": 90
+    }
+  },
+  "transport": {
+    "config": {
+      "remote-port": 17900,
+      "passive-mode": false
+    }
+  },
+  "afi-safis": {
+    "afi-safi": [
+      {
+        "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+        "receive": true,
+        "send-max": 0
+      }
+    ]
+  }
+}
+}
+----
+
+We can use link:http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-test-tool[BGP's testtool]
+to simulate remote BGP peer:
+
+  java -jar ./target/bgp-testtool-0.6.3-Boron-SR3-executable.jar -ra 127.0.0.1:1790 -la 127.0.0.2:17900 -pr 2 -ll DEBUG --active true -as 65000 -mp true
+
+After connection is established, testtol will display following message in the log:
+
+  [...]
+  12:13:52.744 [epollEventLoopGroup-5-1] DEBUG o.o.p.b.r.i.p.BGPProtocolSessionPromise - Promise BGPProtocolSessionPromise@750e2b97(incomplete) completed
+  12:13:52.745 [epollEventLoopGroup-5-1] INFO  o.o.p.b.r.i.AbstractBGPSessionNegotiator - BGP Session with peer [id: 0xcab58201, L:/127.0.0.2:17900 - R:127.0.0.1/127.0.0.1:1790] established successfully.
+  12:14:22.716 [epollEventLoopGroup-5-1] DEBUG o.o.p.b.r.i.BGPSessionImpl - Message was received: Keepalive [augmentation=[]]
+  12:14:22.746 [epollEventLoopGroup-5-1] DEBUG o.o.p.b.r.i.BGPMessageToByteEncoder - Message sent to output: Keepalive [augmentation=[]]
+
+
+Once the remote peer is connected and it advertised routes to local BGP system, routes are stored in peer’s RIBs.
+The RIBs can be checked via REST:
+
+*URL:*: http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F127.0.0.2
+
+*Method:* GET
+
+*Response Body:*
+
+[source,json]
+----
+{
+    "peer": [
+        {
+            "peer-id": "bgp://127.0.0.2",
+            "supported-tables": [
+                {
+                    "afi": "bgp-types:ipv4-address-family",
+                    "safi": "bgp-types:unicast-subsequent-address-family",
+                    "send-receive": "both"
+                },
+                {
+                    "afi": "bgp-linkstate:linkstate-address-family",
+                    "safi": "bgp-linkstate:linkstate-subsequent-address-family"
+                }
+            ],
+            "effective-rib-in": {
+                "tables": [
+                    {
+                        "afi": "bgp-linkstate:linkstate-address-family",
+                        "safi": "bgp-linkstate:linkstate-subsequent-address-family",
+                        "bgp-linkstate:linkstate-routes": {},
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {
+                            "ipv4-route": [
+                                {
+                                    "path-id": 5,
+                                    "prefix": "1.1.1.1/31",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "egp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "127.1.1.1"
+                                        },
+                                        "multi-exit-disc": {
+                                            "med": 0
+                                        }
+                                    }
+                                },
+                                {
+                                    "path-id": 5,
+                                    "prefix": "1.1.1.2/31",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "egp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "127.1.1.1"
+                                        },
+                                        "multi-exit-disc": {
+                                            "med": 0
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    }
+                ]
+            },
+            "adj-rib-out": {
+                "tables": [
+                    {
+                        "afi": "bgp-linkstate:linkstate-address-family",
+                        "safi": "bgp-linkstate:linkstate-subsequent-address-family",
+                        "bgp-linkstate:linkstate-routes": {},
+                        "attributes": {
+                            "uptodate": false
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {},
+                        "attributes": {
+                            "uptodate": false
+                        }
+                    }
+                ]
+            },
+            "peer-role": "ibgp",
+            "adj-rib-in": {
+                "tables": [
+                    {
+                        "afi": "bgp-linkstate:linkstate-address-family",
+                        "safi": "bgp-linkstate:linkstate-subsequent-address-family",
+                        "bgp-linkstate:linkstate-routes": {},
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {
+                            "ipv4-route": [
+                                {
+                                    "path-id": 5,
+                                    "prefix": "1.1.1.1/31",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "egp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "127.1.1.1"
+                                        },
+                                        "multi-exit-disc": {
+                                            "med": 0
+                                        }
+                                    }
+                                },
+                                {
+                                    "path-id": 5,
+                                    "prefix": "1.1.1.2/31",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "egp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "127.1.1.1"
+                                        },
+                                        "multi-exit-disc": {
+                                            "med": 0
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+----
+
+== RIB programming
+
+The OpenDaylight BGP implementation also supports routes injection via Application Peer.
+Such peer has its own programmable RIB, which can be modified by user.
+This concept allows user to originate new routes and advertise them to all connected peers.
+
+Following configuration sample show a way to configure the Application Peer:
+
+*URL:* http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/10.25.1.9
+
+*Method:* PUT
+
+*Request body:*
+
+[source,json]
+----
+{
+  "neighbor": {
+    "neighbor-address": "10.25.1.9",
+    "config": {
+      "peer-group": "application-peers"
+    },
+    "afi-safis": {
+      "afi-safi": [
+        {
+          "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
+          "receive": true,
+          "send-max": 0
+        },
+        {
+          "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST",
+          "receive": true,
+          "send-max": 0
+        }
+      ]
+    }
+  }
+}
+----
+
+The Application Peer presence can be verified via REST:
+
+*URL:* http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F10.25.1.9
+
+*Method:* GET
+
+*Response body:*
+
+[source,json]
+----
+{
+    "peer": [
+        {
+            "peer-id": "bgp://10.25.1.9",
+            "effective-rib-in": {
+                "tables": [
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {},
+                        "attributes": {
+                            "uptodate": false
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-labeled-unicast:labeled-unicast-subsequent-address-family",
+                        "bgp-labeled-unicast:labeled-unicast-routes": {},
+                        "attributes": {
+                            "uptodate": false
+                        }
+                    }
+                ]
+            },
+            "peer-role": "internal",
+            "adj-rib-in": {
+                "tables": [
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {},
+                        "attributes": {
+                            "uptodate": false
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-labeled-unicast:labeled-unicast-subsequent-address-family",
+                        "bgp-labeled-unicast:labeled-unicast-routes": {},
+                        "attributes": {
+                            "uptodate": false
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+----
+
+=== Programmable RIB
+
+Next example shows how to inject a route into the programmable RIB.
+
+*URL:* http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0
+
+*Method:* PUT
+
+*Request body:*
+
+[source,xml]
+----
+<ipv4-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
+    <path-id>0</path-id>
+    <prefix>10.0.0.11/32</prefix>
+    <attributes>
+        <as-path></as-path>
+        <origin>
+            <value>igp</value>
+        </origin>
+        <local-pref>
+            <pref>100</pref>
+        </local-pref>
+        <ipv4-next-hop>
+            <global>10.11.1.1</global>
+        </ipv4-next-hop>
+    </attributes>
+</ipv4-route>
+----
+
+Once the remote peer is connected (we used testtool to simulate it)
+and it advertised routes to local BGP system, routes are stored in peer’s RIBs. The RIBs can be checked via REST:
+
+
+*URL:* http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F127.0.0.2
+
+*Method:* GET
+
+*Response body:*
+
+[source,json]
+----
+{
+    "peer": [
+        {
+            "peer-id": "bgp://127.0.0.2",
+            "supported-tables": [
+                {
+                    "afi": "bgp-types:ipv4-address-family",
+                    "safi": "bgp-types:unicast-subsequent-address-family",
+                    "send-receive": "both"
+                },
+                {
+                    "afi": "bgp-linkstate:linkstate-address-family",
+                    "safi": "bgp-linkstate:linkstate-subsequent-address-family"
+                }
+            ],
+            "effective-rib-in": {
+                "tables": [
+                    {
+                        "afi": "bgp-linkstate:linkstate-address-family",
+                        "safi": "bgp-linkstate:linkstate-subsequent-address-family",
+                        "bgp-linkstate:linkstate-routes": {},
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {
+                            "ipv4-route": [
+                                {
+                                    "path-id": 5,
+                                    "prefix": "1.1.1.1/31",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "egp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "127.1.1.1"
+                                        },
+                                        "multi-exit-disc": {
+                                            "med": 0
+                                        }
+                                    }
+                                },
+                                {
+                                    "path-id": 5,
+                                    "prefix": "1.1.1.2/31",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "egp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "127.1.1.1"
+                                        },
+                                        "multi-exit-disc": {
+                                            "med": 0
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    }
+                ]
+            },
+            "adj-rib-out": {
+                "tables": [
+                    {
+                        "afi": "bgp-linkstate:linkstate-address-family",
+                        "safi": "bgp-linkstate:linkstate-subsequent-address-family",
+                        "bgp-linkstate:linkstate-routes": {},
+                        "attributes": {
+                            "uptodate": false
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {
+                            "ipv4-route": [
+                                {
+                                    "path-id": 1,
+                                    "prefix": "10.0.0.11/32",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "igp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "10.11.1.1"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "attributes": {
+                            "uptodate": false
+                        }
+                    }
+                ]
+            },
+            "peer-role": "ibgp",
+            "adj-rib-in": {
+                "tables": [
+                    {
+                        "afi": "bgp-linkstate:linkstate-address-family",
+                        "safi": "bgp-linkstate:linkstate-subsequent-address-family",
+                        "bgp-linkstate:linkstate-routes": {},
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    },
+                    {
+                        "afi": "bgp-types:ipv4-address-family",
+                        "safi": "bgp-types:unicast-subsequent-address-family",
+                        "bgp-inet:ipv4-routes": {
+                            "ipv4-route": [
+                                {
+                                    "path-id": 5,
+                                    "prefix": "1.1.1.1/31",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "egp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "127.1.1.1"
+                                        },
+                                        "multi-exit-disc": {
+                                            "med": 0
+                                        }
+                                    }
+                                },
+                                {
+                                    "path-id": 5,
+                                    "prefix": "1.1.1.2/31",
+                                    "attributes": {
+                                        "as-path": {},
+                                        "origin": {
+                                            "value": "egp"
+                                        },
+                                        "local-pref": {
+                                            "pref": 100
+                                        },
+                                        "ipv4-next-hop": {
+                                            "global": "127.1.1.1"
+                                        },
+                                        "multi-exit-disc": {
+                                            "med": 0
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "attributes": {
+                            "uptodate": true
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+----
+
+Also the same route should appeared in Loc-RIB now:
+
+*URL:* http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/loc-rib
+
+*Method:* GET
+
+*Response body:*
+
+[source,json]
+----
+{
+    "loc-rib": {
+        "tables": [
+            {
+                "afi": "bgp-types:ipv4-address-family",
+                "safi": "bgp-types:unicast-subsequent-address-family",
+                "bgp-inet:ipv4-routes": {
+                    "ipv4-route": [
+                        {
+                            "path-id": 1,
+                            "prefix": "10.0.0.11/32",
+                            "attributes": {
+                                "as-path": {},
+                                "origin": {
+                                    "value": "igp"
+                                },
+                                "local-pref": {
+                                    "pref": 100
+                                },
+                                "ipv4-next-hop": {
+                                    "global": "10.11.1.1"
+                                }
+                            }
+                        },
+                        {
+                            "path-id": 1,
+                            "prefix": "1.1.1.1/31",
+                            "attributes": {
+                                "as-path": {},
+                                "origin": {
+                                    "value": "egp"
+                                },
+                                "local-pref": {
+                                    "pref": 100
+                                },
+                                "ipv4-next-hop": {
+                                    "global": "127.1.1.1"
+                                },
+                                "multi-exit-disc": {
+                                    "med": 0
+                                }
+                            }
+                        },
+                        {
+                            "path-id": 1,
+                            "prefix": "1.1.1.2/31",
+                            "attributes": {
+                                "as-path": {},
+                                "origin": {
+                                    "value": "egp"
+                                },
+                                "local-pref": {
+                                    "pref": 100
+                                },
+                                "ipv4-next-hop": {
+                                    "global": "127.1.1.1"
+                                },
+                                "multi-exit-disc": {
+                                    "med": 0
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "afi": "bgp-types:ipv4-address-family",
+                "safi": "bgp-labeled-unicast:labeled-unicast-subsequent-address-family",
+                "bgp-labeled-unicast:labeled-unicast-routes": {}
+            }
+        ]
+    }
+}
+----
+
+
+== Integration with VPP
+
+Honeycomb BGP implementation emits notifications on loc-rib modifications.
+Hc2vpp provides BgpInetModule module which translates
+link:http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#ip-unicast-api[IPv4/IPv6 unicast]
+routes from loc-rib into VPP FIB.
+
+The BgpInetModule is disabled by default. To enable it, edit
+
+  modules/io-fd-hc2vpp-integration_vpp-integration-distribution_1-17-07-module-config
+
+in distribution dir (/opt/honeycomb in case honeycomb was installed from package), then restart honeycomb.
+
+Let's add route using Application Peer:
+
+*URL:* http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0
+
+*Method:* PUT
+
+*Request body:*
+
+[source,xml]
+----
+<ipv4-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp-inet">
+    <path-id>0</path-id>
+    <prefix>10.0.0.12/32</prefix>
+    <attributes>
+        <as-path></as-path>
+        <origin>
+            <value>igp</value>
+        </origin>
+        <local-pref>
+            <pref>100</pref>
+        </local-pref>
+        <ipv4-next-hop>
+            <global>10.11.1.1</global>
+        </ipv4-next-hop>
+    </attributes>
+</ipv4-route>
+----
+
+Also the same route should appeared in VPP now:
+
+*URL:* http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing-state/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/learned-protocol-0/static-routes/hc2vpp-ietf-ipv4-unicast-routing:ipv4
+
+*Method:* GET
+
+*Response body:*
+
+[source,json]
+----
+{
+    "hc2vpp-ietf-ipv4-unicast-routing:ipv4": {
+        "route": [
+            {
+                "id": 0,
+                "vpp-ipv4-route-state": {},
+                "next-hop": "0.0.0.0",
+                "destination-prefix": "0.0.0.0/0"
+            },
+            {
+                "id": 1,
+                "vpp-ipv4-route-state": {},
+                "next-hop": "0.0.0.0",
+                "destination-prefix": "0.0.0.0/32"
+            },
+            {
+                "id": 7,
+                "vpp-ipv4-route-state": {},
+                "next-hop": "10.11.1.1",
+                "destination-prefix": "10.0.0.12/32"
+            },
+            {
+                "id": 8,
+                "vpp-ipv4-route-state": {},
+                "next-hop": "0.0.0.0",
+                "destination-prefix": "10.11.1.1/32"
+            },
+            {
+                "id": 2,
+                "vpp-ipv4-route-state": {},
+                "next-hop": "0.0.0.0",
+                "destination-prefix": "224.0.0.0/4"
+            },
+            {
+                "id": 3,
+                "vpp-ipv4-route-state": {},
+                "next-hop": "0.0.0.0",
+                "destination-prefix": "240.0.0.0/4"
+            },
+            {
+                "id": 4,
+                "vpp-ipv4-route-state": {},
+                "next-hop": "0.0.0.0",
+                "destination-prefix": "255.255.255.255/32"
+            }
+        ]
+    }
+}
+----
+
+NOTE: Honeycomb persists config state between restarts. So you may also see 10.0.0.11 route that was added first.
+In order to remove persisted configuration, simply rm -rf /var/lib/honeycomb before starting honeycomb.
+
+== Postman collection with examples
+
+All the request examples can be found {project-git-web}/bgp/bgp_postman_collection?h={project-branch}[BGP postman collection].
