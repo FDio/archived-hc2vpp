@@ -18,16 +18,8 @@ package io.fd.hc2vpp.docs.core;
 
 public interface LinkGenerator {
 
-    static String resolveBranch(final String version) {
-        if (version.contains("SNAPSHOT")) {
-            return "master";
-        } else {
-            return "stable%2F" + version.replace(".", "");
-        }
-    }
-
-    default String generateLink(final String raw, final String version) {
+    default String generateLink(final String raw) {
         //https://git.fd.io/hc2vpp/tree/interface-role/api/src/main/yang/interface-role@2017-06-15.yang?h=stable%2F1707
-        return "https://git.fd.io/hc2vpp/tree" + raw + "?h=" + resolveBranch(version);
+        return "https://git.fd.io/hc2vpp/tree" + raw + "?h={project-branch}";
     }
 }

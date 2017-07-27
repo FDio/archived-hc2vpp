@@ -40,8 +40,8 @@ public class ClassPathTypeIndex implements LinkGenerator {
      */
     private final Map<String, String> index;
 
-    public ClassPathTypeIndex(final String projectRoot, final String version) {
-        index = buildIndex(projectRoot, version);
+    public ClassPathTypeIndex(final String projectRoot) {
+        index = buildIndex(projectRoot);
     }
 
     /**
@@ -58,7 +58,7 @@ public class ClassPathTypeIndex implements LinkGenerator {
         return index.get(clazz.replace("/", "."));
     }
 
-    private Map<String, String> buildIndex(final String projectRoot, final String version) {
+    private Map<String, String> buildIndex(final String projectRoot) {
         try {
             return Files.walk(Paths.get(projectRoot))
                     .filter(path -> path.toString().contains("src/main/java"))
@@ -66,7 +66,7 @@ public class ClassPathTypeIndex implements LinkGenerator {
                     .map(Path::toString)
                     .map(s -> s.replace(projectRoot, ""))
                     .distinct()
-                    .collect(Collectors.toMap(ClassPathTypeIndex::key, o -> generateLink(o, version)));
+                    .collect(Collectors.toMap(ClassPathTypeIndex::key, o -> generateLink(o)));
         } catch (IOException e) {
             throw new IllegalStateException(format("%s not found", projectRoot), e);
         }
