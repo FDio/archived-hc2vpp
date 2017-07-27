@@ -86,7 +86,7 @@ class ApiDocsIndexGenerator {
                 .forEach { pluginClass ->
             log.info "Generating mapping for ${pluginClass}"
             final PluginCoverage configCoverage = new CoverageGenerator()
-                    .generateConfigCoverage(pluginClass, project.version, modules, yangTypeIndex, classPathIndex)
+                    .generateConfigCoverage(pluginClass, modules, yangTypeIndex, classPathIndex)
             generateJvppCoverageDoc(configCoverage, outPath, log)
 
             //TODO operational coverage

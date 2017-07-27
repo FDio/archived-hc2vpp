@@ -54,7 +54,6 @@ public class CoverageGenerator implements VppApiUtils {
     }
 
     public PluginCoverage generateConfigCoverage(final Class<?> pluginClass,
-                                                 final String version,
                                                  final List<Module> scannedModules,
                                                  final YangTypeLinkIndex yangTypeIndex,
                                                  final ClassPathTypeIndex classPathIndex) {
@@ -90,7 +89,7 @@ public class CoverageGenerator implements VppApiUtils {
                             final CoverageUnit.CoverageUnitBuilder builder = new CoverageUnit.CoverageUnitBuilder();
 
                             // binds vpp api name and generateLink bind with version
-                            builder.setVppApi(fromJvppApi(version, jvppMethodName));
+                            builder.setVppApi(fromJvppApi(jvppMethodName));
 
                             //binds java api reference
                             builder.setJavaApi(new JavaApiMessage(jvppMethodName));

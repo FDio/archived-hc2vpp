@@ -22,18 +22,18 @@ import io.fd.hc2vpp.docs.api.VppApiMessage;
 
 public interface VppApiUtils {
 
-    static String generateVppApiDocLink(final String version, final String vppMessageName) {
+    static String generateVppApiDocLink(final String vppMessageName) {
         //https://docs.fd.io/vpp/17.07/d9/d1d/structvl__api__create__subif__t.html
         // links are using double underscore
         //final String doubleUnderscoreApiName = vppApi.replace("_", "__");
         //return format("https://docs.fd.io/vpp/%s/d9/d1d/structvl__api__%s__t.html", version, doubleUnderscoreApiName);
 
         // FIXME - generateLink has dynamic part that can be resolved from api name
-        return "https://docs.fd.io/vpp/17.07/annotated.html";
+        return "https://docs.fd.io/vpp/{project-vpp-version}/annotated.html";
     }
 
-    default VppApiMessage fromJvppApi(final String version, final String jvppMethodName) {
+    default VppApiMessage fromJvppApi(final String jvppMethodName) {
         final String vppMessageName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, jvppMethodName);
-        return new VppApiMessage(vppMessageName, generateVppApiDocLink(version, vppMessageName));
+        return new VppApiMessage(vppMessageName, generateVppApiDocLink(vppMessageName));
     }
 }
