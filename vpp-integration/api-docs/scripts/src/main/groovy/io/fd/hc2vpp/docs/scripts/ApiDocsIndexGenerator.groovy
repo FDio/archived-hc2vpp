@@ -77,9 +77,9 @@ class ApiDocsIndexGenerator {
         String outPath = project.build.outputDirectory
 
         log.info "Generating yang type generateLink index"
-        YangTypeLinkIndex yangTypeIndex = new YangTypeLinkIndex(projectRoot, project.version)
+        YangTypeLinkIndex yangTypeIndex = new YangTypeLinkIndex(projectRoot)
         log.info "Classpath type generateLink index"
-        ClassPathTypeIndex classPathIndex = new ClassPathTypeIndex(projectRoot, project.version)
+        ClassPathTypeIndex classPathIndex = new ClassPathTypeIndex(projectRoot)
 
         log.info "Generating VPP API to YANG mapping"
         PLUGIN_CLASSES.stream()

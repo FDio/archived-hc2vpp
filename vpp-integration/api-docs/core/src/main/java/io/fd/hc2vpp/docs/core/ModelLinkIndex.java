@@ -35,10 +35,9 @@ class ModelLinkIndex implements LinkGenerator {
 
     /**
      * @param projectRoot for ex.: /home/jsrnicek/Projects/hc2vpp
-     * @param version     for ex.: 17.07 to get generateLink for correct branch
      */
-    ModelLinkIndex(final String projectRoot, final String version) {
-        modelLinkIndex = buildIndex(projectRoot, version);
+    ModelLinkIndex(final String projectRoot) {
+        modelLinkIndex = buildIndex(projectRoot);
     }
 
     private static String key(String raw) {
@@ -55,7 +54,7 @@ class ModelLinkIndex implements LinkGenerator {
                         .orElse("https://datatracker.ietf.org/"));
     }
 
-    private Map<String, String> buildIndex(final String projectRoot, final String version) {
+    private Map<String, String> buildIndex(final String projectRoot) {
         try {
             return Files.walk(Paths.get(projectRoot))
                     .filter(path -> path.toString().contains("src/main/yang"))
@@ -63,7 +62,7 @@ class ModelLinkIndex implements LinkGenerator {
                     .map(Path::toString)
                     .map(s -> s.replace(projectRoot, ""))
                     .distinct()
-                    .collect(Collectors.toMap(ModelLinkIndex::key, o -> generateLink(o, version)));
+                    .collect(Collectors.toMap(ModelLinkIndex::key, o -> generateLink(o)));
         } catch (IOException e) {
             throw new IllegalStateException(format("%s not found", projectRoot), e);
         }

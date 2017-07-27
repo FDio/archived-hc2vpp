@@ -27,8 +27,8 @@ public class YangTypeLinkIndex {
     private final ModelLinkIndex modelLinkIndex;
     private final ModelTypeIndex modelTypeIndex;
 
-    public YangTypeLinkIndex(final String projectRoot, final String version) {
-        modelLinkIndex = new ModelLinkIndex(projectRoot, version);
+    public YangTypeLinkIndex(final String projectRoot) {
+        modelLinkIndex = new ModelLinkIndex(projectRoot);
         try {
             modelTypeIndex = new ModelTypeIndex();
         } catch (IOException e) {
