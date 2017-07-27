@@ -108,7 +108,7 @@
                 <project-version>${project.version}</project-version>
                 <project-public-version>17.07</project-public-version>
                 <project-version-in-jira>10701</project-version-in-jira>
-                <project-branch>master</project-branch>
+                <project-branch>stable/1707</project-branch>
                 <project-vpp-version>17.07</project-vpp-version>
                 <project-vpp-snapshot-version>17.07</project-vpp-snapshot-version>
                 <project-snat-version>17.07</project-snat-version>

@@ -7,8 +7,8 @@ Hc2vpp provides zip and tar.gz archives that can be downloaded and extracted to 
 == Downloading archives
 In https://nexus.fd.io/#nexus-search;quick~vpp-integration-distribution[fdio's nexus] look for vpp-integration-distribution artifact with version {project-version} and download either zip or tar.gz. After extracting the archive, a folder vpp-integration-distribution-{project-version} will be created.
 
-== Running extracted distribution[edit]
+== Running extracted distribution
 In the new folder, locate honeycomb executable shell script and run it.
 
-Note: sudo privileges are necessary with default configuration.
+NOTE: sudo privileges are necessary with default configuration.
 

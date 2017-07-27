@@ -11,7 +11,17 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.04/hc2vp
 
 === New features
 
+* https://jira.fd.io/browse/HC2VPP-168[GPE native forward paths support]
+* https://jira.fd.io/browse/HC2VPP-147[Lisp GPE entry feature support]
+* https://jira.fd.io/browse/HC2VPP-174[BGP to VPP FIB translation for IP unicast family]
+* https://jira.fd.io/browse/HC2VPP-90[Prefix based addresses as EIDs]
+* https://jira.fd.io/browse/HC2VPP-139[Sub-interface missing features]
+* https://jira.fd.io/browse/HC2VPP-148[Interface unnumbered flag]
+* https://jira.fd.io/browse/HC2VPP-180[Documentation: mapping between HC Yang models and VPP APIs]
+
 === Removed features
+
+ACL management in terms of ietf-acl model based on vpp classifier
 
 === Modified features
 
@@ -19,7 +29,7 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.04/hc2vp
 
 == Backlog
 
-* https://jira.fd.io/projects/HONEYCOMB/versions/{project-version-in-jira}[JIRA]
+* https://jira.fd.io/projects/HC2VPP/versions/{project-version-in-jira}[JIRA]
 * https://jira.fd.io/jira/secure/ReleaseNote.jspa?projectId=10601&version={project-version-in-jira}[Release notes]
 
 include::install_guide/install_guide.adoc[]

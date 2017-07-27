@@ -35,6 +35,8 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/nat/nat-api/src/main/yang?h={project-branch}[NAT YANG models]
 * iOAM plugin
 ** {project-git-web}/ioam/api/src/main/yang?h={project-branch}[IOAM YANG models]
+* Interface role plugin
+** {project-git-web}/interface-role/api/src/main/yang?h={project-branch}[Interface role YANG models]
 * Routing plugin
 ** {project-git-web}/routing/routing-api/src/main/yang?h={project-branch}[Routing YANG models]
 * ACL plugin
@@ -56,12 +58,15 @@ Honeycomb's configuration files present within its distribution:
 ** {project-git-web}/v3po/postman_rest_collection.json?h={project-branch}[V3PO postman collection]
 * LISP plugin
 ** {project-git-web}/lisp/lisp_postman_collection.json?h={project-branch}[LISP postman collection]
+** {project-git-web}/lisp/gpe_postman_collection.json?h={project-branch}[LISP GPE postman collection]
 * NSH plugin
 ** {project-git-web}/nsh/nsh_postman_collection.json?h={project-branch}[NSH postman collection]
 * NAT plugin
 ** {project-git-web}/nat/postman_rest_collection.json?h={project-branch}[NAT postman collection]
 * iOAM plugin
 ** {project-git-web}/ioam/ioam_postman_collection.json?h={project-branch}[IOAM postman collection]
+* Interface role plugin
+** {project-git-web}/interface-role/interface_role_postman_collection.json?h={project-branch}[Interface role postman collection]
 * Routing plugin
 ** {project-git-web}/routing/routing_postman_collection.json?h={project-branch}[Routing postman collection]
 ** {project-git-web}/routing/routing_adv_postman_collection.json?h={project-branch}[Routing advertisements postman collection]
