@@ -31,7 +31,7 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.07/hc2vp
 
 == Backlog
 
-* https://jira.fd.io/projects/HONEYCOMB/versions/{project-version-in-jira}[JIRA]
+* https://jira.fd.io/projects/HC2VPP/versions/{project-version-in-jira}[JIRA]
 * https://jira.fd.io/jira/secure/ReleaseNote.jspa?projectId=10601&version={project-version-in-jira}[Release notes]
 
 include::install_guide/install_guide.adoc[]

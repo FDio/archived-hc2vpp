@@ -8,7 +8,7 @@ The zipped vpp-integration distribution can be started by invoking:
 [subs="+attributes"]
  sudo ./vpp-integration-distribution-{project-version}/honeycomb
 
-This will start Honeycomb with all ODL dependencies and VPP translation code. It will automatically initialize vpp-jvpp to create interface between VPP and Honeycomb.
+This will start Honeycomb with all ODL dependencies and VPP translation code. It will automatically initialize jvpp to create interface between VPP and Honeycomb.
 
 If Honeycomb was installed from the RPM or DEB packages, it can be started by (make sure you start vpp first):
 

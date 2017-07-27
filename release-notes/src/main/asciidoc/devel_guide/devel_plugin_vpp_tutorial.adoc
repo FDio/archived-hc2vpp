@@ -609,9 +609,9 @@ Netconf testing guide including Notifications, can be found in Honeycomb/Running
 
 NOTE: Netconf and Restconf are equivalent interfaces to Honeycomb, being capable of providing the same APIs. The only difference is with notifications. Only NETCONF is capable of emitting the notifications.
 
-== Full working sample
+== Full working sample (outdated)
 
-Full working sample on github: https://github.com/marosmars/honeycomb-samples/tree/vpp-plugin
+Full working sample (hc2vpp 1.16.09) on github: https://github.com/marosmars/honeycomb-samples/tree/vpp-plugin
 
 [NOTE]
 ====

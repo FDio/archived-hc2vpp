@@ -188,7 +188,7 @@ Now hc2vpp can be run with:
 After the code has been built, you can build an RPM or DEB package for hc2vpp.
 
 ==== RPM
-Export build number variable:
+Export build number variable, e.g.:
 
  export BUILD_NUMBER=33
 
@@ -197,10 +197,14 @@ Run package building script from:
  packaging/rpm/rpmbuild.sh
 
 ==== DEB
-Export build number variable:
+Export build number variable, e.g.:
 
  export BUILD_NUMBER=33
 
 Run package building script from:
 
- packaging/deb/debuild.sh
+ packaging/deb/xenial/debuild.sh
+
+or
+
+ packaging/deb/trusty/debuild.sh
