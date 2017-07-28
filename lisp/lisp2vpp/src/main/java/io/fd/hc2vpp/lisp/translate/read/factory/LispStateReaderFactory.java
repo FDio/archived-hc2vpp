@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.lisp.translate.read.factory;
 
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
+import io.fd.hc2vpp.lisp.translate.read.ItrRemoteLocatorSetCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.LispStateCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.MapRegisterCustomizer;
 import io.fd.hc2vpp.lisp.translate.read.MapRequestModeCustomizer;
@@ -28,6 +29,7 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.LispState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.lisp.feature.data.grouping.LispFeatureDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegister;
@@ -67,5 +69,8 @@ public class LispStateReaderFactory extends AbstractLispInfraFactoryBase impleme
 
         registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(MapRequestMode.class),
                 new MapRequestModeCustomizer(vppApi, lispStateCheckService)));
+
+        registry.add(new GenericInitReader<>(LISP_FEATURE_ID.child(ItrRemoteLocatorSet.class),
+            new ItrRemoteLocatorSetCustomizer(vppApi, lispStateCheckService)));
     }
 }

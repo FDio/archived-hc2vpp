@@ -20,6 +20,7 @@ package io.fd.hc2vpp.lisp.translate.write.factory;
 import static io.fd.hc2vpp.lisp.translate.write.factory.LocatorSetWriterFactory.LOCATOR_SET_ID;
 
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
+import io.fd.hc2vpp.lisp.translate.write.ItrRemoteLocatorSetCustomizer;
 import io.fd.hc2vpp.lisp.translate.write.LispCustomizer;
 import io.fd.hc2vpp.lisp.translate.write.MapRegisterCustomizer;
 import io.fd.hc2vpp.lisp.translate.write.MapRequestModeCustomizer;
@@ -33,6 +34,7 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.lisp.feature.data.grouping.LispFeatureData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegister;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.request.mode.grouping.MapRequestMode;
@@ -73,5 +75,8 @@ public final class LispWriterFactory extends AbstractLispInfraFactoryBase implem
 
         registry.add(writer(LISP_FEATURE_IDENTIFIER.child(RlocProbe.class),
                 new RlocProbeCustomizer(vppApi, lispStateCheckService)));
+
+        registry.add(writer(LISP_FEATURE_IDENTIFIER.child(ItrRemoteLocatorSet.class),
+                new ItrRemoteLocatorSetCustomizer(vppApi, lispStateCheckService)));
     }
 }
