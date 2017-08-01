@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
@@ -166,6 +167,26 @@ public final class NamingContext implements AutoCloseable {
         checkArgument(read.isPresent(), "No mapping stored for name: %s", name);
         return read.get().getIndex();
 
+    }
+
+    /**
+     * Returns index value associated with the given name.
+     *
+     * @param name               the name whose associated index value is to be returned
+     * @param mappingContext     mapping context providing context data for current transaction
+     * @param throwIfNonExisting if mapping was not found, supplied exception will be thrown
+     * @return integer index value matching supplied name
+     * @throws T if name was not found
+     */
+    public synchronized <T extends Throwable> int getIndex(final String name,
+                                                           final MappingContext mappingContext,
+                                                           final Supplier<T> throwIfNonExisting) throws T {
+        // supplier is used to not instantiate exception if not needed
+        final Optional<Mapping> read = mappingContext.read(getMappingIid(name));
+        if (!read.isPresent()) {
+            throw throwIfNonExisting.get();
+        }
+        return read.get().getIndex();
     }
 
     /**

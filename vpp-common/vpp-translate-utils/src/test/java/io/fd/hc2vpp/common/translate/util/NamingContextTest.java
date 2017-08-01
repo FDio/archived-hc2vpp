@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.common.translate.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -102,6 +103,13 @@ public class NamingContextTest implements InjectablesProcessor {
                 .setIndex(3)
                 .setName("name-3")
                 .build());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getAndThrow() {
+        when(mappingContext.read(any())).thenReturn(Optional.absent());
+        namingContext
+                .getIndex("non-existing", mappingContext, () -> new IllegalArgumentException("Non existing index"));
     }
 
     private Mapping filterForParent(final String parent) {
