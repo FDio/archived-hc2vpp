@@ -18,6 +18,10 @@ package io.fd.hc2vpp.nat.read.ifc;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
@@ -25,13 +29,13 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceOutputFeatureDetails;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceOutputFeatureDetailsReplyDump;
+import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -51,8 +55,8 @@ public class InterfaceInboundNatCustomizerTest
     private static final String CTX_NAME = "ifc";
 
     @Mock
-    private EntityDumpExecutor<SnatInterfaceDetailsReplyDump, Void> natExecutor;
-    private DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> dumpMgr;
+    private FutureJVppSnatFacade jvppSnat;
+
     private NamingContext ifcContext = new NamingContext(CTX_NAME, CTX_NAME);
     private InstanceIdentifier<Inbound> id;
 
@@ -72,17 +76,9 @@ public class InterfaceInboundNatCustomizerTest
     protected void setUp() throws Exception {
         id = getId(Inbound.class);
         defineMapping(mappingContext, IFC_NAME, IFC_IDX, CTX_NAME);
-        // empty dump
-        Mockito.doReturn(new SnatInterfaceDetailsReplyDump()).when(natExecutor).executeDump(id, null);
-        dumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatInterfaceDetailsReplyDump, Void>()
-                .withExecutor(natExecutor)
-                .acceptOnly(SnatInterfaceDetailsReplyDump.class)
-                .build();
-    }
-
-    @Test
-    public void testNoPresence() throws Exception {
-        assertFalse(getReader().read(id, ctx).isPresent());
+        when(jvppSnat.snatInterfaceDump(any())).thenReturn(future(new SnatInterfaceDetailsReplyDump()));
+        when(jvppSnat.snatInterfaceOutputFeatureDump(any()))
+                .thenReturn(future(new SnatInterfaceOutputFeatureDetailsReplyDump()));
     }
 
     private GenericReader<Inbound, InboundBuilder> getReader() {
@@ -90,19 +86,47 @@ public class InterfaceInboundNatCustomizerTest
     }
 
     @Test
-    public void testPresence() throws Exception {
+    public void testNoPresence() throws Exception {
+        assertFalse(getReader().read(id, ctx).isPresent());
+    }
+
+    private void mockPostRoutingDump() {
+        final SnatInterfaceOutputFeatureDetailsReplyDump details = new SnatInterfaceOutputFeatureDetailsReplyDump();
+        final SnatInterfaceOutputFeatureDetails detail = new SnatInterfaceOutputFeatureDetails();
+        detail.isInside = 1;
+        detail.swIfIndex = IFC_IDX;
+        details.snatInterfaceOutputFeatureDetails = Lists.newArrayList(detail);
+        when(jvppSnat.snatInterfaceOutputFeatureDump(any())).thenReturn(future(details));
+    }
+
+    @Test
+    public void testPresencePreRouting() throws Exception {
         final SnatInterfaceDetailsReplyDump details = new SnatInterfaceDetailsReplyDump();
         final SnatInterfaceDetails detail = new SnatInterfaceDetails();
         detail.isInside = 1;
         detail.swIfIndex = IFC_IDX;
         details.snatInterfaceDetails = Lists.newArrayList(detail);
-        Mockito.doReturn(details).when(natExecutor).executeDump(id, null);
+        when(jvppSnat.snatInterfaceDump(any())).thenReturn(future(details));
 
         assertTrue(getReader().read(id, ctx).isPresent());
     }
 
+    @Test
+    public void testPresencePostRouting() throws Exception {
+        mockPostRoutingDump();
+        assertTrue(getReader().read(id, ctx).isPresent());
+    }
+
+    @Test
+    public void testReadPostRouting() throws Exception {
+        mockPostRoutingDump();
+        final InboundBuilder builder = mock(InboundBuilder.class);
+        customizer.readCurrentAttributes(id, builder, ctx);
+        verify(builder).setPostRouting(true);
+    }
+
     @Override
     protected ReaderCustomizer<Inbound, InboundBuilder> initCustomizer() {
-        return new InterfaceInboundNatCustomizer(dumpMgr, ifcContext);
+        return new InterfaceInboundNatCustomizer(jvppSnat, ifcContext);
     }
 }

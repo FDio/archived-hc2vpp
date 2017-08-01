@@ -27,22 +27,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interfa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170801._interface.nat.attributes.nat.InboundBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class InterfaceInboundNatCustomizerTest extends AbstractNatCustomizerTest<Inbound, InterfaceInboundNatCustomizer> {
+public class InterfaceInboundNatCustomizerTest
+        extends AbstractNatCustomizerTest<Inbound, InterfaceInboundNatCustomizer> {
 
     @Override
-    protected Inbound getData() {
-        return new InboundBuilder().build();
+    protected Inbound getPreRoutingConfig() {
+        return new InboundBuilder().setPostRouting(false).build();
+    }
+
+    @Override
+    protected Inbound getPostRoutingConfig() {
+        return new InboundBuilder().setPostRouting(true).build();
     }
 
     @Override
     protected InstanceIdentifier<Inbound> getIId(final String ifaceName) {
         return InstanceIdentifier.create(Interfaces.class)
-            .child(Interface.class, new InterfaceKey(ifaceName)).augmentation(NatInterfaceAugmentation.class)
-            .child(Nat.class).child(Inbound.class);
+                .child(Interface.class, new InterfaceKey(ifaceName)).augmentation(NatInterfaceAugmentation.class)
+                .child(Nat.class).child(Inbound.class);
     }
 
     @Override
-    protected InterfaceInboundNatCustomizer getCustomizer(final FutureJVppSnatFacade snatApi, final NamingContext ifcNamingCtx) {
+    protected InterfaceInboundNatCustomizer getCustomizer(final FutureJVppSnatFacade snatApi,
+                                                          final NamingContext ifcNamingCtx) {
         return new InterfaceInboundNatCustomizer(snatApi, ifcNamingCtx);
     }
 }

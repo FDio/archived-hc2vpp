@@ -26,15 +26,18 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeature;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeatureReply;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeature;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeatureReply;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170801.InterfaceNatVppFeatureAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170801._interface.nat.attributes.nat.Inbound;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-abstract class AbstractNatCustomizerTest<D extends DataObject, T extends AbstractInterfaceNatCustomizer<D>>
-    extends WriterCustomizerTest implements ByteDataTranslator {
+abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttributes & DataObject, T extends AbstractInterfaceNatCustomizer<D>>
+        extends WriterCustomizerTest implements ByteDataTranslator {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IFACE_NAME = "eth0";
@@ -48,40 +51,75 @@ abstract class AbstractNatCustomizerTest<D extends DataObject, T extends Abstrac
     @Override
     public void setUpTest() {
         customizer = getCustomizer(snatApi, ifcNamingCtx);
+        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
+        when(snatApi.snatInterfaceAddDelFeature(any())).thenReturn(future(new SnatInterfaceAddDelFeatureReply()));
+        when(snatApi.snatInterfaceAddDelOutputFeature(any()))
+                .thenReturn(future(new SnatInterfaceAddDelOutputFeatureReply()));
     }
 
     @Test
-    public void testWrite() throws Exception {
-        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
-        when(snatApi.snatInterfaceAddDelFeature(any())).thenReturn(future(new SnatInterfaceAddDelFeatureReply()));
-        final D data = getData();
+    public void testWritePreRouting() throws Exception {
+        final D data = getPreRoutingConfig();
         customizer.writeCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
-        verify(snatApi).snatInterfaceAddDelFeature(expectedRequest(data, true));
+        verify(snatApi).snatInterfaceAddDelFeature(expectedPreRoutingRequest(data, true));
+    }
+
+    @Test
+    public void testWritePostRouting() throws Exception {
+        final D data = getPostRoutingConfig();
+        customizer.writeCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
+        verify(snatApi).snatInterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, true));
     }
 
     @Test(expected = WriteFailedException.UpdateFailedException.class)
-    public void testUpdate() throws Exception {
-        customizer.updateCurrentAttributes(getIId(IFACE_NAME), getData(), getData(), writeContext);
+    public void testUpdatePreRouting() throws Exception {
+        customizer.updateCurrentAttributes(getIId(IFACE_NAME), getPreRoutingConfig(), getPreRoutingConfig(),
+                writeContext);
+    }
+
+    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    public void testUpdatePostRouting() throws Exception {
+        customizer.updateCurrentAttributes(getIId(IFACE_NAME), getPostRoutingConfig(), getPostRoutingConfig(),
+                writeContext);
     }
 
     @Test
-    public void testDelete() throws Exception {
-        defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
-        when(snatApi.snatInterfaceAddDelFeature(any())).thenReturn(future(new SnatInterfaceAddDelFeatureReply()));
-        final D data = getData();
+    public void testDeletePreRouting() throws Exception {
+        final D data = getPreRoutingConfig();
         customizer.deleteCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
-        verify(snatApi).snatInterfaceAddDelFeature(expectedRequest(data, false));
+        verify(snatApi).snatInterfaceAddDelFeature(expectedPreRoutingRequest(data, false));
     }
 
-    private SnatInterfaceAddDelFeature expectedRequest(final D data, boolean isAdd) {
+    @Test
+    public void testDeletePostRouting() throws Exception {
+        final D data = getPostRoutingConfig();
+        customizer.deleteCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
+        verify(snatApi).snatInterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, false));
+    }
+
+    private SnatInterfaceAddDelFeature expectedPreRoutingRequest(final D data, boolean isAdd) {
         SnatInterfaceAddDelFeature request = new SnatInterfaceAddDelFeature();
-        request.isInside = (byte) ((data instanceof Inbound) ? 1 : 0);
+        request.isInside = (byte) ((data instanceof Inbound)
+                ? 1
+                : 0);
         request.swIfIndex = IFACE_ID;
         request.isAdd = booleanToByte(isAdd);
         return request;
     }
 
-    protected abstract D getData();
+    private SnatInterfaceAddDelOutputFeature expectedPostRoutingRequest(final D data, boolean isAdd) {
+        SnatInterfaceAddDelOutputFeature request = new SnatInterfaceAddDelOutputFeature();
+        request.isInside = (byte) ((data instanceof Inbound)
+                ? 1
+                : 0);
+        request.swIfIndex = IFACE_ID;
+        request.isAdd = booleanToByte(isAdd);
+        return request;
+    }
+
+    protected abstract D getPreRoutingConfig();
+
+    protected abstract D getPostRoutingConfig();
 
     protected abstract InstanceIdentifier<D> getIId(final String ifaceName);
 

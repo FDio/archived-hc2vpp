@@ -16,22 +16,28 @@
 
 package io.fd.hc2vpp.nat.write.ifc;
 
-import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.dto.JVppReply;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeature;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeatureReply;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeature;
+import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeatureReply;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170801.InterfaceNatVppFeatureAttributes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 
-abstract class AbstractInterfaceNatCustomizer<D extends DataObject> implements JvppReplyConsumer, WriterCustomizer<D> {
+abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAttributes & DataObject>
+        implements ByteDataTranslator, JvppReplyConsumer, WriterCustomizer<D> {
 
     private final FutureJVppSnatFacade jvppSnat;
     private final NamingContext ifcContext;
@@ -47,14 +53,16 @@ abstract class AbstractInterfaceNatCustomizer<D extends DataObject> implements J
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         final String ifcName = getName(id);
         getLog().debug("Enabling " + getType() + " NAT on interface: {}", ifcName);
-        getLog().debug("Enabling " + getType() + " NAT: {}", id);
+        getLog().debug("Enabling {} NAT: {}", dataAfter, id);
 
         final int ifcIndex = ifcContext.getIndex(ifcName, writeContext.getMappingContext());
-        final SnatInterfaceAddDelFeature request = getRequest(ifcIndex, (byte)1);
-        final CompletionStage<SnatInterfaceAddDelFeatureReply> future = jvppSnat.snatInterfaceAddDelFeature(request);
-
-        final SnatInterfaceAddDelFeatureReply reply = getReplyForWrite(future.toCompletableFuture(), id);
-        getLog().debug("NAT " + getType() + " enabled successfully on: {}, reply: {}", ifcName, reply);
+        final JVppReply reply;
+        if (dataAfter.isPostRouting()) {
+            reply = postRoutingNat(id, ifcIndex, true);
+        } else {
+            reply = preRoutingNat(id, ifcIndex, true);
+        }
+        getLog().debug("NAT {} enabled successfully on: {}, reply: {}", dataAfter, ifcName, reply);
     }
 
     @Override
@@ -71,22 +79,47 @@ abstract class AbstractInterfaceNatCustomizer<D extends DataObject> implements J
             throws WriteFailedException {
         final String ifcName = getName(id);
         getLog().debug("Disabling " + getType() + " NAT on interface: {}", ifcName);
-        getLog().debug("Disabling " + getType() + " NAT: {}", id);
+        getLog().debug("Disabling {} NAT: {}", dataBefore, id);
 
         final int ifcIndex = ifcContext.getIndex(ifcName, writeContext.getMappingContext());
-        final SnatInterfaceAddDelFeature request = getRequest(ifcIndex, (byte)0);
-        final CompletionStage<SnatInterfaceAddDelFeatureReply> future = jvppSnat.snatInterfaceAddDelFeature(request);
-
-        final SnatInterfaceAddDelFeatureReply reply = getReplyForWrite(future.toCompletableFuture(), id);
-        getLog().debug("NAT " + getType() + " disabled successfully on: {}, reply: {}", ifcName, reply);
+        final JVppReply reply;
+        if (dataBefore.isPostRouting()) {
+            reply = postRoutingNat(id, ifcIndex, false);
+        } else {
+            reply = preRoutingNat(id, ifcIndex, false);
+        }
+        getLog().debug("NAT {} disabled successfully on: {}, reply: {}", dataBefore, ifcName, reply);
     }
 
     protected String getName(final InstanceIdentifier<D> id) {
         return id.firstKeyOf(Interface.class).getName();
     }
 
+    private JVppReply postRoutingNat(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
+            throws WriteFailedException {
+        final SnatInterfaceAddDelOutputFeature request = new SnatInterfaceAddDelOutputFeature();
+        request.isAdd = booleanToByte(enable);
+        request.isInside = getType().isInside;
+        request.swIfIndex = ifcIndex;
+
+        final CompletionStage<SnatInterfaceAddDelOutputFeatureReply> future =
+                jvppSnat.snatInterfaceAddDelOutputFeature(request);
+        return getReplyForWrite(future.toCompletableFuture(), id);
+    }
+
+    private JVppReply preRoutingNat(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
+            throws WriteFailedException {
+        final SnatInterfaceAddDelFeature request = new SnatInterfaceAddDelFeature();
+        request.isAdd = booleanToByte(enable);
+        request.isInside = getType().isInside;
+        request.swIfIndex = ifcIndex;
+
+        final CompletionStage<SnatInterfaceAddDelFeatureReply> future = jvppSnat.snatInterfaceAddDelFeature(request);
+        return getReplyForWrite(future.toCompletableFuture(), id);
+    }
+
     enum NatType {
-        INBOUND((byte)1), OUTBOUND((byte)0);
+        INBOUND((byte) 1), OUTBOUND((byte) 0);
 
         private final byte isInside;
 
@@ -96,14 +129,6 @@ abstract class AbstractInterfaceNatCustomizer<D extends DataObject> implements J
     }
 
     abstract NatType getType();
+
     abstract Logger getLog();
-
-    private SnatInterfaceAddDelFeature getRequest(final int ifcIdx, final byte isAdd) {
-        final SnatInterfaceAddDelFeature request = new SnatInterfaceAddDelFeature();
-        request.isAdd = isAdd;
-        request.isInside = getType().isInside;
-        request.swIfIndex = ifcIdx;
-        return request;
-    }
-
 }

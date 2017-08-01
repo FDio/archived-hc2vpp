@@ -19,9 +19,7 @@ package io.fd.hc2vpp.nat.read.ifc;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.Initialized;
-import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -41,10 +39,9 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceInboundNatCustomizer.class);
 
-    InterfaceInboundNatCustomizer(
-            @Nonnull final DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> dumpMgr,
-            @Nonnull final NamingContext ifcContext) {
-        super(dumpMgr, ifcContext);
+    InterfaceInboundNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+                                  @Nonnull final NamingContext ifcContext) {
+        super(jvppSnat, ifcContext);
     }
 
     @Override
@@ -53,8 +50,13 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
     }
 
     @Override
-    boolean isExpectedNatType(final SnatInterfaceDetails snatInterfaceDetails) {
-        return snatInterfaceDetails.isInside == 1;
+    boolean isExpectedNatType(final int isInside) {
+        return isInside == 1;
+    }
+
+    @Override
+    void setPostRouting(final InboundBuilder builder) {
+        builder.setPostRouting(true);
     }
 
     @Nonnull
@@ -76,12 +78,13 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
                                                   @Nonnull final ReadContext ctx) {
         final InstanceIdentifier<Inbound> cfgId =
                 InstanceIdentifier.create(Interfaces.class)
-                .child(Interface.class,
-                        new InterfaceKey(id.firstKeyOf(
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class).getName()))
-                .augmentation(NatInterfaceAugmentation.class)
-                .child(Nat.class)
-                .child(Inbound.class);
+                        .child(Interface.class,
+                                new InterfaceKey(id.firstKeyOf(
+                                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class)
+                                        .getName()))
+                        .augmentation(NatInterfaceAugmentation.class)
+                        .child(Nat.class)
+                        .child(Inbound.class);
         return Initialized.create(cfgId, readValue);
     }
 }

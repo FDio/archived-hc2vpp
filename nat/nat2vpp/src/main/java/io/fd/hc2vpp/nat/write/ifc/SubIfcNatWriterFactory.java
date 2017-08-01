@@ -41,10 +41,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public final class SubIfcNatWriterFactory implements WriterFactory {
 
     private static final InstanceIdentifier<SubInterface>
-        SUB_IFC_ID = InstanceIdentifier.create(Interfaces.class).child(Interface.class).augmentation(
-        SubinterfaceAugmentation.class).child(SubInterfaces.class).child(SubInterface.class);
+            SUB_IFC_ID = InstanceIdentifier.create(Interfaces.class).child(Interface.class).augmentation(
+            SubinterfaceAugmentation.class).child(SubInterfaces.class).child(SubInterface.class);
     private static final InstanceIdentifier<Nat> NAT_AUG_ID =
-        SUB_IFC_ID.augmentation(NatSubinterfaceAugmentation.class).child(Nat.class);
+            SUB_IFC_ID.augmentation(NatSubinterfaceAugmentation.class).child(Nat.class);
 
     private final FutureJVppSnatFacade jvppSnat;
     private final NamingContext ifcContext;
@@ -59,8 +59,8 @@ public final class SubIfcNatWriterFactory implements WriterFactory {
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         registry.addAfter(new GenericWriter<>(NAT_AUG_ID.child(Inbound.class),
-            new SubInterfaceInboundNatCustomizer(jvppSnat, ifcContext)), SUB_IFC_ID);
+                new SubInterfaceInboundNatCustomizer(jvppSnat, ifcContext)), SUB_IFC_ID);
         registry.addAfter(new GenericWriter<>(NAT_AUG_ID.child(Outbound.class),
-            new SubInterfaceOutboundNatCustomizer(jvppSnat, ifcContext)), SUB_IFC_ID);
+                new SubInterfaceOutboundNatCustomizer(jvppSnat, ifcContext)), SUB_IFC_ID);
     }
 }

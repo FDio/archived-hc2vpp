@@ -37,13 +37,15 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170801.InterfaceNatVppFeatureAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-abstract class AbstractSubInterfaceNatCustomizer<D extends DataObject> extends AbstractInterfaceNatCustomizer<D> {
+abstract class AbstractSubInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAttributes & DataObject>
+        extends AbstractInterfaceNatCustomizer<D> {
     AbstractSubInterfaceNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
-                                          @Nonnull final NamingContext ifcContext) {
+                                      @Nonnull final NamingContext ifcContext) {
         super(jvppSnat, ifcContext);
     }
 
@@ -51,7 +53,7 @@ abstract class AbstractSubInterfaceNatCustomizer<D extends DataObject> extends A
     protected String getName(final InstanceIdentifier<D> id) {
         // TODO(HC2VPP-99): use SubInterfaceUtils after it is moved from v3po2vpp
         final String parentInterfaceName =
-            checkNotNull(id.firstKeyOf(Interface.class), "Interface configuration identifier expected").getName();
+                checkNotNull(id.firstKeyOf(Interface.class), "Interface configuration identifier expected").getName();
         final Long subIfId = id.firstKeyOf(SubInterface.class).getIdentifier();
         return String.format("%s.%d", parentInterfaceName, subIfId.intValue());
     }

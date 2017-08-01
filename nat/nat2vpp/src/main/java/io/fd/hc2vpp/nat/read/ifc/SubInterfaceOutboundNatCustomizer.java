@@ -19,9 +19,7 @@ package io.fd.hc2vpp.nat.read.ifc;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.Initialized;
-import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -45,10 +43,9 @@ final class SubInterfaceOutboundNatCustomizer extends AbstractSubInterfaceNatCus
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceOutboundNatCustomizer.class);
 
-    SubInterfaceOutboundNatCustomizer(
-        @Nonnull final DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> dumpMgr,
-        @Nonnull final NamingContext ifcContext) {
-        super(dumpMgr, ifcContext);
+    SubInterfaceOutboundNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+                                      @Nonnull final NamingContext ifcContext) {
+        super(jvppSnat, ifcContext);
     }
 
     @Override
@@ -57,8 +54,13 @@ final class SubInterfaceOutboundNatCustomizer extends AbstractSubInterfaceNatCus
     }
 
     @Override
-    boolean isExpectedNatType(final SnatInterfaceDetails snatInterfaceDetails) {
-        return snatInterfaceDetails.isInside == 0;
+    boolean isExpectedNatType(final int isInside) {
+        return isInside == 0;
+    }
+
+    @Override
+    void setPostRouting(final OutboundBuilder builder) {
+        builder.setPostRouting(true);
     }
 
     @Nonnull
@@ -78,18 +80,20 @@ final class SubInterfaceOutboundNatCustomizer extends AbstractSubInterfaceNatCus
                                                   @Nonnull final Outbound readValue,
                                                   @Nonnull final ReadContext ctx) {
         final InstanceIdentifier<Outbound> cfgId =
-            InstanceIdentifier.create(Interfaces.class)
-                .child(Interface.class,
-                    new InterfaceKey(id.firstKeyOf(
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class).getName()))
-                .augmentation(SubinterfaceAugmentation.class)
-                .child(SubInterfaces.class)
-                .child(SubInterface.class,
-                    new SubInterfaceKey(id.firstKeyOf(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface.class).getIdentifier()))
-                .augmentation(NatSubinterfaceAugmentation.class)
-                .child(Nat.class)
-                .child(Outbound.class);
+                InstanceIdentifier.create(Interfaces.class)
+                        .child(Interface.class,
+                                new InterfaceKey(id.firstKeyOf(
+                                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class)
+                                        .getName()))
+                        .augmentation(SubinterfaceAugmentation.class)
+                        .child(SubInterfaces.class)
+                        .child(SubInterface.class,
+                                new SubInterfaceKey(id.firstKeyOf(
+                                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface.class)
+                                        .getIdentifier()))
+                        .augmentation(NatSubinterfaceAugmentation.class)
+                        .child(Nat.class)
+                        .child(Outbound.class);
         return Initialized.create(cfgId, readValue);
     }
 }

@@ -16,12 +16,10 @@
 
 package io.fd.hc2vpp.nat.read.ifc;
 
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.Initialized;
-import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -41,10 +39,9 @@ final class InterfaceOutboundNatCustomizer extends AbstractInterfaceNatCustomize
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceOutboundNatCustomizer.class);
 
-    InterfaceOutboundNatCustomizer(
-            @Nonnull final DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> dumpMgr,
-            @Nonnull final NamingContext ifcContext) {
-        super(dumpMgr, ifcContext);
+    InterfaceOutboundNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+                                   @Nonnull final NamingContext ifcContext) {
+        super(jvppSnat, ifcContext);
     }
 
     @Override
@@ -53,8 +50,13 @@ final class InterfaceOutboundNatCustomizer extends AbstractInterfaceNatCustomize
     }
 
     @Override
-    boolean isExpectedNatType(final SnatInterfaceDetails snatInterfaceDetails) {
-        return snatInterfaceDetails.isInside == 0;
+    boolean isExpectedNatType(final int isInside) {
+        return isInside == 0;
+    }
+
+    @Override
+    void setPostRouting(final OutboundBuilder builder) {
+        builder.setPostRouting(true);
     }
 
     @Nonnull
@@ -77,7 +79,8 @@ final class InterfaceOutboundNatCustomizer extends AbstractInterfaceNatCustomize
                 InstanceIdentifier.create(Interfaces.class)
                         .child(Interface.class,
                                 new InterfaceKey(id.firstKeyOf(
-                                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class).getName()))
+                                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class)
+                                        .getName()))
                         .augmentation(NatInterfaceAugmentation.class)
                         .child(Nat.class)
                         .child(Outbound.class);

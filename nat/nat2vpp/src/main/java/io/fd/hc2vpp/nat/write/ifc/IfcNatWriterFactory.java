@@ -18,8 +18,8 @@ package io.fd.hc2vpp.nat.write.ifc;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
@@ -40,7 +40,7 @@ public final class IfcNatWriterFactory implements WriterFactory {
     private static final InstanceIdentifier<Interface>
             IFC_ID = InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     private static final InstanceIdentifier<Nat> NAT_AUG_ID =
-            IFC_ID .augmentation(NatInterfaceAugmentation.class).child(Nat.class);
+            IFC_ID.augmentation(NatInterfaceAugmentation.class).child(Nat.class);
 
     private final FutureJVppSnatFacade jvppSnat;
     private final NamingContext ifcContext;
