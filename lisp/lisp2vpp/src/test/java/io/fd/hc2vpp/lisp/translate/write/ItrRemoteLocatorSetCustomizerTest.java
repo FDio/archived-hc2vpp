@@ -129,7 +129,8 @@ public class ItrRemoteLocatorSetCustomizerTest extends LispWriterCustomizerTest 
                     @Override
                     public OneAddDelMapRequestItrRlocsReply get(final long l, final TimeUnit timeUnit)
                             throws InterruptedException, ExecutionException, TimeoutException {
-                        throw new ExecutionException(new VppCallbackException("oneAddDelMapRequestItrRlocs", 1, -2));
+                        throw new ExecutionException(new VppCallbackException("oneAddDelMapRequestItrRlocs",
+                                "oneAddDelMapRequestItrRlocs failed", 1, -2));
                     }
                 });
     }

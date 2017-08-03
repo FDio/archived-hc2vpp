@@ -58,6 +58,6 @@ public interface FutureProducer {
      * @param <T> the result type of returned future
      */
     default <T> CompletableFuture<T> failedFuture() {
-        return failedFuture(new VppCallbackException("test-call", 1 /* ctxId */, -1 /* retval */));
+        return failedFuture(new VppCallbackException("test-call", "test error msg", 1 /* ctxId */, -1 /* retval */));
     }
 }

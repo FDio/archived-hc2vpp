@@ -146,7 +146,9 @@ public class ItrRemoteLocatorSetCustomizerTest
                     @Override
                     public OneGetMapRequestItrRlocsReply get(final long l, final TimeUnit timeUnit)
                             throws InterruptedException, ExecutionException, TimeoutException {
-                        throw new ExecutionException(new VppCallbackException("oneGetMapRequestItrRlocs", 1, -2));
+                        throw new ExecutionException(
+                                new VppCallbackException("oneGetMapRequestItrRlocs", "oneGetMapRequestItrRlocs failed",
+                                        1, -2));
                     }
                 });
     }
