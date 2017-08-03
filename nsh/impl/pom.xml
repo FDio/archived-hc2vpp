@@ -111,6 +111,7 @@
       <groupId>io.fd.hc2vpp.common</groupId>
       <artifactId>vpp-translate-test</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
