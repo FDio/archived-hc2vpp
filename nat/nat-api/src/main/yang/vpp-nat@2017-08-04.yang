@@ -1,0 +1,47 @@
+module vpp-nat {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:vpp:nat";
+  prefix "vpp-nat";
+
+  revision "2017-08-04" {
+    description "Initial revision of vpp-nat model.";
+  }
+
+  import ietf-nat {
+    prefix "nat";
+  }
+  import yang-ext {
+    prefix "ext";
+  }
+
+  description "Augmentations to ietf-nat model providing vpp specific attributes.";
+
+  typedef nat-pool-type {
+    type enumeration {
+      enum "nat44";
+      enum "nat64";
+    }
+  }
+
+  grouping external-ip-address-pool-vpp-attributes {
+    leaf pool-type {
+      type nat-pool-type;
+      description
+        "Indicates whether the pool is designated to be used for nat44 or nat64.";
+      reference
+        "https://git.fd.io/vpp/tree/src/plugins/snat/snat.api";
+    }
+  }
+
+  augment /nat:nat-config/nat:nat-instances/nat:nat-instance/nat:external-ip-address-pool {
+    ext:augment-identifier "external-ip-address-pool-config-augmentation";
+
+    uses external-ip-address-pool-vpp-attributes;
+  }
+
+  augment /nat:nat-state/nat:nat-instances/nat:nat-instance/nat:nat-current-config/nat:external-ip-address-pool {
+    ext:augment-identifier "external-ip-address-pool-state-augmentation";
+
+    uses external-ip-address-pool-vpp-attributes;
+  }
+}
