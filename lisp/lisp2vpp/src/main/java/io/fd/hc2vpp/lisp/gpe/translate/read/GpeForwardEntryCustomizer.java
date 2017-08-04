@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.lisp.gpe.translate.read;
 
-import static io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPair.fromDumpDetail;
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.lang.String.format;
 
@@ -24,8 +23,6 @@ import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPair;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.service.GpeStateCheckService;
 import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
@@ -44,23 +41,22 @@ import io.fd.vpp.jvpp.core.dto.GpeFwdEntryVnisGet;
 import io.fd.vpp.jvpp.core.dto.GpeFwdEntryVnisGetReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import io.fd.vpp.jvpp.core.types.GpeFwdEntry;
+import io.fd.vpp.jvpp.core.types.GpeLocator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.locator.pair.identification.context.rev170517.gpe.locator.pair.identification.context.attributes.gpe.locator.pair.identification.contexts.gpe.locator.pair.identification.mappings.mapping.LocatorPairMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.Gpe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.GpeEntryTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.GpeEntryTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocatorPairs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocatorPairsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.feature.data.grouping.GpeFeatureData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.locator.pair.LocatorPairBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.Gpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.GpeEntryTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.GpeEntryTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.GpeEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.GpeEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.GpeEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.feature.data.grouping.GpeFeatureData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.locator.pairs.grouping.LocatorPair;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.locator.pairs.grouping.LocatorPairBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapReplyAction;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -74,17 +70,14 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
     private final DumpCacheManager<GpeFwdEntryPathDetailsReplyDump, Integer> entryDumpCacheManager;
     private final DumpCacheManager<GpeFwdEntryVnisGetReply, Void> activeVnisDumpManager;
     private final NamingContext gpeEntryMappingContext;
-    private final GpeLocatorPairMappingContext gpeLocatorsMappingContext;
     private final GpeStateCheckService gpeStateCheckService;
 
     public GpeForwardEntryCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
                                      @Nonnull final GpeStateCheckService gpeStateCheckService,
-                                     @Nonnull final NamingContext gpeEntryMappingContext,
-                                     @Nonnull final GpeLocatorPairMappingContext gpeLocatorsMappingContext) {
+                                     @Nonnull final NamingContext gpeEntryMappingContext) {
         super(futureJVppCore);
         this.gpeStateCheckService = gpeStateCheckService;
         this.gpeEntryMappingContext = gpeEntryMappingContext;
-        this.gpeLocatorsMappingContext = gpeLocatorsMappingContext;
         this.entryDumpManager = new DumpCacheManager.DumpCacheManagerBuilder<GpeFwdEntriesGetReply, Integer>()
                 .acceptOnly(GpeFwdEntriesGetReply.class)
                 .withExecutor((identifier, vni) -> {
@@ -185,17 +178,13 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
             // if any locators exist,it is a positive mapping
             if (locatorsDump.isPresent() && locatorsDump.get().gpeFwdEntryPathDetails != null &&
                     !locatorsDump.get().gpeFwdEntryPathDetails.isEmpty()) {
-                final List<LocatorPairs> pairs =
+                final List<LocatorPair> pairs =
                         java.util.Optional.ofNullable(locatorsDump.get().gpeFwdEntryPathDetails)
                                 .orElse(Collections.emptyList())
                                 .stream()
-                                .map(entry -> {
-                                    final GpeLocatorPair gpePair = fromDumpDetail(entry);
-                                    final LocatorPairMapping mapping = gpeLocatorsMappingContext
-                                            .getMapping(entryId, gpePair, ctx.getMappingContext());
-                                    return buildLocatorPair(entry, gpePair, mapping);
-                                }).collect(Collectors.toList());
-                builder.setLocatorPairs(pairs);
+                                .map(entry -> buildLocatorPair(entry))
+                                .collect(Collectors.toList());
+                builder.setLocatorPair(pairs);
             } else {
                 // negative otherwise
                 builder.setAction(MapReplyAction.forValue(gpeFwdEntry.action));
@@ -245,16 +234,13 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
         return dump;
     }
 
-    private LocatorPairs buildLocatorPair(final GpeFwdEntryPathDetails entry, final GpeLocatorPair gpePair,
-                                          final LocatorPairMapping mapping) {
-        return new LocatorPairsBuilder()
-                .setId(mapping.getId())
-                .setLocatorPair(new LocatorPairBuilder()
-                        .setLocalLocator(gpePair.getLocalAddress())
-                        .setRemoteLocator(gpePair.getRemoteAddress())
-                        .setWeight((short) entry.lclLoc.weight)
-                        .build())
-                .build();
+    private LocatorPair buildLocatorPair(final GpeFwdEntryPathDetails entry) {
+        final GpeLocator lclLoc = entry.lclLoc;
+        final GpeLocator rmtLoc = entry.rmtLoc;
+        return new LocatorPairBuilder()
+                .setLocalLocator(arrayToIpAddress(!byteToBoolean(lclLoc.isIp4), lclLoc.addr))
+                .setRemoteLocator(arrayToIpAddress(!byteToBoolean(rmtLoc.isIp4), rmtLoc.addr))
+                .setWeight((short) lclLoc.weight).build();
     }
 
     private Stream<Integer> activeVnis(final InstanceIdentifier<GpeEntry> id,

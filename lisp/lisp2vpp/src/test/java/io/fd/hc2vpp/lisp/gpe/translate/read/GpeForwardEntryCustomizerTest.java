@@ -26,10 +26,7 @@ import static org.mockito.Mockito.when;
 import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPair;
-import io.fd.hc2vpp.lisp.gpe.translate.ctx.GpeLocatorPairMappingContext;
 import io.fd.hc2vpp.lisp.gpe.translate.service.GpeStateCheckService;
-import io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType;
 import io.fd.hc2vpp.lisp.translate.util.EidTranslator;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.vpp.jvpp.core.dto.GpeFwdEntriesGet;
@@ -45,13 +42,6 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.entry.identification.context.rev170517.gpe.entry.identification.context.attributes.gpe.entry.identification.contexts.gpe.entry.identification.mappings.mapping.GpeEntryIdentificator;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.entry.identification.context.rev170517.gpe.entry.identification.context.attributes.gpe.entry.identification.contexts.gpe.entry.identification.mappings.mapping.GpeEntryIdentificatorBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.entry.identification.context.rev170517.gpe.entry.identification.context.attributes.gpe.entry.identification.contexts.gpe.entry.identification.mappings.mapping.gpe.entry.identificator.LocalEidBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.entry.identification.context.rev170517.gpe.entry.identification.context.attributes.gpe.entry.identification.contexts.gpe.entry.identification.mappings.mapping.gpe.entry.identificator.RemoteEidBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.locator.pair.identification.context.rev170517.gpe.locator.pair.identification.context.attributes.gpe.locator.pair.identification.contexts.gpe.locator.pair.identification.mappings.mapping.LocatorPairMapping;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.locator.pair.identification.context.rev170517.gpe.locator.pair.identification.context.attributes.gpe.locator.pair.identification.contexts.gpe.locator.pair.identification.mappings.mapping.LocatorPairMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.gpe.locator.pair.identification.context.rev170517.gpe.locator.pair.identification.context.attributes.gpe.locator.pair.identification.contexts.gpe.locator.pair.identification.mappings.mapping.locator.pair.mapping.PairBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
@@ -63,18 +53,16 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.addres
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.Ipv6PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.lisp.address.types.rev151105.lisp.address.address.MacBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.Gpe;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.GpeState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.GpeEntryTable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.GpeEntryTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.GpeEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.entry.table.grouping.gpe.entry.table.gpe.entry.LocatorPairs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.gpe.feature.data.grouping.GpeFeatureData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170518.locator.pair.LocatorPair;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.Gpe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.GpeState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.GpeEntryTable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.GpeEntryTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.GpeEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.GpeEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.entry.table.grouping.gpe.entry.table.GpeEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.gpe.feature.data.grouping.GpeFeatureData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801.locator.pairs.grouping.LocatorPair;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.MapReplyAction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.dp.subtable.grouping.local.mappings.local.mapping.Eid;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -84,7 +72,6 @@ public class GpeForwardEntryCustomizerTest
 
     private static final String V4_ENTRY_ID = "v4-entry";
     private static final String V4_ENTRY_NO_LEID_ID = "v4-entry-no-leid-id";
-    private static final String V4_ENTRY_LOCATOR = "v4-entry-locator";
     private static final int V4_ENTRY_DP_TABLE = 10;
     private static final int V4_ENTRY_FWD_INDEX = 4;
     private static final int V4_ENTRY_VNI = 45;
@@ -105,7 +92,6 @@ public class GpeForwardEntryCustomizerTest
 
 
     private static final String V6_ENTRY_ID = "v6-entry";
-    private static final String V6_ENTRY_LOCATOR = "v6-entry-locator";
     private static final int V6_ENTRY_DP_TABLE = 11;
     private static final int V6_ENTRY_VNI = 22;
     private static final int V6_ENTRY_FWD_INDEX = 5;
@@ -124,7 +110,6 @@ public class GpeForwardEntryCustomizerTest
     private static final String MAC_ENTRY_ID = "mac-entry";
     private static final int MAC_ENTRY_FWD_INDEX = 7;
     private static final int MAC_ENTRY_VNI = 18;
-    private static final String MAC_ENTRY_LOCATOR = "mac-entry-locator";
     private static final int MAC_ENTRY_DP_TABLE = 12;
     private static final KeyedInstanceIdentifier<GpeEntry, GpeEntryKey> MAC_IDENTIFIER =
             InstanceIdentifier.create(GpeEntryTable.class)
@@ -146,9 +131,6 @@ public class GpeForwardEntryCustomizerTest
     private NamingContext gpeEntryMappingContext;
 
     @Mock
-    private GpeLocatorPairMappingContext gpeLocatorPairMappingContext;
-
-    @Mock
     private GpeStateCheckService gpeStateCheckService;
 
     public GpeForwardEntryCustomizerTest() {
@@ -157,8 +139,7 @@ public class GpeForwardEntryCustomizerTest
 
     @Override
     protected GpeForwardEntryCustomizer initCustomizer() {
-        return new GpeForwardEntryCustomizer(api, gpeStateCheckService, gpeEntryMappingContext,
-                gpeLocatorPairMappingContext);
+        return new GpeForwardEntryCustomizer(api, gpeStateCheckService, gpeEntryMappingContext);
     }
 
     @Override
@@ -173,7 +154,6 @@ public class GpeForwardEntryCustomizerTest
                 .thenReturn(future(getGpeEntryDumpReply(getMacGpeEntry())));
         when(api.gpeFwdEntryVnisGet(any())).thenReturn(future(activeVnisDump()));
         defineMappingsForGpeEntries();
-        mockMappingsForLocators();
     }
 
     @Test
@@ -204,12 +184,10 @@ public class GpeForwardEntryCustomizerTest
         assertEquals(Ipv4PrefixAfi.class, builder.getRemoteEid().getAddressType());
         assertEquals(V4_ENTRY_VNI, builder.getRemoteEid().getVirtualNetworkId().getValue().intValue());
         assertTrue(V4_ENTRY_VNI == builder.getVni());
-        assertEquals(1, builder.getLocatorPairs().size());
+        assertEquals(1, builder.getLocatorPair().size());
 
-        final LocatorPairs locatorPair = builder.getLocatorPairs().get(0);
-        assertEquals(V4_ENTRY_LOCATOR, locatorPair.getId());
+        final LocatorPair pair = builder.getLocatorPair().get(0);
 
-        final LocatorPair pair = locatorPair.getLocatorPair();
         assertEquals(V4_LOCATOR_LOCAL_ADDRESS, pair.getLocalLocator().getIpv4Address());
         assertEquals(V4_LOCATOR_REMOTE_ADDRESS, pair.getRemoteLocator().getIpv4Address());
         assertEquals(V4_LOCATOR_LOCAL_WEIGHT, pair.getWeight().byteValue());
@@ -232,12 +210,10 @@ public class GpeForwardEntryCustomizerTest
         assertEquals(Ipv4PrefixAfi.class, builder.getRemoteEid().getAddressType());
         assertEquals(V4_ENTRY_VNI, builder.getRemoteEid().getVirtualNetworkId().getValue().intValue());
         assertTrue(V4_ENTRY_VNI == builder.getVni());
-        assertEquals(1, builder.getLocatorPairs().size());
+        assertEquals(1, builder.getLocatorPair().size());
 
-        final LocatorPairs locatorPair = builder.getLocatorPairs().get(0);
-        assertEquals(V4_ENTRY_LOCATOR, locatorPair.getId());
+        final LocatorPair pair = builder.getLocatorPair().get(0);
 
-        final LocatorPair pair = locatorPair.getLocatorPair();
         assertEquals(V4_LOCATOR_LOCAL_ADDRESS, pair.getLocalLocator().getIpv4Address());
         assertEquals(V4_LOCATOR_REMOTE_ADDRESS, pair.getRemoteLocator().getIpv4Address());
         assertEquals(V4_LOCATOR_LOCAL_WEIGHT, pair.getWeight().byteValue());
@@ -263,12 +239,10 @@ public class GpeForwardEntryCustomizerTest
         assertEquals(V6_ENTRY_VNI, builder.getRemoteEid().getVirtualNetworkId().getValue().intValue());
         assertTrue(V6_ENTRY_VNI == builder.getVni());
 
-        assertEquals(1, builder.getLocatorPairs().size());
+        assertEquals(1, builder.getLocatorPair().size());
 
-        final LocatorPairs locatorPair = builder.getLocatorPairs().get(0);
-        assertEquals(V6_ENTRY_LOCATOR, locatorPair.getId());
+        final LocatorPair pair = builder.getLocatorPair().get(0);
 
-        final LocatorPair pair = locatorPair.getLocatorPair();
         assertEquals(V6_LOCATOR_LOCAL_ADDRESS, pair.getLocalLocator().getIpv6Address());
         assertEquals(V6_LOCATOR_REMOTE_ADDRESS, pair.getRemoteLocator().getIpv6Address());
         assertEquals(V6_LOCATOR_LOCAL_WEIGHT, pair.getWeight().byteValue());
@@ -294,12 +268,10 @@ public class GpeForwardEntryCustomizerTest
         assertEquals(MAC_ENTRY_VNI, builder.getRemoteEid().getVirtualNetworkId().getValue().intValue());
         assertTrue(MAC_ENTRY_VNI == builder.getVni());
 
-        assertEquals(1, builder.getLocatorPairs().size());
+        assertEquals(1, builder.getLocatorPair().size());
 
-        final LocatorPairs locatorPair = builder.getLocatorPairs().get(0);
-        assertEquals(MAC_ENTRY_LOCATOR, locatorPair.getId());
+        final LocatorPair pair = builder.getLocatorPair().get(0);
 
-        final LocatorPair pair = locatorPair.getLocatorPair();
         assertEquals(MAC_LOCATOR_LOCAL_ADDRESS, pair.getLocalLocator().getIpv4Address());
         assertEquals(MAC_LOCATOR_REMOTE_ADDRESS, pair.getRemoteLocator().getIpv4Address());
         assertEquals(MAC_LOCATOR_LOCAL_WEIGHT, pair.getWeight().byteValue());
@@ -364,50 +336,6 @@ public class GpeForwardEntryCustomizerTest
         defineMapping(mappingContext, V4_ENTRY_NO_LEID_ID, V4_ENTRY_NO_LEID_FWD_INDEX, GPE_ENTRY_CTX);
         defineMapping(mappingContext, V6_ENTRY_ID, V6_ENTRY_FWD_INDEX, GPE_ENTRY_CTX);
         defineMapping(mappingContext, MAC_ENTRY_ID, MAC_ENTRY_FWD_INDEX, GPE_ENTRY_CTX);
-    }
-
-    private void mockMappingsForLocators() {
-        mockV4LocatorMapping();
-        mockV6LocatorMapping();
-        mockMacLocatorMapping();
-    }
-
-    private void mockV4LocatorMapping() {
-        final GpeFwdEntryPathDetailsReplyDump forV4EntryReply = locatorDumpForV4EntryReply();
-        final GpeFwdEntryPathDetails v4LocatorOne = forV4EntryReply.gpeFwdEntryPathDetails.get(0);
-        final GpeLocatorPair v4LocatorPairOne = GpeLocatorPair.fromDumpDetail(v4LocatorOne);
-        when(gpeLocatorPairMappingContext.getMapping(V4_ENTRY_ID, v4LocatorPairOne, mappingContext))
-                .thenReturn(fromDump(V4_ENTRY_LOCATOR, v4LocatorOne));
-        when(gpeLocatorPairMappingContext.getMapping(V4_ENTRY_NO_LEID_ID, v4LocatorPairOne, mappingContext))
-                .thenReturn(fromDump(V4_ENTRY_LOCATOR, v4LocatorOne));
-    }
-
-    private void mockV6LocatorMapping() {
-        final GpeFwdEntryPathDetailsReplyDump forV6EntryReply = locatorDumpForV6EntryReply();
-        final GpeFwdEntryPathDetails v6LocatorOne = forV6EntryReply.gpeFwdEntryPathDetails.get(0);
-        final GpeLocatorPair v6LocatorPairOne = GpeLocatorPair.fromDumpDetail(v6LocatorOne);
-        when(gpeLocatorPairMappingContext.getMapping(V6_ENTRY_ID, v6LocatorPairOne, mappingContext))
-                .thenReturn(fromDump(V6_ENTRY_LOCATOR, v6LocatorOne));
-    }
-
-    private void mockMacLocatorMapping() {
-        final GpeFwdEntryPathDetails macLocator = locatorDumpForMacEntryReply().gpeFwdEntryPathDetails.get(0);
-        final GpeLocatorPair macLocatorPair = GpeLocatorPair.fromDumpDetail(macLocator);
-        when(gpeLocatorPairMappingContext.getMapping(MAC_ENTRY_ID, macLocatorPair, mappingContext))
-                .thenReturn(fromDump(MAC_ENTRY_LOCATOR, macLocator));
-    }
-
-    private LocatorPairMapping fromDump(final String id, final GpeFwdEntryPathDetails dump) {
-
-        final boolean localV4 = byteToBoolean(dump.lclLoc.isIp4);
-        final boolean remoteV4 = byteToBoolean(dump.rmtLoc.isIp4);
-        return new LocatorPairMappingBuilder()
-                .setId(id)
-                .setPair(new PairBuilder()
-                        .setLocalAddress(arrayToIpAddress(!localV4, dump.lclLoc.addr))
-                        .setRemoteAddress(arrayToIpAddress(!remoteV4, dump.rmtLoc.addr))
-                        .build())
-                .build();
     }
 
     private GpeFwdEntriesGetReply getGpeEntryDumpReply(final GpeFwdEntry entry) {

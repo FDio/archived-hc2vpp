@@ -9,22 +9,16 @@
         "virtual-network-id": 12,
         "ipv4-prefix": "192.168.2.0/24"
       },
-      "locator-pairs": [
+      "locator-pair": [
         {
-          "id": "gpe-fwd-entry-pair-1",
-          "locator-pair": {
-            "local-locator": "192.168.4.1",
-            "remote-locator": "192.168.4.2",
-            "weight": 3
-          }
+          "local-locator": "192.168.4.1",
+          "remote-locator": "192.168.4.2",
+          "weight": 3
         },
         {
-          "id": "gpe-fwd-entry-pair-2",
-          "locator-pair": {
-            "local-locator": "192.168.5.1",
-            "remote-locator": "192.168.5.2",
-            "weight": 2
-          }
+          "local-locator": "192.168.5.1",
+          "remote-locator": "192.168.5.2",
+          "weight": 2
         }
       ],
       "action": "natively-forward"
