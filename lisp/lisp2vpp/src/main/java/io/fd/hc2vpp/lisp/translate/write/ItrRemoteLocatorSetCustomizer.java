@@ -30,7 +30,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer implements

@@ -24,9 +24,10 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisable;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtl;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegister;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRegisterCustomizer extends CheckedLispCustomizer
@@ -42,7 +43,7 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
                                        @Nonnull MapRegister mapRegister,
                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
         lispStateCheckService.checkLispEnabledAfter(writeContext);
-        enableDisableMapRegister(mapRegister.isEnabled(), instanceIdentifier, writeContext);
+        enableDisableMapRegister(mapRegister, instanceIdentifier);
     }
 
     @Override
@@ -51,7 +52,7 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
                                         @Nonnull MapRegister mapRegisterAfter, @Nonnull
                                                 WriteContext writeContext) throws WriteFailedException {
         lispStateCheckService.checkLispEnabledAfter(writeContext);
-        enableDisableMapRegister(mapRegisterAfter.isEnabled(), instanceIdentifier, writeContext);
+        enableDisableMapRegister(mapRegisterAfter, instanceIdentifier);
     }
 
     @Override
@@ -59,13 +60,22 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
                                         @Nonnull MapRegister mapRegister,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {
         lispStateCheckService.checkLispEnabledBefore(writeContext);
-        enableDisableMapRegister(false, instanceIdentifier, writeContext);
+        enableDisableMapRegister(mapRegister, instanceIdentifier);
     }
 
-    private void enableDisableMapRegister(final boolean enable, @Nonnull final InstanceIdentifier<MapRegister> id,
-                                          @Nonnull final WriteContext context) throws WriteFailedException {
+    private void enableDisableMapRegister(@Nonnull final MapRegister mapRegister,
+                                          @Nonnull final InstanceIdentifier<MapRegister> id)
+            throws WriteFailedException {
         OneMapRegisterEnableDisable request = new OneMapRegisterEnableDisable();
-        request.isEnabled = booleanToByte(enable);
+        request.isEnabled = booleanToByte(mapRegister.isEnabled());
         getReplyForWrite(getFutureJVpp().oneMapRegisterEnableDisable(request).toCompletableFuture(), id);
+
+        if (mapRegister.isEnabled()) {
+            OneMapRegisterSetTtl ttlRequest = new OneMapRegisterSetTtl();
+            if (mapRegister.getTtl()!= null) {
+                ttlRequest.ttl = mapRegister.getTtl().intValue();
+            }
+            getReplyForWrite(getFutureJVpp().oneMapRegisterSetTtl(ttlRequest).toCompletableFuture(), id);
+        }
     }
 }

@@ -26,7 +26,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.OneRlocProbeEnableDisable;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.rloc.probing.grouping.RlocProbe;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.rloc.probing.grouping.RlocProbe;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class RlocProbeCustomizer extends CheckedLispCustomizer

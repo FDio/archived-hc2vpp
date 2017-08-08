@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -28,11 +29,13 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisable;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisableReply;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtl;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtlReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.register.grouping.MapRegister;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170315.map.register.grouping.MapRegisterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegisterBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implements ByteDataTranslator {
@@ -44,6 +47,10 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
 
     @Captor
     private ArgumentCaptor<OneMapRegisterEnableDisable> requestCaptor;
+
+    @Captor
+    private ArgumentCaptor<OneMapRegisterSetTtl> ttlRequestCaptor;
+
     private InstanceIdentifier<MapRegister> EMPTY_ID = InstanceIdentifier.create(MapRegister.class);
     private MapRegister EMPTY_DATA = new MapRegisterBuilder().setEnabled(false).build();
 
@@ -54,6 +61,7 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
 
         enabledRegister = new MapRegisterBuilder()
                 .setEnabled(true)
+                .setTtl(7L)
                 .build();
 
         disabledRegister = new MapRegisterBuilder()
@@ -62,30 +70,32 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
 
         when(api.oneMapRegisterEnableDisable(any(OneMapRegisterEnableDisable.class)))
                 .thenReturn(future(new OneMapRegisterEnableDisableReply()));
+        when(api.oneMapRegisterSetTtl(any(OneMapRegisterSetTtl.class)))
+                .thenReturn(future(new OneMapRegisterSetTtlReply()));
     }
 
     @Test
     public void writeCurrentAttributes() throws Exception {
         customizer.writeCurrentAttributes(ID, enabledRegister, writeContext);
-        verifyRequest(true);
+        verifyRequest(true, 7);
     }
 
     @Test
     public void updateCurrentAttributesToDisabled() throws Exception {
         customizer.updateCurrentAttributes(ID, enabledRegister, disabledRegister, writeContext);
-        verifyRequest(false);
+        verifyRequest(false, 7);
     }
 
     @Test
     public void updateCurrentAttributesToEnabled() throws Exception {
         customizer.updateCurrentAttributes(ID, disabledRegister, enabledRegister, writeContext);
-        verifyRequest(true);
+        verifyRequest(true, 7);
     }
 
     @Test
     public void deleteCurrentAttributes() throws Exception {
         customizer.deleteCurrentAttributes(ID, disabledRegister, writeContext);
-        verifyRequest(false);
+        verifyRequest(false, 0);
     }
 
     @Test
@@ -104,7 +114,7 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
     public void testUpdateLispDisabled() throws WriteFailedException {
         mockLispDisabledAfter();
         try {
-            customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA,EMPTY_DATA, writeContext);
+            customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA, EMPTY_DATA, writeContext);
         } catch (IllegalArgumentException e) {
             verifyZeroInteractions(api);
             return;
@@ -124,10 +134,18 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
         fail("Test should have thrown IllegalArgumentException");
     }
 
-    private void verifyRequest(final boolean enabled) {
+    private void verifyRequest(final boolean enabled, final int ttl) {
         verify(api, times(1)).oneMapRegisterEnableDisable(requestCaptor.capture());
 
         final OneMapRegisterEnableDisable request = requestCaptor.getValue();
         assertEquals(booleanToByte(enabled), request.isEnabled);
+
+        if (enabled) {
+            verify(api, times(1)).oneMapRegisterSetTtl(ttlRequestCaptor.capture());
+            final OneMapRegisterSetTtl ttlRequest = ttlRequestCaptor.getValue();
+            assertEquals(ttl, ttlRequest.ttl);
+        } else {
+            verifyNoMoreInteractions(api);
+        }
     }
 }

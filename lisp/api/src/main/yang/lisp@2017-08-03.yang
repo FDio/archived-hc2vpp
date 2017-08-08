@@ -26,6 +26,11 @@ module lisp {
     "This YANG module defines the generic configuration and
     operational data for LISP in VPP";
 
+  revision 2017-08-03 {
+    description
+        "Map register TTL registration support";
+  }
+
   revision 2017-03-15 {
     description
     "Excludes lisp-state from config data
@@ -407,6 +412,11 @@ module lisp {
         type boolean;
         default "false";
         description "Enabled/disable RLOC probing";
+      }
+
+      leaf ttl {
+        type uint32;
+        description "Mapping validity period.";
       }
     }
   }
