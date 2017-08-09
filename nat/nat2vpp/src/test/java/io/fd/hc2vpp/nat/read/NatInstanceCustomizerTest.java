@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.nat.read;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -26,6 +27,8 @@ import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.vpp.jvpp.snat.dto.Nat64BibDetails;
+import io.fd.vpp.jvpp.snat.dto.Nat64BibDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
 import java.util.Arrays;
@@ -41,13 +44,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class NatInstanceCustomizerTest
-    extends InitializingListReaderCustomizerTest<NatInstance, NatInstanceKey, NatInstanceBuilder> {
+        extends InitializingListReaderCustomizerTest<NatInstance, NatInstanceKey, NatInstanceBuilder> {
     @Mock
-    private EntityDumpExecutor<SnatStaticMappingDetailsReplyDump, Void> dumpExecutor;
+    private EntityDumpExecutor<SnatStaticMappingDetailsReplyDump, Void> nat44DumpExecutor;
+    @Mock
+    private EntityDumpExecutor<Nat64BibDetailsReplyDump, Void> nat64DumpExecutor;
 
     private KeyedInstanceIdentifier<NatInstance, NatInstanceKey> natInstanceId;
     private InstanceIdentifier<NatInstance> natInstanceWildcarded;
-    private DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager;
+    private DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> mapEntryNat44DumpMgr;
+    private DumpCacheManager<Nat64BibDetailsReplyDump, Void> mapEntryNat64DumpMgr;
 
     public NatInstanceCustomizerTest() {
         super(NatInstance.class, NatInstancesBuilder.class);
@@ -55,19 +61,23 @@ public class NatInstanceCustomizerTest
 
     @Override
     protected NatInstanceCustomizer initCustomizer() {
-        return new NatInstanceCustomizer(dumpCacheManager);
+        return new NatInstanceCustomizer(mapEntryNat44DumpMgr, mapEntryNat64DumpMgr);
     }
 
     @Override
     protected void setUp() throws Exception {
         natInstanceId = InstanceIdentifier.create(NatInstances.class)
-            .child(NatInstance.class, new NatInstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID));
+                .child(NatInstance.class, new NatInstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID));
         natInstanceWildcarded = InstanceIdentifier.create(NatInstances.class)
-            .child(NatInstance.class);
-        dumpCacheManager = new DumpCacheManager.DumpCacheManagerBuilder<SnatStaticMappingDetailsReplyDump, Void>()
-            .withExecutor(dumpExecutor)
-            .acceptOnly(SnatStaticMappingDetailsReplyDump.class)
-            .build();
+                .child(NatInstance.class);
+        mapEntryNat44DumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatStaticMappingDetailsReplyDump, Void>()
+                .withExecutor(nat44DumpExecutor)
+                .acceptOnly(SnatStaticMappingDetailsReplyDump.class)
+                .build();
+        mapEntryNat64DumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<Nat64BibDetailsReplyDump, Void>()
+                .withExecutor(nat64DumpExecutor)
+                .acceptOnly(Nat64BibDetailsReplyDump.class)
+                .build();
     }
 
     @Test
@@ -79,14 +89,16 @@ public class NatInstanceCustomizerTest
 
     @Test
     public void testReadAll() throws ReadFailedException {
-        final SnatStaticMappingDetailsReplyDump dump = dumpNonEmptyDefaultInstance();
-        when(dumpExecutor.executeDump(natInstanceWildcarded, null)).thenReturn(dump);
+        when(nat44DumpExecutor.executeDump(natInstanceWildcarded, null)).thenReturn(nat44NonEmptyDump());
+        when(nat64DumpExecutor.executeDump(natInstanceWildcarded, null)).thenReturn(nat64NonEmptyDump());
         final List<NatInstanceKey> allIds = getCustomizer().getAllIds(natInstanceWildcarded, ctx);
+        assertThat(allIds, hasSize(6));
         assertThat(allIds, hasItems(
-            new NatInstanceKey(0L), new NatInstanceKey(1L), new NatInstanceKey(2L), new NatInstanceKey(3L)));
+                new NatInstanceKey(0L), new NatInstanceKey(1L), new NatInstanceKey(2L), new NatInstanceKey(3L),
+                new NatInstanceKey(5L), new NatInstanceKey(6L)));
     }
 
-    private static SnatStaticMappingDetailsReplyDump dumpNonEmptyDefaultInstance() {
+    private static SnatStaticMappingDetailsReplyDump nat44NonEmptyDump() {
         SnatStaticMappingDetailsReplyDump replyDump = new SnatStaticMappingDetailsReplyDump();
         SnatStaticMappingDetails detailsOne = new SnatStaticMappingDetails();
         detailsOne.vrfId = 1;
@@ -98,6 +110,21 @@ public class NatInstanceCustomizerTest
         detailsThree.vrfId = 3;
 
         replyDump.snatStaticMappingDetails = Arrays.asList(detailsOne, detailsTwo, detailsThree);
+        return replyDump;
+    }
+
+    private static Nat64BibDetailsReplyDump nat64NonEmptyDump() {
+        Nat64BibDetailsReplyDump replyDump = new Nat64BibDetailsReplyDump();
+        Nat64BibDetails detailsOne = new Nat64BibDetails();
+        detailsOne.vrfId = 2;
+
+        Nat64BibDetails detailsTwo = new Nat64BibDetails();
+        detailsTwo.vrfId = 5;
+
+        Nat64BibDetails detailsThree = new Nat64BibDetails();
+        detailsThree.vrfId = 6;
+
+        replyDump.nat64BibDetails = Arrays.asList(detailsOne, detailsTwo, detailsThree);
         return replyDump;
     }
 }

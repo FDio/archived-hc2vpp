@@ -107,7 +107,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
                                 MappingEntryContext.toCtxMapEntry(entry2, 1)))
                         .build()));
 
-        assertSame(details, ctx.findDetails(someDetails, natId, 0, mappingCtx));
+        assertSame(details, ctx.findDetailsNat44(someDetails, natId, 0, mappingCtx).get());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -118,7 +118,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
         final List<SnatStaticMappingDetails> someDetails = Lists.newArrayList(details);
         when(mappingCtx.read(MappingEntryContext.getTableId(natId))).thenReturn(Optional.absent());
 
-        ctx.findDetails(someDetails, natId, entryId, mappingCtx);
+        ctx.findDetailsNat44(someDetails, natId, entryId, mappingCtx);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -131,7 +131,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
         when(mappingCtx.read(MappingEntryContext.getTableId(natId)))
                 .thenReturn(Optional.of(new MappingTableBuilder().setMappingEntry(Collections.emptyList()).build()));
 
-        ctx.findDetails(someDetails, natId, entryId, mappingCtx);
+        ctx.findDetailsNat44(someDetails, natId, entryId, mappingCtx);
     }
 
     @Test

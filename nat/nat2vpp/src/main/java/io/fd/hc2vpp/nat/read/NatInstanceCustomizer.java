@@ -21,9 +21,11 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.vpp.jvpp.snat.dto.Nat64BibDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatConfig;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstancesBuilder;
@@ -39,16 +41,20 @@ import org.slf4j.LoggerFactory;
 /**
  * Nat instance ID is mapped to VRF-ID in VPP.
  */
-final class NatInstanceCustomizer implements InitializingListReaderCustomizer<NatInstance, NatInstanceKey, NatInstanceBuilder> {
+final class NatInstanceCustomizer
+        implements InitializingListReaderCustomizer<NatInstance, NatInstanceKey, NatInstanceBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInstanceCustomizer.class);
     static final NatInstanceKey DEFAULT_VRF_ID = new NatInstanceKey(0L);
 
-    private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager;
+    private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager;
+    private final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager;
 
     NatInstanceCustomizer(
-            final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager) {
-        this.dumpCacheManager = dumpCacheManager;
+            final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager,
+            final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager) {
+        this.nat44DumpManager = nat44DumpManager;
+        this.nat64DumpManager = nat64DumpManager;
     }
 
     @Nonnull
@@ -72,12 +78,18 @@ final class NatInstanceCustomizer implements InitializingListReaderCustomizer<Na
         LOG.trace("Listing IDs for all nat-instances");
 
         // Find the nat instance IDs (vrf-ids) by listing all static mappings and their VRF assignment
-        final List<NatInstanceKey> vrfIds =
-                dumpCacheManager.getDump(id, context.getModificationCache(), null)
+        final List<NatInstanceKey> vrfIds = Stream.concat(
+                nat44DumpManager.getDump(id, context.getModificationCache(), null)
                         .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails.stream()
-                        .map(detail -> detail.vrfId)
-                        .map(vrfId -> new NatInstanceKey((long) vrfId))
-                        .collect(Collectors.toList());
+                        .map(detail -> detail.vrfId),
+                nat64DumpManager.getDump(id, context.getModificationCache(), null)
+                        .or(new Nat64BibDetailsReplyDump()).nat64BibDetails.stream()
+                        .map(detail -> detail.vrfId))
+                // V4 (nat44) and V6 (nat64) VRFs in VPP can have the same id. We store them under single nat instance,
+                // because the ietf-nat model does not require separate instances for nat44 and nat64 features.
+                .distinct()
+                .map(vrfId -> new NatInstanceKey((long) vrfId))
+                .collect(Collectors.toList());
 
         // Add default vrf id if not present
         if (!vrfIds.contains(DEFAULT_VRF_ID)) {
@@ -94,9 +106,10 @@ final class NatInstanceCustomizer implements InitializingListReaderCustomizer<Na
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance> init(@Nonnull final InstanceIdentifier<NatInstance> id,
-                                                                                                                                              @Nonnull final NatInstance readValue,
-                                                                                                                                              @Nonnull final ReadContext ctx) {
+    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance> init(
+            @Nonnull final InstanceIdentifier<NatInstance> id,
+            @Nonnull final NatInstance readValue,
+            @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceBuilder()
                         .setId(readValue.getId())

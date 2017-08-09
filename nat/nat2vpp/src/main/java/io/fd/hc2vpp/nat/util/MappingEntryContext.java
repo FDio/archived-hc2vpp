@@ -21,7 +21,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.honeycomb.translate.MappingContext;
+import io.fd.vpp.jvpp.snat.dto.Nat64BibDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntryKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * Context tracker for Nat Mapping entries.
  */
 @ThreadSafe
-public class MappingEntryContext implements Ipv4Translator {
+public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingEntryContext.class);
 
@@ -101,6 +104,12 @@ public class MappingEntryContext implements Ipv4Translator {
                 new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(entry.localIpAddress))));
     }
 
+    private MappingEntryKey entryToKey(final Nat64BibDetails entry) {
+        return new MappingEntryKey(
+                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(entry.oAddr))),
+                new IpAddress(new Ipv6Address(arrayToIpv6AddressNoZone(entry.iAddr))));
+    }
+
     private boolean equalEntries(final SnatStaticMappingDetails detail, final MappingEntry ctxMappingEntry) {
         final IpAddress internalAddrFromDetails =
                 new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.localIpAddress)));
@@ -111,6 +120,22 @@ public class MappingEntryContext implements Ipv4Translator {
         // Only IPv4
         final IpAddress externalAddrFromDetails =
                 new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.externalIpAddress)));
+        if (!ctxMappingEntry.getExternal().equals(externalAddrFromDetails)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean equalEntries(final Nat64BibDetails detail, final MappingEntry ctxMappingEntry) {
+        final IpAddress internalAddrFromDetails =
+                new IpAddress(new Ipv6Address(arrayToIpv6AddressNoZone(detail.iAddr)));
+        // Only IPv6
+        if (!ctxMappingEntry.getInternal().equals(internalAddrFromDetails)) {
+            return false;
+        }
+        // Only IPv4
+        final IpAddress externalAddrFromDetails =
+                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.oAddr)));
         if (!ctxMappingEntry.getExternal().equals(externalAddrFromDetails)) {
             return false;
         }
@@ -134,6 +159,13 @@ public class MappingEntryContext implements Ipv4Translator {
                 .build();
     }
 
+    private MappingEntry toCtxMapEntry(@Nonnull final Nat64BibDetails details, final long entryId) {
+        return new MappingEntryBuilder()
+                .setKey(entryToKey(details))
+                .setIndex(entryId)
+                .build();
+    }
+
     /**
      * Delete mapping of mapping entry to index from context.
      */
@@ -146,9 +178,9 @@ public class MappingEntryContext implements Ipv4Translator {
     /**
      * Find specific details in provided collection identified with provided index.
      */
-    public synchronized SnatStaticMappingDetails findDetails(@Nonnull final List<SnatStaticMappingDetails> details,
-                                                             final long natInstanceId, final long idx,
-                                                             @Nonnull final MappingContext mappingContext) {
+    public synchronized java.util.Optional<SnatStaticMappingDetails> findDetailsNat44(@Nonnull final List<SnatStaticMappingDetails> details,
+                                                                                      final long natInstanceId, final long idx,
+                                                                                      @Nonnull final MappingContext mappingContext) {
         // Find mapping entry for Index
         final MappingEntry ctxMappingEntry = mappingContext.read(getTableId(natInstanceId))
                 .transform(MappingTable::getMappingEntry)
@@ -162,9 +194,29 @@ public class MappingEntryContext implements Ipv4Translator {
         // Find which details matches the context stored entry under index
         return details.stream()
                 .filter(detail -> equalEntries(detail, ctxMappingEntry))
+                .findFirst();
+    }
+
+    /**
+     * Find specific details in provided collection identified with provided index.
+     */
+    public synchronized java.util.Optional<Nat64BibDetails> findDetailsNat64(@Nonnull final List<Nat64BibDetails> details,
+                                                                             final long natInstanceId, final long idx,
+                                                                             @Nonnull final MappingContext mappingContext) {
+        // Find mapping entry for Index
+        final MappingEntry ctxMappingEntry = mappingContext.read(getTableId(natInstanceId))
+                .transform(MappingTable::getMappingEntry)
+                .or(Collections.emptyList())
+                .stream()
+                .filter(entry -> entry.getIndex() == idx)
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Unable to match mapping for nat-instance: "
-                        + natInstanceId + " and match: " + ctxMappingEntry + " in: " + details));
+                .orElseThrow(() -> new IllegalStateException("Unable to find context mapping for nat-instance: "
+                        + natInstanceId + " and ID: " + idx));
+
+        // Find which details matches the context stored entry under index
+        return details.stream()
+                .filter(detail -> equalEntries(detail, ctxMappingEntry))
+                .findFirst();
     }
 
     /**
@@ -172,6 +224,17 @@ public class MappingEntryContext implements Ipv4Translator {
      */
     public synchronized long getStoredOrArtificialIndex(final Long natInstanceId,
                                                         @Nonnull final SnatStaticMappingDetails details,
+                                                        @Nonnull final MappingContext mappingContext) {
+        return mappingContext.read(getId(natInstanceId, entryToKey(details)))
+                .transform(MappingEntry::getIndex)
+                .or(() -> getArtificialId(details, natInstanceId, mappingContext));
+    }
+
+    /**
+     * Get index for a mapping entry details or create an artificial one.
+     */
+    public synchronized long getStoredOrArtificialIndex(final Long natInstanceId,
+                                                        @Nonnull final Nat64BibDetails details,
                                                         @Nonnull final MappingContext mappingContext) {
         return mappingContext.read(getId(natInstanceId, entryToKey(details)))
                 .transform(MappingEntry::getIndex)
@@ -189,6 +252,15 @@ public class MappingEntryContext implements Ipv4Translator {
     }
 
     private long getArtificialId(final SnatStaticMappingDetails details, final Long natInstanceId,
+                                 final MappingContext mappingContext) {
+        LOG.trace("Assigning artificial ID for {}", details);
+        final long artificialIdx = findFreeIndex(natInstanceId, mappingContext);
+        LOG.debug("Artificial ID for {} assigned as: {}", details, artificialIdx);
+        mappingContext.put(getId(natInstanceId, entryToKey(details)), toCtxMapEntry(details, artificialIdx));
+        return artificialIdx;
+    }
+
+    private long getArtificialId(final Nat64BibDetails details, final Long natInstanceId,
                                  final MappingContext mappingContext) {
         LOG.trace("Assigning artificial ID for {}", details);
         final long artificialIdx = findFreeIndex(natInstanceId, mappingContext);

@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.nat.read;
 
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -26,11 +27,15 @@ import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.vpp.jvpp.snat.dto.Nat64BibDetails;
+import io.fd.vpp.jvpp.snat.dto.Nat64BibDetailsReplyDump;
+import io.fd.vpp.jvpp.snat.dto.Nat64BibDump;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDump;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -50,18 +55,21 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class MappingEntryCustomizer implements Ipv4Translator,
+final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
         InitializingListReaderCustomizer<MappingEntry, MappingEntryKey, MappingEntryBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingEntryCustomizer.class);
 
-    private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager;
+    private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager;
+    private final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager;
     private final MappingEntryContext mappingEntryContext;
 
     MappingEntryCustomizer(
-            final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> dumpCacheManager,
+            final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager,
+            final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager,
             final MappingEntryContext mappingEntryContext) {
-        this.dumpCacheManager = dumpCacheManager;
+        this.nat44DumpManager = nat44DumpManager;
+        this.nat64DumpManager = nat64DumpManager;
         this.mappingEntryContext = mappingEntryContext;
     }
 
@@ -79,34 +87,78 @@ final class MappingEntryCustomizer implements Ipv4Translator,
 
         final int idx = id.firstKeyOf(MappingEntry.class).getIndex().intValue();
         final int natInstanceId = id.firstKeyOf(NatInstance.class).getId().intValue();
-        final List<SnatStaticMappingDetails> details =
-                dumpCacheManager.getDump(id, ctx.getModificationCache(), null)
+        final List<SnatStaticMappingDetails> nat44Details =
+                nat44DumpManager.getDump(id, ctx.getModificationCache(), null)
                         .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails;
-        final SnatStaticMappingDetails snatStaticMappingDetails =
-                mappingEntryContext.findDetails(details, natInstanceId, idx, ctx.getMappingContext());
+        final Optional<SnatStaticMappingDetails> snat44StaticMappingDetails =
+                mappingEntryContext.findDetailsNat44(nat44Details, natInstanceId, idx, ctx.getMappingContext());
 
-        builder.setIndex((long) idx);
+        if (snat44StaticMappingDetails.isPresent()) {
+            readNat44Entry(builder, idx, snat44StaticMappingDetails.get());
+        } else {
+            final List<Nat64BibDetails> nat64Details =
+                    nat64DumpManager.getDump(id, ctx.getModificationCache(), null)
+                            .or(new Nat64BibDetailsReplyDump()).nat64BibDetails;
+
+            final Optional<Nat64BibDetails> snat64StaticMappingDetails =
+                    mappingEntryContext.findDetailsNat64(nat64Details, natInstanceId, idx, ctx.getMappingContext());
+
+            if (snat64StaticMappingDetails.isPresent()) {
+                readNat64Entry(builder, idx, snat64StaticMappingDetails.get());
+            }
+        }
+
+
+        LOG.trace("Mapping-entry read as: {}", builder);
+    }
+
+    private void readNat44Entry(@Nonnull final MappingEntryBuilder builder,
+                                final int index, final SnatStaticMappingDetails detail) {
+        builder.setIndex((long) index);
         builder.setType(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.MappingEntry.Type.Static);
-        // Snat only supports ipv4 for now
-        builder.setExternalSrcAddress(arrayToIpv4AddressNoZone(snatStaticMappingDetails.externalIpAddress));
+        builder.setExternalSrcAddress(arrayToIpv4AddressNoZone(detail.externalIpAddress));
         builder.setInternalSrcAddress(
-                new IpAddress(arrayToIpv4AddressNoZone(snatStaticMappingDetails.localIpAddress)));
+                new IpAddress(arrayToIpv4AddressNoZone(detail.localIpAddress)));
 
-        if (snatStaticMappingDetails.addrOnly == 0) {
+        if (detail.addrOnly == 0) {
             builder.setExternalSrcPort(new ExternalSrcPortBuilder()
                     .setPortType(new SinglePortNumberBuilder().setSinglePortNumber(new PortNumber(
-                            (int) snatStaticMappingDetails.externalPort))
+                            (int) detail.externalPort))
                             .build())
                     .build());
             builder.setInternalSrcPort(new InternalSrcPortBuilder()
                     .setPortType(new SinglePortNumberBuilder().setSinglePortNumber(new PortNumber(
-                            (int) snatStaticMappingDetails.localPort))
+                            (int) detail.localPort))
                             .build())
                     .build());
         }
+    }
 
-        LOG.trace("Mapping-entry read as: {}", builder);
+    private void readNat64Entry(@Nonnull final MappingEntryBuilder builder,
+                                final int index, final Nat64BibDetails detail) {
+        builder.setIndex((long) index);
+        if (detail.isStatic == 1) {
+            builder.setType(
+                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.MappingEntry.Type.Static);
+        } else {
+            builder.setType(
+                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.MappingEntry.Type.Dynamic);
+        }
+        builder.setExternalSrcAddress(arrayToIpv4AddressNoZone(detail.oAddr));
+        builder.setInternalSrcAddress(
+                new IpAddress(arrayToIpv6AddressNoZone(detail.iAddr)));
+
+        builder.setExternalSrcPort(new ExternalSrcPortBuilder()
+                .setPortType(new SinglePortNumberBuilder().setSinglePortNumber(new PortNumber(
+                        (int) detail.oPort))
+                        .build())
+                .build());
+        builder.setInternalSrcPort(new InternalSrcPortBuilder()
+                .setPortType(new SinglePortNumberBuilder().setSinglePortNumber(new PortNumber(
+                        (int) detail.iPort))
+                        .build())
+                .build());
     }
 
     @Nonnull
@@ -117,13 +169,24 @@ final class MappingEntryCustomizer implements Ipv4Translator,
         LOG.trace("Listing IDs for all mapping-entries within nat-instance(vrf):{}", natInstanceId);
 
         final List<MappingEntryKey> entryKeys =
-                dumpCacheManager.getDump(id, context.getModificationCache(), null)
+                nat44DumpManager.getDump(id, context.getModificationCache(), null)
                         .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails.stream()
                         .filter(detail -> natInstanceId == detail.vrfId)
                         .map(detail -> mappingEntryContext
                                 .getStoredOrArtificialIndex(natInstanceId, detail, context.getMappingContext()))
                         .map(MappingEntryKey::new)
                         .collect(Collectors.toList());
+
+
+        final List<MappingEntryKey> nat64Keys =
+                nat64DumpManager.getDump(id, context.getModificationCache(), null)
+                        .or(new Nat64BibDetailsReplyDump()).nat64BibDetails.stream()
+                        .filter(detail -> natInstanceId == detail.vrfId)
+                        .map(detail -> mappingEntryContext
+                                .getStoredOrArtificialIndex(natInstanceId, detail, context.getMappingContext()))
+                        .map(MappingEntryKey::new)
+                        .collect(Collectors.toList());
+        entryKeys.addAll(nat64Keys);
         LOG.debug("List of mapping-entry keys within nat-instance(vrf):{} : {}", natInstanceId, entryKeys);
 
         return entryKeys;
@@ -136,27 +199,31 @@ final class MappingEntryCustomizer implements Ipv4Translator,
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry> init(@Nonnull final InstanceIdentifier<MappingEntry> id,
-                                                                                                                                                                          @Nonnull final MappingEntry readValue,
-                                                                                                                                                                          @Nonnull final ReadContext ctx) {
+    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry> init(
+            @Nonnull final InstanceIdentifier<MappingEntry> id,
+            @Nonnull final MappingEntry readValue,
+            @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntryBuilder(readValue)
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntryBuilder(
+                        readValue)
                         .build());
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry> getCfgId(final @Nonnull InstanceIdentifier<MappingEntry> id) {
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry> getCfgId(
+            final @Nonnull InstanceIdentifier<MappingEntry> id) {
         return NatInstanceCustomizer.getCfgId(RWUtils.cutId(id, NatInstance.class))
                 .child(MappingTable.class)
                 .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry.class,
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntryKey(id.firstKeyOf(MappingEntry.class).getIndex()));
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntryKey(
+                                id.firstKeyOf(MappingEntry.class).getIndex()));
     }
 
-    static final class MappingEntryDumpExecutor
+    static final class MappingEntryNat44DumpExecutor
             implements EntityDumpExecutor<SnatStaticMappingDetailsReplyDump, Void>, JvppReplyConsumer {
 
         private final FutureJVppSnatFacade jvppSnat;
 
-        MappingEntryDumpExecutor(final FutureJVppSnatFacade jvppSnat) {
+        MappingEntryNat44DumpExecutor(final FutureJVppSnatFacade jvppSnat) {
             this.jvppSnat = jvppSnat;
         }
 
@@ -166,6 +233,25 @@ final class MappingEntryCustomizer implements Ipv4Translator,
                 throws ReadFailedException {
             return getReplyForRead(jvppSnat.snatStaticMappingDump(new SnatStaticMappingDump()).toCompletableFuture(),
                     identifier);
+        }
+    }
+
+    static final class MappingEntryNat64DumpExecutor
+            implements EntityDumpExecutor<Nat64BibDetailsReplyDump, Void>, JvppReplyConsumer {
+
+        private final FutureJVppSnatFacade jvppSnat;
+
+        MappingEntryNat64DumpExecutor(final FutureJVppSnatFacade jvppSnat) {
+            this.jvppSnat = jvppSnat;
+        }
+
+        @Nonnull
+        @Override
+        public Nat64BibDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, final Void params)
+                throws ReadFailedException {
+            final Nat64BibDump dump = new Nat64BibDump();
+            dump.proto = -1; // dump entries for all protocols
+            return getReplyForRead(jvppSnat.nat64BibDump(dump).toCompletableFuture(), identifier);
         }
     }
 }
