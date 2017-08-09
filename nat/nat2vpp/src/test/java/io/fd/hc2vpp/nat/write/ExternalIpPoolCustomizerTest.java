@@ -63,7 +63,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
 
     @Test
     public void testWrite(
-        @InjectTestData(resourcePath = "/nat/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+        @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
         throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractIpPool(data), writeContext);
         final SnatAddAddressRange expectedRequest = getExpectedRequest();
@@ -79,7 +79,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
 
     @Test
     public void testDelete(
-        @InjectTestData(resourcePath = "/nat/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+        @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
         throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, extractIpPool(data), writeContext);
         final SnatAddAddressRange expectedRequest = getExpectedRequest();

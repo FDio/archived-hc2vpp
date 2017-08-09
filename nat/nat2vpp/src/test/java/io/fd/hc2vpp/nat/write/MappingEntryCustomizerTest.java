@@ -26,6 +26,8 @@ import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.snat.dto.Nat64AddDelStaticBib;
+import io.fd.vpp.jvpp.snat.dto.Nat64AddDelStaticBibReply;
 import io.fd.vpp.jvpp.snat.dto.SnatAddStaticMapping;
 import io.fd.vpp.jvpp.snat.dto.SnatAddStaticMappingReply;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
@@ -63,44 +65,83 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
     public void setUpTest() {
         customizer = new MappingEntryCustomizer(jvppSnat, mappingContext);
         when(jvppSnat.snatAddStaticMapping(any())).thenReturn(future(new SnatAddStaticMappingReply()));
+        when(jvppSnat.nat64AddDelStaticBib(any())).thenReturn(future(new Nat64AddDelStaticBibReply()));
     }
 
     @Test
-    public void testWrite(
-        @InjectTestData(resourcePath = "/nat/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable data)
-        throws WriteFailedException {
+    public void testWriteNat44(
+            @InjectTestData(resourcePath = "/nat44/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable data)
+            throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
-        final SnatAddStaticMapping expectedRequest = getExpectedRequest();
+        final SnatAddStaticMapping expectedRequest = getExpectedNat44Request();
         expectedRequest.isAdd = 1;
         verify(jvppSnat).snatAddStaticMapping(expectedRequest);
     }
 
+    @Test
+    public void testWriteNat64(
+            @InjectTestData(resourcePath = "/nat64/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable data)
+            throws WriteFailedException {
+        customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
+        final Nat64AddDelStaticBib expectedRequest = getExpectedNat64Request();
+        expectedRequest.isAdd = 1;
+        verify(jvppSnat).nat64AddDelStaticBib(expectedRequest);
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testWriteUnsupportedProtocol(
-        @InjectTestData(resourcePath = "/nat/static-mapping-unsupported-proto.json", id = MAPPING_TABLE_PATH) MappingTable data)
-        throws WriteFailedException {
+    public void testWriteNat44UnsupportedProtocol(
+            @InjectTestData(resourcePath = "/nat44/static-mapping-unsupported-proto.json", id = MAPPING_TABLE_PATH) MappingTable data)
+            throws WriteFailedException {
+        customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWriteNat64UnsupportedProtocol(
+            @InjectTestData(resourcePath = "/nat64/static-mapping-unsupported-proto.json", id = MAPPING_TABLE_PATH) MappingTable data)
+            throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
     }
 
     @Test
-    public void testUpdate(
-        @InjectTestData(resourcePath = "/nat/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable before,
-        @InjectTestData(resourcePath = "/nat/static-mapping-address-update.json", id = MAPPING_TABLE_PATH) MappingTable after)
-        throws WriteFailedException {
+    public void testUpdateNat44(
+            @InjectTestData(resourcePath = "/nat44/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable before,
+            @InjectTestData(resourcePath = "/nat44/static-mapping-address-update.json", id = MAPPING_TABLE_PATH) MappingTable after)
+            throws WriteFailedException {
         customizer.updateCurrentAttributes(IID, extractMappingEntry(before), extractMappingEntry(after), writeContext);
-        final SnatAddStaticMapping expectedDeleteRequest = getExpectedRequest();
+        final SnatAddStaticMapping expectedDeleteRequest = getExpectedNat44Request();
         verify(jvppSnat).snatAddStaticMapping(expectedDeleteRequest);
-        final SnatAddStaticMapping expectedUpdateRequest = getExpectedUpdateRequest();
+        final SnatAddStaticMapping expectedUpdateRequest = getExpectedNat44UpdateRequest();
         expectedUpdateRequest.isAdd = 1;
         verify(jvppSnat).snatAddStaticMapping(expectedUpdateRequest);
     }
 
     @Test
-    public void testDelete(
-        @InjectTestData(resourcePath = "/nat/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable data)
-        throws WriteFailedException {
+    public void testUpdateNat64(
+            @InjectTestData(resourcePath = "/nat64/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable before,
+            @InjectTestData(resourcePath = "/nat64/static-mapping-address-update.json", id = MAPPING_TABLE_PATH) MappingTable after)
+            throws WriteFailedException {
+        customizer.updateCurrentAttributes(IID, extractMappingEntry(before), extractMappingEntry(after), writeContext);
+        final Nat64AddDelStaticBib expectedDeleteRequest = getExpectedNat64Request();
+        verify(jvppSnat).nat64AddDelStaticBib(expectedDeleteRequest);
+        final Nat64AddDelStaticBib expectedUpdateRequest = getExpectedNat64UpdateRequest();
+        expectedUpdateRequest.isAdd = 1;
+        verify(jvppSnat).nat64AddDelStaticBib(expectedUpdateRequest);
+    }
+
+    @Test
+    public void testDeleteNat44(
+            @InjectTestData(resourcePath = "/nat44/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable data)
+            throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, extractMappingEntry(data), writeContext);
-        verify(jvppSnat).snatAddStaticMapping(getExpectedRequest());
+        verify(jvppSnat).snatAddStaticMapping(getExpectedNat44Request());
+    }
+
+    @Test
+    public void testDeleteNat64(
+            @InjectTestData(resourcePath = "/nat64/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable data)
+            throws WriteFailedException {
+        customizer.deleteCurrentAttributes(IID, extractMappingEntry(data), writeContext);
+        verify(jvppSnat).nat64AddDelStaticBib(getExpectedNat64Request());
     }
 
     private static MappingEntry extractMappingEntry(MappingTable data) {
@@ -108,7 +149,7 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         return data.getMappingEntry().get(0);
     }
 
-    private static SnatAddStaticMapping getExpectedRequest() {
+    private static SnatAddStaticMapping getExpectedNat44Request() {
         final SnatAddStaticMapping expectedRequest = new SnatAddStaticMapping();
         expectedRequest.isIp4 = 1;
         expectedRequest.addrOnly = 1;
@@ -120,7 +161,16 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         return expectedRequest;
     }
 
-    private static SnatAddStaticMapping getExpectedUpdateRequest() {
+    private static Nat64AddDelStaticBib getExpectedNat64Request() {
+        final Nat64AddDelStaticBib expectedRequest = new Nat64AddDelStaticBib();
+        expectedRequest.proto = 58; // icmp v6
+        expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
+        expectedRequest.iAddr = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x33};
+        expectedRequest.oAddr = new byte[] {10, 1, 1, 3};
+        return expectedRequest;
+    }
+
+    private static SnatAddStaticMapping getExpectedNat44UpdateRequest() {
         final SnatAddStaticMapping expectedRequest = new SnatAddStaticMapping();
         expectedRequest.isIp4 = 1;
         expectedRequest.addrOnly = 1;
@@ -129,6 +179,17 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         expectedRequest.externalSwIfIndex = -1;
         expectedRequest.localIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 86};
         expectedRequest.externalIpAddress = new byte[] {45, 1, 5, 6};
+        return expectedRequest;
+    }
+
+    private static Nat64AddDelStaticBib getExpectedNat64UpdateRequest() {
+        final Nat64AddDelStaticBib expectedRequest = new Nat64AddDelStaticBib();
+        expectedRequest.proto = 58; // icmp v6
+        expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
+        expectedRequest.iAddr = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x34};
+        expectedRequest.oAddr = new byte[] {10, 1, 1, 4};
+        expectedRequest.iPort = 1234;
+        expectedRequest.oPort = 5678;
         return expectedRequest;
     }
 }

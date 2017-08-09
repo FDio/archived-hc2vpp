@@ -17,17 +17,24 @@
 package io.fd.hc2vpp.nat.write;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.snat.dto.Nat64AddDelStaticBib;
 import io.fd.vpp.jvpp.snat.dto.SnatAddStaticMapping;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry;
@@ -39,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry, MappingEntryKey>,
-        JvppReplyConsumer, Ipv4Translator {
+        JvppReplyConsumer, Ipv4Translator, Ipv6Translator, ByteDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingEntryCustomizer.class);
 
@@ -64,8 +71,7 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         final Long mappingEntryId = id.firstKeyOf(MappingEntry.class).getIndex();
         LOG.debug("Writing mapping entry: {} for nat-instance(vrf): {}", natInstanceId, mappingEntryId);
 
-        final SnatAddStaticMapping request = getRequest(id, dataAfter, natInstanceId, true);
-        getReplyForWrite(jvppSnat.snatAddStaticMapping(request).toCompletableFuture(), id);
+        configureMapping(id, dataAfter, natInstanceId, true);
 
         // Store context mapping only if not already present under the same exact mapping
         synchronized (mappingEntryContext) {
@@ -74,7 +80,25 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
                         .addEntry(natInstanceId, mappingEntryId, dataAfter, writeContext.getMappingContext());
             }
         }
-        LOG.trace("Mapping entry: {} for nat-instance(vrf): {} written successfully", request.vrfId, id);
+        LOG.trace("Mapping entry: {} for nat-instance(vrf): {} written successfully", natInstanceId, id);
+    }
+
+    private void configureMapping(@Nonnull final InstanceIdentifier<MappingEntry> id,
+                                  @Nonnull final MappingEntry entry,
+                                  @Nonnull final Long natInstanceId,
+                                  final boolean isAdd) throws WriteFailedException {
+        final IpAddress internalSrcAddress = entry.getInternalSrcAddress();
+        final Ipv4Address internalV4SrcAddress = internalSrcAddress.getIpv4Address();
+        final Ipv6Address internalV6SrcAddress = internalSrcAddress.getIpv6Address();
+        if (internalV4SrcAddress != null) {
+            final SnatAddStaticMapping request = getNat44Request(id, entry, natInstanceId, isAdd);
+            getReplyForWrite(jvppSnat.snatAddStaticMapping(request).toCompletableFuture(), id);
+        } else {
+            checkState(internalV6SrcAddress != null,
+                    "internalSrcAddress.getIpv6Address() should not return null if v4 address is not given");
+            final Nat64AddDelStaticBib request = getNat64Request(id, entry, natInstanceId, isAdd);
+            getReplyForWrite(jvppSnat.nat64AddDelStaticBib(request).toCompletableFuture(), id);
+        }
     }
 
     /**
@@ -119,49 +143,43 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         final MappingEntryKey mappingEntryKey = id.firstKeyOf(MappingEntry.class);
         LOG.debug("Deleting mapping entry: {} for nat-instance(vrf): {}", natInstanceId, mappingEntryKey);
 
-        final SnatAddStaticMapping request = getRequest(id, dataBefore, natInstanceId, false);
-        getReplyForWrite(jvppSnat.snatAddStaticMapping(request).toCompletableFuture(), id);
+        configureMapping(id, dataBefore, natInstanceId, false);
         mappingEntryContext.removeEntry(natInstanceId, dataBefore, writeContext.getMappingContext());
-        LOG.trace("Mapping entry: {} for nat-instance(vrf): {} deleted successfully", request.vrfId, id);
+        LOG.trace("Mapping entry: {} for nat-instance(vrf): {} deleted successfully", natInstanceId, id);
     }
 
-    private SnatAddStaticMapping getRequest(final InstanceIdentifier<MappingEntry> id,
-                                            final MappingEntry dataAfter,
-                                            final Long natInstanceId,
-                                            final boolean isAdd)
+    private SnatAddStaticMapping getNat44Request(final InstanceIdentifier<MappingEntry> id,
+                                                 final MappingEntry mappingEntry,
+                                                 final Long natInstanceId,
+                                                 final boolean isAdd)
             throws WriteFailedException.CreateFailedException {
         final SnatAddStaticMapping request = new SnatAddStaticMapping();
-        request.isAdd = isAdd
-                ? (byte) 1
-                : 0;
+        request.isAdd = booleanToByte(isAdd);
         request.isIp4 = 1;
         // VPP uses int, model long
         request.vrfId = natInstanceId.intValue();
 
-        // Snat supports only ipv4 now
-        if (dataAfter.getInternalSrcAddress().getIpv4Address() == null) {
-            throw new WriteFailedException.CreateFailedException(id, dataAfter,
-                    new UnsupportedOperationException(
-                            String.format("No Ipv4 present for in address %s. Ipv6 not supported",
-                                    dataAfter.getInternalSrcAddress())));
-        }
+        final Ipv4Address internalAddress = mappingEntry.getInternalSrcAddress().getIpv4Address();
+        checkArgument(internalAddress != null, "No Ipv4 present in internal-src-address %s",
+                mappingEntry.getInternalSrcAddress());
 
         request.addrOnly = 1;
         request.localIpAddress =
-                ipv4AddressNoZoneToArray(dataAfter.getInternalSrcAddress().getIpv4Address().getValue());
-        request.externalIpAddress = ipv4AddressNoZoneToArray(dataAfter.getExternalSrcAddress().getValue());
+                ipv4AddressNoZoneToArray(mappingEntry.getInternalSrcAddress().getIpv4Address().getValue());
+        request.externalIpAddress = ipv4AddressNoZoneToArray(mappingEntry.getExternalSrcAddress().getValue());
         request.externalSwIfIndex = -1; // external ip address is ignored if externalSwIfIndex is given
         request.protocol = -1;
-        final Short protocol = dataAfter.getTransportProtocol();
+        final Short protocol = mappingEntry.getTransportProtocol();
         if (protocol != null) {
             checkArgument(protocol == 1 || protocol == 6 || protocol == 17,
-                "Unsupported protocol %s only ICMP, TCP and UDP are currently supported", protocol);
+                    "Unsupported protocol %s only ICMP(1), TCP(6) and UDP(17) are currently supported for Nat44",
+                    protocol);
             request.protocol = protocol.byteValue();
         }
 
-        Optional<Short> internalPortNumber = getPortNumber(id, dataAfter,
+        Optional<Short> internalPortNumber = getPortNumber(id, mappingEntry,
                 (entry) -> Optional.fromNullable(entry.getInternalSrcPort()).transform(PortNumber::getPortType));
-        Optional<Short> externalPortNumber = getPortNumber(id, dataAfter,
+        Optional<Short> externalPortNumber = getPortNumber(id, mappingEntry,
                 (entry) -> Optional.fromNullable(entry.getExternalSrcPort()).transform(PortNumber::getPortType));
         if (internalPortNumber.isPresent() && externalPortNumber.isPresent()) {
             request.addrOnly = 0;
@@ -170,6 +188,44 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         }
         return request;
     }
+
+    private Nat64AddDelStaticBib getNat64Request(final InstanceIdentifier<MappingEntry> id,
+                                                 final MappingEntry mappingEntry,
+                                                 final Long natInstanceId,
+                                                 final boolean isAdd)
+            throws WriteFailedException.CreateFailedException {
+        final Nat64AddDelStaticBib request = new Nat64AddDelStaticBib();
+        request.isAdd = booleanToByte(isAdd);
+        // VPP uses int, model long
+        request.vrfId = natInstanceId.intValue();
+
+        final Ipv6Address internalAddress = mappingEntry.getInternalSrcAddress().getIpv6Address();
+        checkArgument(internalAddress != null, "No Ipv6 present in internal-src-address %s",
+                mappingEntry.getInternalSrcAddress());
+
+
+        request.iAddr = ipv6AddressNoZoneToArray(internalAddress);
+        request.oAddr = ipv4AddressNoZoneToArray(mappingEntry.getExternalSrcAddress().getValue());
+        request.proto = -1;
+        final Short protocol = mappingEntry.getTransportProtocol();
+        if (protocol != null) {
+            checkArgument(protocol == 1 || protocol == 6 || protocol == 17 || protocol == 58,
+                    "Unsupported protocol %s only ICMP(1), IPv6-ICMP(58), TCP(6) and UDP(17) are currently supported for Nat64",
+                    protocol);
+            request.proto = protocol.byteValue();
+        }
+
+        Optional<Short> internalPortNumber = getPortNumber(id, mappingEntry,
+                (entry) -> Optional.fromNullable(entry.getInternalSrcPort()).transform(PortNumber::getPortType));
+        Optional<Short> externalPortNumber = getPortNumber(id, mappingEntry,
+                (entry) -> Optional.fromNullable(entry.getExternalSrcPort()).transform(PortNumber::getPortType));
+        if (internalPortNumber.isPresent() && externalPortNumber.isPresent()) {
+            request.iPort = internalPortNumber.get();
+            request.oPort = externalPortNumber.get();
+        }
+        return request;
+    }
+
 
     private Optional<Short> getPortNumber(final InstanceIdentifier<MappingEntry> id, final MappingEntry dataAfter,
                                           final PortGetter portGetter) {

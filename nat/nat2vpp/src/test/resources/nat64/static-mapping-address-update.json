@@ -1,0 +1,17 @@
+{
+  "mapping-table" : {
+    "mapping-entry": {
+      "index": 58,
+      "type": "static",
+      "transport-protocol": 58,
+      "internal-src-address": "2001:db8:85a3::8a2e:370:7334",
+      "external-src-address": "10.1.1.4",
+      "internal-src-port" : {
+        "single-port-number" : 1234
+      },
+      "external-src-port" : {
+        "single-port-number" : 5678
+      }
+    }
+  }
+}
