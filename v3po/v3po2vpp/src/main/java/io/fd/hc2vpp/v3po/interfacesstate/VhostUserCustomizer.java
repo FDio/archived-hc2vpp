@@ -16,28 +16,26 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.lang.String.format;
 
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.StaticCacheKeyFactory;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -53,23 +51,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class VhostUserCustomizer extends FutureJVppCustomizer
-        implements InitializingReaderCustomizer<VhostUser, VhostUserBuilder>, InterfaceDataTranslator,
-        JvppReplyConsumer {
+public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUser, VhostUserBuilder>,
+        InterfaceDataTranslator, JvppReplyConsumer {
 
-    //TODO - HC2VPP-212 - use dump cache manager
-    public static final String DUMPED_VHOST_USERS_CONTEXT_KEY =
-            VhostUserCustomizer.class.getName() + "dumpedVhostUsersDuringGetAllIds";
     private static final Logger LOG = LoggerFactory.getLogger(VhostUserCustomizer.class);
     private NamingContext interfaceContext;
     private final InterfaceCacheDumpManager dumpManager;
+    private final DumpCacheManager<SwInterfaceVhostUserDetailsReplyDump, Void> vhostDumpManager;
 
     public VhostUserCustomizer(@Nonnull final FutureJVppCore jvpp,
                                @Nonnull final NamingContext interfaceContext,
                                @Nonnull final InterfaceCacheDumpManager dumpManager) {
-        super(jvpp);
         this.interfaceContext = interfaceContext;
         this.dumpManager = dumpManager;
+        this.vhostDumpManager =
+                new DumpCacheManager.DumpCacheManagerBuilder<SwInterfaceVhostUserDetailsReplyDump, Void>()
+                        .acceptOnly(SwInterfaceVhostUserDetailsReplyDump.class)
+                        .withCacheKeyFactory(new StaticCacheKeyFactory(VhostUserCustomizer.class.getName() + "_dump"))
+                        .withExecutor((identifier, params) -> {
+                            final CompletionStage<SwInterfaceVhostUserDetailsReplyDump>
+                                    swInterfaceVhostUserDetailsReplyDumpCompletionStage =
+                                    jvpp.swInterfaceVhostUserDump(new SwInterfaceVhostUserDump());
+                            return getReplyForRead(
+                                    swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture(),
+                                    identifier);
+                        }).build();
     }
 
     @Override
@@ -101,35 +107,17 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
 
         LOG.debug("Reading attributes for vhpost user interface: {}", key.getName());
 
-        @SuppressWarnings("unchecked")
-        Map<Integer, SwInterfaceVhostUserDetails> mappedVhostUsers =
-                (Map<Integer, SwInterfaceVhostUserDetails>) ctx.getModificationCache()
-                        .get(DUMPED_VHOST_USERS_CONTEXT_KEY);
 
-        if (mappedVhostUsers == null) {
-            // Full VhostUser dump has to be performed here, no filter or anything is here to help so at least we cache it
-            final SwInterfaceVhostUserDump request = new SwInterfaceVhostUserDump();
-            final CompletionStage<SwInterfaceVhostUserDetailsReplyDump>
-                    swInterfaceVhostUserDetailsReplyDumpCompletionStage =
-                    getFutureJVpp().swInterfaceVhostUserDump(request);
-            final SwInterfaceVhostUserDetailsReplyDump reply =
-                    getReplyForRead(swInterfaceVhostUserDetailsReplyDumpCompletionStage.toCompletableFuture(), id);
-
-            if (null == reply || null == reply.swInterfaceVhostUserDetails) {
-                mappedVhostUsers = Collections.emptyMap();
-            } else {
-                final List<SwInterfaceVhostUserDetails> swInterfaceVhostUserDetails =
-                        reply.swInterfaceVhostUserDetails;
-                // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-                mappedVhostUsers = swInterfaceVhostUserDetails.stream()
-                        .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails));
-            }
-
-            ctx.getModificationCache().put(DUMPED_VHOST_USERS_CONTEXT_KEY, mappedVhostUsers);
-        }
+        final SwInterfaceVhostUserDetailsReplyDump dump =
+                vhostDumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS)
+                        .or(new SwInterfaceVhostUserDetailsReplyDump());
 
         // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping
-        final SwInterfaceVhostUserDetails swInterfaceVhostUserDetails = mappedVhostUsers.get(index);
+        final SwInterfaceVhostUserDetails swInterfaceVhostUserDetails = dump.swInterfaceVhostUserDetails.stream()
+                .filter(detail -> detail.swIfIndex == index)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        format("Vhost user for interface %s not found", key.getName())));
         LOG.trace("Vhost user interface: {} attributes returned from VPP: {}", key.getName(),
                 swInterfaceVhostUserDetails);
 
