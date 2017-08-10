@@ -99,8 +99,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     private void setInterfaceFlags(final InstanceIdentifier<Interface> id, final String swIfName, final int swIfIndex,
                                    final byte enabled) throws WriteFailedException {
         final CompletionStage<SwInterfaceSetFlagsReply> swInterfaceSetFlagsReplyFuture =
-                getFutureJVpp().swInterfaceSetFlags(
-                        getSwInterfaceSetFlagsInput(swIfIndex, enabled, (byte) 0 /* deleted */));
+                getFutureJVpp().swInterfaceSetFlags(getSwInterfaceSetFlagsInput(swIfIndex, enabled));
 
         LOG.debug("Updating interface flags for: {}, index: {}, enabled: {}", swIfName, swIfIndex, enabled);
 
@@ -109,13 +108,10 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                 swIfName, swIfIndex, enabled);
     }
 
-    private SwInterfaceSetFlags getSwInterfaceSetFlagsInput(final int swIfIndex, final byte enabled,
-                                                            final byte deleted) {
+    private SwInterfaceSetFlags getSwInterfaceSetFlagsInput(final int swIfIndex, final byte enabled) {
         final SwInterfaceSetFlags swInterfaceSetFlags = new SwInterfaceSetFlags();
         swInterfaceSetFlags.swIfIndex = swIfIndex;
         swInterfaceSetFlags.adminUpDown = enabled;
-        swInterfaceSetFlags.linkUpDown = enabled;
-        swInterfaceSetFlags.deleted = deleted;
         return swInterfaceSetFlags;
     }
 }

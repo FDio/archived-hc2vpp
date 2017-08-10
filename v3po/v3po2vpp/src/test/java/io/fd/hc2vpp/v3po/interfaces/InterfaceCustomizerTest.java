@@ -107,9 +107,7 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
 
     private SwInterfaceSetFlags expectedRequest(final boolean enabled) {
         final SwInterfaceSetFlags request = new SwInterfaceSetFlags();
-        request.deleted = 0;
         request.adminUpDown = booleanToByte(enabled);
-        request.linkUpDown = booleanToByte(enabled);
         request.swIfIndex = IF_INDEX;
         return request;
     }

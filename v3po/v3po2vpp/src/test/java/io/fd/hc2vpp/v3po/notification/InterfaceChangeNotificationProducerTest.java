@@ -22,11 +22,17 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.fd.honeycomb.notification.NotificationCollector;
-import io.fd.honeycomb.translate.MappingContext;
+import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.common.test.util.FutureProducer;
+import io.fd.honeycomb.notification.NotificationCollector;
+import io.fd.honeycomb.translate.MappingContext;
+import io.fd.vpp.jvpp.core.callback.SwInterfaceEventNotificationCallback;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceEventNotification;
+import io.fd.vpp.jvpp.core.dto.WantInterfaceEvents;
+import io.fd.vpp.jvpp.core.dto.WantInterfaceEventsReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.notification.CoreNotificationRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -34,12 +40,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.InterfaceStateChange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.InterfaceStatus;
-import io.fd.vpp.jvpp.core.callback.SwInterfaceSetFlagsNotificationCallback;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsNotification;
-import io.fd.vpp.jvpp.core.dto.WantInterfaceEvents;
-import io.fd.vpp.jvpp.core.dto.WantInterfaceEventsReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import io.fd.vpp.jvpp.core.notification.CoreNotificationRegistry;
 
 public class InterfaceChangeNotificationProducerTest implements FutureProducer, NamingContextHelper {
 
@@ -59,14 +59,14 @@ public class InterfaceChangeNotificationProducerTest implements FutureProducer, 
     @Mock
     private AutoCloseable notificationListenerReg;
 
-    private ArgumentCaptor<SwInterfaceSetFlagsNotificationCallback> callbackArgumentCaptor;
+    private ArgumentCaptor<SwInterfaceEventNotificationCallback> callbackArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         doReturn(notificationRegistry).when(jVpp).getNotificationRegistry();
-        callbackArgumentCaptor = ArgumentCaptor.forClass(SwInterfaceSetFlagsNotificationCallback.class);
-        doReturn(notificationListenerReg).when(notificationRegistry).registerSwInterfaceSetFlagsNotificationCallback(
+        callbackArgumentCaptor = ArgumentCaptor.forClass(SwInterfaceEventNotificationCallback.class);
+        doReturn(notificationListenerReg).when(notificationRegistry).registerSwInterfaceEventNotificationCallback(
             callbackArgumentCaptor.capture());
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         doReturn(future(new WantInterfaceEventsReply())).when(jVpp).wantInterfaceEvents(any(WantInterfaceEvents.class));
@@ -80,8 +80,8 @@ public class InterfaceChangeNotificationProducerTest implements FutureProducer, 
         interfaceChangeNotificationProducer.start(collector);
         verify(jVpp).wantInterfaceEvents(any(WantInterfaceEvents.class));
         verify(jVpp).getNotificationRegistry();
-        verify(notificationRegistry).registerSwInterfaceSetFlagsNotificationCallback(any(
-            SwInterfaceSetFlagsNotificationCallback.class));
+        verify(notificationRegistry).registerSwInterfaceEventNotificationCallback(any(
+                SwInterfaceEventNotificationCallback.class));
 
         interfaceChangeNotificationProducer.stop();
         verify(jVpp, times(2)).wantInterfaceEvents(any(WantInterfaceEvents.class));
@@ -95,12 +95,12 @@ public class InterfaceChangeNotificationProducerTest implements FutureProducer, 
 
         interfaceChangeNotificationProducer.start(collector);
 
-        final SwInterfaceSetFlagsNotification swInterfaceSetFlagsNotification = new SwInterfaceSetFlagsNotification();
+        final SwInterfaceEventNotification swInterfaceSetFlagsNotification = new SwInterfaceEventNotification();
         swInterfaceSetFlagsNotification.deleted = 0;
         swInterfaceSetFlagsNotification.swIfIndex = IFACE_ID;
         swInterfaceSetFlagsNotification.adminUpDown = 1;
         swInterfaceSetFlagsNotification.linkUpDown = 1;
-        callbackArgumentCaptor.getValue().onSwInterfaceSetFlagsNotification(swInterfaceSetFlagsNotification);
+        callbackArgumentCaptor.getValue().onSwInterfaceEventNotification(swInterfaceSetFlagsNotification);
         final ArgumentCaptor<InterfaceStateChange> notificationCaptor =
             ArgumentCaptor.forClass(InterfaceStateChange.class);
         verify(collector).onNotification(notificationCaptor.capture());

@@ -20,11 +20,16 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceEventNotification;
+import io.fd.vpp.jvpp.core.dto.WantInterfaceEvents;
+import io.fd.vpp.jvpp.core.dto.WantInterfaceEventsReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CompletionStage;
@@ -39,11 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.InterfaceStateChangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.InterfaceStatus;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetFlagsNotification;
-import io.fd.vpp.jvpp.core.dto.WantInterfaceEvents;
-import io.fd.vpp.jvpp.core.dto.WantInterfaceEventsReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,25 +76,25 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
         LOG.trace("Starting interface notifications");
         enableDisableIfcNotifications(1);
         LOG.debug("Interface notifications started successfully");
-        notificationListenerReg = jvpp.getNotificationRegistry().registerSwInterfaceSetFlagsNotificationCallback(
-                swInterfaceSetFlagsNotification -> {
-                    LOG.trace("Interface notification received: {}", swInterfaceSetFlagsNotification);
+        notificationListenerReg = jvpp.getNotificationRegistry().registerSwInterfaceEventNotificationCallback(
+                swInterfaceEventNotification -> {
+                    LOG.trace("Interface notification received: {}", swInterfaceEventNotification);
                     // TODO HONEYCOMB-166 this should be lazy
-                    collector.onNotification(transformNotification(swInterfaceSetFlagsNotification));
+                    collector.onNotification(transformNotification(swInterfaceEventNotification));
                 }
         );
     }
 
-    private Notification transformNotification(final SwInterfaceSetFlagsNotification swInterfaceSetFlagsNotification) {
-        if (swInterfaceSetFlagsNotification.deleted == 1) {
-            return new InterfaceDeletedBuilder().setName(getIfcName(swInterfaceSetFlagsNotification)).build();
+    private Notification transformNotification(final SwInterfaceEventNotification swInterfaceEventNotification) {
+        if (swInterfaceEventNotification.deleted == 1) {
+            return new InterfaceDeletedBuilder().setName(getIfcName(swInterfaceEventNotification)).build();
         } else {
             return new InterfaceStateChangeBuilder()
-                    .setName(getIfcName(swInterfaceSetFlagsNotification))
-                    .setAdminStatus(swInterfaceSetFlagsNotification.adminUpDown == 1
+                    .setName(getIfcName(swInterfaceEventNotification))
+                    .setAdminStatus(swInterfaceEventNotification.adminUpDown == 1
                             ? InterfaceStatus.Up
                             : InterfaceStatus.Down)
-                    .setOperStatus(swInterfaceSetFlagsNotification.linkUpDown == 1
+                    .setOperStatus(swInterfaceEventNotification.linkUpDown == 1
                             ? InterfaceStatus.Up
                             : InterfaceStatus.Down)
                     .build();
@@ -108,12 +108,12 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
      * <p/>
      * In case mapping is not available, index is used as name.
      */
-    private InterfaceNameOrIndex getIfcName(final SwInterfaceSetFlagsNotification swInterfaceSetFlagsNotification) {
+    private InterfaceNameOrIndex getIfcName(final SwInterfaceEventNotification swInterfaceEventNotification) {
         final Optional<String> optionalName =
-                interfaceContext.getNameIfPresent(swInterfaceSetFlagsNotification.swIfIndex, mappingContext);
+                interfaceContext.getNameIfPresent(swInterfaceEventNotification.swIfIndex, mappingContext);
         return optionalName.isPresent()
                 ? new InterfaceNameOrIndex(optionalName.get())
-                : new InterfaceNameOrIndex((long) swInterfaceSetFlagsNotification.swIfIndex);
+                : new InterfaceNameOrIndex((long) swInterfaceEventNotification.swIfIndex);
     }
 
     @Override
