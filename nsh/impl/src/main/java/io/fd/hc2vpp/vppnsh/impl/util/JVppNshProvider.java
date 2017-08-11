@@ -18,6 +18,7 @@ package io.fd.hc2vpp.vppnsh.impl.util;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.nsh.JVppNshImpl;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNshFacade;
@@ -26,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides future API for jvpp-nsh plugin. Must be a singleton due to shutdown hook usage.
- * Registers shutdown hook to free plugin's resources on shutdown.
+ * Provides future API for jvpp-nsh plugin. Must be a singleton due to shutdown hook usage. Registers shutdown hook to
+ * free plugin's resources on shutdown.
  */
 public final class JVppNshProvider extends ProviderTrait<FutureJVppNshFacade> {
 
@@ -36,19 +37,15 @@ public final class JVppNshProvider extends ProviderTrait<FutureJVppNshFacade> {
     @Inject
     private JVppRegistry registry;
 
+    @Inject
+    private ShutdownHandler shutdownHandler;
+
     @Override
     protected FutureJVppNshFacade create() {
         try {
             final JVppNshImpl jVppNsh = new JVppNshImpl();
             // Free jvpp-nsh plugin's resources on shutdown
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    LOG.info("Unloading jvpp-nsh plugin");
-                    jVppNsh.close();
-                    LOG.info("Successfully unloaded jvpp-nsh plugin");
-                }
-            });
+            shutdownHandler.register("jvpp-nsh", jVppNsh);
 
             LOG.info("Successfully loaded jvpp-nsh plugin");
             return new FutureJVppNshFacade(registry, jVppNsh);

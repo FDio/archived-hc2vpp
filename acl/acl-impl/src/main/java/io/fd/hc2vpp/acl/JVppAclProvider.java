@@ -19,6 +19,7 @@ package io.fd.hc2vpp.acl;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.acl.JVppAclImpl;
@@ -37,24 +38,20 @@ class JVppAclProvider extends ProviderTrait<FutureJVppAclFacade> implements Jvpp
     @Inject
     private JVppRegistry registry;
 
-    private static JVppAclImpl initAclApi() {
+    @Inject
+    private ShutdownHandler shutdownHandler;
+
+    private static JVppAclImpl initAclApi(final ShutdownHandler shutdownHandler) {
         final JVppAclImpl jvppAcl = new JVppAclImpl();
         // Free jvpp-acl plugin's resources on shutdown
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                LOG.info("Unloading jvpp-acl plugin");
-                jvppAcl.close();
-                LOG.info("Successfully unloaded jvpp-acl plugin");
-            }
-        });
+        shutdownHandler.register("jvpp-acl", jvppAcl);
         return jvppAcl;
     }
 
     @Override
     protected FutureJVppAclFacade create() {
         try {
-            return reportVersionAndGet(initAclApi());
+            return reportVersionAndGet(initAclApi(shutdownHandler));
         } catch (IOException e) {
             throw new IllegalStateException("Unable to open VPP management connection", e);
         } catch (TimeoutException | VppBaseCallException e) {

@@ -28,6 +28,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
@@ -62,6 +63,10 @@ public class V3poModuleTest {
     @Bind
     @Mock
     private FutureJVppCore futureJVppCore;
+
+    @Mock
+    @Bind
+    private ShutdownHandler shutdownHandler;
 
     @Inject
     private Set<ReaderFactory> readerFactories = new HashSet<>();

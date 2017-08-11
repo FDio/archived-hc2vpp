@@ -35,6 +35,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>cfg-init</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.fd.hc2vpp.acl</groupId>
             <artifactId>acl-api</artifactId>
             <version>${project.version}</version>

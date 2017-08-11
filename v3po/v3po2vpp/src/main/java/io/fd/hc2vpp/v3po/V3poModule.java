@@ -26,7 +26,7 @@ import io.fd.hc2vpp.v3po.factory.L2HoneycombWriterFactory;
 import io.fd.hc2vpp.v3po.factory.L2StateHoneycombReaderFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
-import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducer;
+import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducerProvider;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -71,7 +71,7 @@ public class V3poModule extends AbstractModule {
         // Notifications
         final Multibinder<ManagedNotificationProducer> notifiersBinder =
                 Multibinder.newSetBinder(binder(), ManagedNotificationProducer.class);
-        notifiersBinder.addBinding().to(InterfaceChangeNotificationProducer.class);
+        notifiersBinder.addBinding().toProvider(InterfaceChangeNotificationProducerProvider.class);
 
         LOG.info("Module V3PO successfully configured");
     }

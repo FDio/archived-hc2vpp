@@ -29,10 +29,10 @@ import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -43,6 +43,10 @@ public class VppCommonModuleTest {
     @Bind
     @Mock
     private DataBroker honeycombContext;
+
+    @Mock
+    @Bind
+    private ShutdownHandler shutdownHandler;
 
     @Inject
     private Set<ReaderFactory> readerFactories = new HashSet<>();

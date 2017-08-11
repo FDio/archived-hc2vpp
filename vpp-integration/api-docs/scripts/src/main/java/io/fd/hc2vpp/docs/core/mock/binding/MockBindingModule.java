@@ -19,6 +19,7 @@ package io.fd.hc2vpp.docs.core.mock.binding;
 import static com.google.inject.name.Names.named;
 
 import com.google.inject.AbstractModule;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -40,6 +41,7 @@ public class MockBindingModule extends AbstractModule {
                 .toInstance(noOpProxy(MappingContext.class));
         bind(DataBroker.class).annotatedWith(named("honeycomb-context")).toInstance(noOpProxy(DataBroker.class));
         bind(JVppRegistry.class).toInstance(noOpProxy(JVppRegistry.class));
+        bind(ShutdownHandler.class).toInstance(noOpProxy(ShutdownHandler.class));
     }
 
     static <T> T noOpProxy(Class<T> clazz) {

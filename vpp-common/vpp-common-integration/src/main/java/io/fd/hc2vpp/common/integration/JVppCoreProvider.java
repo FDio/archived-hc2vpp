@@ -18,11 +18,12 @@ package io.fd.hc2vpp.common.integration;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
-import java.io.IOException;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.core.JVppCoreImpl;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,21 +38,15 @@ public final class JVppCoreProvider extends ProviderTrait<FutureJVppCore> {
     @Inject
     private JVppRegistry registry;
 
+    @Inject
+    private ShutdownHandler shutdownHandler;
+
     @Override
     protected FutureJVppCoreFacade create() {
         try {
             final JVppCoreImpl jVpp = new JVppCoreImpl();
             // Free jvpp-core plugin's resources on shutdown
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-
-                @Override
-                public void run() {
-                    LOG.info("Unloading jvpp-core plugin");
-                    jVpp.close();
-                    LOG.info("Successfully unloaded jvpp-core plugin");
-                }
-            });
-
+            shutdownHandler.register("jvpp-core", jVpp);
             LOG.info("Successfully loaded jvpp-core plugin");
             return new FutureJVppCoreFacade(registry, jVpp);
         } catch (IOException e) {

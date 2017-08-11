@@ -18,6 +18,7 @@ package io.fd.hc2vpp.nat.jvpp;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.snat.JVppSnatImpl;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
@@ -26,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides future API for jvpp-nsh plugin. Must be a singleton due to shutdown hook usage.
- * Registers shutdown hook to free plugin's resources on shutdown.
+ * Provides future API for jvpp-nsh plugin. Must be a singleton due to shutdown hook usage. Registers shutdown hook to
+ * free plugin's resources on shutdown.
  */
 public final class JVppSnatProvider extends ProviderTrait<FutureJVppSnatFacade> {
 
@@ -36,19 +37,15 @@ public final class JVppSnatProvider extends ProviderTrait<FutureJVppSnatFacade> 
     @Inject
     private JVppRegistry registry;
 
+    @Inject
+    private ShutdownHandler shutdownHandler;
+
     @Override
     protected FutureJVppSnatFacade create() {
         try {
             final JVppSnatImpl jvppSnat = new JVppSnatImpl();
             // Free jvpp-nsh plugin's resources on shutdown
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    LOG.info("Unloading jvpp-snat plugin");
-                    jvppSnat.close();
-                    LOG.info("Successfully unloaded jvpp-snat plugin");
-                }
-            });
+            shutdownHandler.register("jvpp-snat", jvppSnat);
 
             LOG.info("Successfully loaded jvpp-snat plugin");
             return new FutureJVppSnatFacade(registry, jvppSnat);

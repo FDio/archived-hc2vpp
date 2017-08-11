@@ -18,6 +18,7 @@ package io.fd.hc2vpp.vppioam.impl.util;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.ioamexport.JVppIoamexportImpl;
 import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexportFacade;
@@ -32,19 +33,15 @@ public class JVppIoamExportProvider extends ProviderTrait<FutureJVppIoamexportFa
     @Inject
     private JVppRegistry registry;
 
+    @Inject
+    private ShutdownHandler shutdownHandler;
+
     @Override
     protected FutureJVppIoamexportFacade create() {
         try {
             final JVppIoamexportImpl jVppIoamexport = new JVppIoamexportImpl();
             // Free jvpp-ioam-export plugin's resources on shutdown
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    LOG.info("Unloading jvpp-ioam-export plugin");
-                    jVppIoamexport.close();
-                    LOG.info("Successfully unloaded jvpp-ioam-export plugin");
-                }
-            });
+            shutdownHandler.register("jvpp-ioamexport", jVppIoamexport);
 
             LOG.info("Successfully loaded jvpp-ioam-export plugin");
             return new FutureJVppIoamexportFacade(registry, jVppIoamexport);

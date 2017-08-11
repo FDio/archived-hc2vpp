@@ -18,17 +18,17 @@ package io.fd.hc2vpp.vppioam.impl.util;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.ioamtrace.JVppIoamtraceImpl;
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtraceFacade;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
 /**
- * Provides future API for jvpp-ioam plugin. Must be a singleton due to shutdown hook usage.
- * Registers shutdown hook to free plugin's resources on shutdown.
+ * Provides future API for jvpp-ioam plugin. Must be a singleton due to shutdown hook usage. Registers shutdown hook to
+ * free plugin's resources on shutdown.
  */
 public final class JVppIoamTraceProvider extends ProviderTrait<FutureJVppIoamtraceFacade> {
 
@@ -37,19 +37,15 @@ public final class JVppIoamTraceProvider extends ProviderTrait<FutureJVppIoamtra
     @Inject
     private JVppRegistry registry;
 
+    @Inject
+    private ShutdownHandler shutdownHandler;
+
     @Override
     protected FutureJVppIoamtraceFacade create() {
         try {
             final JVppIoamtraceImpl jVppIoamTr = new JVppIoamtraceImpl();
             // Free jvpp-ioam plugin's resources on shutdown
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    LOG.info("Unloading jvpp-ioam-trace plugin");
-                    jVppIoamTr.close();
-                    LOG.info("Successfully unloaded jvpp-ioam-trace plugin");
-                }
-            });
+            shutdownHandler.register("jvpp-ioamtrace", jVppIoamTr);
 
             LOG.info("Successfully loaded jvpp-ioam-trace plugin");
             return new FutureJVppIoamtraceFacade(registry, jVppIoamTr);

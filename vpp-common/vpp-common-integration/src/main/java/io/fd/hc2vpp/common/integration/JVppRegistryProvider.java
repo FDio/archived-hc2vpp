@@ -17,11 +17,12 @@
 package io.fd.hc2vpp.common.integration;
 
 import com.google.inject.Inject;
-import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.hc2vpp.common.translate.util.VppStatusListener;
-import java.io.IOException;
+import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.JVppRegistryImpl;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,8 @@ public final class JVppRegistryProvider extends ProviderTrait<JVppRegistry> {
     private VppConfigAttributes config;
     @Inject
     private VppStatusListener vppStatus;
+    @Inject
+    private ShutdownHandler shutdownHandler;
 
     @Override
     protected JVppRegistryImpl create() {
@@ -46,23 +49,19 @@ public final class JVppRegistryProvider extends ProviderTrait<JVppRegistry> {
             // Closing JVpp connection with shutdown hook to erase the connection from VPP so HC will be able
             // to connect next time. If JVM is force closed, this will not be executed and VPP connection
             // with name from config will stay open and prevent next startup of HC to success
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    LOG.info("Disconnecting from VPP");
-                    if (vppStatus.isDown()) {
-                        LOG.info("VPP is down. JVppRegistry cleanup is not needed. Exiting");
-                        return;
-                    }
-                    try {
-                        registry.close();
-                        LOG.info("Successfully disconnected from VPP as {}", config.jvppConnectionName);
-                    } catch (Exception e) {
-                        LOG.warn("Unable to properly close jvpp registry", e);
-                    }
+            shutdownHandler.register("jvpp-registry", () -> {
+                LOG.info("Disconnecting from VPP");
+                if (vppStatus.isDown()) {
+                    LOG.info("VPP is down. JVppRegistry cleanup is not needed. Exiting");
+                    return;
+                }
+                try {
+                    registry.close();
+                    LOG.info("Successfully disconnected from VPP as {}", config.jvppConnectionName);
+                } catch (Exception e) {
+                    LOG.warn("Unable to properly close jvpp registry", e);
                 }
             });
-
             LOG.info("JVpp connection opened successfully as: {}", config.jvppConnectionName);
             return registry;
         } catch (IOException e) {

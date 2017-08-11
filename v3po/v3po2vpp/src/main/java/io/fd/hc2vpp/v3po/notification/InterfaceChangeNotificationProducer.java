@@ -19,7 +19,6 @@ package io.fd.hc2vpp.v3po.notification;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
@@ -48,11 +47,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Notification producer for interface events. It starts interface notification stream and for every
- * received notification, it transforms it into its BA equivalent and pushes into HC's notification collector.
+ * Notification producer for interface events. It starts interface notification stream and for every received
+ * notification, it transforms it into its BA equivalent and pushes into HC's notification collector.
  */
 @NotThreadSafe
-public final class InterfaceChangeNotificationProducer implements ManagedNotificationProducer, JvppReplyConsumer {
+final class InterfaceChangeNotificationProducer implements ManagedNotificationProducer, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceChangeNotificationProducer.class);
 
@@ -63,16 +62,16 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
     private AutoCloseable notificationListenerReg;
 
     @Inject
-    public InterfaceChangeNotificationProducer(@Nonnull final FutureJVppCore jvpp,
-                                               @Named("interface-context") @Nonnull final NamingContext interfaceContext,
-                                               @Named("honeycomb-context") @Nonnull final MappingContext mappingContext) {
+    InterfaceChangeNotificationProducer(@Nonnull final FutureJVppCore jvpp,
+                                        @Nonnull final NamingContext interfaceContext,
+                                        @Nonnull final MappingContext mappingContext) {
         this.jvpp = jvpp;
         this.interfaceContext = interfaceContext;
         this.mappingContext = mappingContext;
     }
 
     @Override
-    public void start(final NotificationCollector collector) {
+    public void start(@Nonnull final NotificationCollector collector) {
         LOG.trace("Starting interface notifications");
         enableDisableIfcNotifications(1);
         LOG.debug("Interface notifications started successfully");
@@ -102,9 +101,9 @@ public final class InterfaceChangeNotificationProducer implements ManagedNotific
     }
 
     /**
-     * Get mapped name for the interface. Best effort only! The mapping might not yet be stored in context
-     * data tree (write transaction is still in progress and context changes have not been committed yet, or
-     * VPP sends the notification before it returns create request(that would store mapping)).
+     * Get mapped name for the interface. Best effort only! The mapping might not yet be stored in context data tree
+     * (write transaction is still in progress and context changes have not been committed yet, or VPP sends the
+     * notification before it returns create request(that would store mapping)).
      * <p/>
      * In case mapping is not available, index is used as name.
      */

@@ -18,17 +18,17 @@ package io.fd.hc2vpp.vppioam.impl.util;
 
 import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
+import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.ioampot.JVppIoampotImpl;
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampotFacade;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
 /**
- * Provides future API for jvpp-ioam plugin. Must be a singleton due to shutdown hook usage.
- * Registers shutdown hook to free plugin's resources on shutdown.
+ * Provides future API for jvpp-ioam plugin. Must be a singleton due to shutdown hook usage. Registers shutdown hook to
+ * free plugin's resources on shutdown.
  */
 public final class JVppIoamPotProvider extends ProviderTrait<FutureJVppIoampotFacade> {
 
@@ -37,19 +37,15 @@ public final class JVppIoamPotProvider extends ProviderTrait<FutureJVppIoampotFa
     @Inject
     private JVppRegistry registry;
 
+    @Inject
+    private ShutdownHandler shutdownHandler;
+
     @Override
     protected FutureJVppIoampotFacade create() {
         try {
             final JVppIoampotImpl jVppIoamPot = new JVppIoampotImpl();
             // Free jvpp-ioam plugin's resources on shutdown
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    LOG.info("Unloading jvpp-ioam-pot plugin");
-                    jVppIoamPot.close();
-                    LOG.info("Successfully unloaded jvpp-ioam-pot plugin");
-                }
-            });
+            shutdownHandler.register("jvpp-ioampot", jVppIoamPot);
 
             LOG.info("Successfully loaded jvpp-ioam-pot plugin");
             return new FutureJVppIoampotFacade(registry, jVppIoamPot);

@@ -64,6 +64,11 @@
             <version>${honeycomb.min.distro.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.fd.honeycomb</groupId>
+            <artifactId>cfg-init</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>naming-context-api</artifactId>
             <version>${project.version}</version>
