@@ -26,15 +26,17 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterFallbackThreshold;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterFallbackThresholdReply;
 import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterState;
 import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterStateReply;
 import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterTtl;
 import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterTtlReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.lisp.feature.data.grouping.LispFeatureDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegister;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegisterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegisterBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -77,6 +79,13 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
                     .showOneMapRegisterTtl(new ShowOneMapRegisterTtl()).toCompletableFuture(), instanceIdentifier);
             if (ttlRead != null) {
                 mapRegisterBuilder.setTtl(UnsignedInts.toLong(ttlRead.ttl));
+            }
+
+            final ShowOneMapRegisterFallbackThresholdReply fallbackRead = getReplyForRead(
+                    getFutureJVpp().showOneMapRegisterFallbackThreshold(new ShowOneMapRegisterFallbackThreshold())
+                            .toCompletableFuture(), instanceIdentifier);
+            if (fallbackRead != null) {
+                mapRegisterBuilder.setFallbackThreshold(UnsignedInts.toLong(fallbackRead.value));
             }
         }
     }

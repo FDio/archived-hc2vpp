@@ -366,7 +366,7 @@
 			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
 			"responses": [],
 			"folder": "48325084-4625-703e-d6fd-3f11351ded23",
-			"rawModeData": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n,\"ttl\":45\t}\n}"
+			"rawModeData": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n,\"ttl\":45\t}\n\n,\"fallback-threshold\":45\t}\n}"
 		},
 		{
 			"id": "1a6bbb6d-467d-dba6-0fc9-230cbcd85c47",

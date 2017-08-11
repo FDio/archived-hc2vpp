@@ -24,10 +24,11 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisable;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterFallbackThreshold;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtl;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegister;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRegisterCustomizer extends CheckedLispCustomizer
@@ -76,6 +77,13 @@ public class MapRegisterCustomizer extends CheckedLispCustomizer
                 ttlRequest.ttl = mapRegister.getTtl().intValue();
             }
             getReplyForWrite(getFutureJVpp().oneMapRegisterSetTtl(ttlRequest).toCompletableFuture(), id);
+
+            if (mapRegister.getFallbackThreshold() != null) {
+                OneMapRegisterFallbackThreshold fallbackRequest = new OneMapRegisterFallbackThreshold();
+                fallbackRequest.value = mapRegister.getFallbackThreshold().intValue();
+                getReplyForWrite(getFutureJVpp().oneMapRegisterFallbackThreshold(fallbackRequest).toCompletableFuture(),
+                        id);
+            }
         }
     }
 }

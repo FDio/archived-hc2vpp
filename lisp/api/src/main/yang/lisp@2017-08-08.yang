@@ -26,6 +26,11 @@ module lisp {
     "This YANG module defines the generic configuration and
     operational data for LISP in VPP";
 
+  revision 2017-08-08 {
+    description
+        "Map register fallback threshold support";
+  }
+
   revision 2017-08-03 {
     description
         "Map register TTL registration support";
@@ -417,6 +422,11 @@ module lisp {
       leaf ttl {
         type uint32;
         description "Mapping validity period.";
+      }
+
+      leaf fallback-threshold {
+        type uint32;
+        description "Map register fallback threshold";
       }
     }
   }

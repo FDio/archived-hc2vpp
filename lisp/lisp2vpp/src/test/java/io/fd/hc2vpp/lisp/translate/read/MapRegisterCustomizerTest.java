@@ -23,13 +23,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterFallbackThresholdReply;
 import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterStateReply;
 import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterTtlReply;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.lisp.feature.data.grouping.LispFeatureDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegister;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegisterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegisterBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRegisterCustomizerTest extends LispInitializingReaderCustomizerTest implements LispInitTest {
@@ -52,6 +53,7 @@ public class MapRegisterCustomizerTest extends LispInitializingReaderCustomizerT
     @Test
     public void testReadCurrentAttributes() throws Exception {
         when(api.showOneMapRegisterTtl(any())).thenReturn(future(null));
+        when(api.showOneMapRegisterFallbackThreshold(any())).thenReturn(future(null));
         final MapRegisterBuilder builder = new MapRegisterBuilder();
         customizer.readCurrentAttributes(CONFIG_IID, builder, ctx);
         assertTrue(builder.isEnabled());
@@ -59,14 +61,18 @@ public class MapRegisterCustomizerTest extends LispInitializingReaderCustomizerT
     }
 
     @Test
-    public void testReadCurrentAttributesWithTTL() throws Exception {
-        final ShowOneMapRegisterTtlReply reply = new ShowOneMapRegisterTtlReply();
-        reply.ttl  = 4;
-        when(api.showOneMapRegisterTtl(any())).thenReturn(future(reply));
+    public void testReadCurrentAttributesWithTTLAndFallback() throws Exception {
+        final ShowOneMapRegisterTtlReply ttlReply = new ShowOneMapRegisterTtlReply();
+        ttlReply.ttl  = 4;
+        final ShowOneMapRegisterFallbackThresholdReply fallbackReply = new ShowOneMapRegisterFallbackThresholdReply();
+        fallbackReply.value  = 7;
+        when(api.showOneMapRegisterTtl(any())).thenReturn(future(ttlReply));
+        when(api.showOneMapRegisterFallbackThreshold(any())).thenReturn(future(fallbackReply));
         final MapRegisterBuilder builder = new MapRegisterBuilder();
         customizer.readCurrentAttributes(CONFIG_IID, builder, ctx);
         assertTrue(builder.isEnabled());
         assertEquals(4L, builder.getTtl().longValue());
+        assertEquals(7L, builder.getFallbackThreshold().longValue());
     }
 
     @Test

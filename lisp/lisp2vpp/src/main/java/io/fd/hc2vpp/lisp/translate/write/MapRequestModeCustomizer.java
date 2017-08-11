@@ -29,7 +29,7 @@ import io.fd.vpp.jvpp.core.dto.OneMapRequestModeReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.request.mode.grouping.MapRequestMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.request.mode.grouping.MapRequestMode;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRequestModeCustomizer extends CheckedLispCustomizer

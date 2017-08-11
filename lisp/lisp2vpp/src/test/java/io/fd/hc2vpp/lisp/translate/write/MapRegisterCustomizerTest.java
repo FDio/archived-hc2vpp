@@ -29,13 +29,15 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisable;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterEnableDisableReply;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterFallbackThreshold;
+import io.fd.vpp.jvpp.core.dto.OneMapRegisterFallbackThresholdReply;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtl;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtlReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegister;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170803.map.register.grouping.MapRegisterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegisterBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implements ByteDataTranslator {
@@ -51,6 +53,9 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
     @Captor
     private ArgumentCaptor<OneMapRegisterSetTtl> ttlRequestCaptor;
 
+    @Captor
+    private ArgumentCaptor<OneMapRegisterFallbackThreshold> fallbackRequestCaptor;
+
     private InstanceIdentifier<MapRegister> EMPTY_ID = InstanceIdentifier.create(MapRegister.class);
     private MapRegister EMPTY_DATA = new MapRegisterBuilder().setEnabled(false).build();
 
@@ -62,6 +67,7 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
         enabledRegister = new MapRegisterBuilder()
                 .setEnabled(true)
                 .setTtl(7L)
+                .setFallbackThreshold(4L)
                 .build();
 
         disabledRegister = new MapRegisterBuilder()
@@ -72,30 +78,32 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
                 .thenReturn(future(new OneMapRegisterEnableDisableReply()));
         when(api.oneMapRegisterSetTtl(any(OneMapRegisterSetTtl.class)))
                 .thenReturn(future(new OneMapRegisterSetTtlReply()));
+        when(api.oneMapRegisterFallbackThreshold(any(OneMapRegisterFallbackThreshold.class)))
+                .thenReturn(future(new OneMapRegisterFallbackThresholdReply()));
     }
 
     @Test
     public void writeCurrentAttributes() throws Exception {
         customizer.writeCurrentAttributes(ID, enabledRegister, writeContext);
-        verifyRequest(true, 7);
+        verifyRequest(true, 7, 4);
     }
 
     @Test
     public void updateCurrentAttributesToDisabled() throws Exception {
         customizer.updateCurrentAttributes(ID, enabledRegister, disabledRegister, writeContext);
-        verifyRequest(false, 7);
+        verifyRequest(false, 7, 4);
     }
 
     @Test
     public void updateCurrentAttributesToEnabled() throws Exception {
         customizer.updateCurrentAttributes(ID, disabledRegister, enabledRegister, writeContext);
-        verifyRequest(true, 7);
+        verifyRequest(true, 7, 4);
     }
 
     @Test
     public void deleteCurrentAttributes() throws Exception {
         customizer.deleteCurrentAttributes(ID, disabledRegister, writeContext);
-        verifyRequest(false, 0);
+        verifyRequest(false, 0, 0);
     }
 
     @Test
@@ -134,7 +142,7 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
         fail("Test should have thrown IllegalArgumentException");
     }
 
-    private void verifyRequest(final boolean enabled, final int ttl) {
+    private void verifyRequest(final boolean enabled, final int ttl,final int fallback) {
         verify(api, times(1)).oneMapRegisterEnableDisable(requestCaptor.capture());
 
         final OneMapRegisterEnableDisable request = requestCaptor.getValue();
@@ -144,6 +152,10 @@ public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implemen
             verify(api, times(1)).oneMapRegisterSetTtl(ttlRequestCaptor.capture());
             final OneMapRegisterSetTtl ttlRequest = ttlRequestCaptor.getValue();
             assertEquals(ttl, ttlRequest.ttl);
+
+            verify(api, times(1)).oneMapRegisterFallbackThreshold(fallbackRequestCaptor.capture());
+            final OneMapRegisterFallbackThreshold fallbackRequest = fallbackRequestCaptor.getValue();
+            assertEquals(fallback, fallbackRequest.value);
         } else {
             verifyNoMoreInteractions(api);
         }
