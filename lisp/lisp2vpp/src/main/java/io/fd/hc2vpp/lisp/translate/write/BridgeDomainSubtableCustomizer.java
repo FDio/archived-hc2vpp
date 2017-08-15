@@ -67,14 +67,6 @@ public class BridgeDomainSubtableCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomainSubtable> id,
-                                        @Nonnull final BridgeDomainSubtable dataBefore,
-                                        @Nonnull final BridgeDomainSubtable dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<BridgeDomainSubtable> id,
                                         @Nonnull final BridgeDomainSubtable dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

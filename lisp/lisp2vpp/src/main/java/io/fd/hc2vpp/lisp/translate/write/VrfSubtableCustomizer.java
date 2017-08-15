@@ -59,13 +59,6 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<VrfSubtable> id,
-                                        @Nonnull final VrfSubtable dataBefore, @Nonnull final VrfSubtable dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<VrfSubtable> id,
                                         @Nonnull final VrfSubtable dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {

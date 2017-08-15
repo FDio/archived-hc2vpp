@@ -38,13 +38,6 @@ final class NatInstaceCustomizer implements ListWriterCustomizer<NatInstance, Na
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<NatInstance> id,
-                                        @Nonnull final NatInstance dataBefore, @Nonnull final NatInstance dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        LOG.trace("Updating nat-instance: {}", id);
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<NatInstance> id,
                                         @Nonnull final NatInstance dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {

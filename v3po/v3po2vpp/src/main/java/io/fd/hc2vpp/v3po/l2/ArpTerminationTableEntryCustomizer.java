@@ -67,15 +67,6 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<ArpTerminationTableEntry> id,
-                                        @Nonnull final ArpTerminationTableEntry dataBefore,
-                                        @Nonnull final ArpTerminationTableEntry dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException(
-                "ARP termination table entry update is not supported. It has to be deleted and then created.");
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<ArpTerminationTableEntry> id,
                                         @Nonnull final ArpTerminationTableEntry dataBefore,
                                         @Nonnull final WriteContext writeContext)

@@ -19,17 +19,18 @@ package io.fd.hc2vpp.vppnsh.impl.config;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.vppnsh.impl.util.FutureJVppNshCustomizer;
+import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.vppnsh.impl.util.FutureJVppNshCustomizer;
 import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntry;
 import io.fd.vpp.jvpp.nsh.dto.NshAddDelEntryReply;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Ethernet;
@@ -39,15 +40,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.MdType2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType1Augment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.NshMdType2Augment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.nsh.md.type2.attributes.Md2Data;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.entries.NshEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.nsh.md.type2.attributes.Md2Data;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * Writer customizer responsible for NshEntry create/delete.
@@ -74,13 +72,6 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
         // Add nsh entry name <-> vpp index mapping to the naming context:
         nshEntryContext.addName(newEntryIndex, dataAfter.getName(), writeContext.getMappingContext());
         LOG.debug("Successfully created nsh entry(id={]): iid={} dataAfter={}", newEntryIndex, id, dataAfter);
-    }
-
-    @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<NshEntry> id,
-                                        @Nonnull final NshEntry dataBefore, @Nonnull final NshEntry dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Nsh entry update is not supported");
     }
 
     @Override

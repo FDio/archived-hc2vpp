@@ -72,15 +72,6 @@ public class RoutingProtocolCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
-                                        @Nonnull final RoutingProtocol routingProtocolBefore,
-                                        @Nonnull final RoutingProtocol routingProtocolAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(instanceIdentifier, routingProtocolBefore,
-                routingProtocolAfter, new UnsupportedOperationException("Operation not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
                                         @Nonnull final RoutingProtocol routingProtocol,
                                         @Nonnull final WriteContext writeContext)

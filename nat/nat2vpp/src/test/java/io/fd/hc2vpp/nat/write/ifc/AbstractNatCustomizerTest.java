@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeature;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeatureReply;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeature;
@@ -71,13 +70,13 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
         verify(snatApi).snatInterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, true));
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdatePreRouting() throws Exception {
         customizer.updateCurrentAttributes(getIId(IFACE_NAME), getPreRoutingConfig(), getPreRoutingConfig(),
                 writeContext);
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdatePostRouting() throws Exception {
         customizer.updateCurrentAttributes(getIId(IFACE_NAME), getPostRoutingConfig(), getPostRoutingConfig(),
                 writeContext);

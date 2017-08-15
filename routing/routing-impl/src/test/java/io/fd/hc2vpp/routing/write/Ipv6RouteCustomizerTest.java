@@ -18,8 +18,6 @@ package io.fd.hc2vpp.routing.write;
 
 import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_INDEX;
 import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_NAME;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
@@ -119,17 +117,10 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
                 requestCaptor);
     }
 
-    @Test
-    public void testUpdate() {
-        try {
-            customizer.updateCurrentAttributes(validId, Ipv6RouteData.IPV6_ROUTE_WITH_CLASSIFIER_BLACKHOLE_HOP,
-                    Ipv6RouteData.IPV6_ROUTE_WITH_CLASSIFIER_RECEIVE_HOP, writeContext);
-        } catch (WriteFailedException e) {
-            assertTrue(e.getCause() instanceof UnsupportedOperationException);
-            verifyNotInvoked(api);
-            return;
-        }
-        fail("Test should have thrown exception");
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUpdate() throws WriteFailedException {
+        customizer.updateCurrentAttributes(validId, Ipv6RouteData.IPV6_ROUTE_WITH_CLASSIFIER_BLACKHOLE_HOP,
+                Ipv6RouteData.IPV6_ROUTE_WITH_CLASSIFIER_RECEIVE_HOP, writeContext);
     }
 
     @Test

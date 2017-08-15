@@ -84,16 +84,9 @@ public class ItrRemoteLocatorSetCustomizerTest extends LispWriterCustomizerTest 
         fail("Test should have thrown exception");
     }
 
-    @Test
-    public void updateCurrentAttributes() {
-        try {
-            customizer.updateCurrentAttributes(validId, validData, validData, writeContext);
-        } catch (WriteFailedException e) {
-            assertTrue(e.getCause() instanceof UnsupportedOperationException);
-            return;
-        }
-
-        fail("Test should have thrown exception");
+    @Test(expected = UnsupportedOperationException.class)
+    public void updateCurrentAttributes() throws WriteFailedException {
+        customizer.updateCurrentAttributes(validId, validData, validData, writeContext);
     }
 
     @Test

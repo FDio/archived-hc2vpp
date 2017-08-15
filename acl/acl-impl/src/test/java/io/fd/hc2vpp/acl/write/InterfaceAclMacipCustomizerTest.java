@@ -24,7 +24,6 @@ import io.fd.hc2vpp.acl.AclTestSchemaContext;
 import io.fd.hc2vpp.acl.util.AclContextManager;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceAddDel;
 import io.fd.vpp.jvpp.acl.dto.MacipAclInterfaceAddDelReply;
 import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
@@ -80,7 +79,7 @@ public class InterfaceAclMacipCustomizerTest extends WriterCustomizerTest implem
         verify(aclApi).macipAclInterfaceAddDel(request);
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws Exception {
         customizer.updateCurrentAttributes(ACL_IID, acl, acl, writeContext);
     }

@@ -41,13 +41,6 @@ public class Ipv4Customizer extends FutureJVppCustomizer implements WriterCustom
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
-                                        @Nonnull final Ipv4 dataBefore, @Nonnull final Ipv4 dataAfter,
-                                        @Nonnull final WriteContext writeContext) {
-        LOG.debug("Handling Ipv4 leaves (mtu, forwarding) is not supported by VPP API. Ignoring configuration");
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Ipv4> id,
                                         @Nonnull final Ipv4 dataBefore, @Nonnull final WriteContext writeContext) {
         LOG.debug("Handling Ipv4 leaves (mtu, forwarding) is not supported by VPP API. Ignoring configuration");

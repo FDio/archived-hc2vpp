@@ -18,7 +18,6 @@ package io.fd.hc2vpp.lisp.translate.write;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -121,18 +120,10 @@ public class LocatorSetCustomizerTest extends LispWriterCustomizerTest {
         assertEquals(1, request.isAdd);
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws WriteFailedException {
         final InstanceIdentifier<LocatorSet> identifier = InstanceIdentifier.create(LocatorSet.class);
-        try {
-            customizer
-                    .updateCurrentAttributes(identifier, mock(LocatorSet.class), mock(LocatorSet.class), writeContext);
-        } catch (WriteFailedException e) {
-            assertTrue(e.getCause() instanceof UnsupportedOperationException);
-            assertEquals(identifier, e.getFailedId());
-            return;
-        }
-        fail("Test should have failed");
+        customizer.updateCurrentAttributes(identifier, mock(LocatorSet.class), mock(LocatorSet.class), writeContext);
     }
 
     @Test(expected = NullPointerException.class)

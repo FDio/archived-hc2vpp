@@ -55,15 +55,6 @@ public class ProxyArpCustomizer extends FutureJVppCustomizer implements WriterCu
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<ProxyArp> id,
-                                        @Nonnull final ProxyArp dataBefore,
-                                        @Nonnull final ProxyArp dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-            new UnsupportedOperationException("Proxy ARP feature update is not supported."));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<ProxyArp> id,
                                         @Nonnull final ProxyArp dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

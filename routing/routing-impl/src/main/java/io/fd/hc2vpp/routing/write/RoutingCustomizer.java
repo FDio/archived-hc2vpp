@@ -40,13 +40,6 @@ public class RoutingCustomizer implements WriterCustomizer<Routing> {
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> instanceIdentifier,
-                                        @Nonnull final Routing before, @Nonnull final Routing after,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        LOG.debug("Updating {} to {}", instanceIdentifier, after);
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Routing> instanceIdentifier,
                                         @Nonnull final Routing routing, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {

@@ -63,13 +63,6 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(InstanceIdentifier<Address> id, Address dataBefore, Address dataAfter,
-                                        WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Operation not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(InstanceIdentifier<Address> id, Address dataBefore, WriteContext writeContext)
             throws WriteFailedException {
 

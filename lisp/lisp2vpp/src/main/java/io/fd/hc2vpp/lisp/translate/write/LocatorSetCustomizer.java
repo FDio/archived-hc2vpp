@@ -87,15 +87,6 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
-                                        @Nonnull LocatorSet dataBefore,
-                                        @Nonnull LocatorSet dataAfter,
-                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Operation not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<LocatorSet> id,
                                         @Nonnull LocatorSet dataBefore,
                                         @Nonnull WriteContext writeContext) throws WriteFailedException {

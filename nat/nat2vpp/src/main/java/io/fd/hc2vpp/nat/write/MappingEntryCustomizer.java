@@ -127,15 +127,6 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<MappingEntry> id,
-                                        @Nonnull final MappingEntry dataBefore,
-                                        @Nonnull final MappingEntry dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        deleteCurrentAttributes(id, dataBefore, writeContext);
-        writeCurrentAttributes(id, dataAfter, writeContext);
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<MappingEntry> id,
                                         @Nonnull final MappingEntry dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

@@ -73,13 +73,6 @@ public class Ipv4NeighbourCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull InstanceIdentifier<Neighbor> id, @Nonnull Neighbor dataBefore,
-                                        @Nonnull Neighbor dataAfter,
-                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<Neighbor> id, @Nonnull Neighbor data,
                                         @Nonnull WriteContext writeContext)
             throws WriteFailedException {

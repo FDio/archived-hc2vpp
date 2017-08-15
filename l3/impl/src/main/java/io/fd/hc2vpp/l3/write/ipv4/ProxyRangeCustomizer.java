@@ -52,15 +52,6 @@ public class ProxyRangeCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<ProxyRange> id,
-                                        @Nonnull final ProxyRange dataBefore,
-                                        @Nonnull final ProxyRange dataAfter, @Nonnull final WriteContext writeContext)
-        throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-            new UnsupportedOperationException("ARP proxy range update is not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<ProxyRange> id,
                                         @Nonnull final ProxyRange dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

@@ -79,7 +79,11 @@ public class NativeForwardPathsTableCustomizerTest extends WriterCustomizerTest 
     @Test
     public void testUpdateValid() throws WriteFailedException {
         when(api.gpeAddDelNativeFwdRpath(any())).thenReturn(future(new GpeAddDelNativeFwdRpathReply()));
-        customizer.updateCurrentAttributes(validId, validTableBefore(), validTable(), writeContext);
+        final NativeForwardPathsTable before = validTableBefore();
+        final NativeForwardPathsTable after = validTable();
+        // emulates what default update would do
+        customizer.deleteCurrentAttributes(validId, before, writeContext);
+        customizer.writeCurrentAttributes(validId, after, writeContext);
         verify(api, times(2)).gpeAddDelIface(requestCaptor.capture());
 
         final List<GpeAddDelIface> requests = requestCaptor.getAllValues();

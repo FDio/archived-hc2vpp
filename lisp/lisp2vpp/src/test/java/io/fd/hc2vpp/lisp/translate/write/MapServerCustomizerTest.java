@@ -72,15 +72,9 @@ public class MapServerCustomizerTest extends LispWriterCustomizerTest implements
     }
 
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void updateCurrentAttributes() throws Exception {
-        try {
-            customizer.updateCurrentAttributes(ID, data, data, writeContext);
-        } catch (WriteFailedException e) {
-            assertTrue(e instanceof WriteFailedException.UpdateFailedException);
-            assertTrue(e.getCause() instanceof UnsupportedOperationException);
-            verify(api, times(0)).oneAddDelMapServer(any());
-        }
+        customizer.updateCurrentAttributes(ID, data, data, writeContext);
     }
 
     @Test

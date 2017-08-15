@@ -47,15 +47,6 @@ public class RoutingInstanceCustomizer implements ListWriterCustomizer<RoutingIn
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<RoutingInstance> id,
-                                        @Nonnull final RoutingInstance dataBefore,
-                                        @Nonnull final RoutingInstance dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Operation not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<RoutingInstance> id,
                                         @Nonnull final RoutingInstance dataBefore,
                                         @Nonnull final WriteContext writeContext)

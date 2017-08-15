@@ -60,15 +60,6 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<ExternalIpAddressPool> id,
-                                        @Nonnull final ExternalIpAddressPool dataBefore,
-                                        @Nonnull final ExternalIpAddressPool dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Address range update is not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<ExternalIpAddressPool> id,
                                         @Nonnull final ExternalIpAddressPool dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

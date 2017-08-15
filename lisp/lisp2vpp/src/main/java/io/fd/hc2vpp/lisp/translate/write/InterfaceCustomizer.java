@@ -80,12 +80,6 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(InstanceIdentifier<Interface> id, Interface dataBefore, Interface dataAfter,
-                                        WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
-
-    @Override
     public void deleteCurrentAttributes(InstanceIdentifier<Interface> id, Interface dataBefore,
                                         WriteContext writeContext) throws WriteFailedException {
         checkNotNull(dataBefore, "Interface is null");

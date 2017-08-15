@@ -27,6 +27,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.net.InetAddresses;
+import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.VppInvocationException;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -41,17 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.VxlanBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import com.google.common.net.InetAddresses;
-
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
-import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.VppInvocationException;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
 
 public class VxlanCustomizerTest extends WriterCustomizerTest {
 
@@ -187,15 +185,9 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
         fail("WriteFailedException.CreateFailedException was expected");
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws Exception {
-        try {
-            customizer.updateCurrentAttributes(id, generateVxlan(10), generateVxlan(11), writeContext);
-        } catch (WriteFailedException.UpdateFailedException e) {
-            assertEquals(UnsupportedOperationException.class, e.getCause().getClass());
-            return;
-        }
-        fail("WriteFailedException.UpdateFailedException was expected");
+        customizer.updateCurrentAttributes(id, generateVxlan(10), generateVxlan(11), writeContext);
     }
 
     @Test

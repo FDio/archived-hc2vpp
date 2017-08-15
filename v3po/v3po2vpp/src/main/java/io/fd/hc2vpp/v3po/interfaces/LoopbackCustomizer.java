@@ -59,14 +59,6 @@ public final class LoopbackCustomizer extends AbstractInterfaceTypeCustomizer<Lo
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Loopback> id, @Nonnull final Loopback dataBefore,
-                                        @Nonnull final Loopback dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Modification of loopback interface is not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Loopback> id, @Nonnull final Loopback dataBefore,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {

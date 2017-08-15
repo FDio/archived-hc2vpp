@@ -95,27 +95,7 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWriteNat64UnsupportedProtocol(
-            @InjectTestData(resourcePath = "/nat64/static-mapping-unsupported-proto.json", id = MAPPING_TABLE_PATH) MappingTable data)
-            throws WriteFailedException {
-        customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
-    }
-
-    @Test
-    public void testUpdateNat44(
-            @InjectTestData(resourcePath = "/nat44/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable before,
-            @InjectTestData(resourcePath = "/nat44/static-mapping-address-update.json", id = MAPPING_TABLE_PATH) MappingTable after)
-            throws WriteFailedException {
-        customizer.updateCurrentAttributes(IID, extractMappingEntry(before), extractMappingEntry(after), writeContext);
-        final SnatAddStaticMapping expectedDeleteRequest = getExpectedNat44Request();
-        verify(jvppSnat).snatAddStaticMapping(expectedDeleteRequest);
-        final SnatAddStaticMapping expectedUpdateRequest = getExpectedNat44UpdateRequest();
-        expectedUpdateRequest.isAdd = 1;
-        verify(jvppSnat).snatAddStaticMapping(expectedUpdateRequest);
-    }
-
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdateNat64(
             @InjectTestData(resourcePath = "/nat64/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable before,
             @InjectTestData(resourcePath = "/nat64/static-mapping-address-update.json", id = MAPPING_TABLE_PATH) MappingTable after)

@@ -175,15 +175,9 @@ public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
         fail("WriteFailedException.CreateFailedException was expected");
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdateCurrentAttributes() throws Exception {
-        try {
-            customizer.updateCurrentAttributes(id, generateVxlanGpe(10), generateVxlanGpe(11), writeContext);
-        } catch (WriteFailedException.UpdateFailedException e) {
-            assertEquals(UnsupportedOperationException.class, e.getCause().getClass());
-            return;
-        }
-        fail("WriteFailedException.UpdateFailedException was expected");
+        customizer.updateCurrentAttributes(id, generateVxlanGpe(10), generateVxlanGpe(11), writeContext);
     }
 
     @Test

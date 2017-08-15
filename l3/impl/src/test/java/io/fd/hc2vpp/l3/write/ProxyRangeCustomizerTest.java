@@ -67,7 +67,7 @@ public class ProxyRangeCustomizerTest extends WriterCustomizerTest implements By
         customizer.writeCurrentAttributes(IID, RANGE, writeContext);
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws WriteFailedException {
         customizer.updateCurrentAttributes(IID, RANGE, RANGE, writeContext);
     }

@@ -54,16 +54,6 @@ public class NativeForwardPathCustomizer extends FutureJVppCustomizer
         createNativePath(id, dataAfter, writeContext);
     }
 
-
-    @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<NativeForwardPath> id,
-                                        @Nonnull final NativeForwardPath dataBefore,
-                                        @Nonnull final NativeForwardPath dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        deleteNativePath(id, dataBefore, writeContext);
-        createNativePath(id, dataAfter, writeContext);
-    }
-
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<NativeForwardPath> id,
                                         @Nonnull final NativeForwardPath dataBefore,

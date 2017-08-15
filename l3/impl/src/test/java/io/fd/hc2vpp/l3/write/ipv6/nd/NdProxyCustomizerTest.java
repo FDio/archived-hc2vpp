@@ -70,7 +70,7 @@ public class NdProxyCustomizerTest extends WriterCustomizerTest {
         verify(api).ip6NdProxyAddDel(request);
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws WriteFailedException {
         final Ipv6AddressNoZone address = new Ipv6AddressNoZone("2001::2");
         final NdProxy data = new NdProxyBuilder().setAddress(address).build();

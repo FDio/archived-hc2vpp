@@ -78,16 +78,6 @@ public final class MirroredInterfaceCustomizer extends FutureJVppCustomizer
                 sourceInterfaceName, destinationInterfaceName, spanState);
     }
 
-
-    @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<MirroredInterface> instanceIdentifier,
-                                        @Nonnull final MirroredInterface mirroredInterfaceBefore,
-                                        @Nonnull final MirroredInterface mirroredInterfaceAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        deleteCurrentAttributes(instanceIdentifier, mirroredInterfaceBefore, writeContext);
-        writeCurrentAttributes(instanceIdentifier, mirroredInterfaceAfter, writeContext);
-    }
-
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<MirroredInterface> id,
                                         @Nonnull final MirroredInterface mirroredInterface,

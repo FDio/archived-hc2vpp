@@ -133,7 +133,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         fail("WriteFailedException was expected");
     }
 
-    @Test(expected =  WriteFailedException.UpdateFailedException.class)
+    @Test(expected =  UnsupportedOperationException.class)
     public void testUpdate() throws Exception {
         final Address data = mock(Address.class);
         customizer.updateCurrentAttributes(getAddressId(IFACE_NAME), data, data, writeContext);

@@ -19,26 +19,26 @@ package io.fd.hc2vpp.vppnsh.impl.config;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.vppnsh.impl.util.FutureJVppNshCustomizer;
+import io.fd.honeycomb.translate.MappingContext;
+import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.hc2vpp.vppnsh.impl.util.FutureJVppNshCustomizer;
 import io.fd.vpp.jvpp.nsh.dto.NshAddDelMap;
 import io.fd.vpp.jvpp.nsh.dto.NshAddDelMapReply;
 import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.None;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Pop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Push;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Swap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Vxlan4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.Vxlan6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.None;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nsh.rev170315.vpp.nsh.nsh.maps.NshMapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -74,13 +74,6 @@ implements ListWriterCustomizer<NshMap, NshMapKey>, ByteDataTranslator, JvppRepl
         // Add nsh map name <-> vpp index mapping to the naming context:
         nshMapContext.addName(newMapIndex, dataAfter.getName(), writeContext.getMappingContext());
         LOG.debug("Successfully created nsh map(id={]): iid={} dataAfter={}", newMapIndex, id, dataAfter);
-    }
-
-    @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<NshMap> id,
-            @Nonnull final NshMap dataBefore, @Nonnull final NshMap dataAfter,
-            @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Nsh map update is not supported");
     }
 
     @Override

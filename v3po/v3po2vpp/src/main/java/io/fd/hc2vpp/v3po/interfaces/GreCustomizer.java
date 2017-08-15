@@ -75,14 +75,6 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Gre> id, @Nonnull final Gre dataBefore,
-                                        @Nonnull final Gre dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException.UpdateFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Gre tunnel update is not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Gre> id, @Nonnull final Gre dataBefore,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {

@@ -58,14 +58,6 @@ public final class NdProxyCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<NdProxy> id,
-                                        @Nonnull final NdProxy dataBefore, @Nonnull final NdProxy dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-            new UnsupportedOperationException("NdProxy update is not supported."));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<NdProxy> id,
                                         @Nonnull final NdProxy dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

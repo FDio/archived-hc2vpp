@@ -74,14 +74,6 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
-                                        @Nonnull final L2FibEntry dataBefore, @Nonnull final L2FibEntry dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException(
-                "L2 FIB entry update is not supported. It has to be deleted and then created.");
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<L2FibEntry> id,
                                         @Nonnull final L2FibEntry dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {

@@ -51,12 +51,6 @@ public class VniTableCustomizer extends CheckedLispCustomizer implements ListWri
     }
 
     @Override
-    public void updateCurrentAttributes(InstanceIdentifier<VniTable> id, VniTable dataBefore, VniTable dataAfter,
-                                        WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
-
-    @Override
     public void deleteCurrentAttributes(InstanceIdentifier<VniTable> id, VniTable dataBefore, WriteContext writeContext)
             throws WriteFailedException {
         lispStateCheckService.checkLispEnabledBefore(writeContext);

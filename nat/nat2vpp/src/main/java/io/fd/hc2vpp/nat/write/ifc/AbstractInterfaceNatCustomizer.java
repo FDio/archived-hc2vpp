@@ -66,14 +66,6 @@ abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAt
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
-                                        @Nonnull final D dataBefore, @Nonnull final D dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Unable to update NAT feature"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<D> id,
                                         @Nonnull final D dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {

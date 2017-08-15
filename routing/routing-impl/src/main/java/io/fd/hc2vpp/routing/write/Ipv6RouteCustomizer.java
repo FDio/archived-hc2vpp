@@ -102,15 +102,6 @@ public class Ipv6RouteCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Route> instanceIdentifier,
-                                        @Nonnull final Route route,
-                                        @Nonnull final Route d1, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-        throw new WriteFailedException(instanceIdentifier,
-                new UnsupportedOperationException("Operation not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Route> instanceIdentifier,
                                         @Nonnull final Route route,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

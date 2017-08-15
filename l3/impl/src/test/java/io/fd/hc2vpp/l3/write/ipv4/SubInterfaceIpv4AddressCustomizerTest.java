@@ -124,7 +124,7 @@ public class SubInterfaceIpv4AddressCustomizerTest extends WriterCustomizerTest 
         return request;
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws Exception {
         final Address address = address(prefixLength());
         customizer.updateCurrentAttributes(IID, address, address, writeContext);

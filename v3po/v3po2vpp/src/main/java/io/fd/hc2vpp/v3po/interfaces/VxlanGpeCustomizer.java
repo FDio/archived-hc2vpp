@@ -19,10 +19,10 @@ package io.fd.hc2vpp.v3po.interfaces;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.net.InetAddresses;
-import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
 import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnel;
@@ -66,15 +66,6 @@ public class VxlanGpeCustomizer extends AbstractInterfaceTypeCustomizer<VxlanGpe
             throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         createVxlanGpeTunnel(id, swIfName, dataAfter, writeContext);
-    }
-
-    @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanGpe> id,
-                                        @Nonnull final VxlanGpe dataBefore,
-                                        @Nonnull final VxlanGpe dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException.UpdateFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("VxlanGpe tunnel update is not supported"));
     }
 
     @Override

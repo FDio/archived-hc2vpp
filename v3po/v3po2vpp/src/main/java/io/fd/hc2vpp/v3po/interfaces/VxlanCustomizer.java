@@ -18,11 +18,19 @@ package io.fd.hc2vpp.v3po.interfaces;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.net.InetAddresses;
+import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
+import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
+import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
-
 import javax.annotation.Nonnull;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -33,18 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.net.InetAddresses;
-
-import io.fd.hc2vpp.common.translate.util.AbstractInterfaceTypeCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
-import io.fd.honeycomb.translate.write.WriteContext;
-import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnel;
-import io.fd.vpp.jvpp.core.dto.VxlanAddDelTunnelReply;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 
 public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> implements JvppReplyConsumer {
 
@@ -72,14 +68,6 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
                     throws WriteFailedException {
         final String swIfName = id.firstKeyOf(Interface.class).getName();
         createVxlanTunnel(id, swIfName, dataAfter, writeContext);
-    }
-
-    @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan dataBefore,
-            @Nonnull final Vxlan dataAfter, @Nonnull final WriteContext writeContext)
-                    throws WriteFailedException.UpdateFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Vxlan tunnel update is not supported"));
     }
 
     @Override

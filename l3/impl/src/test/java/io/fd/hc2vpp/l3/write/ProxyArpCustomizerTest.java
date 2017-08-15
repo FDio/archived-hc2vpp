@@ -68,7 +68,7 @@ public class ProxyArpCustomizerTest extends WriterCustomizerTest implements Byte
         customizer.writeCurrentAttributes(IID, data, writeContext);
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws WriteFailedException {
         customizer.updateCurrentAttributes(IID, data, data, writeContext);
     }

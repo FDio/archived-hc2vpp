@@ -53,18 +53,6 @@ public class NativeForwardPathsTableCustomizer extends FutureJVppCustomizer
         createFibTable(id, dataAfter);
     }
 
-
-    @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<NativeForwardPathsTable> id,
-                                        @Nonnull final NativeForwardPathsTable dataBefore,
-                                        @Nonnull final NativeForwardPathsTable dataAfter,
-                                        @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-        // not sure if update makes sense, but just in case
-        deleteFibTable(id);
-        createFibTable(id, dataAfter);
-    }
-
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<NativeForwardPathsTable> id,
                                         @Nonnull final NativeForwardPathsTable dataBefore,

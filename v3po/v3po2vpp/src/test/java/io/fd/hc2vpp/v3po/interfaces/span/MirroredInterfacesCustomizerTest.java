@@ -84,12 +84,9 @@ public class MirroredInterfacesCustomizerTest extends WriterCustomizerTest {
         assertCreateRequest(requestCaptor.getValue());
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void updateCurrentAttributes() throws Exception {
         customizer.updateCurrentAttributes(validId, validData, validData, writeContext);
-        verify(api, times(2)).swInterfaceSpanEnableDisable(requestCaptor.capture());
-        assertDeleteRequest(requestCaptor.getAllValues().get(0));
-        assertCreateRequest(requestCaptor.getAllValues().get(1));
     }
 
     @Test

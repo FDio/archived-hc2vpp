@@ -71,7 +71,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
         verify(jvppSnat).snatAddAddressRange(expectedRequest);
     }
 
-    @Test(expected = WriteFailedException.UpdateFailedException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws WriteFailedException {
         final ExternalIpAddressPool data = mock(ExternalIpAddressPool.class);
         customizer.updateCurrentAttributes(IID, data, data, writeContext);

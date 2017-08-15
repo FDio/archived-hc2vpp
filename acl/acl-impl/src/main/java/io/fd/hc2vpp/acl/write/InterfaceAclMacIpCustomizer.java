@@ -56,15 +56,6 @@ public class InterfaceAclMacIpCustomizer extends FutureJVppAclCustomizer impleme
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<VppMacipAcl> id,
-                                        @Nonnull final VppMacipAcl dataBefore,
-                                        @Nonnull final VppMacipAcl dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Operation not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<VppMacipAcl> id,
                                         @Nonnull final VppMacipAcl dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

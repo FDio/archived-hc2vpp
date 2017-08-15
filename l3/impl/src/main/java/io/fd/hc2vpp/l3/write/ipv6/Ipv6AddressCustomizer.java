@@ -70,15 +70,6 @@ public class Ipv6AddressCustomizer extends FutureJVppCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<Address> id,
-                                        @Nonnull final Address dataBefore,
-                                        @Nonnull final Address dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Operation not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Address> id,
                                         @Nonnull final Address dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {

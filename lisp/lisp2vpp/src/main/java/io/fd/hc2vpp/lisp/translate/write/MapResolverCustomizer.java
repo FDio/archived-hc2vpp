@@ -63,13 +63,6 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<MapResolver> id,
-                                        @Nonnull final MapResolver dataBefore, @Nonnull final MapResolver dataAfter,
-                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        throw new UnsupportedOperationException("Operation not supported");
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<MapResolver> id,
                                         @Nonnull final MapResolver dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {

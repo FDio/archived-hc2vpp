@@ -15,13 +15,11 @@
  */
 package io.fd.hc2vpp.routing.write;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.routing.RoutingConfiguration;
-import io.fd.honeycomb.translate.write.WriteFailedException;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.RoutingInstance;
@@ -67,15 +65,9 @@ public class RoutingInstanceCustomizerTest extends WriterCustomizerTest {
         customizer.writeCurrentAttributes(id, invalidData, writeContext);
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void updateCurrentAttributes() throws Exception {
-        try {
-            customizer.updateCurrentAttributes(id, validData, validData, writeContext);
-        } catch (WriteFailedException.UpdateFailedException e) {
-            assertTrue(e.getCause() instanceof UnsupportedOperationException);
-            return;
-        }
-        fail("Test should throw WriteFailedException.UpdateFailedException");
+        customizer.updateCurrentAttributes(id, validData, validData, writeContext);
     }
 
     @Test

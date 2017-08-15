@@ -49,15 +49,6 @@ public class MapServerCustomizer extends CheckedLispCustomizer
     }
 
     @Override
-    public void updateCurrentAttributes(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier,
-                                        @Nonnull MapServer mapServerBefore,
-                                        @Nonnull MapServer mapServerAfter,
-                                        @Nonnull WriteContext writeContext) throws WriteFailedException {
-        throw new WriteFailedException.UpdateFailedException(instanceIdentifier, mapServerBefore, mapServerAfter,
-                new UnsupportedOperationException("Not supported"));
-    }
-
-    @Override
     public void deleteCurrentAttributes(@Nonnull InstanceIdentifier<MapServer> instanceIdentifier, @Nonnull MapServer mapServer, @Nonnull WriteContext writeContext) throws WriteFailedException {
         lispStateCheckService.checkLispEnabledBefore(writeContext);
         addDelMapServer(false, instanceIdentifier, mapServer);

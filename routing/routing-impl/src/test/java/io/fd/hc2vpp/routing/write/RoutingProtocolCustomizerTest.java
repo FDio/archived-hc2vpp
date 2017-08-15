@@ -125,14 +125,8 @@ public class RoutingProtocolCustomizerTest extends WriterCustomizerTest {
         fail("Test should have thrown exception");
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     public void testUpdate() throws WriteFailedException {
-        try {
-            customizer.updateCurrentAttributes(validId, validData, validData, writeContext);
-        } catch (Exception e) {
-            assertTrue(e.getCause() instanceof UnsupportedOperationException);
-            return;
-        }
-        fail("Test should have thrown exception");
+        customizer.updateCurrentAttributes(validId, validData, validData, writeContext);
     }
 }

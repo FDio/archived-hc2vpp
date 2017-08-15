@@ -115,21 +115,12 @@ public class AclInterfaceAssignmentRequestTest implements NamingContextHelper, F
 
     private void verifyVariant(final AclInterfaceAssignmentRequest request) throws WriteFailedException {
         verifyCreateFailsWithNullPointer(request);
-        verifyUpdateFailsWithNullPointer(request);
         verifyDeleteFailsWithNullPointer(request);
     }
 
     @Test
     public void executeAsCreate() throws Exception {
         createValidRequest().executeAsCreate(api);
-
-        verify(api).aclInterfaceSetAclList(requestCaptor.capture());
-        verifyValidRequest(requestCaptor.getValue());
-    }
-
-    @Test
-    public void executeAsUpdate() throws Exception {
-        createValidRequest().executeAsUpdate(api, mock(Acl.class), mock(Acl.class));
 
         verify(api).aclInterfaceSetAclList(requestCaptor.capture());
         verifyValidRequest(requestCaptor.getValue());
@@ -184,16 +175,6 @@ public class AclInterfaceAssignmentRequestTest implements NamingContextHelper, F
             throws WriteFailedException {
         try {
             request.executeAsCreate(api);
-        } catch (NullPointerException e) {
-            return;
-        }
-        fail("Test should have thrown null pointer");
-    }
-
-    private void verifyUpdateFailsWithNullPointer(final AclInterfaceAssignmentRequest request)
-            throws WriteFailedException {
-        try {
-            request.executeAsUpdate(api, mock(Acl.class), mock(Acl.class));
         } catch (NullPointerException e) {
             return;
         }
