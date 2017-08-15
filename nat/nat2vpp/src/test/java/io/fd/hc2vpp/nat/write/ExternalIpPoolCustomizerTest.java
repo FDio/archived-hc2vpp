@@ -22,10 +22,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.nat.NatTestSchemaContext;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
+import io.fd.vpp.jvpp.snat.dto.Nat64AddDelPoolAddrRange;
+import io.fd.vpp.jvpp.snat.dto.Nat64AddDelPoolAddrRangeReply;
 import io.fd.vpp.jvpp.snat.dto.SnatAddAddressRange;
 import io.fd.vpp.jvpp.snat.dto.SnatAddAddressRangeReply;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
@@ -41,7 +44,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev1509
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(HoneycombTestRunner.class)
-public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implements NatTestSchemaContext {
+public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implements NatTestSchemaContext,
+        ByteDataTranslator {
 
     private static final long NAT_INSTANCE_ID = 0;
     private static final long POOL_ID = 22;
@@ -59,31 +63,49 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
     public void setUpTest() {
         customizer = new ExternalIpPoolCustomizer(jvppSnat);
         when(jvppSnat.snatAddAddressRange(any())).thenReturn(future(new SnatAddAddressRangeReply()));
+        when(jvppSnat.nat64AddDelPoolAddrRange(any())).thenReturn(future(new Nat64AddDelPoolAddrRangeReply()));
     }
 
     @Test
-    public void testWrite(
-        @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
-        throws WriteFailedException {
+    public void testWriteNat44(
+            @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+            throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractIpPool(data), writeContext);
-        final SnatAddAddressRange expectedRequest = getExpectedRequest();
-        expectedRequest.isAdd = 1;
+        final SnatAddAddressRange expectedRequest = getExpectedRequestNat44(true);
         verify(jvppSnat).snatAddAddressRange(expectedRequest);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUpdate() throws WriteFailedException {
+    @Test
+    public void testWriteNat64(
+            @InjectTestData(resourcePath = "/nat64/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+            throws WriteFailedException {
+        customizer.writeCurrentAttributes(IID, extractIpPool(data), writeContext);
+        final Nat64AddDelPoolAddrRange expectedRequest = getExpectedRequestNat64(true);
+        verify(jvppSnat).nat64AddDelPoolAddrRange(expectedRequest);
+    }
+
+        @Test(expected = UnsupportedOperationException.class)
+    public void testUpdateNat44() throws WriteFailedException {
         final ExternalIpAddressPool data = mock(ExternalIpAddressPool.class);
         customizer.updateCurrentAttributes(IID, data, data, writeContext);
     }
 
     @Test
-    public void testDelete(
-        @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
-        throws WriteFailedException {
+    public void testDeleteNat44(
+            @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+            throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, extractIpPool(data), writeContext);
-        final SnatAddAddressRange expectedRequest = getExpectedRequest();
+        final SnatAddAddressRange expectedRequest = getExpectedRequestNat44(false);
         verify(jvppSnat).snatAddAddressRange(expectedRequest);
+    }
+
+    @Test
+    public void testDeleteNat64(
+            @InjectTestData(resourcePath = "/nat64/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+            throws WriteFailedException {
+        customizer.deleteCurrentAttributes(IID, extractIpPool(data), writeContext);
+        final Nat64AddDelPoolAddrRange expectedRequest = getExpectedRequestNat64(false);
+        verify(jvppSnat).nat64AddDelPoolAddrRange(expectedRequest);
     }
 
     private static ExternalIpAddressPool extractIpPool(NatInstances data) {
@@ -91,11 +113,20 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
         return data.getNatInstance().get(0).getExternalIpAddressPool().get(0);
     }
 
-    private static SnatAddAddressRange getExpectedRequest() {
+    private SnatAddAddressRange getExpectedRequestNat44(final boolean isAdd) {
         final SnatAddAddressRange expectedRequest = new SnatAddAddressRange();
+        expectedRequest.isAdd = booleanToByte(isAdd);
         expectedRequest.isIp4 = 1;
         expectedRequest.firstIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 0};
         expectedRequest.lastIpAddress = new byte[] {(byte) 192, (byte) 168, 1, (byte) 255};
+        return expectedRequest;
+    }
+
+    private Nat64AddDelPoolAddrRange getExpectedRequestNat64(final boolean isAdd) {
+        final Nat64AddDelPoolAddrRange expectedRequest = new Nat64AddDelPoolAddrRange();
+        expectedRequest.isAdd = booleanToByte(isAdd);
+        expectedRequest.startAddr = new byte[] {(byte) 192, (byte) 168, 1, 0};
+        expectedRequest.endAddr = new byte[] {(byte) 192, (byte) 168, 1, (byte) 255};
         return expectedRequest;
     }
 }

@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev1509
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.MappingTable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.ExternalIpAddressPoolConfigAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -66,7 +67,10 @@ public final class NatWriterFactory implements WriterFactory {
 
         // External address pool has to be executed before mapping entry. Because adding mapping entries requires to
         //  already have an IP range predefined ... in some cases
-        registry.addBefore(new GenericListWriter<>(NAT_INSTANCE_ID.child(ExternalIpAddressPool.class),
+        registry.subtreeAddBefore(
+                Sets.newHashSet(InstanceIdentifier.create(ExternalIpAddressPool.class)
+                                .augmentation(ExternalIpAddressPoolConfigAugmentation.class)),
+                        new GenericListWriter<>(NAT_INSTANCE_ID.child(ExternalIpAddressPool.class),
                 new ExternalIpPoolCustomizer(jvppSnat)),
                 MAP_ENTRY_ID);
     }
