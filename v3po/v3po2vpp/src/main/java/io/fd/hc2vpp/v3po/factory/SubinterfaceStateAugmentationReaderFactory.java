@@ -24,6 +24,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.RewriteCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceL2Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.SubInterfaceRoutingCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.hc2vpp.v3po.interfacesstate.span.SubInterfaceMirroredInterfacesCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
@@ -36,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinter
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170607.VppSubinterfaceSpanStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170607.interfaces.state._interface.sub.interfaces.sub._interface.SpanState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.subinterface.span.rev170607.interfaces.state._interface.sub.interfaces.sub._interface.SpanStateBuilder;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.state.attributes.MirroredInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.SubinterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.SubinterfaceStateAugmentationBuilder;
@@ -45,12 +45,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.match.attributes.match.type.vlan.tagged.VlanTagged;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.rewrite.attributes.Rewrite;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.state.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.base.attributes.Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.base.attributes.Tags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.base.attributes.tags.Tag;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.state.attributes.L2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.routing.attributes.Routing;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -59,21 +58,24 @@ public final class SubinterfaceStateAugmentationReaderFactory implements ReaderF
     private final FutureJVppCore jvpp;
     private final NamingContext ifcCtx;
     private final NamingContext bdCtx;
+    private final InterfaceCacheDumpManager ifaceDumpManager;
 
     @Inject
     public SubinterfaceStateAugmentationReaderFactory(final FutureJVppCore jvpp,
                                                       @Named("interface-context") final NamingContext ifcCtx,
-                                                      @Named("bridge-domain-context") final NamingContext bdCtx) {
+                                                      @Named("bridge-domain-context") final NamingContext bdCtx,
+                                                      final InterfaceCacheDumpManager ifaceDumpManager) {
         this.jvpp = jvpp;
         this.ifcCtx = ifcCtx;
         this.bdCtx = bdCtx;
+        this.ifaceDumpManager = ifaceDumpManager;
     }
 
     @Override
     public void init(final ModifiableReaderRegistryBuilder registry) {
         // SubinterfaceStateAugmentation(Structural)
         final InstanceIdentifier<SubinterfaceStateAugmentation> subIfcAugId =
-            InterfacesStateReaderFactory.IFC_ID.augmentation(SubinterfaceStateAugmentation.class);
+                InterfacesStateReaderFactory.IFC_ID.augmentation(SubinterfaceStateAugmentation.class);
         registry.addStructuralReader(subIfcAugId, SubinterfaceStateAugmentationBuilder.class);
         //  SubInterfaces(Structural)
         final InstanceIdentifier<SubInterfaces> subIfcsId = subIfcAugId.child(SubInterfaces.class);
@@ -81,26 +83,30 @@ public final class SubinterfaceStateAugmentationReaderFactory implements ReaderF
         //   SubInterface(Subtree)
         final InstanceIdentifier<SubInterface> subIfcId = subIfcsId.child(SubInterface.class);
         registry.subtreeAdd(Sets.newHashSet(
-            InstanceIdentifier.create(SubInterface.class).child(Tags.class),
-            InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class),
-            InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class).child(Dot1qTag.class),
-            InstanceIdentifier.create(SubInterface.class).child(Match.class),
-            InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
-            new GenericInitListReader<>(subIfcId, new SubInterfaceCustomizer(jvpp, ifcCtx)));
+                InstanceIdentifier.create(SubInterface.class).child(Tags.class),
+                InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class),
+                InstanceIdentifier.create(SubInterface.class).child(Tags.class).child(Tag.class).child(Dot1qTag.class),
+                InstanceIdentifier.create(SubInterface.class).child(Match.class),
+                InstanceIdentifier.create(SubInterface.class).child(Match.class).child(VlanTagged.class)),
+                new GenericInitListReader<>(subIfcId,
+                        new SubInterfaceCustomizer(jvpp, ifcCtx, ifaceDumpManager)));
         //    L2
         final InstanceIdentifier<L2> l2Id = subIfcId.child(L2.class);
-        registry.add(new GenericInitReader<>(l2Id, new SubInterfaceL2Customizer(jvpp, ifcCtx, bdCtx)));
+        registry.add(new GenericInitReader<>(l2Id,
+                new SubInterfaceL2Customizer(jvpp, ifcCtx, bdCtx, ifaceDumpManager)));
         //     Rewrite(Subtree)
         registry.subtreeAdd(Sets.newHashSet(
-            InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
-            InstanceIdentifier.create(Rewrite.class).child(PushTags.class)
-                .child(
-                    org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
-            new GenericReader<>(l2Id.child(Rewrite.class), new RewriteCustomizer(jvpp, ifcCtx)));
+                InstanceIdentifier.create(Rewrite.class).child(PushTags.class),
+                InstanceIdentifier.create(Rewrite.class).child(PushTags.class)
+                        .child(
+                                org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.dot1q.tag.Dot1qTag.class)),
+                new GenericReader<>(l2Id.child(Rewrite.class),
+                        new RewriteCustomizer(ifaceDumpManager)));
         final InstanceIdentifier<Routing> routingId = subIfcId.child(Routing.class);
         registry.add(new GenericReader<>(routingId, new SubInterfaceRoutingCustomizer(jvpp, ifcCtx)));
 
-        final InstanceIdentifier<VppSubinterfaceSpanStateAugmentation> spanStateAugId = subIfcId.augmentation(VppSubinterfaceSpanStateAugmentation.class);
+        final InstanceIdentifier<VppSubinterfaceSpanStateAugmentation> spanStateAugId =
+                subIfcId.augmentation(VppSubinterfaceSpanStateAugmentation.class);
         registry.addStructuralReader(spanStateAugId, VppSubinterfaceSpanStateAugmentationBuilder.class);
 
         final InstanceIdentifier<SpanState> spanStateId = spanStateAugId
@@ -108,6 +114,7 @@ public final class SubinterfaceStateAugmentationReaderFactory implements ReaderF
         registry.addStructuralReader(spanStateId, SpanStateBuilder.class);
 
         final InstanceIdentifier<MirroredInterfaces> mirroredInterfacesId = spanStateId.child(MirroredInterfaces.class);
-        registry.add(new GenericInitReader<>(mirroredInterfacesId, new SubInterfaceMirroredInterfacesCustomizer(jvpp, ifcCtx)));
+        registry.add(new GenericInitReader<>(mirroredInterfacesId,
+                new SubInterfaceMirroredInterfacesCustomizer(jvpp, ifcCtx)));
     }
 }

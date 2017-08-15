@@ -22,9 +22,11 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -50,9 +52,13 @@ public class SubInterfaceL2CustomizerTest extends ReaderCustomizerTest<L2, L2Bui
     private static final long SUB_IF_ID = 1;
     private static final int SUB_IF_INDEX = 11;
     private InstanceIdentifier<L2> IID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
-            .augmentation(SubinterfaceStateAugmentation.class)
-            .child(SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(SUB_IF_ID)).child(L2.class);
+            InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
+                    .augmentation(SubinterfaceStateAugmentation.class)
+                    .child(SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(SUB_IF_ID))
+                    .child(L2.class);
+
+    @Mock
+    private InterfaceCacheDumpManager dumpCacheManager;
 
     public SubInterfaceL2CustomizerTest() {
         super(L2.class, SubInterfaceBuilder.class);
@@ -68,13 +74,6 @@ public class SubInterfaceL2CustomizerTest extends ReaderCustomizerTest<L2, L2Bui
 
     @Override
     protected ReaderCustomizer<L2, L2Builder> initCustomizer() {
-        return new SubInterfaceL2Customizer(api, interfaceContext, bridgeDomainContext);
-    }
-
-    @Test(expected = ReadFailedException.class)
-    public void testReadFailed() throws ReadFailedException {
-        final L2Builder builder = mock(L2Builder.class);
-        when(api.swInterfaceDump(any())).thenReturn(failedFuture());
-        getCustomizer().readCurrentAttributes(IID, builder, ctx);
+        return new SubInterfaceL2Customizer(api, interfaceContext, bridgeDomainContext, dumpCacheManager);
     }
 }

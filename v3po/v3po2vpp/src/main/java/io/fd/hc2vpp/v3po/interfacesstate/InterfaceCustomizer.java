@@ -17,25 +17,17 @@
 package io.fd.hc2vpp.v3po.interfacesstate;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -54,36 +46,21 @@ import org.slf4j.LoggerFactory;
 /**
  * Customizer for reading ietf-interfaces:interfaces-state/interface.
  */
-public class InterfaceCustomizer extends FutureJVppCustomizer
+public class InterfaceCustomizer
         implements InitializingListReaderCustomizer<Interface, InterfaceKey, InterfaceBuilder>, ByteDataTranslator,
         InterfaceDataTranslator {
 
-    public static final String DUMPED_IFCS_CONTEXT_KEY =
-            InterfaceCustomizer.class.getName() + "dumpedInterfacesDuringGetAllIds";
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceCustomizer.class);
     private final NamingContext interfaceNamingContext;
     private final DisabledInterfacesManager interfaceDisableContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
-    public InterfaceCustomizer(@Nonnull final FutureJVppCore jvpp,
-                               @Nonnull final NamingContext interfaceNamingContext,
-                               @Nonnull final DisabledInterfacesManager interfaceDisableContext) {
-        super(jvpp);
+    public InterfaceCustomizer(@Nonnull final NamingContext interfaceNamingContext,
+                               @Nonnull final DisabledInterfacesManager interfaceDisableContext,
+                               @Nonnull final InterfaceCacheDumpManager dumpManager) {
         this.interfaceNamingContext = interfaceNamingContext;
         this.interfaceDisableContext = interfaceDisableContext;
-    }
-
-    public static void cacheInterfaceDump(final @Nonnull ReadContext context, final SwInterfaceDetailsReplyDump ifaces) {
-        context.getModificationCache().put(DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-                .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
-    }
-
-    @Nonnull
-    @SuppressWarnings("unchecked")
-    public static Map<Integer, SwInterfaceDetails> getCachedInterfaceDump(@Nonnull final ModificationCache ctx) {
-        return ctx.get(DUMPED_IFCS_CONTEXT_KEY) == null
-                ? new HashMap<>()
-                // allow customizers to update the cache
-                : (Map<Integer, SwInterfaceDetails>) ctx.get(DUMPED_IFCS_CONTEXT_KEY);
+        this.dumpManager = dumpManager;
     }
 
     @Nonnull
@@ -106,9 +83,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
             return;
         }
 
-        // Pass cached details from getAllIds to getDetails to avoid additional dumps
-        final SwInterfaceDetails iface = getVppInterfaceDetails(getFutureJVpp(), id, ifaceName,
-                index, ctx.getModificationCache(), LOG);
+        final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, ifaceName);
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
         if (!isRegularInterface(iface)) {
@@ -140,44 +115,13 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                                         @Nonnull final ReadContext context) throws ReadFailedException {
         final List<InterfaceKey> interfacesKeys;
         LOG.trace("Dumping all interfaces to get all IDs");
-
-        final SwInterfaceDump request = new SwInterfaceDump();
-        request.nameFilter = "".getBytes();
-        request.nameFilterValid = 0;
-
-        final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
-                getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
-        final SwInterfaceDetailsReplyDump ifaces =
-                getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
-
-        if (null == ifaces || null == ifaces.swInterfaceDetails) {
-            LOG.debug("No interfaces for :{} found in VPP", id);
-            return Collections.emptyList();
-        }
-
-        // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-        cacheInterfaceDump(context, ifaces);
-
         final MappingContext mappingCtx = context.getMappingContext();
-        final Set<Integer> interfacesIdxs = ifaces.swInterfaceDetails.stream()
+        final Set<Integer> interfacesIdxs = dumpManager.getInterfaces(id, context)
                 .filter(elt -> elt != null)
                 // Filter out disabled interfaces, dont read them
                 // This also prevents child readers in being invoked such as vxlan (which relies on disabling interfaces)
                 .filter(elt -> !interfaceDisableContext
                         .isInterfaceDisabled(elt.swIfIndex, mappingCtx))
-                .map((elt) -> {
-                    // Store interface name from VPP in context if not yet present
-                    if (!interfaceNamingContext.containsName(elt.swIfIndex, mappingCtx)) {
-                        interfaceNamingContext.addName(elt.swIfIndex, toString(elt.interfaceName),
-                                mappingCtx);
-                    }
-                    LOG.trace("Interface with name: {}, VPP name: {} and index: {} found in VPP",
-                            interfaceNamingContext.getName(elt.swIfIndex, mappingCtx),
-                            elt.interfaceName,
-                            elt.swIfIndex);
-
-                    return elt;
-                })
                 // filter out sub-interfaces
                 .filter(InterfaceDataTranslator.INSTANCE::isRegularInterface)
                 .map(elt -> elt.swIfIndex)
@@ -207,7 +151,8 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
 
     @Override
     public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> init(
-            @Nonnull final InstanceIdentifier<Interface> id, @Nonnull final Interface readValue, @Nonnull final ReadContext ctx) {
+            @Nonnull final InstanceIdentifier<Interface> id, @Nonnull final Interface readValue,
+            @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder()
                         .setName(readValue.getName())

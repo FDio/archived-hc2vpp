@@ -16,12 +16,13 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -29,13 +30,10 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ieee.params.xml.ns.yang.dot1q.types.rev150626.CVlan;
@@ -74,17 +72,21 @@ import org.slf4j.LoggerFactory;
  * Customizer for reading sub interfaces form the VPP.
  */
 public class SubInterfaceCustomizer extends FutureJVppCustomizer
-        implements InitializingListReaderCustomizer<SubInterface, SubInterfaceKey, SubInterfaceBuilder>, ByteDataTranslator,
+        implements InitializingListReaderCustomizer<SubInterface, SubInterfaceKey, SubInterfaceBuilder>,
+        ByteDataTranslator,
         InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceCustomizer.class);
     private static final Dot1qTag.VlanId ANY_VLAN_ID = new Dot1qTag.VlanId(Dot1qTag.VlanId.Enumeration.Any);
-    private NamingContext interfaceContext;
+    private final NamingContext interfaceContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
     public SubInterfaceCustomizer(@Nonnull final FutureJVppCore jvpp,
-                                  @Nonnull final NamingContext interfaceContext) {
+                                  @Nonnull final NamingContext interfaceContext,
+                                  @Nonnull final InterfaceCacheDumpManager dumpManager) {
         super(jvpp);
-        this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
+        this.interfaceContext = checkNotNull(interfaceContext, "interfaceContext should not be null");
+        this.dumpManager = checkNotNull(dumpManager, "dumpManager should not be null");
     }
 
     private static String getSubInterfaceName(final InstanceIdentifier<SubInterface> id) {
@@ -119,30 +121,8 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         final String ifaceName = key.getName();
         final int ifaceId = interfaceContext.getIndex(ifaceName, context.getMappingContext());
 
-        // TODO HONEYCOMB-189 if we know that full dump was already performed we could use cache
-        // (checking if getCachedInterfaceDump() returns non empty map is not enough, because
-        // we could be part of particular iface state read
-        final SwInterfaceDump request = new SwInterfaceDump();
-        request.nameFilter = "".getBytes();
-        request.nameFilterValid = 0;
-
-        final CompletableFuture<SwInterfaceDetailsReplyDump> swInterfaceDetailsReplyDumpCompletableFuture =
-                getFutureJVpp().swInterfaceDump(request).toCompletableFuture();
-        final SwInterfaceDetailsReplyDump ifaces =
-                getReplyForRead(swInterfaceDetailsReplyDumpCompletableFuture, id);
-
-        if (null == ifaces || null == ifaces.swInterfaceDetails) {
-            LOG.warn("Looking for sub-interfaces, but no interfaces found in VPP");
-            return Collections.emptyList();
-        }
-
-        // Cache interfaces dump in per-tx context to later be used in readCurrentAttributes
-        context.getModificationCache()
-                .put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, ifaces.swInterfaceDetails.stream()
-                        .collect(Collectors.toMap(t -> t.swIfIndex, swInterfaceDetails -> swInterfaceDetails)));
-
-        final List<SubInterfaceKey> interfacesKeys = ifaces.swInterfaceDetails.stream()
-                .filter(elt -> elt != null)
+        final List<SubInterfaceKey> interfacesKeys = dumpManager.getInterfaces(id,context)
+                .filter(Objects::nonNull)
                 // accept only sub-interfaces for current iface:
                 .filter(elt -> isSubInterface(elt) && elt.supSwIfIndex == ifaceId)
                 .map(details -> new SubInterfaceKey(new Long(details.subId)))
@@ -171,8 +151,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         LOG.debug("Reading attributes for sub interface: {}", subInterfaceName);
 
-        final SwInterfaceDetails iface = getVppInterfaceDetails(getFutureJVpp(), id, subInterfaceName,
-                interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache(), LOG);
+        final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, subInterfaceName);
         LOG.debug("VPP sub-interface details: {}", iface);
 
         checkState(isSubInterface(iface), "Interface returned by the VPP is not a sub-interface");

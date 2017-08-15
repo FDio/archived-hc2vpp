@@ -19,20 +19,28 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.VppBaseCallException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetails;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDump;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -41,11 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetails;
-import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDump;
 
 public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, VxlanGpeBuilder> {
 
@@ -55,23 +58,25 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
 
     private NamingContext interfacesContext;
     private static final InstanceIdentifier<VxlanGpe> VXLAN_GPE_ID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
-            .augmentation(VppInterfaceStateAugmentation.class).child(VxlanGpe.class);
+            InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
+                    .augmentation(VppInterfaceStateAugmentation.class).child(VxlanGpe.class);
+
+    @Mock
+    private InterfaceCacheDumpManager dumpCacheManager;
 
     public VxlanGpeCustomizerTest() {
         super(VxlanGpe.class, VppInterfaceStateAugmentationBuilder.class);
     }
 
     @Override
-    public void setUp() throws UnknownHostException, VppBaseCallException {
+    public void setUp() throws UnknownHostException, VppBaseCallException, ReadFailedException {
         interfacesContext = new NamingContext("vxlan_gpe_inf", IFC_CTX_NAME);
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
 
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "vxlan_gpe_inf2".getBytes();
-        final Map<Integer, SwInterfaceDetails> map = new HashMap<>();
-        map.put(0, v);
-        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, map);
+
+        when(dumpCacheManager.getInterfaceDetail(any(), any(), matches(IF_NAME))).thenReturn(v);
 
         final VxlanGpeTunnelDetailsReplyDump value = new VxlanGpeTunnelDetailsReplyDump();
         final VxlanGpeTunnelDetails vxlanGpeTunnelDetails = new VxlanGpeTunnelDetails();
@@ -108,9 +113,10 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
         verify(api).vxlanGpeTunnelDump(any(VxlanGpeTunnelDump.class));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testReadCurrentAttributesVppNameNotCached() throws Exception {
-        InterfaceCustomizer.getCachedInterfaceDump(cache).remove(0);
+        when(dumpCacheManager.getInterfaceDetail(VXLAN_GPE_ID, ctx, IF_NAME))
+                .thenThrow(new IllegalArgumentException("Detail for interface not found"));
 
         final VxlanGpeBuilder builder = getCustomizer().getBuilder(VXLAN_GPE_ID);
         getCustomizer().readCurrentAttributes(VXLAN_GPE_ID, builder, ctx);
@@ -120,18 +126,17 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
     public void testReadCurrentAttributesWrongType() throws Exception {
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "tap-3".getBytes();
-        InterfaceCustomizer.getCachedInterfaceDump(cache).put(0, v);
+
+        when(dumpCacheManager.getInterfaceDetail(VXLAN_GPE_ID, ctx, IF_NAME)).thenReturn(v);
 
         final VxlanGpeBuilder builder = getCustomizer().getBuilder(VXLAN_GPE_ID);
         getCustomizer().readCurrentAttributes(VXLAN_GPE_ID, builder, ctx);
-
-        // Should be ignored
         verifyZeroInteractions(api);
     }
 
     @Override
     protected ReaderCustomizer<VxlanGpe, VxlanGpeBuilder> initCustomizer() {
-        return new VxlanGpeCustomizer(api, interfacesContext);
+        return new VxlanGpeCustomizer(api, interfacesContext, dumpCacheManager);
     }
 }
 

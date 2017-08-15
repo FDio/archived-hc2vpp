@@ -20,18 +20,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.hc2vpp.common.test.util.InterfaceDumpHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Stream;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -46,8 +48,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.base.attributes.Tags;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInterface, SubInterfaceKey, SubInterfaceBuilder> implements
-    InterfaceDumpHelper {
+public class SubInterfaceCustomizerTest
+        extends ListReaderCustomizerTest<SubInterface, SubInterfaceKey, SubInterfaceBuilder> implements
+        InterfaceDumpHelper {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String SUPER_IF_NAME = "local0";
@@ -57,6 +60,9 @@ public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInte
     private static final int VLAN_IF_INDEX = 11;
 
     private NamingContext interfacesContext;
+
+    @Mock
+    private InterfaceCacheDumpManager dumpCacheManager;
 
     public SubInterfaceCustomizerTest() {
         super(SubInterface.class, SubInterfacesBuilder.class);
@@ -71,18 +77,18 @@ public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInte
 
     @Override
     protected ReaderCustomizer<SubInterface, SubInterfaceBuilder> initCustomizer() {
-        return new SubInterfaceCustomizer(api, interfacesContext);
+        return new SubInterfaceCustomizer(api, interfacesContext, dumpCacheManager);
     }
 
     private InstanceIdentifier<SubInterface> getSubInterfaceId(final String name, final long id) {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name)).augmentation(
-                SubinterfaceStateAugmentation.class).child(
-                SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(id));
+        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name))
+                .augmentation(
+                        SubinterfaceStateAugmentation.class).child(
+                        SubInterfaces.class).child(SubInterface.class, new SubInterfaceKey(id));
     }
 
     @Test
     public void testRead() throws ReadFailedException {
-        final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
 
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = VLAN_IF_ID;
@@ -95,11 +101,12 @@ public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInte
         ifaceDetails.subOuterVlanIdAny = 1;
         ifaceDetails.subInnerVlanIdAny = 1;
         ifaceDetails.subExactMatch = 1;
-        cachedInterfaceDump.put(VLAN_IF_INDEX, ifaceDetails);
-        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
         final SubInterfaceBuilder builder = mock(SubInterfaceBuilder.class);
-        getCustomizer().readCurrentAttributes(getSubInterfaceId(SUPER_IF_NAME, VLAN_IF_ID), builder, ctx);
+        final InstanceIdentifier<SubInterface> subInterfaceId = getSubInterfaceId(SUPER_IF_NAME, VLAN_IF_ID);
+
+        when(dumpCacheManager.getInterfaceDetail(subInterfaceId, ctx, VLAN_IF_NAME)).thenReturn(ifaceDetails);
+        getCustomizer().readCurrentAttributes(subInterfaceId, builder, ctx);
 
         verify(builder).setIdentifier((long) VLAN_IF_ID);
 
@@ -109,7 +116,7 @@ public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInte
 
         ArgumentCaptor<Match> matchCaptor = ArgumentCaptor.forClass(Match.class);
         verify(builder).setMatch(matchCaptor.capture());
-        final VlanTagged matchType = (VlanTagged)matchCaptor.getValue().getMatchType();
+        final VlanTagged matchType = (VlanTagged) matchCaptor.getValue().getMatchType();
         assertTrue(matchType.getVlanTagged().isMatchExactTags());
     }
 
@@ -120,10 +127,11 @@ public class SubInterfaceCustomizerTest extends ListReaderCustomizerTest<SubInte
         iface.swIfIndex = VLAN_IF_INDEX;
         iface.subId = VLAN_IF_ID;
         iface.supSwIfIndex = SUPER_IF_INDEX;
-        whenSwInterfaceDumpThenReturn(api, iface);
 
+        final InstanceIdentifier<SubInterface> subInterfaceId = getSubInterfaceId(SUPER_IF_NAME, VLAN_IF_ID);
+        when(dumpCacheManager.getInterfaces(subInterfaceId, ctx)).thenReturn(Stream.of(iface));
         final List<SubInterfaceKey> allIds =
-                getCustomizer().getAllIds(getSubInterfaceId(SUPER_IF_NAME, VLAN_IF_ID), ctx);
+                getCustomizer().getAllIds(subInterfaceId, ctx);
 
         assertEquals(1, allIds.size());
     }

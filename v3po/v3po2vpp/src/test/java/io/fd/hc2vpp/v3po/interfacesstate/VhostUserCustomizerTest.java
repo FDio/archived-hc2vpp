@@ -21,13 +21,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.test.util.InterfaceDumpHelper;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
 import java.math.BigInteger;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -37,20 +42,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.VhostUserBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
 
 public class VhostUserCustomizerTest extends ReaderCustomizerTest<VhostUser, VhostUserBuilder> implements
-    InterfaceDumpHelper {
+        InterfaceDumpHelper {
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IF_NAME = "VirtualEthernet1";
     private static final int IF_INDEX = 1;
     private static final InstanceIdentifier<VhostUser> IID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
-            .augmentation(VppInterfaceStateAugmentation.class).child(VhostUser.class);
+            InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
+                    .augmentation(VppInterfaceStateAugmentation.class).child(VhostUser.class);
 
     private NamingContext interfaceContext;
+
+    @Mock
+    private InterfaceCacheDumpManager dumpCacheManager;
 
     public VhostUserCustomizerTest() {
         super(VhostUser.class, VppInterfaceStateAugmentationBuilder.class);
@@ -60,7 +65,7 @@ public class VhostUserCustomizerTest extends ReaderCustomizerTest<VhostUser, Vho
     protected void setUp() throws Exception {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
-        whenSwInterfaceDumpThenReturn(api, ifaceDetails());
+        when(dumpCacheManager.getInterfaceDetail(IID, ctx, IF_NAME)).thenReturn(ifaceDetails());
     }
 
     private SwInterfaceDetails ifaceDetails() {
@@ -73,7 +78,7 @@ public class VhostUserCustomizerTest extends ReaderCustomizerTest<VhostUser, Vho
 
     @Override
     protected ReaderCustomizer<VhostUser, VhostUserBuilder> initCustomizer() {
-        return new VhostUserCustomizer(api, interfaceContext);
+        return new VhostUserCustomizer(api, interfaceContext, dumpCacheManager);
     }
 
     @Test

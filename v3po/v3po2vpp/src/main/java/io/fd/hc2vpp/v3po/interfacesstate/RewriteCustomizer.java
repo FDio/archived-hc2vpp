@@ -16,18 +16,16 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Preconditions;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.translate.util.TagRewriteOperation;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.hc2vpp.v3po.util.SubInterfaceUtils;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -40,9 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607._802dot1ad;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607._802dot1q;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.state.attributes.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.rewrite.attributes.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.rewrite.attributes.RewriteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.state.attributes.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.tag.rewrite.PushTags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.tag.rewrite.PushTagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.tag.rewrite.PushTagsKey;
@@ -55,19 +53,17 @@ import org.slf4j.LoggerFactory;
 /**
  * Customizer for reading vlan tag-rewrite configuration state form the VPP.
  */
-public class RewriteCustomizer extends FutureJVppCustomizer
+public class RewriteCustomizer
         implements ReaderCustomizer<Rewrite, RewriteBuilder>, InterfaceDataTranslator {
 
     // No initialization necessary since its parent Subinterface L2 customzier sets the entire subtree during
     // initialization
 
     private static final Logger LOG = LoggerFactory.getLogger(RewriteCustomizer.class);
-    private final NamingContext interfaceContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
-    public RewriteCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
-                             @Nonnull final NamingContext interfaceContext) {
-        super(futureJVppCore);
-        this.interfaceContext = Preconditions.checkNotNull(interfaceContext, "interfaceContext should not be null");
+    public RewriteCustomizer(@Nonnull final InterfaceCacheDumpManager dumpManager) {
+        this.dumpManager = checkNotNull(dumpManager, "dumpManager should not be null");
     }
 
     @Override
@@ -89,8 +85,7 @@ public class RewriteCustomizer extends FutureJVppCustomizer
         final String subInterfaceName = getSubInterfaceName(id);
         LOG.debug("Reading attributes for sub interface: {}", subInterfaceName);
 
-        final SwInterfaceDetails iface = getVppInterfaceDetails(getFutureJVpp(), id, subInterfaceName,
-                interfaceContext.getIndex(subInterfaceName, ctx.getMappingContext()), ctx.getModificationCache(), LOG);
+        final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, subInterfaceName);
         LOG.debug("VPP sub-interface details: {}", iface);
 
         checkState(isSubInterface(iface), "Interface returned by the VPP is not a sub-interface");

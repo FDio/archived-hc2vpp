@@ -16,15 +16,13 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -35,20 +33,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
-public class EthernetCustomizer extends FutureJVppCustomizer
+public class EthernetCustomizer
         implements InitializingReaderCustomizer<Ethernet, EthernetBuilder>, InterfaceDataTranslator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EthernetCustomizer.class);
-    private NamingContext interfaceContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
-    public EthernetCustomizer(@Nonnull final FutureJVppCore jvpp,
-                              @Nonnull final NamingContext interfaceContext) {
-        super(jvpp);
-        this.interfaceContext = interfaceContext;
+    public EthernetCustomizer(@Nonnull final InterfaceCacheDumpManager dumpManager) {
+        this.dumpManager = dumpManager;
     }
 
     @Override
@@ -69,8 +62,7 @@ public class EthernetCustomizer extends FutureJVppCustomizer
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
 
         final InterfaceKey key = id.firstKeyOf(Interface.class);
-        final SwInterfaceDetails iface = getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
-                interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache(), LOG);
+        final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, key.getName());
 
         if (iface.linkMtu != 0) {
             builder.setMtu((int) iface.linkMtu);

@@ -16,9 +16,12 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import static java.lang.String.format;
+
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
@@ -53,12 +56,17 @@ public class TapCustomizer extends FutureJVppCustomizer
         implements InitializingReaderCustomizer<Tap, TapBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(TapCustomizer.class);
+    // TODO - HC2VPP-213 - used dump cache manager
     public static final String DUMPED_TAPS_CONTEXT_KEY = TapCustomizer.class.getName() + "dumpedTapsDuringGetAllIds";
     private NamingContext interfaceContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
-    public TapCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext) {
+    public TapCustomizer(@Nonnull final FutureJVppCore jvpp,
+                         @Nonnull final NamingContext interfaceContext,
+                         @Nonnull final InterfaceCacheDumpManager dumpManager) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
+        this.dumpManager = dumpManager;
     }
 
     @Override
@@ -79,8 +87,11 @@ public class TapCustomizer extends FutureJVppCustomizer
 
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index,
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.Tap.class, LOG)) {
+        final SwInterfaceDetails ifcDetails = dumpManager.getInterfaceDetail(id, ctx, key.getName());
+
+        if (!isInterfaceOfType(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.Tap.class,
+                ifcDetails)) {
             return;
         }
 
@@ -115,9 +126,6 @@ public class TapCustomizer extends FutureJVppCustomizer
 
         builder.setTapName(toString(swInterfaceTapDetails.devName));
 
-        final SwInterfaceDetails ifcDetails = getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
-            interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache(), LOG);
-
         if (ifcDetails.tag[0] != 0) { // tag supplied
             builder.setTag(toString(ifcDetails.tag));
         }
@@ -129,15 +137,21 @@ public class TapCustomizer extends FutureJVppCustomizer
             @Nonnull final InstanceIdentifier<Tap> id, @Nonnull final Tap readValue, @Nonnull final ReadContext ctx) {
         // The MAC address & tag is set from interface details, those details are retrieved from cache
         final InterfaceKey key = id.firstKeyOf(Interface.class);
-        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        final SwInterfaceDetails ifcDetails =
-                InterfaceCustomizer.getCachedInterfaceDump(ctx.getModificationCache()).get(index);
+
+        final SwInterfaceDetails ifcDetails;
+        try {
+            ifcDetails = dumpManager.getInterfaceDetail(id, ctx, key.getName());
+        } catch (ReadFailedException e) {
+            throw new IllegalStateException(format("Unable to read interface %s", key.getName()), e);
+        }
 
         return Initialized.create(getCfgId(id),
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.TapBuilder()
                         .setMac(new PhysAddress(vppPhysAddrToYang(ifcDetails.l2Address)))
                         .setTapName(readValue.getTapName())
-                        .setTag(ifcDetails.tag[0] == 0 ? null : toString(ifcDetails.tag))
+                        .setTag(ifcDetails.tag[0] == 0
+                                ? null
+                                : toString(ifcDetails.tag))
 //                            tapBuilder.setDeviceInstance();
                         .build());
     }

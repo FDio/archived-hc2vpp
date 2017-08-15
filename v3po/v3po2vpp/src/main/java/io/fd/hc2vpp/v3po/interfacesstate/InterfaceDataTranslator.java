@@ -17,23 +17,17 @@
 package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
@@ -46,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VxlanTunnel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
 
 public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyConsumer {
 
@@ -136,74 +129,6 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
         return yangIfIndex - 1;
     }
 
-
-    /**
-     * Queries VPP for interface description given interface key.
-     *
-     * @param futureJVppCore VPP Java Future API
-     * @param id             InstanceIdentifier, which is passed in ReadFailedException
-     * @param name           interface name
-     * @param index          VPP index of the interface
-     * @param ctx            per-tx scope context containing cached dump with all the interfaces. If the cache is not
-     *                       available or outdated, another dump will be performed.
-     * @return SwInterfaceDetails DTO or null if interface was not found
-     * @throws IllegalArgumentException If interface cannot be found
-     * @throws ReadFailedException      If read operation had failed
-     */
-    @Nonnull
-    default SwInterfaceDetails getVppInterfaceDetails(@Nonnull final FutureJVppCore futureJVppCore,
-                                                      @Nonnull final InstanceIdentifier<?> id,
-                                                      @Nonnull final String name, final int index,
-                                                      @Nonnull final ModificationCache ctx,
-                                                      @Nonnull final Logger callerLogger)
-            throws ReadFailedException {
-        requireNonNull(futureJVppCore, "futureJVppCore should not be null");
-        requireNonNull(name, "name should not be null");
-        requireNonNull(ctx, "ctx should not be null");
-
-        final SwInterfaceDump request = new SwInterfaceDump();
-        request.nameFilter = name.getBytes();
-        request.nameFilterValid = 1;
-
-        final Map<Integer, SwInterfaceDetails> allInterfaces = InterfaceCustomizer.getCachedInterfaceDump(ctx);
-
-        // Returned cached if available
-        if (allInterfaces.containsKey(index)) {
-            return allInterfaces.get(index);
-        }
-
-        SwInterfaceDetailsReplyDump ifaces;
-
-        CompletionStage<SwInterfaceDetailsReplyDump> requestFuture = futureJVppCore.swInterfaceDump(request);
-        ifaces = getReplyForRead(requestFuture.toCompletableFuture(), id);
-        if (null == ifaces || null == ifaces.swInterfaceDetails || ifaces.swInterfaceDetails.isEmpty()) {
-            request.nameFilterValid = 0;
-
-            callerLogger.warn("VPP returned null instead of interface by key {} and its not cached", name);
-            callerLogger.warn("Iterating through all the interfaces to find interface: {}", name);
-
-            // Or else just perform full dump and do inefficient filtering
-            requestFuture = futureJVppCore.swInterfaceDump(request);
-            ifaces = getReplyForRead(requestFuture.toCompletableFuture(), id);
-
-            // Update the cache
-            allInterfaces.clear();
-            allInterfaces
-                    .putAll(ifaces.swInterfaceDetails.stream().collect(Collectors.toMap(d -> d.swIfIndex, d -> d)));
-
-            if (allInterfaces.containsKey(index)) {
-                return allInterfaces.get(index);
-            }
-            throw new IllegalArgumentException("Unable to find interface " + name);
-        }
-
-        // SwInterfaceDump's name filter does prefix match, so we need additional filtering:
-        final SwInterfaceDetails iface =
-                ifaces.swInterfaceDetails.stream().filter(d -> d.swIfIndex == index).collect(SINGLE_ITEM_COLLECTOR);
-        allInterfaces.put(index, iface); // update the cache
-        return iface;
-    }
-
     /**
      * Determine interface type based on its VPP name (relying on VPP's interface naming conventions)
      *
@@ -240,20 +165,15 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
     }
 
     /**
-     * Check interface type. Uses interface details from VPP to determine. Uses {@link
-     * #getVppInterfaceDetails(FutureJVppCore, InstanceIdentifier, String, int, ModificationCache, Logger)} internally
-     * so tries to utilize cache before asking VPP.
+     * Check interface type. Uses interface details from VPP to determine.
      */
-    default boolean isInterfaceOfType(@Nonnull final FutureJVppCore jvpp,
-                                      @Nonnull final ModificationCache cache,
+    default boolean isInterfaceOfType(@Nonnull final InterfaceCacheDumpManager dumpManager,
                                       @Nonnull final InstanceIdentifier<?> id,
-                                      final int index,
-                                      @Nonnull final Class<? extends InterfaceType> ifcType,
-                                      @Nonnull final Logger callerLogger)
+                                      @Nonnull final ReadContext ctx,
+                                      @Nonnull final Class<? extends InterfaceType> ifcType)
             throws ReadFailedException {
         final String name = id.firstKeyOf(Interface.class).getName();
-        final SwInterfaceDetails vppInterfaceDetails =
-                getVppInterfaceDetails(jvpp, id, name, index, cache, callerLogger);
+        final SwInterfaceDetails vppInterfaceDetails = dumpManager.getInterfaceDetail(id, ctx, name);
 
         return isInterfaceOfType(ifcType, vppInterfaceDetails);
     }
@@ -264,13 +184,11 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
     }
 
     /**
-     * Checks whether provided {@link SwInterfaceDetails} is detail of sub-interface<br>
-     * <li>subId == unique number of sub-interface within set of sub-interfaces of single interface
-     * <li>swIfIndex == unique index of interface/sub-interface within all interfaces
-     * <li>supSwIfIndex == unique index of parent interface
-     * <li>in case of interface , swIfIndex value equals supSwIfIndex
-     * <li>in case of subinterface, supSwIfIndex equals index of parent interface,
-     * swIfIndex is index of subinterface itselt
+     * Checks whether provided {@link SwInterfaceDetails} is detail of sub-interface<br> <li>subId == unique number of
+     * sub-interface within set of sub-interfaces of single interface <li>swIfIndex == unique index of
+     * interface/sub-interface within all interfaces <li>supSwIfIndex == unique index of parent interface <li>in case of
+     * interface , swIfIndex value equals supSwIfIndex <li>in case of subinterface, supSwIfIndex equals index of parent
+     * interface, swIfIndex is index of subinterface itselt
      */
     default boolean isSubInterface(@Nonnull final SwInterfaceDetails elt) {
         //cant check by subId != 0, because you can pick 0 as value
@@ -278,13 +196,11 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
     }
 
     /**
-     * Checks whether provided {@link SwInterfaceDetails} is detail of interface<br>
-     * <li>subId == unique number of subinterface within set of subinterfaces of single interface
-     * <li>swIfIndex == unique index of interface/subinterface within all interfaces
-     * <li>supSwIfIndex == unique index of parent interface
-     * <li>in case of interface , swIfIndex value equals supSwIfIndex
-     * <li>in case of subinterface, supSwIfIndex equals index of parent interface,
-     * swIfIndex is index of subinterface itselt
+     * Checks whether provided {@link SwInterfaceDetails} is detail of interface<br> <li>subId == unique number of
+     * subinterface within set of subinterfaces of single interface <li>swIfIndex == unique index of
+     * interface/subinterface within all interfaces <li>supSwIfIndex == unique index of parent interface <li>in case of
+     * interface , swIfIndex value equals supSwIfIndex <li>in case of subinterface, supSwIfIndex equals index of parent
+     * interface, swIfIndex is index of subinterface itselt
      */
     default boolean isRegularInterface(@Nonnull final SwInterfaceDetails elt) {
         return !isSubInterface(elt);

@@ -18,13 +18,14 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.GreTunnelDetails;
 import io.fd.vpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.GreTunnelDump;
@@ -54,11 +55,15 @@ public class GreCustomizer extends FutureJVppCustomizer
         implements InitializingReaderCustomizer<Gre, GreBuilder>, InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(GreCustomizer.class);
-    private NamingContext interfaceContext;
+    private final NamingContext interfaceContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
-    public GreCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext) {
+    public GreCustomizer(@Nonnull final FutureJVppCore jvpp,
+                         @Nonnull final NamingContext interfaceContext,
+                         @Nonnull final InterfaceCacheDumpManager dumpManager) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
+        this.dumpManager = dumpManager;
     }
 
     @Override
@@ -79,7 +84,7 @@ public class GreCustomizer extends FutureJVppCustomizer
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index, GreTunnel.class, LOG)) {
+        if (!isInterfaceOfType(dumpManager, id, ctx, GreTunnel.class)) {
             return;
         }
 

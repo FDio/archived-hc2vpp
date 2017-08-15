@@ -17,6 +17,7 @@
 package io.fd.hc2vpp.v3po;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -26,6 +27,8 @@ import io.fd.hc2vpp.v3po.factory.L2HoneycombWriterFactory;
 import io.fd.hc2vpp.v3po.factory.L2StateHoneycombReaderFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceAugmentationWriterFactory;
 import io.fd.hc2vpp.v3po.factory.SubinterfaceStateAugmentationReaderFactory;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManagerProvider;
 import io.fd.hc2vpp.v3po.notification.InterfaceChangeNotificationProducerProvider;
 import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.translate.read.ReaderFactory;
@@ -49,6 +52,8 @@ public class V3poModule extends AbstractModule {
         bind(NamingContext.class)
                 .annotatedWith(Names.named("bridge-domain-context"))
                 .toInstance(new NamingContext("bridge-domain-", "bridge-domain-context"));
+
+        bind(InterfaceCacheDumpManager.class).toProvider(InterfaceCacheDumpManagerProvider.class).in(Singleton.class);
 
         // Context utility for deleted interfaces
         bind(DisabledInterfacesManager.class).toInstance(new DisabledInterfacesManager());

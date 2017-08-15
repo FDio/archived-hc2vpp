@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
@@ -49,13 +50,16 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
     private final FutureJVppCore futureJVppCore;
     private final NamingContext interfaceContext;
     private final NamingContext bridgeDomainContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
     InterconnectionReadUtils(@Nonnull final FutureJVppCore futureJVppCore,
                              @Nonnull final NamingContext interfaceContext,
-                             @Nonnull final NamingContext bridgeDomainContext) {
+                             @Nonnull final NamingContext bridgeDomainContext,
+                             @Nonnull final InterfaceCacheDumpManager dumpManager) {
         this.futureJVppCore = requireNonNull(futureJVppCore, "futureJVppCore should not be null");
         this.interfaceContext = requireNonNull(interfaceContext, "interfaceContext should not be null");
         this.bridgeDomainContext = requireNonNull(bridgeDomainContext, "bridgeDomainContext should not be null");
+        this.dumpManager = requireNonNull(dumpManager, "dumpManager should not be null");
     }
 
     @Nullable
@@ -64,8 +68,7 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
             throws ReadFailedException {
         final int ifaceId = interfaceContext.getIndex(ifaceName, ctx.getMappingContext());
 
-        final SwInterfaceDetails iface = getVppInterfaceDetails(futureJVppCore, id, ifaceName,
-                ifaceId, ctx.getModificationCache(), LOG);
+        final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, ifaceName);
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
         final BridgeDomainDetailsReplyDump dumpReply = getDumpReply(id);
@@ -78,7 +81,7 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
 
                 // Set BVI if the bridgeDomainDetails.bviSwIfIndex == current sw if index
                 final Optional<BridgeDomainDetails> bridgeDomainForInterface =
-                    getBridgeDomainForInterface(dumpReply, bd.bdId);
+                        getBridgeDomainForInterface(dumpReply, bd.bdId);
                 // Since we already found an interface assigned to a bridge domain, the details for BD must be present
                 checkState(bridgeDomainForInterface.isPresent());
                 if (bridgeDomainForInterface.get().bviSwIfIndex == ifaceId) {

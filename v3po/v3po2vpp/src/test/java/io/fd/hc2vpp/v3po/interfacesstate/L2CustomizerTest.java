@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -52,6 +54,9 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
     private NamingContext interfaceContext;
     private NamingContext bridgeDomainContext;
 
+    @Mock
+    private InterfaceCacheDumpManager dumpCacheManager;
+
     public L2CustomizerTest() {
         super(L2.class, VppInterfaceStateAugmentationBuilder.class);
     }
@@ -64,13 +69,13 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 
     @Override
     protected ReaderCustomizer<L2, L2Builder> initCustomizer() {
-        return new L2Customizer(api, interfaceContext, bridgeDomainContext);
+        return new L2Customizer(api, interfaceContext, bridgeDomainContext, dumpCacheManager);
     }
 
     private InstanceIdentifier<L2> getL2Id(final String name) {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name))
-            .augmentation(
-                VppInterfaceStateAugmentation.class).child(L2.class);
+                .augmentation(
+                        VppInterfaceStateAugmentation.class).child(L2.class);
     }
 
     private void whenBridgeDomainDumpThenReturn(final List<BridgeDomainDetails> bridgeDomainDetails) {
@@ -101,7 +106,6 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 
     @Test
     public void testRead() throws Exception {
-        final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
         final int ifId = 1;
         final int bdId = 1;
         final String bdName = "bd001";
@@ -111,8 +115,6 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = ifId;
-        cachedInterfaceDump.put(ifId, ifaceDetails);
-        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
         // BVIinterfaceContext
         whenBridgeDomainDumpThenReturn(Collections.singletonList(generateBdDetails(ifId, ifId, bdId)));
@@ -124,7 +126,7 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
 
         // Not BVI
         whenBridgeDomainDumpThenReturn(Collections
-            .singletonList(generateBdDetails(ifId, 99 /* Different ifc is marked as BVI in bd details */, bdId)));
+                .singletonList(generateBdDetails(ifId, 99 /* Different ifc is marked as BVI in bd details */, bdId)));
 
         builder = mock(L2Builder.class);
         getCustomizer().readCurrentAttributes(getL2Id(ifName), builder, ctx);
@@ -136,7 +138,7 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
         final BridgeDomainDetails bridgeDomainDetails = new BridgeDomainDetails();
         bridgeDomainDetails.bviSwIfIndex = bviSwIfIndex;
         bridgeDomainDetails.bdId = bdId;
-        bridgeDomainDetails.swIfDetails = new BridgeDomainSwIf[] {generateBdSwIfDetails(ifId)};
+        bridgeDomainDetails.swIfDetails = new BridgeDomainSwIf[]{generateBdSwIfDetails(ifId)};
         return bridgeDomainDetails;
     }
 }

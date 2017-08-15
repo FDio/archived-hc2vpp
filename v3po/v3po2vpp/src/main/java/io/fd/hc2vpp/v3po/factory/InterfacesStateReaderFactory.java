@@ -30,6 +30,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanGpeCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.hc2vpp.v3po.interfacesstate.pbb.PbbRewriteStateCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.span.InterfaceMirroredInterfacesCustomizer;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
@@ -65,6 +66,7 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
     private final NamingContext ifcNamingCtx;
     private final NamingContext bdNamingCtx;
     private final DisabledInterfacesManager ifcDisableContext;
+    private final InterfaceCacheDumpManager ifaceDumpManager;
     private final FutureJVppCore jvpp;
 
     static final InstanceIdentifier<InterfacesState> IFC_STATE_ID =
@@ -75,11 +77,13 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
     public InterfacesStateReaderFactory(final FutureJVppCore jvpp,
                                         @Named("interface-context") final NamingContext ifcNamingCtx,
                                         @Named("bridge-domain-context") final NamingContext bdNamingCtx,
-                                        final DisabledInterfacesManager ifcDisableContext) {
+                                        final DisabledInterfacesManager ifcDisableContext,
+                                        final InterfaceCacheDumpManager ifaceDumpManager) {
         this.jvpp = jvpp;
         this.ifcNamingCtx = ifcNamingCtx;
         this.bdNamingCtx = bdNamingCtx;
         this.ifcDisableContext = ifcDisableContext;
+        this.ifaceDumpManager = ifaceDumpManager;
     }
 
     @Override
@@ -87,7 +91,8 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         // InterfacesState(Structural)
         registry.addStructuralReader(IFC_STATE_ID, InterfacesStateBuilder.class);
         //  Interface
-        registry.add(new GenericInitListReader<>(IFC_ID, new InterfaceCustomizer(jvpp, ifcNamingCtx, ifcDisableContext)));
+        registry.add(new GenericInitListReader<>(IFC_ID,
+                new InterfaceCustomizer(ifcNamingCtx, ifcDisableContext, ifaceDumpManager)));
 
         // v3po.yang
         initVppIfcAugmentationReaders(registry, IFC_ID);
@@ -104,25 +109,28 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         registry.addStructuralReader(vppIfcAugId, VppInterfaceStateAugmentationBuilder.class);
         //    Ethernet
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Ethernet.class),
-            new EthernetCustomizer(jvpp, ifcNamingCtx)));
+                new EthernetCustomizer(ifaceDumpManager)));
         //    Routing
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Routing.class),
-            new InterfaceRoutingCustomizer(jvpp, ifcNamingCtx)));
+                new InterfaceRoutingCustomizer(jvpp, ifcNamingCtx)));
         //    Tap
-        registry.add(new GenericInitReader<>(vppIfcAugId.child(Tap.class), new TapCustomizer(jvpp, ifcNamingCtx)));
+        registry.add(new GenericInitReader<>(vppIfcAugId.child(Tap.class),
+                new TapCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
         //    VhostUser
         registry.add(new GenericInitReader<>(vppIfcAugId.child(VhostUser.class),
-                        new VhostUserCustomizer(jvpp, ifcNamingCtx)));
+                new VhostUserCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
         //    Vxlan
-        registry.add(new GenericInitReader<>(vppIfcAugId.child(Vxlan.class), new VxlanCustomizer(jvpp, ifcNamingCtx)));
+        registry.add(new GenericInitReader<>(vppIfcAugId.child(Vxlan.class),
+                new VxlanCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
         //    VxlanGpe
         registry.add(new GenericInitReader<>(vppIfcAugId.child(VxlanGpe.class),
-                        new VxlanGpeCustomizer(jvpp, ifcNamingCtx)));
+                new VxlanGpeCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
         //    Gre
-        registry.add(new GenericInitReader<>(vppIfcAugId.child(Gre.class), new GreCustomizer(jvpp, ifcNamingCtx)));
+        registry.add(new GenericInitReader<>(vppIfcAugId.child(Gre.class),
+                new GreCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
         //    L2
         registry.add(new GenericInitReader<>(vppIfcAugId.child(L2.class),
-                        new L2Customizer(jvpp, ifcNamingCtx, bdNamingCtx)));
+                new L2Customizer(jvpp, ifcNamingCtx, bdNamingCtx, ifaceDumpManager)));
         // Span
         final InstanceIdentifier<Span> spanId = vppIfcAugId.child(Span.class);
         registry.addStructuralReader(spanId, SpanBuilder.class);
@@ -141,5 +149,4 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         registry.add(new GenericReader<>(ifcId.augmentation(PbbRewriteStateInterfaceAugmentation.class).child(
                 PbbRewriteState.class), new PbbRewriteStateCustomizer(jvpp)));
     }
-
 }

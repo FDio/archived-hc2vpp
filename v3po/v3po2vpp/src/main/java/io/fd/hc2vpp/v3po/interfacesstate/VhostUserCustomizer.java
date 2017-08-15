@@ -16,14 +16,17 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import static java.lang.String.format;
+
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
@@ -51,16 +54,22 @@ import org.slf4j.LoggerFactory;
 
 
 public class VhostUserCustomizer extends FutureJVppCustomizer
-        implements InitializingReaderCustomizer<VhostUser, VhostUserBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
+        implements InitializingReaderCustomizer<VhostUser, VhostUserBuilder>, InterfaceDataTranslator,
+        JvppReplyConsumer {
 
+    //TODO - HC2VPP-212 - use dump cache manager
     public static final String DUMPED_VHOST_USERS_CONTEXT_KEY =
             VhostUserCustomizer.class.getName() + "dumpedVhostUsersDuringGetAllIds";
     private static final Logger LOG = LoggerFactory.getLogger(VhostUserCustomizer.class);
     private NamingContext interfaceContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
-    public VhostUserCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext) {
+    public VhostUserCustomizer(@Nonnull final FutureJVppCore jvpp,
+                               @Nonnull final NamingContext interfaceContext,
+                               @Nonnull final InterfaceCacheDumpManager dumpManager) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
+        this.dumpManager = dumpManager;
     }
 
     @Override
@@ -81,9 +90,12 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
 
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index,
+        final SwInterfaceDetails ifcDetails = dumpManager.getInterfaceDetail(id, ctx, key.getName());
+
+
+        if (!isInterfaceOfType(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VhostUser.class,
-                LOG)) {
+                ifcDetails)) {
             return;
         }
 
@@ -121,9 +133,6 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
         LOG.trace("Vhost user interface: {} attributes returned from VPP: {}", key.getName(),
                 swInterfaceVhostUserDetails);
 
-        final SwInterfaceDetails ifcDetails = getVppInterfaceDetails(getFutureJVpp(), id, key.getName(),
-            interfaceContext.getIndex(key.getName(), ctx.getMappingContext()), ctx.getModificationCache(), LOG);
-
         builder.setRole(swInterfaceVhostUserDetails.isServer == 1
                 ? VhostUserRole.Server
                 : VhostUserRole.Client);
@@ -147,14 +156,19 @@ public class VhostUserCustomizer extends FutureJVppCustomizer
             @Nonnull final ReadContext ctx) {
         // The tag is set from interface details, those details are retrieved from cache
         final InterfaceKey key = id.firstKeyOf(Interface.class);
-        final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        final SwInterfaceDetails ifcDetails =
-            InterfaceCustomizer.getCachedInterfaceDump(ctx.getModificationCache()).get(index);
+        final SwInterfaceDetails ifcDetails;
+        try {
+            ifcDetails = dumpManager.getInterfaceDetail(id, ctx, key.getName());
+        } catch (ReadFailedException e) {
+            throw new IllegalStateException(format("Unable to find VHost interface %s", key.getName()), e);
+        }
         return Initialized.create(getCfgId(id),
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.VhostUserBuilder()
                         .setRole(readValue.getRole())
                         .setSocket(readValue.getSocket())
-                        .setTag(ifcDetails.tag[0] == 0 ? null : toString(ifcDetails.tag))
+                        .setTag(ifcDetails.tag[0] == 0
+                                ? null
+                                : toString(ifcDetails.tag))
                         .build());
     }
 

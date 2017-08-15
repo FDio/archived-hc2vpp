@@ -18,14 +18,15 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetails;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDump;
@@ -57,11 +58,15 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
         implements InitializingReaderCustomizer<VxlanGpe, VxlanGpeBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(VxlanGpeCustomizer.class);
-    private NamingContext interfaceContext;
+    private final NamingContext interfaceContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
-    public VxlanGpeCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext) {
+    public VxlanGpeCustomizer(@Nonnull final FutureJVppCore jvpp,
+                              @Nonnull final NamingContext interfaceContext,
+                              @Nonnull final InterfaceCacheDumpManager dumpManager) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
+        this.dumpManager = dumpManager;
     }
 
     @Override
@@ -83,7 +88,7 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
 
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index, VxlanGpeTunnel.class, LOG)) {
+        if (!isInterfaceOfType(dumpManager, id, ctx, VxlanGpeTunnel.class)) {
             return;
         }
 
@@ -147,7 +152,8 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
 
     @Override
     public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.VxlanGpe> init(
-            @Nonnull final InstanceIdentifier<VxlanGpe> id, @Nonnull final VxlanGpe readValue, @Nonnull final ReadContext ctx) {
+            @Nonnull final InstanceIdentifier<VxlanGpe> id, @Nonnull final VxlanGpe readValue,
+            @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.VxlanGpeBuilder()
                         .setLocal(readValue.getLocal())

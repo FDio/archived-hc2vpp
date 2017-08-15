@@ -16,15 +16,20 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.test.util.InterfaceDumpHelper;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -34,17 +39,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.EthernetBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 
 public class EthernetCustomizerTest extends ReaderCustomizerTest<Ethernet, EthernetBuilder> implements
-    InterfaceDumpHelper {
+        InterfaceDumpHelper {
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 1;
     private static final InstanceIdentifier<Ethernet> IID =
-        InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
-            .augmentation(VppInterfaceStateAugmentation.class).child(Ethernet.class);
+            InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(IF_NAME))
+                    .augmentation(VppInterfaceStateAugmentation.class).child(Ethernet.class);
     private NamingContext interfaceContext;
+
+    @Mock
+    private InterfaceCacheDumpManager dumpCacheManager;
 
     public EthernetCustomizerTest() {
         super(Ethernet.class, VppInterfaceStateAugmentationBuilder.class);
@@ -58,15 +65,16 @@ public class EthernetCustomizerTest extends ReaderCustomizerTest<Ethernet, Ether
 
     @Override
     protected ReaderCustomizer<Ethernet, EthernetBuilder> initCustomizer() {
-        return new EthernetCustomizer(api, interfaceContext);
+        return new EthernetCustomizer(dumpCacheManager);
     }
 
-    private void testRead(final int linkDuplex, final EthernetStateAttributes.Duplex duplex) throws ReadFailedException {
+    private void testRead(final int linkDuplex, final EthernetStateAttributes.Duplex duplex)
+            throws ReadFailedException {
         final EthernetBuilder builder = mock(EthernetBuilder.class);
         final short mtu = 123;
-        whenSwInterfaceDumpThenReturn(api, ifaceDetails(mtu, linkDuplex));
+        when(dumpCacheManager.getInterfaceDetail(any(), any(), any())).thenReturn(ifaceDetails(mtu, linkDuplex));
         getCustomizer().readCurrentAttributes(IID, builder, ctx);
-        verify(builder).setMtu((int)mtu);
+        verify(builder).setMtu((int) mtu);
         verify(builder).setDuplex(duplex);
     }
 
@@ -74,7 +82,7 @@ public class EthernetCustomizerTest extends ReaderCustomizerTest<Ethernet, Ether
         final SwInterfaceDetails details = new SwInterfaceDetails();
         details.swIfIndex = IF_INDEX;
         details.linkMtu = mtu;
-        details.linkDuplex = (byte)duplex;
+        details.linkDuplex = (byte) duplex;
         return details;
     }
 

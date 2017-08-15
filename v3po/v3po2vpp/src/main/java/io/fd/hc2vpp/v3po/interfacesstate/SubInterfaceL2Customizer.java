@@ -18,20 +18,17 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static io.fd.hc2vpp.v3po.util.SubInterfaceUtils.getSubInterfaceName;
 
-import com.google.common.collect.ImmutableMap;
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.state.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.state.attributes.interconnection.BridgeBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.state.attributes.interconnection.XconnectBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface;
@@ -48,7 +45,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Customizer for reading vlan sub interface L2 operational state
  */
-public class SubInterfaceL2Customizer extends FutureJVppCustomizer
+public class SubInterfaceL2Customizer
         implements InitializingReaderCustomizer<L2, L2Builder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubInterfaceL2Customizer.class);
@@ -56,9 +53,10 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer
 
     public SubInterfaceL2Customizer(@Nonnull final FutureJVppCore futureJVppCore,
                                     @Nonnull final NamingContext interfaceContext,
-                                    @Nonnull final NamingContext bridgeDomainContext) {
-        super(futureJVppCore);
-        this.icReadUtils = new InterconnectionReadUtils(futureJVppCore, interfaceContext, bridgeDomainContext);
+                                    @Nonnull final NamingContext bridgeDomainContext,
+                                    @Nonnull final InterfaceCacheDumpManager dumpManager) {
+        this.icReadUtils =
+                new InterconnectionReadUtils(futureJVppCore, interfaceContext, bridgeDomainContext, dumpManager);
     }
 
     @Override
@@ -78,7 +76,8 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer
         LOG.debug("Reading attributes for sub-interface L2: {}", id);
         final InterfaceKey parentInterfacekey = id.firstKeyOf(Interface.class);
         final SubInterfaceKey subInterfacekey = id.firstKeyOf(SubInterface.class);
-        final String subInterfaceName = getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
+        final String subInterfaceName =
+                getSubInterfaceName(parentInterfacekey.getName(), subInterfacekey.getIdentifier().intValue());
 
         builder.setInterconnection(icReadUtils.readInterconnection(id, subInterfaceName, ctx));
     }
@@ -89,27 +88,31 @@ public class SubInterfaceL2Customizer extends FutureJVppCustomizer
             @Nonnull final L2 readValue,
             @Nonnull final ReadContext ctx) {
 
-        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.config.attributes.L2Builder builder=
+        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.config.attributes.L2Builder
+                builder =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.config.attributes.L2Builder();
 
-        if(readValue.getInterconnection() instanceof XconnectBased){
+        if (readValue.getInterconnection() instanceof XconnectBased) {
             XconnectBased state = (XconnectBased) readValue.getInterconnection();
-            builder.setInterconnection(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.config.attributes.interconnection.XconnectBasedBuilder()
-                    .setXconnectOutgoingInterface(state.getXconnectOutgoingInterface())
-                    .build());
-        }else {
+            builder.setInterconnection(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.config.attributes.interconnection.XconnectBasedBuilder()
+                            .setXconnectOutgoingInterface(state.getXconnectOutgoingInterface())
+                            .build());
+        } else {
             BridgeBased state = (BridgeBased) readValue.getInterconnection();
-            builder.setInterconnection(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.config.attributes.interconnection.BridgeBasedBuilder()
-                    .setBridgeDomain(state.getBridgeDomain())
-                    .setBridgedVirtualInterface(state.isBridgedVirtualInterface())
-                    .setSplitHorizonGroup(state.getSplitHorizonGroup())
-                    .build());
+            builder.setInterconnection(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.config.attributes.interconnection.BridgeBasedBuilder()
+                            .setBridgeDomain(state.getBridgeDomain())
+                            .setBridgedVirtualInterface(state.isBridgedVirtualInterface())
+                            .setSplitHorizonGroup(state.getSplitHorizonGroup())
+                            .build());
         }
 
         return Initialized.create(getCfgId(id), builder.setRewrite(readValue.getRewrite()).build());
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.config.attributes.L2> getCfgId(final InstanceIdentifier<L2> id) {
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.config.attributes.L2> getCfgId(
+            final InstanceIdentifier<L2> id) {
         return SubInterfaceCustomizer.getCfgId(RWUtils.cutId(id, SubInterface.class))
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.config.attributes.L2.class);
     }

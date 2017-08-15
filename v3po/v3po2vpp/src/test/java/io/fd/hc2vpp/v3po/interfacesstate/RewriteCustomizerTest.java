@@ -19,19 +19,20 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.common.translate.util.TagRewriteOperation;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
@@ -40,9 +41,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.state.attributes.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.rewrite.attributes.Rewrite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.rewrite.attributes.RewriteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.l2.state.attributes.L2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.tag.rewrite.PushTags;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -60,6 +61,9 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
     @Captor
     private ArgumentCaptor<List<PushTags>> captor;
 
+    @Mock
+    private InterfaceCacheDumpManager dumpCacheManager;
+
     public RewriteCustomizerTest() {
         super(Rewrite.class, L2Builder.class);
     }
@@ -72,14 +76,15 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
 
     @Override
     protected ReaderCustomizer<Rewrite, RewriteBuilder> initCustomizer() {
-        return new RewriteCustomizer(api, interfacesContext);
+        return new RewriteCustomizer(dumpCacheManager);
     }
 
     private InstanceIdentifier<Rewrite> getVlanTagRewriteId(final String name, final long index) {
-        final Class<ChildOf<? super SubInterface>> child = (Class)Rewrite.class;
+        final Class<ChildOf<? super SubInterface>> child = (Class) Rewrite.class;
         final InstanceIdentifier id =
-                InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name)).augmentation(
-                        SubinterfaceStateAugmentation.class).child(SubInterfaces.class)
+                InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(name))
+                        .augmentation(
+                                SubinterfaceStateAugmentation.class).child(SubInterfaces.class)
                         .child(SubInterface.class, new SubInterfaceKey(index))
                         .child(child);
         return id;
@@ -87,8 +92,6 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
 
     @Test
     public void testRead() throws ReadFailedException {
-        final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
-
         final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
         ifaceDetails.subId = VLAN_ID;
         ifaceDetails.interfaceName = VLAN_IF_NAME.getBytes();
@@ -97,14 +100,13 @@ public class RewriteCustomizerTest extends ReaderCustomizerTest<Rewrite, Rewrite
         ifaceDetails.vtrTag1 = 123;
         ifaceDetails.vtrTag2 = 321;
         ifaceDetails.vtrPushDot1Q = 1;
-        ifaceDetails.swIfIndex= VLAN_IF_INDEX;
+        ifaceDetails.swIfIndex = VLAN_IF_INDEX;
         ifaceDetails.supSwIfIndex = 2;
-        cachedInterfaceDump.put(VLAN_IF_INDEX, ifaceDetails);
-        cache.put(InterfaceCustomizer.DUMPED_IFCS_CONTEXT_KEY, cachedInterfaceDump);
 
         final RewriteBuilder builder = mock(RewriteBuilder.class);
-
-        getCustomizer().readCurrentAttributes(getVlanTagRewriteId(IF_NAME, VLAN_ID), builder, ctx);
+        final InstanceIdentifier<Rewrite> vlanTagRewriteId = getVlanTagRewriteId(IF_NAME, VLAN_ID);
+        when(dumpCacheManager.getInterfaceDetail(vlanTagRewriteId, ctx, VLAN_IF_NAME)).thenReturn(ifaceDetails);
+        getCustomizer().readCurrentAttributes(vlanTagRewriteId, builder, ctx);
 
         verify(builder).setVlanType(_802dot1q.class);
         verify(builder).setPopTags((short) 2);

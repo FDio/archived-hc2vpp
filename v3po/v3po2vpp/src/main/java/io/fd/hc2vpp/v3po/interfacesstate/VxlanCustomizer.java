@@ -18,13 +18,24 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
+import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.vpp.jvpp.core.dto.VxlanTunnelDetails;
+import io.fd.vpp.jvpp.core.dto.VxlanTunnelDetailsReplyDump;
+import io.fd.vpp.jvpp.core.dto.VxlanTunnelDump;
+import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
-
 import javax.annotation.Nonnull;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -44,33 +55,23 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.honeycomb.translate.read.ReadContext;
-import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.Initialized;
-import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
-import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.vpp.jvpp.core.dto.VxlanTunnelDetails;
-import io.fd.vpp.jvpp.core.dto.VxlanTunnelDetailsReplyDump;
-import io.fd.vpp.jvpp.core.dto.VxlanTunnelDump;
-import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-
 public class VxlanCustomizer extends FutureJVppCustomizer
-implements InitializingReaderCustomizer<Vxlan, VxlanBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
+        implements InitializingReaderCustomizer<Vxlan, VxlanBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(VxlanCustomizer.class);
     private final NamingContext interfaceContext;
+    private final InterfaceCacheDumpManager dumpManager;
 
-    public VxlanCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext) {
+    public VxlanCustomizer(@Nonnull final FutureJVppCore jvpp, @Nonnull final NamingContext interfaceContext,
+                           @Nonnull final InterfaceCacheDumpManager dumpManager) {
         super(jvpp);
         this.interfaceContext = interfaceContext;
+        this.dumpManager = dumpManager;
     }
 
     @Override
     public void merge(@Nonnull Builder<? extends DataObject> parentBuilder,
-            @Nonnull Vxlan readValue) {
+                      @Nonnull Vxlan readValue) {
         ((VppInterfaceStateAugmentationBuilder) parentBuilder).setVxlan(readValue);
     }
 
@@ -82,12 +83,12 @@ implements InitializingReaderCustomizer<Vxlan, VxlanBuilder>, InterfaceDataTrans
 
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Vxlan> id,
-            @Nonnull final VxlanBuilder builder,
-            @Nonnull final ReadContext ctx) throws ReadFailedException {
+                                      @Nonnull final VxlanBuilder builder,
+                                      @Nonnull final ReadContext ctx) throws ReadFailedException {
 
         final InterfaceKey key = id.firstKeyOf(Interface.class);
         final int index = interfaceContext.getIndex(key.getName(), ctx.getMappingContext());
-        if (!isInterfaceOfType(getFutureJVpp(), ctx.getModificationCache(), id, index, VxlanTunnel.class, LOG)) {
+        if (!isInterfaceOfType(dumpManager, id, ctx, VxlanTunnel.class)) {
             return;
         }
 
@@ -135,15 +136,15 @@ implements InitializingReaderCustomizer<Vxlan, VxlanBuilder>, InterfaceDataTrans
         builder.setEncapVrfId((long) swInterfaceVxlanDetails.encapVrfId);
         builder.setVni(new VxlanVni((long) swInterfaceVxlanDetails.vni));
         switch (swInterfaceVxlanDetails.decapNextIndex) {
-        case 1:
-            builder.setDecapNext(L2Input.class);
-            break;
-        case 2:
-            builder.setDecapNext(NshProxy.class);
-            break;
-        default:
-            LOG.trace("Unsupported decap next index for vxlan: {}", swInterfaceVxlanDetails.decapNextIndex);
-            return;
+            case 1:
+                builder.setDecapNext(L2Input.class);
+                break;
+            case 2:
+                builder.setDecapNext(NshProxy.class);
+                break;
+            default:
+                LOG.trace("Unsupported decap next index for vxlan: {}", swInterfaceVxlanDetails.decapNextIndex);
+                return;
         }
         LOG.debug("Vxlan tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);
     }
@@ -159,15 +160,16 @@ implements InitializingReaderCustomizer<Vxlan, VxlanBuilder>, InterfaceDataTrans
 
     @Override
     public Initialized<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.Vxlan> init(
-            @Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan readValue, @Nonnull final ReadContext ctx) {
+            @Nonnull final InstanceIdentifier<Vxlan> id, @Nonnull final Vxlan readValue,
+            @Nonnull final ReadContext ctx) {
         return Initialized.create(getCfgId(id),
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.VxlanBuilder()
-                .setDst(readValue.getDst())
-                .setSrc(readValue.getSrc())
-                .setEncapVrfId(readValue.getEncapVrfId())
-                .setVni(new VxlanVni(readValue.getVni()))
-                .setDecapNext(readValue.getDecapNext())
-                .build());
+                        .setDst(readValue.getDst())
+                        .setSrc(readValue.getSrc())
+                        .setEncapVrfId(readValue.getEncapVrfId())
+                        .setVni(new VxlanVni(readValue.getVni()))
+                        .setDecapNext(readValue.getDecapNext())
+                        .build());
     }
 
     private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.Vxlan> getCfgId(
