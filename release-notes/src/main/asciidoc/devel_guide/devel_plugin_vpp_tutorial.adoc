@@ -394,15 +394,10 @@ public final class VxlanWriteCustomizer implements ListWriterCustomizer<VxlanTun
         vxlanTunnelNamingContext.addName(newVxlanTunnelIndex, dataAfter.getId(), writeContext.getMappingContext());
     }
 
-    @Override
-    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanTunnel> id,
-                                        @Nonnull final VxlanTunnel dataBefore,
-                                        @Nonnull final VxlanTunnel dataAfter, @Nonnull final WriteContext writeContext)
-            throws WriteFailedException {
-        // Not supported at VPP API level, throw exception
-        throw new WriteFailedException.UpdateFailedException(id, dataBefore, dataAfter,
-                new UnsupportedOperationException("Vxlan tunnel update is not supported by VPP"));
-    }
+    /**
+    * Most VPP apis does not support update, these updates are handled as delete+create pair invocation.
+    * If you want to implement update directly, please @Override method updateCurrentAttributes()
+    */
 
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<VxlanTunnel> id,

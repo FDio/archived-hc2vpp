@@ -11,6 +11,18 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.07/hc2vp
 
 === New features
 
+* Lisp
+** http://jira.fd.io/browse/HC2VPP-162[Locator pair] - Uses composite key mapping. Removes need for artificial mapping context
+** http://jira.fd.io/browse/HC2VPP-209[Map Register TTL registration]
+** http://jira.fd.io/browse/HC2VPP-210[Map Server fallback threshold]
+** http://jira.fd.io/browse/HC2VPP-211[CP Protocol messages](TODO)
+* NAT
+** http://jira.fd.io/browse/HC2VPP-197[Post-routing NAT]
+** http://jira.fd.io/browse/HC2VPP-105[NAT 64](In Progress)
+* General
+** Adaptation to ODL Carbon
+
+
 === Removed features
 
 === Modified features
