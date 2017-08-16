@@ -23,7 +23,6 @@ import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.snat.dto.SnatAddressDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import javax.annotation.Nonnull;
@@ -52,25 +51,20 @@ public class NatReaderFactory implements ReaderFactory {
     private static final InstanceIdentifier<MappingTable> MAP_TABLE_ID = NAT_INSTANCE_ID.child(MappingTable.class);
     private static final InstanceIdentifier<MappingEntry> MAP_ENTRY_ID = MAP_TABLE_ID.child(MappingEntry.class);
 
+    private final FutureJVppSnatFacade jvppSnat;
     private final MappingEntryContext mappingEntryContext;
     private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> mapEntryDumpMgr;
-    private final DumpCacheManager<SnatAddressDetailsReplyDump, Void> addressRangeDumpMgr;
 
 
     @Inject
     public NatReaderFactory(final FutureJVppSnatFacade jvppSnat,
                             final MappingEntryContext mappingEntryContext) {
+        this.jvppSnat = jvppSnat;
         this.mappingEntryContext = mappingEntryContext;
         this.mapEntryDumpMgr =
                 new DumpCacheManager.DumpCacheManagerBuilder<SnatStaticMappingDetailsReplyDump, Void>()
                         .withExecutor(new MappingEntryCustomizer.MappingEntryDumpExecutor(jvppSnat))
                         .acceptOnly(SnatStaticMappingDetailsReplyDump.class)
-                        .build();
-
-        this.addressRangeDumpMgr =
-                new DumpCacheManager.DumpCacheManagerBuilder<SnatAddressDetailsReplyDump, Void>()
-                        .withExecutor(new ExternalIpPoolCustomizer.AddressRangeDumpExecutor(jvppSnat))
-                        .acceptOnly(SnatAddressDetailsReplyDump.class)
                         .build();
     }
 
@@ -87,6 +81,6 @@ public class NatReaderFactory implements ReaderFactory {
 
         registry.addStructuralReader(CURRENT_CONFIG, NatCurrentConfigBuilder.class);
         registry.add(new GenericInitListReader<>(CURRENT_CONFIG.child(ExternalIpAddressPool.class),
-                new ExternalIpPoolCustomizer(addressRangeDumpMgr)));
+                new ExternalIpPoolCustomizer(jvppSnat)));
     }
 }
