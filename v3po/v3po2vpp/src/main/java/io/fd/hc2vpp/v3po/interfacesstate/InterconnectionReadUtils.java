@@ -17,12 +17,14 @@
 package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
+import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.util.Objects.requireNonNull;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetails;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.BridgeDomainDump;
@@ -47,19 +49,30 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterconnectionReadUtils.class);
 
-    private final FutureJVppCore futureJVppCore;
     private final NamingContext interfaceContext;
     private final NamingContext bridgeDomainContext;
     private final InterfaceCacheDumpManager dumpManager;
+    private final DumpCacheManager<BridgeDomainDetailsReplyDump,Void> bdDumpManager;
 
     InterconnectionReadUtils(@Nonnull final FutureJVppCore futureJVppCore,
                              @Nonnull final NamingContext interfaceContext,
                              @Nonnull final NamingContext bridgeDomainContext,
                              @Nonnull final InterfaceCacheDumpManager dumpManager) {
-        this.futureJVppCore = requireNonNull(futureJVppCore, "futureJVppCore should not be null");
+        requireNonNull(futureJVppCore, "futureJVppCore should not be null");
         this.interfaceContext = requireNonNull(interfaceContext, "interfaceContext should not be null");
         this.bridgeDomainContext = requireNonNull(bridgeDomainContext, "bridgeDomainContext should not be null");
         this.dumpManager = requireNonNull(dumpManager, "dumpManager should not be null");
+        this.bdDumpManager = new DumpCacheManager.DumpCacheManagerBuilder<BridgeDomainDetailsReplyDump, Void>()
+                .acceptOnly(BridgeDomainDetailsReplyDump.class)
+                .withExecutor((id, params) -> {
+                    final BridgeDomainDump request = new BridgeDomainDump();
+                    request.bdId = -1;
+
+                    final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
+                            futureJVppCore.bridgeDomainDump(request).toCompletableFuture();
+                    return getReplyForRead(bdCompletableFuture, id);
+                })
+                .build();
     }
 
     @Nullable
@@ -71,7 +84,8 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
         final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, ifaceName);
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
-        final BridgeDomainDetailsReplyDump dumpReply = getDumpReply(id);
+        final BridgeDomainDetailsReplyDump dumpReply = bdDumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS)
+                .or(new BridgeDomainDetailsReplyDump());
         for (final BridgeDomainDetails bd : dumpReply.bridgeDomainDetails) {
             final Optional<BridgeDomainSwIf> bdIfAssignment = getBridgeDomainSwIf(ifaceId, bd);
             if (bdIfAssignment.isPresent()) {
@@ -112,19 +126,5 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
     private Optional<BridgeDomainDetails> getBridgeDomainForInterface(final BridgeDomainDetailsReplyDump reply,
                                                                       int bdId) {
         return reply.bridgeDomainDetails.stream().filter(a -> a.bdId == bdId).findFirst();
-    }
-
-    private BridgeDomainDetailsReplyDump getDumpReply(@Nonnull final InstanceIdentifier<?> id)
-            throws ReadFailedException {
-        // We need to perform full bd dump, because there is no way
-        // to ask VPP for BD details given interface id/name (TODO HC2VPP-22 add it to vpp.api?)
-        // TODO HC2VPP-22 cache dump result
-        final BridgeDomainDump request = new BridgeDomainDump();
-        request.bdId = -1;
-
-        final CompletableFuture<BridgeDomainDetailsReplyDump> bdCompletableFuture =
-                futureJVppCore.bridgeDomainDump(request).toCompletableFuture();
-        return getReplyForRead(bdCompletableFuture, id);
-
     }
 }

@@ -105,7 +105,7 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
     }
 
     @Test
-    public void testRead() throws Exception {
+    public void testReadBvi() throws Exception {
         final int ifId = 1;
         final int bdId = 1;
         final String bdName = "bd001";
@@ -123,12 +123,28 @@ public class L2CustomizerTest extends ReaderCustomizerTest<L2, L2Builder> {
         getCustomizer().readCurrentAttributes(getL2Id(ifName), builder, ctx);
 
         verify(builder).setInterconnection(generateInterconnection(bdName, true));
+    }
+
+    // split to separate test to avoid using cached value from previous run(cannot mock cache)
+    @Test
+    public void testReadNoBvi() throws Exception {
+        final Map<Integer, SwInterfaceDetails> cachedInterfaceDump = new HashMap<>();
+        final int ifId = 1;
+        final int bdId = 1;
+        final String bdName = "bd001";
+        final String ifName = "eth0.sub0";
+        defineMapping(mappingContext, ifName, ifId, IFC_CTX_NAME);
+        defineMapping(mappingContext, bdName, bdId, BD_CTX_NAME);
+
+        final SwInterfaceDetails ifaceDetails = new SwInterfaceDetails();
+        ifaceDetails.subId = ifId;
+        cachedInterfaceDump.put(ifId, ifaceDetails);
 
         // Not BVI
         whenBridgeDomainDumpThenReturn(Collections
                 .singletonList(generateBdDetails(ifId, 99 /* Different ifc is marked as BVI in bd details */, bdId)));
 
-        builder = mock(L2Builder.class);
+        L2Builder builder = mock(L2Builder.class);
         getCustomizer().readCurrentAttributes(getL2Id(ifName), builder, ctx);
 
         verify(builder).setInterconnection(generateInterconnection(bdName, null));
