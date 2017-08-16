@@ -30,8 +30,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 abstract class AbstractSubInterfaceNatCustomizer<C extends DataObject, B extends Builder<C>>
         extends AbstractInterfaceNatCustomizer<C, B> {
     AbstractSubInterfaceNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
-                                      @Nonnull final NamingContext ifcContext) {
-        super(jvppSnat, ifcContext);
+                                      @Nonnull final NamingContext ifcContext,
+                                      @Nonnull final VppAttributesBuilder vppAttributesBuilder) {
+        super(jvppSnat, ifcContext, vppAttributesBuilder);
     }
 
     @Override

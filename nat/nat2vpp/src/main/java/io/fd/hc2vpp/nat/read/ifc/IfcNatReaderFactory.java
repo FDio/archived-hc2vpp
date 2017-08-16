@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.nat.read.ifc;
 
-
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.NamingContext;

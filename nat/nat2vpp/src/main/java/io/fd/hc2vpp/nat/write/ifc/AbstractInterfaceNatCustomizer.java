@@ -16,19 +16,18 @@
 
 package io.fd.hc2vpp.nat.write.ifc;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.dto.JVppReply;
+import io.fd.vpp.jvpp.snat.dto.Nat64AddDelInterface;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeature;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeatureReply;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeature;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeatureReply;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
-import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816.InterfaceNatVppFeatureAttributes;
@@ -56,13 +55,12 @@ abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAt
         getLog().debug("Enabling {} NAT: {}", dataAfter, id);
 
         final int ifcIndex = ifcContext.getIndex(ifcName, writeContext.getMappingContext());
-        final JVppReply reply;
         if (dataAfter.isPostRouting()) {
-            reply = postRoutingNat(id, ifcIndex, true);
+            postRoutingNat(id, dataAfter, ifcIndex, true);
         } else {
-            reply = preRoutingNat(id, ifcIndex, true);
+            preRoutingNat(id, dataAfter, ifcIndex, true);
         }
-        getLog().debug("NAT {} enabled successfully on: {}, reply: {}", dataAfter, ifcName, reply);
+        getLog().debug("NAT {} enabled successfully on: {}", dataAfter, ifcName);
     }
 
     @Override
@@ -74,40 +72,61 @@ abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAt
         getLog().debug("Disabling {} NAT: {}", dataBefore, id);
 
         final int ifcIndex = ifcContext.getIndex(ifcName, writeContext.getMappingContext());
-        final JVppReply reply;
         if (dataBefore.isPostRouting()) {
-            reply = postRoutingNat(id, ifcIndex, false);
+            postRoutingNat(id, dataBefore, ifcIndex, false);
         } else {
-            reply = preRoutingNat(id, ifcIndex, false);
+            preRoutingNat(id, dataBefore, ifcIndex, false);
         }
-        getLog().debug("NAT {} disabled successfully on: {}, reply: {}", dataBefore, ifcName, reply);
+        getLog().debug("NAT {} disabled successfully on: {}", dataBefore, ifcName);
     }
 
     protected String getName(final InstanceIdentifier<D> id) {
         return id.firstKeyOf(Interface.class).getName();
     }
 
-    private JVppReply postRoutingNat(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
+    private void postRoutingNat(@Nonnull final InstanceIdentifier<D> id, final D natAttributes, final int ifcIndex,
+                                final boolean enable)
             throws WriteFailedException {
+        checkArgument(!isNat64Supported(natAttributes), "Post routing Nat64 is not supported by VPP");
         final SnatInterfaceAddDelOutputFeature request = new SnatInterfaceAddDelOutputFeature();
         request.isAdd = booleanToByte(enable);
         request.isInside = getType().isInside;
         request.swIfIndex = ifcIndex;
-
-        final CompletionStage<SnatInterfaceAddDelOutputFeatureReply> future =
-                jvppSnat.snatInterfaceAddDelOutputFeature(request);
-        return getReplyForWrite(future.toCompletableFuture(), id);
+        getReplyForWrite(jvppSnat.snatInterfaceAddDelOutputFeature(request).toCompletableFuture(), id);
     }
 
-    private JVppReply preRoutingNat(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
+    private void preRoutingNat(@Nonnull final InstanceIdentifier<D> id, final D natAttributes, final int ifcIndex,
+                               final boolean enable)
+            throws WriteFailedException {
+        if (natAttributes.isNat44Support()) {
+            // default value is defined for nat44-support, so no need for null check
+            preRoutingNat44(id, ifcIndex, enable);
+        }
+        if (isNat64Supported(natAttributes)) {
+            preRoutingNat64(id, ifcIndex, enable);
+        }
+    }
+
+    private boolean isNat64Supported(final D natAttributes) {
+        return natAttributes.isNat64Support() != null && natAttributes.isNat64Support();
+    }
+
+    private void preRoutingNat44(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
             throws WriteFailedException {
         final SnatInterfaceAddDelFeature request = new SnatInterfaceAddDelFeature();
         request.isAdd = booleanToByte(enable);
         request.isInside = getType().isInside;
         request.swIfIndex = ifcIndex;
+        getReplyForWrite(jvppSnat.snatInterfaceAddDelFeature(request).toCompletableFuture(), id);
+    }
 
-        final CompletionStage<SnatInterfaceAddDelFeatureReply> future = jvppSnat.snatInterfaceAddDelFeature(request);
-        return getReplyForWrite(future.toCompletableFuture(), id);
+    private void preRoutingNat64(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
+            throws WriteFailedException {
+        final Nat64AddDelInterface request = new Nat64AddDelInterface();
+        request.isAdd = booleanToByte(enable);
+        request.isInside = getType().isInside;
+        request.swIfIndex = ifcIndex;
+        getReplyForWrite(jvppSnat.nat64AddDelInterface(request).toCompletableFuture(), id);
     }
 
     enum NatType {

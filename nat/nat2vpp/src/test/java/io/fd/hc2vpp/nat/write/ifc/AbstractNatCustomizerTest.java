@@ -17,12 +17,15 @@
 package io.fd.hc2vpp.nat.write.ifc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.vpp.jvpp.snat.dto.Nat64AddDelInterface;
+import io.fd.vpp.jvpp.snat.dto.Nat64AddDelInterfaceReply;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeature;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeatureReply;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeature;
@@ -54,13 +57,14 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
         when(snatApi.snatInterfaceAddDelFeature(any())).thenReturn(future(new SnatInterfaceAddDelFeatureReply()));
         when(snatApi.snatInterfaceAddDelOutputFeature(any()))
                 .thenReturn(future(new SnatInterfaceAddDelOutputFeatureReply()));
+        when(snatApi.nat64AddDelInterface(any())).thenReturn(future(new Nat64AddDelInterfaceReply()));
     }
 
     @Test
     public void testWritePreRouting() throws Exception {
         final D data = getPreRoutingConfig();
         customizer.writeCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
-        verify(snatApi).snatInterfaceAddDelFeature(expectedPreRoutingRequest(data, true));
+        verifyPreRouting(data, true);
     }
 
     @Test
@@ -68,6 +72,7 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
         final D data = getPostRoutingConfig();
         customizer.writeCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
         verify(snatApi).snatInterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, true));
+        verify(snatApi, never()).nat64AddDelInterface(any()); // VPP does not support it currently
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -86,7 +91,7 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
     public void testDeletePreRouting() throws Exception {
         final D data = getPreRoutingConfig();
         customizer.deleteCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
-        verify(snatApi).snatInterfaceAddDelFeature(expectedPreRoutingRequest(data, false));
+        verifyPreRouting(data, false);
     }
 
     @Test
@@ -94,13 +99,34 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
         final D data = getPostRoutingConfig();
         customizer.deleteCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
         verify(snatApi).snatInterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, false));
+        verify(snatApi, never()).nat64AddDelInterface(any()); // VPP does not support it currently
     }
 
-    private SnatInterfaceAddDelFeature expectedPreRoutingRequest(final D data, boolean isAdd) {
+    private void verifyPreRouting(final D data, final boolean isAdd) {
+        if (data.isNat44Support()) {
+            verify(snatApi).snatInterfaceAddDelFeature(expectedPreRoutingNat44Request(data, isAdd));
+        } else {
+            verify(snatApi, never()).snatInterfaceAddDelFeature(any());
+        }
+        if (data.isNat64Support() != null && data.isNat64Support()) {
+            verify(snatApi).nat64AddDelInterface(expectedPreRoutingNat64Request(data, isAdd));
+        } else {
+            verify(snatApi, never()).nat64AddDelInterface(any());
+        }
+
+    }
+
+    private SnatInterfaceAddDelFeature expectedPreRoutingNat44Request(final D data, boolean isAdd) {
         SnatInterfaceAddDelFeature request = new SnatInterfaceAddDelFeature();
-        request.isInside = (byte) ((data instanceof Inbound)
-                ? 1
-                : 0);
+        request.isInside = booleanToByte(data instanceof Inbound);
+        request.swIfIndex = IFACE_ID;
+        request.isAdd = booleanToByte(isAdd);
+        return request;
+    }
+
+    private Nat64AddDelInterface expectedPreRoutingNat64Request(final D data, boolean isAdd) {
+        Nat64AddDelInterface request = new Nat64AddDelInterface();
+        request.isInside = booleanToByte(data instanceof Inbound);
         request.swIfIndex = IFACE_ID;
         request.isAdd = booleanToByte(isAdd);
         return request;
@@ -108,9 +134,7 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
 
     private SnatInterfaceAddDelOutputFeature expectedPostRoutingRequest(final D data, boolean isAdd) {
         SnatInterfaceAddDelOutputFeature request = new SnatInterfaceAddDelOutputFeature();
-        request.isInside = (byte) ((data instanceof Inbound)
-                ? 1
-                : 0);
+        request.isInside = booleanToByte(data instanceof Inbound);
         request.swIfIndex = IFACE_ID;
         request.isAdd = booleanToByte(isAdd);
         return request;

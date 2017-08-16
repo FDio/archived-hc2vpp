@@ -45,7 +45,7 @@ final class SubInterfaceInboundNatCustomizer extends AbstractSubInterfaceNatCust
 
     SubInterfaceInboundNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
                                      @Nonnull final NamingContext ifcContext) {
-        super(jvppSnat, ifcContext);
+        super(jvppSnat, ifcContext, new InboundAttributesBuilder());
     }
 
     @Override
@@ -56,11 +56,6 @@ final class SubInterfaceInboundNatCustomizer extends AbstractSubInterfaceNatCust
     @Override
     boolean isExpectedNatType(final int isInside) {
         return isInside == 1;
-    }
-
-    @Override
-    void setPostRouting(final InboundBuilder builder) {
-        builder.setPostRouting(true);
     }
 
     @Nonnull

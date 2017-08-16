@@ -32,12 +32,12 @@ public class InterfaceInboundNatCustomizerTest
 
     @Override
     protected Inbound getPreRoutingConfig() {
-        return new InboundBuilder().setPostRouting(false).build();
+        return new InboundBuilder().setPostRouting(false).setNat44Support(true).build();
     }
 
     @Override
     protected Inbound getPostRoutingConfig() {
-        return new InboundBuilder().setPostRouting(true).build();
+        return new InboundBuilder().setPostRouting(true).setNat44Support(true).build();
     }
 
     @Override

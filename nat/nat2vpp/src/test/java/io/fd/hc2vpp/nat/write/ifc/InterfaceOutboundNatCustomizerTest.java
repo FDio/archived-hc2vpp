@@ -32,12 +32,12 @@ public class InterfaceOutboundNatCustomizerTest
 
     @Override
     protected Outbound getPreRoutingConfig() {
-        return new OutboundBuilder().setPostRouting(false).build();
+        return new OutboundBuilder().setPostRouting(false).setNat44Support(true).setNat64Support(true).build();
     }
 
     @Override
     protected Outbound getPostRoutingConfig() {
-        return new OutboundBuilder().setPostRouting(true).build();
+        return new OutboundBuilder().setPostRouting(true).setNat44Support(true).setNat64Support(false).build();
     }
 
     @Override

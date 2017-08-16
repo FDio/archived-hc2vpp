@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.nat.read.ifc;
 
 import static io.fd.hc2vpp.nat.read.ifc.InterfaceInboundNatCustomizerTest.getId;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -30,6 +29,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
+import io.fd.vpp.jvpp.snat.dto.Nat64InterfaceDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.dto.SnatInterfaceOutputFeatureDetails;
@@ -65,15 +65,12 @@ public class InterfaceOutboundNatCustomizerTest
         when(jvppSnat.snatInterfaceDump(any())).thenReturn(future(new SnatInterfaceDetailsReplyDump()));
         when(jvppSnat.snatInterfaceOutputFeatureDump(any()))
                 .thenReturn(future(new SnatInterfaceOutputFeatureDetailsReplyDump()));
+        when(jvppSnat.nat64InterfaceDump(any()))
+                .thenReturn(future(new Nat64InterfaceDetailsReplyDump()));
     }
 
     private GenericReader<Outbound, OutboundBuilder> getReader() {
         return new GenericReader<>(RWUtils.makeIidWildcarded(id), customizer);
-    }
-
-    @Test
-    public void testNoPresence() throws Exception {
-        assertFalse(getReader().read(id, ctx).isPresent());
     }
 
     private void mockPostRoutingDump() {
