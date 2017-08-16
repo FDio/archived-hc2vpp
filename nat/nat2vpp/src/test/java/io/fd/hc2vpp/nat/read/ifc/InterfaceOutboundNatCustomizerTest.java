@@ -37,9 +37,9 @@ import io.fd.vpp.jvpp.snat.dto.SnatInterfaceOutputFeatureDetailsReplyDump;
 import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170801._interface.nat.attributes.NatBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170801._interface.nat.attributes.nat.Outbound;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170801._interface.nat.attributes.nat.OutboundBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816._interface.nat.attributes.NatBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816._interface.nat.attributes.nat.Outbound;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816._interface.nat.attributes.nat.OutboundBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceOutboundNatCustomizerTest

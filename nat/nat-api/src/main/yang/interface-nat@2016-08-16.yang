@@ -3,6 +3,10 @@ module interface-nat {
   namespace "urn:opendaylight:params:xml:ns:yang:interface:nat";
   prefix "ifc-nat";
 
+  revision "2017-08-16" {
+    description "Added support for NAT64.";
+  }
+
   revision "2017-08-01" {
     description "Added support for snat_interface_add_del_output_feature.";
   }
@@ -34,6 +38,22 @@ module interface-nat {
       reference
         "https://git.fd.io/vpp/tree/src/plugins/snat/snat.api";
     }
+
+    leaf nat44-support {
+      type boolean;
+      default true;
+      description
+        "Indicates NAT44 support. Enabled by default in order to preserve compatibility with previous versions of the model.";
+    }
+
+    leaf nat64-support {
+      type boolean;
+      description
+        "Indicates NAT64 support";
+    }
+
+    reference
+      "https://wiki.fd.io/view/VPP/SNAT";
   }
 
   grouping interface-nat-attributes {
