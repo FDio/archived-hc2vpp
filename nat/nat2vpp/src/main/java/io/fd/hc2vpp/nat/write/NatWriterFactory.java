@@ -32,6 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev1509
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.MappingTable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.nat64.prefixes.DestinationIpv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.ExternalIpAddressPoolConfigAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -45,6 +47,8 @@ public final class NatWriterFactory implements WriterFactory {
             NAT_CFG_ID.child(NatInstances.class).child(NatInstance.class);
     private static final InstanceIdentifier<MappingEntry> MAP_ENTRY_ID =
             NAT_INSTANCE_ID.child(MappingTable.class).child(MappingEntry.class);
+    private static final InstanceIdentifier<Nat64Prefixes> NAT64_PREFIXES =
+            NAT_INSTANCE_ID.child(Nat64Prefixes.class);
 
     private final FutureJVppNatFacade jvppNat;
     private final MappingEntryContext mappingEntryContext;
@@ -73,5 +77,11 @@ public final class NatWriterFactory implements WriterFactory {
                         new GenericListWriter<>(NAT_INSTANCE_ID.child(ExternalIpAddressPool.class),
                 new ExternalIpPoolCustomizer(jvppNat)),
                 MAP_ENTRY_ID);
+
+        // nat64-prefixes
+        registry.subtreeAdd(
+                Sets.newHashSet(InstanceIdentifier.create(Nat64Prefixes.class).child(DestinationIpv4Prefix.class)),
+                new GenericListWriter<>(NAT_INSTANCE_ID.child(Nat64Prefixes.class),
+                        new Nat64PrefixesCustomizer(jvppNat)));
     }
 }
