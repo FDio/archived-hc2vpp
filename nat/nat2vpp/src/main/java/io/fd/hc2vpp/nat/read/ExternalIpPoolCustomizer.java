@@ -99,7 +99,7 @@ final class ExternalIpPoolCustomizer implements
 
         final Long poolId = id.firstKeyOf(ExternalIpAddressPool.class).getPoolId();
         final List<Nat44AddressDetails> nat44Details =
-                nat44DumpMgr.getDump(id, ctx.getModificationCache(), null)
+                nat44DumpMgr.getDump(id, ctx.getModificationCache())
                         .or(new Nat44AddressDetailsReplyDump()).nat44AddressDetails;
         final int nat44PoolCount = nat44Details.size();
 
@@ -109,7 +109,7 @@ final class ExternalIpPoolCustomizer implements
             readPoolIp(builder, detail.ipAddress);
             setPoolType(builder, NatPoolType.Nat44);
         } else {
-            final List<Nat64PoolAddrDetails> nat64Details = nat64DumpMgr.getDump(id, ctx.getModificationCache(), null)
+            final List<Nat64PoolAddrDetails> nat64Details = nat64DumpMgr.getDump(id, ctx.getModificationCache())
                     .or(new Nat64PoolAddrDetailsReplyDump()).nat64PoolAddrDetails;
             final int nat64PoolCount = nat64Details.size();
             final int nat64PoolPosition = Math.toIntExact(poolId) - nat44PoolCount;
@@ -152,14 +152,14 @@ final class ExternalIpPoolCustomizer implements
         // That's why the write and read is not symmetrical in terms of data structure, instead,
         // this customizer also returns every single address as a 32 prefix and assigns an artificial key to them
 
-        long addressCount = nat44DumpMgr.getDump(id, ctx.getModificationCache(), null)
+        long addressCount = nat44DumpMgr.getDump(id, ctx.getModificationCache())
                 .or(new Nat44AddressDetailsReplyDump()).nat44AddressDetails.stream()
                 .count();
 
         // The ietf-nat model groups address pools for Nat44 and Nat64 under the same list,
         // but VPP uses different APIs, so we need an other dump:
 
-        addressCount += nat64DumpMgr.getDump(id, ctx.getModificationCache(), null)
+        addressCount += nat64DumpMgr.getDump(id, ctx.getModificationCache())
                 .or(new Nat64PoolAddrDetailsReplyDump()).nat64PoolAddrDetails.stream()
                 .count();
 

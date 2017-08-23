@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.util.Objects.requireNonNull;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -84,7 +83,7 @@ final class InterconnectionReadUtils implements InterfaceDataTranslator {
         final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, ifaceName);
         LOG.debug("Interface details for interface: {}, details: {}", ifaceName, iface);
 
-        final BridgeDomainDetailsReplyDump dumpReply = bdDumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS)
+        final BridgeDomainDetailsReplyDump dumpReply = bdDumpManager.getDump(id, ctx.getModificationCache())
                 .or(new BridgeDomainDetailsReplyDump());
         for (final BridgeDomainDetails bd : dumpReply.bridgeDomainDetails) {
             final Optional<BridgeDomainSwIf> bdIfAssignment = getBridgeDomainSwIf(ifaceId, bd);

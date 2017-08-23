@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.lisp.gpe.translate.service;
 
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.inject.Inject;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
@@ -73,7 +72,7 @@ public final class GpeStateCheckServiceImpl implements GpeStateCheckService, Jvp
     public boolean isGpeEnabled(@Nonnull final ReadContext readContext) {
         try {
             return byteToBoolean(
-                    dumpCacheManager.getDump(GPE_FEATURE_STATE_ID, readContext.getModificationCache(), NO_PARAMS)
+                    dumpCacheManager.getDump(GPE_FEATURE_STATE_ID, readContext.getModificationCache())
                             .or(DEFAULT_REPLY).gpeStatus);
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to read Gpe feature status", e);

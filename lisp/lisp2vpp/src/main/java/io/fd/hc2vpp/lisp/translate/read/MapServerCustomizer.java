@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -95,7 +93,7 @@ public class MapServerCustomizer extends CheckedLispCustomizer
         }
 
         final Optional<OneMapServerDetailsReplyDump> dump =
-                dumpManager.getDump(instanceIdentifier, readContext.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(instanceIdentifier, readContext.getModificationCache());
 
         if (dump.isPresent() && dump.get().oneMapServerDetails != null) {
             return dump.get().oneMapServerDetails.stream()
@@ -127,7 +125,7 @@ public class MapServerCustomizer extends CheckedLispCustomizer
             return;
         }
         final Optional<OneMapServerDetailsReplyDump> dump =
-                dumpManager.getDump(instanceIdentifier, readContext.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(instanceIdentifier, readContext.getModificationCache());
 
         if (dump.isPresent() && dump.get().oneMapServerDetails != null) {
             final IpAddress currentAddress = instanceIdentifier.firstKeyOf(MapServer.class).getIpAddress();

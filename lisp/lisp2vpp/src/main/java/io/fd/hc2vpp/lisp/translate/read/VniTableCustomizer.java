@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -99,7 +98,7 @@ public class VniTableCustomizer extends CheckedLispCustomizer
         LOG.trace("Reading all IDS...");
 
         final Optional<OneEidTableVniDetailsReplyDump> optionalReply =
-                dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, context.getModificationCache());
 
         if (!optionalReply.isPresent() || optionalReply.get().oneEidTableVniDetails.isEmpty()) {
             return Collections.emptyList();
@@ -122,7 +121,7 @@ public class VniTableCustomizer extends CheckedLispCustomizer
         VniTableKey key = new VniTableKey(id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier());
 
         final Optional<OneEidTableVniDetailsReplyDump> optionalReply =
-                dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, ctx.getModificationCache());
 
         if (!optionalReply.isPresent() || optionalReply.get().oneEidTableVniDetails.isEmpty()) {
             return;

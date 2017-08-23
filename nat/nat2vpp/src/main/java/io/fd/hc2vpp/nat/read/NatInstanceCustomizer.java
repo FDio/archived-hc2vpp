@@ -79,10 +79,10 @@ final class NatInstanceCustomizer
 
         // Find the nat instance IDs (vrf-ids) by listing all static mappings and their VRF assignment
         final List<NatInstanceKey> vrfIds = Stream.concat(
-                nat44DumpManager.getDump(id, context.getModificationCache(), null)
+                nat44DumpManager.getDump(id, context.getModificationCache())
                         .or(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails.stream()
                         .map(detail -> detail.vrfId),
-                nat64DumpManager.getDump(id, context.getModificationCache(), null)
+                nat64DumpManager.getDump(id, context.getModificationCache())
                         .or(new Nat64BibDetailsReplyDump()).nat64BibDetails.stream()
                         .map(detail -> detail.vrfId))
                 // V4 (nat44) and V6 (nat64) VRFs in VPP can have the same id. We store them under single nat instance,

@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.dhcp.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import com.google.common.primitives.UnsignedInts;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
@@ -89,7 +87,7 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer
         Collections.emptyList();
 
         final Optional<DhcpProxyDetailsReplyDump> dump =
-            dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
+            dumpManager.getDump(id, context.getModificationCache());
 
         if (!dump.isPresent() || dump.get().dhcpProxyDetails.isEmpty()) {
             return Collections.emptyList();
@@ -115,8 +113,7 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer
     @Override
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Relay> id, @Nonnull final RelayBuilder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        final Optional<DhcpProxyDetailsReplyDump> dump =
-            dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+        final Optional<DhcpProxyDetailsReplyDump> dump = dumpManager.getDump(id, ctx.getModificationCache());
 
         if (!dump.isPresent() || dump.get().dhcpProxyDetails.isEmpty()) {
             return;

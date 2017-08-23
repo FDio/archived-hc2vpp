@@ -93,7 +93,7 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
     private void readPreRoutingNat44(final InstanceIdentifier<C> id, final int index, final B builder,
                                      final ReadContext ctx) throws ReadFailedException {
         final Optional<Nat44InterfaceDetailsReplyDump> dump =
-                preRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache(), null);
+                preRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache());
 
         dump.or(new Nat44InterfaceDetailsReplyDump()).nat44InterfaceDetails.stream()
                 .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
@@ -106,7 +106,7 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
     private void readPreRoutingNat64(final InstanceIdentifier<C> id, final int index, final B builder,
                                      final ReadContext ctx) throws ReadFailedException {
         final Optional<Nat64InterfaceDetailsReplyDump> dump =
-                preRoutingNat64DumpMgr.getDump(id, ctx.getModificationCache(), null);
+                preRoutingNat64DumpMgr.getDump(id, ctx.getModificationCache());
 
         dump.or(new Nat64InterfaceDetailsReplyDump()).nat64InterfaceDetails.stream()
                 .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
@@ -119,7 +119,7 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
     private void readPostRoutingNat44(final InstanceIdentifier<C> id, final int index, final B builder,
                                       final ReadContext ctx) throws ReadFailedException {
         final Optional<Nat44InterfaceOutputFeatureDetailsReplyDump> dump =
-                postRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache(), null);
+                postRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache());
 
         dump.or(new Nat44InterfaceOutputFeatureDetailsReplyDump()).nat44InterfaceOutputFeatureDetails
                 .stream()

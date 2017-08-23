@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.routing.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -81,7 +79,7 @@ public class Ipv4RouteCustomizer
                                     @Nonnull final ReadContext readContext) throws ReadFailedException {
 
         final Optional<IpFibDetailsReplyDump> ipv4RoutesDump =
-                ipv4RoutesDumpManager.getDump(instanceIdentifier, readContext.getModificationCache(), NO_PARAMS);
+                ipv4RoutesDumpManager.getDump(instanceIdentifier, readContext.getModificationCache());
 
         final String protocolName = instanceIdentifier.firstKeyOf(RoutingProtocol.class).getName();
         final int protocolTableId = routingProtocolContext.getIndex(protocolName, readContext.getMappingContext());
@@ -136,7 +134,7 @@ public class Ipv4RouteCustomizer
         final String protocolName = instanceIdentifier.firstKeyOf(RoutingProtocol.class).getName();
         final int protocolTableId = routingProtocolContext.getIndex(protocolName, readContext.getMappingContext());
         final Optional<IpFibDetailsReplyDump> ipv4RoutesDump =
-                ipv4RoutesDumpManager.getDump(instanceIdentifier, readContext.getModificationCache(), NO_PARAMS);
+                ipv4RoutesDumpManager.getDump(instanceIdentifier, readContext.getModificationCache());
 
         if (ipv4RoutesDump.isPresent() && !ipv4RoutesDump.get().ipFibDetails.isEmpty()) {
 

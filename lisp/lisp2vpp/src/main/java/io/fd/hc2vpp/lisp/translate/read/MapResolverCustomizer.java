@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -34,12 +32,10 @@ import io.fd.vpp.jvpp.core.dto.OneMapResolverDetails;
 import io.fd.vpp.jvpp.core.dto.OneMapResolverDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.OneMapResolverDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.resolvers.grouping.MapResolvers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.resolvers.grouping.MapResolversBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.resolvers.grouping.map.resolvers.MapResolver;
@@ -86,7 +82,7 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
         LOG.debug("Reading attributes...");
 
         final Optional<OneMapResolverDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, ctx.getModificationCache());
 
         if (!dumpOptional.isPresent() || dumpOptional.get().oneMapResolverDetails.isEmpty()) {
             LOG.warn("No data dumped");
@@ -115,7 +111,7 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
         LOG.debug("Dumping MapResolver...");
 
         final Optional<OneMapResolverDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, context.getModificationCache());
 
         if (!dumpOptional.isPresent() || dumpOptional.get().oneMapResolverDetails.isEmpty()) {
             return Collections.emptyList();

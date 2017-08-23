@@ -17,8 +17,6 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
@@ -103,7 +101,7 @@ public class LispStateCustomizer extends FutureJVppCustomizer
           */
         final Optional<OneLocatorSetDetailsReplyDump> dumpOptional;
         try {
-            dumpOptional = dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+            dumpOptional = dumpManager.getDump(id, ctx.getModificationCache());
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to initialize locator set context mapping", e);
         }

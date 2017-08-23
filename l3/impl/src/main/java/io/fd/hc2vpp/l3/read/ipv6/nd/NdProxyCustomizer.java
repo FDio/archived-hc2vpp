@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.l3.read.ipv6.nd;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -81,7 +80,7 @@ public final class NdProxyCustomizer extends FutureJVppCustomizer
         final int swIfIndex = interfaceContext.getIndex(interfaceName, context.getMappingContext());
         LOG.debug("Reading NDProxies for interface {}(id={})", interfaceName, swIfIndex);
         final Optional<Ip6NdProxyDetailsReplyDump> dump =
-            dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
+            dumpManager.getDump(id, context.getModificationCache());
 
         if (!dump.isPresent() || dump.get().ip6NdProxyDetails.isEmpty()) {
             return Collections.emptyList();

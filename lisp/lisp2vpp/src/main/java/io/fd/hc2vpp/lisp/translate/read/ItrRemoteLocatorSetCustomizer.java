@@ -17,8 +17,6 @@
 package io.fd.hc2vpp.lisp.translate.read;
 
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -79,8 +77,7 @@ public class ItrRemoteLocatorSetCustomizer extends CheckedLispCustomizer
             return;
         }
 
-        final Optional<OneGetMapRequestItrRlocsReply> reply =
-                dumpCacheManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+        final Optional<OneGetMapRequestItrRlocsReply> reply = dumpCacheManager.getDump(id, ctx.getModificationCache());
         if (!reply.isPresent() || reply.get().locatorSetName == null) {
             return;
         }

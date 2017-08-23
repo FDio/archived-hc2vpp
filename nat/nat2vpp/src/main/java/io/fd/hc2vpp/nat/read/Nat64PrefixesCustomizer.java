@@ -74,7 +74,7 @@ final class Nat64PrefixesCustomizer
         LOG.trace("Listing IDs for all nat64 prefixes within nat-instance(vrf): {}", natKey);
 
         final Map<Long, Nat64PrefixDetails> prefixesByVrfId =
-                dumpManager.getDump(id, context.getModificationCache(), null).get();
+                dumpManager.getDump(id, context.getModificationCache()).get();
         final Nat64PrefixDetails nat64PrefixDetails = prefixesByVrfId.get(natKey.getId());
         if (nat64PrefixDetails != null) {
             // VPP supports only single nat64-prefix per VRF/nat-instance (we map nat-instances to VRFs)
@@ -108,7 +108,7 @@ final class Nat64PrefixesCustomizer
             return;
         }
         final Map<Long, Nat64PrefixDetails> prefixesByVrfId =
-                dumpManager.getDump(id, context.getModificationCache(), null).get();
+                dumpManager.getDump(id, context.getModificationCache()).get();
         final Nat64PrefixDetails prefixDetails = prefixesByVrfId.get(id.firstKeyOf(NatInstance.class).getId());
         if (prefixDetails != null) {
             builder.setNat64PrefixId(prefixId);

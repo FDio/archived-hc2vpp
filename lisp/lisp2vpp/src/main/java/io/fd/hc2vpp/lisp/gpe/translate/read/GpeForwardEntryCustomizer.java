@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.lisp.gpe.translate.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.lang.String.format;
 
 import com.google.common.base.Optional;
@@ -245,7 +244,7 @@ public class GpeForwardEntryCustomizer extends FutureJVppCustomizer
 
     private Stream<Integer> activeVnis(final InstanceIdentifier<GpeEntry> id,
                                        final ModificationCache cache) throws ReadFailedException {
-        final int[] vnis = activeVnisDumpManager.getDump(id, cache, NO_PARAMS).or(() -> {
+        final int[] vnis = activeVnisDumpManager.getDump(id, cache).or(() -> {
             final GpeFwdEntryVnisGetReply reply = new GpeFwdEntryVnisGetReply();
             reply.vnis = new int[0];
             return reply;

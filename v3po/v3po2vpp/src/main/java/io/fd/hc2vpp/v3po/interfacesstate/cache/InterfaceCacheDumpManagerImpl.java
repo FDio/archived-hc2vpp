@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.v3po.interfacesstate.cache;
 
 import static io.fd.hc2vpp.common.translate.util.JvppReplyConsumer.INSTANCE;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.util.stream.Collectors.toMap;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
@@ -113,7 +112,7 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
         if (!cache.containsKey(BY_NAME_INDEX_KEY)) {
             LOG.debug("Performing dump[{}]", identifier);
             final SwInterfaceDetailsReplyDump dump =
-                    fullDumpManager.getDump(identifier, cache, NO_PARAMS)
+                    fullDumpManager.getDump(identifier, cache)
                             .or(new SwInterfaceDetailsReplyDump());
 
             // naming context initialization must be done here, as it is uses getName in next step, therefore it would

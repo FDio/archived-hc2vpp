@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.v3po.interfacesstate;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.lang.String.format;
 
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -108,7 +107,7 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
 
 
         final SwInterfaceVhostUserDetailsReplyDump dump =
-                vhostDumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS)
+                vhostDumpManager.getDump(id, ctx.getModificationCache())
                         .or(new SwInterfaceVhostUserDetailsReplyDump());
 
         // Relying here that parent InterfaceCustomizer was invoked first to fill in the context with initial ifc mapping

@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.lisp.translate.service;
 
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.inject.Inject;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
@@ -69,7 +68,7 @@ public final class LispStateCheckServiceImpl implements LispStateCheckService, J
     public boolean lispEnabled(@Nonnull final ReadContext ctx) {
         // in this case it must be dumped
         try {
-            return byteToBoolean(dumpManager.getDump(IDENTIFIER, ctx.getModificationCache(), NO_PARAMS)
+            return byteToBoolean(dumpManager.getDump(IDENTIFIER, ctx.getModificationCache())
                     .or(DEFAULT_REPLY).featureStatus);
         } catch (ReadFailedException e) {
             throw new IllegalStateException("Unable to read Lisp Feature status", e);

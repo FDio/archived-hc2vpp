@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.routing.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.trait.RouteMapper;
@@ -85,7 +83,7 @@ public class RoutingProtocolCustomizer
     private List<Integer> ipv4TableIds(final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
                                        final ModificationCache modificationCache) throws ReadFailedException {
         final Optional<IpFibDetailsReplyDump>
-                ipv4Routes = ipv4RoutesDumpManager.getDump(instanceIdentifier, modificationCache, NO_PARAMS);
+                ipv4Routes = ipv4RoutesDumpManager.getDump(instanceIdentifier, modificationCache);
 
         if (ipv4Routes.isPresent()) {
             return ipv4Routes.get().ipFibDetails.stream()
@@ -98,7 +96,7 @@ public class RoutingProtocolCustomizer
     private List<Integer> ipv6TableIds(final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
                                        final ModificationCache modificationCache) throws ReadFailedException {
         final Optional<Ip6FibDetailsReplyDump>
-                ipv6Routes = ipv6RoutesDumpManager.getDump(instanceIdentifier, modificationCache, NO_PARAMS);
+                ipv6Routes = ipv6RoutesDumpManager.getDump(instanceIdentifier, modificationCache);
 
         if (ipv6Routes.isPresent()) {
             return ipv6Routes.get().ip6FibDetails.stream()

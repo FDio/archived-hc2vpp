@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.lisp.translate.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.lisp.translate.read.init.LispInitPathsMapper;
@@ -79,7 +77,7 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
         LOG.debug("Reading attributes for Locator Set {}", id);
 
         final Optional<OneLocatorSetDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, ctx.getModificationCache());
 
         if (!dumpOptional.isPresent() || dumpOptional.get().oneLocatorSetDetails.isEmpty()) {
             return;
@@ -113,7 +111,7 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
         LOG.debug("Dumping Locator Set {}", id);
 
         final Optional<OneLocatorSetDetailsReplyDump> dumpOptional =
-                dumpManager.getDump(id, context.getModificationCache(), NO_PARAMS);
+                dumpManager.getDump(id, context.getModificationCache());
 
         if (!dumpOptional.isPresent() || dumpOptional.get().oneLocatorSetDetails.isEmpty()) {
             return Collections.emptyList();

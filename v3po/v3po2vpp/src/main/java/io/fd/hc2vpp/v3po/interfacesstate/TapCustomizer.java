@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 import static java.lang.String.format;
 
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
@@ -100,7 +99,7 @@ public class TapCustomizer extends FutureJVppCustomizer
         }
 
         LOG.debug("Reading attributes for tap interface: {}", key.getName());
-        final SwInterfaceTapDetailsReplyDump reply = tapDumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS)
+        final SwInterfaceTapDetailsReplyDump reply = tapDumpManager.getDump(id, ctx.getModificationCache())
                 .or(new SwInterfaceTapDetailsReplyDump());
 
         final Optional<SwInterfaceTapDetails> detail = reply.swInterfaceTapDetails.stream()

@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.acl.read;
 
 import static io.fd.hc2vpp.acl.read.AbstractVppAclCustomizer.getAclCfgId;
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
@@ -120,7 +119,7 @@ public class VppMacIpAclCustomizer extends FutureJVppAclCustomizer
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, mappingContext);
         final ModificationCache modificationCache = ctx.getModificationCache();
         final Optional<MacipAclInterfaceGetReply> interfacesMacIpDumpReply =
-            interfaceMacIpAclDumpManager.getDump(id, modificationCache, NO_PARAMS);
+            interfaceMacIpAclDumpManager.getDump(id, modificationCache);
 
         if (interfacesMacIpDumpReply.isPresent() && interfaceIndex < interfacesMacIpDumpReply.get().count) {
             final int aclIndex = interfacesMacIpDumpReply.get().acls[interfaceIndex];

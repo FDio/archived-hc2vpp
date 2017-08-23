@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.policer.read;
 
-import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
-
 import com.google.common.base.Optional;
 import com.google.common.primitives.Longs;
 import com.google.common.primitives.UnsignedInts;
@@ -83,7 +81,7 @@ final class PolicerCustomizer extends FutureJVppCustomizer
     @Override
     public List<PolicerKey> getAllIds(@Nonnull final InstanceIdentifier<Policer> id,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        final Optional<PolicerDetailsReplyDump> dump = dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+        final Optional<PolicerDetailsReplyDump> dump = dumpManager.getDump(id, ctx.getModificationCache());
 
         if (!dump.isPresent() || dump.get().policerDetails.isEmpty()) {
             return Collections.emptyList();
@@ -107,7 +105,7 @@ final class PolicerCustomizer extends FutureJVppCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Policer> id,
                                       @Nonnull final PolicerBuilder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
-        final Optional<PolicerDetailsReplyDump> dump = dumpManager.getDump(id, ctx.getModificationCache(), NO_PARAMS);
+        final Optional<PolicerDetailsReplyDump> dump = dumpManager.getDump(id, ctx.getModificationCache());
 
         if (!dump.isPresent() || dump.get().policerDetails.isEmpty()) {
             return;
