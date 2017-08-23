@@ -53,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp-snat</artifactId>
+            <artifactId>jvpp-nat</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>

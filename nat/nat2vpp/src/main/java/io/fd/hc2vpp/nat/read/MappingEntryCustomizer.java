@@ -27,13 +27,13 @@ import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.vpp.jvpp.snat.dto.Nat64BibDetails;
-import io.fd.vpp.jvpp.snat.dto.Nat64BibDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.Nat64BibDump;
-import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDump;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64BibDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat64BibDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64BibDump;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,12 +60,12 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingEntryCustomizer.class);
 
-    private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager;
+    private final DumpCacheManager<Nat44StaticMappingDetailsReplyDump, Void> nat44DumpManager;
     private final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager;
     private final MappingEntryContext mappingEntryContext;
 
     MappingEntryCustomizer(
-            final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager,
+            final DumpCacheManager<Nat44StaticMappingDetailsReplyDump, Void> nat44DumpManager,
             final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager,
             final MappingEntryContext mappingEntryContext) {
         this.nat44DumpManager = nat44DumpManager;
@@ -87,24 +87,24 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
 
         final int idx = id.firstKeyOf(MappingEntry.class).getIndex().intValue();
         final int natInstanceId = id.firstKeyOf(NatInstance.class).getId().intValue();
-        final List<SnatStaticMappingDetails> nat44Details =
+        final List<Nat44StaticMappingDetails> nat44Details =
                 nat44DumpManager.getDump(id, ctx.getModificationCache(), null)
-                        .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails;
-        final Optional<SnatStaticMappingDetails> snat44StaticMappingDetails =
+                        .or(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails;
+        final Optional<Nat44StaticMappingDetails> nat44StaticMappingDetails =
                 mappingEntryContext.findDetailsNat44(nat44Details, natInstanceId, idx, ctx.getMappingContext());
 
-        if (snat44StaticMappingDetails.isPresent()) {
-            readNat44Entry(builder, idx, snat44StaticMappingDetails.get());
+        if (nat44StaticMappingDetails.isPresent()) {
+            readNat44Entry(builder, idx, nat44StaticMappingDetails.get());
         } else {
             final List<Nat64BibDetails> nat64Details =
                     nat64DumpManager.getDump(id, ctx.getModificationCache(), null)
                             .or(new Nat64BibDetailsReplyDump()).nat64BibDetails;
 
-            final Optional<Nat64BibDetails> snat64StaticMappingDetails =
+            final Optional<Nat64BibDetails> nat64StaticMappingDetails =
                     mappingEntryContext.findDetailsNat64(nat64Details, natInstanceId, idx, ctx.getMappingContext());
 
-            if (snat64StaticMappingDetails.isPresent()) {
-                readNat64Entry(builder, idx, snat64StaticMappingDetails.get());
+            if (nat64StaticMappingDetails.isPresent()) {
+                readNat64Entry(builder, idx, nat64StaticMappingDetails.get());
             }
         }
 
@@ -113,7 +113,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
     }
 
     private void readNat44Entry(@Nonnull final MappingEntryBuilder builder,
-                                final int index, final SnatStaticMappingDetails detail) {
+                                final int index, final Nat44StaticMappingDetails detail) {
         builder.setIndex((long) index);
         builder.setType(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.MappingEntry.Type.Static);
@@ -170,7 +170,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
 
         final List<MappingEntryKey> entryKeys =
                 nat44DumpManager.getDump(id, context.getModificationCache(), null)
-                        .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails.stream()
+                        .or(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails.stream()
                         .filter(detail -> natInstanceId == detail.vrfId)
                         .map(detail -> mappingEntryContext
                                 .getStoredOrArtificialIndex(natInstanceId, detail, context.getMappingContext()))
@@ -219,19 +219,19 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
     }
 
     static final class MappingEntryNat44DumpExecutor
-            implements EntityDumpExecutor<SnatStaticMappingDetailsReplyDump, Void>, JvppReplyConsumer {
+            implements EntityDumpExecutor<Nat44StaticMappingDetailsReplyDump, Void>, JvppReplyConsumer {
 
-        private final FutureJVppSnatFacade jvppSnat;
+        private final FutureJVppNatFacade jvppNat;
 
-        MappingEntryNat44DumpExecutor(final FutureJVppSnatFacade jvppSnat) {
-            this.jvppSnat = jvppSnat;
+        MappingEntryNat44DumpExecutor(final FutureJVppNatFacade jvppNat) {
+            this.jvppNat = jvppNat;
         }
 
         @Nonnull
         @Override
-        public SnatStaticMappingDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, final Void params)
+        public Nat44StaticMappingDetailsReplyDump executeDump(final InstanceIdentifier<?> identifier, final Void params)
                 throws ReadFailedException {
-            return getReplyForRead(jvppSnat.snatStaticMappingDump(new SnatStaticMappingDump()).toCompletableFuture(),
+            return getReplyForRead(jvppNat.nat44StaticMappingDump(new Nat44StaticMappingDump()).toCompletableFuture(),
                     identifier);
         }
     }
@@ -239,10 +239,10 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
     static final class MappingEntryNat64DumpExecutor
             implements EntityDumpExecutor<Nat64BibDetailsReplyDump, Void>, JvppReplyConsumer {
 
-        private final FutureJVppSnatFacade jvppSnat;
+        private final FutureJVppNatFacade jvppNat;
 
-        MappingEntryNat64DumpExecutor(final FutureJVppSnatFacade jvppSnat) {
-            this.jvppSnat = jvppSnat;
+        MappingEntryNat64DumpExecutor(final FutureJVppNatFacade jvppNat) {
+            this.jvppNat = jvppNat;
         }
 
         @Nonnull
@@ -251,7 +251,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
                 throws ReadFailedException {
             final Nat64BibDump dump = new Nat64BibDump();
             dump.proto = -1; // dump entries for all protocols
-            return getReplyForRead(jvppSnat.nat64BibDump(dump).toCompletableFuture(), identifier);
+            return getReplyForRead(jvppNat.nat64BibDump(dump).toCompletableFuture(), identifier);
         }
     }
 }

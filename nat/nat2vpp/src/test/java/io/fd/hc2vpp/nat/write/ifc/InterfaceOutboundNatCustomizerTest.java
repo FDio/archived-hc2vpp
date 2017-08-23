@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.nat.write.ifc;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -48,8 +48,8 @@ public class InterfaceOutboundNatCustomizerTest
     }
 
     @Override
-    protected InterfaceOutboundNatCustomizer getCustomizer(final FutureJVppSnatFacade snatApi,
+    protected InterfaceOutboundNatCustomizer getCustomizer(final FutureJVppNatFacade natApi,
                                                            final NamingContext ifcNamingCtx) {
-        return new InterfaceOutboundNatCustomizer(snatApi, ifcNamingCtx);
+        return new InterfaceOutboundNatCustomizer(natApi, ifcNamingCtx);
     }
 }

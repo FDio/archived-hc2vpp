@@ -1,7 +1,7 @@
-= SNAT
+= NAT
 
-Support fot VPP's SNAT plugin:
-https://docs.fd.io/vpp/17.07/plugins_snat-plugin_snat.html
+Support for VPP's NAT plugin:
+https://wiki.fd.io/view/VPP/NAT
 
 == Supported features
 

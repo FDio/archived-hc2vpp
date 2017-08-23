@@ -21,7 +21,7 @@ import io.fd.vpp.jvpp.core.JVppCore;
 import io.fd.vpp.jvpp.ioamexport.JVppIoamexport;
 import io.fd.vpp.jvpp.ioampot.JVppIoampot;
 import io.fd.vpp.jvpp.ioamtrace.JVppIoamtrace;
-import io.fd.vpp.jvpp.snat.JVppSnat;
+import io.fd.vpp.jvpp.nat.JVppNat;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Scanner;
@@ -38,7 +38,7 @@ public class JVppCoverageTest {
         final Class[] apis = new Class[] {
             JVppCore.class,
             JVppAcl.class,
-            JVppSnat.class,
+            JVppNat.class,
             JVppIoamtrace.class,
             JVppIoamexport.class,
             JVppIoampot.class

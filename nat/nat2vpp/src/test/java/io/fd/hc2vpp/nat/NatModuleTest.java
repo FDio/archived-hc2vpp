@@ -39,7 +39,7 @@ import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
@@ -94,7 +94,7 @@ public class NatModuleTest {
                     registry.add(new GenericListReader<>(
                             InstanceIdentifier.create(InterfacesState.class).child(Interface.class),
                             mock(ListReaderCustomizer.class)));
-                }), new NatModule(MockJVppSnatProvider.class), BoundFieldModule.of(this)).injectMembers(this);
+                }), new NatModule(MockJVppNatProvider.class), BoundFieldModule.of(this)).injectMembers(this);
     }
 
     @Test
@@ -117,11 +117,11 @@ public class NatModuleTest {
         assertNotNull(registryBuilder.build());
     }
 
-    private static final class MockJVppSnatProvider implements Provider<FutureJVppSnatFacade> {
+    private static final class MockJVppNatProvider implements Provider<FutureJVppNatFacade> {
 
         @Override
-        public FutureJVppSnatFacade get() {
-            return mock(FutureJVppSnatFacade.class);
+        public FutureJVppNatFacade get() {
+            return mock(FutureJVppNatFacade.class);
         }
     }
 }

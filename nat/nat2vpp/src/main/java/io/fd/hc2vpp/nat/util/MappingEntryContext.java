@@ -23,8 +23,8 @@ import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.vpp.jvpp.snat.dto.Nat64BibDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat64BibDetails;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -97,7 +97,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
         return new MappingEntryKey(new IpAddress(entry.getExternalSrcAddress()), entry.getInternalSrcAddress());
     }
 
-    private MappingEntryKey entryToKey(final SnatStaticMappingDetails entry) {
+    private MappingEntryKey entryToKey(final Nat44StaticMappingDetails entry) {
         // Only IPv4
         return new MappingEntryKey(
                 new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(entry.externalIpAddress))),
@@ -110,7 +110,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
                 new IpAddress(new Ipv6Address(arrayToIpv6AddressNoZone(entry.iAddr))));
     }
 
-    private boolean equalEntries(final SnatStaticMappingDetails detail, final MappingEntry ctxMappingEntry) {
+    private boolean equalEntries(final Nat44StaticMappingDetails detail, final MappingEntry ctxMappingEntry) {
         final IpAddress internalAddrFromDetails =
                 new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.localIpAddress)));
         // Only IPv4
@@ -152,7 +152,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
                 .build();
     }
 
-    private MappingEntry toCtxMapEntry(@Nonnull final SnatStaticMappingDetails details, final long entryId) {
+    private MappingEntry toCtxMapEntry(@Nonnull final Nat44StaticMappingDetails details, final long entryId) {
         return new MappingEntryBuilder()
                 .setKey(entryToKey(details))
                 .setIndex(entryId)
@@ -178,9 +178,9 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
     /**
      * Find specific details in provided collection identified with provided index.
      */
-    public synchronized java.util.Optional<SnatStaticMappingDetails> findDetailsNat44(@Nonnull final List<SnatStaticMappingDetails> details,
-                                                                                      final long natInstanceId, final long idx,
-                                                                                      @Nonnull final MappingContext mappingContext) {
+    public synchronized java.util.Optional<Nat44StaticMappingDetails> findDetailsNat44(@Nonnull final List<Nat44StaticMappingDetails> details,
+                                                                                       final long natInstanceId, final long idx,
+                                                                                       @Nonnull final MappingContext mappingContext) {
         // Find mapping entry for Index
         final MappingEntry ctxMappingEntry = mappingContext.read(getTableId(natInstanceId))
                 .transform(MappingTable::getMappingEntry)
@@ -223,7 +223,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
      * Get index for a mapping entry details or create an artificial one.
      */
     public synchronized long getStoredOrArtificialIndex(final Long natInstanceId,
-                                                        @Nonnull final SnatStaticMappingDetails details,
+                                                        @Nonnull final Nat44StaticMappingDetails details,
                                                         @Nonnull final MappingContext mappingContext) {
         return mappingContext.read(getId(natInstanceId, entryToKey(details)))
                 .transform(MappingEntry::getIndex)
@@ -251,7 +251,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
                 .transform(MappingEntry::getIndex);
     }
 
-    private long getArtificialId(final SnatStaticMappingDetails details, final Long natInstanceId,
+    private long getArtificialId(final Nat44StaticMappingDetails details, final Long natInstanceId,
                                  final MappingContext mappingContext) {
         LOG.trace("Assigning artificial ID for {}", details);
         final long artificialIdx = findFreeIndex(natInstanceId, mappingContext);

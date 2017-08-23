@@ -24,13 +24,13 @@ import static org.mockito.Mockito.when;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.snat.dto.Nat64AddDelInterface;
-import io.fd.vpp.jvpp.snat.dto.Nat64AddDelInterfaceReply;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeature;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeatureReply;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeature;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeatureReply;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceAddDelFeature;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceAddDelFeatureReply;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceAddDelOutputFeature;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceAddDelOutputFeatureReply;
+import io.fd.vpp.jvpp.nat.dto.Nat64AddDelInterface;
+import io.fd.vpp.jvpp.nat.dto.Nat64AddDelInterfaceReply;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816.InterfaceNatVppFeatureAttributes;
@@ -47,17 +47,17 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
     private T customizer;
 
     @Mock
-    private FutureJVppSnatFacade snatApi;
+    private FutureJVppNatFacade natApi;
     private NamingContext ifcNamingCtx = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
 
     @Override
     public void setUpTest() {
-        customizer = getCustomizer(snatApi, ifcNamingCtx);
+        customizer = getCustomizer(natApi, ifcNamingCtx);
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
-        when(snatApi.snatInterfaceAddDelFeature(any())).thenReturn(future(new SnatInterfaceAddDelFeatureReply()));
-        when(snatApi.snatInterfaceAddDelOutputFeature(any()))
-                .thenReturn(future(new SnatInterfaceAddDelOutputFeatureReply()));
-        when(snatApi.nat64AddDelInterface(any())).thenReturn(future(new Nat64AddDelInterfaceReply()));
+        when(natApi.nat44InterfaceAddDelFeature(any())).thenReturn(future(new Nat44InterfaceAddDelFeatureReply()));
+        when(natApi.nat44InterfaceAddDelOutputFeature(any()))
+                .thenReturn(future(new Nat44InterfaceAddDelOutputFeatureReply()));
+        when(natApi.nat64AddDelInterface(any())).thenReturn(future(new Nat64AddDelInterfaceReply()));
     }
 
     @Test
@@ -71,8 +71,8 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
     public void testWritePostRouting() throws Exception {
         final D data = getPostRoutingConfig();
         customizer.writeCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
-        verify(snatApi).snatInterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, true));
-        verify(snatApi, never()).nat64AddDelInterface(any()); // VPP does not support it currently
+        verify(natApi).nat44InterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, true));
+        verify(natApi, never()).nat64AddDelInterface(any()); // VPP does not support it currently
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -98,26 +98,26 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
     public void testDeletePostRouting() throws Exception {
         final D data = getPostRoutingConfig();
         customizer.deleteCurrentAttributes(getIId(IFACE_NAME), data, writeContext);
-        verify(snatApi).snatInterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, false));
-        verify(snatApi, never()).nat64AddDelInterface(any()); // VPP does not support it currently
+        verify(natApi).nat44InterfaceAddDelOutputFeature(expectedPostRoutingRequest(data, false));
+        verify(natApi, never()).nat64AddDelInterface(any()); // VPP does not support it currently
     }
 
     private void verifyPreRouting(final D data, final boolean isAdd) {
         if (data.isNat44Support()) {
-            verify(snatApi).snatInterfaceAddDelFeature(expectedPreRoutingNat44Request(data, isAdd));
+            verify(natApi).nat44InterfaceAddDelFeature(expectedPreRoutingNat44Request(data, isAdd));
         } else {
-            verify(snatApi, never()).snatInterfaceAddDelFeature(any());
+            verify(natApi, never()).nat44InterfaceAddDelFeature(any());
         }
         if (data.isNat64Support() != null && data.isNat64Support()) {
-            verify(snatApi).nat64AddDelInterface(expectedPreRoutingNat64Request(data, isAdd));
+            verify(natApi).nat64AddDelInterface(expectedPreRoutingNat64Request(data, isAdd));
         } else {
-            verify(snatApi, never()).nat64AddDelInterface(any());
+            verify(natApi, never()).nat64AddDelInterface(any());
         }
 
     }
 
-    private SnatInterfaceAddDelFeature expectedPreRoutingNat44Request(final D data, boolean isAdd) {
-        SnatInterfaceAddDelFeature request = new SnatInterfaceAddDelFeature();
+    private Nat44InterfaceAddDelFeature expectedPreRoutingNat44Request(final D data, boolean isAdd) {
+        Nat44InterfaceAddDelFeature request = new Nat44InterfaceAddDelFeature();
         request.isInside = booleanToByte(data instanceof Inbound);
         request.swIfIndex = IFACE_ID;
         request.isAdd = booleanToByte(isAdd);
@@ -132,8 +132,8 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
         return request;
     }
 
-    private SnatInterfaceAddDelOutputFeature expectedPostRoutingRequest(final D data, boolean isAdd) {
-        SnatInterfaceAddDelOutputFeature request = new SnatInterfaceAddDelOutputFeature();
+    private Nat44InterfaceAddDelOutputFeature expectedPostRoutingRequest(final D data, boolean isAdd) {
+        Nat44InterfaceAddDelOutputFeature request = new Nat44InterfaceAddDelOutputFeature();
         request.isInside = booleanToByte(data instanceof Inbound);
         request.swIfIndex = IFACE_ID;
         request.isAdd = booleanToByte(isAdd);
@@ -146,5 +146,5 @@ abstract class AbstractNatCustomizerTest<D extends InterfaceNatVppFeatureAttribu
 
     protected abstract InstanceIdentifier<D> getIId(final String ifaceName);
 
-    protected abstract T getCustomizer(final FutureJVppSnatFacade snatApi, final NamingContext ifcNamingCtx);
+    protected abstract T getCustomizer(final FutureJVppNatFacade natApi, final NamingContext ifcNamingCtx);
 }

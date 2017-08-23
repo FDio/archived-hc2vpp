@@ -22,7 +22,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -45,12 +45,12 @@ public final class IfcNatReaderFactory implements ReaderFactory {
             IFC_ID.augmentation(NatInterfaceStateAugmentation.class);
     private static final InstanceIdentifier<Nat> NAT_AUG_CONTAINER_ID = NAT_AUG_ID.child(Nat.class);
     private final NamingContext ifcContext;
-    private final FutureJVppSnatFacade jvppSnat;
+    private final FutureJVppNatFacade jvppNat;
 
     @Inject
-    public IfcNatReaderFactory(final FutureJVppSnatFacade jvppSnat,
+    public IfcNatReaderFactory(final FutureJVppNatFacade jvppNat,
                                @Named("interface-context") final NamingContext ifcContext) {
-        this.jvppSnat = jvppSnat;
+        this.jvppNat = jvppNat;
         this.ifcContext = ifcContext;
     }
 
@@ -60,8 +60,8 @@ public final class IfcNatReaderFactory implements ReaderFactory {
         registry.addStructuralReader(NAT_AUG_CONTAINER_ID, NatBuilder.class);
 
         registry.addAfter(new GenericInitReader<>(NAT_AUG_CONTAINER_ID.child(Inbound.class),
-                new InterfaceInboundNatCustomizer(jvppSnat, ifcContext)), IFC_ID);
+                new InterfaceInboundNatCustomizer(jvppNat, ifcContext)), IFC_ID);
         registry.addAfter(new GenericInitReader<>(NAT_AUG_CONTAINER_ID.child(Outbound.class),
-                new InterfaceOutboundNatCustomizer(jvppSnat, ifcContext)), IFC_ID);
+                new InterfaceOutboundNatCustomizer(jvppNat, ifcContext)), IFC_ID);
     }
 }

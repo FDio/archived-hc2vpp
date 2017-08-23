@@ -23,7 +23,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericInitReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -51,12 +51,12 @@ public final class SubIfcNatReaderFactory implements ReaderFactory {
     private static final InstanceIdentifier<Nat> NAT_AUG_CONTAINER_ID = NAT_SUB_AUG_ID.child(Nat.class);
 
     private final NamingContext ifcContext;
-    private final FutureJVppSnatFacade jvppSnat;
+    private final FutureJVppNatFacade jvppNat;
 
     @Inject
-    public SubIfcNatReaderFactory(final FutureJVppSnatFacade jvppSnat,
+    public SubIfcNatReaderFactory(final FutureJVppNatFacade jvppNat,
                                   @Named("interface-context") final NamingContext ifcContext) {
-        this.jvppSnat = jvppSnat;
+        this.jvppNat = jvppNat;
         this.ifcContext = ifcContext;
     }
 
@@ -66,8 +66,8 @@ public final class SubIfcNatReaderFactory implements ReaderFactory {
         registry.addStructuralReader(NAT_AUG_CONTAINER_ID, NatBuilder.class);
 
         registry.addAfter(new GenericInitReader<>(NAT_AUG_CONTAINER_ID.child(Inbound.class),
-                new SubInterfaceInboundNatCustomizer(jvppSnat, ifcContext)), SUB_IFC_ID);
+                new SubInterfaceInboundNatCustomizer(jvppNat, ifcContext)), SUB_IFC_ID);
         registry.addAfter(new GenericInitReader<>(NAT_AUG_CONTAINER_ID.child(Outbound.class),
-                new SubInterfaceOutboundNatCustomizer(jvppSnat, ifcContext)), SUB_IFC_ID);
+                new SubInterfaceOutboundNatCustomizer(jvppNat, ifcContext)), SUB_IFC_ID);
     }
 }

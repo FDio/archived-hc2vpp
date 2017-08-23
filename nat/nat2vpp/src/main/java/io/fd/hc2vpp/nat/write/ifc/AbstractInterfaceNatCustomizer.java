@@ -24,10 +24,10 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.snat.dto.Nat64AddDelInterface;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelFeature;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceAddDelOutputFeature;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceAddDelFeature;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceAddDelOutputFeature;
+import io.fd.vpp.jvpp.nat.dto.Nat64AddDelInterface;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816.InterfaceNatVppFeatureAttributes;
@@ -38,12 +38,12 @@ import org.slf4j.Logger;
 abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAttributes & DataObject>
         implements ByteDataTranslator, JvppReplyConsumer, WriterCustomizer<D> {
 
-    private final FutureJVppSnatFacade jvppSnat;
+    private final FutureJVppNatFacade jvppNat;
     private final NamingContext ifcContext;
 
-    AbstractInterfaceNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+    AbstractInterfaceNatCustomizer(@Nonnull final FutureJVppNatFacade jvppNat,
                                    @Nonnull final NamingContext ifcContext) {
-        this.jvppSnat = jvppSnat;
+        this.jvppNat = jvppNat;
         this.ifcContext = ifcContext;
     }
 
@@ -88,11 +88,11 @@ abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAt
                                 final boolean enable)
             throws WriteFailedException {
         checkArgument(!isNat64Supported(natAttributes), "Post routing Nat64 is not supported by VPP");
-        final SnatInterfaceAddDelOutputFeature request = new SnatInterfaceAddDelOutputFeature();
+        final Nat44InterfaceAddDelOutputFeature request = new Nat44InterfaceAddDelOutputFeature();
         request.isAdd = booleanToByte(enable);
         request.isInside = getType().isInside;
         request.swIfIndex = ifcIndex;
-        getReplyForWrite(jvppSnat.snatInterfaceAddDelOutputFeature(request).toCompletableFuture(), id);
+        getReplyForWrite(jvppNat.nat44InterfaceAddDelOutputFeature(request).toCompletableFuture(), id);
     }
 
     private void preRoutingNat(@Nonnull final InstanceIdentifier<D> id, final D natAttributes, final int ifcIndex,
@@ -113,11 +113,11 @@ abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAt
 
     private void preRoutingNat44(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
             throws WriteFailedException {
-        final SnatInterfaceAddDelFeature request = new SnatInterfaceAddDelFeature();
+        final Nat44InterfaceAddDelFeature request = new Nat44InterfaceAddDelFeature();
         request.isAdd = booleanToByte(enable);
         request.isInside = getType().isInside;
         request.swIfIndex = ifcIndex;
-        getReplyForWrite(jvppSnat.snatInterfaceAddDelFeature(request).toCompletableFuture(), id);
+        getReplyForWrite(jvppNat.nat44InterfaceAddDelFeature(request).toCompletableFuture(), id);
     }
 
     private void preRoutingNat64(@Nonnull final InstanceIdentifier<D> id, final int ifcIndex, final boolean enable)
@@ -126,7 +126,7 @@ abstract class AbstractInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAt
         request.isAdd = booleanToByte(enable);
         request.isInside = getType().isInside;
         request.swIfIndex = ifcIndex;
-        getReplyForWrite(jvppSnat.nat64AddDelInterface(request).toCompletableFuture(), id);
+        getReplyForWrite(jvppNat.nat64AddDelInterface(request).toCompletableFuture(), id);
     }
 
     enum NatType {

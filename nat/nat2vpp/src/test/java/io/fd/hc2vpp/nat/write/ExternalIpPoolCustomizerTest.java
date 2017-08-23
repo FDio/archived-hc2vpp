@@ -27,11 +27,11 @@ import io.fd.hc2vpp.nat.NatTestSchemaContext;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.snat.dto.Nat64AddDelPoolAddrRange;
-import io.fd.vpp.jvpp.snat.dto.Nat64AddDelPoolAddrRangeReply;
-import io.fd.vpp.jvpp.snat.dto.SnatAddAddressRange;
-import io.fd.vpp.jvpp.snat.dto.SnatAddAddressRangeReply;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddDelAddressRange;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddDelAddressRangeReply;
+import io.fd.vpp.jvpp.nat.dto.Nat64AddDelPoolAddrRange;
+import io.fd.vpp.jvpp.nat.dto.Nat64AddDelPoolAddrRangeReply;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -56,14 +56,14 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
     private static final String NAT_INSTANCES_PATH = "/ietf-nat:nat-config/ietf-nat:nat-instances";
 
     @Mock
-    private FutureJVppSnatFacade jvppSnat;
+    private FutureJVppNatFacade jvppNat;
     private ExternalIpPoolCustomizer customizer;
 
     @Override
     public void setUpTest() {
-        customizer = new ExternalIpPoolCustomizer(jvppSnat);
-        when(jvppSnat.snatAddAddressRange(any())).thenReturn(future(new SnatAddAddressRangeReply()));
-        when(jvppSnat.nat64AddDelPoolAddrRange(any())).thenReturn(future(new Nat64AddDelPoolAddrRangeReply()));
+        customizer = new ExternalIpPoolCustomizer(jvppNat);
+        when(jvppNat.nat44AddDelAddressRange(any())).thenReturn(future(new Nat44AddDelAddressRangeReply()));
+        when(jvppNat.nat64AddDelPoolAddrRange(any())).thenReturn(future(new Nat64AddDelPoolAddrRangeReply()));
     }
 
     @Test
@@ -71,8 +71,8 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
             @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
             throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractIpPool(data), writeContext);
-        final SnatAddAddressRange expectedRequest = getExpectedRequestNat44(true);
-        verify(jvppSnat).snatAddAddressRange(expectedRequest);
+        final Nat44AddDelAddressRange expectedRequest = getExpectedRequestNat44(true);
+        verify(jvppNat).nat44AddDelAddressRange(expectedRequest);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
             throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractIpPool(data), writeContext);
         final Nat64AddDelPoolAddrRange expectedRequest = getExpectedRequestNat64(true);
-        verify(jvppSnat).nat64AddDelPoolAddrRange(expectedRequest);
+        verify(jvppNat).nat64AddDelPoolAddrRange(expectedRequest);
     }
 
         @Test(expected = UnsupportedOperationException.class)
@@ -95,8 +95,8 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
             @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
             throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, extractIpPool(data), writeContext);
-        final SnatAddAddressRange expectedRequest = getExpectedRequestNat44(false);
-        verify(jvppSnat).snatAddAddressRange(expectedRequest);
+        final Nat44AddDelAddressRange expectedRequest = getExpectedRequestNat44(false);
+        verify(jvppNat).nat44AddDelAddressRange(expectedRequest);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
             throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, extractIpPool(data), writeContext);
         final Nat64AddDelPoolAddrRange expectedRequest = getExpectedRequestNat64(false);
-        verify(jvppSnat).nat64AddDelPoolAddrRange(expectedRequest);
+        verify(jvppNat).nat64AddDelPoolAddrRange(expectedRequest);
     }
 
     private static ExternalIpAddressPool extractIpPool(NatInstances data) {
@@ -113,10 +113,9 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
         return data.getNatInstance().get(0).getExternalIpAddressPool().get(0);
     }
 
-    private SnatAddAddressRange getExpectedRequestNat44(final boolean isAdd) {
-        final SnatAddAddressRange expectedRequest = new SnatAddAddressRange();
+    private Nat44AddDelAddressRange getExpectedRequestNat44(final boolean isAdd) {
+        final Nat44AddDelAddressRange expectedRequest = new Nat44AddDelAddressRange();
         expectedRequest.isAdd = booleanToByte(isAdd);
-        expectedRequest.isIp4 = 1;
         expectedRequest.firstIpAddress = new byte[] {(byte) 192, (byte) 168, 1, 0};
         expectedRequest.lastIpAddress = new byte[] {(byte) 192, (byte) 168, 1, (byte) 255};
         return expectedRequest;

@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.nat.write.ifc;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816._interface.nat.attributes.nat.Inbound;
 import org.slf4j.Logger;
@@ -27,9 +27,9 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceInboundNatCustomizer.class);
 
-    InterfaceInboundNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+    InterfaceInboundNatCustomizer(@Nonnull final FutureJVppNatFacade jvppNat,
                                   @Nonnull final NamingContext ifcContext) {
-        super(jvppSnat, ifcContext);
+        super(jvppNat, ifcContext);
     }
 
     @Override

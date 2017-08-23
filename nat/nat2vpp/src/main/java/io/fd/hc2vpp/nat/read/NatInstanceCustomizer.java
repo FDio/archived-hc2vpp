@@ -21,8 +21,8 @@ import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.snat.dto.Nat64BibDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64BibDetailsReplyDump;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,11 +47,11 @@ final class NatInstanceCustomizer
     private static final Logger LOG = LoggerFactory.getLogger(NatInstanceCustomizer.class);
     static final NatInstanceKey DEFAULT_VRF_ID = new NatInstanceKey(0L);
 
-    private final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager;
+    private final DumpCacheManager<Nat44StaticMappingDetailsReplyDump, Void> nat44DumpManager;
     private final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager;
 
     NatInstanceCustomizer(
-            final DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager,
+            final DumpCacheManager<Nat44StaticMappingDetailsReplyDump, Void> nat44DumpManager,
             final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager) {
         this.nat44DumpManager = nat44DumpManager;
         this.nat64DumpManager = nat64DumpManager;
@@ -80,7 +80,7 @@ final class NatInstanceCustomizer
         // Find the nat instance IDs (vrf-ids) by listing all static mappings and their VRF assignment
         final List<NatInstanceKey> vrfIds = Stream.concat(
                 nat44DumpManager.getDump(id, context.getModificationCache(), null)
-                        .or(new SnatStaticMappingDetailsReplyDump()).snatStaticMappingDetails.stream()
+                        .or(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails.stream()
                         .map(detail -> detail.vrfId),
                 nat64DumpManager.getDump(id, context.getModificationCache(), null)
                         .or(new Nat64BibDetailsReplyDump()).nat64BibDetails.stream()

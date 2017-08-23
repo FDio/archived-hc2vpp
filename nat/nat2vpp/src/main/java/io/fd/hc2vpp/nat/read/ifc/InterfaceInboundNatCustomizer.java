@@ -19,7 +19,7 @@ package io.fd.hc2vpp.nat.read.ifc;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.spi.read.Initialized;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -39,9 +39,9 @@ final class InterfaceInboundNatCustomizer extends AbstractInterfaceNatCustomizer
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceInboundNatCustomizer.class);
 
-    InterfaceInboundNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+    InterfaceInboundNatCustomizer(@Nonnull final FutureJVppNatFacade jvppNat,
                                   @Nonnull final NamingContext ifcContext) {
-        super(jvppSnat, ifcContext, new InboundAttributesBuilder());
+        super(jvppNat, ifcContext, new InboundAttributesBuilder());
     }
 
     @Override

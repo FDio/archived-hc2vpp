@@ -29,7 +29,7 @@ module vpp-nat {
       description
         "Indicates whether the pool is designated to be used for nat44 or nat64.";
       reference
-        "https://git.fd.io/vpp/tree/src/plugins/snat/snat.api";
+        "https://git.fd.io/vpp/tree/src/plugins/nat/nat.api";
     }
   }
 

@@ -8,7 +8,7 @@ include::api_docs/futurejvppcore-yang-config-index.adoc[JVpp Core plugin docs]
 
 include::api_docs/futurejvppacl-yang-config-index.adoc[JVpp Acl plugin docs]
 
-include::api_docs/futurejvppsnat-yang-config-index.adoc[JVpp Snat plugin docs]
+include::api_docs/futurejvppnat-yang-config-index.adoc[JVpp Nat plugin docs]
 
 include::api_docs/futurejvppnsh-yang-config-index.adoc[JVpp Nsh plugin docs]
 

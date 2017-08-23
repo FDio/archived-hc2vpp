@@ -27,11 +27,11 @@ import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v
 
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
-import io.fd.vpp.jvpp.snat.dto.Nat64PoolAddrDetails;
-import io.fd.vpp.jvpp.snat.dto.Nat64PoolAddrDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatAddressDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatAddressDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddressDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddressDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64PoolAddrDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat64PoolAddrDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.LongStream;
@@ -64,7 +64,7 @@ public class ExternalIpPoolCustomizerTest
                     .child(NatCurrentConfig.class).child(ExternalIpAddressPool.class);
 
     @Mock
-    private FutureJVppSnatFacade jvppSnat;
+    private FutureJVppNatFacade jvppNat;
 
     public ExternalIpPoolCustomizerTest() {
         super(ExternalIpAddressPool.class, NatCurrentConfigBuilder.class);
@@ -72,12 +72,12 @@ public class ExternalIpPoolCustomizerTest
 
     @Override
     protected ReaderCustomizer<ExternalIpAddressPool, ExternalIpAddressPoolBuilder> initCustomizer() {
-        return new ExternalIpPoolCustomizer(jvppSnat);
+        return new ExternalIpPoolCustomizer(jvppNat);
     }
 
     @Test
     public void testReadAttributesNat44() throws Exception {
-        when(jvppSnat.snatAddressDump(any())).thenReturn(future(dumpReplyNat44NonEmpty()));
+        when(jvppNat.nat44AddressDump(any())).thenReturn(future(dumpReplyNat44NonEmpty()));
         final long poolId = 2;
         final ExternalIpAddressPoolBuilder builder = new ExternalIpAddressPoolBuilder();
         getCustomizer().readCurrentAttributes(getId(poolId), builder, ctx);
@@ -89,8 +89,8 @@ public class ExternalIpPoolCustomizerTest
 
     @Test
     public void testReadAttributesNat64() throws Exception {
-        when(jvppSnat.snatAddressDump(any())).thenReturn(future(dumpReplyNat44Empty()));
-        when(jvppSnat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64NonEmpty()));
+        when(jvppNat.nat44AddressDump(any())).thenReturn(future(dumpReplyNat44Empty()));
+        when(jvppNat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64NonEmpty()));
         final long poolId = 2;
 
         final ExternalIpAddressPoolBuilder builder = new ExternalIpAddressPoolBuilder();
@@ -103,8 +103,8 @@ public class ExternalIpPoolCustomizerTest
 
     @Test
     public void testReadAttributes() throws Exception {
-        when(jvppSnat.snatAddressDump(any())).thenReturn(future(dumpReplyNat44NonEmpty()));
-        when(jvppSnat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64NonEmpty()));
+        when(jvppNat.nat44AddressDump(any())).thenReturn(future(dumpReplyNat44NonEmpty()));
+        when(jvppNat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64NonEmpty()));
         final long poolId = 5;
 
         final ExternalIpAddressPoolBuilder builder = new ExternalIpAddressPoolBuilder();
@@ -117,8 +117,8 @@ public class ExternalIpPoolCustomizerTest
 
     @Test
     public void testGetAllNat44() throws Exception {
-        when(jvppSnat.snatAddressDump(any())).thenReturn(future(dumpReplyNat44NonEmpty()));
-        when(jvppSnat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64Empty()));
+        when(jvppNat.nat44AddressDump(any())).thenReturn(future(dumpReplyNat44NonEmpty()));
+        when(jvppNat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64Empty()));
 
         final List<ExternalIpAddressPoolKey> allIds = getCustomizer().getAllIds(NAT_DEFAULT_POOL_WILDCARDED_ID, ctx);
         assertThat(allIds, hasItems(
@@ -128,8 +128,8 @@ public class ExternalIpPoolCustomizerTest
 
     @Test
     public void testGetAllNat64() throws Exception {
-        when(jvppSnat.snatAddressDump(any())).thenReturn(future(dumpReplyNat44Empty()));
-        when(jvppSnat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64NonEmpty()));
+        when(jvppNat.nat44AddressDump(any())).thenReturn(future(dumpReplyNat44Empty()));
+        when(jvppNat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64NonEmpty()));
 
         final List<ExternalIpAddressPoolKey> allIds = getCustomizer().getAllIds(NAT_DEFAULT_POOL_WILDCARDED_ID, ctx);
         assertThat(allIds, hasItems(
@@ -139,8 +139,8 @@ public class ExternalIpPoolCustomizerTest
 
     @Test
     public void testGetAll() throws Exception {
-        when(jvppSnat.snatAddressDump(any())).thenReturn(future(dumpReplyNat44NonEmpty()));
-        when(jvppSnat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64NonEmpty()));
+        when(jvppNat.nat44AddressDump(any())).thenReturn(future(dumpReplyNat44NonEmpty()));
+        when(jvppNat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64NonEmpty()));
 
         final List<ExternalIpAddressPoolKey> allIds = getCustomizer().getAllIds(NAT_DEFAULT_POOL_WILDCARDED_ID, ctx);
         assertThat(allIds, hasItems(
@@ -155,8 +155,8 @@ public class ExternalIpPoolCustomizerTest
 
     @Test
     public void testGetAllNoDump() throws Exception {
-        when(jvppSnat.snatAddressDump(any())).thenReturn(future(dumpReplyNat44Empty()));
-        when(jvppSnat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64Empty()));
+        when(jvppNat.nat44AddressDump(any())).thenReturn(future(dumpReplyNat44Empty()));
+        when(jvppNat.nat64PoolAddrDump(any())).thenReturn(future(dumpReplyNat64Empty()));
         assertThat(getCustomizer().getAllIds(NAT_DEFAULT_POOL_WILDCARDED_ID, ctx), empty());
     }
 
@@ -164,26 +164,23 @@ public class ExternalIpPoolCustomizerTest
         return NAT_CONFIG_ID.child(ExternalIpAddressPool.class, new ExternalIpAddressPoolKey(id));
     }
 
-    private static SnatAddressDetailsReplyDump dumpReplyNat44Empty() {
-        return new SnatAddressDetailsReplyDump();
+    private static Nat44AddressDetailsReplyDump dumpReplyNat44Empty() {
+        return new Nat44AddressDetailsReplyDump();
     }
 
-    private static SnatAddressDetailsReplyDump dumpReplyNat44NonEmpty() {
-        SnatAddressDetailsReplyDump replyDump = dumpReplyNat44Empty();
+    private static Nat44AddressDetailsReplyDump dumpReplyNat44NonEmpty() {
+        Nat44AddressDetailsReplyDump replyDump = dumpReplyNat44Empty();
 
-        SnatAddressDetails detailsOne = new SnatAddressDetails();
+        Nat44AddressDetails detailsOne = new Nat44AddressDetails();
         detailsOne.ipAddress = new byte[]{-64, -88, 44, 1};
-        detailsOne.isIp4 = 1;
 
-        SnatAddressDetails detailsTwo = new SnatAddressDetails();
+        Nat44AddressDetails detailsTwo = new Nat44AddressDetails();
         detailsTwo.ipAddress = new byte[]{-64, -88, 44, 2};
-        detailsTwo.isIp4 = 1;
 
-        SnatAddressDetails detailsThree = new SnatAddressDetails();
+        Nat44AddressDetails detailsThree = new Nat44AddressDetails();
         detailsThree.ipAddress = new byte[]{-64, -88, 44, 3};
-        detailsThree.isIp4 = 1;
 
-        replyDump.snatAddressDetails = Arrays.asList(detailsOne, detailsTwo, detailsThree);
+        replyDump.nat44AddressDetails = Arrays.asList(detailsOne, detailsTwo, detailsThree);
 
         return replyDump;
     }

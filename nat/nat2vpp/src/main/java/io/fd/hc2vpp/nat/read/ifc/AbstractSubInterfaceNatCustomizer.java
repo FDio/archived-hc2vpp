@@ -19,7 +19,7 @@ package io.fd.hc2vpp.nat.read.ifc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface;
@@ -29,10 +29,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 abstract class AbstractSubInterfaceNatCustomizer<C extends DataObject, B extends Builder<C>>
         extends AbstractInterfaceNatCustomizer<C, B> {
-    AbstractSubInterfaceNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+    AbstractSubInterfaceNatCustomizer(@Nonnull final FutureJVppNatFacade jvppNat,
                                       @Nonnull final NamingContext ifcContext,
                                       @Nonnull final VppAttributesBuilder vppAttributesBuilder) {
-        super(jvppSnat, ifcContext, vppAttributesBuilder);
+        super(jvppNat, ifcContext, vppAttributesBuilder);
     }
 
     @Override

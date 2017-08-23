@@ -34,7 +34,7 @@ package io.fd.hc2vpp.nat.write.ifc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.nat.rev170816.InterfaceNatVppFeatureAttributes;
@@ -44,9 +44,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 abstract class AbstractSubInterfaceNatCustomizer<D extends InterfaceNatVppFeatureAttributes & DataObject>
         extends AbstractInterfaceNatCustomizer<D> {
-    AbstractSubInterfaceNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+    AbstractSubInterfaceNatCustomizer(@Nonnull final FutureJVppNatFacade jvppNat,
                                       @Nonnull final NamingContext ifcContext) {
-        super(jvppSnat, ifcContext);
+        super(jvppNat, ifcContext);
     }
 
     @Override

@@ -28,7 +28,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
-import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetails;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -81,7 +81,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
         final long natId = 0;
         final long entryId = 12;
         final MappingEntry entry = getEntry(entryId, "192.168.1.5", "17.14.4.6");
-        final SnatStaticMappingDetails details = getDetails(entryId, "192.168.1.5", "17.14.4.6");
+        final Nat44StaticMappingDetails details = getDetails(entryId, "192.168.1.5", "17.14.4.6");
 
         when(mappingCtx.read(MappingEntryContext.getId(natId, MappingEntryContext.entryToKey(entry))))
                 .thenReturn(Optional.of(MappingEntryContext.toCtxMapEntry(entry, entryId)));
@@ -94,11 +94,11 @@ public class MappingEntryContextTest implements Ipv4Translator {
     public void testFindDetails() throws Exception {
         final long natId = 0;
         final MappingEntry entry = getEntry(0, "192.168.1.5", "17.14.4.6");
-        final SnatStaticMappingDetails details = getDetails(0, "192.168.1.5", "17.14.4.6");
+        final Nat44StaticMappingDetails details = getDetails(0, "192.168.1.5", "17.14.4.6");
         final MappingEntry entry2 = getEntry(1, "192.168.1.8", "17.14.4.10");
-        final SnatStaticMappingDetails details2 = getDetails(1, "192.168.1.8", "17.14.4.10");
+        final Nat44StaticMappingDetails details2 = getDetails(1, "192.168.1.8", "17.14.4.10");
 
-        final List<SnatStaticMappingDetails> someDetails = Lists.newArrayList(details, details2);
+        final List<Nat44StaticMappingDetails> someDetails = Lists.newArrayList(details, details2);
 
         when(mappingCtx.read(MappingEntryContext.getTableId(natId)))
                 .thenReturn(Optional.of(new MappingTableBuilder()
@@ -114,8 +114,8 @@ public class MappingEntryContextTest implements Ipv4Translator {
     public void testFindDetailsNoMappingStored() throws Exception {
         final long natId = 0;
         final long entryId = 12;
-        final SnatStaticMappingDetails details = getDetails(entryId, "192.168.1.5", "17.14.4.6");
-        final List<SnatStaticMappingDetails> someDetails = Lists.newArrayList(details);
+        final Nat44StaticMappingDetails details = getDetails(entryId, "192.168.1.5", "17.14.4.6");
+        final List<Nat44StaticMappingDetails> someDetails = Lists.newArrayList(details);
         when(mappingCtx.read(MappingEntryContext.getTableId(natId))).thenReturn(Optional.absent());
 
         ctx.findDetailsNat44(someDetails, natId, entryId, mappingCtx);
@@ -125,8 +125,8 @@ public class MappingEntryContextTest implements Ipv4Translator {
     public void testFindDetailsNoMappingStored2() throws Exception {
         final long natId = 0;
         final long entryId = 12;
-        final SnatStaticMappingDetails details = getDetails(entryId, "192.168.1.5", "17.14.4.6");
-        final List<SnatStaticMappingDetails> someDetails = Lists.newArrayList(details);
+        final Nat44StaticMappingDetails details = getDetails(entryId, "192.168.1.5", "17.14.4.6");
+        final List<Nat44StaticMappingDetails> someDetails = Lists.newArrayList(details);
 
         when(mappingCtx.read(MappingEntryContext.getTableId(natId)))
                 .thenReturn(Optional.of(new MappingTableBuilder().setMappingEntry(Collections.emptyList()).build()));
@@ -148,7 +148,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
 
         final long newEntryId = 18956;
         final MappingEntry newEntry = getEntry(newEntryId, "192.168.1.99", "17.14.4.99");
-        final SnatStaticMappingDetails newDetails = getDetails(newEntryId, "192.168.1.99", "17.14.4.99");
+        final Nat44StaticMappingDetails newDetails = getDetails(newEntryId, "192.168.1.99", "17.14.4.99");
         when(mappingCtx.read(MappingEntryContext.getId(natId, MappingEntryContext.entryToKey(newEntry))))
                 .thenReturn(Optional.absent());
 
@@ -165,14 +165,13 @@ public class MappingEntryContextTest implements Ipv4Translator {
         assertEquals(newEntryId, ctx.getStoredOrArtificialIndex(natId, newDetails, mappingCtx));
     }
 
-    private SnatStaticMappingDetails getDetails(final long vrfId, final String localIp, final String externIp) {
-        final SnatStaticMappingDetails snatStaticMappingDetails = new SnatStaticMappingDetails();
-        snatStaticMappingDetails.vrfId = (int) vrfId;
-        snatStaticMappingDetails.addrOnly = 1;
-        snatStaticMappingDetails.isIp4 = 1;
-        snatStaticMappingDetails.localIpAddress = ipv4AddressNoZoneToArray(localIp);
-        snatStaticMappingDetails.externalIpAddress = ipv4AddressNoZoneToArray(externIp);
-        return snatStaticMappingDetails;
+    private Nat44StaticMappingDetails getDetails(final long vrfId, final String localIp, final String externIp) {
+        final Nat44StaticMappingDetails nat44StaticMappingDetails = new Nat44StaticMappingDetails();
+        nat44StaticMappingDetails.vrfId = (int) vrfId;
+        nat44StaticMappingDetails.addrOnly = 1;
+        nat44StaticMappingDetails.localIpAddress = ipv4AddressNoZoneToArray(localIp);
+        nat44StaticMappingDetails.externalIpAddress = ipv4AddressNoZoneToArray(externIp);
+        return nat44StaticMappingDetails;
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -113,10 +113,10 @@
                 <!-- TODO set snapshot version to project-vpp-version after VPP is released-->
                 <!--<project-vpp-snapshot-version>17.10</project-vpp-snapshot-version>-->
                 <project-vpp-snapshot-version>17.10-SNAPSHOT</project-vpp-snapshot-version>
-                <project-snat-version>17.10</project-snat-version>
-                <!-- TODO set snapshot version to project-snat-version after VPP is released-->
-                <!--<project-snat-snapshot-version>17.10</project-snat-snapshot-version>-->
-                <project-snat-snapshot-version>17.10-SNAPSHOT</project-snat-snapshot-version>
+                <project-nat-version>17.10</project-nat-version>
+                <!-- TODO set snapshot version to project-nat-version after VPP is released-->
+                <!--<project-nat-snapshot-version>17.10</project-nat-snapshot-version>-->
+                <project-nat-snapshot-version>17.10-SNAPSHOT</project-nat-snapshot-version>
                 <project-git-web>https://git.fd.io/cgit/hc2vpp/tree</project-git-web>
                 <project-infra-git-web>https://git.fd.io/cgit/honeycomb/tree</project-infra-git-web>
               </attributes>

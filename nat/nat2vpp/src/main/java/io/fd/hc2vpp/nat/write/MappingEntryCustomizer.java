@@ -28,9 +28,9 @@ import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.snat.dto.Nat64AddDelStaticBib;
-import io.fd.vpp.jvpp.snat.dto.SnatAddStaticMapping;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddDelStaticMapping;
+import io.fd.vpp.jvpp.nat.dto.Nat64AddDelStaticBib;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -50,11 +50,11 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingEntryCustomizer.class);
 
-    private final FutureJVppSnatFacade jvppSnat;
+    private final FutureJVppNatFacade jvppNat;
     private final MappingEntryContext mappingEntryContext;
 
-    MappingEntryCustomizer(final FutureJVppSnatFacade jvppSnat, final MappingEntryContext mappingEntryContext) {
-        this.jvppSnat = jvppSnat;
+    MappingEntryCustomizer(final FutureJVppNatFacade jvppNat, final MappingEntryContext mappingEntryContext) {
+        this.jvppNat = jvppNat;
         this.mappingEntryContext = mappingEntryContext;
     }
 
@@ -91,13 +91,13 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         final Ipv4Address internalV4SrcAddress = internalSrcAddress.getIpv4Address();
         final Ipv6Address internalV6SrcAddress = internalSrcAddress.getIpv6Address();
         if (internalV4SrcAddress != null) {
-            final SnatAddStaticMapping request = getNat44Request(id, entry, natInstanceId, isAdd);
-            getReplyForWrite(jvppSnat.snatAddStaticMapping(request).toCompletableFuture(), id);
+            final Nat44AddDelStaticMapping request = getNat44Request(id, entry, natInstanceId, isAdd);
+            getReplyForWrite(jvppNat.nat44AddDelStaticMapping(request).toCompletableFuture(), id);
         } else {
             checkState(internalV6SrcAddress != null,
                     "internalSrcAddress.getIpv6Address() should not return null if v4 address is not given");
             final Nat64AddDelStaticBib request = getNat64Request(id, entry, natInstanceId, isAdd);
-            getReplyForWrite(jvppSnat.nat64AddDelStaticBib(request).toCompletableFuture(), id);
+            getReplyForWrite(jvppNat.nat64AddDelStaticBib(request).toCompletableFuture(), id);
         }
     }
 
@@ -139,14 +139,13 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         LOG.trace("Mapping entry: {} for nat-instance(vrf): {} deleted successfully", natInstanceId, id);
     }
 
-    private SnatAddStaticMapping getNat44Request(final InstanceIdentifier<MappingEntry> id,
+    private Nat44AddDelStaticMapping getNat44Request(final InstanceIdentifier<MappingEntry> id,
                                                  final MappingEntry mappingEntry,
                                                  final Long natInstanceId,
                                                  final boolean isAdd)
             throws WriteFailedException.CreateFailedException {
-        final SnatAddStaticMapping request = new SnatAddStaticMapping();
+        final Nat44AddDelStaticMapping request = new Nat44AddDelStaticMapping();
         request.isAdd = booleanToByte(isAdd);
-        request.isIp4 = 1;
         // VPP uses int, model long
         request.vrfId = natInstanceId.intValue();
 

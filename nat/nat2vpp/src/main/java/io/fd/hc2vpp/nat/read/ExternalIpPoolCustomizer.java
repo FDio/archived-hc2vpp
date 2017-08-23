@@ -26,13 +26,13 @@ import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.snat.dto.Nat64PoolAddrDetails;
-import io.fd.vpp.jvpp.snat.dto.Nat64PoolAddrDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.Nat64PoolAddrDump;
-import io.fd.vpp.jvpp.snat.dto.SnatAddressDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatAddressDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatAddressDump;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddressDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddressDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddressDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64PoolAddrDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat64PoolAddrDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64PoolAddrDump;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,17 +60,17 @@ final class ExternalIpPoolCustomizer implements
 
     private static final Logger LOG = LoggerFactory.getLogger(ExternalIpPoolCustomizer.class);
 
-    private final DumpCacheManager<SnatAddressDetailsReplyDump, Void> nat44DumpMgr;
+    private final DumpCacheManager<Nat44AddressDetailsReplyDump, Void> nat44DumpMgr;
     private final DumpCacheManager<Nat64PoolAddrDetailsReplyDump, Void> nat64DumpMgr;
 
-    ExternalIpPoolCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat) {
-        checkNotNull(jvppSnat, "jvppSnat should not be null");
-        this.nat44DumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<SnatAddressDetailsReplyDump, Void>()
-                .withExecutor((id, params) -> getReplyForRead(jvppSnat.snatAddressDump(new SnatAddressDump()).toCompletableFuture(), id))
-                .acceptOnly(SnatAddressDetailsReplyDump.class)
+    ExternalIpPoolCustomizer(@Nonnull final FutureJVppNatFacade jvppNat) {
+        checkNotNull(jvppNat, "jvppNat should not be null");
+        this.nat44DumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<Nat44AddressDetailsReplyDump, Void>()
+                .withExecutor((id, params) -> getReplyForRead(jvppNat.nat44AddressDump(new Nat44AddressDump()).toCompletableFuture(), id))
+                .acceptOnly(Nat44AddressDetailsReplyDump.class)
                 .build();
         this.nat64DumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<Nat64PoolAddrDetailsReplyDump, Void>()
-                .withExecutor((id, params) -> getReplyForRead(jvppSnat.nat64PoolAddrDump(new Nat64PoolAddrDump()).toCompletableFuture(), id))
+                .withExecutor((id, params) -> getReplyForRead(jvppNat.nat64PoolAddrDump(new Nat64PoolAddrDump()).toCompletableFuture(), id))
                 .acceptOnly(Nat64PoolAddrDetailsReplyDump.class)
                 .build();
     }
@@ -98,14 +98,14 @@ final class ExternalIpPoolCustomizer implements
         LOG.trace("Reading current attributes for external IP pool: {}", id);
 
         final Long poolId = id.firstKeyOf(ExternalIpAddressPool.class).getPoolId();
-        final List<SnatAddressDetails> nat44Details =
+        final List<Nat44AddressDetails> nat44Details =
                 nat44DumpMgr.getDump(id, ctx.getModificationCache(), null)
-                        .or(new SnatAddressDetailsReplyDump()).snatAddressDetails;
+                        .or(new Nat44AddressDetailsReplyDump()).nat44AddressDetails;
         final int nat44PoolCount = nat44Details.size();
 
         // Uses ID<->address mapping as defined by getAllIds (nat44 mappings go before nat64):
         if (poolId < nat44PoolCount) {
-            final SnatAddressDetails detail = nat44Details.get(Math.toIntExact(poolId));
+            final Nat44AddressDetails detail = nat44Details.get(Math.toIntExact(poolId));
             readPoolIp(builder, detail.ipAddress);
             setPoolType(builder, NatPoolType.Nat44);
         } else {
@@ -153,7 +153,7 @@ final class ExternalIpPoolCustomizer implements
         // this customizer also returns every single address as a 32 prefix and assigns an artificial key to them
 
         long addressCount = nat44DumpMgr.getDump(id, ctx.getModificationCache(), null)
-                .or(new SnatAddressDetailsReplyDump()).snatAddressDetails.stream()
+                .or(new Nat44AddressDetailsReplyDump()).nat44AddressDetails.stream()
                 .count();
 
         // The ietf-nat model groups address pools for Nat44 and Nat64 under the same list,

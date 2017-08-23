@@ -27,10 +27,10 @@ import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
-import io.fd.vpp.jvpp.snat.dto.Nat64BibDetails;
-import io.fd.vpp.jvpp.snat.dto.Nat64BibDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatStaticMappingDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64BibDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat64BibDetailsReplyDump;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -53,14 +53,14 @@ public class MappingEntryCustomizerTest
     private static final long NAT_MAPPING_ID = 2L;
     private InstanceIdentifier<MappingEntry> mappingEntryId;
     private InstanceIdentifier<MappingEntry> mappingEntryWildcarded;
-    private DumpCacheManager<SnatStaticMappingDetailsReplyDump, Void> nat44DumpManager;
+    private DumpCacheManager<Nat44StaticMappingDetailsReplyDump, Void> nat44DumpManager;
     private DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager;
 
     @Mock
     private MappingEntryContext mappingContext;
 
     @Mock
-    private EntityDumpExecutor<SnatStaticMappingDetailsReplyDump, Void> nat44DumpExecutor;
+    private EntityDumpExecutor<Nat44StaticMappingDetailsReplyDump, Void> nat44DumpExecutor;
 
     @Mock
     private EntityDumpExecutor<Nat64BibDetailsReplyDump, Void> nat64DumpExecutor;
@@ -79,9 +79,9 @@ public class MappingEntryCustomizerTest
                 .child(NatInstance.class, new NatInstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID))
                 .child(MappingTable.class)
                 .child(MappingEntry.class);
-        nat44DumpManager = new DumpCacheManager.DumpCacheManagerBuilder<SnatStaticMappingDetailsReplyDump, Void>()
+        nat44DumpManager = new DumpCacheManager.DumpCacheManagerBuilder<Nat44StaticMappingDetailsReplyDump, Void>()
                 .withExecutor(nat44DumpExecutor)
-                .acceptOnly(SnatStaticMappingDetailsReplyDump.class)
+                .acceptOnly(Nat44StaticMappingDetailsReplyDump.class)
                 .build();
         nat64DumpManager = new DumpCacheManager.DumpCacheManagerBuilder<Nat64BibDetailsReplyDump, Void>()
                 .withExecutor(nat64DumpExecutor)
@@ -91,13 +91,13 @@ public class MappingEntryCustomizerTest
 
     @Test
     public void testReadNat44() throws Exception {
-        final SnatStaticMappingDetailsReplyDump dumpNat44 = dumpReplyNat44NonEmpty();
+        final Nat44StaticMappingDetailsReplyDump dumpNat44 = dumpReplyNat44NonEmpty();
         when(nat44DumpExecutor.executeDump(mappingEntryId, null)).thenReturn(dumpNat44);
         final MappingEntryBuilder builder = new MappingEntryBuilder();
         when(mappingContext
-                .findDetailsNat44(dumpNat44.snatStaticMappingDetails, NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
+                .findDetailsNat44(dumpNat44.nat44StaticMappingDetails, NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
                         NAT_MAPPING_ID, ctx.getMappingContext()))
-                .thenReturn(Optional.of(dumpNat44.snatStaticMappingDetails.get(2)));
+                .thenReturn(Optional.of(dumpNat44.nat44StaticMappingDetails.get(2)));
         getCustomizer().readCurrentAttributes(mappingEntryId, builder, ctx);
 
         assertEquals(NAT_MAPPING_ID, builder.getIndex().longValue());
@@ -113,7 +113,7 @@ public class MappingEntryCustomizerTest
 
     @Test
     public void testReadNat64() throws Exception {
-        when(nat44DumpExecutor.executeDump(mappingEntryId, null)).thenReturn(new SnatStaticMappingDetailsReplyDump());
+        when(nat44DumpExecutor.executeDump(mappingEntryId, null)).thenReturn(new Nat44StaticMappingDetailsReplyDump());
         final Nat64BibDetailsReplyDump dumpNat64 = dumpReplyNat64NonEmpty();
         when(nat64DumpExecutor.executeDump(mappingEntryId, null)).thenReturn(dumpNat64);
         final MappingEntryBuilder builder = new MappingEntryBuilder();
@@ -136,15 +136,15 @@ public class MappingEntryCustomizerTest
 
     @Test
     public void testReadAllNat44() throws Exception {
-        final SnatStaticMappingDetailsReplyDump dumpNat44 = dumpReplyNat44NonEmpty();
+        final Nat44StaticMappingDetailsReplyDump dumpNat44 = dumpReplyNat44NonEmpty();
         when(nat44DumpExecutor.executeDump(mappingEntryWildcarded, null)).thenReturn(dumpNat44);
         when(nat64DumpExecutor.executeDump(mappingEntryWildcarded, null)).thenReturn(new Nat64BibDetailsReplyDump());
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
-                dumpNat44.snatStaticMappingDetails.get(0), ctx.getMappingContext())).thenReturn(0L);
+                dumpNat44.nat44StaticMappingDetails.get(0), ctx.getMappingContext())).thenReturn(0L);
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
-                dumpNat44.snatStaticMappingDetails.get(1), ctx.getMappingContext())).thenReturn(1L);
+                dumpNat44.nat44StaticMappingDetails.get(1), ctx.getMappingContext())).thenReturn(1L);
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
-                dumpNat44.snatStaticMappingDetails.get(2), ctx.getMappingContext())).thenReturn(2L);
+                dumpNat44.nat44StaticMappingDetails.get(2), ctx.getMappingContext())).thenReturn(2L);
 
         final List<MappingEntryKey> allIds = getCustomizer().getAllIds(mappingEntryWildcarded, ctx);
         assertThat(allIds, hasItems(new MappingEntryKey(0L), new MappingEntryKey(2L)));
@@ -154,7 +154,7 @@ public class MappingEntryCustomizerTest
     public void testReadAllNat64() throws Exception {
         final Nat64BibDetailsReplyDump dumpNat64 = dumpReplyNat64NonEmpty();
         when(nat44DumpExecutor.executeDump(mappingEntryWildcarded, null))
-                .thenReturn(new SnatStaticMappingDetailsReplyDump());
+                .thenReturn(new Nat44StaticMappingDetailsReplyDump());
         when(nat64DumpExecutor.executeDump(mappingEntryWildcarded, null)).thenReturn(dumpNat64);
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
                 dumpNat64.nat64BibDetails.get(0), ctx.getMappingContext())).thenReturn(0L);
@@ -169,17 +169,17 @@ public class MappingEntryCustomizerTest
 
     @Test
     public void testReadAll() throws Exception {
-        final SnatStaticMappingDetailsReplyDump dumpNat44 = dumpReplyNat44NonEmpty();
+        final Nat44StaticMappingDetailsReplyDump dumpNat44 = dumpReplyNat44NonEmpty();
         final Nat64BibDetailsReplyDump dumpNat64 = dumpReplyNat64NonEmpty();
         when(nat44DumpExecutor.executeDump(mappingEntryWildcarded, null))
                 .thenReturn(dumpNat44);
         when(nat64DumpExecutor.executeDump(mappingEntryWildcarded, null)).thenReturn(dumpNat64);
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
-                dumpNat44.snatStaticMappingDetails.get(0), ctx.getMappingContext())).thenReturn(0L);
+                dumpNat44.nat44StaticMappingDetails.get(0), ctx.getMappingContext())).thenReturn(0L);
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
-                dumpNat44.snatStaticMappingDetails.get(1), ctx.getMappingContext())).thenReturn(1L);
+                dumpNat44.nat44StaticMappingDetails.get(1), ctx.getMappingContext())).thenReturn(1L);
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
-                dumpNat44.snatStaticMappingDetails.get(2), ctx.getMappingContext())).thenReturn(2L);
+                dumpNat44.nat44StaticMappingDetails.get(2), ctx.getMappingContext())).thenReturn(2L);
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
                 dumpNat64.nat64BibDetails.get(0), ctx.getMappingContext())).thenReturn(3L);
         when(mappingContext.getStoredOrArtificialIndex(NatInstanceCustomizer.DEFAULT_VRF_ID.getId(),
@@ -197,11 +197,10 @@ public class MappingEntryCustomizerTest
         return new MappingEntryCustomizer(nat44DumpManager, nat64DumpManager, mappingContext);
     }
 
-    private static SnatStaticMappingDetailsReplyDump dumpReplyNat44NonEmpty() {
-        SnatStaticMappingDetailsReplyDump replyDump = new SnatStaticMappingDetailsReplyDump();
+    private static Nat44StaticMappingDetailsReplyDump dumpReplyNat44NonEmpty() {
+        Nat44StaticMappingDetailsReplyDump replyDump = new Nat44StaticMappingDetailsReplyDump();
 
-        SnatStaticMappingDetails detailsOne = new SnatStaticMappingDetails();
-        detailsOne.isIp4 = 1;
+        Nat44StaticMappingDetails detailsOne = new Nat44StaticMappingDetails();
         detailsOne.addrOnly = 1;
         detailsOne.localIpAddress = new byte[]{-64, -88, 2, 1};
         detailsOne.localPort = 1234;
@@ -209,8 +208,7 @@ public class MappingEntryCustomizerTest
         detailsOne.externalPort = 5874;
         detailsOne.vrfId = NatInstanceCustomizer.DEFAULT_VRF_ID.getId().byteValue();
 
-        SnatStaticMappingDetails detailsTwo = new SnatStaticMappingDetails();
-        detailsTwo.isIp4 = 1;
+        Nat44StaticMappingDetails detailsTwo = new Nat44StaticMappingDetails();
         detailsTwo.addrOnly = 1;
         detailsTwo.localIpAddress = new byte[]{-64, -88, 2, 3};
         detailsTwo.localPort = 1235;
@@ -218,8 +216,7 @@ public class MappingEntryCustomizerTest
         detailsTwo.externalPort = 5874;
         detailsTwo.vrfId = 2;
 
-        SnatStaticMappingDetails detailsThree = new SnatStaticMappingDetails();
-        detailsThree.isIp4 = 1;
+        Nat44StaticMappingDetails detailsThree = new Nat44StaticMappingDetails();
         detailsThree.addrOnly = 0;
         detailsThree.localIpAddress = new byte[]{-64, -88, 2, 2};
         detailsThree.localPort = 1274;
@@ -227,7 +224,7 @@ public class MappingEntryCustomizerTest
         detailsThree.externalPort = 6874;
         detailsThree.vrfId = NatInstanceCustomizer.DEFAULT_VRF_ID.getId().byteValue();
 
-        replyDump.snatStaticMappingDetails = Arrays.asList(detailsOne, detailsTwo, detailsThree);
+        replyDump.nat44StaticMappingDetails = Arrays.asList(detailsOne, detailsTwo, detailsThree);
         return replyDump;
     }
 

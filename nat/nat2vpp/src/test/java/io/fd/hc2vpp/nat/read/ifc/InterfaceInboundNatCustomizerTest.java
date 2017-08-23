@@ -28,12 +28,12 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.read.GenericReader;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.vpp.jvpp.snat.dto.Nat64InterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceOutputFeatureDetails;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceOutputFeatureDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceOutputFeatureDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceOutputFeatureDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64InterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -55,7 +55,7 @@ public class InterfaceInboundNatCustomizerTest
     private static final String CTX_NAME = "ifc";
 
     @Mock
-    private FutureJVppSnatFacade jvppSnat;
+    private FutureJVppNatFacade jvppNat;
 
     private NamingContext ifcContext = new NamingContext(CTX_NAME, CTX_NAME);
     private InstanceIdentifier<Inbound> id;
@@ -76,10 +76,10 @@ public class InterfaceInboundNatCustomizerTest
     protected void setUp() throws Exception {
         id = getId(Inbound.class);
         defineMapping(mappingContext, IFC_NAME, IFC_IDX, CTX_NAME);
-        when(jvppSnat.snatInterfaceDump(any())).thenReturn(future(new SnatInterfaceDetailsReplyDump()));
-        when(jvppSnat.snatInterfaceOutputFeatureDump(any()))
-                .thenReturn(future(new SnatInterfaceOutputFeatureDetailsReplyDump()));
-        when(jvppSnat.nat64InterfaceDump(any()))
+        when(jvppNat.nat44InterfaceDump(any())).thenReturn(future(new Nat44InterfaceDetailsReplyDump()));
+        when(jvppNat.nat44InterfaceOutputFeatureDump(any()))
+                .thenReturn(future(new Nat44InterfaceOutputFeatureDetailsReplyDump()));
+        when(jvppNat.nat64InterfaceDump(any()))
                 .thenReturn(future(new Nat64InterfaceDetailsReplyDump()));
     }
 
@@ -88,22 +88,22 @@ public class InterfaceInboundNatCustomizerTest
     }
 
     private void mockPostRoutingDump() {
-        final SnatInterfaceOutputFeatureDetailsReplyDump details = new SnatInterfaceOutputFeatureDetailsReplyDump();
-        final SnatInterfaceOutputFeatureDetails detail = new SnatInterfaceOutputFeatureDetails();
+        final Nat44InterfaceOutputFeatureDetailsReplyDump details = new Nat44InterfaceOutputFeatureDetailsReplyDump();
+        final Nat44InterfaceOutputFeatureDetails detail = new Nat44InterfaceOutputFeatureDetails();
         detail.isInside = 1;
         detail.swIfIndex = IFC_IDX;
-        details.snatInterfaceOutputFeatureDetails = Lists.newArrayList(detail);
-        when(jvppSnat.snatInterfaceOutputFeatureDump(any())).thenReturn(future(details));
+        details.nat44InterfaceOutputFeatureDetails = Lists.newArrayList(detail);
+        when(jvppNat.nat44InterfaceOutputFeatureDump(any())).thenReturn(future(details));
     }
 
     @Test
     public void testPresencePreRouting() throws Exception {
-        final SnatInterfaceDetailsReplyDump details = new SnatInterfaceDetailsReplyDump();
-        final SnatInterfaceDetails detail = new SnatInterfaceDetails();
+        final Nat44InterfaceDetailsReplyDump details = new Nat44InterfaceDetailsReplyDump();
+        final Nat44InterfaceDetails detail = new Nat44InterfaceDetails();
         detail.isInside = 1;
         detail.swIfIndex = IFC_IDX;
-        details.snatInterfaceDetails = Lists.newArrayList(detail);
-        when(jvppSnat.snatInterfaceDump(any())).thenReturn(future(details));
+        details.nat44InterfaceDetails = Lists.newArrayList(detail);
+        when(jvppNat.nat44InterfaceDump(any())).thenReturn(future(details));
 
         assertTrue(getReader().read(id, ctx).isPresent());
     }
@@ -124,6 +124,6 @@ public class InterfaceInboundNatCustomizerTest
 
     @Override
     protected ReaderCustomizer<Inbound, InboundBuilder> initCustomizer() {
-        return new InterfaceInboundNatCustomizer(jvppSnat, ifcContext);
+        return new InterfaceInboundNatCustomizer(jvppNat, ifcContext);
     }
 }

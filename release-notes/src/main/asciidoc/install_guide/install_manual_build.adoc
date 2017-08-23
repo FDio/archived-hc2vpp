@@ -47,8 +47,8 @@ Install JVpp into local maven repository to make hc2vpp pick up the same JVpp ve
  cd build-vpp-native/vpp-api/java/
  mvn install:install-file -Dfile=jvpp-registry-{project-vpp-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-registry -Dversion={project-vpp-snapshot-version} -Dpackaging=jar
  mvn install:install-file -Dfile=jvpp-core-{project-vpp-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-core -Dversion={project-vpp-snapshot-version}-Dpackaging=jar
- cd ../../plugins/snat-plugin/
- mvn install:install-file -Dfile=jvpp-snat-{project-snat-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-snat -Dversion={project-snat-snapshot-version} -Dpackaging=jar
+ cd ../../plugins/nat-plugin/
+ mvn install:install-file -Dfile=jvpp-nat-{project-nat-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-nat -Dversion={project-nat-snapshot-version} -Dpackaging=jar
 
 Now current Vpp is up and running and prepared for integration with HC.
 

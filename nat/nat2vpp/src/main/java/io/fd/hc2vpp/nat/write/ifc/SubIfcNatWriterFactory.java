@@ -22,7 +22,7 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -46,21 +46,21 @@ public final class SubIfcNatWriterFactory implements WriterFactory {
     private static final InstanceIdentifier<Nat> NAT_AUG_ID =
             SUB_IFC_ID.augmentation(NatSubinterfaceAugmentation.class).child(Nat.class);
 
-    private final FutureJVppSnatFacade jvppSnat;
+    private final FutureJVppNatFacade jvppNat;
     private final NamingContext ifcContext;
 
     @Inject
-    public SubIfcNatWriterFactory(final FutureJVppSnatFacade jvppSnat,
+    public SubIfcNatWriterFactory(final FutureJVppNatFacade jvppNat,
                                   @Named("interface-context") final NamingContext ifcContext) {
-        this.jvppSnat = jvppSnat;
+        this.jvppNat = jvppNat;
         this.ifcContext = ifcContext;
     }
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         registry.addAfter(new GenericWriter<>(NAT_AUG_ID.child(Inbound.class),
-                new SubInterfaceInboundNatCustomizer(jvppSnat, ifcContext)), SUB_IFC_ID);
+                new SubInterfaceInboundNatCustomizer(jvppNat, ifcContext)), SUB_IFC_ID);
         registry.addAfter(new GenericWriter<>(NAT_AUG_ID.child(Outbound.class),
-                new SubInterfaceOutboundNatCustomizer(jvppSnat, ifcContext)), SUB_IFC_ID);
+                new SubInterfaceOutboundNatCustomizer(jvppNat, ifcContext)), SUB_IFC_ID);
     }
 }

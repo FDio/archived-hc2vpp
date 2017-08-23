@@ -22,7 +22,7 @@ import com.google.inject.Provider;
 import io.fd.hc2vpp.nat.NatModule;
 import io.fd.vpp.jvpp.JVpp;
 import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import java.io.IOException;
 
 /**
@@ -31,15 +31,15 @@ import java.io.IOException;
 public class MockNatModule extends NatModule {
 
     public MockNatModule() {
-        super(MockJVppSnatProvider.class);
+        super(MockJVppNatProvider.class);
     }
 
-    private static class MockJVppSnatProvider implements Provider<FutureJVppSnatFacade> {
+    private static class MockJVppNatProvider implements Provider<FutureJVppNatFacade> {
 
         @Override
-        public FutureJVppSnatFacade get() {
+        public FutureJVppNatFacade get() {
             try {
-                return new FutureJVppSnatFacade(noOpProxy(JVppRegistry.class), noOpProxy(JVpp.class));
+                return new FutureJVppNatFacade(noOpProxy(JVppRegistry.class), noOpProxy(JVpp.class));
             } catch (IOException e) {
                 throw new IllegalStateException(e);
             }

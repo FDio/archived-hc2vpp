@@ -26,9 +26,9 @@ import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.snat.dto.Nat64AddDelPoolAddrRange;
-import io.fd.vpp.jvpp.snat.dto.SnatAddAddressRange;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44AddDelAddressRange;
+import io.fd.vpp.jvpp.nat.dto.Nat64AddDelPoolAddrRange;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
@@ -44,10 +44,10 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
 
     private static final Logger LOG = LoggerFactory.getLogger(ExternalIpPoolCustomizer.class);
 
-    private final FutureJVppSnatFacade jvppSnat;
+    private final FutureJVppNatFacade jvppNat;
 
-    ExternalIpPoolCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat) {
-        this.jvppSnat = jvppSnat;
+    ExternalIpPoolCustomizer(@Nonnull final FutureJVppNatFacade jvppNat) {
+        this.jvppNat = jvppNat;
     }
 
     @Override
@@ -82,18 +82,17 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
         }
         if (isNat64) {
             final Nat64AddDelPoolAddrRange request = getNat64Request(addressPool.getExternalIpPool(), isAdd);
-            getReplyForWrite(jvppSnat.nat64AddDelPoolAddrRange(request).toCompletableFuture(), id);
+            getReplyForWrite(jvppNat.nat64AddDelPoolAddrRange(request).toCompletableFuture(), id);
         } else {
-            final SnatAddAddressRange request = getNat44Request(addressPool.getExternalIpPool(), isAdd);
-            getReplyForWrite(jvppSnat.snatAddAddressRange(request).toCompletableFuture(), id);
+            final Nat44AddDelAddressRange request = getNat44Request(addressPool.getExternalIpPool(), isAdd);
+            getReplyForWrite(jvppNat.nat44AddDelAddressRange(request).toCompletableFuture(), id);
         }
     }
 
-    private SnatAddAddressRange getNat44Request(final Ipv4Prefix externalIpPool, boolean isAdd) {
-        final SnatAddAddressRange request = new SnatAddAddressRange();
+    private Nat44AddDelAddressRange getNat44Request(final Ipv4Prefix externalIpPool, boolean isAdd) {
+        final Nat44AddDelAddressRange request = new Nat44AddDelAddressRange();
         final Ipv4AddressRange range = Ipv4AddressRange.fromPrefix(externalIpPool);
         LOG.trace("Handling NAT44 address range: {}", range);
-        request.isIp4 = 1;
         request.isAdd = booleanToByte(isAdd);
         request.firstIpAddress = ipv4AddressNoZoneToArray(range.getStart());
         request.lastIpAddress = ipv4AddressNoZoneToArray(range.getEnd());

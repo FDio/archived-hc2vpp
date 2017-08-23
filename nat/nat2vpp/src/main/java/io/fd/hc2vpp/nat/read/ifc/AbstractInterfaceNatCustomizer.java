@@ -25,13 +25,13 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
-import io.fd.vpp.jvpp.snat.dto.Nat64InterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.Nat64InterfaceDump;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceDump;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceOutputFeatureDetailsReplyDump;
-import io.fd.vpp.jvpp.snat.dto.SnatInterfaceOutputFeatureDump;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceDump;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceOutputFeatureDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat44InterfaceOutputFeatureDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64InterfaceDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.dto.Nat64InterfaceDump;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -42,36 +42,36 @@ import org.slf4j.Logger;
 abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Builder<C>>
         implements InitializingReaderCustomizer<C, B>, JvppReplyConsumer {
 
-    private final DumpCacheManager<SnatInterfaceDetailsReplyDump, Void> preRoutingNat44DumpMgr;
+    private final DumpCacheManager<Nat44InterfaceDetailsReplyDump, Void> preRoutingNat44DumpMgr;
     private final DumpCacheManager<Nat64InterfaceDetailsReplyDump, Void> preRoutingNat64DumpMgr;
-    private final DumpCacheManager<SnatInterfaceOutputFeatureDetailsReplyDump, Void> postRoutingNat44DumpMgr;
+    private final DumpCacheManager<Nat44InterfaceOutputFeatureDetailsReplyDump, Void> postRoutingNat44DumpMgr;
     private final NamingContext ifcContext;
     private final VppAttributesBuilder vppAttributesBuilder;
 
-    AbstractInterfaceNatCustomizer(@Nonnull final FutureJVppSnatFacade jvppSnat,
+    AbstractInterfaceNatCustomizer(@Nonnull final FutureJVppNatFacade jvppNat,
                                    @Nonnull final NamingContext ifcContext,
                                    @Nonnull final VppAttributesBuilder vppAttributesBuilder) {
-        requireNonNull(jvppSnat, "jvppSnat should not be null");
+        requireNonNull(jvppNat, "jvppNat should not be null");
         this.ifcContext = requireNonNull(ifcContext, "ifcContext should not be null");
         this.vppAttributesBuilder = requireNonNull(vppAttributesBuilder, "ifcContext should not be null");
         this.preRoutingNat44DumpMgr =
-                new DumpCacheManager.DumpCacheManagerBuilder<SnatInterfaceDetailsReplyDump, Void>()
+                new DumpCacheManager.DumpCacheManagerBuilder<Nat44InterfaceDetailsReplyDump, Void>()
                         .withExecutor((id, params) -> getReplyForRead(
-                                jvppSnat.snatInterfaceDump(new SnatInterfaceDump()).toCompletableFuture(), id))
-                        .acceptOnly(SnatInterfaceDetailsReplyDump.class)
+                                jvppNat.nat44InterfaceDump(new Nat44InterfaceDump()).toCompletableFuture(), id))
+                        .acceptOnly(Nat44InterfaceDetailsReplyDump.class)
                         .build();
         this.preRoutingNat64DumpMgr =
                 new DumpCacheManager.DumpCacheManagerBuilder<Nat64InterfaceDetailsReplyDump, Void>()
                         .withExecutor((id, params) -> getReplyForRead(
-                                jvppSnat.nat64InterfaceDump(new Nat64InterfaceDump()).toCompletableFuture(), id))
+                                jvppNat.nat64InterfaceDump(new Nat64InterfaceDump()).toCompletableFuture(), id))
                         .acceptOnly(Nat64InterfaceDetailsReplyDump.class)
                         .build();
         this.postRoutingNat44DumpMgr =
-                new DumpCacheManager.DumpCacheManagerBuilder<SnatInterfaceOutputFeatureDetailsReplyDump, Void>()
+                new DumpCacheManager.DumpCacheManagerBuilder<Nat44InterfaceOutputFeatureDetailsReplyDump, Void>()
                         .withExecutor((id, params) -> getReplyForRead(
-                                jvppSnat.snatInterfaceOutputFeatureDump(new SnatInterfaceOutputFeatureDump())
+                                jvppNat.nat44InterfaceOutputFeatureDump(new Nat44InterfaceOutputFeatureDump())
                                         .toCompletableFuture(), id))
-                        .acceptOnly(SnatInterfaceOutputFeatureDetailsReplyDump.class)
+                        .acceptOnly(Nat44InterfaceOutputFeatureDetailsReplyDump.class)
                         .build();
     }
 
@@ -92,14 +92,14 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
 
     private void readPreRoutingNat44(final InstanceIdentifier<C> id, final int index, final B builder,
                                      final ReadContext ctx) throws ReadFailedException {
-        final Optional<SnatInterfaceDetailsReplyDump> dump =
+        final Optional<Nat44InterfaceDetailsReplyDump> dump =
                 preRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache(), null);
 
-        dump.or(new SnatInterfaceDetailsReplyDump()).snatInterfaceDetails.stream()
-                .filter(snatIfcDetail -> snatIfcDetail.swIfIndex == index)
-                .filter(snatIfcDetail -> isExpectedNatType(snatIfcDetail.isInside))
+        dump.or(new Nat44InterfaceDetailsReplyDump()).nat44InterfaceDetails.stream()
+                .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
+                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))
                 .findAny()
-                .ifPresent(snatIfcDetail -> vppAttributesBuilder.enableNat44(builder));
+                .ifPresent(natIfcDetail -> vppAttributesBuilder.enableNat44(builder));
         // do not modify builder is feature is absent (inbound/outbound are presence containers)
     }
 
@@ -109,24 +109,24 @@ abstract class AbstractInterfaceNatCustomizer<C extends DataObject, B extends Bu
                 preRoutingNat64DumpMgr.getDump(id, ctx.getModificationCache(), null);
 
         dump.or(new Nat64InterfaceDetailsReplyDump()).nat64InterfaceDetails.stream()
-                .filter(snatIfcDetail -> snatIfcDetail.swIfIndex == index)
-                .filter(snatIfcDetail -> isExpectedNatType(snatIfcDetail.isInside))
+                .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
+                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))
                 .findAny()
-                .ifPresent(snatIfcDetail -> vppAttributesBuilder.enableNat64(builder));
+                .ifPresent(natIfcDetail -> vppAttributesBuilder.enableNat64(builder));
         // do not modify builder is feature is absent (inbound/outbound are presence containers)
     }
 
     private void readPostRoutingNat44(final InstanceIdentifier<C> id, final int index, final B builder,
                                       final ReadContext ctx) throws ReadFailedException {
-        final Optional<SnatInterfaceOutputFeatureDetailsReplyDump> dump =
+        final Optional<Nat44InterfaceOutputFeatureDetailsReplyDump> dump =
                 postRoutingNat44DumpMgr.getDump(id, ctx.getModificationCache(), null);
 
-        dump.or(new SnatInterfaceOutputFeatureDetailsReplyDump()).snatInterfaceOutputFeatureDetails
+        dump.or(new Nat44InterfaceOutputFeatureDetailsReplyDump()).nat44InterfaceOutputFeatureDetails
                 .stream()
-                .filter(snatIfcDetail -> snatIfcDetail.swIfIndex == index)
-                .filter(snatIfcDetail -> isExpectedNatType(snatIfcDetail.isInside))
+                .filter(natIfcDetail -> natIfcDetail.swIfIndex == index)
+                .filter(natIfcDetail -> isExpectedNatType(natIfcDetail.isInside))
                 .findAny()
-                .ifPresent(snatIfcDetail -> vppAttributesBuilder.enablePostRouting(builder));
+                .ifPresent(natIfcDetail -> vppAttributesBuilder.enablePostRouting(builder));
         // do not modify builder is feature is absent (inbound/outbound are presence containers)
     }
 

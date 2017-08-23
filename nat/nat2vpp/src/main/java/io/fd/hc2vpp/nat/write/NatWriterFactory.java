@@ -22,7 +22,7 @@ import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.impl.write.GenericListWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatConfig;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.ExternalSrcPort;
@@ -46,13 +46,13 @@ public final class NatWriterFactory implements WriterFactory {
     private static final InstanceIdentifier<MappingEntry> MAP_ENTRY_ID =
             NAT_INSTANCE_ID.child(MappingTable.class).child(MappingEntry.class);
 
-    private final FutureJVppSnatFacade jvppSnat;
+    private final FutureJVppNatFacade jvppNat;
     private final MappingEntryContext mappingEntryContext;
 
     @Inject
-    public NatWriterFactory(final FutureJVppSnatFacade jvppSnat,
+    public NatWriterFactory(final FutureJVppNatFacade jvppNat,
                             final MappingEntryContext mappingEntryContext) {
-        this.jvppSnat = jvppSnat;
+        this.jvppNat = jvppNat;
         this.mappingEntryContext = mappingEntryContext;
     }
 
@@ -63,7 +63,7 @@ public final class NatWriterFactory implements WriterFactory {
         //  Mapping-entry
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(MappingEntry.class).child(ExternalSrcPort.class),
                 InstanceIdentifier.create(MappingEntry.class).child(InternalSrcPort.class)),
-                new GenericListWriter<>(MAP_ENTRY_ID, new MappingEntryCustomizer(jvppSnat, mappingEntryContext)));
+                new GenericListWriter<>(MAP_ENTRY_ID, new MappingEntryCustomizer(jvppNat, mappingEntryContext)));
 
         // External address pool has to be executed before mapping entry. Because adding mapping entries requires to
         //  already have an IP range predefined ... in some cases
@@ -71,7 +71,7 @@ public final class NatWriterFactory implements WriterFactory {
                 Sets.newHashSet(InstanceIdentifier.create(ExternalIpAddressPool.class)
                                 .augmentation(ExternalIpAddressPoolConfigAugmentation.class)),
                         new GenericListWriter<>(NAT_INSTANCE_ID.child(ExternalIpAddressPool.class),
-                new ExternalIpPoolCustomizer(jvppSnat)),
+                new ExternalIpPoolCustomizer(jvppNat)),
                 MAP_ENTRY_ID);
     }
 }

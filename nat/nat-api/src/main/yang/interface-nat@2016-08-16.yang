@@ -8,7 +8,7 @@ module interface-nat {
   }
 
   revision "2017-08-01" {
-    description "Added support for snat_interface_add_del_output_feature.";
+    description "Added support for nat_interface_add_del_output_feature.";
   }
 
   revision "2016-12-14" {
@@ -33,10 +33,10 @@ module interface-nat {
       default false;
       description
         "Indicates whether NAT translation should be applied after routing.
-         If true, snat_interface_add_del_output_feature message is used to enable NAT.
-         By default snat_interface_add_del_feature is used.";
+         If true, nat_interface_add_del_output_feature message is used to enable NAT.
+         By default nat_interface_add_del_feature is used.";
       reference
-        "https://git.fd.io/vpp/tree/src/plugins/snat/snat.api";
+        "https://git.fd.io/vpp/tree/src/plugins/nat/nat.api";
     }
 
     leaf nat44-support {

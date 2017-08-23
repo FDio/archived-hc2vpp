@@ -20,8 +20,8 @@ import com.google.inject.Inject;
 import io.fd.honeycomb.binding.init.ProviderTrait;
 import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
-import io.fd.vpp.jvpp.snat.JVppSnatImpl;
-import io.fd.vpp.jvpp.snat.future.FutureJVppSnatFacade;
+import io.fd.vpp.jvpp.nat.JVppNatImpl;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
  * Provides future API for jvpp-nsh plugin. Must be a singleton due to shutdown hook usage. Registers shutdown hook to
  * free plugin's resources on shutdown.
  */
-public final class JVppSnatProvider extends ProviderTrait<FutureJVppSnatFacade> {
+public final class JVppNatProvider extends ProviderTrait<FutureJVppNatFacade> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JVppSnatProvider.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JVppNatProvider.class);
 
     @Inject
     private JVppRegistry registry;
@@ -41,14 +41,14 @@ public final class JVppSnatProvider extends ProviderTrait<FutureJVppSnatFacade> 
     private ShutdownHandler shutdownHandler;
 
     @Override
-    protected FutureJVppSnatFacade create() {
+    protected FutureJVppNatFacade create() {
         try {
-            final JVppSnatImpl jvppSnat = new JVppSnatImpl();
+            final JVppNatImpl jvppNat = new JVppNatImpl();
             // Free jvpp-nsh plugin's resources on shutdown
-            shutdownHandler.register("jvpp-snat", jvppSnat);
+            shutdownHandler.register("jvpp-nat", jvppNat);
 
-            LOG.info("Successfully loaded jvpp-snat plugin");
-            return new FutureJVppSnatFacade(registry, jvppSnat);
+            LOG.info("Successfully loaded jvpp-nat plugin");
+            return new FutureJVppNatFacade(registry, jvppNat);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to open VPP management connection", e);
         }
