@@ -22,13 +22,13 @@ import static java.lang.String.format;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
-import io.fd.hc2vpp.v3po.interfacesstate.cache.StaticCacheKeyFactory;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.StaticCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceVhostUserDetailsReplyDump;
@@ -50,7 +50,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUser, VhostUserBuilder>,
         InterfaceDataTranslator, JvppReplyConsumer {
 
@@ -66,8 +65,8 @@ public class VhostUserCustomizer implements InitializingReaderCustomizer<VhostUs
         this.dumpManager = dumpManager;
         this.vhostDumpManager =
                 new DumpCacheManager.DumpCacheManagerBuilder<SwInterfaceVhostUserDetailsReplyDump, Void>()
-                        .acceptOnly(SwInterfaceVhostUserDetailsReplyDump.class)
-                        .withCacheKeyFactory(new StaticCacheKeyFactory(VhostUserCustomizer.class.getName() + "_dump"))
+                        .withCacheKeyFactory(new StaticCacheKeyFactory(VhostUserCustomizer.class.getName() + "_dump",
+                                SwInterfaceVhostUserDetailsReplyDump.class))
                         .withExecutor((identifier, params) -> {
                             final CompletionStage<SwInterfaceVhostUserDetailsReplyDump>
                                     swInterfaceVhostUserDetailsReplyDumpCompletionStage =

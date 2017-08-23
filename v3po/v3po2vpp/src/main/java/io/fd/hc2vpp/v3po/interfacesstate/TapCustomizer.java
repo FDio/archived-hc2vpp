@@ -24,13 +24,13 @@ import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
-import io.fd.hc2vpp.v3po.interfacesstate.cache.StaticCacheKeyFactory;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingReaderCustomizer;
 import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
+import io.fd.honeycomb.translate.util.read.cache.StaticCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceTapDetailsReplyDump;
@@ -67,8 +67,8 @@ public class TapCustomizer extends FutureJVppCustomizer
         this.interfaceContext = interfaceContext;
         this.dumpManager = dumpManager;
         this.tapDumpManager = new DumpCacheManager.DumpCacheManagerBuilder<SwInterfaceTapDetailsReplyDump, Void>()
-                .withCacheKeyFactory(new StaticCacheKeyFactory(TapCustomizer.class.getName() + "_dump"))
-                .acceptOnly(SwInterfaceTapDetailsReplyDump.class)
+                .withCacheKeyFactory(new StaticCacheKeyFactory(TapCustomizer.class.getName() + "_dump",
+                        SwInterfaceTapDetailsReplyDump.class))
                 .withExecutor((identifier, params) -> {
                     // Full Tap dump has to be performed here, no filter or anything is here to help so at least we cache it
                     return getReplyForRead(getFutureJVpp()

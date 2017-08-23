@@ -27,6 +27,7 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor;
+import io.fd.honeycomb.translate.util.read.cache.StaticCacheKeyFactory;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDump;
@@ -58,7 +59,7 @@ final class InterfaceCacheDumpManagerImpl implements InterfaceCacheDumpManager {
         this.namingContext = namingContext;
         specificDumpManager = specificInterfaceDumpManager(jvpp);
         fullDumpManager = fullInterfaceDumpManager(jvpp,
-                new StaticCacheKeyFactory(StaticCacheKeyFactory.class.getName() + "_dump"));
+                new StaticCacheKeyFactory(InterfaceCacheDumpManagerImpl.class.getName() + "_dump", SwInterfaceDetailsReplyDump.class));
     }
 
     @Override
