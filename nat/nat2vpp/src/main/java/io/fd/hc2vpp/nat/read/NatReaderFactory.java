@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.nat.util.MappingEntryContext;
 import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
+import io.fd.honeycomb.translate.impl.read.GenericListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
@@ -32,6 +33,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev1509
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.ExternalSrcPort;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.InternalSrcPort;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.nat64.prefixes.DestinationIpv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstances;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstancesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
@@ -90,5 +93,11 @@ public class NatReaderFactory implements ReaderFactory {
         registry.addStructuralReader(CURRENT_CONFIG, NatCurrentConfigBuilder.class);
         registry.add(new GenericInitListReader<>(CURRENT_CONFIG.child(ExternalIpAddressPool.class),
                 new ExternalIpPoolCustomizer(jvppNat)));
+
+        // nat64-prefixes
+        registry.subtreeAdd(
+                Sets.newHashSet(InstanceIdentifier.create(Nat64Prefixes.class).child(DestinationIpv4Prefix.class)),
+                new GenericListReader<>(CURRENT_CONFIG.child(Nat64Prefixes.class),
+                        new Nat64PrefixesCustomizer(jvppNat)));
     }
 }

@@ -1,0 +1,130 @@
+/*
+ * Copyright (c) 2017 Cisco and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.fd.hc2vpp.nat.read;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
+import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
+import io.fd.vpp.jvpp.nat.dto.Nat64PrefixDetails;
+import io.fd.vpp.jvpp.nat.dto.Nat64PrefixDetailsReplyDump;
+import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
+import java.util.List;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstances;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfig;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfigBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+public class Nat64PrefixesCustomizerTest extends ListReaderCustomizerTest<Nat64Prefixes, Nat64PrefixesKey, Nat64PrefixesBuilder> {
+
+    @Mock
+    private FutureJVppNatFacade jvppNat;
+
+    public Nat64PrefixesCustomizerTest() {
+        super(Nat64Prefixes.class, NatCurrentConfigBuilder.class);
+    }
+
+    @Override
+    protected ReaderCustomizer<Nat64Prefixes, Nat64PrefixesBuilder> initCustomizer() {
+        return new Nat64PrefixesCustomizer(jvppNat);
+    }
+
+    @Test
+    public void testGetAllNoPrefixes() throws ReadFailedException {
+        when(jvppNat.nat64PrefixDump(any())).thenReturn(future(dump()));
+        final List<Nat64PrefixesKey> allIds = getCustomizer().getAllIds(getWildcardedId(123), ctx);
+        assertEquals(0, allIds.size());
+    }
+
+    @Test
+    public void testGetAll() throws ReadFailedException {
+        when(jvppNat.nat64PrefixDump(any())).thenReturn(future(dump()));
+        final long vrfId = 0;
+        final List<Nat64PrefixesKey> allIds = getCustomizer().getAllIds(getWildcardedId(vrfId), ctx);
+        assertEquals(1, allIds.size());
+        assertEquals(new Nat64PrefixesKey(0L), allIds.get(0));
+    }
+
+    @Test
+    public void testReadNonZeroId() throws ReadFailedException {
+        final Nat64PrefixesBuilder builder = mock(Nat64PrefixesBuilder.class);
+        getCustomizer().readCurrentAttributes(getId(0L, 42L), builder, ctx);
+        verifyZeroInteractions(builder);
+    }
+
+    @Test
+    public void testReadMissingForGivenVrf() throws ReadFailedException {
+        final long vrfId = 123;
+        when(jvppNat.nat64PrefixDump(any())).thenReturn(future(dump()));
+        final Nat64PrefixesBuilder builder = mock(Nat64PrefixesBuilder.class);
+        getCustomizer().readCurrentAttributes(getId(vrfId, 0L), builder, ctx);
+        verifyZeroInteractions(builder);
+    }
+
+    @Test
+    public void testRead() throws ReadFailedException {
+        final long vrfId = 1;
+        when(jvppNat.nat64PrefixDump(any())).thenReturn(future(dump()));
+        final Nat64PrefixesBuilder builder = mock(Nat64PrefixesBuilder.class);
+        getCustomizer().readCurrentAttributes(getId(vrfId, 0L), builder, ctx);
+        verify(builder).setNat64PrefixId(0L);
+        verify(builder).setNat64Prefix(new Ipv6Prefix("::1/128"));
+    }
+
+    private static InstanceIdentifier<Nat64Prefixes> getWildcardedId(final long vrfId) {
+        return InstanceIdentifier.create(NatInstances.class)
+                .child(NatInstance.class, new NatInstanceKey(vrfId))
+                .child(NatCurrentConfig.class)
+                .child(Nat64Prefixes.class);
+    }
+
+    private static InstanceIdentifier<Nat64Prefixes> getId(final long vrfId, final long prefixId) {
+        return InstanceIdentifier.create(NatInstances.class)
+                .child(NatInstance.class, new NatInstanceKey(vrfId))
+                .child(NatCurrentConfig.class)
+                .child(Nat64Prefixes.class, new Nat64PrefixesKey(prefixId));
+    }
+
+    private Nat64PrefixDetailsReplyDump dump() {
+        final Nat64PrefixDetailsReplyDump reply = new Nat64PrefixDetailsReplyDump();
+        final Nat64PrefixDetails prefix0 = new Nat64PrefixDetails();
+        prefix0.vrfId = 0;
+        prefix0.prefix = new byte[]{0, 0x64, (byte) 0xff, (byte) 0x9b, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        prefix0.prefixLen = (byte) 96;
+        reply.nat64PrefixDetails.add(prefix0);
+        final Nat64PrefixDetails prefix1 = new Nat64PrefixDetails();
+        prefix1.vrfId = 1;
+        prefix1.prefix = new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+        prefix1.prefixLen = (byte) 128;
+        reply.nat64PrefixDetails.add(prefix1);
+        return reply;
+    }
+}
