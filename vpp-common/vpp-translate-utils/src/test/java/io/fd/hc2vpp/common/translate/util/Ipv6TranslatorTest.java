@@ -16,13 +16,15 @@
 
 package io.fd.hc2vpp.common.translate.util;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-
-import static org.junit.Assert.*;
 
 public class Ipv6TranslatorTest implements Ipv6Translator {
 
@@ -61,8 +63,13 @@ public class Ipv6TranslatorTest implements Ipv6Translator {
     }
 
     @Test
-    public void testArrayToIpv6Prefix() throws Exception {
-        assertEquals(IPV6_COMPRESSED + "/64", arrayToIpv6Prefix(IPV6_BYTES, (byte) 64).getValue());
+    public void testArrayToIpv6Prefix64() throws Exception {
+        assertEquals(IPV6_COMPRESSED + "/64", arrayToIpv6Prefix(IPV6_BYTES, 64).getValue());
+    }
+
+    @Test
+    public void testArrayToIpv6Prefix128() throws Exception {
+        assertEquals(IPV6_COMPRESSED + "/128", arrayToIpv6Prefix(IPV6_BYTES, 128).getValue());
     }
 
     @Test

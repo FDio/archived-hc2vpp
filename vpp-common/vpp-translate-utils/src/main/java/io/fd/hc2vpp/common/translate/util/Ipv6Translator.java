@@ -16,15 +16,20 @@
 
 package io.fd.hc2vpp.common.translate.util;
 
-import com.google.common.net.InetAddresses;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
-import javax.annotation.Nonnull;
+import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-
-import static com.google.common.base.Preconditions.*;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 
 /**
  * Trait providing logic for translation of ipv6-related data
@@ -73,9 +78,8 @@ public interface Ipv6Translator extends ByteDataTranslator {
     /**
      * Converts byte array to {@link Ipv6Prefix} with specified prefixLength
      */
-    default Ipv6Prefix arrayToIpv6Prefix(final byte[] address, byte prefixLength) {
+    default Ipv6Prefix arrayToIpv6Prefix(final byte[] address, int prefixLength) {
         Ipv6AddressNoZone addressPart = arrayToIpv6AddressNoZone(address);
-
         return new Ipv6Prefix(addressPart.getValue().concat("/").concat(String.valueOf(prefixLength)));
     }
 
