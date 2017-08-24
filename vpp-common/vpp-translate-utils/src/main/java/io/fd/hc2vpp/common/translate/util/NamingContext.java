@@ -22,8 +22,10 @@ import static com.google.common.base.Preconditions.checkState;
 import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
+import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContextKey;
@@ -93,13 +95,21 @@ public final class NamingContext implements AutoCloseable {
     public synchronized Optional<String> getNameIfPresent(final int index,
                                                           @Nonnull final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
+        if (!read.isPresent()) {
+            return Optional.absent();
+        }
 
-        return read.isPresent()
-                ? Optional.of(read.get().getMapping().stream()
+        final List<Mapping> mappings = read.get().getMapping().stream()
                 .filter(mapping -> mapping.getIndex().equals(index))
-                .collect(SINGLE_ITEM_COLLECTOR)
-                .getName())
-                : Optional.absent();
+                .collect(Collectors.toList());
+
+        if (mappings.size() > 1) {
+            throw new IllegalStateException("Multiple mappings defined with index=" + index + ": " + mappings);
+        } else if (mappings.size() == 1) {
+            return Optional.of(mappings.get(0).getName());
+        } else {
+            return Optional.absent();
+        }
     }
 
     /**

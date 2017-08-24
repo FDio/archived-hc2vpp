@@ -18,11 +18,13 @@ package io.fd.hc2vpp.common.translate.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.test.tools.annotations.InjectablesProcessor;
@@ -37,14 +39,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.$YangModuleInfoImpl;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.Contexts;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContextKey;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.Mappings;
+import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.MappingsBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.Mapping;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.naming.context.mappings.MappingKey;
-import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -110,6 +113,34 @@ public class NamingContextTest implements InjectablesProcessor {
         when(mappingContext.read(any())).thenReturn(Optional.absent());
         namingContext
                 .getIndex("non-existing", mappingContext, () -> new IllegalArgumentException("Non existing index"));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void getNameIfPresentFails() {
+        final Mapping mapping1 = mock(Mapping.class);
+        final Mapping mapping2 = mock(Mapping.class);
+        final Mappings mappings = new MappingsBuilder().setMapping(Lists.newArrayList(mapping1, mapping2)).build();
+        when(mappingContext.read(namingContextIid.child(Mappings.class))).thenReturn(Optional.of(mappings));
+
+        namingContext.getNameIfPresent(0, mappingContext);
+    }
+
+    @Test
+    public void getNameIfPresentReturnsAbsent() {
+        final Mapping mapping1 = new MappingBuilder().setIndex(1).setName(NAME_1).build();
+        final Mappings mappings = new MappingsBuilder().setMapping(Lists.newArrayList(mapping1)).build();
+        when(mappingContext.read(namingContextIid.child(Mappings.class))).thenReturn(Optional.of(mappings));
+
+        assertEquals(Optional.absent(), namingContext.getNameIfPresent(0, mappingContext));
+    }
+
+    @Test
+    public void getNameIfPresent() {
+        final Mapping mapping1 = new MappingBuilder().setIndex(1).setName(NAME_1).build();
+        final Mappings mappings = new MappingsBuilder().setMapping(Lists.newArrayList(mapping1)).build();
+        when(mappingContext.read(namingContextIid.child(Mappings.class))).thenReturn(Optional.of(mappings));
+
+        assertEquals(Optional.of(NAME_1), namingContext.getNameIfPresent(1, mappingContext));
     }
 
     private Mapping filterForParent(final String parent) {

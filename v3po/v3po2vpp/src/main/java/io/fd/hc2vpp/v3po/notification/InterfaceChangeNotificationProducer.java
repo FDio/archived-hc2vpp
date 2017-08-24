@@ -79,7 +79,13 @@ final class InterfaceChangeNotificationProducer implements ManagedNotificationPr
                 swInterfaceEventNotification -> {
                     LOG.trace("Interface notification received: {}", swInterfaceEventNotification);
                     // TODO HONEYCOMB-166 this should be lazy
-                    collector.onNotification(transformNotification(swInterfaceEventNotification));
+                    try {
+                        collector.onNotification(transformNotification(swInterfaceEventNotification));
+                    } catch (Exception e) {
+                        // There is no need to propagate exception to jvpp rx thread in case of unexpected failures.
+                        // We can't do much about it, so lets log the exception.
+                        LOG.warn("Failed to process interface notification {}", swInterfaceEventNotification, e);
+                    }
                 }
         );
     }
