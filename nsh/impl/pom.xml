@@ -94,13 +94,7 @@
     <dependency>
         <groupId>io.fd.nsh_sfc</groupId>
         <artifactId>nsh-sfc</artifactId>
-        <version>17.07-SNAPSHOT</version>
-        <exclusions>
-            <exclusion>
-                <groupId>io.fd.vpp</groupId>
-                <artifactId>jvpp-registry</artifactId>
-            </exclusion>
-        </exclusions>
+        <version>17.10-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.common</groupId>
