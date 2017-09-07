@@ -93,7 +93,7 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamtraceCustomizer
     }
 
     public TraceProfileAddReply addTraceConfig(TraceConfig traceConfig,
-            final InstanceIdentifier<TraceConfig> id) throws Exception {
+            final InstanceIdentifier<TraceConfig> id) throws WriteFailedException {
 
         TraceProfileAdd traceProfileAdd = new TraceProfileAdd();
         traceProfileAdd.traceType = traceConfig.getTraceType().byteValue(); //trace type
@@ -110,7 +110,7 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamtraceCustomizer
     }
 
     public TraceProfileDelReply deleteTraceConfig(TraceConfig dataBefore,
-                                                  final InstanceIdentifier<TraceConfig> id) throws Exception {
+                                                  final InstanceIdentifier<TraceConfig> id) throws WriteFailedException {
         TraceProfileDel del = new TraceProfileDel();
 
         /* Write to VPP */
