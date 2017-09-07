@@ -41,11 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.
 
 public interface MacIpAceDataExtractor extends AddressExtractor, MacTranslator {
 
-    String DEFAULT_MAC = "00:00:00:00:00:00";
-    String DEFAULT_MAC_MASK = "00:00:00:00:00:00";
-    byte[] DEFAULT_MAC_BYTES = {0, 0, 0, 0, 0, 0};
-    byte[] DEFAULT_MAC_MASK_BYTES = {0, 0, 0, 0, 0, 0};
-
     default VppMacipAce fromMacIpAce(@Nonnull final Ace ace) {
         return Optional.ofNullable(ace.getMatches())
                 .map(Matches::getAceType)
@@ -65,14 +60,14 @@ public interface MacIpAceDataExtractor extends AddressExtractor, MacTranslator {
         return macToByteArray(Optional.ofNullable(ace.getVppMacipAceNodes())
                 .map(VppMacipAceEthHeaderFields::getSourceMacAddress)
                 .map(MacAddress::getValue)
-                .orElse(DEFAULT_MAC));
+                .orElse(Impl.DEFAULT_MAC));
     }
 
     default byte[] sourceMacMaskAsBytes(@Nonnull final VppMacipAce ace) {
         return macToByteArray(Optional.ofNullable(ace.getVppMacipAceNodes())
                 .map(VppMacipAceEthHeaderFields::getSourceMacAddressMask)
                 .map(MacAddress::getValue)
-                .orElse(DEFAULT_MAC_MASK));
+                .orElse(Impl.DEFAULT_MAC_MASK));
     }
 
     default byte[] ipv4Address(@Nonnull final VppMacipAce ace) {
@@ -152,12 +147,19 @@ public interface MacIpAceDataExtractor extends AddressExtractor, MacTranslator {
     default MacAddress sourceMac(@Nonnull final MacipAclRule rule) {
         return new MacAddress(byteArrayToMacSeparated(rule.srcMac != null
                 ? rule.srcMac
-                : DEFAULT_MAC_BYTES));
+                : Impl.DEFAULT_MAC_BYTES));
     }
 
     default MacAddress sourceMacMask(@Nonnull final MacipAclRule rule) {
         return new MacAddress(byteArrayToMacSeparated(rule.srcMacMask != null
                 ? rule.srcMacMask
-                : DEFAULT_MAC_MASK_BYTES));
+                : Impl.DEFAULT_MAC_MASK_BYTES));
+    }
+
+    final class Impl {
+        private static final String DEFAULT_MAC = "00:00:00:00:00:00";
+        private static final String DEFAULT_MAC_MASK = "00:00:00:00:00:00";
+        private static final byte[] DEFAULT_MAC_BYTES = {0, 0, 0, 0, 0, 0};
+        private static final byte[] DEFAULT_MAC_MASK_BYTES = {0, 0, 0, 0, 0, 0};
     }
 }
