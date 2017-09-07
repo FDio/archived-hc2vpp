@@ -21,11 +21,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Trait providing logic for working with binary/hex-based data
+ * Trait providing logic for working with binary/hex-based data.
  */
 public interface ByteDataTranslator {
-
-    char[] HEX_CHARS = "0123456789abcdef".toCharArray();
 
     ByteDataTranslator INSTANCE = new ByteDataTranslator() {
     };
@@ -46,14 +44,14 @@ public interface ByteDataTranslator {
     }
 
     /**
-     * Converts int to byte
+     * Converts int to byte.
      */
     default byte toByte(final int value) {
         return Integer.valueOf(value).byteValue();
     }
 
     /**
-     * Converts short to byte
+     * Converts short to byte.
      */
     default byte toByte(final short value) {
         return Short.valueOf(value).byteValue();
@@ -73,41 +71,20 @@ public interface ByteDataTranslator {
         } else if (value == BYTE_TRUE) {
             return Boolean.TRUE;
         }
-
-    char[] HEX_CHARS = "0123456789abcdef".toCharArray();
         throw new IllegalArgumentException(String.format("0 or 1 was expected but was %d", value));
     }
 
     /**
-     * Reverses bytes in the byte array
-     *
-     * @param bytes input array
-     * @return reversed array
-     */
-    default byte[] reverseBytes(final byte[] bytes) {
-        final byte[] reversed = new byte[bytes.length];
-        int i = 1;
-        for (byte aByte : bytes) {
-            reversed[bytes.length - i++] = aByte;
-        }
-
-        return reversed;
-    }
-
-    /**
-
-    char[] HEX_CHARS = "0123456789abcdef".toCharArray();
      * Return (interned) string from byte array while removing \u0000. Strings represented as fixed length byte[] from
      * vpp contain \u0000.
      */
-    default String toString(final byte[] cString) {
-        return new String(cString).replaceAll("\\u0000", "").intern();
+    default String toString(final byte[] vppString) {
+        return new String(vppString).replaceAll("\\u0000", "").intern();
     }
 
     /**
-     * Converts signed byte(filled with unsigned value from vpp) to java integer
-     *
-     * For example unsigned C byte 128 is converted by jvpp to -128, this will return 128
+     * Converts signed byte(filled with unsigned value from vpp) to java integer.
+     * For example unsigned C byte 128 is converted by jvpp to -128, this will return 128.
      */
     default int toJavaByte(final byte vppByte) {
         return Byte.toUnsignedInt(vppByte);
@@ -121,18 +98,23 @@ public interface ByteDataTranslator {
     default String printHexBinary(@Nonnull final byte[] bytes, final int startIndex, final int endIndex) {
         StringBuilder str = new StringBuilder();
 
-        appendHexByte(str, bytes[startIndex]);
+        Impl.appendHexByte(str, bytes[startIndex]);
         for (int i = startIndex + 1; i < endIndex; i++) {
             str.append(":");
-            appendHexByte(str, bytes[i]);
+            Impl.appendHexByte(str, bytes[i]);
         }
 
         return str.toString();
     }
 
-    default void appendHexByte(final StringBuilder sb, final byte b) {
-        final int v = b & 0xFF;
-        sb.append(HEX_CHARS[v >>> 4]);
-        sb.append(HEX_CHARS[v & 15]);
+    final class Impl {
+
+        private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
+
+        private static void appendHexByte(final StringBuilder sb, final byte b) {
+            final int v = b & 0xFF;
+            sb.append(HEX_CHARS[v >>> 4]);
+            sb.append(HEX_CHARS[v & 15]);
+        }
     }
 }
