@@ -116,7 +116,7 @@ public interface Ipv4Translator extends ByteDataTranslator {
                             String.valueOf(prefix)));
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException(
-                    "Cannot create prefix for address[" + Arrays.toString(address) + "],prefix[" + prefix + "]");
+                    "Cannot create prefix for address[" + Arrays.toString(address) + "],prefix[" + prefix + "]", e);
         }
     }
 }
