@@ -20,15 +20,11 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * IPv4 address range representation.
  */
 public final class Ipv4AddressRange {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv4AddressRange.class);
 
     private final Ipv4AddressNoZone start;
     private final Ipv4AddressNoZone end;
@@ -100,10 +96,10 @@ public final class Ipv4AddressRange {
 
         // Take care of the rest
         if (prefixLength != 0) {
-            final int mask0 = (byte) (Math.pow(2, prefixLength) - 1) << (8 - prefixLength);
+            final int mask0 = (byte) ((1 << prefixLength) - 1) << (8 - prefixLength);
             prefixAddrBytes0[index] = (byte) (prefixAddrBytes[index] & mask0);
 
-            final int maskF = (byte) (Math.pow(2, 8 - prefixLength) - 1);
+            final int maskF = (byte) ((1 << (8 - prefixLength)) - 1);
             prefixAddrBytesF[index] = (byte) (prefixAddrBytes[index] | maskF);
 
             index++;
