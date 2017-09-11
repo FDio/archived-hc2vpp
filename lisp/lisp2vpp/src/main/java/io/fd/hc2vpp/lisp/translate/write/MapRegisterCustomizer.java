@@ -28,7 +28,7 @@ import io.fd.vpp.jvpp.core.dto.OneMapRegisterFallbackThreshold;
 import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtl;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.register.grouping.MapRegister;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRegisterCustomizer extends CheckedLispCustomizer

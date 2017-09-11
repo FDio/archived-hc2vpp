@@ -31,7 +31,7 @@ import io.fd.vpp.jvpp.core.dto.OnePitrSetLocatorSet;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.pitr.cfg.grouping.PitrCfg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.pitr.cfg.grouping.PitrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 

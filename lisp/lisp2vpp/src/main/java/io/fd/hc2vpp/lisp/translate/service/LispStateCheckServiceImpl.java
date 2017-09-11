@@ -30,8 +30,8 @@ import io.fd.vpp.jvpp.core.dto.ShowOneStatus;
 import io.fd.vpp.jvpp.core.dto.ShowOneStatusReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.Lisp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.LispBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.Lisp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.LispBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class LispStateCheckServiceImpl implements LispStateCheckService, JvppReplyConsumer, ByteDataTranslator {

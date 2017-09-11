@@ -26,6 +26,11 @@ module lisp {
     "This YANG module defines the generic configuration and
     operational data for LISP in VPP";
 
+  revision 2017-09-11 {
+    description
+        "One transport protocol support";
+  }
+
   revision 2017-08-08 {
     description
         "Map register fallback threshold support";
@@ -452,6 +457,23 @@ module lisp {
     }
   }
 
+  grouping transport-protocol-grouping {
+     container transport-protocol {
+        leaf protocol-type {
+            type enumeration {
+                enum UDP {
+                    value 1;
+                }
+                enum Binary {
+                    value 2;
+                }
+            }
+            description "ONE transport protocol";
+            default UDP;
+        }
+     }
+  }
+
   grouping lisp-feature-data-grouping{
     //aggregation of all lisp data, restricted by Lisp beeing enabled
 
@@ -468,6 +490,7 @@ module lisp {
         uses map-register-grouping;
         uses map-request-mode-grouping;
         uses itr-remote-locator-sets-grouping;
+        uses transport-protocol-grouping;
     }
   }
 

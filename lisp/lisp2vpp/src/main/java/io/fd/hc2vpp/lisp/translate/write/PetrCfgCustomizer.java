@@ -29,7 +29,7 @@ import io.fd.vpp.jvpp.core.dto.OneUsePetr;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.use.petr.cfg.grouping.PetrCfg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.use.petr.cfg.grouping.PetrCfg;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class PetrCfgCustomizer extends CheckedLispCustomizer

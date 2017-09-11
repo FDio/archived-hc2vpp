@@ -28,9 +28,9 @@ import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterStateReply;
 import io.fd.vpp.jvpp.core.dto.ShowOneMapRegisterTtlReply;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.lisp.feature.data.grouping.LispFeatureDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegister;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.register.grouping.MapRegisterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.register.grouping.MapRegisterBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRegisterCustomizerTest extends LispInitializingReaderCustomizerTest implements LispInitTest {

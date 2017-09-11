@@ -19,15 +19,15 @@ package io.fd.hc2vpp.lisp.translate.read;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.MapRequestMode.DestinationOnly;
+import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.MapRequestMode.DestinationOnly;
 
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
 import io.fd.vpp.jvpp.core.dto.ShowOneMapRequestModeReply;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.lisp.feature.data.grouping.LispFeatureDataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.request.mode.grouping.MapRequestMode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170808.map.request.mode.grouping.MapRequestModeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.lisp.feature.data.grouping.LispFeatureDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.request.mode.grouping.MapRequestMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.request.mode.grouping.MapRequestModeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRequestModeCustomizerTest extends LispInitializingReaderCustomizerTest implements LispInitTest {
