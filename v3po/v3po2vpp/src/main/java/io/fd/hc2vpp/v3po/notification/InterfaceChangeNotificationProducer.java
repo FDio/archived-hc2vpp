@@ -25,7 +25,9 @@ import io.fd.honeycomb.notification.ManagedNotificationProducer;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.VppBaseCallException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceEventNotification;
+import io.fd.vpp.jvpp.VppCallbackException;
+import io.fd.vpp.jvpp.core.callback.SwInterfaceEventCallback;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceEvent;
 import io.fd.vpp.jvpp.core.dto.WantInterfaceEvents;
 import io.fd.vpp.jvpp.core.dto.WantInterfaceEventsReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -75,31 +77,40 @@ final class InterfaceChangeNotificationProducer implements ManagedNotificationPr
         LOG.trace("Starting interface notifications");
         enableDisableIfcNotifications(1);
         LOG.debug("Interface notifications started successfully");
-        notificationListenerReg = jvpp.getNotificationRegistry().registerSwInterfaceEventNotificationCallback(
-                swInterfaceEventNotification -> {
-                    LOG.trace("Interface notification received: {}", swInterfaceEventNotification);
-                    // TODO HONEYCOMB-166 this should be lazy
-                    try {
-                        collector.onNotification(transformNotification(swInterfaceEventNotification));
-                    } catch (Exception e) {
-                        // There is no need to propagate exception to jvpp rx thread in case of unexpected failures.
-                        // We can't do much about it, so lets log the exception.
-                        LOG.warn("Failed to process interface notification {}", swInterfaceEventNotification, e);
+        notificationListenerReg = jvpp.getEventRegistry().registerSwInterfaceEventCallback(
+                new SwInterfaceEventCallback() {
+                    @Override
+                    public void onSwInterfaceEvent(SwInterfaceEvent swInterfaceEvent) {
+                        LOG.trace("Interface notification received: {}", swInterfaceEvent);
+                        // TODO HONEYCOMB-166 this should be lazy
+                        try {
+                            collector.onNotification(transformNotification(swInterfaceEvent));
+                        } catch (Exception e) {
+                            // There is no need to propagate exception to jvpp rx thread in case of unexpected failures.
+                            // We can't do much about it, so lets log the exception.
+                            LOG.warn("Failed to process interface notification {}", swInterfaceEvent, e);
+                        }
+                    }
+
+                    //TODO this should be removed within VPP-1000
+                    @Override
+                    public void onError(VppCallbackException e) {
+
                     }
                 }
         );
     }
 
-    private Notification transformNotification(final SwInterfaceEventNotification swInterfaceEventNotification) {
-        if (swInterfaceEventNotification.deleted == 1) {
-            return new InterfaceDeletedBuilder().setName(getIfcName(swInterfaceEventNotification)).build();
+    private Notification transformNotification(final SwInterfaceEvent swInterfaceEvent) {
+        if (swInterfaceEvent.deleted == 1) {
+            return new InterfaceDeletedBuilder().setName(getIfcName(swInterfaceEvent)).build();
         } else {
             return new InterfaceStateChangeBuilder()
-                    .setName(getIfcName(swInterfaceEventNotification))
-                    .setAdminStatus(swInterfaceEventNotification.adminUpDown == 1
+                    .setName(getIfcName(swInterfaceEvent))
+                    .setAdminStatus(swInterfaceEvent.adminUpDown == 1
                             ? InterfaceStatus.Up
                             : InterfaceStatus.Down)
-                    .setOperStatus(swInterfaceEventNotification.linkUpDown == 1
+                    .setOperStatus(swInterfaceEvent.linkUpDown == 1
                             ? InterfaceStatus.Up
                             : InterfaceStatus.Down)
                     .build();
@@ -113,7 +124,7 @@ final class InterfaceChangeNotificationProducer implements ManagedNotificationPr
      * <p/>
      * In case mapping is not available, index is used as name.
      */
-    private InterfaceNameOrIndex getIfcName(final SwInterfaceEventNotification swInterfaceEventNotification) {
+    private InterfaceNameOrIndex getIfcName(final SwInterfaceEvent swInterfaceEventNotification) {
         final Optional<String> optionalName =
                 interfaceContext.getNameIfPresent(swInterfaceEventNotification.swIfIndex, mappingContext);
         return optionalName.isPresent()

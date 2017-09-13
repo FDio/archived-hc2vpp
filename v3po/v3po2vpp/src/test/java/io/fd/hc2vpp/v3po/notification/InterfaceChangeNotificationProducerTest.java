@@ -27,12 +27,12 @@ import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.notification.NotificationCollector;
 import io.fd.honeycomb.translate.MappingContext;
-import io.fd.vpp.jvpp.core.callback.SwInterfaceEventNotificationCallback;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceEventNotification;
+import io.fd.vpp.jvpp.core.callback.SwInterfaceEventCallback;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceEvent;
 import io.fd.vpp.jvpp.core.dto.WantInterfaceEvents;
 import io.fd.vpp.jvpp.core.dto.WantInterfaceEventsReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import io.fd.vpp.jvpp.core.notification.CoreNotificationRegistry;
+import io.fd.vpp.jvpp.core.notification.CoreEventRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -55,18 +55,18 @@ public class InterfaceChangeNotificationProducerTest implements FutureProducer, 
     @Mock
     private NotificationCollector collector;
     @Mock
-    private CoreNotificationRegistry notificationRegistry;
+    private CoreEventRegistry notificationRegistry;
     @Mock
     private AutoCloseable notificationListenerReg;
 
-    private ArgumentCaptor<SwInterfaceEventNotificationCallback> callbackArgumentCaptor;
+    private ArgumentCaptor<SwInterfaceEventCallback> callbackArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        doReturn(notificationRegistry).when(jVpp).getNotificationRegistry();
-        callbackArgumentCaptor = ArgumentCaptor.forClass(SwInterfaceEventNotificationCallback.class);
-        doReturn(notificationListenerReg).when(notificationRegistry).registerSwInterfaceEventNotificationCallback(
+        doReturn(notificationRegistry).when(jVpp).getEventRegistry();
+        callbackArgumentCaptor = ArgumentCaptor.forClass(SwInterfaceEventCallback.class);
+        doReturn(notificationListenerReg).when(notificationRegistry).registerSwInterfaceEventCallback(
             callbackArgumentCaptor.capture());
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
         doReturn(future(new WantInterfaceEventsReply())).when(jVpp).wantInterfaceEvents(any(WantInterfaceEvents.class));
@@ -79,9 +79,9 @@ public class InterfaceChangeNotificationProducerTest implements FutureProducer, 
 
         interfaceChangeNotificationProducer.start(collector);
         verify(jVpp).wantInterfaceEvents(any(WantInterfaceEvents.class));
-        verify(jVpp).getNotificationRegistry();
-        verify(notificationRegistry).registerSwInterfaceEventNotificationCallback(any(
-                SwInterfaceEventNotificationCallback.class));
+        verify(jVpp).getEventRegistry();
+        verify(notificationRegistry).registerSwInterfaceEventCallback(any(
+                SwInterfaceEventCallback.class));
 
         interfaceChangeNotificationProducer.stop();
         verify(jVpp, times(2)).wantInterfaceEvents(any(WantInterfaceEvents.class));
@@ -95,12 +95,12 @@ public class InterfaceChangeNotificationProducerTest implements FutureProducer, 
 
         interfaceChangeNotificationProducer.start(collector);
 
-        final SwInterfaceEventNotification swInterfaceSetFlagsNotification = new SwInterfaceEventNotification();
+        final SwInterfaceEvent swInterfaceSetFlagsNotification = new SwInterfaceEvent();
         swInterfaceSetFlagsNotification.deleted = 0;
         swInterfaceSetFlagsNotification.swIfIndex = IFACE_ID;
         swInterfaceSetFlagsNotification.adminUpDown = 1;
         swInterfaceSetFlagsNotification.linkUpDown = 1;
-        callbackArgumentCaptor.getValue().onSwInterfaceEventNotification(swInterfaceSetFlagsNotification);
+        callbackArgumentCaptor.getValue().onSwInterfaceEvent(swInterfaceSetFlagsNotification);
         final ArgumentCaptor<InterfaceStateChange> notificationCaptor =
             ArgumentCaptor.forClass(InterfaceStateChange.class);
         verify(collector).onNotification(notificationCaptor.capture());
