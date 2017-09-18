@@ -59,6 +59,7 @@ public class VppCommonModuleTest {
         assertEquals(15, JvppReplyConsumer.JvppReplyTimeoutHolder.getTimeout());
     }
 
+    @Test
     public void testConfigureJVppTimeoutIgnoreOnRetry() {
         initMocks(this);
         Guice.createInjector(new VppCommonModule(), BoundFieldModule.of(this)).injectMembers(this);
