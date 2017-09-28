@@ -25,6 +25,7 @@ import io.fd.hc2vpp.routing.trait.RouteMapper;
 import io.fd.hc2vpp.routing.write.factory.MultipathHopRequestFactory;
 import io.fd.hc2vpp.routing.write.factory.SimpleHopRequestFactory;
 import io.fd.hc2vpp.routing.write.factory.SpecialNextHopRequestFactory;
+import io.fd.hc2vpp.routing.write.factory.TableLookupRequestFactory;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
@@ -32,20 +33,23 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.RouteKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.SimpleNextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.SpecialNextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.RouteKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.NextHopList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.SimpleNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.SpecialNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.TableLookup;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocol;
+
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Customizer for handling write operations for {@link Ipv4} according to ietf-ipv4-unicast-routing.yang
@@ -64,6 +68,7 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
     private final SimpleHopRequestFactory simpleHopRequestFactory;
     private final MultipathHopRequestFactory multipathHopRequestFactory;
     private final SpecialNextHopRequestFactory specialNextHopRequestFactory;
+    private final TableLookupRequestFactory tableLookupRequestFactory;
 
     /**
      * Names factory
@@ -87,6 +92,7 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
         specialNextHopRequestFactory = SpecialNextHopRequestFactory.forContexts(classifierContextManager,
                 interfaceContext, routingProtocolContext);
         routeNamesFactory = new Ipv4RouteNamesFactory(interfaceContext, routingProtocolContext);
+        tableLookupRequestFactory = new TableLookupRequestFactory(classifierContextManager, interfaceContext, routingProtocolContext);
     }
 
     @Override
@@ -143,6 +149,8 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
             }
         } else if (route.getNextHopOptions() instanceof SpecialNextHop) {
             writeSpecialHopRoute(identifier, route, parentProtocolName, writeContext, isAdd);
+        } else if (route.getNextHopOptions() instanceof TableLookup) {
+            writeRoute(tableLookupRequestFactory.createV4TableLookupRouteRequest(isAdd, parentProtocolName, route, writeContext.getMappingContext()), identifier);
         } else {
             throw new IllegalArgumentException("Unsupported next-hop type");
         }

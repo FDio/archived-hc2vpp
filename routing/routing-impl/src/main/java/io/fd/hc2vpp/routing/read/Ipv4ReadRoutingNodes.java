@@ -28,18 +28,20 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.core.dto.IpFibDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpFibDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.Set;
-import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.StaticRoutes2;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.StaticRoutes2Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.VppIpv4RouteState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.StaticRoutes2;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.StaticRoutes2Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.VppIpv4RouteState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.NextHopList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.table.lookup.TableLookupParams;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import javax.annotation.Nonnull;
+import java.util.Set;
 
 interface Ipv4ReadRoutingNodes extends JvppReplyConsumer {
 
@@ -87,7 +89,9 @@ interface Ipv4ReadRoutingNodes extends JvppReplyConsumer {
 
     default Set<InstanceIdentifier<?>> ipv4RoutingHandledChildren(
             final InstanceIdentifier<Route> parent) {
-        return ImmutableSet.of(parent.child(NextHopList.class),
+        return ImmutableSet.of(
+                parent.child(TableLookupParams.class),
+                parent.child(NextHopList.class),
                 parent.child(NextHopList.class).child(NextHop.class),
                 parent.child(VppIpv4RouteState.class));
     }

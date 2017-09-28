@@ -22,14 +22,15 @@ import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.VppIpv4Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.VppIpv6Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.VppIpv4Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.VppIpv6Route;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -52,7 +53,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
 
     public IpAddDelRoute createIpv4MultipathHopRequest(final boolean add,
                                                        @Nonnull final String parentProtocolName,
-                                                       @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route route,
+                                                       @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route route,
                                                        @Nonnull final NextHop hop,
                                                        @Nonnull final MappingContext mappingContext) {
         final VppIpv4Route routingAttributes = route.getVppIpv4Route();
@@ -60,7 +61,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
         final int nextHopInterfaceIndex =
                 getInterfaceNamingContext().getIndex(hop.getOutgoingInterface(), mappingContext);
 
-        if (routingAttributes!= null && classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
+        if (routingAttributes != null && classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
                 mappingContext)) {
             return getMultipathHopRequest(add,
                     route.getDestinationPrefix(),
@@ -68,7 +69,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     hop.getAddress(),
                     toByte(hop.getWeight()),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    optionalVni(routingAttributes.getSecondaryVrf()),
+                    DEFAULT_VNI,
                     classifyTableIndex(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
                             mappingContext),
                     true);
@@ -79,7 +80,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     hop.getAddress(),
                     toByte(hop.getWeight()),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    optionalVni(null),
+                    DEFAULT_VNI,
                     0,
                     false);
         }
@@ -87,8 +88,8 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
 
     public IpAddDelRoute createIpv6MultipathHopRequest(final boolean add,
                                                        @Nonnull final String parentProtocolName,
-                                                       @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route,
-                                                       @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHop hop,
+                                                       @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route,
+                                                       @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHop hop,
                                                        @Nonnull final MappingContext mappingContext) {
         final VppIpv6Route routingAttributes = route.getVppIpv6Route();
 
@@ -103,7 +104,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     hop.getAddress(),
                     toByte(hop.getWeight()),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    optionalVni(routingAttributes.getSecondaryVrf()),
+                    DEFAULT_VNI,
                     classifyTableIndex(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
                             mappingContext),
                     true);
@@ -114,7 +115,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     hop.getAddress(),
                     toByte(hop.getWeight()),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    optionalVni(null),
+                    DEFAULT_VNI,
                     0,
                     false);
         }

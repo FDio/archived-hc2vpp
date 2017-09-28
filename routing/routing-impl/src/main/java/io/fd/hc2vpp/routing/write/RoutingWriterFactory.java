@@ -33,11 +33,11 @@ import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.Interface1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.interfaces._interface.Ipv6RouterAdvertisements;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.interfaces._interface.ipv6.router.advertisements.PrefixList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.interfaces._interface.ipv6.router.advertisements.prefix.list.Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.Ipv6RouterAdvertisements;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.ipv6.router.advertisements.PrefixList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.ipv6.router.advertisements.prefix.list.Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Routing;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.RoutingInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.Interfaces;
@@ -47,8 +47,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev170502.ControlAdvPrefixesVppAugmentation;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev170502.Ipv6RouterAdvertisementsVppAugmentation;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev161214.RoutingProtocolVppAttr;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev161214.routing.routing.instance.routing.protocols.routing.protocol.VppProtocolAttributes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.RoutingProtocolVppAttr;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol.VppProtocolAttributes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -108,7 +108,7 @@ public final class RoutingWriterFactory implements WriterFactory, Ipv4WriteRouti
 
         final InstanceIdentifier<StaticRoutes> staticRoutesInstanceIdentifier = staticRoutesIdentifier();
         final InstanceIdentifier<Route> ipv4RouteIdentifier = ipv4RouteIdentifier(staticRoutesInstanceIdentifier);
-        final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route>
+        final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route>
                 ipv6RouteIdentifier = ipv6RouteIdentifier(staticRoutesInstanceIdentifier);
         registry.subtreeAddAfter(ipv4RoutingHandledChildren(ipv4RouteSubtree()), new GenericWriter<>(ipv4RouteIdentifier,
                 new Ipv4RouteCustomizer(vppApi, interfaceContext, routeContext, routingProtocolContext, routHopContext,

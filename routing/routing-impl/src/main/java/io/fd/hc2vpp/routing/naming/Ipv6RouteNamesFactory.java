@@ -47,7 +47,7 @@ public final class Ipv6RouteNamesFactory implements RouteMapper {
      * Construct unique name from provided {@code Route}
      */
     public String uniqueRouteName(@Nonnull final String parentProtocolName,
-                                  @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route) {
+                                  @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route) {
         return bindName(parentProtocolName,
                 // to have address in compressed form
                 doubleDotlessAddress(route.getDestinationPrefix()),
@@ -64,7 +64,7 @@ public final class Ipv6RouteNamesFactory implements RouteMapper {
     }
 
     public String uniqueRouteHopName(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHop hop) {
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHop hop) {
         return bindName(hop.getOutgoingInterface(),
                 doubleDotlessAddress(hop.getAddress()),
                 String.valueOf(hop.getWeight()));

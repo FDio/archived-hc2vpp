@@ -33,16 +33,19 @@ public interface SchemaContextTestHelper extends InjectablesProcessor {
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.$YangModuleInfoImpl
                         .getInstance(),
                 // Ipv4 augmentations
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.$YangModuleInfoImpl
                         .getInstance(),
                 // Ipv4 augmentations
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.$YangModuleInfoImpl
                         .getInstance(),
                 // Vpp routing
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev161214.$YangModuleInfoImpl
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.$YangModuleInfoImpl
                         .getInstance(),
                 // Vpp routing RA
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev170502.$YangModuleInfoImpl
-                    .getInstance()));
+                    .getInstance(),
+                // Table lookup
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.table.lookup.rev170917.$YangModuleInfoImpl.getInstance()
+                ));
     }
 }

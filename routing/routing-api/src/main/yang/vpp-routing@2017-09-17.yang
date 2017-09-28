@@ -4,6 +4,10 @@ module vpp-routing{
     prefix "vpp-routing";
     description "General extensions for routes to be able to use VPP route defining apis";
 
+    revision 2017-09-17 {
+        description "Support for table lookup option moved to separate model.";
+    }
+
     revision 2016-12-14 {
         description "Initial revision.";
     }
@@ -26,12 +30,6 @@ module vpp-routing{
     }
 
     grouping vpp-route-attributes {
-        //lookup_in_vrf
-        leaf secondary-vrf{
-            type vni-reference;
-            description "Optional secondary vrf used to lookup in";
-        }
-
         leaf classify-table{
         // classify_table_index + is_classify flag
             type classifier:classify-table-ref;

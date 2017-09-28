@@ -27,7 +27,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaConfig;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev140525.routing.routing.instance.interfaces._interface.Ipv6RouterAdvertisements;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.Ipv6RouterAdvertisements;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev170502.Ipv6RouterAdvertisementsVppAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;

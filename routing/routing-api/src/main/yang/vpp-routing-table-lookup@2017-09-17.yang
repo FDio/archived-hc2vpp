@@ -1,0 +1,25 @@
+module vpp-routing-table-lookup {
+
+    namespace "urn:ietf:params:xml:ns:yang:vpp-routing-table-lookup";
+    prefix "vpp-routing";
+    description "General extensions for routes to be able to use VPP table lookup option";
+
+    revision 2017-09-17 {
+        description "Initial revision";
+    }
+
+    import vpp-routing {
+        prefix "vpp-r";
+    }
+
+    grouping table-lookup-case-params {
+        leaf secondary-vrf{
+           type vpp-r:vni-reference;
+           mandatory true;
+           description "Secondary vrf used to lookup in";
+        }
+        // uses special deaggregation address every time : 0.0.0.0
+    }
+
+    //TODO - HONEYCOMB-398/HC2VPP-237 - move table lookup case here
+}

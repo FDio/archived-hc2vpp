@@ -19,8 +19,11 @@ package io.fd.hc2vpp.routing.trait;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.vpp.jvpp.core.types.FibPath;
-import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping;
+
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public interface RouteMapper extends AddressTranslator, ByteDataTranslator {
 
@@ -73,6 +76,11 @@ public interface RouteMapper extends AddressTranslator, ByteDataTranslator {
     default boolean isSpecialHop(@Nonnull final FibPath path) {
         return byteToBoolean(path.isDrop) || byteToBoolean(path.isLocal) || byteToBoolean(path.isProhibit) ||
                 byteToBoolean(path.isUnreach);
+    }
+
+    default boolean isTableLookup(@Nonnull final FibPath path) {
+        // TODO - remove isDrop condition https://jira.fd.io/browse/VPP-995
+        return path.isDrop == 1 && isArrayZeroed(path.nextHop);
     }
 
     default SpecialNextHopGrouping.SpecialNextHop specialHopType(final FibPath singlePath) {

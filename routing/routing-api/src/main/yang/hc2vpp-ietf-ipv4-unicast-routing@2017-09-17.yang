@@ -4,6 +4,10 @@ module hc2vpp-ietf-ipv4-unicast-routing {
 
   prefix "v4ur";
 
+  import vpp-routing-table-lookup {
+    prefix "vpp-tl";
+  }
+
   import hc2vpp-ietf-routing {
     prefix "rt";
     revision-date 2014-05-24;
@@ -51,6 +55,11 @@ module hc2vpp-ietf-ipv4-unicast-routing {
 
      This version of this YANG module is part of RFC XXXX; see the
      RFC itself for full legal notices.";
+
+  revision 2017-09-17 {
+    description
+      "Table lookup support";
+  }
 
   revision 2014-05-24 {
     description
@@ -160,6 +169,13 @@ module hc2vpp-ietf-ipv4-unicast-routing {
             case special-next-hop {
               uses rt:special-next-hop-grouping;
             }
+            // TODO - HONEYCOMB-398/HC2VPP-237
+            case table-lookup {
+              container table-lookup-params {
+                uses vpp-tl:table-lookup-case-params;
+              }
+            }
+
             case simple-next-hop {
               leaf next-hop {
                 type inet:ipv4-address;
@@ -300,6 +316,14 @@ module hc2vpp-ietf-ipv4-unicast-routing {
                  instance can be given.";
             }
           }
+
+          // TODO - HONEYCOMB-398/HC2VPP-237
+          case table-lookup {
+            container table-lookup-params {
+                uses vpp-tl:table-lookup-case-params;
+            }
+          }
+
           case next-hop-list {
             if-feature rt:multipath-routes;
             container next-hop-list {

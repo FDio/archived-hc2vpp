@@ -17,15 +17,6 @@
 package io.fd.hc2vpp.routing.write;
 
 
-import static io.fd.hc2vpp.routing.Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY;
-import static io.fd.hc2vpp.routing.Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY;
-import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_INDEX;
-import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_NAME;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
@@ -44,15 +35,32 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.StaticRoutes1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.StaticRoutes1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.RouteKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.TableLookupBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.table.lookup.TableLookupParamsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.RoutingProtocols;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocol;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocolKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.VniReference;
+
+
+
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import static io.fd.hc2vpp.routing.Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY;
+import static io.fd.hc2vpp.routing.Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY;
+import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_INDEX;
+import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_NAME;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(HoneycombTestRunner.class)
 public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
@@ -108,6 +116,27 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
                         .of(desiredFlaglessResult(1, 0, 0, FIRST_ADDRESS_AS_ARRAY, 24,
                                 SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, ROUTE_PROTOCOL_INDEX, 1, 0,
                                 CLASSIFY_TABLE_INDEX, 1)),
+                api, requestCaptor);
+    }
+
+    //TODO - https://jira.fd.io/browse/HONEYCOMB-396
+    @Test
+    public void testWriteTableLookup() throws WriteFailedException {
+        final Route route = new RouteBuilder()
+                .setKey(new RouteKey(2L))
+                .setDestinationPrefix(new Ipv4Prefix("192.168.2.1/24"))
+                .setNextHopOptions(new TableLookupBuilder()
+                        .setTableLookupParams(new TableLookupParamsBuilder()
+                                .setSecondaryVrf(new VniReference(4L))
+                                .build())
+                        .build())
+                .build();
+        noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route), "route-context");
+        customizer.writeCurrentAttributes(validId, route, writeContext);
+        verifyInvocation(1, ImmutableList
+                        .of(desiredFlaglessResult(1, 0, 0, FIRST_ADDRESS_AS_ARRAY, 24,
+                                new byte[4], ~0, 0, ROUTE_PROTOCOL_INDEX, 1, 4,
+                                0, 0)),
                 api, requestCaptor);
     }
 

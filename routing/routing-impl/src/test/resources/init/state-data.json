@@ -18,17 +18,11 @@
                     "id": 1,
                     "destination-prefix": "192.168.2.3/32",
                     "next-hop": "192.168.2.8",
-                    "outgoing-interface": "local0",
-                    "vpp-ipv4-route-state": {
-                      "secondary-vrf": "1"
-                    }
+                    "outgoing-interface": "local0"
                   },
                   {
                     "id": 2,
                     "destination-prefix": "192.168.2.4/32",
-                    "vpp-ipv4-route-state": {
-                      "secondary-vrf": "1"
-                    },
                     "next-hop-list": {
                       "next-hop": [
                         {
@@ -50,6 +44,13 @@
                     "id": 3,
                     "destination-prefix": "192.168.2.5/32",
                     "special-next-hop": "receive"
+                  },
+                  {
+                    "id": 4,
+                    "destination-prefix": "192.168.2.6/32",
+                    "table-lookup-params": {
+                      "secondary-vrf": 4
+                    }
                   }
                 ]
               },
@@ -59,17 +60,11 @@
                     "id": 1,
                     "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0001/64",
                     "next-hop": "2001:0db8:0a0b:12f0:0000:0000:0000:0002",
-                    "outgoing-interface": "GigabitEthernet0/8/0",
-                    "vpp-ipv6-route-state": {
-                      "secondary-vrf": "1"
-                    }
+                    "outgoing-interface": "GigabitEthernet0/8/0"
                   },
                   {
                     "id": 2,
                     "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0008/64",
-                    "vpp-ipv6-route-state": {
-                      "secondary-vrf": "1"
-                    },
                     "next-hop-list": {
                       "next-hop": [
                         {
@@ -97,6 +92,13 @@
                     "id": 3,
                     "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0005/32",
                     "special-next-hop": "receive"
+                  },
+                  {
+                    "id": 4,
+                    "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0006/32",
+                    "table-lookup-params": {
+                      "secondary-vrf": 2
+                    }
                   }
                 ]
               }

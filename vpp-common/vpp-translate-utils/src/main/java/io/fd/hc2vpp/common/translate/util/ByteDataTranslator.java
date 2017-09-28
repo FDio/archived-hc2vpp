@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.common.translate.util;
 
+import java.util.Arrays;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,6 +56,13 @@ public interface ByteDataTranslator {
      */
     default byte toByte(final short value) {
         return Short.valueOf(value).byteValue();
+    }
+
+    /**
+     * Checks if provided array contains only zeros
+     */
+    default boolean isArrayZeroed(final byte[] arr) {
+        return Arrays.equals(arr, new byte[arr.length]);
     }
 
     /**
