@@ -1,6 +1,6 @@
 #!/bin/bash
 # defines vpp and vpp-plugins dependencies for debian packages
 # using range
-echo "vpp (>= 17.10), vpp (<< 17.11), vpp-plugins (>= 17.10), vpp-plugins (<< 17.11)"
+echo "vpp (>= 18.01), vpp (<< 18.02), vpp-plugins (>= 18.01), vpp-plugins (<< 18.02)"
 # or specific vpp version
-#echo "vpp (= 17.10-rc1), vpp-plugins (= 17.10-rc1)"
+#echo "vpp (= 18.01-rc1), vpp-plugins (= 18.01-rc1)"
