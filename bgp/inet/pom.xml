@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.17.10-SNAPSHOT</version>
+        <version>1.17.10-RC1</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
@@ -13,7 +13,7 @@
     <groupId>io.fd.hc2vpp.bgp</groupId>
     <artifactId>bgp-inet</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.17.10-SNAPSHOT</version>
+    <version>1.17.10-RC1</version>
 
     <dependencies>
         <!-- Honeycomb infrastructure -->

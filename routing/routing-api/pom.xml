@@ -18,14 +18,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>api-parent</artifactId>
-        <version>1.17.10-SNAPSHOT</version>
+        <version>1.17.10-RC1</version>
         <relativePath>../../common/api-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.routing</groupId>
     <artifactId>routing-api</artifactId>
-    <version>1.17.10-SNAPSHOT</version>
+    <version>1.17.10-RC1</version>
     <packaging>bundle</packaging>
 
     <dependencyManagement>
