@@ -3,7 +3,7 @@ set -xe
 DIR=$(dirname $0)
 DIR=$(readlink -f $DIR)
 ZIPDIR=${DIR}/../../vpp-integration/minimal-distribution/target/
-ZIPFILE=${ZIPDIR}/vpp-integration-distribution-1.17.10-RC1-hc.zip
+ZIPFILE=${ZIPDIR}/vpp-integration-distribution-1.17.10-SNAPSHOT-hc.zip
 mkdir -p ${DIR}/SOURCES/
 cp $ZIPFILE ${DIR}/SOURCES/
 cp ${DIR}/honeycomb.spec ${DIR}/SOURCES/

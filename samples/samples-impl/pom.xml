@@ -5,14 +5,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.17.10-RC1</version>
+        <version>1.17.10-SNAPSHOT</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>samples-impl</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.17.10-RC1</version>
+    <version>1.17.10-SNAPSHOT</version>
 
     <dependencies>
         <!-- Api classes generated from yang model -->

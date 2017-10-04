@@ -17,7 +17,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>api-parent</artifactId>
-    <version>1.17.10-RC1</version>
+    <version>1.17.10-SNAPSHOT</version>
     <relativePath>../../common/api-parent</relativePath>
   </parent>
 
@@ -25,11 +25,11 @@
   <groupId>io.fd.hc2vpp.nat</groupId>
   <artifactId>nat-api</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.10-RC1</version>
+  <version>1.17.10-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
-    <naming.context.version>1.17.10-RC1</naming.context.version>
+    <naming.context.version>1.17.10-SNAPSHOT</naming.context.version>
   </properties>
 
   <dependencies>

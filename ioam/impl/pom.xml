@@ -18,7 +18,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>impl-parent</artifactId>
-    <version>1.17.10-RC1</version>
+    <version>1.17.10-SNAPSHOT</version>
     <relativePath>../../common/impl-parent</relativePath>
   </parent>
 
@@ -26,7 +26,7 @@
   <groupId>io.fd.hc2vpp.ioam</groupId>
   <artifactId>vppioam-impl</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.17.10-RC1</version>
+  <version>1.17.10-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
