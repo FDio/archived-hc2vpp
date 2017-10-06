@@ -36,6 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.Lisp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.itr.remote.locator.sets.grouping.ItrRemoteLocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.lisp.feature.data.grouping.LispFeatureData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.locator.sets.grouping.LocatorSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.locator.sets.grouping.locator.sets.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.register.grouping.MapRegister;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.request.mode.grouping.MapRequestMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.pitr.cfg.grouping.PitrCfg;
@@ -76,7 +78,9 @@ public final class LispWriterFactory extends AbstractLispInfraFactoryBase implem
         registry.add(writer(LISP_FEATURE_IDENTIFIER.child(RlocProbe.class),
                 new RlocProbeCustomizer(vppApi, lispStateCheckService)));
 
-        registry.add(writer(LISP_FEATURE_IDENTIFIER.child(ItrRemoteLocatorSet.class),
-                new ItrRemoteLocatorSetCustomizer(vppApi, lispStateCheckService)));
+        // itr remote locator set has reference to locator set, so must be deleted before locator set
+        registry.addAfter(writer(LISP_FEATURE_IDENTIFIER.child(ItrRemoteLocatorSet.class),
+                new ItrRemoteLocatorSetCustomizer(vppApi, lispStateCheckService)),
+                LISP_FEATURE_IDENTIFIER.child(LocatorSets.class).child(LocatorSet.class));
     }
 }
