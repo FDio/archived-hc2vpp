@@ -74,7 +74,8 @@ public class MapRequestModeCustomizerTest extends LispWriterCustomizerTest {
 
     @Test
     public void deleteCurrentAttributes() throws Exception {
-        verify(api, times(0)).lispMapRequestMode(any());
+        customizer.deleteCurrentAttributes(ID, sourceDestinationMode, writeContext);
+        verifyModeRequest(DestinationOnly);// always should be destination only - its default
     }
 
     @Test
@@ -93,7 +94,7 @@ public class MapRequestModeCustomizerTest extends LispWriterCustomizerTest {
     public void testUpdateLispDisabled() throws WriteFailedException {
         mockLispDisabledAfter();
         try {
-            customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA,EMPTY_DATA, writeContext);
+            customizer.updateCurrentAttributes(EMPTY_ID, EMPTY_DATA, EMPTY_DATA, writeContext);
         } catch (IllegalArgumentException e) {
             verifyZeroInteractions(api);
             return;
