@@ -66,6 +66,12 @@ public class CollectingWriterBuilder implements ModifiableWriterRegistryBuilder 
     }
 
     @Override
+    public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> wildcardedSubtreeAdd(@Nonnull Writer<? extends DataObject> handler) {
+        writeHandlers.add(new WriteHandler(handler));
+        return this;
+    }
+
+    @Override
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> addBefore(
             @Nonnull Writer<? extends DataObject> handler, @Nonnull InstanceIdentifier<?> relatedType) {
         addHandler(handler, Collections.singleton(relatedType));
@@ -80,11 +86,23 @@ public class CollectingWriterBuilder implements ModifiableWriterRegistryBuilder 
     }
 
     @Override
+    public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> wildcardedSubtreeAddBefore(@Nonnull Writer<? extends DataObject> handler, @Nonnull InstanceIdentifier<?> relatedType) {
+        writeHandlers.add(new WriteHandler(handler));
+        return this;
+    }
+
+    @Override
+    public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> wildcardedSubtreeAddBefore(@Nonnull Writer<? extends DataObject> handler, @Nonnull Collection<InstanceIdentifier<?>> relatedTypes) {
+        writeHandlers.add(new WriteHandler(handler));
+        return this;
+    }
+
+    @Override
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> subtreeAddBefore(
             @Nonnull Set<InstanceIdentifier<?>> handledChildren, @Nonnull Writer<? extends DataObject> handler,
             @Nonnull InstanceIdentifier<?> relatedType) {
         addHandler(handler, handledChildren);
-        return null;
+        return this;
     }
 
     @Override
@@ -106,6 +124,18 @@ public class CollectingWriterBuilder implements ModifiableWriterRegistryBuilder 
     public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> addAfter(
             @Nonnull Writer<? extends DataObject> handler, @Nonnull Collection<InstanceIdentifier<?>> relatedTypes) {
         addHandler(handler);
+        return this;
+    }
+
+    @Override
+    public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> wildcardedSubtreeAddAfter(@Nonnull Writer<? extends DataObject> handler, @Nonnull InstanceIdentifier<?> relatedType) {
+        writeHandlers.add(new WriteHandler(handler));
+        return this;
+    }
+
+    @Override
+    public ModifiableSubtreeManagerRegistryBuilder<Writer<? extends DataObject>> wildcardedSubtreeAddAfter(@Nonnull Writer<? extends DataObject> handler, @Nonnull Collection<InstanceIdentifier<?>> relatedTypes) {
+        writeHandlers.add(new WriteHandler(handler));
         return this;
     }
 
