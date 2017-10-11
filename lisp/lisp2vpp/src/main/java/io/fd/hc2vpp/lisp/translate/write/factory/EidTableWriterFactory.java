@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.lisp.translate.write.factory;
 
+import static io.fd.hc2vpp.lisp.translate.write.factory.LocatorSetWriterFactory.LOCATOR_SET_ID;
+
 import com.google.common.collect.ImmutableSet;
 import io.fd.hc2vpp.lisp.translate.AbstractLispInfraFactoryBase;
 import io.fd.hc2vpp.lisp.translate.write.AdjacencyCustomizer;
@@ -84,15 +86,16 @@ public final class EidTableWriterFactory extends AbstractLispInfraFactoryBase im
     private void addLocalMappingSubtree(final ModifiableWriterRegistryBuilder registry) {
         final InstanceIdentifier<LocalMapping> localMappingSubtreeId = InstanceIdentifier.create(LocalMapping.class);
 
+        // LocalMapping must be writen after/deleted before Locator set, as it has reference to it
         final ImmutableSet<InstanceIdentifier<?>> localMappingHandledChildren =
                 ImmutableSet.of(localMappingSubtreeId.child(Eid.class), localMappingSubtreeId.child(HmacKey.class));
-        registry.subtreeAdd(localMappingHandledChildren,
+        registry.subtreeAddAfter(localMappingHandledChildren,
                 new GenericListWriter<>(VRF_SUBTABLE_ID.child(LocalMappings.class).child(LocalMapping.class),
-                        new LocalMappingCustomizer(vppApi, localMappingContext)));
+                        new LocalMappingCustomizer(vppApi, localMappingContext)), LOCATOR_SET_ID);
 
-        registry.subtreeAdd(localMappingHandledChildren,
+        registry.subtreeAddAfter(localMappingHandledChildren,
                 new GenericListWriter<>(BRIDGE_DOMAIN_SUBTABLE_ID.child(LocalMappings.class).child(LocalMapping.class),
-                        new LocalMappingCustomizer(vppApi, localMappingContext)));
+                        new LocalMappingCustomizer(vppApi, localMappingContext)), LOCATOR_SET_ID);
     }
 
     /**
