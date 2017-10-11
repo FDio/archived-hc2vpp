@@ -39,10 +39,7 @@
     <module>vpp-common</module>
     <module>v3po</module>
     <module>ioam</module>
-    <!--
-    nsh module breaks build by using outdated jvpp generator
     <module>nsh</module>
-    -->
     <module>routing</module>
     <module>nat</module>
     <module>lisp</module>

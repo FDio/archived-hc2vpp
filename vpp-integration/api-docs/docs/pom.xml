@@ -29,10 +29,7 @@
         <api.docs.modules>
             io.fd.hc2vpp.docs.core.mock.binding.MockBindingModule,
             io.fd.hc2vpp.docs.core.mock.binding.MockAclModule,
-            <!--
-            nsh module breaks build by using outdated jvpp generator
             io.fd.hc2vpp.docs.core.mock.binding.MockNshModule,
-            -->
             io.fd.hc2vpp.docs.core.mock.binding.MockIoamModule,
             io.fd.hc2vpp.docs.core.mock.binding.MockNatModule,
             io.fd.hc2vpp.iface.role.InterfaceRoleModule,
