@@ -89,19 +89,17 @@ public class PolicerCustomizer extends FutureJVppCustomizer implements ListWrite
         request.isAdd = booleanToByte(isAdd);
         request.name = policer.getName().getBytes(StandardCharsets.US_ASCII);
 
-        // policer_add_del expects host order unlike most of the other VPP APIs
-        // jvpp by default converts ordering to network order, so we need additional reverse
         if (policer.getCir() != null) {
-            request.cir = Integer.reverseBytes(policer.getCir().intValue());
+            request.cir = policer.getCir().intValue();
         }
         if (policer.getEir() != null) {
-            request.eir = Integer.reverseBytes(policer.getEir().intValue());
+            request.eir = policer.getEir().intValue();
         }
         if (policer.getCb() != null) {
-            request.cb = Long.reverseBytes(policer.getCb().longValue());
+            request.cb = policer.getCb().longValue();
         }
         if (policer.getEb() != null) {
-            request.eb = Long.reverseBytes(policer.getEb().longValue());
+            request.eb = policer.getEb().longValue();
         }
         if (policer.getRateType() != null) {
             request.rateType = (byte) policer.getRateType().getIntValue();
