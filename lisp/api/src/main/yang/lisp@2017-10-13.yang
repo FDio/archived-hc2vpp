@@ -26,6 +26,11 @@ module lisp {
     "This YANG module defines the generic configuration and
     operational data for LISP in VPP";
 
+  revision 2017-10-13 {
+    description
+        "Mandatory statements for vrf/bd sub-tables";
+  }
+
   revision 2017-09-11 {
     description
         "One transport protocol support";
@@ -327,8 +332,8 @@ module lisp {
           leaf table-id {
              type uint32;
              description "table-id";
-             // TODO - HC2VPP-73 - commented due to ODL Boron issues
-             //mandatory true;
+             mandatory true;
+             // must be mandatory, as creating local/remote mapping would fail without vni -> vrf/bd assingment
           }
 
           uses dp-subtable-grouping;
@@ -339,8 +344,8 @@ module lisp {
           leaf bridge-domain-ref {
             type v3po:bridge-domain-ref;
             description "Reference to existing bridge domain";
-            // TODO - HC2VPP-73 - commented due to ODL Boron issues
-            // mandatory true;
+            mandatory true;
+            // must be mandatory, as creating local/remote mapping would fail without vni -> vrf/bd assingment
           }
 
           uses dp-subtable-grouping;

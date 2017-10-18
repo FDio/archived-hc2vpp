@@ -36,8 +36,8 @@ import io.fd.vpp.jvpp.core.dto.OneMapRegisterSetTtlReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.register.grouping.MapRegister;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev170911.map.register.grouping.MapRegisterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.map.register.grouping.MapRegister;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.map.register.grouping.MapRegisterBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MapRegisterCustomizerTest extends LispWriterCustomizerTest implements ByteDataTranslator {
