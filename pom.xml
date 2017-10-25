@@ -54,5 +54,6 @@
     <module>it</module>
     <module>interface-role</module>
     <module>bgp</module>
+    <module>mpls</module>
   </modules>
 </project>

@@ -1,0 +1,14 @@
+= mpls-api
+
+Hc2vpp implementation of MPLS uses following ietf models:
+- ietf-mpls
+- ietf-mpls-static
+- ietf-routing-types
+
+Models were modified due to YANGTOOLS/MDSAL issues
+and some problems with the models itself.
+More information can be found in yang files.
+
+Original YANG files were downloaded from
+
+https://github.com/ietf-mpls-yang/te/
