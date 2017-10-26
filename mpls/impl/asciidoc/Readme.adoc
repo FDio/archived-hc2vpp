@@ -1,0 +1,8 @@
+= mpls-impl
+
+Translates
+/ietf-routing:routing/ietf-mpls:mpls/interface
+
+to
+
+sw_interface_set_mpls_enable.
