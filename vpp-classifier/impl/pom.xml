@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.17.10-SNAPSHOT</version>
+        <version>1.17.10</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
@@ -30,14 +30,14 @@
     <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
     <artifactId>vpp-classifier-impl</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.17.10-SNAPSHOT</version>
+    <version>1.17.10</version>
 
     <dependencies>
         <!-- Api -->
         <dependency>
             <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
             <artifactId>vpp-classifier-api</artifactId>
-            <version>1.17.10-SNAPSHOT</version>
+            <version>1.17.10</version>
         </dependency>
 
         <!-- TODO - HC2VPP-97 - change to sub-interface-api dependency once module is present
