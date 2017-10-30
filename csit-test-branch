@@ -1,2 +1,5 @@
 #!/bin/sh
-echo master
+echo rls1710
+
+# Determines which CSIT branch to use for integration testing.
+# Should be 'master' for hc2vpp master, 'rls1707' for hc2vpp stable/1707, etc.
