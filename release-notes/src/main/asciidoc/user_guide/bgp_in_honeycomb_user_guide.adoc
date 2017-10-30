@@ -21,7 +21,16 @@ in distribution dir (/opt/honeycomb in case honeycomb was installed from package
 io.fd.honeycomb.infra.bgp.BgpModule
 io.fd.honeycomb.infra.bgp.BgpReadersModule
 io.fd.honeycomb.infra.bgp.BgpWritersModule
+// io.fd.honeycomb.northbound.bgp.extension.EvpnModule
+io.fd.honeycomb.northbound.bgp.extension.InetModule
+// io.fd.honeycomb.northbound.bgp.extension.L3VpnV4Module
+// io.fd.honeycomb.northbound.bgp.extension.L3VpnV6Module
+// io.fd.honeycomb.northbound.bgp.extension.LabeledUnicastModule
+// io.fd.honeycomb.northbound.bgp.extension.LinkstateModule
 ----
+
+NOTE: HC allows to enable selected Multiprotocol BGP extensions. For the purpose of the guide, only InetModule
+extension module was enabled (IPv4 and IPv6 support).
 
 === BGP server configuration
 
