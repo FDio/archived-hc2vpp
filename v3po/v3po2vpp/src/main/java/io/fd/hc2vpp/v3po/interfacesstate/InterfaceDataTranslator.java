@@ -95,16 +95,11 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
      * @throws IllegalArgumentException if vppPhysAddress.length < 6
      */
     default String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress) {
-        return vppPhysAddrToYang(vppPhysAddress, 0);
-    }
-
-    default String vppPhysAddrToYang(@Nonnull final byte[] vppPhysAddress, final int startIndex) {
         Objects.requireNonNull(vppPhysAddress, "Empty physical address bytes");
-        final int endIndex = startIndex + PHYSICAL_ADDRESS_LENGTH;
+        final int endIndex = PHYSICAL_ADDRESS_LENGTH;
         checkArgument(endIndex <= vppPhysAddress.length,
-                "Invalid physical address size (%s) for given startIndex (%s), expected >= %s", vppPhysAddress.length,
-                startIndex, endIndex);
-        return printHexBinary(vppPhysAddress, startIndex, endIndex);
+                "Invalid physical address size (%s), expected >= %s", vppPhysAddress.length, endIndex);
+        return printHexBinary(vppPhysAddress);
     }
 
     /**

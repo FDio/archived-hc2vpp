@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.v3po.l2state;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Longs;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -85,7 +84,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
         try {
             // TODO HONEYCOMB-186 use cached l2FibTable
             final L2FibTableDetails entry = dumpL2Fibs(id, bdId).stream().filter(e -> key.getPhysAddress()
-                    .equals(new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(e.mac), 2))))
+                    .equals(new PhysAddress(vppPhysAddrToYang((e.mac)))))
                     .collect(SINGLE_ITEM_COLLECTOR);
 
             builder.setAction(byteToBoolean(entry.filterMac)
@@ -131,8 +130,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
 
         LOG.debug("Reading L2 FIB for bridge domain {} (bdId={})", bridgeDomainKey, bdId);
         return dumpL2Fibs(id, bdId).stream()
-                .map(entry -> new L2FibEntryKey(
-                        new PhysAddress(vppPhysAddrToYang(Longs.toByteArray(entry.mac), 2))))
+                .map(entry -> new L2FibEntryKey(new PhysAddress(vppPhysAddrToYang(entry.mac))))
                 .collect(Collectors.toList());
     }
 

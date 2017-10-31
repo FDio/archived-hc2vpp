@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.v3po.l2;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -81,7 +82,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
         doReturn(failedFuture()).when(api).l2FibAddDel(any(L2FibAddDel.class));
     }
 
-    private L2FibAddDel generateL2FibAddDelFilterRequest(final long mac, final byte isAdd, final int ifaceIndex) {
+    private L2FibAddDel generateL2FibAddDelFilterRequest(final byte[] mac, final byte isAdd, final int ifaceIndex) {
         final L2FibAddDel request = new L2FibAddDel();
         request.mac = mac;
         request.bdId = BD_ID;
@@ -94,7 +95,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
         return request;
     }
 
-    private L2FibAddDel generateL2FibAddDelForwardRequest(final long mac, final byte isAdd, final int ifaceIndex) {
+    private L2FibAddDel generateL2FibAddDelForwardRequest(final byte[] mac, final byte isAdd, final int ifaceIndex) {
         final L2FibAddDel request = new L2FibAddDel();
         request.mac = mac;
         request.bdId = BD_ID;
@@ -134,7 +135,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
         ArgumentCaptor<L2FibAddDel> argumentCaptor = ArgumentCaptor.forClass(L2FibAddDel.class);
         verify(api).l2FibAddDel(argumentCaptor.capture());
         final L2FibAddDel actual = argumentCaptor.getValue();
-        assertEquals(expected.mac, actual.mac);
+        assertArrayEquals(expected.mac, actual.mac);
         assertEquals(expected.bdId, actual.bdId);
         assertEquals(expected.swIfIndex, actual.swIfIndex);
         assertEquals(expected.isAdd, actual.isAdd);
@@ -144,7 +145,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testCreateFilter() throws Exception {
-        final long address_vpp = 0x0102030405060000L;
+        final byte[] address_vpp = new byte[]{1, 2, 3, 4, 5, 6};
         final PhysAddress address = new PhysAddress("01:02:03:04:05:06");
         final L2FibEntry entry = generateL2FibFilterEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
@@ -158,7 +159,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testCreateForward() throws Exception {
-        final long address_vpp = 0x0102030405060000L;
+        final byte[] address_vpp = new byte[]{1, 2, 3, 4, 5, 6};
         final PhysAddress address = new PhysAddress("01:02:03:04:05:06");
         final L2FibEntry entry = generateL2FibForwardEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
@@ -172,7 +173,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testCreateFilterFailed() throws Exception {
-        final long address_vpp = 0x1122334455660000L;
+        final byte[] address_vpp = new byte[]{0x11, 0x22 ,0x33, 0x44 ,0x55, 0x66};
         final PhysAddress address = new PhysAddress("11:22:33:44:55:66");
         final L2FibEntry entry = generateL2FibFilterEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
@@ -191,7 +192,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testCreateForwardFailed() throws Exception {
-        final long address_vpp = 0x1122334455660000L;
+        final byte[] address_vpp = new byte[]{0x11, 0x22 ,0x33, 0x44 ,0x55, 0x66};
         final PhysAddress address = new PhysAddress("11:22:33:44:55:66");
         final L2FibEntry entry = generateL2FibForwardEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
@@ -216,7 +217,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDeleteFilter() throws Exception {
-        final long address_vpp = 0x1122334455660000L;
+        final byte[] address_vpp = new byte[]{0x11, 0x22 ,0x33, 0x44 ,0x55, 0x66};
         final PhysAddress address = new PhysAddress("11:22:33:44:55:66");
         final L2FibEntry entry = generateL2FibFilterEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
@@ -230,7 +231,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDeleteForward() throws Exception {
-        final long address_vpp = 0x1122334455660000L;
+        final byte[] address_vpp = new byte[]{0x11, 0x22 ,0x33, 0x44 ,0x55, 0x66};
         final PhysAddress address = new PhysAddress("11:22:33:44:55:66");
         final L2FibEntry entry = generateL2FibForwardEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
@@ -245,7 +246,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDeleteFilterFailed() throws Exception {
-        final long address_vpp = 0x0102030405060000L;
+        final byte[] address_vpp = new byte[]{1, 2, 3, 4, 5, 6};
         final PhysAddress address = new PhysAddress("01:02:03:04:05:06");
         final L2FibEntry entry = generateL2FibFilterEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);
@@ -264,7 +265,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testDeleteForwardFailed() throws Exception {
-        final long address_vpp = 0x0102030405060000L;
+        final byte[] address_vpp = new byte[]{1, 2, 3, 4, 5, 6};
         final PhysAddress address = new PhysAddress("01:02:03:04:05:06");
         final L2FibEntry entry = generateL2FibForwardEntry(address);
         final InstanceIdentifier<L2FibEntry> id = getL2FibEntryId(address);

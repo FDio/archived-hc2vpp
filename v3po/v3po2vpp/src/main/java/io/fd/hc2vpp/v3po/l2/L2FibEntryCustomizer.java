@@ -19,7 +19,6 @@ package io.fd.hc2vpp.v3po.l2;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.primitives.Longs;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
@@ -114,7 +113,7 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
 
     private L2FibAddDel createL2FibRequest(final L2FibEntry entry, final int bdId, final int swIfIndex, boolean isAdd) {
         final L2FibAddDel request = new L2FibAddDel();
-        request.mac = macToLong(entry.getPhysAddress().getValue());
+        request.mac = parseMac(entry.getPhysAddress().getValue());
         request.bdId = bdId;
         request.swIfIndex = swIfIndex;
         request.isAdd = booleanToByte(isAdd);
@@ -123,13 +122,5 @@ public class L2FibEntryCustomizer extends FutureJVppCustomizer
             request.filterMac = booleanToByte(L2FibFilter.class == entry.getAction());
         }
         return request;
-    }
-
-    // mac address is string of the form: 11:22:33:44:55:66
-    // but VPP expects long value in the format 11:22:33:44:55:66:XX:XX
-    private long macToLong(final String macAddress) {
-        final byte[] mac = parseMac(macAddress);
-        return Longs.fromBytes(mac[0], mac[1], mac[2], mac[3],
-                mac[4], mac[5], (byte) 0, (byte) 0);
     }
 }

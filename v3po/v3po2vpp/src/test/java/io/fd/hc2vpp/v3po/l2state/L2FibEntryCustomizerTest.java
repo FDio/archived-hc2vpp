@@ -86,7 +86,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
 
     @Test
     public void testRead() throws Exception {
-        final long address_vpp = 0x0000010203040506L;
+        final byte[] address_vpp = new byte[]{1, 2, 3, 4, 5, 6};
         final PhysAddress address = new PhysAddress("01:02:03:04:05:06");
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
@@ -103,7 +103,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
         verify(builder).setKey(new L2FibEntryKey(address));
     }
 
-    private L2FibTableDetails generateL2FibEntry(final long mac) {
+    private L2FibTableDetails generateL2FibEntry(final byte[] mac) {
         final L2FibTableDetails entry = new L2FibTableDetails();
         entry.mac = mac;
         entry.swIfIndex = IFACE_ID;
@@ -112,7 +112,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
 
     @Test
     public void testGetAllIds() throws Exception {
-        final long address_vpp = 0x0000112233445566L;
+        final byte[] address_vpp = new byte[]{0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
         final PhysAddress address = new PhysAddress("11:22:33:44:55:66");
 
         whenL2FibTableDumpThenReturn(Collections.singletonList(generateL2FibEntry(address_vpp)));
