@@ -23,11 +23,11 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>api-parent</artifactId>
-        <version>1.17.10</version>
+        <version>1.17.10.1-SNAPSHOT</version>
         <relativePath>../../common/api-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.management</groupId>
     <artifactId>vpp-management-api</artifactId>
-    <version>1.17.10</version>
+    <version>1.17.10.1-SNAPSHOT</version>
 </project>

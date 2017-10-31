@@ -20,14 +20,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.17.10</version>
+        <version>1.17.10.1-SNAPSHOT</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.fd.hc2vpp.acl</groupId>
     <artifactId>acl-impl</artifactId>
-    <version>1.17.10</version>
+    <version>1.17.10.1-SNAPSHOT</version>
 
     <properties>
         <jvpp.acl.version>17.10</jvpp.acl.version>

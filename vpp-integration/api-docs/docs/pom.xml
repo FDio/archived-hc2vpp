@@ -22,7 +22,7 @@
 
     <groupId>io.fd.hc2vpp.docs</groupId>
     <artifactId>docs</artifactId>
-    <version>1.17.10</version>
+    <version>1.17.10.1-SNAPSHOT</version>
 
     <properties>
         <!-- List of modules that are used to extract Writer/Reader factories, and therefore generate api documentation -->

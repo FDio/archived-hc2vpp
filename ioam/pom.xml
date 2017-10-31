@@ -18,13 +18,13 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>hc2vpp-parent</artifactId>
-    <version>1.17.10</version>
+    <version>1.17.10.1-SNAPSHOT</version>
     <relativePath>../common/hc2vpp-parent</relativePath>
   </parent>
 
   <groupId>io.fd.hc2vpp.ioam</groupId>
   <artifactId>vppioam-aggregator</artifactId>
-  <version>1.17.10</version>
+  <version>1.17.10.1-SNAPSHOT</version>
   <name>${project.artifactId}</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
