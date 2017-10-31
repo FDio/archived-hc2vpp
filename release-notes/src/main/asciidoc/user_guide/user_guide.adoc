@@ -56,6 +56,9 @@ Honeycomb's configuration files present within its distribution:
 
 * V3PO plugin
 ** {project-git-web}/v3po/postman_rest_collection.json?h={project-branch}[V3PO postman collection]
+** {project-git-web}/v3po/routing_postman_collection.json?h={project-branch}[Interface/subinterface routing postman
+collection]
+** {project-git-web}/v3po/span_postman_collection.json?h={project-branch}[SNAP interface/subinterface collection]
 * LISP plugin
 ** {project-git-web}/lisp/lisp_postman_collection.json?h={project-branch}[LISP postman collection]
 ** {project-git-web}/lisp/gpe_postman_collection.json?h={project-branch}[LISP GPE postman collection]
