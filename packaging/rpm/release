@@ -1,10 +1,22 @@
 #!/bin/bash
-# release version
-# echo RELEASE
 #
-# snapshot version
+# Snapshot version (do not use on stable branch)
 #
-# Increasing the build number by a certain margin.
-# Necessary due to honeycomb - hc2vpp split. Build_number counter was reset
-# rewriting older packages
+# Increasing the build number for fd.io.master repositories
+# by a certain margin. Necessary due to honeycomb - hc2vpp split.
+# Build_number counter was reset rewriting older packages
+#
 echo $(expr $BUILD_NUMBER + 2000)
+#
+# Stable versions
+#
+# echo RC1~$BUILD_NUMBER
+# echo RC1
+# echo RC2~$BUILD_NUMBER
+# echo RC2
+#
+# Release snapshot (1.18.01~XXX, 1.18.01.1~XXX, ...)
+# echo RELEASE~$BUILD_NUMBER
+#
+# Release version (1.18.01, 1.18.01.1, ...)
+# echo RELEASE
