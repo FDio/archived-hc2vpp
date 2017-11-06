@@ -100,10 +100,14 @@ public interface ByteDataTranslator {
 
     default String printHexBinary(@Nonnull final byte[] bytes) {
         Objects.requireNonNull(bytes, "bytes array should not be null");
+        return printHexBinary(bytes, 0, bytes.length);
+    }
+
+    default String printHexBinary(@Nonnull final byte[] bytes, final int startIndex, final int endIndex) {
         StringBuilder str = new StringBuilder();
 
-        Impl.appendHexByte(str, bytes[0]);
-        for (int i = 1; i < bytes.length; i++) {
+        Impl.appendHexByte(str, bytes[startIndex]);
+        for (int i = startIndex + 1; i < endIndex; i++) {
             str.append(":");
             Impl.appendHexByte(str, bytes[i]);
         }

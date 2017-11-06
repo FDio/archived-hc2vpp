@@ -99,7 +99,11 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
         final int endIndex = PHYSICAL_ADDRESS_LENGTH;
         checkArgument(endIndex <= vppPhysAddress.length,
                 "Invalid physical address size (%s), expected >= %s", vppPhysAddress.length, endIndex);
-        return printHexBinary(vppPhysAddress);
+        // Extended (64-bit) MAC addresses are currently not supported , so use first 48-bits.
+        // Adding support for extended MAC addresses might require yang model change.
+        // Also VPP is not consistent (e.g. for TAP it allows to configure MAC of 6 bytes, but sw_interface_details
+        // contains 8 bytes.
+        return printHexBinary(vppPhysAddress, 0, PHYSICAL_ADDRESS_LENGTH);
     }
 
     /**

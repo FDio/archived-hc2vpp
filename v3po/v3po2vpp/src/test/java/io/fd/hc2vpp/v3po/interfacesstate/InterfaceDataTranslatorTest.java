@@ -30,7 +30,9 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
     @Test
     public void testVppPhysAddrToYang() throws Exception {
         assertEquals("01:02:03:04:05:06", vppPhysAddrToYang(new byte[]{1, 2, 3, 4, 5, 6}));
-        assertEquals("0a:0b:0c:0d:0e:0f", vppPhysAddrToYang(new byte[]{0xa, 0xb, 0xc, 0xd, 0xe, 0xf}));
+        // Extended (64-bit) MAC addresses are currently not supported (it might require yang model update),
+        // so test if extended part is ignored
+        assertEquals("0a:0b:0c:0d:0e:0f", vppPhysAddrToYang(new byte[]{0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0, 0}));
     }
 
     @Test(expected = NullPointerException.class)
