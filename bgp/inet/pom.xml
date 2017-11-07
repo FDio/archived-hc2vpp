@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-inet</artifactId>
-            <version>${bgpcep.version}</version>
+            <version>${odl.bgpcep.version}</version>
         </dependency>
         <!-- Translation -->
         <dependency>
