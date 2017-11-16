@@ -109,6 +109,7 @@
                 <project-public-version>17.10</project-public-version>
                 <project-version-in-jira>10800</project-version-in-jira>
                 <project-branch>stable/1710</project-branch>
+                <project-odl-version>carbon</project-odl-version>
                 <project-vpp-version>17.10</project-vpp-version>
                 <project-vpp-snapshot-version>17.10</project-vpp-snapshot-version>
                 <project-nat-version>17.10</project-nat-version>
