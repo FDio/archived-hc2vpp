@@ -1,8 +1,24 @@
 = mpls-impl
 
+== MPLS interface management
+
+Allows to enable/disable MPLS on given interface.
+
 Translates
 /ietf-routing:routing/ietf-mpls:mpls/interface
 
 to
 
 sw_interface_set_mpls_enable.
+
+== Pushing MPLS labels
+
+Translates impose-and-forward operation of
+/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpl:mpls/
+hc2vpp-ietf-mpls-static:static-lsps/static-lsp
+
+to ip_add_del_route call.
+
+For single outgoing-label, use simple-path out-segment.
+For multiple outgoing labels, use path-list out-segment
+with single path (multiple path support is not implemented yet).
