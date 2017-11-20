@@ -19,6 +19,8 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
@@ -31,14 +33,9 @@ import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetails;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VppInterfaceAugmentation;
@@ -55,7 +52,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VxlanGpeCustomizer extends FutureJVppCustomizer
-        implements InitializingReaderCustomizer<VxlanGpe, VxlanGpeBuilder>, InterfaceDataTranslator, JvppReplyConsumer {
+    implements InitializingReaderCustomizer<VxlanGpe, VxlanGpeBuilder>, InterfaceDataTranslator, JvppReplyConsumer,
+    Ipv4Translator, Ipv6Translator {
 
     private static final Logger LOG = LoggerFactory.getLogger(VxlanGpeCustomizer.class);
     private final NamingContext interfaceContext;
@@ -120,34 +118,17 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
 
         final VxlanGpeTunnelDetails swInterfaceVxlanGpeDetails = reply.vxlanGpeTunnelDetails.get(0);
         if (swInterfaceVxlanGpeDetails.isIpv6 == 1) {
-            final Ipv6Address remote6 =
-                    new Ipv6Address(parseAddress(swInterfaceVxlanGpeDetails.remote).getHostAddress());
-            builder.setRemote(new IpAddress(remote6));
-            final Ipv6Address local6 =
-                    new Ipv6Address(parseAddress(swInterfaceVxlanGpeDetails.local).getHostAddress());
-            builder.setLocal(new IpAddress(local6));
+            builder.setRemote(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceVxlanGpeDetails.remote)));
+            builder.setLocal(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceVxlanGpeDetails.local)));
         } else {
-            final byte[] dstBytes = Arrays.copyOfRange(swInterfaceVxlanGpeDetails.remote, 0, 4);
-            final Ipv4Address remote4 = new Ipv4Address(parseAddress(dstBytes).getHostAddress());
-            builder.setRemote(new IpAddress(remote4));
-            final byte[] srcBytes = Arrays.copyOfRange(swInterfaceVxlanGpeDetails.local, 0, 4);
-            final Ipv4Address local4 = new Ipv4Address(parseAddress(srcBytes).getHostAddress());
-            builder.setLocal(new IpAddress(local4));
+            builder.setRemote(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanGpeDetails.remote)));
+            builder.setLocal(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanGpeDetails.local)));
         }
         builder.setVni(new VxlanGpeVni((long) swInterfaceVxlanGpeDetails.vni));
         builder.setNextProtocol(VxlanGpeNextProtocol.forValue(swInterfaceVxlanGpeDetails.protocol));
         builder.setEncapVrfId((long) swInterfaceVxlanGpeDetails.encapVrfId);
         builder.setDecapVrfId((long) swInterfaceVxlanGpeDetails.decapVrfId);
         LOG.debug("VxlanGpe tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);
-    }
-
-    @Nonnull
-    private static InetAddress parseAddress(@Nonnull final byte[] addr) {
-        try {
-            return InetAddress.getByAddress(addr);
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Cannot create InetAddress from " + Arrays.toString(addr), e);
-        }
     }
 
     @Override

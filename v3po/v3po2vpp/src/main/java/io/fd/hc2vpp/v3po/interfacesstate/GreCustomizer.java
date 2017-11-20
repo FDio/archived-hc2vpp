@@ -19,6 +19,8 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadContext;
@@ -30,14 +32,9 @@ import io.fd.vpp.jvpp.core.dto.GreTunnelDetails;
 import io.fd.vpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.GreTunnelDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.GreTunnel;
@@ -52,7 +49,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GreCustomizer extends FutureJVppCustomizer
-        implements InitializingReaderCustomizer<Gre, GreBuilder>, InterfaceDataTranslator {
+    implements InitializingReaderCustomizer<Gre, GreBuilder>, InterfaceDataTranslator, Ipv4Translator,
+    Ipv6Translator {
 
     private static final Logger LOG = LoggerFactory.getLogger(GreCustomizer.class);
     private final NamingContext interfaceContext;
@@ -115,31 +113,14 @@ public class GreCustomizer extends FutureJVppCustomizer
 
         final GreTunnelDetails swInterfaceGreDetails = reply.greTunnelDetails.get(0);
         if (swInterfaceGreDetails.isIpv6 == 1) {
-            final Ipv6Address dstIpv6 =
-                    new Ipv6Address(parseAddress(swInterfaceGreDetails.dstAddress).getHostAddress());
-            builder.setDst(new IpAddress(dstIpv6));
-            final Ipv6Address srcIpv6 =
-                    new Ipv6Address(parseAddress(swInterfaceGreDetails.srcAddress).getHostAddress());
-            builder.setSrc(new IpAddress(srcIpv6));
+            builder.setDst(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceGreDetails.dstAddress)));
+            builder.setSrc(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceGreDetails.srcAddress)));
         } else {
-            final byte[] dstBytes = Arrays.copyOfRange(swInterfaceGreDetails.dstAddress, 0, 4);
-            final Ipv4Address dstIpv4 = new Ipv4Address(parseAddress(dstBytes).getHostAddress());
-            builder.setDst(new IpAddress(dstIpv4));
-            final byte[] srcBytes = Arrays.copyOfRange(swInterfaceGreDetails.srcAddress, 0, 4);
-            final Ipv4Address srcIpv4 = new Ipv4Address(parseAddress(srcBytes).getHostAddress());
-            builder.setSrc(new IpAddress(srcIpv4));
+            builder.setDst(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceGreDetails.dstAddress)));
+            builder.setSrc(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceGreDetails.srcAddress)));
         }
         builder.setOuterFibId((long) swInterfaceGreDetails.outerFibId);
         LOG.debug("Gre tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);
-    }
-
-    @Nonnull
-    private static InetAddress parseAddress(@Nonnull final byte[] addr) {
-        try {
-            return InetAddress.getByAddress(addr);
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Cannot create InetAddress from " + Arrays.toString(addr), e);
-        }
     }
 
     @Override
