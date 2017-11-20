@@ -18,11 +18,9 @@ package io.fd.hc2vpp.common.translate.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.net.InetAddresses;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 
@@ -57,17 +55,7 @@ public interface Ipv4Translator extends ByteDataTranslator {
      */
     default byte extractPrefix(Ipv4Prefix data) {
         checkNotNull(data, "Cannot extract from null");
-
         return Byte.valueOf(data.getValue().substring(data.getValue().indexOf('/') + 1));
-    }
-
-    /**
-     * Converts byte array to {@link Ipv4Prefix} with specified prefixLength
-     */
-    default Ipv4Prefix arrayToIpv4Prefix(final byte[] address, byte prefixLength) {
-        Ipv4AddressNoZone addressPart = arrayToIpv4AddressNoZone(address);
-
-        return new Ipv4Prefix(addressPart.getValue().concat("/").concat(String.valueOf(prefixLength)));
     }
 
     /**
@@ -82,11 +70,7 @@ public interface Ipv4Translator extends ByteDataTranslator {
         if (ip.length == 16) {
             ip = Arrays.copyOfRange(ip, 0, 4);
         }
-        try {
-            return new Ipv4AddressNoZone(InetAddresses.toAddrString(InetAddress.getByAddress(ip)));
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Unable to parse ipv4", e);
-        }
+        return new Ipv4AddressNoZone(IetfInetUtil.INSTANCE.ipv4AddressFor(ip));
     }
 
     /**
@@ -110,13 +94,6 @@ public interface Ipv4Translator extends ByteDataTranslator {
     }
 
     default Ipv4Prefix toIpv4Prefix(final byte[] address, final int prefix) {
-        try {
-            return new Ipv4Prefix(
-                    String.format("%s/%s", InetAddress.getByAddress(address).getHostAddress(),
-                            String.valueOf(prefix)));
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException(
-                    "Cannot create prefix for address[" + Arrays.toString(address) + "],prefix[" + prefix + "]", e);
-        }
+        return IetfInetUtil.INSTANCE.ipv4PrefixFor(address, prefix);
     }
 }

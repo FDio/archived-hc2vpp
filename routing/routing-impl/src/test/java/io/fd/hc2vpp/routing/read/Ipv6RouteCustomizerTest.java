@@ -211,7 +211,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
         assertEquals(1, builder.getId().intValue());
         assertEquals(1, builder.getKey().getId().intValue());
-        assertEquals("2001:db8:a0b:12f0:0:0:0:1/24", builder.getDestinationPrefix().getValue());
+        assertEquals("2001:db8:a0b:12f0::1/24", builder.getDestinationPrefix().getValue());
 
         NextHopOptions hopOptions = builder.getNextHopOptions();
         assertTrue(hopOptions instanceof SpecialNextHop);
@@ -227,7 +227,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
         assertEquals(2, builder.getId().intValue());
         assertEquals(2, builder.getKey().getId().intValue());
-        assertEquals("2001:db8:a0b:12f0:0:0:0:2/22", builder.getDestinationPrefix().getValue());
+        assertEquals("2001:db8:a0b:12f0::2/22", builder.getDestinationPrefix().getValue());
 
         NextHopOptions hopOptions = builder.getNextHopOptions();
         assertTrue(hopOptions instanceof SimpleNextHop);
@@ -246,7 +246,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
         assertEquals(3, builder.getId().intValue());
         assertEquals(3, builder.getKey().getId().intValue());
-        assertEquals("2001:db8:a0b:12f0:0:0:0:2/16", builder.getDestinationPrefix().getValue());
+        assertEquals("2001:db8:a0b:12f0::2/16", builder.getDestinationPrefix().getValue());
 
         NextHopOptions hopOptions = builder.getNextHopOptions();
         assertTrue(hopOptions instanceof NextHopList);

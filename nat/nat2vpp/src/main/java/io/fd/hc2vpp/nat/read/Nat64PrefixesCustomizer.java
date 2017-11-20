@@ -113,7 +113,7 @@ final class Nat64PrefixesCustomizer
         if (prefixDetails != null) {
             builder.setNat64PrefixId(prefixId);
             builder.setNat64Prefix(
-                    arrayToIpv6Prefix(prefixDetails.prefix, UnsignedBytes.toInt(prefixDetails.prefixLen)));
+                    toIpv6Prefix(prefixDetails.prefix, UnsignedBytes.toInt(prefixDetails.prefixLen)));
         }
     }
 

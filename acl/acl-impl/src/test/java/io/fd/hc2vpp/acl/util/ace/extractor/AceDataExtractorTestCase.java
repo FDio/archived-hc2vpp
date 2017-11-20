@@ -40,8 +40,8 @@ abstract class AceDataExtractorTestCase {
     protected static final int DEFAULT_IPV4_PREFIX_VALUE = 0;
 
     protected static final byte[] DEFAULT_IPV6_ADDRESS_BYTES = new byte[16];
-    protected static final Ipv6Prefix IPV6_PREFIX = new Ipv6Prefix("2001:db8:a0b:12f0:0:0:0:1/64");
-    protected static final Ipv6Prefix IPV6_2_PREFIX = new Ipv6Prefix("2001:db8:a0b:12f0:0:0:0:2/48");
+    protected static final Ipv6Prefix IPV6_PREFIX = new Ipv6Prefix("2001:db8:a0b:12f0::1/64");
+    protected static final Ipv6Prefix IPV6_2_PREFIX = new Ipv6Prefix("2001:db8:a0b:12f0::2/48");
     protected static final byte[] IPV6_PREFIX_BYTES = {32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1};
     protected static final byte[] IPV6_2_PREFIX_BYTES = {32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 2};
     protected static final byte IPV6_PREFIX_VALUE = (byte) 64;

@@ -63,13 +63,20 @@ public class Ipv6TranslatorTest implements Ipv6Translator {
     }
 
     @Test
+    public void testArrayToIpv6Prefix48() {
+        assertEquals("2001:db8:a0b:12f0::1/48",
+            toIpv6Prefix(new byte[]{32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1},
+                (byte) 48).getValue());
+    }
+
+    @Test
     public void testArrayToIpv6Prefix64() throws Exception {
-        assertEquals(IPV6_COMPRESSED + "/64", arrayToIpv6Prefix(IPV6_BYTES, 64).getValue());
+        assertEquals(IPV6_COMPRESSED + "/64", toIpv6Prefix(IPV6_BYTES, 64).getValue());
     }
 
     @Test
     public void testArrayToIpv6Prefix128() throws Exception {
-        assertEquals(IPV6_COMPRESSED + "/128", arrayToIpv6Prefix(IPV6_BYTES, 128).getValue());
+        assertEquals(IPV6_COMPRESSED + "/128", toIpv6Prefix(IPV6_BYTES, 128).getValue());
     }
 
     @Test
@@ -128,12 +135,5 @@ public class Ipv6TranslatorTest implements Ipv6Translator {
     @Test
     public void testExtractPrefix() {
         assertEquals(48, extractPrefix(new Ipv6Prefix("3ffe:1900:4545:3:200:f8ff:fe21:67cf/48")));
-    }
-
-    @Test
-    public void toPrefix() {
-        assertEquals("2001:db8:a0b:12f0:0:0:0:1/48",
-                toIpv6Prefix(new byte[]{32, 1, 13, -72, 10, 11, 18, -16, 0, 0, 0, 0, 0, 0, 0, 1},
-                        (byte) 48).getValue());
     }
 }

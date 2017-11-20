@@ -21,10 +21,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.net.InetAddresses;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -68,9 +66,8 @@ public interface Ipv6Translator extends ByteDataTranslator {
     /**
      * Converts byte array to {@link Ipv6Prefix} with specified prefixLength
      */
-    default Ipv6Prefix arrayToIpv6Prefix(final byte[] address, int prefixLength) {
-        Ipv6AddressNoZone addressPart = arrayToIpv6AddressNoZone(address);
-        return new Ipv6Prefix(addressPart.getValue().concat("/").concat(String.valueOf(prefixLength)));
+    default Ipv6Prefix toIpv6Prefix(final byte[] address, int prefix) {
+        return IetfInetUtil.INSTANCE.ipv6PrefixFor(address, prefix);
     }
 
     /**
@@ -82,12 +79,7 @@ public interface Ipv6Translator extends ByteDataTranslator {
     @Nonnull
     default Ipv6AddressNoZone arrayToIpv6AddressNoZone(@Nonnull byte[] ip) {
         checkArgument(ip.length == 16, "Illegal array length");
-
-        try {
-            return new Ipv6AddressNoZone(InetAddresses.toAddrString(InetAddress.getByAddress(ip)));
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Unable to parse ipv6", e);
-        }
+        return new Ipv6AddressNoZone(IetfInetUtil.INSTANCE.ipv6AddressFor(ip));
     }
 
     /**
@@ -116,16 +108,5 @@ public interface Ipv6Translator extends ByteDataTranslator {
         final byte[] result = new byte[4];
         System.arraycopy(ip, 0, result, 0, 4);
         return result;
-    }
-
-    default Ipv6Prefix toIpv6Prefix(final byte[] address, final int prefix) {
-        try {
-            return new Ipv6Prefix(
-                    String.format("%s/%s", InetAddress.getByAddress(address).getHostAddress(),
-                            String.valueOf(prefix)));
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException(
-                    "Cannot create prefix for address[" + Arrays.toString(address) + "],prefix[" + prefix + "]", e);
-        }
     }
 }
