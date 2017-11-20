@@ -1,5 +1,7 @@
 = mpls-api
 
+== IETF models
+
 Hc2vpp implementation of MPLS uses following ietf models:
 - ietf-mpls
 - ietf-mpls-static
@@ -12,3 +14,10 @@ More information can be found in yang files.
 Original YANG files were downloaded from
 
 https://github.com/ietf-mpls-yang/te/
+
+== VPP specific options
+
+VPP allows to perform lookup in ipv4 or ipv6 or mpls table.
+Lookup table for pop-and-lookup operation can be specified
+using static-lsp-vpp-lookup-augmentation
+provided by vpp-mpls yang module.

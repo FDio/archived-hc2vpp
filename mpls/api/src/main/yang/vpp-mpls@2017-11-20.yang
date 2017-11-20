@@ -1,0 +1,96 @@
+module vpp-mpls {
+  yang-version 1;
+  namespace "urn:opendaylight:params:xml:ns:yang:vpp:mpls";
+  prefix "vpp-mpls";
+
+  import hc2vpp-ietf-mpls {
+    prefix mpls;
+    revision-date 2017-07-02;
+  }
+
+  import hc2vpp-ietf-routing {
+    prefix "rt";
+    revision-date 2014-05-24;
+  }
+
+  import hc2vpp-ietf-mpls-static {
+    prefix "mpls-static";
+    revision-date 2017-03-10;
+  }
+
+  import yang-ext {
+    prefix "ext";
+  }
+
+  contact
+    "Hc2vpp: <https://wiki.fd.io/view/Hc2vpp>
+     Hc2vpp List:  <mailto:netmod@ietf.org>";
+
+  description
+    "This module contains a collection of YANG definitions for
+     configuring VPP specific MPLS options.
+
+     See https://docs.fd.io/vpp/18.01/clicmd_src_vnet_mpls.html
+     for more details";
+
+  revision "2017-11-20" {
+    description
+      "Initial revision of vpp-mpls model.";
+  }
+
+  typedef lookup-type {
+    type enumeration {
+      enum ipv4 {
+        value 0;
+      }
+      enum ipv6 {
+        value 1;
+      }
+      enum mpls {
+        value 2;
+      }
+    }
+    description
+      "Label lookup types based on data path protocols supported by vpp.
+       Enum values are based on the ones used by mpls apis";
+    reference
+      "https://git.fd.io/vpp/tree/src/vnet/dpo/dpo.h";
+  }
+
+  grouping vpp-label-lookup-attributes {
+    container label-lookup {
+      leaf type {
+        type lookup-type;
+      }
+      leaf ip4-lookup-in-table {
+        when "../type = ipv4";
+        type uint32;
+        description
+          "Mapped to non-eos lookup in IPv4 FIB table with given id.";
+      }
+      leaf ip6-lookup-in-table {
+        when "../type = ipv6";
+        type uint32;
+        description
+          "Mapped to non-eos lookup in IPv6 FIB table with given id.";
+      }
+      leaf mpls-lookup-in-table {
+        when "../type = mpls";
+        type uint32;
+        description
+         "Mapped to eos lookup in MPLS FIB table with given id.";
+      }
+    }
+    description
+      "Defines lookup attributes for pop-and-lookup operation.
+       Equivalent of CLI command: mpls local-label XXX-lookup-in-table N";
+  }
+
+  augment /rt:routing/mpls:mpls/mpls-static:static-lsps/mpls-static:static-lsp/mpls-static:config {
+    ext:augment-identifier "static-lsp-vpp-lookup-augmentation";
+    when "operation = 'pop-and-lookup'";
+    uses vpp-label-lookup-attributes;
+    description
+      "Augments static-lsp list entry with lookup options available in VPP.";
+  }
+}
