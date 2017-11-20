@@ -18,6 +18,7 @@ package io.fd.hc2vpp.lisp.translate.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.net.InetAddresses.forString;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV4;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV4_PREFIX;
@@ -25,12 +26,9 @@ import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDump
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.IPV6_PREFIX;
 import static io.fd.hc2vpp.lisp.translate.read.dump.executor.params.MappingsDumpParams.EidType.MAC;
 import static java.lang.Integer.parseInt;
-import static java.lang.String.format;
 
 import inet.ipaddr.IPAddress;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -200,7 +198,7 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
 
     static String prefixValue(final String prefix, final String suffix) {
         // normalize prefix based address to prevent duplicates
-        IPAddress normalizedForm = IPAddress.from(getAddress(prefix)).toSubnet(parseInt(suffix));
+        IPAddress normalizedForm = IPAddress.from(forString(prefix)).toSubnet(parseInt(suffix));
 
         return normalizedForm.toCompressedString();
     }
@@ -601,9 +599,9 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
         final String[] secondPrefixParts = getPrefixParts(secondPrefix);
 
         IPAddress firstAddress =
-                IPAddress.from(getAddress(firstPrefixParts[0])).toSubnet(parseInt(firstPrefixParts[1]));
+                IPAddress.from(forString(firstPrefixParts[0])).toSubnet(parseInt(firstPrefixParts[1]));
         IPAddress secondAddress =
-                IPAddress.from(getAddress(secondPrefixParts[0])).toSubnet(parseInt(secondPrefixParts[1]));
+                IPAddress.from(forString(secondPrefixParts[0])).toSubnet(parseInt(secondPrefixParts[1]));
 
         return firstAddress.compareTo(secondAddress) == 0;
     }
@@ -612,13 +610,5 @@ public interface EidTranslator extends AddressTranslator, EidMetadataProvider {
         final String[] split = prefixString.split("/");
         checkArgument(split.length == 2, "%s is not a valid ip prefix", prefixString);
         return split;
-    }
-
-    static InetAddress getAddress(final String value) {
-        try {
-            return InetAddress.getByName(value);
-        } catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to convert %s", value), e);
-        }
     }
 }

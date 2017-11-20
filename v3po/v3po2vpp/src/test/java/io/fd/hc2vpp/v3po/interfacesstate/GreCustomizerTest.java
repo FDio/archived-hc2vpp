@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
@@ -36,8 +37,6 @@ import io.fd.vpp.jvpp.core.dto.GreTunnelDetails;
 import io.fd.vpp.jvpp.core.dto.GreTunnelDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.GreTunnelDump;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -68,7 +67,7 @@ public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
     }
 
     @Override
-    public void setUp() throws UnknownHostException, VppInvocationException, ReadFailedException {
+    public void setUp() throws VppInvocationException, ReadFailedException {
         interfacesContext = new NamingContext("gre-tunnel", IFC_CTX_NAME);
         defineMapping(mappingContext, IFACE_NAME, IFACE_ID, IFC_CTX_NAME);
 
@@ -80,8 +79,8 @@ public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
         final GreTunnelDetailsReplyDump value = new GreTunnelDetailsReplyDump();
         final GreTunnelDetails greTunnelDetails = new GreTunnelDetails();
         greTunnelDetails.isIpv6 = 0;
-        greTunnelDetails.dstAddress = InetAddress.getByName("1.2.3.4").getAddress();
-        greTunnelDetails.srcAddress = InetAddress.getByName("1.2.3.5").getAddress();
+        greTunnelDetails.dstAddress = InetAddresses.forString("1.2.3.4").getAddress();
+        greTunnelDetails.srcAddress = InetAddresses.forString("1.2.3.5").getAddress();
         greTunnelDetails.outerFibId = 55;
         greTunnelDetails.swIfIndex = 0;
         value.greTunnelDetails = Lists.newArrayList(greTunnelDetails);

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
@@ -37,8 +38,6 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetails;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDump;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -69,7 +68,7 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
     }
 
     @Override
-    public void setUp() throws UnknownHostException, VppBaseCallException, ReadFailedException {
+    public void setUp() throws VppBaseCallException, ReadFailedException {
         interfacesContext = new NamingContext("vxlan_gpe_inf", IFC_CTX_NAME);
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
 
@@ -81,8 +80,8 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
         final VxlanGpeTunnelDetailsReplyDump value = new VxlanGpeTunnelDetailsReplyDump();
         final VxlanGpeTunnelDetails vxlanGpeTunnelDetails = new VxlanGpeTunnelDetails();
         vxlanGpeTunnelDetails.isIpv6 = 0;
-        vxlanGpeTunnelDetails.local = InetAddress.getByName("1.2.3.4").getAddress();
-        vxlanGpeTunnelDetails.remote = InetAddress.getByName("1.2.3.5").getAddress();
+        vxlanGpeTunnelDetails.local = InetAddresses.forString("1.2.3.4").getAddress();
+        vxlanGpeTunnelDetails.remote = InetAddresses.forString("1.2.3.5").getAddress();
         vxlanGpeTunnelDetails.vni = 9;
         vxlanGpeTunnelDetails.protocol = 1;
         vxlanGpeTunnelDetails.encapVrfId = 55;

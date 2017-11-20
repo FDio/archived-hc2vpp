@@ -43,17 +43,7 @@ public interface Ipv6Translator extends ByteDataTranslator {
      * @return byte array with address bytes
      */
     default byte[] ipv6AddressNoZoneToArray(@Nonnull final Ipv6Address address) {
-        return Impl.ipv6AddressNoZoneToArray(address.getValue());
-    }
-
-    /**
-     * Transform Ipv6 address to a byte array acceptable by VPP. VPP expects incoming byte array to be in the same order
-     * as the address.
-     *
-     * @return byte array with address bytes
-     */
-    default byte[] ipv6AddressNoZoneToArray(@Nonnull final Ipv6AddressNoZone ipv6Addr) {
-        return Impl.ipv6AddressNoZoneToArray(ipv6Addr.getValue());
+        return InetAddresses.forString(address.getValue()).getAddress();
     }
 
     /**
@@ -136,17 +126,6 @@ public interface Ipv6Translator extends ByteDataTranslator {
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException(
                     "Cannot create prefix for address[" + Arrays.toString(address) + "],prefix[" + prefix + "]", e);
-        }
-    }
-
-    class Impl {
-        private static byte[] ipv6AddressNoZoneToArray(@Nonnull final String address){
-            try {
-                // No lookup performed for literal ipv6 addresses
-                return InetAddress.getByName(address).getAddress();
-            } catch (UnknownHostException e) {
-                throw new IllegalArgumentException("Invalid address supplied", e);
-            }
         }
     }
 }

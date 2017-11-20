@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
@@ -36,8 +37,6 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
 import io.fd.vpp.jvpp.core.dto.VxlanTunnelDetails;
 import io.fd.vpp.jvpp.core.dto.VxlanTunnelDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.VxlanTunnelDump;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -69,7 +68,7 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
     }
 
     @Override
-    public void setUp() throws UnknownHostException, VppInvocationException, ReadFailedException {
+    public void setUp() throws VppInvocationException, ReadFailedException {
         interfacesContext = new NamingContext("vxlan-tunnel", IFC_CTX_NAME);
         defineMapping(mappingContext, IF_NAME, IF_INDEX, IFC_CTX_NAME);
 
@@ -81,8 +80,8 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
         final VxlanTunnelDetailsReplyDump value = new VxlanTunnelDetailsReplyDump();
         final VxlanTunnelDetails vxlanTunnelDetails = new VxlanTunnelDetails();
         vxlanTunnelDetails.isIpv6 = 0;
-        vxlanTunnelDetails.dstAddress = InetAddress.getByName("1.2.3.4").getAddress();
-        vxlanTunnelDetails.srcAddress = InetAddress.getByName("1.2.3.5").getAddress();
+        vxlanTunnelDetails.dstAddress = InetAddresses.forString("1.2.3.4").getAddress();
+        vxlanTunnelDetails.srcAddress = InetAddresses.forString("1.2.3.5").getAddress();
         vxlanTunnelDetails.encapVrfId = 55;
         vxlanTunnelDetails.swIfIndex = 0;
         vxlanTunnelDetails.vni = 9;
