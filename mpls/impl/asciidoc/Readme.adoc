@@ -11,7 +11,7 @@ to
 
 sw_interface_set_mpls_enable.
 
-== Pushing MPLS labels
+== Label push
 
 Translates impose-and-forward operation of
 /hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpl:mpls/
@@ -22,3 +22,14 @@ to ip_add_del_route call.
 For single outgoing-label, use simple-path out-segment.
 For multiple outgoing labels, use path-list out-segment
 with single path (multiple path support is not implemented yet).
+
+== Label pop
+
+Translates pop-and-lookup operation of
+/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpl:mpls/
+hc2vpp-ietf-mpls-static:static-lsps/static-lsp
+
+to mpls_route_add_del call.
+
+Configuring VPP specific lookup options
+defined in vpp-mpls yang module is required.

@@ -51,7 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev170227.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class StaticLspCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
+public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDataTranslator {
 
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 123;
@@ -151,7 +151,7 @@ public class StaticLspCustomizerTest extends WriterCustomizerTest implements Byt
         request.dstAddress = new byte[] {1, 2, 3, 4};
         request.nextHopAddress = new byte[] {5, 6, 7, 8};
         request.nextHopNOutLabels = 1;
-        request.nextHopViaLabel = StaticLspCustomizer.MPLS_LABEL_INVALID;
+        request.nextHopViaLabel = LspWriter.MPLS_LABEL_INVALID;
         request.nextHopOutLabelStack = new int[] {111};
         return request;
     }
@@ -165,7 +165,7 @@ public class StaticLspCustomizerTest extends WriterCustomizerTest implements Byt
         request.dstAddress = new byte[] {10, 10, 24, 0};
         request.nextHopAddress = new byte[] {10, 10, 12, 2};
         request.nextHopNOutLabels = 2;
-        request.nextHopViaLabel = StaticLspCustomizer.MPLS_LABEL_INVALID;
+        request.nextHopViaLabel = LspWriter.MPLS_LABEL_INVALID;
         request.nextHopOutLabelStack = new int[] {102, 104};
         return request;
     }

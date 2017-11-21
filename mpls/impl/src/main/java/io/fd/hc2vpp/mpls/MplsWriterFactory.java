@@ -37,22 +37,24 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.interfaces.mpls.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.routing.Mpls;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Routing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.mpls.rev171120.StaticLspVppLookupAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.mpls.rev171120.vpp.label.lookup.attributes.LabelLookup;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class MplsWriterFactory implements WriterFactory {
     private static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface>
-            IFC_ID =
-            InstanceIdentifier.create(Interfaces.class).child(
-                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class);
+        IFC_ID =
+        InstanceIdentifier.create(Interfaces.class).child(
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class);
 
     private static final InstanceIdentifier<Routing> ROUTING_ID = InstanceIdentifier.create(Routing.class);
     private static final InstanceIdentifier<Mpls> MPLS_ID = ROUTING_ID.augmentation(Routing1.class).child(Mpls.class);
     private static final InstanceIdentifier<Interface> INTERFACE_ID = MPLS_ID.child(Interface.class);
 
     private static final InstanceIdentifier<StaticLsp> STATIC_LSP_ID =
-            MPLS_ID.augmentation(Mpls1.class).child(StaticLsps.class).child(StaticLsp.class);
+        MPLS_ID.augmentation(Mpls1.class).child(StaticLsps.class).child(StaticLsp.class);
     private static final InstanceIdentifier<Config> CONFIG_ID = InstanceIdentifier.create(StaticLsp.class).child
-            (Config.class);
+        (Config.class);
 
     @Inject
     @Named("interface-context")
@@ -77,12 +79,12 @@ final class MplsWriterFactory implements WriterFactory {
         // /ietf-routing:routing/ietf-mpls:mpls/interface
         // First enable MPLS on interface, then configure it:
         registry.subtreeAddAfter(
-                ImmutableSet.of(
-                        CONFIG_ID,
-                        InstanceIdentifier.create(StaticLsp.class).child(Config.class).child(InSegment.class),
-                        InstanceIdentifier.create(StaticLsp.class).child(Config.class).child(Paths.class)
-                        ),
-                new GenericWriter<>(STATIC_LSP_ID, new StaticLspCustomizer(vppApi, ifcContext)),
-                INTERFACE_ID);
+            ImmutableSet
+                .of(CONFIG_ID, InstanceIdentifier.create(StaticLsp.class).child(Config.class).child(InSegment.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(Config.class).child(Paths.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(Config.class)
+                        .augmentation(StaticLspVppLookupAugmentation.class).child(LabelLookup.class)),
+            new GenericWriter<>(STATIC_LSP_ID, new StaticLspCustomizer(vppApi, ifcContext)),
+            INTERFACE_ID);
     }
 }
