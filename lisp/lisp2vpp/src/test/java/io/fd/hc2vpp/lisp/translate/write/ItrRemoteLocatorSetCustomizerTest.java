@@ -54,6 +54,7 @@ public class ItrRemoteLocatorSetCustomizerTest extends LispWriterCustomizerTest 
     private InstanceIdentifier<ItrRemoteLocatorSet> validId;
     private ItrRemoteLocatorSet validData;
 
+    @Override
     @Before
     public void setUpTest() throws Exception {
         initMocks(this);

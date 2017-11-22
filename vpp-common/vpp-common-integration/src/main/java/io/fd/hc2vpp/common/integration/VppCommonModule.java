@@ -26,6 +26,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import net.jmob.guice.conf.core.ConfigurationModule;
 
 public final class VppCommonModule extends AbstractModule {
+    @Override
     protected void configure() {
 
         install(ConfigurationModule.create());

@@ -56,6 +56,7 @@ public class ItrRemoteLocatorSetCustomizerTest
         super(ItrRemoteLocatorSet.class, LispFeatureDataBuilder.class);
     }
 
+    @Override
     @Before
     public void setUp() throws Exception {
         validId = InstanceIdentifier.create(ItrRemoteLocatorSet.class);
