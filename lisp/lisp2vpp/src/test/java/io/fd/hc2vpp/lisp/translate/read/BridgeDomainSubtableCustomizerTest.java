@@ -101,6 +101,7 @@ public class BridgeDomainSubtableCustomizerTest
         fail("Test should throw ReadFailedException");
     }
 
+    @Override
     @Test
     public void testGetBuilder() {
         final BridgeDomainSubtableBuilder builder = customizer.getBuilder(validId);

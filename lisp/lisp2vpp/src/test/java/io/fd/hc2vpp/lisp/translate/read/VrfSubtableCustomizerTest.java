@@ -100,6 +100,7 @@ public class VrfSubtableCustomizerTest extends SubtableReaderTestCase<VrfSubtabl
         return new VrfSubtableCustomizer(api);
     }
 
+    @Override
     @Test
     public void testGetBuilder() {
         final VrfSubtableBuilder builder = customizer.getBuilder(validId);
@@ -110,6 +111,7 @@ public class VrfSubtableCustomizerTest extends SubtableReaderTestCase<VrfSubtabl
         assertNull(builder.getTableId());
     }
 
+    @Override
     @Test
     public void testMerge() {
         VniTableBuilder parentBuilder = new VniTableBuilder();

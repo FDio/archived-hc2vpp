@@ -57,6 +57,7 @@ public class MirroredInterfacesCustomizerTest extends WriterCustomizerTest {
     @Captor
     private ArgumentCaptor<SwInterfaceSpanEnableDisable> requestCaptor;
 
+    @Override
     public void setUpTest() {
         interfaceContext = new NamingContext("iface", "iface-context");
         customizer =

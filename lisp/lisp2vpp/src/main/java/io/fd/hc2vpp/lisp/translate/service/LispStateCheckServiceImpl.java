@@ -65,6 +65,7 @@ public final class LispStateCheckServiceImpl implements LispStateCheckService, J
                 .or(STATIC_LISP_INSTANCE).isEnable(), "Lisp feature not enabled");
     }
 
+    @Override
     public boolean lispEnabled(@Nonnull final ReadContext ctx) {
         // in this case it must be dumped
         try {

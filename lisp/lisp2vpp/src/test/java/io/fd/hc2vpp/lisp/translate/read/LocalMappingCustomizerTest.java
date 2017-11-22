@@ -78,6 +78,7 @@ public class LocalMappingCustomizerTest extends
     }
 
 
+    @Override
     public void setUp() {
         emptyIdentifier = InstanceIdentifier.create(EidTable.class)
                 .child(VniTable.class, new VniTableKey(12L))

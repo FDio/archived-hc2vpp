@@ -74,6 +74,7 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         return o -> o instanceof InstanceIdentifier && (o.getTargetType().equals(desiredClass));
     }
 
+    @Override
     @Before
     public void setUpTest() throws Exception {
         interfaceContext = new NamingContext("generatedIfaceName", IFC_CTX_NAME);
