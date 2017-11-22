@@ -46,12 +46,14 @@ final class StaticLspCustomizer implements ListWriterCustomizer<StaticLsp, Stati
     private static final Logger LOG = LoggerFactory.getLogger(StaticLspCustomizer.class);
     private final ImposeAndForwardWriter imposeAndForward;
     private final MplsLookupWriter mplsLookup;
+    private final Ipv4LookupWriter ipv4Lookup;
 
     StaticLspCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull NamingContext interfaceContext) {
         checkNotNull(vppApi, "vppApi should not be null");
         checkNotNull(interfaceContext, "interfaceContext should not be null");
         this.imposeAndForward = new ImposeAndForwardWriter(vppApi, interfaceContext);
         this.mplsLookup = new MplsLookupWriter(vppApi);
+        this.ipv4Lookup = new Ipv4LookupWriter(vppApi);
     }
 
     @Override
@@ -85,7 +87,9 @@ final class StaticLspCustomizer implements ListWriterCustomizer<StaticLsp, Stati
             checkArgument(vppAttributes != null && vppAttributes.getLabelLookup() != null,
                 "Configuring pop-and-lookup operation but label-lookup leaf is missing");
             final LookupType type = vppAttributes.getLabelLookup().getType();
-            if (LookupType.Mpls.equals(type)) {
+            if (LookupType.Ipv4.equals(type)) {
+                ipv4Lookup.write(id, data, ctx, isAdd);
+            } else if (LookupType.Mpls.equals(type)) {
                 mplsLookup.write(id, data, ctx, isAdd);
             } else {
                 throw new IllegalArgumentException("Unsupported lookup type: " + type);
