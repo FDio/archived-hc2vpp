@@ -25,8 +25,6 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp.Config;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.InSegment;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.in.segment.type.MplsLabel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls._static.lsps.StaticLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.mpls.rev171120.LookupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.mpls.rev171120.StaticLspVppLookupAugmentation;
@@ -38,7 +36,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  *
  * @see <a href="https://git.fd.io/vpp/tree/src/vnet/mpls/mpls.api">mpls_route_add_del</a> definition
  */
-final class MplsLookupWriter implements LspWriter {
+final class MplsLookupWriter implements LspWriter, MplsInSegmentTranslator {
     private static final byte MPLS_PROTOCOL = (byte) LookupType.Mpls.getIntValue();
 
     private final FutureJVppCore vppApi;
@@ -55,8 +53,8 @@ final class MplsLookupWriter implements LspWriter {
 
         request.mrIsAdd = booleanToByte(isAdd);
 
-        translate(request, config);
-        translate(request, config.getAugmentation(StaticLspVppLookupAugmentation.class));
+        translate(config.getInSegment(), request);
+        translate(config.getAugmentation(StaticLspVppLookupAugmentation.class), request);
 
         // default values based on inspecting VPP's CLI and make test code
         request.mrClassifyTableIndex = -1;
@@ -70,24 +68,13 @@ final class MplsLookupWriter implements LspWriter {
         getReplyForWrite(vppApi.mplsRouteAddDel(request).toCompletableFuture(), id);
     }
 
-    private void translate(@Nonnull final MplsRouteAddDel request, @Nonnull final Config config) {
-        final InSegment inSegment = config.getInSegment();
-        checkArgument(inSegment != null, "Configuring mpls pop-and-lookup, but in-segment is missing.");
-
-        checkArgument(inSegment.getType() instanceof MplsLabel, "Expecting mpls-label in-segment type, but %s given.",
-            inSegment.getType());
-        final Long label = ((MplsLabel) inSegment.getType()).getIncomingLabel().getValue();
-        request.mrLabel = label.intValue();
-    }
-
-    private void translate(@Nonnull final MplsRouteAddDel request,
-                           @Nonnull final StaticLspVppLookupAugmentation vppLabelLookup) {
+    private void translate(@Nonnull final StaticLspVppLookupAugmentation vppLabelLookup,
+                           @Nonnull final MplsRouteAddDel request) {
         // MPLS lookup for the last label is not valid operation (there is no next label to lookup),
         // so match only labels without EOS bit set:
         request.mrEos = 0;
-        final Long mplsLookupInTable = vppLabelLookup.getLabelLookup().getMplsLookupInTable();
-        checkArgument(mplsLookupInTable != null,
-            "Configuring pop and mpls lookup, but MPLS lookup table was not given");
-        request.mrNextHopTableId = mplsLookupInTable.intValue();
+        final Long lookupTable = vppLabelLookup.getLabelLookup().getMplsLookupInTable();
+        checkArgument(lookupTable != null, "Configuring pop and mpls lookup, but MPLS lookup table was not given");
+        request.mrNextHopTableId = lookupTable.intValue();
     }
 }

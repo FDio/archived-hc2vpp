@@ -56,11 +56,9 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 123;
     private static final String LSP_NAME = "static-lsp0";
-
     private static final InstanceIdentifier<StaticLsp> IID = InstanceIdentifier.create(Routing.class).augmentation
         (Routing1.class).child(Mpls.class).augmentation(Mpls1.class).child(StaticLsps.class)
         .child(StaticLsp.class, new StaticLspKey(LSP_NAME));
-
     private static final StaticLsp SIMPLE_LSP = getSimpleLsp();
     private static final StaticLsp COMPLEX_LSP = getComplexLsp();
 
@@ -69,7 +67,7 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
     private StaticLspCustomizer customizer;
 
     private static StaticLsp getSimpleLsp() {
-        final StaticLsp data = new StaticLspBuilder()
+        return new StaticLspBuilder()
             .setName(LSP_NAME)
             .setConfig(new ConfigBuilder()
                 .setInSegment(new InSegmentBuilder()
@@ -85,11 +83,10 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
                     .build())
                 .build())
             .build();
-        return data;
     }
 
     private static StaticLsp getComplexLsp() {
-        final StaticLsp data = new StaticLspBuilder()
+        return new StaticLspBuilder()
             .setName(LSP_NAME)
             .setConfig(new ConfigBuilder()
                 .setInSegment(new InSegmentBuilder()
@@ -107,7 +104,6 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
                     .build())
                 .build())
             .build();
-        return data;
     }
 
     @Override

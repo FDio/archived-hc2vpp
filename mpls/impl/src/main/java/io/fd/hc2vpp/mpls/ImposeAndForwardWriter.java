@@ -27,11 +27,13 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig.Operation;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp.Config;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.InSegment;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.OutSegment;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.in.segment.Type;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.in.segment.type.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.out.segment.PathList;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.out.segment.SimplePath;
@@ -60,64 +62,80 @@ final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator {
         final Config config = data.getConfig();
         final IpAddDelRoute request = new IpAddDelRoute();
         request.isAdd = booleanToByte(isAdd);
-        request.nextHopWeight = 1; // default value used in make test
 
-        final InSegment inSegment = config.getInSegment();
-        checkArgument(inSegment != null, "Configuring impose-and-forward, but in-segment is missing.");
+        translate(config.getInSegment(), request);
+        translate(config.getOutSegment(), request, ctx);
 
-        checkArgument(inSegment.getType() instanceof IpPrefix, "Only ip-prefix type is supported, but %s given.",
-            inSegment.getType());
-        final Ipv4Prefix prefix = ((IpPrefix) inSegment.getType()).getIpPrefix().getIpv4Prefix();
+        // default values based on inspecting VPP's CLI and make test code
+        request.nextHopWeight = 1;
+        request.nextHopViaLabel = MPLS_LABEL_INVALID;
 
-        // TODO(HC2VPP-264): add support for mpls + v6
-        request.dstAddressLength = extractPrefix(prefix);
-        request.dstAddress = ipv4AddressPrefixToArray(prefix);
-
-        final OutSegment outSegment = config.getOutSegment();
-        checkArgument(outSegment != null, "Configuring impose-and-forward, but out-segment is missing.");
-        translateOutSegment(outSegment, request, ctx);
         getReplyForWrite(vppApi.ipAddDelRoute(request).toCompletableFuture(), id);
     }
 
-    private void translateOutSegment(@Nonnull final OutSegment outSegment, @Nonnull final IpAddDelRoute request,
-                                     @Nonnull final MappingContext ctx) {
+    private void translate(@Nonnull final InSegment inSegment, @Nonnull final IpAddDelRoute request) {
+        checkArgument(inSegment != null, "Configuring impose-and-forward, but in-segment is missing.");
+        final Type type = inSegment.getType();
+        checkArgument(type instanceof IpPrefix, "Only ip-prefix type is supported, but %s given.", type);
+
+        // TODO(HC2VPP-264): add support for mpls + v6
+        final Ipv4Prefix prefix = ((IpPrefix) type).getIpPrefix().getIpv4Prefix();
+        request.dstAddressLength = extractPrefix(prefix);
+        request.dstAddress = ipv4AddressPrefixToArray(prefix);
+    }
+
+    private void translate(@Nonnull final OutSegment outSegment, @Nonnull final IpAddDelRoute request,
+                           @Nonnull final MappingContext ctx) {
+        checkArgument(outSegment != null, "Configuring impose-and-forward, but out-segment is missing.");
+
         final String outgoingInterface;
         if (outSegment instanceof SimplePath) {
-            final SimplePath path = (SimplePath) outSegment;
-            outgoingInterface = path.getOutgoingInterface();
-            final IpAddress nextHop = path.getNextHop();
-            checkArgument(nextHop != null, "Configuring impose-and-forward, but next-hop is missing.");
-            // TODO(HC2VPP-264): add support for mpls + v6
-            checkArgument(nextHop.getIpv4Address() != null, "Only IPv4 next-hop address is supported.");
-            request.nextHopAddress = ipv4AddressNoZoneToArray(nextHop.getIpv4Address().getValue());
-            request.nextHopNOutLabels = 1;
-            checkArgument(path.getOutgoingLabel() != null,
-                "Configuring impose-and-forward, but outgoing-label is missing.");
-            request.nextHopOutLabelStack = new int[] {path.getOutgoingLabel().getValue().intValue()};
+            outgoingInterface = translate((SimplePath) outSegment, request);
         } else if (outSegment instanceof PathList) {
-            final PathList pathList = (PathList) outSegment;
-            checkArgument(pathList.getPaths() != null && pathList.getPaths().size() == 1,
-                "Only single path is supported");
-            final Paths paths = pathList.getPaths().get(0);
-            outgoingInterface = paths.getOutgoingInterface();
-            // TODO(HC2VPP-264): add support for mpls + v6
-            final IpAddress nextHop = paths.getNextHop();
-            checkArgument(nextHop != null, "Configuring impose-and-forward, but next-hop is missing.");
-            checkArgument(nextHop.getIpv4Address() != null, "Only IPv4 next-hop address is supported.");
-            request.nextHopAddress = ipv4AddressNoZoneToArray(nextHop.getIpv4Address().getValue());
-            final List<MplsLabel> outgoingLabels = paths.getOutgoingLabels();
-            final int numberOfLabels = outgoingLabels.size();
-            checkArgument(numberOfLabels > 0 && numberOfLabels < MAX_LABELS,
-                "Number of labels (%s) not in range (0, %s].", numberOfLabels, MAX_LABELS, numberOfLabels);
-            request.nextHopNOutLabels = (byte) numberOfLabels;
-            request.nextHopOutLabelStack =
-                outgoingLabels.stream().mapToInt(label -> label.getValue().intValue()).toArray();
+            outgoingInterface = translate((PathList) outSegment, request);
         } else {
             throw new IllegalArgumentException("Unsupported out-segment type: " + outSegment);
         }
 
         checkArgument(outgoingInterface != null, "Configuring impose-and-forward, but outgoing-interface is missing.");
         request.nextHopSwIfIndex = interfaceContext.getIndex(outgoingInterface, ctx);
-        request.nextHopViaLabel = MPLS_LABEL_INVALID;
+    }
+
+    private String translate(@Nonnull final SimplePath path, @Nonnull final IpAddDelRoute request) {
+        final IpAddress nextHop = path.getNextHop();
+        checkArgument(nextHop != null, "Configuring impose-and-forward, but next-hop is missing.");
+
+        // TODO(HC2VPP-264): add support for mpls + v6
+        final Ipv4Address address = nextHop.getIpv4Address();
+        checkArgument(address != null, "Only IPv4 next-hop address is supported.");
+        request.nextHopAddress = ipv4AddressNoZoneToArray(address.getValue());
+
+        final MplsLabel outgoingLabel = path.getOutgoingLabel();
+        checkArgument(outgoingLabel != null, "Configuring impose-and-forward, but outgoing-label is missing.");
+        request.nextHopOutLabelStack = new int[] {outgoingLabel.getValue().intValue()};
+        request.nextHopNOutLabels = 1;
+
+        return path.getOutgoingInterface();
+    }
+
+    private String translate(@Nonnull final PathList pathList, @Nonnull final IpAddDelRoute request) {
+        checkArgument(pathList.getPaths() != null && pathList.getPaths().size() == 1, "Only single path is supported");
+        final Paths paths = pathList.getPaths().get(0);
+        final IpAddress nextHop = paths.getNextHop();
+        checkArgument(nextHop != null, "Configuring impose-and-forward, but next-hop is missing.");
+
+        // TODO(HC2VPP-264): add support for mpls + v6
+        final Ipv4Address address = nextHop.getIpv4Address();
+        checkArgument(address != null, "Only IPv4 next-hop address is supported.");
+        request.nextHopAddress = ipv4AddressNoZoneToArray(address.getValue());
+
+        final List<MplsLabel> labels = paths.getOutgoingLabels();
+        final int numberOfLabels = labels.size();
+        checkArgument(numberOfLabels > 0 && numberOfLabels < MAX_LABELS, "Number of labels (%s) not in range (0, %s].",
+            numberOfLabels, MAX_LABELS, numberOfLabels);
+        request.nextHopNOutLabels = (byte) numberOfLabels;
+        request.nextHopOutLabelStack = labels.stream().mapToInt(label -> label.getValue().intValue()).toArray();
+
+        return paths.getOutgoingInterface();
     }
 }

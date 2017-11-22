@@ -44,10 +44,8 @@ public class MplsInterfaceCustomizerTest extends WriterCustomizerTest implements
 
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 123;
-
     private static final Interface MPLS_ENABLED = getInterfaceMpls(true);
     private static final Interface MPLS_DISABLED = getInterfaceMpls(false);
-
     private static final InstanceIdentifier<Mpls> MPLS_ID = InstanceIdentifier.create(Routing.class).augmentation
         (Routing1.class).child(Mpls.class);
     private static final InstanceIdentifier<Interface> IID = MPLS_ID.child(Interface.class, new InterfaceKey(IF_NAME));
@@ -57,13 +55,12 @@ public class MplsInterfaceCustomizerTest extends WriterCustomizerTest implements
     private MplsInterfaceCustomizer customizer;
 
     private static Interface getInterfaceMpls(final boolean enabled) {
-        final Interface data = new InterfaceBuilder()
+        return new InterfaceBuilder()
             .setName(IF_NAME)
             .setConfig(new ConfigBuilder()
                 .setEnabled(enabled)
                 .build())
             .build();
-        return data;
     }
 
     @Override

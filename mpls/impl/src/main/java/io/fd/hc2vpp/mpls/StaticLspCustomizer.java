@@ -20,6 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig.Operation.ImposeAndForward;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig.Operation.PopAndLookup;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig.Operation.SwapAndForward;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.MappingContext;
@@ -47,6 +48,7 @@ final class StaticLspCustomizer implements ListWriterCustomizer<StaticLsp, Stati
     private final ImposeAndForwardWriter imposeAndForward;
     private final MplsLookupWriter mplsLookup;
     private final Ipv4LookupWriter ipv4Lookup;
+    private final MplsSwapWriter mplsSwap;
 
     StaticLspCustomizer(@Nonnull final FutureJVppCore vppApi, @Nonnull NamingContext interfaceContext) {
         checkNotNull(vppApi, "vppApi should not be null");
@@ -54,6 +56,7 @@ final class StaticLspCustomizer implements ListWriterCustomizer<StaticLsp, Stati
         this.imposeAndForward = new ImposeAndForwardWriter(vppApi, interfaceContext);
         this.mplsLookup = new MplsLookupWriter(vppApi);
         this.ipv4Lookup = new Ipv4LookupWriter(vppApi);
+        this.mplsSwap = new MplsSwapWriter(vppApi, interfaceContext);
     }
 
     @Override
@@ -94,6 +97,8 @@ final class StaticLspCustomizer implements ListWriterCustomizer<StaticLsp, Stati
             } else {
                 throw new IllegalArgumentException("Unsupported lookup type: " + type);
             }
+        } else if (SwapAndForward.equals(operation)) {
+            mplsSwap.write(id, data, ctx, isAdd);
         } else {
             throw new IllegalArgumentException("Unsupported operation: " + operation);
         }

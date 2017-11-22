@@ -53,14 +53,12 @@ public class PopAndIpv4LookupTest extends WriterCustomizerTest implements ByteDa
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 123;
     private static final String LSP_NAME = "static-lsp0";
-
     private static final InstanceIdentifier<StaticLsp> IID = InstanceIdentifier.create(Routing.class).augmentation
         (Routing1.class).child(Mpls.class).augmentation(Mpls1.class).child(StaticLsps.class)
         .child(StaticLsp.class, new StaticLspKey(LSP_NAME));
-
-    private static final StaticLsp POP_AND_IP4_LOOKUP = getStaticLsp();
     private static final int IP4_TABLE_ID = 456;
     private static final int LOCAL_LABEL = 104;
+    private static final StaticLsp POP_AND_IP4_LOOKUP = getStaticLsp();
 
     @Mock
     private FutureJVppCoreFacade jvpp;
@@ -70,7 +68,7 @@ public class PopAndIpv4LookupTest extends WriterCustomizerTest implements ByteDa
      * Equivalent of mpls local-label add eos 104 ip4-lookup-in-table 456
      */
     private static StaticLsp getStaticLsp() {
-        final StaticLsp data = new StaticLspBuilder()
+        return new StaticLspBuilder()
             .setName(LSP_NAME)
             .setConfig(new ConfigBuilder()
                 .setInSegment(new InSegmentBuilder()
@@ -87,7 +85,6 @@ public class PopAndIpv4LookupTest extends WriterCustomizerTest implements ByteDa
                         .build())
                 .build())
             .build();
-        return data;
     }
 
     @Override
@@ -101,16 +98,16 @@ public class PopAndIpv4LookupTest extends WriterCustomizerTest implements ByteDa
     @Test
     public void testWrite() throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, POP_AND_IP4_LOOKUP, writeContext);
-        verify(jvpp).mplsRouteAddDel(getRequestForSimpleLsp(true));
+        verify(jvpp).mplsRouteAddDel(getRequest(true));
     }
 
     @Test
     public void testDelete() throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, POP_AND_IP4_LOOKUP, writeContext);
-        verify(jvpp).mplsRouteAddDel(getRequestForSimpleLsp(false));
+        verify(jvpp).mplsRouteAddDel(getRequest(false));
     }
 
-    private MplsRouteAddDel getRequestForSimpleLsp(final boolean add) {
+    private MplsRouteAddDel getRequest(final boolean add) {
         MplsRouteAddDel request = new MplsRouteAddDel();
         request.mrLabel = LOCAL_LABEL;
         request.mrEos = 1;

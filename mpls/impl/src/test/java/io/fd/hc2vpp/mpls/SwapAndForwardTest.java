@@ -29,11 +29,13 @@ import io.fd.vpp.jvpp.core.dto.MplsRouteAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.Mpls1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.InSegmentBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.in.segment.type.MplsLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.out.segment.SimplePathBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls.StaticLsps;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls._static.lsps.StaticLsp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls._static.lsps.StaticLspBuilder;
@@ -42,13 +44,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.routing.Mpls;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Routing;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev170227.MplsLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.mpls.rev171120.LookupType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.mpls.rev171120.StaticLspVppLookupAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.mpls.rev171120.StaticLspVppLookupAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.mpls.rev171120.vpp.label.lookup.attributes.LabelLookupBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class PopAndMplsLookupTest extends WriterCustomizerTest implements ByteDataTranslator {
+public class SwapAndForwardTest extends WriterCustomizerTest implements ByteDataTranslator {
 
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 123;
@@ -56,16 +54,18 @@ public class PopAndMplsLookupTest extends WriterCustomizerTest implements ByteDa
     private static final InstanceIdentifier<StaticLsp> IID = InstanceIdentifier.create(Routing.class).augmentation
         (Routing1.class).child(Mpls.class).augmentation(Mpls1.class).child(StaticLsps.class)
         .child(StaticLsp.class, new StaticLspKey(LSP_NAME));
-    private static final int MPLS_TABLE_ID = 456;
-    private static final int LOCAL_LABEL = 102;
-    private static final StaticLsp POP_AND_MPLS_LOOKUP = getStaticLsp();
+    private static final int LOCAL_LABEL = 104;
+    private static final int OUT_LABEL = 104;
+    private static final StaticLsp SWAP_AND_FORWARD = getStaticLsp();
 
     @Mock
     private FutureJVppCoreFacade jvpp;
     private StaticLspCustomizer customizer;
 
     /**
-     * Equivalent of mpls local-label add non-eos 102 mpls-lookup-in-table 456
+     * Equivalent of
+     *
+     * mpls local-label add eos 104 via 10.10.24.4 local0 out-labels 104
      */
     private static StaticLsp getStaticLsp() {
         return new StaticLspBuilder()
@@ -76,13 +76,12 @@ public class PopAndMplsLookupTest extends WriterCustomizerTest implements ByteDa
                         .build())
                     .build()
                 )
-                .setOperation(StaticLspConfig.Operation.PopAndLookup)
-                .addAugmentation(StaticLspVppLookupAugmentation.class,
-                    new StaticLspVppLookupAugmentationBuilder()
-                        .setLabelLookup(new LabelLookupBuilder()
-                            .setType(LookupType.Mpls)
-                            .setMplsLookupInTable((long) MPLS_TABLE_ID).build())
-                        .build())
+                .setOperation(StaticLspConfig.Operation.SwapAndForward)
+                .setOutSegment(new SimplePathBuilder()
+                    .setNextHop(IpAddressBuilder.getDefaultInstance("10.10.24.4"))
+                    .setOutgoingInterface(IF_NAME)
+                    .setOutgoingLabel(new MplsLabel((long) OUT_LABEL))
+                    .build())
                 .build())
             .build();
     }
@@ -97,29 +96,28 @@ public class PopAndMplsLookupTest extends WriterCustomizerTest implements ByteDa
 
     @Test
     public void testWrite() throws WriteFailedException {
-        customizer.writeCurrentAttributes(IID, POP_AND_MPLS_LOOKUP, writeContext);
+        customizer.writeCurrentAttributes(IID, SWAP_AND_FORWARD, writeContext);
         verify(jvpp).mplsRouteAddDel(getRequest(true));
     }
 
     @Test
     public void testDelete() throws WriteFailedException {
-        customizer.deleteCurrentAttributes(IID, POP_AND_MPLS_LOOKUP, writeContext);
+        customizer.deleteCurrentAttributes(IID, SWAP_AND_FORWARD, writeContext);
         verify(jvpp).mplsRouteAddDel(getRequest(false));
     }
 
     private MplsRouteAddDel getRequest(final boolean add) {
-        MplsRouteAddDel request = new MplsRouteAddDel();
+        final MplsRouteAddDel request = new MplsRouteAddDel();
         request.mrLabel = LOCAL_LABEL;
-        request.mrEos = 0;
-        request.mrNextHopTableId = MPLS_TABLE_ID;
+        request.mrEos = 1;
         request.mrClassifyTableIndex = -1; // default value used in make test
         request.mrIsAdd = booleanToByte(add);
-        request.mrNextHopProto = 2; // MPLS data plane protocol index used by VPP
         request.mrNextHopWeight = 1; // default value used in make test
-        request.mrNextHop = new byte[0]; // POP, so no next hop
-        request.mrNextHopSwIfIndex = -1; // this is what CLI is doing
+        request.mrNextHop = new byte[] {10, 10, 24, 4};
+        request.mrNextHopSwIfIndex = IF_INDEX;
         request.mrNextHopViaLabel = LspWriter.MPLS_LABEL_INVALID; // default value used by make test
-        request.mrNextHopOutLabelStack = new int[0];
+        request.mrNextHopNOutLabels = 1;
+        request.mrNextHopOutLabelStack = new int[] {OUT_LABEL};
         return request;
     }
 }
