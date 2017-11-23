@@ -83,7 +83,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Customizer for reading {@code RemoteMapping}<br>
+ * Customizer for reading {@code RemoteMapping}.
  */
 public class RemoteMappingCustomizer extends FutureJVppCustomizer
         implements InitializingListReaderCustomizer<RemoteMapping, RemoteMappingKey, RemoteMappingBuilder>,
@@ -150,7 +150,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         final long vni = id.firstKeyOf(VniTable.class).getVirtualNetworkIdentifier();
         final Eid eid = copyEid(remoteMappingContext.getEid(mappingId, ctx.getMappingContext()));
         final MappingsDumpParams dumpParams = new MappingsDumpParamsBuilder()
-                .setVni(Long.valueOf(vni).intValue())
+                .setVni((int) vni)
                 .setEidSet(QuantityType.SPECIFIC)
                 .setEidType(getEidType(eid))
                 .setEid(getEidAsByteArray(eid))
@@ -216,7 +216,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                 .stream()
                 .filter(a -> a.vni == vni)
                 .filter(subtableFilterForRemoteMappings(id))
-                .map(detail -> getArrayAsEidRemote(valueOf(detail.eidType), detail.eid, detail.eidPrefixLen, detail.vni))
+                .map(detail ->
+                    getArrayAsEidRemote(valueOf(detail.eidType), detail.eid, detail.eidPrefixLen, detail.vni))
                 .map(remoteEid -> remoteMappingContext.getId(remoteEid, context.getMappingContext()))
                 .map(MappingId::new)
                 .map(RemoteMappingKey::new)
@@ -244,14 +245,8 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                     .child(LocatorSet.class,
                             new LocatorSetKey(locatorSetContext.getName(details.locatorSetIndex, mappingContext)))
                     .child(Interface.class);
-            try {
-                reply = locatorsDumpManager.getDump(locatorIfaceIdentifier, cache,
-                        new LocatorDumpParamsBuilder().setLocatorSetIndex(details.locatorSetIndex).build());
-            } catch (ReadFailedException e) {
-                throw new ReadFailedException(id,
-                        new IllegalStateException("Unable to resolve Positive/Negative mapping for RemoteMapping",
-                                e.getCause()));
-            }
+            reply = locatorsDumpManager.getDump(locatorIfaceIdentifier, cache,
+                    new LocatorDumpParamsBuilder().setLocatorSetIndex(details.locatorSetIndex).build());
 
             bindPositiveMapping(builder, reply.or(new OneLocatorDetailsReplyDump()));
         }
@@ -292,7 +287,9 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
     @Nonnull
     @Override
-    public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<RemoteMapping> instanceIdentifier, @Nonnull RemoteMapping remoteMapping, @Nonnull ReadContext readContext) {
+    public Initialized<? extends DataObject> init(@Nonnull InstanceIdentifier<RemoteMapping> instanceIdentifier,
+                                                  @Nonnull RemoteMapping remoteMapping,
+                                                  @Nonnull ReadContext readContext) {
         return Initialized.create(remoteMappingPath(instanceIdentifier), remoteMapping);
     }
 }
