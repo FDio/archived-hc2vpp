@@ -1,0 +1,2 @@
+# Do not store packages used by Dockerfile in the repo
+*.deb
