@@ -5,8 +5,8 @@ WORKDIR /hc2vpp
 ADD . /hc2vpp
 
 RUN apt-get update && apt-get install -y \
-    `# Networking utils` \
-    iproute2 iputils-ping net-tools \
+    `# Utils` \
+    iproute2 iputils-ping net-tools vim-tiny\
     `# VPP package dependencies` \
     libnuma1 libssl1.0.0 \
     `# Honeycomb package dependencies` \
