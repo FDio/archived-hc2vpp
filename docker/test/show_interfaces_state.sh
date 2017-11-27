@@ -2,7 +2,7 @@
 
 # Obtain IP of the container
 # $1 - container name
-ip=$($(dirname $0)/docker_ip.sh $1)
+ip=$(/hc2vpp/test/docker_ip.sh $1)
 url="https://$ip:8445/restconf/operational/ietf-interfaces:interfaces-state/"
 echo "GET $url"
 
