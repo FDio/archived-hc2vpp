@@ -110,7 +110,7 @@ public class LocalMappingCustomizer
         //Requesting for specific mapping dump,only from local mappings with specified eid/vni/eid type
         final MappingsDumpParams dumpParams = new MappingsDumpParams.MappingsDumpParamsBuilder()
                 .setEidSet(QuantityType.SPECIFIC)
-                .setVni(Long.valueOf(vni).intValue())
+                .setVni((int) vni)
                 .setEid(getEidAsByteArray(eid))
                 .setEidType(getEidType(eid))
                 .setPrefixLength(getPrefixLength(eid))

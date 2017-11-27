@@ -67,7 +67,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
                     hop.getAddress(),
-                    toByte(hop.getWeight()),
+                    hop.getWeight().byteValue(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
                     DEFAULT_VNI,
                     classifyTableIndex(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
@@ -78,7 +78,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
                     hop.getAddress(),
-                    toByte(hop.getWeight()),
+                    hop.getWeight().byteValue(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
                     DEFAULT_VNI,
                     0,
@@ -102,7 +102,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
                     hop.getAddress(),
-                    toByte(hop.getWeight()),
+                    hop.getWeight().byteValue(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
                     DEFAULT_VNI,
                     classifyTableIndex(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
@@ -113,7 +113,7 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
                     hop.getAddress(),
-                    toByte(hop.getWeight()),
+                    hop.getWeight().byteValue(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
                     DEFAULT_VNI,
                     0,
@@ -129,8 +129,8 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                                                  final int primaryVrf, final int secondaryVrf,
                                                  final int classifyTableIndex, final boolean classifyIndexSet) {
         return flaglessAddDelRouteRequest(booleanToByte(isAdd), nextHopInterfaceIndex,
-                ipv6AddressNoZoneToArray(nextHopAddress), nextHopWeight, toByte(1),
-                ipv6AddressPrefixToArray(destinationAddress), extractPrefix(destinationAddress.getValue()), toByte(1),
+                ipv6AddressNoZoneToArray(nextHopAddress), nextHopWeight, (byte)1,
+                ipv6AddressPrefixToArray(destinationAddress), extractPrefix(destinationAddress.getValue()), (byte)1,
                 primaryVrf, secondaryVrf, classifyTableIndex,
                 booleanToByte(classifyIndexSet));
     }
@@ -142,8 +142,8 @@ public class MultipathHopRequestFactory extends BasicHopRequestFactory implement
                                                  final int primaryVrf, final int secondaryVrf,
                                                  final int classifyTableIndex, final boolean classifyIndexSet) {
         return flaglessAddDelRouteRequest(booleanToByte(isAdd), nextHopInterfaceIndex,
-                ipv4AddressNoZoneToArray(nextHopAddress.getValue()), nextHopWeight, toByte(0),
-                ipv4AddressPrefixToArray(destinationAddress), extractPrefix(destinationAddress.getValue()), toByte(1),
+                ipv4AddressNoZoneToArray(nextHopAddress.getValue()), nextHopWeight, (byte)0,
+                ipv4AddressPrefixToArray(destinationAddress), extractPrefix(destinationAddress.getValue()), (byte)1,
                 primaryVrf, secondaryVrf, classifyTableIndex,
                 booleanToByte(classifyIndexSet));
     }

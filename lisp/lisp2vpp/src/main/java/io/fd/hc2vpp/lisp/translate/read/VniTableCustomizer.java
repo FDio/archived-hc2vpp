@@ -71,7 +71,7 @@ public class VniTableCustomizer extends CheckedLispCustomizer
     }
 
     private static VniTableKey detailsToKey(final OneEidTableVniDetails lispEidTableMapDetails) {
-        return new VniTableKey(Integer.valueOf(lispEidTableMapDetails.vni).longValue());
+        return new VniTableKey(Integer.toUnsignedLong(lispEidTableMapDetails.vni));
 
     }
 

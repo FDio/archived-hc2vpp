@@ -45,20 +45,6 @@ public interface ByteDataTranslator {
     }
 
     /**
-     * Converts int to byte.
-     */
-    default byte toByte(final int value) {
-        return Integer.valueOf(value).byteValue();
-    }
-
-    /**
-     * Converts short to byte.
-     */
-    default byte toByte(final short value) {
-        return Short.valueOf(value).byteValue();
-    }
-
-    /**
      * Checks if provided array contains only zeros
      */
     default boolean isArrayZeroed(final byte[] arr) {

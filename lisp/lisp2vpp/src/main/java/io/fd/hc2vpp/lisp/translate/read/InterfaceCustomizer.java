@@ -116,8 +116,8 @@ public class InterfaceCustomizer
 
         final String interfaceRef = interfaceContext.getName(details.swIfIndex, ctx.getMappingContext());
 
-        builder.setPriority(Byte.valueOf(details.priority).shortValue());
-        builder.setWeight(Byte.valueOf(details.weight).shortValue());
+        builder.setPriority((short) Byte.toUnsignedInt(details.priority));
+        builder.setWeight((short) Byte.toUnsignedInt(details.weight));
         builder.setInterfaceRef(interfaceRef);
         builder.setKey(new InterfaceKey(interfaceRef));
     }

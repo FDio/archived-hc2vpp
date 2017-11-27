@@ -97,25 +97,25 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
                                         final int isProhibit) {
         final IpAddDelRoute request = new IpAddDelRoute();
 
-        request.isAdd = toByte(add);
-        request.isIpv6 = toByte(ipv6);
-        request.isMultipath = toByte(isMultipath);
+        request.isAdd = (byte)add;
+        request.isIpv6 = (byte)ipv6;
+        request.isMultipath = (byte)isMultipath;
         request.dstAddress = destinationAddress;
-        request.dstAddressLength = toByte(destinationPrefixLength);
+        request.dstAddressLength = (byte)destinationPrefixLength;
         request.nextHopAddress = nextHopAddr;
         request.nextHopSwIfIndex = nextHopIndex;
-        request.nextHopWeight = toByte(nextHopWeight);
+        request.nextHopWeight = (byte)nextHopWeight;
         request.classifyTableIndex = classifyTableIndexSet;
         request.tableId = vrfId;
         request.nextHopTableId = secondaryVrfId;
-        request.createVrfIfNeeded = toByte(createVrfIfNeeded);
+        request.createVrfIfNeeded = (byte)createVrfIfNeeded;
         request.classifyTableIndex = classifyTableIndex;
-        request.isClassify = toByte(classifyTableIndexSet);
+        request.isClassify = (byte)classifyTableIndexSet;
         // special hop flags
-        request.isDrop = toByte(isDrop);
-        request.isLocal = toByte(isLocal);
-        request.isUnreach = toByte(isUnreach);
-        request.isProhibit = toByte(isProhibit);
+        request.isDrop = (byte)isDrop;
+        request.isLocal = (byte)isLocal;
+        request.isUnreach = (byte)isUnreach;
+        request.isProhibit = (byte)isProhibit;
         request.nextHopViaLabel = RouteRequestProducer.MPLS_LABEL_INVALID;
         return request;
     }
