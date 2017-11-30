@@ -101,7 +101,7 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
         final NshMdType2StateAugmentBuilder augmentBuilder = new NshMdType2StateAugmentBuilder();
         final byte md2_len = (nshEntryDetails.tlvLength);
         byte cur_len = 0;
-        byte option_len = 0;
+        byte option_len;
 
         LOG.debug("rd: md2_len={}", md2_len);
         List<Md2Data> md2Datas = new ArrayList<>();

@@ -28,8 +28,6 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801._native.forward.paths.tables.NativeForwardPathsTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801._native.forward.paths.tables.NativeForwardPathsTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Uses api to create gpe interfaces, which creates fib table as by-product.
@@ -38,8 +36,6 @@ import org.slf4j.LoggerFactory;
 public class NativeForwardPathsTableCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<NativeForwardPathsTable, NativeForwardPathsTableKey>, ByteDataTranslator,
         JvppReplyConsumer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(NativeForwardPathsTableCustomizer.class);
 
     public NativeForwardPathsTableCustomizer(@Nonnull final FutureJVppCore futureJVppCore) {
         super(futureJVppCore);

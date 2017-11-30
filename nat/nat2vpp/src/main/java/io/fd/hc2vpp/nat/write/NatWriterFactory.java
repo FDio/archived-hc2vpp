@@ -47,8 +47,6 @@ public final class NatWriterFactory implements WriterFactory {
             NAT_CFG_ID.child(NatInstances.class).child(NatInstance.class);
     private static final InstanceIdentifier<MappingEntry> MAP_ENTRY_ID =
             NAT_INSTANCE_ID.child(MappingTable.class).child(MappingEntry.class);
-    private static final InstanceIdentifier<Nat64Prefixes> NAT64_PREFIXES =
-            NAT_INSTANCE_ID.child(Nat64Prefixes.class);
 
     private final FutureJVppNatFacade jvppNat;
     private final MappingEntryContext mappingEntryContext;

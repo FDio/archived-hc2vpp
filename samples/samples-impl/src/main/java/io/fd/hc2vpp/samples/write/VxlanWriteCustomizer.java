@@ -104,7 +104,7 @@ public final class VxlanWriteCustomizer implements ListWriterCustomizer<VxlanTun
         vxlanAddDelTunnel.dstAddress = ipAddressToArray(isIpv6, dataBefore.getDst());
         // There are other input parameters that are not exposed by our YANG model, default values will be used
 
-        final VxlanAddDelTunnelReply replyForWrite = getReplyForWrite(jvppCore.vxlanAddDelTunnel(vxlanAddDelTunnel).toCompletableFuture(), id);
+        getReplyForWrite(jvppCore.vxlanAddDelTunnel(vxlanAddDelTunnel).toCompletableFuture(), id);
         // It's important to remove the mapping from context
         vxlanTunnelNamingContext.removeName(dataBefore.getId(), writeContext.getMappingContext());
     }

@@ -51,7 +51,6 @@ public class InterfacePolicerReaderFactory implements ReaderFactory {
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        InstanceIdentifier<Policer> IID = InstanceIdentifier.create(Policer.class);
         registry.addStructuralReader(POLICER_IFC_ID, PolicerInterfaceStateAugmentationBuilder.class);
         registry.add(
             new GenericReader<>(POLICER_IID, new InterfacePolicerCustomizer(vppApi, ifcContext, classifyTableContext)));

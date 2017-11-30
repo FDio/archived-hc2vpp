@@ -58,8 +58,6 @@ public final class VxlanReadCustomizer implements
         // provides utility methods to consume results of jvpp api calls
         JvppReplyConsumer {
 
-    // JVpp core. This is the Java API for VPP's core API.
-    private final FutureJVppCore jVppCore;
     // Naming context for interfaces
     // Honeycomb provides a "context" storage for plugins. This storage is used for storing metadata required during
     // data translation (just like in this plugin). An example of such metadata would be interface identifier. In Honeycomb
@@ -75,7 +73,6 @@ public final class VxlanReadCustomizer implements
     private DumpCacheManager<VxlanTunnelDetailsReplyDump, Integer> dumpManager;
 
     public VxlanReadCustomizer(final FutureJVppCore jVppCore, final NamingContext vxlanNamingContext) {
-        this.jVppCore = jVppCore;
         this.vxlanNamingContext = vxlanNamingContext;
 
         this.dumpManager = new DumpCacheManager.DumpCacheManagerBuilder<VxlanTunnelDetailsReplyDump, Integer>()

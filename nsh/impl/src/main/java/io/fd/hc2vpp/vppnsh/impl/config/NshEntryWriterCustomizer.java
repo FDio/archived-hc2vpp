@@ -118,7 +118,7 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
         final List<Md2Data> md2Datas = entry.getAugmentation(NshMdType2Augment.class).getMd2Data();
         final byte md2_len = (byte) (entry.getLength() * 4 - 8);
         byte cur_len = 0;
-        byte option_len = 0;
+        byte option_len;
 
         LOG.debug("wr: md2_len={}", md2_len);
         request.tlv = new byte[md2_len];
