@@ -47,7 +47,7 @@ public interface JvppReplyConsumer {
      * Should be used in case of calls where it's not clear which write crud operation respective
      * call represents, for ex. setRouting
      */
-    default <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForWrite(@Nonnull Future<R> future,
                                                             @Nonnull final InstanceIdentifier<?> replyType)
             throws WriteFailedException {
 
@@ -59,7 +59,7 @@ public interface JvppReplyConsumer {
      * Should be used in case of calls where it's not clear which write crud operation respective
      * call represents, for ex. setRouting
      */
-    default <REP extends JVppReply<?>> REP getReplyForWrite(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForWrite(@Nonnull Future<R> future,
                                                             @Nonnull final InstanceIdentifier<?> replyType,
                                                             @Nonnegative final int timeoutInSeconds)
             throws WriteFailedException {
@@ -76,7 +76,7 @@ public interface JvppReplyConsumer {
     /**
      * Consumes reply for jvpp call representing create operation
      */
-    default <REP extends JVppReply<?>> REP getReplyForCreate(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForCreate(@Nonnull Future<R> future,
                                                              @Nonnull final InstanceIdentifier<?> replyType,
                                                              @Nonnull final DataObject data)
         throws WriteFailedException.CreateFailedException {
@@ -86,7 +86,7 @@ public interface JvppReplyConsumer {
     /**
      * Consumes reply for jvpp call representing create operation
      */
-    default <REP extends JVppReply<?>> REP getReplyForCreate(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForCreate(@Nonnull Future<R> future,
                                                              @Nonnull final InstanceIdentifier<?> replyType,
                                                              @Nonnull final DataObject data,
                                                              @Nonnegative final int timeoutInSeconds)
@@ -104,7 +104,7 @@ public interface JvppReplyConsumer {
     /**
      * Consumes reply for jvpp call representing update operation
      */
-    default <REP extends JVppReply<?>> REP getReplyForUpdate(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForUpdate(@Nonnull Future<R> future,
                                                              @Nonnull final InstanceIdentifier<?> replyType,
                                                              @Nonnull final DataObject dataBefore,
                                                              @Nonnull final DataObject dataAfter)
@@ -115,7 +115,7 @@ public interface JvppReplyConsumer {
     /**
      * Consumes reply for jvpp call representing update operation
      */
-    default <REP extends JVppReply<?>> REP getReplyForUpdate(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForUpdate(@Nonnull Future<R> future,
                                                              @Nonnull final InstanceIdentifier<?> replyType,
                                                              @Nonnull final DataObject dataBefore,
                                                              @Nonnull final DataObject dataAfter,
@@ -134,7 +134,7 @@ public interface JvppReplyConsumer {
     /**
      * Consumes reply for jvpp call representing delete operation
      */
-    default <REP extends JVppReply<?>> REP getReplyForDelete(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForDelete(@Nonnull Future<R> future,
                                                              @Nonnull final InstanceIdentifier<?> replyType)
         throws WriteFailedException.DeleteFailedException {
         return getReplyForDelete(future, replyType, JvppReplyTimeoutHolder.getTimeout());
@@ -143,7 +143,7 @@ public interface JvppReplyConsumer {
     /**
      * Consumes reply for jvpp call representing delete operation
      */
-    default <REP extends JVppReply<?>> REP getReplyForDelete(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForDelete(@Nonnull Future<R> future,
                                                              @Nonnull final InstanceIdentifier<?> replyType,
                                                              @Nonnegative final int timeoutInSeconds)
         throws WriteFailedException.DeleteFailedException {
@@ -156,13 +156,13 @@ public interface JvppReplyConsumer {
         }
     }
 
-    default <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForRead(@Nonnull Future<R> future,
                                                            @Nonnull final InstanceIdentifier<?> replyType)
             throws ReadFailedException {
         return getReplyForRead(future, replyType, JvppReplyTimeoutHolder.getTimeout());
     }
 
-    default <REP extends JVppReply<?>> REP getReplyForRead(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReplyForRead(@Nonnull Future<R> future,
                                                            @Nonnull final InstanceIdentifier<?> replyType,
                                                            @Nonnegative final int timeoutInSeconds)
             throws ReadFailedException {
@@ -175,12 +175,12 @@ public interface JvppReplyConsumer {
         }
     }
 
-    default <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future)
+    default <R extends JVppReply<?>> R getReply(@Nonnull Future<R> future)
             throws TimeoutException, VppBaseCallException {
         return getReply(future, JvppReplyTimeoutHolder.getTimeout());
     }
 
-    default <REP extends JVppReply<?>> REP getReply(@Nonnull Future<REP> future,
+    default <R extends JVppReply<?>> R getReply(@Nonnull Future<R> future,
                                                     @Nonnegative final int timeoutInSeconds)
             throws TimeoutException, VppBaseCallException {
         try {
@@ -192,7 +192,7 @@ public interface JvppReplyConsumer {
         } catch (ExecutionException e) {
             // Execution exception could generally contains any exception
             // when using exceptions instead of return codes just rethrow it for processing on corresponding place
-            if (e instanceof ExecutionException && (e.getCause() instanceof VppBaseCallException)) {
+            if (e.getCause() instanceof VppBaseCallException) {
                 throw (VppBaseCallException) (e.getCause());
             }
             throw new IllegalStateException(e);
@@ -205,6 +205,10 @@ public interface JvppReplyConsumer {
     class JvppReplyTimeoutHolder {
         private static final Logger LOG = LoggerFactory.getLogger(JvppReplyTimeoutHolder.class);
         private static Optional<Integer> timeout = Optional.empty();
+
+        private JvppReplyTimeoutHolder() {
+            throw new UnsupportedOperationException("Utility class cannot be instantiated.");
+        }
 
         public static void setupTimeout(@Nonnegative final int jvppTimeout) {
             if (timeout.isPresent()) {
