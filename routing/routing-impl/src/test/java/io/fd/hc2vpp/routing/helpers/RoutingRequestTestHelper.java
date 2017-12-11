@@ -55,14 +55,13 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
                                                 final int nextHopIndex,
                                                 final int nextHopWeight,
                                                 final int vrfId,
-                                                final int createVrfIfNeeded,
                                                 final int secondaryVrfId,
                                                 final int classifyTableIndex,
                                                 final int classifyTableIndexSet) {
 
         // verification of flagless request, so setting them to 0
         return desiredResult(add, ipv6, isMultipath, destinationAddress, destinationPrefixLength, nextHopAddr,
-                nextHopIndex, nextHopWeight, vrfId, createVrfIfNeeded, secondaryVrfId, classifyTableIndex,
+                nextHopIndex, nextHopWeight, vrfId, secondaryVrfId, classifyTableIndex,
                 classifyTableIndexSet, 0, 0, 0, 0);
     }
 
@@ -76,7 +75,7 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
                                                final int protocolTableId,
                                                final int secondaryTableId) {
         // verifiaction of special request that has only destination address and flag
-        return desiredResult(add, ipv6, 0, destinationAddress, destinationPrefixLength, null, 0, 0, protocolTableId, 1, secondaryTableId, 0, 0,
+        return desiredResult(add, ipv6, 0, destinationAddress, destinationPrefixLength, null, 0, 0, protocolTableId, secondaryTableId, 0, 0,
                 isDrop, isReceive, isUnreach, isProhibit);
     }
 
@@ -87,7 +86,6 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
                                         final int nextHopIndex,
                                         final int nextHopWeight,
                                         final int vrfId,
-                                        final int createVrfIfNeeded,
                                         final int secondaryVrfId,
                                         final int classifyTableIndex,
                                         final int classifyTableIndexSet,
@@ -108,7 +106,6 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
         request.classifyTableIndex = classifyTableIndexSet;
         request.tableId = vrfId;
         request.nextHopTableId = secondaryVrfId;
-        request.createVrfIfNeeded = (byte)createVrfIfNeeded;
         request.classifyTableIndex = classifyTableIndex;
         request.isClassify = (byte)classifyTableIndexSet;
         // special hop flags

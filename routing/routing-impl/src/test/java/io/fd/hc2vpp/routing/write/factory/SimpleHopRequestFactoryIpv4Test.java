@@ -74,7 +74,7 @@ public class SimpleHopRequestFactoryIpv4Test
 
         assertEquals(desiredFlaglessResult(0, 0, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
                 Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0,
-                1, 1, 0, CLASSIFY_TABLE_INDEX, 1), request);
+                1, 0, CLASSIFY_TABLE_INDEX, 1), request);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SimpleHopRequestFactoryIpv4Test
 
         assertEquals(
                 desiredFlaglessResult(0, 0, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
-                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 1, 0, 0, 0), request);
+                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 0, 0, 0), request);
     }
 
     @Test
@@ -102,6 +102,6 @@ public class SimpleHopRequestFactoryIpv4Test
 
         assertEquals(
                 desiredFlaglessResult(0, 0, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
-                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 1, 0, 0, 0), request);
+                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 0, 0, 0), request);
     }
 }

@@ -75,7 +75,7 @@ public class SimpleHopRequestFactoryIpv6Test
 
         assertEquals(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
                 Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1,
-                1, 0, CLASSIFY_TABLE_INDEX, 1), request);
+            0, CLASSIFY_TABLE_INDEX, 1), request);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class SimpleHopRequestFactoryIpv6Test
                         mappingContext);
 
         assertEquals(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 1, 0, 0, 0), request);
+                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 0, 0, 0), request);
     }
 
     @Test
@@ -102,6 +102,6 @@ public class SimpleHopRequestFactoryIpv6Test
                         mappingContext);
 
         assertEquals(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 1, 0, 0, 0), request);
+                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 0, 0, 0), request);
     }
 }

@@ -114,7 +114,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         customizer.writeCurrentAttributes(validId, route1, writeContext);
         verifyInvocation(1, ImmutableList
                         .of(desiredFlaglessResult(1, 0, 0, FIRST_ADDRESS_AS_ARRAY, 24,
-                                SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, ROUTE_PROTOCOL_INDEX, 1, 0,
+                                SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, ROUTE_PROTOCOL_INDEX, 0,
                                 CLASSIFY_TABLE_INDEX, 1)),
                 api, requestCaptor);
     }
@@ -135,7 +135,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         customizer.writeCurrentAttributes(validId, route, writeContext);
         verifyInvocation(1, ImmutableList
                         .of(desiredFlaglessResult(1, 0, 0, FIRST_ADDRESS_AS_ARRAY, 24,
-                                new byte[4], ~0, 0, ROUTE_PROTOCOL_INDEX, 1, 4,
+                                new byte[4], ~0, 0, ROUTE_PROTOCOL_INDEX, 4,
                                 0, 0)),
                 api, requestCaptor);
     }
@@ -151,10 +151,10 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(1, 0, 1, FIRST_ADDRESS_AS_ARRAY, 24,
-                                FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 1, 0,
+                                FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 0,
                                 CLASSIFY_TABLE_INDEX, 1),
                         desiredFlaglessResult(1, 0, 1, FIRST_ADDRESS_AS_ARRAY, 24,
-                                SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 3, ROUTE_PROTOCOL_INDEX, 1, 0,
+                                SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 3, ROUTE_PROTOCOL_INDEX, 0,
                                 CLASSIFY_TABLE_INDEX, 1)), api,
                 requestCaptor);
 
@@ -206,7 +206,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         verifyInvocation(1, ImmutableList
                 .of(desiredFlaglessResult(0, 0, 0, FIRST_ADDRESS_AS_ARRAY, 24,
                         SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX,
-                        0, ROUTE_PROTOCOL_INDEX, 1, 0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
+                        0, ROUTE_PROTOCOL_INDEX, 0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
     }
 
     @Test
@@ -220,10 +220,10 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(0, 0, 1, FIRST_ADDRESS_AS_ARRAY, 24,
-                                FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 1, 0,
+                                FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 0,
                                 CLASSIFY_TABLE_INDEX, 1),
                         desiredFlaglessResult(0, 0, 1, FIRST_ADDRESS_AS_ARRAY, 24,
-                                new byte[]{-64, -88, 2, 2}, INTERFACE_INDEX, 3, ROUTE_PROTOCOL_INDEX, 1, 0,
+                                new byte[]{-64, -88, 2, 2}, INTERFACE_INDEX, 3, ROUTE_PROTOCOL_INDEX, 0,
                                 CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
 
         verify(routeHopContext, times(1))

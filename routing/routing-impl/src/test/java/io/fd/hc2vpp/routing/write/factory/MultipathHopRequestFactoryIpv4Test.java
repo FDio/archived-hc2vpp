@@ -115,7 +115,7 @@ public class MultipathHopRequestFactoryIpv4Test
                         mappingContext);
 
         assertEquals(desiredFlaglessResult(0, 0, 1, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
-                Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 1, 0, CLASSIFY_TABLE_INDEX, 1), request);
+                Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 0, CLASSIFY_TABLE_INDEX, 1), request);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class MultipathHopRequestFactoryIpv4Test
 
         assertEquals(
                 desiredFlaglessResult(0, 0, 1, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
-                        Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 1, 0, 0, 0), request);
+                        Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 0, 0, 0), request);
     }
 
     @Test
@@ -139,6 +139,6 @@ public class MultipathHopRequestFactoryIpv4Test
 
         assertEquals(
                 desiredFlaglessResult(0, 0, 1, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
-                        Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 1, 0, 0, 0), request);
+                        Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 0, 0, 0), request);
     }
 }

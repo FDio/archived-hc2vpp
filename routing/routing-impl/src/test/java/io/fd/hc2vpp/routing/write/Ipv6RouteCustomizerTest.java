@@ -107,7 +107,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         verifyInvocation(1, ImmutableList
                 .of(desiredFlaglessResult(1, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
                         Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, ROUTE_PROTOCOL_INDEX,
-                        1, 0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
+                    0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
     }
 
     //TODO - https://jira.fd.io/browse/HONEYCOMB-396
@@ -127,7 +127,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         customizer.writeCurrentAttributes(validId, route, writeContext);
         verifyInvocation(1, ImmutableList
                         .of(desiredFlaglessResult(1, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
-                                new byte[4], ~0, 0, ROUTE_PROTOCOL_INDEX, 1, 4,
+                                new byte[4], ~0, 0, ROUTE_PROTOCOL_INDEX, 4,
                                 0, 0)),
                 api, requestCaptor);
     }
@@ -141,10 +141,10 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(1, 1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 1, 0,
+                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 0,
                                 CLASSIFY_TABLE_INDEX, 1),
                         desiredFlaglessResult(1, 1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 1, 0,
+                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 0,
                                 CLASSIFY_TABLE_INDEX, 1)), api,
                 requestCaptor);
     }
@@ -176,7 +176,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         verifyInvocation(1, ImmutableList
                 .of(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
                         Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1,
-                        1, 0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
+                    0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
     }
 
     @Test
@@ -188,10 +188,10 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(0, 1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 1, 0,
+                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 0,
                                 CLASSIFY_TABLE_INDEX, 1),
                         desiredFlaglessResult(0, 1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
-                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 1, 0,
+                                Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, 1, 0,
                                 CLASSIFY_TABLE_INDEX, 1)), api,
                 requestCaptor);
     }

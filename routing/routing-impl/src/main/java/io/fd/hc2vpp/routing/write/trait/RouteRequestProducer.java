@@ -125,9 +125,6 @@ public interface RouteRequestProducer extends ByteDataTranslator, AddressTransla
         // vrf_id - fib table /vrf associated with the route Not mentioned in model
         request.tableId = primaryVrf;
 
-        // create vrf if needed needs to be turned on all the time,due to how we map table ids on routing protocols
-        request.createVrfIfNeeded = 1;
-
         // nextHopTableId - this is used when you want to have a second lookup done in another table.
         request.nextHopTableId = secondaryVrf;
 
