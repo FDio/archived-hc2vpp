@@ -11,7 +11,7 @@ Following guide is based on ODL's link:http://docs.opendaylight.org/en/stable-{p
 
 BGP HC modules are disabled by default. To enable it, edit
 
-  modules/io-fd-honeycomb_minimal-distribution_1-17-07-module-config
+  modules/io-fd-honeycomb_minimal-distribution_{project-config-version}-module-config
 
 in distribution dir (/opt/honeycomb in case honeycomb was installed from package):
 

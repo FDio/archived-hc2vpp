@@ -107,6 +107,7 @@
                 making it much easier when bumping versions -->
                 <project-version>${project.version}</project-version>
                 <project-public-version>18.01</project-public-version>
+                <project-config-version>1-18-01</project-config-version>
                 <project-version-in-jira>11002</project-version-in-jira>
                 <project-branch>master</project-branch>
                 <project-odl-version>nitrogen</project-odl-version>
