@@ -6,7 +6,7 @@ ADD . /hc2vpp
 
 RUN apt-get update && apt-get install -y \
     # Utils
-    iproute2 iputils-ping net-tools vim-tiny\
+    iproute2 iputils-ping net-tools vim-tiny jshon telnet \
     # VPP package dependencies
     libnuma1 libssl1.0.0 \
     # Honeycomb package dependencies

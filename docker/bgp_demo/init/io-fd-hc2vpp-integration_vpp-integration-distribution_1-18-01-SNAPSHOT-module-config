@@ -1,0 +1,27 @@
+// This is list of hc2vpp modules based on configuration file from /opt/honeycomb/modules
+//
+// BGP modules (disabled by default) were enabled.
+// Modules not used in the demo were disabled to reduce footprint.
+//
+io.fd.hc2vpp.common.integration.VppCommonModule
+io.fd.hc2vpp.management.VppManagementModule
+// io.fd.hc2vpp.lisp.LispModule
+// io.fd.hc2vpp.lisp.gpe.GpeModule
+io.fd.hc2vpp.v3po.V3poModule
+// io.fd.hc2vpp.iface.role.InterfaceRoleModule
+io.fd.hc2vpp.l3.InterfaceL3Module
+io.fd.hc2vpp.l3.SubInterfaceL3Module
+// io.fd.hc2vpp.l3.ProxyArpModule
+io.fd.hc2vpp.vpp.classifier.VppClassifierModule
+// io.fd.hc2vpp.vpp.classifier.InterfaceClassifierAclModule
+// io.fd.hc2vpp.vpp.classifier.SubInterfaceClassifierAclModule
+// io.fd.hc2vpp.nat.NatModule
+io.fd.hc2vpp.routing.RoutingModule
+// io.fd.hc2vpp.acl.AclModule
+// io.fd.hc2vpp.dhcp.DhcpModule
+// io.fd.hc2vpp.policer.PolicerModule
+io.fd.hc2vpp.mpls.MplsModule
+// io.fd.hc2vpp.vppnsh.impl.VppNshModule
+// io.fd.hc2vpp.vppioam.impl.VppIoamModule
+io.fd.hc2vpp.bgp.inet.BgpInetModule
+io.fd.hc2vpp.bgp.prefix.sid.BgpPrefixSidModule
