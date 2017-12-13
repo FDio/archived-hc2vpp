@@ -43,6 +43,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 public final class NamingContext implements AutoCloseable {
 
     private static final Collector<Mapping, ?, Mapping> SINGLE_ITEM_COLLECTOR = RWUtils.singleItemCollector();
+    private static final int START_INDEX = 0;
     private final String artificialNamePrefix;
     private final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.naming.context.rev160513.contexts.NamingContext, NamingContextKey>
             namingContextIid;
@@ -220,17 +221,14 @@ public final class NamingContext implements AutoCloseable {
     private int getNextAvailableIndex(final MappingContext mappingContext) {
         final Optional<Mappings> read = mappingContext.read(namingContextIid.child(Mappings.class));
 
-        if (!read.isPresent()) {
-            return 0;
+        if (!read.isPresent() || read.get().getMapping().isEmpty()) {
+            return START_INDEX;
         }
 
-        return read.get().getMapping()
-                .stream()
-                .mapToInt(Mapping::getIndex)
-                // do not use i++(need increase before, not after
-                .map(i -> ++i)
-                .max()
-                .orElse(0);
+        return 1 + read.get().getMapping()
+            .stream()
+            .mapToInt(Mapping::getIndex)
+            .max().getAsInt();
     }
 
     @Override

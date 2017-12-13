@@ -96,16 +96,31 @@ public class NamingContextTest implements InjectablesProcessor {
     }
 
     @Test
-    public void addNameNextIndex() throws Exception {
+    public void addName() throws Exception {
         namingContext.addName("name-3", mappingContext);
         verify(mappingContext, times(1))
-                .put(instanceIdentifierArgumentCaptor.capture(), mappingArgumentCaptor.capture());
+            .put(instanceIdentifierArgumentCaptor.capture(), mappingArgumentCaptor.capture());
 
         assertEquals(instanceIdentifierArgumentCaptor.getValue(), parentKey("name-3"));
         assertEquals(mappingArgumentCaptor.getValue(), new MappingBuilder()
-                .setIndex(3)
-                .setName("name-3")
-                .build());
+            .setIndex(3)
+            .setName("name-3")
+            .build());
+    }
+
+    @Test
+    public void addNameNoMapings() throws Exception {
+        when(mappingContext.read(namingContextIid.child(Mappings.class))).thenReturn(Optional.absent());
+
+        namingContext.addName("name-0", mappingContext);
+        verify(mappingContext, times(1))
+            .put(instanceIdentifierArgumentCaptor.capture(), mappingArgumentCaptor.capture());
+
+        assertEquals(instanceIdentifierArgumentCaptor.getValue(), parentKey("name-0"));
+        assertEquals(mappingArgumentCaptor.getValue(), new MappingBuilder()
+            .setIndex(0)
+            .setName("name-0")
+            .build());
     }
 
     @Test(expected = IllegalArgumentException.class)
