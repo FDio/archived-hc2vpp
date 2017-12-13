@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.util.RWUtils;
 import java.util.Collections;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.multi.naming.context.rev160411.MultiMappingCtxAugmentation;
@@ -134,15 +135,17 @@ public class MultiNamingContext {
             return startIndex;
         }
 
-        return read.get().getMapping()
-                .stream()
-                .filter(mapping -> mapping.getName().equals(parentName))
-                .flatMap(mapping -> mapping.getValue().stream())
-                .mapToInt(Value::getIndex)
-                // do not use i++(need increase before, not after
-                .map(i -> ++i)
-                .max()
-                .orElse(startIndex);
+        final OptionalInt max = read.get().getMapping()
+            .stream()
+            .filter(mapping -> mapping.getName().equals(parentName))
+            .flatMap(mapping -> mapping.getValue().stream())
+            .mapToInt(Value::getIndex)
+            .max();
+        if (max.isPresent()) {
+            return max.getAsInt() + 1;
+        } else {
+            return startIndex;
+        }
     }
 
     private KeyedInstanceIdentifier<Mapping, MappingKey> getMappingIid(final String name) {
