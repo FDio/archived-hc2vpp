@@ -20,7 +20,10 @@ TIP: Make sure you have https://wiki.fd.io/view/DEV/Setting_up_Gerrit[registered
 == Building the code
 Make sure all the prerequisites are installed.
 
-NOTE: To make sure fresh hc2vpp build is compatible with VPP, building VPP is also required to make sure the same JVpp version is used preventing out-of-sync exceptions. In case only hc2vpp needs to be built, skip Building VPP section.
+NOTE: To make sure fresh hc2vpp build is compatible with VPP, it is required
+to make sure the same JVpp version is used preventing out-of-sync exceptions.
+Compatible JVPP artifacts can be obtained by installing vpp-api-java package or building VPP.
+In case only hc2vpp needs to be built, skip Building VPP section.
 
 === Building VPP
 Clone VPP according to: https://gerrit.fd.io/r/#/admin/projects/vpp and checkout {project-branch} branch
@@ -41,19 +44,9 @@ Start VPP:
 
  sudo start vpp
 
-Install JVpp into local maven repository to make hc2vpp pick up the same JVpp version
-
-[subs="+attributes"]
- cd build-vpp-native/vpp-api/java/
- mvn install:install-file -Dfile=jvpp-registry-{project-vpp-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-registry -Dversion={project-vpp-snapshot-version} -Dpackaging=jar
- mvn install:install-file -Dfile=jvpp-core-{project-vpp-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-core -Dversion={project-vpp-snapshot-version}-Dpackaging=jar
- cd ../../plugins/nat-plugin/
- mvn install:install-file -Dfile=jvpp-nat-{project-nat-version}.jar -DgroupId=io.fd.vpp     -DartifactId=jvpp-nat -Dversion={project-nat-snapshot-version} -Dpackaging=jar
-
 Now current Vpp is up and running and prepared for integration with HC.
 
 === Building hc2vpp
-Now hc2vpp can be built and it will use latest JVpp produced during VPP build.
 
 ==== Setup settings.xml
 Put the following in your ~/.m2/settings.xml:
@@ -166,6 +159,28 @@ Put the following in your ~/.m2/settings.xml:
   </activeProfiles>
 </settings>
 ----
+
+
+==== Installing JVpp jars
+
+By default hc2vpp build downloads latest JVpp jars from nexus.fd.io.
+They might not be compatible with installed VPP (e.g. in case of non-backward compatible VPP API changes).
+
+In order to prevent API mismatch it is required to use JVpp version corresponding to the VPP installed.
+
+Use
+
+[subs="+attributes"]
+ ./hc2vpp/jvpp/install_from_vpp_build_dir.sh
+
+to install JVpp jars produced during VPP build.
+
+If vpp-api-java package is installed, use:
+
+[subs="+attributes"]
+ ./hc2vpp/jvpp/install_from_package.sh
+
+Now hc2vpp can be built and it will use compatible JVpp artifacts.
 
 ==== Building hc2vpp
 cd hc2vpp/
