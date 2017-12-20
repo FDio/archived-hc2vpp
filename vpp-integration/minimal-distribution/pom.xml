@@ -66,12 +66,13 @@
       io.fd.hc2vpp.dhcp.DhcpModule,
       io.fd.hc2vpp.policer.PolicerModule,
       io.fd.hc2vpp.mpls.MplsModule,
-      // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
-      // io.fd.hc2vpp.vppioam.impl.VppIoamModule,
+      // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- iOAM module by default disabled, because it needs ioam plugin (not part of vpp codebase.)-->
+      // io.fd.hc2vpp.vppioam.impl.VppIoamModule,
+      <!-- Bgp modules disabled by default, because it BGP northbound interface is not enabled by default -->
       // io.fd.hc2vpp.bgp.inet.BgpInetModule
-      <!-- BgpInetModule by default disabled, because it BGP northbound interface is not enabled by default -->
+      // io.fd.hc2vpp.bgp.prefix.sid.BgpPrefixSidModule
     </distribution.modules>
   </properties>
 
@@ -178,6 +179,11 @@
       <groupId>io.fd.hc2vpp.mpls</groupId>
       <artifactId>mpls-impl</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.bgp</groupId>
+      <artifactId>bgp-prefix-sid</artifactId>
+      <version>${hc2vpp.bgp.version}</version>
     </dependency>
   </dependencies>
 </project>

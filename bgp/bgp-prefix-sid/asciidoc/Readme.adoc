@@ -1,0 +1,3 @@
+= bgp-prefix-sid
+
+This is a Honeycomb plugin providing mapping code between BGP Prefix SID routes and VPP core APIs.
