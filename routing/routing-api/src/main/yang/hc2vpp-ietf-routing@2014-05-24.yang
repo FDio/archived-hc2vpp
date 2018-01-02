@@ -259,7 +259,12 @@ module hc2vpp-ietf-routing {
     }
   }
 
-  // WARNING - renamed due to yang sources generation problem(having same name for grouping and it's leaf ends up in error against Java Language Specification)
+  // TODO(HC2VPP-273): renamed due to https://jira.opendaylight.org/browse/MDSAL-1
+  // (having same name for grouping and it's leaf ends up in Java compilation error)
+  //
+  // Change grouping name back after switching to Binding Specificiation v2 (HONEYCOMB-420).
+  //
+  // grouping special-next-hop {
   grouping special-next-hop-grouping {
     description
       "This grouping provides the leaf for specifying special
