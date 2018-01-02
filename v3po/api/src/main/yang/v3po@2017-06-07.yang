@@ -149,6 +149,10 @@ module v3po {
     base if:interface-type;
   }
 
+  identity af-packet {
+    base if:interface-type;
+  }
+
   typedef vxlan-gpe-vni {
     description "VNI used in a VXLAN-GPE tunnel";
     type uint32 {
@@ -493,6 +497,23 @@ module v3po {
     }
   }
 
+  grouping af-packet-base-attributes {
+    leaf host-interface-name {
+      type string {
+        length "1..63";
+      }
+      /* mandatory true; */
+      description "Name of the host interface (veth end point).";
+    }
+    leaf mac {
+      type yang:phys-address;
+      mandatory false;
+      description "Mac address to be set for the af-packet interface. Random will be used if not configured.";
+    }
+    reference
+      "https://docs.fd.io/vpp/18.07/clicmd_src_vnet_devices_af_packet.html";
+  }
+
   grouping l2-config-attributes {
       description
       "Parameters for configuring Layer2 features on interfaces.";
@@ -658,6 +679,11 @@ module v3po {
       uses vxlan-gpe-base-attributes;
     }
 
+    container af-packet {
+      when "../if:type = 'v3po:af-packet'";
+      uses af-packet-base-attributes;
+    }
+
     container span {
       uses span-attributes;
     }
@@ -729,6 +755,11 @@ module v3po {
            "not (../if:ipv6[if:enabled = 'true']/if:address/if:ip))";
 
       uses l2-state-attributes;
+    }
+
+    container af-packet {
+      when "../if:type = 'v3po:af-packet'";
+      uses af-packet-base-attributes;
     }
 
     container span {
