@@ -22,7 +22,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.unnumbered.config.attributes.Unnumbered;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev180103.unnumbered.config.attributes.Unnumbered;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class InterfaceUnnumberedCustomizer extends AbstractUnnumberedCustomizer {

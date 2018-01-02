@@ -3,6 +3,11 @@ module unnumbered-interfaces {
   namespace "urn:opendaylight:params:xml:ns:yang:unnumbered:interfaces";
   prefix "uni";
 
+  revision "2018-01-03" {
+    description
+      "Use if:interface-ref for name of the interface which provides IP.";
+  }
+
   revision "2017-05-10" {
     description
       "Initialial revision";
@@ -24,7 +29,7 @@ module unnumbered-interfaces {
     container unnumbered {
       presence "Sets interface as unnumbered";
       leaf use {
-        type string;
+        type if:interface-ref;
         mandatory true;
         description
           "Name of interface or subinterface which IP is to be borrowed.";

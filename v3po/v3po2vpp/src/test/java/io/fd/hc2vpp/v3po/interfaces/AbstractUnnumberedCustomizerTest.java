@@ -25,8 +25,8 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetUnnumbered;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetUnnumberedReply;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.unnumbered.config.attributes.Unnumbered;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev170510.unnumbered.config.attributes.UnnumberedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev180103.unnumbered.config.attributes.Unnumbered;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.unnumbered.interfaces.rev180103.unnumbered.config.attributes.UnnumberedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 abstract class AbstractUnnumberedCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
