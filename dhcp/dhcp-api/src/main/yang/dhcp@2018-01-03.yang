@@ -8,6 +8,13 @@ module dhcp {
         "This YANG module defines the generic configuration and
         operational data for dhcp in VPP";
 
+    revision "2018-01-03" {
+        description
+            "Changes type of ip-addresses from inet:ip-address to inet:ip-address-no-zone.";
+        reference
+            "https://jira.fd.io/browse/HC2VPP-79";
+    }
+
     revision "2017-03-15" {
         description
             "Initial revision of dhcp model";
@@ -45,8 +52,7 @@ module dhcp {
         list server {
           key "vrf-id address";
           leaf address {
-            // FIXME(HC2VPP-79): change to ip-address-no-zone after https://bugs.opendaylight.org/show_bug.cgi?id=6413 is resolved
-            type inet:ip-address;
+            type inet:ip-address-no-zone;
             description
               "IP address of the server DHCP packets will be forwarded to.";
           }
@@ -58,8 +64,7 @@ module dhcp {
         }
 
         leaf gateway-address {
-          // FIXME(HC2VPP-79): change to ip-address-no-zone after https://bugs.opendaylight.org/show_bug.cgi?id=6413 is resolved
-          type inet:ip-address;
+          type inet:ip-address-no-zone;
             mandatory true;
             description
                 "IP address of the relay agent.";
