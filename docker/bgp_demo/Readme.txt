@@ -2,7 +2,9 @@ BGP demo
 ---------------------------------------------------
 
 Provides examples of BGP config using Honeycomb
-two vpp nodes (docker containers):
+two VPP nodes (docker containers).
+
+Configuration was tested using VPP 18.01 and hc2vpp 1.18.01.
 
 1) Create & start containers (requires hc2vpp image)
 sudo ./build_topology.sh
@@ -12,12 +14,10 @@ sudo ./build_topology.sh
 Either manually connect
 docker exec -it vpp1 bash
 docker exec -it vpp2 bash
-...
 
 and then run vpp and honeycomb on vpp1 and vpp2 respectively:
 /hc2vpp/mpls_demo/init/vpp.sh 1
 /hc2vpp/mpls_demo/init/vpp.sh 2
-...
 
 or run everything via script (uses xfce4-terminal):
 ./run_terminals.sh
