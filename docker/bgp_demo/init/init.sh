@@ -10,9 +10,18 @@ NODE_NAME=vpp$1
 echo "Enable tuntap interface in startup.conf"
 echo -e "tuntap {\n  enable\n}\n" >> /etc/vpp/startup.conf
 
-/hc2vpp/vpp/start.sh
-echo "Waiting for vpp to start"
+/hc2vpp/vpp/start.sh & VPP_PID=$!
+echo "Waiting 5s for vpp to start"
 sleep 5
+VPP_VERSION=$(vppctl show version)
+if [ "${VPP_VERSION}" != "" ]
+then
+  echo "VPP started successfully. Version:"
+  echo "${VPP_VERSION}"
+else
+  echo "VPP failed to start. Stopping initialization script."
+  exit 1
+fi
 
 # Configure veth interfaces using VPP CLI
 # (not fully supported by hc2vpp 18.01)
