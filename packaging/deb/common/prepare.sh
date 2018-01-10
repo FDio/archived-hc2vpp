@@ -34,7 +34,7 @@ cp ${SOURCE_DIR}/$3 ${BUILD_DIR}
 cat <<EOT >> ${BUILD_DIR}/debian/changelog
 honeycomb (${VERSION}-${RELEASE}) unstable; urgency=low
 
-  * 18.01 release
+  * 18.04 release
 
  -- mgradzki <mgradzki@cisco.com>  Mon, 23 Feb 2016 09:41:37 +0200
 EOT
