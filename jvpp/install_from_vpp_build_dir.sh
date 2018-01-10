@@ -17,7 +17,7 @@ JARS="$(find "$VPP_DIR/build-root/install-vpp-native/vpp/share/java/" -type f -i
 echo "Found:"
 echo "$JARS"
 
-JVPP_VERSION=`$DIR_NAME/../jvpp-version`
+JVPP_VERSION=`$DIR_NAME/version`
 echo "Target jvpp version: $JVPP_VERSION"
 
 for i in ${JARS}
