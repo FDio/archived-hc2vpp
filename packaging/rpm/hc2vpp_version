@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Determines hc2vpp jar version to use while building
+# DEB/RPM packages.
+
+DIR_NAME=$(dirname $0)
+VERSION=`$DIR_NAME/version`
+
+echo "${VERSION}-SNAPSHOT"
+# echo "${VERSION}-RC1"
+# echo "${VERSION}-RC2"
+# echo "${VERSION}"
