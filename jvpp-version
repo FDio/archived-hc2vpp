@@ -1,8 +1,0 @@
-#!/bin/sh
-#
-# Defines jvpp version used by hc2vpp-integration job
-# which produces honeycomb DEB and RPM artifacts.
-#
-# Version should match the one used in pom files.
-#
-echo 18.04-SNAPSHOT
