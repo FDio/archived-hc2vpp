@@ -1,2 +1,7 @@
 #!/bin/sh
 echo master
+
+# Determines which CSIT branch to use for integration testing
+# (see hc2vpp job definition in the jjb/hc2vpp dir of ci-management project).
+# Should be 'master' for hc2vpp master.
+# After CSIT branch cut, it should be set to 'rls1801' for hc2vpp stable/1801, etc.
