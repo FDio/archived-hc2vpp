@@ -7,13 +7,13 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.18.01-SNAPSHOT</version>
+        <version>1.18.01-RC2</version>
         <relativePath>../impl-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
-    <version>1.18.01-SNAPSHOT</version>
+    <version>1.18.01-RC2</version>
     <name>${project.artifactId}</name>
     <packaging>pom</packaging>
 
@@ -29,7 +29,7 @@
             <dependency>
                 <groupId>io.fd.honeycomb.common</groupId>
                 <artifactId>minimal-distribution-parent</artifactId>
-                <version>1.18.01-SNAPSHOT</version>
+                <version>1.18.01-RC2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -129,7 +129,7 @@
                         <dependency>
                             <groupId>io.fd.honeycomb.common</groupId>
                             <artifactId>common-scripts</artifactId>
-                            <version>1.18.01-SNAPSHOT</version>
+                            <version>1.18.01-RC2</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -142,7 +142,7 @@
                         <dependency>
                             <groupId>io.fd.honeycomb.common</groupId>
                             <artifactId>minimal-assembly-descriptor</artifactId>
-                            <version>1.18.01-SNAPSHOT</version>
+                            <version>1.18.01-RC2</version>
                         </dependency>
                     </dependencies>
                     <executions>
