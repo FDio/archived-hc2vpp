@@ -59,14 +59,15 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
     private static final InstanceIdentifier<StaticLsp> IID = InstanceIdentifier.create(Routing.class).augmentation
         (Routing1.class).child(Mpls.class).augmentation(Mpls1.class).child(StaticLsps.class)
         .child(StaticLsp.class, new StaticLspKey(LSP_NAME));
-    private static final StaticLsp SIMPLE_LSP = getSimpleLsp();
+    private static final int LABEL = 111;
+    private static final StaticLsp SIMPLE_LSP = getSimpleLsp((long) LABEL);
     private static final StaticLsp COMPLEX_LSP = getComplexLsp();
 
     @Mock
     private FutureJVppCoreFacade jvpp;
     private StaticLspCustomizer customizer;
 
-    private static StaticLsp getSimpleLsp() {
+    private static StaticLsp getSimpleLsp(final long label) {
         return new StaticLspBuilder()
             .setName(LSP_NAME)
             .setConfig(new ConfigBuilder()
@@ -79,7 +80,7 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
                 .setOutSegment(new SimplePathBuilder()
                     .setNextHop(IpAddressBuilder.getDefaultInstance("5.6.7.8"))
                     .setOutgoingInterface(IF_NAME)
-                    .setOutgoingLabel(new MplsLabel(111L))
+                    .setOutgoingLabel(new MplsLabel(label))
                     .build())
                 .build())
             .build();
@@ -127,6 +128,14 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
     }
 
     @Test
+    public void testUpdateSimple() throws WriteFailedException {
+        final int newLabel = LABEL + 1;
+        customizer.updateCurrentAttributes(IID, SIMPLE_LSP, getSimpleLsp(newLabel), writeContext);
+        verify(jvpp).ipAddDelRoute(getRequestForSimpleLsp(false, LABEL));
+        verify(jvpp).ipAddDelRoute(getRequestForSimpleLsp(true, newLabel));
+    }
+
+    @Test
     public void testDeleteSimple() throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, SIMPLE_LSP, writeContext);
         verify(jvpp).ipAddDelRoute(getRequestForSimpleLsp(false));
@@ -139,6 +148,10 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
     }
 
     private IpAddDelRoute getRequestForSimpleLsp(final boolean add) {
+        return getRequestForSimpleLsp(add, LABEL);
+    }
+
+    private IpAddDelRoute getRequestForSimpleLsp(final boolean add, final int label) {
         final IpAddDelRoute request = new IpAddDelRoute();
         request.nextHopSwIfIndex = IF_INDEX;
         request.isAdd = booleanToByte(add);
@@ -148,7 +161,7 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
         request.nextHopAddress = new byte[] {5, 6, 7, 8};
         request.nextHopNOutLabels = 1;
         request.nextHopViaLabel = LspWriter.MPLS_LABEL_INVALID;
-        request.nextHopOutLabelStack = new int[] {111};
+        request.nextHopOutLabelStack = new int[] {label};
         return request;
     }
 
