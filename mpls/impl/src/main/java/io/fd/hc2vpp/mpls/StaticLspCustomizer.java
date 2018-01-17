@@ -69,6 +69,17 @@ final class StaticLspCustomizer implements ListWriterCustomizer<StaticLsp, Stati
     }
 
     @Override
+    public void updateCurrentAttributes(@Nonnull final InstanceIdentifier<StaticLsp> id,
+                                        @Nonnull final StaticLsp dataBefore,
+                                        @Nonnull final StaticLsp dataAfter,
+                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
+        LOG.debug("Updating MPLS LSP: before={} after={}", dataBefore, dataAfter);
+        write(id, dataBefore, writeContext.getMappingContext(), false);
+        write(id, dataAfter, writeContext.getMappingContext(), true);
+        LOG.debug("MPLS LSP successfully configured: {}", dataAfter);
+    }
+
+    @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<StaticLsp> id,
                                         @Nonnull final StaticLsp dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
