@@ -22,5 +22,5 @@ echo "Target jvpp version: $JVPP_VERSION"
 
 for i in ${JARS}
 do
-    install_jvpp_jar "$i" "JVPP_VERSION"
+    install_jvpp_jar "$i" "$JVPP_VERSION"
 done
