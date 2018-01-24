@@ -29,7 +29,7 @@
         <groovy.eclipse.compiler.version>2.9.2-01</groovy.eclipse.compiler.version>
         <groovy.eclipse.batch.version>2.4.3-01</groovy.eclipse.batch.version>
 
-        <jvpp.version>18.01-SNAPSHOT</jvpp.version>
+        <jvpp.version>18.01</jvpp.version>
         <junit.version>4.12</junit.version>
         <reflections.version>0.9.11</reflections.version>
         <sonar.skip>true</sonar.skip>
