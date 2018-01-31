@@ -1,0 +1,485 @@
+{
+	"id": "4092bf75-52e9-d793-36ab-c78696e33253",
+	"name": "Hc2vpp BGP RESTCONF calls",
+	"description": "Examples of BGP configration based on \nhttp://docs.opendaylight.org/en/stable-nitrogen/user-guide/bgp-user-guide.html",
+	"order": [
+		"6f86a479-0973-2d0c-20d5-81e8d44d20a7",
+		"adcc08ea-3525-aafb-2aeb-4f5bb93fca1b",
+		"63945ffe-709c-5368-9a0d-bd7ea5617973",
+		"307b9972-af2b-ff8a-8fae-be83b075c6e6",
+		"3941a6b9-784a-8f80-a12f-d7451f832465",
+		"820727b2-88ea-6b49-c31d-f6dd4d5f64d8",
+		"e3d003ba-9796-adcd-75e3-f0d5fc041744",
+		"9a8903dd-3fca-26c7-2c66-dc1a4b95cfce",
+		"32d6df51-2adb-a472-42dd-88aee1c66845",
+		"96f9f5ef-d97c-a3c1-3061-55d75d223077",
+		"e794b5b4-612f-010b-e726-c45cfa221530",
+		"4334b011-5945-180b-dd1a-932720b2ff58",
+		"e2701dbf-741b-9afa-219b-a15b562d6aff",
+		"e5aeee97-5530-5bb4-90f2-f1f48b6fee5b",
+		"60af084c-5bbf-2843-39e9-8bdb80586b91"
+	],
+	"folders": [],
+	"timestamp": 1494477000331,
+	"owner": 0,
+	"public": false,
+	"requests": [
+		{
+			"folder": null,
+			"id": "307b9972-af2b-ff8a-8fae-be83b075c6e6",
+			"name": "show 127.0.0.2 peer state",
+			"dataMode": "raw",
+			"data": [],
+			"descriptionFormat": null,
+			"description": "",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"method": "GET",
+			"pathVariables": {},
+			"url": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F127.0.0.2",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"queryParams": null,
+			"headerData": null,
+			"pathVariableData": null,
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"rawModeData": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+		},
+		{
+			"folder": null,
+			"id": "32d6df51-2adb-a472-42dd-88aee1c66845",
+			"name": "show speeker's Loc-RIB",
+			"dataMode": "raw",
+			"data": [],
+			"descriptionFormat": null,
+			"description": "",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"method": "GET",
+			"pathVariables": {},
+			"url": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/loc-rib",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"queryParams": null,
+			"headerData": null,
+			"pathVariableData": null,
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"rawModeData": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>10.25.1.9</neighbor-address>\n    <config>\n        <peer-group>application-peers</peer-group>\n    </config>\n</neighbor>"
+		},
+		{
+			"id": "3941a6b9-784a-8f80-a12f-d7451f832465",
+			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"url": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/10.25.1.9",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1517409419557,
+			"name": "add application peer",
+			"description": "",
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"responses": [],
+			"rawModeData": "{\n  \"neighbor\": {\n    \"neighbor-address\": \"10.25.1.9\",\n    \"config\": {\n      \"peer-group\": \"application-peers\"\n    },\n    \"afi-safis\": {\n      \"afi-safi\": [\n        {\n          \"afi-safi-name\": \"openconfig-bgp-types:IPV4-UNICAST\",\n          \"receive\": true,\n          \"send-max\": 0\n        }\n      ]\n    }\n  }\n}"
+		},
+		{
+			"folder": null,
+			"id": "4334b011-5945-180b-dd1a-932720b2ff58",
+			"name": "update second ipv4unicast route",
+			"dataMode": "raw",
+			"data": [],
+			"descriptionFormat": null,
+			"description": "",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"method": "PUT",
+			"pathVariables": {},
+			"url": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/xml",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariableData": [],
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"rawModeData": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <path-id>0</path-id>\n    <prefix>10.0.0.12/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>102</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
+		},
+		{
+			"id": "60af084c-5bbf-2843-39e9-8bdb80586b91",
+			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/127.0.0.2",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1500014574942,
+			"name": "delete bgp peer",
+			"description": "",
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"responses": [],
+			"rawModeData": ""
+		},
+		{
+			"id": "63945ffe-709c-5368-9a0d-bd7ea5617973",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/xml",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1499946714543,
+			"name": "read network instance (config)",
+			"description": "",
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"responses": [],
+			"rawModeData": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+		},
+		{
+			"folder": null,
+			"id": "6f86a479-0973-2d0c-20d5-81e8d44d20a7",
+			"name": "show hc-bgp-instance",
+			"dataMode": "raw",
+			"data": [],
+			"descriptionFormat": null,
+			"description": "",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"method": "GET",
+			"pathVariables": {},
+			"url": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"queryParams": null,
+			"headerData": null,
+			"pathVariableData": null,
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"rawModeData": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+		},
+		{
+			"id": "820727b2-88ea-6b49-c31d-f6dd4d5f64d8",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/xml",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F10.25.1.9",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1500015544451,
+			"name": "show 10.25.1.9 app peer state",
+			"description": "",
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"rawModeData": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+		},
+		{
+			"folder": null,
+			"id": "96f9f5ef-d97c-a3c1-3061-55d75d223077",
+			"name": "add another ipv4unicast route",
+			"dataMode": "raw",
+			"data": [],
+			"descriptionFormat": null,
+			"description": "",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"method": "PUT",
+			"pathVariables": {},
+			"url": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/xml",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariableData": [],
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"rawModeData": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <path-id>0</path-id>\n    <prefix>10.0.0.12/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>100</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
+		},
+		{
+			"folder": null,
+			"id": "9a8903dd-3fca-26c7-2c66-dc1a4b95cfce",
+			"name": "show 127.0.0.2 peer's adj-rib-out",
+			"dataMode": "raw",
+			"data": [],
+			"descriptionFormat": null,
+			"description": "",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"method": "GET",
+			"pathVariables": {},
+			"url": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F127.0.0.2/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"queryParams": null,
+			"headerData": null,
+			"pathVariableData": null,
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"rawModeData": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+		},
+		{
+			"id": "adcc08ea-3525-aafb-2aeb-4f5bb93fca1b",
+			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/127.0.0.2",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1500013934256,
+			"name": "add bgp peer",
+			"description": "",
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"responses": [],
+			"rawModeData": "{\n\t\"neighbor\": {\n  \"neighbor-address\": \"127.0.0.2\",\n  \"config\": {\n    \"peer-type\": \"INTERNAL\"\n  },\n  \"timers\": {\n    \"config\": {\n      \"connect-retry\": 10,\n      \"hold-time\": 90\n    }\n  },\n  \"transport\": {\n    \"config\": {\n      \"remote-port\": 17900,\n      \"passive-mode\": false\n    }\n  },\n  \"afi-safis\": {\n    \"afi-safi\": [\n      {\n        \"afi-safi-name\": \"openconfig-bgp-types:IPV4-UNICAST\",\n        \"receive\": true,\n        \"send-max\": 0\n      }\n    ]\n  }\n}\n}"
+		},
+		{
+			"folder": null,
+			"id": "e2701dbf-741b-9afa-219b-a15b562d6aff",
+			"name": "remove second ipv4unicast route",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "",
+			"descriptionFormat": null,
+			"description": "",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"method": "DELETE",
+			"pathVariables": {},
+			"url": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
+			"preRequestScript": null,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/xml",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariableData": [],
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253"
+		},
+		{
+			"id": "e3d003ba-9796-adcd-75e3-f0d5fc041744",
+			"headers": "Content-Type: application/xml\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/xml",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1501153693347,
+			"name": "add ipv4unicast route",
+			"description": "",
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"rawModeData": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <path-id>0</path-id>\n    <prefix>10.0.0.11/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>100</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
+		},
+		{
+			"id": "e5aeee97-5530-5bb4-90f2-f1f48b6fee5b",
+			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/127.0.0.2",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1500014475038,
+			"name": "update bgp peer",
+			"description": "",
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"responses": [],
+			"rawModeData": "{\n\t\"neighbor\": {\n  \"neighbor-address\": \"127.0.0.2\",\n  \"config\": {\n    \"peer-type\": \"INTERNAL\"\n  },\n  \"timers\": {\n    \"config\": {\n      \"connect-retry\": 10,\n      \"hold-time\": 91\n    }\n  },\n  \"transport\": {\n    \"config\": {\n      \"remote-port\": 17900,\n      \"passive-mode\": false\n    }\n  },\n  \"afi-safis\": {\n    \"afi-safi\": [\n      {\n        \"afi-safi-name\": \"openconfig-bgp-types:IPV4-UNICAST\",\n        \"receive\": true,\n        \"send-max\": 0\n      }\n    ]\n  }\n}\n}"
+		},
+		{
+			"id": "e794b5b4-612f-010b-e726-c45cfa221530",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Authorization",
+					"value": "Basic YWRtaW46YWRtaW4=",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing-state/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/learned-protocol-0/static-routes/hc2vpp-ietf-ipv4-unicast-routing:ipv4",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "4092bf75-52e9-d793-36ab-c78696e33253",
+			"data": [],
+			"dataMode": "raw",
+			"name": "get VPP IPv4 routes",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1501156310525,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n  \"routing-instance\":\n  {\n    \"name\":\"routing-1\",\n    \"enabled\":\"true\",\n    \"router-id\":\"192.168.2.1\",\n    \"description\":\"Test routing instance\",\n    \"routing-protocols\":{\n      \"routing-protocol\":[\n        {\n          \"name\":\"test-routing-protocol\",\n          \"description\":\"Test routing protocol\",\n          \"enabled\":\"true\",\n          \"type\":\"static\",\n          \"static-routes\":{\n            \"ipv4\":{\n              \"route\":[\n                {\n                  \"id\":1,\n                  \"description\":\"Test static route\",\n                  \"destination-prefix\":\"192.168.2.3/32\",\n                  \"next-hop\":\"192.168.2.8\"\n                }\n              ]\n            }\n          }\n        }  \n      ]\n    }\n  }  \n}"
+		}
+	]
+}
