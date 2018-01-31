@@ -109,7 +109,7 @@
                 <project-public-version>18.01</project-public-version>
                 <project-config-version>1-18-01</project-config-version>
                 <project-version-in-jira>11002</project-version-in-jira>
-                <project-branch>master</project-branch>
+                <project-branch>stable/1801</project-branch>
                 <project-odl-version>nitrogen</project-odl-version>
                 <project-vpp-version>18.01</project-vpp-version>
                 <project-vpp-snapshot-version>18.01</project-vpp-snapshot-version>

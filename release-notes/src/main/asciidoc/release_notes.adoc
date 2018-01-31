@@ -10,10 +10,15 @@ https://wiki.fd.io/view/Hc2vpp/Release_Plans/Release_Plan_{project-public-versio
 Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.17.10/hc2vpp-parent/release-notes-aggregator/release_notes.html#_features[1710 feature list]:
 
 === New features
+* https://jira.fd.io/browse/HC2VPP-255[MPLS]
+* https://jira.fd.io/browse/HC2VPP-221[MPLS BGP Prefix SID] - translates BGP Prefix SID updates to VPP FIB,
+  but no support for attribute announcement (HC2VPP-269).
 
 === Removed features
 
 === Modified features
+* https://jira.fd.io/browse/HC2VPP-157[Unnumbered interface model update]
+* https://jira.fd.io/browse/HC2VPP-274[DHCP model update]
 
 === Deprecated features
 
