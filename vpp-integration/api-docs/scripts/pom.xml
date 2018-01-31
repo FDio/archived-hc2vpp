@@ -130,8 +130,18 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.fd.hc2vpp.mpls</groupId>
+            <artifactId>mpls-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.fd.hc2vpp.bgp</groupId>
             <artifactId>bgp-inet</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.hc2vpp.bgp</groupId>
+            <artifactId>bgp-prefix-sid</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
