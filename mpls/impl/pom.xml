@@ -21,14 +21,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.18.01</version>
+        <version>1.18.01.1-SNAPSHOT</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.mpls</groupId>
     <artifactId>mpls-impl</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.01</version>
+    <version>1.18.01.1-SNAPSHOT</version>
 
     <dependencies>
         <!-- Honeycomb infrastructure -->
