@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>api-parent</artifactId>
-        <version>1.18.01-SNAPSHOT</version>
+        <version>1.18.01</version>
         <relativePath>../../common/api-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +29,7 @@
     <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
     <artifactId>vpp-classifier-api</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.01-SNAPSHOT</version>
+    <version>1.18.01</version>
     <packaging>bundle</packaging>
 
     <dependencies>
