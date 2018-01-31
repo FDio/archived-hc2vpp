@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.Mpls1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig;
@@ -68,6 +69,10 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
     private StaticLspCustomizer customizer;
 
     private static StaticLsp getSimpleLsp(final long label) {
+        return getSimpleLsp(label, IpAddressBuilder.getDefaultInstance("5.6.7.8"));
+    }
+    private static StaticLsp getSimpleLsp(final long label,
+                                          final IpAddress nextHop) {
         return new StaticLspBuilder()
             .setName(LSP_NAME)
             .setConfig(new ConfigBuilder()
@@ -78,7 +83,7 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
                 )
                 .setOperation(StaticLspConfig.Operation.ImposeAndForward)
                 .setOutSegment(new SimplePathBuilder()
-                    .setNextHop(IpAddressBuilder.getDefaultInstance("5.6.7.8"))
+                    .setNextHop(nextHop)
                     .setOutgoingInterface(IF_NAME)
                     .setOutgoingLabel(new MplsLabel(label))
                     .build())
@@ -122,6 +127,12 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
     }
 
     @Test
+    public void testWriteSimpleWithoutNextHop() throws WriteFailedException {
+        customizer.writeCurrentAttributes(IID, getSimpleLsp((long) LABEL, null), writeContext);
+        verify(jvpp).ipAddDelRoute(getRequestForSimpleLsp(true, new byte[0]));
+    }
+
+    @Test
     public void testWriteComplex() throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, COMPLEX_LSP, writeContext);
         verify(jvpp).ipAddDelRoute(getRequestForComplexLsp(true));
@@ -151,14 +162,22 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
         return getRequestForSimpleLsp(add, LABEL);
     }
 
+    private IpAddDelRoute getRequestForSimpleLsp(final boolean add, final byte[] nextHop) {
+        return getRequestForSimpleLsp(add, LABEL, nextHop);
+    }
+
     private IpAddDelRoute getRequestForSimpleLsp(final boolean add, final int label) {
+        return getRequestForSimpleLsp(add, label, new byte[] {5, 6, 7, 8});
+    }
+
+    private IpAddDelRoute getRequestForSimpleLsp(final boolean add, final int label, final byte[] nextHop) {
         final IpAddDelRoute request = new IpAddDelRoute();
         request.nextHopSwIfIndex = IF_INDEX;
         request.isAdd = booleanToByte(add);
         request.nextHopWeight = 1;
         request.dstAddressLength = (byte) 24;
         request.dstAddress = new byte[] {1, 2, 3, 4};
-        request.nextHopAddress = new byte[] {5, 6, 7, 8};
+        request.nextHopAddress = nextHop;
         request.nextHopNOutLabels = 1;
         request.nextHopViaLabel = LspWriter.MPLS_LABEL_INVALID;
         request.nextHopOutLabelStack = new int[] {label};
