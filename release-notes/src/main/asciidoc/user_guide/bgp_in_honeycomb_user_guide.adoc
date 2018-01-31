@@ -77,14 +77,6 @@ BGP server configuration can be verified using RESTCONF/NETCONF. We
                         "attributes": {
                             "uptodate": true
                         }
-                    },
-                    {
-                        "afi": "bgp-types:ipv4-address-family",
-                        "safi": "bgp-labeled-unicast:labeled-unicast-subsequent-address-family",
-                        "bgp-labeled-unicast:labeled-unicast-routes": {},
-                        "attributes": {
-                            "uptodate": true
-                        }
                     }
                 ]
             }
@@ -352,11 +344,6 @@ Following configuration sample show a way to configure the Application Peer:
           "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST",
           "receive": true,
           "send-max": 0
-        },
-        {
-          "afi-safi-name": "openconfig-bgp-types:IPV4-LABELLED-UNICAST",
-          "receive": true,
-          "send-max": 0
         }
       ]
     }
@@ -387,14 +374,6 @@ The Application Peer presence can be verified via REST:
                         "attributes": {
                             "uptodate": false
                         }
-                    },
-                    {
-                        "afi": "bgp-types:ipv4-address-family",
-                        "safi": "bgp-labeled-unicast:labeled-unicast-subsequent-address-family",
-                        "bgp-labeled-unicast:labeled-unicast-routes": {},
-                        "attributes": {
-                            "uptodate": false
-                        }
                     }
                 ]
             },
@@ -405,14 +384,6 @@ The Application Peer presence can be verified via REST:
                         "afi": "bgp-types:ipv4-address-family",
                         "safi": "bgp-types:unicast-subsequent-address-family",
                         "bgp-inet:ipv4-routes": {},
-                        "attributes": {
-                            "uptodate": false
-                        }
-                    },
-                    {
-                        "afi": "bgp-types:ipv4-address-family",
-                        "safi": "bgp-labeled-unicast:labeled-unicast-subsequent-address-family",
-                        "bgp-labeled-unicast:labeled-unicast-routes": {},
                         "attributes": {
                             "uptodate": false
                         }
@@ -722,11 +693,6 @@ Also the same route should appeared in Loc-RIB now:
                         }
                     ]
                 }
-            },
-            {
-                "afi": "bgp-types:ipv4-address-family",
-                "safi": "bgp-labeled-unicast:labeled-unicast-subsequent-address-family",
-                "bgp-labeled-unicast:labeled-unicast-routes": {}
             }
         ]
     }
@@ -840,4 +806,4 @@ In order to remove persisted configuration, simply rm -rf /var/lib/honeycomb bef
 
 == Postman collection with examples
 
-All the request examples can be found {project-git-web}/bgp/bgp_postman_collection?h={project-branch}[BGP postman collection].
+All the request examples can be found {project-git-web}/bgp/inet/bgp_inet_postman_collection.json?h={project-branch}[BGP postman collection].
