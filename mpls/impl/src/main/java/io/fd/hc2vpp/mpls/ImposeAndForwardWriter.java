@@ -103,12 +103,15 @@ final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator {
 
     private String translate(@Nonnull final SimplePath path, @Nonnull final IpAddDelRoute request) {
         final IpAddress nextHop = path.getNextHop();
-        checkArgument(nextHop != null, "Configuring impose-and-forward, but next-hop is missing.");
 
         // TODO(HC2VPP-264): add support for mpls + v6
-        final Ipv4Address address = nextHop.getIpv4Address();
-        checkArgument(address != null, "Only IPv4 next-hop address is supported.");
-        request.nextHopAddress = ipv4AddressNoZoneToArray(address.getValue());
+        if (nextHop != null) {
+            final Ipv4Address address = nextHop.getIpv4Address();
+            checkArgument(address != null, "Only IPv4 next-hop address is supported.");
+            request.nextHopAddress = ipv4AddressNoZoneToArray(address.getValue());
+        } else {
+            request.nextHopAddress = new byte[0];
+        }
 
         final MplsLabel outgoingLabel = path.getOutgoingLabel();
         checkArgument(outgoingLabel != null, "Configuring impose-and-forward, but outgoing-label is missing.");
@@ -122,12 +125,15 @@ final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator {
         checkArgument(pathList.getPaths() != null && pathList.getPaths().size() == 1, "Only single path is supported");
         final Paths paths = pathList.getPaths().get(0);
         final IpAddress nextHop = paths.getNextHop();
-        checkArgument(nextHop != null, "Configuring impose-and-forward, but next-hop is missing.");
 
         // TODO(HC2VPP-264): add support for mpls + v6
-        final Ipv4Address address = nextHop.getIpv4Address();
-        checkArgument(address != null, "Only IPv4 next-hop address is supported.");
-        request.nextHopAddress = ipv4AddressNoZoneToArray(address.getValue());
+        if (nextHop != null) {
+            final Ipv4Address address = nextHop.getIpv4Address();
+            checkArgument(address != null, "Only IPv4 next-hop address is supported.");
+            request.nextHopAddress = ipv4AddressNoZoneToArray(address.getValue());
+        } else {
+            request.nextHopAddress = new byte[0];
+        }
 
         final List<MplsLabel> labels = paths.getOutgoingLabels();
         final int numberOfLabels = labels.size();
