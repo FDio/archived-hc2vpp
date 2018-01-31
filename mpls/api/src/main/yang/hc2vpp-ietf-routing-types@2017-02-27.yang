@@ -639,7 +639,9 @@ Change back after https://jira.opendaylight.org/browse/MDSAL-269 is resolved.
       type mpls-label-general-use;
     }
 */
-    type mpls-label-general-use;
+    type uint32 {
+        range "0..1048575";
+    }
     description
       "The 20 bits label values in an MPLS label stack entry,
        specified in RFC3032. This label value does not include
