@@ -20,13 +20,13 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.18.01.1-SNAPSHOT</version>
+        <version>1.18.01.1</version>
         <relativePath>../vpp-impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>vpp-translate-test</artifactId>
-    <version>1.18.01.1-SNAPSHOT</version>
+    <version>1.18.01.1</version>
     <packaging>bundle</packaging>
 
     <properties>

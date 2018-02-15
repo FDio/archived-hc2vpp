@@ -21,13 +21,13 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>hc2vpp-parent</artifactId>
-        <version>1.18.01.1-SNAPSHOT</version>
+        <version>1.18.01.1</version>
         <relativePath>../../common/hc2vpp-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>api-test</artifactId>
-    <version>1.18.01.1-SNAPSHOT</version>
+    <version>1.18.01.1</version>
     <name>${project.artifactId}</name>
 
     <dependencies>
