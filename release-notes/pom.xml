@@ -106,15 +106,15 @@
                 <!-- Attributes below are inlined into resulting documentation,
                 making it much easier when bumping versions -->
                 <project-version>${project.version}</project-version>
-                <project-public-version>18.01</project-public-version>
+                <project-public-version>18.01.1</project-public-version>
                 <project-config-version>1-18-01</project-config-version>
                 <project-version-in-jira>11002</project-version-in-jira>
                 <project-branch>stable/1801</project-branch>
                 <project-odl-version>nitrogen</project-odl-version>
-                <project-vpp-version>18.01</project-vpp-version>
-                <project-vpp-snapshot-version>18.01</project-vpp-snapshot-version>
-                <project-nat-version>18.01</project-nat-version>
-                <project-nat-snapshot-version>18.01</project-nat-snapshot-version>
+                <project-vpp-version>18.01.1</project-vpp-version>
+                <project-vpp-snapshot-version>18.01.1</project-vpp-snapshot-version>
+                <project-nat-version>18.01.1</project-nat-version>
+                <project-nat-snapshot-version>18.01.1</project-nat-snapshot-version>
                 <project-git-web>https://git.fd.io/cgit/hc2vpp/tree</project-git-web>
                 <project-infra-git-web>https://git.fd.io/cgit/honeycomb/tree</project-infra-git-web>
               </attributes>

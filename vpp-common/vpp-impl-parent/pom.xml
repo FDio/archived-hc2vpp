@@ -31,7 +31,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <jvpp.version>18.01</jvpp.version>
+    <jvpp.version>18.01.1</jvpp.version>
   </properties>
 
   <dependencyManagement>
