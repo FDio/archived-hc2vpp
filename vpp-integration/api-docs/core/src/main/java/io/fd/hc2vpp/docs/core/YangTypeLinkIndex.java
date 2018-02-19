@@ -49,7 +49,7 @@ public class YangTypeLinkIndex {
 
 
         final String namespace = qname.getNamespace().toString();
-        final String formattedRevision = qname.getFormattedRevision();
+        final String formattedRevision = qname.getRevision().get().toString();
         final String model = modelTypeIndex.namespaceToModule(namespace, formattedRevision);
         return modelLinkIndex.linkForModel(model, formattedRevision);
     }

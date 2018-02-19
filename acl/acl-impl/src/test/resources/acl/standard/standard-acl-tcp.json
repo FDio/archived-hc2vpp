@@ -28,7 +28,7 @@
                 }
               },
               "actions": {
-                "permit": {}
+                "permit": [null]
               }
             }
           ]

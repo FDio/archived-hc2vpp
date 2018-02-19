@@ -30,4 +30,11 @@
     <groupId>io.fd.hc2vpp.management</groupId>
     <artifactId>vpp-management-api</artifactId>
     <version>1.18.04-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+    </dependencies>
 </project>
