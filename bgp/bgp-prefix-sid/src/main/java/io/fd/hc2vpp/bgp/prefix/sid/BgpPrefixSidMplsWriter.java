@@ -18,13 +18,13 @@ package io.fd.hc2vpp.bgp.prefix.sid;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.sun.istack.internal.Nullable;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.bgp.RouteWriter;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.routes.LabeledUnicastRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev150525.labeled.unicast.routes.list.LabeledUnicastRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
