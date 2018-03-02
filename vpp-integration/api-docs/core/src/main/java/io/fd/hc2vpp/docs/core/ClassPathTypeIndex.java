@@ -22,21 +22,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Index of java classes to relative absolute paths within repository. Used to generate Git links for binding classes of
  * VPP apis
  */
 public class ClassPathTypeIndex implements LinkGenerator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ClassPathTypeIndex.class);
 
     private static final String JAVA_SOURCE_FOLDER = "src/main/java";
     private static final int JAVA_SOURCE_FOLDER_NAME_LENGTH = JAVA_SOURCE_FOLDER.length() + 1;
@@ -66,28 +60,13 @@ public class ClassPathTypeIndex implements LinkGenerator {
 
     private Map<String, String> buildIndex(final String projectRoot) {
         try {
-            Set<String> names =
-                Files.walk(Paths.get(projectRoot))
+            return Files.walk(Paths.get(projectRoot))
                     .filter(path -> path.toString().contains("src/main/java"))
                     .filter(path -> path.toString().endsWith(".java"))
                     .map(Path::toString)
                     .map(s -> s.replace(projectRoot, ""))
-                    .collect(Collectors.toSet());
-
-            Map<String, String> register = new HashMap<>();
-            for (String name : names) {
-                String key = key(name);
-                if (register.containsKey(key)) {
-                    /* expected duplicates e.g. In MPLS and SRV6 modules several same types are used
-                       (like ipv6-multicast-source-address). We don`t need to create another link for the same class
-                       so we can skip these duplicates */
-
-                    LOG.trace("Duplicate key found for name: {}. Skip generating new link for the same class", name);
-                } else {
-                    register.put(key, generateLink(name));
-                }
-            }
-            return register;
+                    .distinct()
+                    .collect(Collectors.toMap(ClassPathTypeIndex::key, o -> generateLink(o)));
         } catch (IOException e) {
             throw new IllegalStateException(format("%s not found", projectRoot), e);
         }
