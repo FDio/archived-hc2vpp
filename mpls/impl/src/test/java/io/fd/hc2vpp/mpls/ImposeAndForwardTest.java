@@ -23,11 +23,13 @@ import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.MplsLabelTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRouteReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
+import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
@@ -52,7 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev170227.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDataTranslator {
+public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDataTranslator, MplsLabelTranslator {
 
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 123;
@@ -180,7 +182,7 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
         request.nextHopAddress = nextHop;
         request.nextHopNOutLabels = 1;
         request.nextHopViaLabel = LspWriter.MPLS_LABEL_INVALID;
-        request.nextHopOutLabelStack = new int[] {label};
+        request.nextHopOutLabelStack = new FibMplsLabel[] {translate(label)};
         return request;
     }
 
@@ -194,7 +196,7 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
         request.nextHopAddress = new byte[] {10, 10, 12, 2};
         request.nextHopNOutLabels = 2;
         request.nextHopViaLabel = LspWriter.MPLS_LABEL_INVALID;
-        request.nextHopOutLabelStack = new int[] {102, 104};
+        request.nextHopOutLabelStack = new FibMplsLabel[] {translate(102), translate(104)};
         return request;
     }
 }

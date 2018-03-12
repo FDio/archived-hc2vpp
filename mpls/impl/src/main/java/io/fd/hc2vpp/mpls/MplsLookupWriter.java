@@ -22,6 +22,7 @@ import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp.Config;
@@ -61,7 +62,7 @@ final class MplsLookupWriter implements LspWriter, MplsInSegmentTranslator {
         request.mrNextHopProto = MPLS_PROTOCOL;
         request.mrNextHopWeight = 1;
         request.mrNextHop = new byte[0]; // no next hop since we POP
-        request.mrNextHopOutLabelStack = new int[0]; // no new labels
+        request.mrNextHopOutLabelStack = new FibMplsLabel[0]; // no new labels
         request.mrNextHopSwIfIndex = -1;
         request.mrNextHopViaLabel = MPLS_LABEL_INVALID;
 

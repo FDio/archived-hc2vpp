@@ -19,11 +19,13 @@ package io.fd.hc2vpp.mpls;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.MplsLabelTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -47,7 +49,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  *
  * @see <a href="https://git.fd.io/vpp/tree/src/vnet/ip/ip.api">ip_add_del_route</a> definition
  */
-final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator {
+final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator, MplsLabelTranslator {
     private final FutureJVppCore vppApi;
     private final NamingContext interfaceContext;
 
@@ -115,7 +117,7 @@ final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator {
 
         final MplsLabel outgoingLabel = path.getOutgoingLabel();
         checkArgument(outgoingLabel != null, "Configuring impose-and-forward, but outgoing-label is missing.");
-        request.nextHopOutLabelStack = new int[] {outgoingLabel.getValue().intValue()};
+        request.nextHopOutLabelStack = new FibMplsLabel[] {translate(outgoingLabel.getValue())};
         request.nextHopNOutLabels = 1;
 
         return path.getOutgoingInterface();
@@ -140,7 +142,8 @@ final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator {
         checkArgument(numberOfLabels > 0 && numberOfLabels < MAX_LABELS, "Number of labels (%s) not in range (0, %s].",
             numberOfLabels, MAX_LABELS, numberOfLabels);
         request.nextHopNOutLabels = (byte) numberOfLabels;
-        request.nextHopOutLabelStack = labels.stream().mapToInt(label -> label.getValue().intValue()).toArray();
+        request.nextHopOutLabelStack =
+            labels.stream().map(label -> translate(label.getValue())).toArray(FibMplsLabel[]::new);
 
         return paths.getOutgoingInterface();
     }

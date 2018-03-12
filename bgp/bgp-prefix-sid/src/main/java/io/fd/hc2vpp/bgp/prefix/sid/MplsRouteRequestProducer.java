@@ -19,7 +19,9 @@ package io.fd.hc2vpp.bgp.prefix.sid;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.MplsLabelTranslator;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
+import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -63,7 +65,7 @@ interface MplsRouteRequestProducer extends Ipv4Translator {
         return request;
     }
 
-    final class Impl implements Ipv4Translator {
+    final class Impl implements Ipv4Translator, MplsLabelTranslator {
         private static MplsRouteAddDel mplsRouteAddDel(final boolean isAdd) {
             final MplsRouteAddDel request = new MplsRouteAddDel();
             request.mrIsAdd = Ipv4Translator.INSTANCE.booleanToByte(isAdd);
@@ -145,7 +147,7 @@ interface MplsRouteRequestProducer extends Ipv4Translator {
             // TODO(HC2VPP-271): add support for special labels, e.g. implicit null (for PHP).
 
             // swap one label to another
-            request.mrNextHopOutLabelStack = new int[] {label};
+            request.mrNextHopOutLabelStack = new FibMplsLabel[] {MplsLabelTranslator.INSTANCE.translate(label)};
             request.mrNextHopNOutLabels = 1;
         }
     }

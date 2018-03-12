@@ -22,11 +22,13 @@ import static org.mockito.Mockito.when;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
+import io.fd.hc2vpp.common.translate.util.MplsLabelTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
+import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -46,7 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev170227.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class SwapAndForwardTest extends WriterCustomizerTest implements ByteDataTranslator {
+public class SwapAndForwardTest extends WriterCustomizerTest implements ByteDataTranslator, MplsLabelTranslator {
 
     private static final String IF_NAME = "local0";
     private static final int IF_INDEX = 123;
@@ -117,7 +119,7 @@ public class SwapAndForwardTest extends WriterCustomizerTest implements ByteData
         request.mrNextHopSwIfIndex = IF_INDEX;
         request.mrNextHopViaLabel = LspWriter.MPLS_LABEL_INVALID; // default value used by make test
         request.mrNextHopNOutLabels = 1;
-        request.mrNextHopOutLabelStack = new int[] {OUT_LABEL};
+        request.mrNextHopOutLabelStack = new FibMplsLabel[] {translate(OUT_LABEL)};
         return request;
     }
 }

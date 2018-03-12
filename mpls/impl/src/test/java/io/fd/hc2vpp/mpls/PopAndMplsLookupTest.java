@@ -27,6 +27,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
+import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.Mpls1;
@@ -119,7 +120,7 @@ public class PopAndMplsLookupTest extends WriterCustomizerTest implements ByteDa
         request.mrNextHop = new byte[0]; // POP, so no next hop
         request.mrNextHopSwIfIndex = -1; // this is what CLI is doing
         request.mrNextHopViaLabel = LspWriter.MPLS_LABEL_INVALID; // default value used by make test
-        request.mrNextHopOutLabelStack = new int[0];
+        request.mrNextHopOutLabelStack = new FibMplsLabel[0];
         return request;
     }
 }

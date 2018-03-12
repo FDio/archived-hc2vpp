@@ -35,6 +35,7 @@ import io.fd.vpp.jvpp.core.dto.IpAddDelRouteReply;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
@@ -189,7 +190,9 @@ public class BgpPrefixSidMplsWriterTest implements FutureProducer, ByteDataTrans
 
         request.mrLabel = 16102;
 
-        request.mrNextHopOutLabelStack = new int[] {16101};
+        final FibMplsLabel mplsLabel = new FibMplsLabel();
+        mplsLabel.label = 16101;
+        request.mrNextHopOutLabelStack = new FibMplsLabel[] {mplsLabel};
         request.mrNextHopNOutLabels = 1;
 
         request.mrEos = booleanToByte(isEos);
@@ -209,7 +212,9 @@ public class BgpPrefixSidMplsWriterTest implements FutureProducer, ByteDataTrans
         request.nextHopAddress = new byte[] {5, 6, 7, 8};
         request.nextHopSwIfIndex = -1;
 
-        request.nextHopOutLabelStack = new int[] {16101};
+        final FibMplsLabel mplsLabel = new FibMplsLabel();
+        mplsLabel.label = 16101;
+        request.nextHopOutLabelStack = new FibMplsLabel[] {mplsLabel};
         request.nextHopNOutLabels = 1;
         return request;
     }

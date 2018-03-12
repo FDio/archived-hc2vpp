@@ -19,11 +19,13 @@ package io.fd.hc2vpp.mpls;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.hc2vpp.common.translate.util.MplsLabelTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -40,7 +42,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  *
  * @see <a href="https://git.fd.io/vpp/tree/src/vnet/mpls/mpls.api">mpls_route_add_del</a> definition
  */
-final class MplsSwapWriter implements LspWriter, Ipv4Translator, MplsInSegmentTranslator {
+final class MplsSwapWriter implements LspWriter, Ipv4Translator, MplsInSegmentTranslator, MplsLabelTranslator {
 
     private final FutureJVppCore vppApi;
     private final NamingContext interfaceContext;
@@ -83,7 +85,7 @@ final class MplsSwapWriter implements LspWriter, Ipv4Translator, MplsInSegmentTr
 
         final MplsLabel outgoingLabel = path.getOutgoingLabel();
         checkArgument(outgoingLabel != null, "Configuring swap-and-forward, but outgoing-label is missing.");
-        request.mrNextHopOutLabelStack = new int[] {outgoingLabel.getValue().intValue()};
+        request.mrNextHopOutLabelStack = new FibMplsLabel[] {translate(outgoingLabel.getValue())};
         request.mrNextHopNOutLabels = 1;
 
         final String outgoingInterface = path.getOutgoingInterface();
