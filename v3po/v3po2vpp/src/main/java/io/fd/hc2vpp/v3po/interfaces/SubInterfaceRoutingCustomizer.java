@@ -28,10 +28,10 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.ip4.attributes.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.ip6.attributes.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.routing.attributes.Routing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.sub._interface.ip4.attributes.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.sub._interface.ip6.attributes.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.sub._interface.routing.attributes.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SubInterfaceRoutingCustomizer extends RoutingCustomizer implements WriterCustomizer<Routing> {

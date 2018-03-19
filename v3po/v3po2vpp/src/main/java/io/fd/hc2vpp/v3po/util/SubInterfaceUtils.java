@@ -23,9 +23,9 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces._interface.sub.interfaces.SubInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.base.attributes.Tags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.sub._interface.base.attributes.tags.Tag;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.sub._interface.base.attributes.Tags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.sub._interface.base.attributes.tags.Tag;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class SubInterfaceUtils {
@@ -50,7 +50,7 @@ public final class SubInterfaceUtils {
         final String parentInterfaceName = checkNotNull(instanceIdentifier.firstKeyOf(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class),
                 "Operational identifier expected").getName();
-        final Long subIfId = instanceIdentifier.firstKeyOf(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev170607.interfaces.state._interface.sub.interfaces.SubInterface.class).getIdentifier();
+        final Long subIfId = instanceIdentifier.firstKeyOf(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface.class).getIdentifier();
         return SubInterfaceUtils.getSubInterfaceName(parentInterfaceName, subIfId.intValue());
     }
 
