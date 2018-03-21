@@ -3,16 +3,6 @@ module vpp-acl {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:acl";
   prefix "vpp-acl";
 
-  revision "2017-06-15" {
-    description
-      "Renamed stateful/permit leaf to permit-and-reflect";
-  }
-
-  revision "2016-12-14" {
-    description
-      "Initial revision of vpp-acl model.";
-  }
-
   import ietf-access-control-list {
     prefix "acl";
   }
@@ -31,6 +21,16 @@ module vpp-acl {
 
   import ietf-yang-types {
     prefix yang;
+  }
+
+  revision "2017-06-15" {
+    description
+      "Renamed stateful/permit leaf to permit-and-reflect";
+  }
+
+  revision "2016-12-14" {
+    description
+      "Initial revision of vpp-acl model.";
   }
 
   augment /acl:access-lists/acl:acl/acl:access-list-entries/acl:ace/acl:actions/acl:packet-handling {

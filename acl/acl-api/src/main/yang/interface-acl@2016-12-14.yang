@@ -3,22 +3,12 @@ module interface-acl {
   namespace "urn:opendaylight:params:xml:ns:yang:interface:acl";
   prefix "ifc-acl";
 
-  revision "2016-12-14" {
-    description "Initial revision of interface-acl model";
-  }
-
   import ietf-interfaces {
     prefix "if";
   }
+
   import yang-ext {
     prefix "ext";
-  }
-  import ietf-yang-types {
-    prefix "yang";
-  }
-
-  import vpp-acl {
-    prefix "vpp-acl";
   }
 
   import ietf-access-control-list {
@@ -27,9 +17,13 @@ module interface-acl {
 
   description "Augmentations to interfaces model to apply acls exposed by acl plugin of vpp";
 
+  revision "2016-12-14" {
+    description "Initial revision of interface-acl model";
+  }
+
   grouping vpp-acls-base-attributes  {
     description
-      "List of ACLs of vpp-acl type"; // TODO express constraint in the model if possible
+      "List of ACLs of vpp-acl type"; // TODO(HC2VPP-201): express constraint in the model if possible
     list vpp-acls {
       key "type name";
       ordered-by user;
@@ -38,6 +32,7 @@ module interface-acl {
         type acl:acl-type;
       }
 
+      // FIXME(HC2VPP-290): define leafref in interface-acl or bump ietf-access-control-list
       leaf name {
         type acl:access-control-list-ref;
       }
@@ -47,7 +42,7 @@ module interface-acl {
   grouping vpp-macip-acls-base-attributes  {
     container vpp-macip-acl {
       description
-        "ACL of vpp-macip-acl type"; // TODO express constraint in the model if possible
+        "ACL of vpp-macip-acl type"; // TODO(HC2VPP-201): express constraint in the model if possible
 
       leaf type {
         type acl:acl-type;
