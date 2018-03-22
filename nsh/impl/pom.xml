@@ -78,11 +78,6 @@
     </dependency>
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
-      <artifactId>notification-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.fd.honeycomb</groupId>
       <artifactId>cfg-init</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -110,11 +105,6 @@
     <dependency>
       <groupId>io.fd.honeycomb</groupId>
       <artifactId>binding-init</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.fd.hc2vpp.v3po</groupId>
-      <artifactId>v3po2vpp</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
