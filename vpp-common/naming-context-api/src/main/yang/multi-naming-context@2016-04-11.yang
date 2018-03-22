@@ -3,9 +3,6 @@ module multi-naming-context {
     namespace "urn:honeycomb:params:xml:ns:yang:multi:naming:context";
     prefix "mnc";
 
-    description
-        "This module contains data definition for naming multi-mapping context";
-
     import naming-context {
        prefix "nc";
     }
@@ -14,12 +11,13 @@ module multi-naming-context {
        prefix "ext";
     }
 
+    description
+        "This module contains data definition for naming multi-mapping context";
 
     revision "2016-04-11" {
         description
             "Initial revision.";
     }
-
 
     grouping multi-naming-contexts-attributes{
         container multi-naming-contexts {
