@@ -4,6 +4,10 @@ module dhcp {
     namespace "urn:opendaylight:params:xml:ns:yang:vpp:dhcp";
     prefix "dhcp";
 
+    import ietf-inet-types {
+        prefix inet;
+    }
+
     description
         "This YANG module defines the generic configuration and
         operational data for dhcp in VPP";
@@ -18,10 +22,6 @@ module dhcp {
     revision "2017-03-15" {
         description
             "Initial revision of dhcp model";
-    }
-
-    import ietf-inet-types {
-        prefix inet;
     }
 
     identity address-family {
