@@ -6,6 +6,10 @@ module ioam-sb-export {
 
   prefix ioam-sb-export;
 
+  import ietf-inet-types {
+    prefix inet;
+  }
+
   organization "Cisco Systems, Inc.";
   contact
     "Shwetha Bhandari <shwethab@cisco.com>
@@ -21,10 +25,6 @@ module ioam-sb-export {
       "set source and collector addresses as mandatory";
     reference
       "";
-  }
-
-  import ietf-inet-types {
-    prefix inet;
   }
 
   container ioam-export {
