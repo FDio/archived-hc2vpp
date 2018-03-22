@@ -3,6 +3,22 @@ module v3po {
   namespace "urn:opendaylight:params:xml:ns:yang:v3po";
   prefix "v3po";
 
+  import iana-if-type {
+    prefix "ianaift";
+  }
+  import ietf-interfaces {
+    prefix "if";
+  }
+  import ietf-yang-types {
+    prefix "yang";
+  }
+  import ietf-inet-types {
+    prefix "inet";
+  }
+  import yang-ext {
+    prefix "ext";
+  }
+
   revision "2017-06-07" {
     description "Eliminated config leafrefs in operational tree";
   }
@@ -28,25 +44,6 @@ module v3po {
 
   revision "2015-01-05" {
     description "Initial revision of v3po model";
-  }
-
-  import iana-if-type {
-    prefix "ianaift";
-  }
-  import ietf-interfaces {
-    prefix "if";
-  }
-  import ietf-yang-types {
-    prefix "yang";
-  }
-  import ietf-inet-types {
-    prefix "inet";
-  }
-  import ietf-ip {
-    prefix "ip";
-  }
-  import yang-ext {
-    prefix "ext";
   }
 
   typedef bridge-domain-ref {

@@ -3,23 +3,15 @@ module pbb-types {
   namespace "urn:opendaylight:params:xml:ns:yang:pbb-types";
   prefix "pbb-types";
 
+  import ietf-yang-types {
+      prefix yang;
+  }
+
   description "Common types used for defining Pbb based subinterfaces";
 
   revision "2016-12-14" {
           description
               "Initial revision.";
-  }
-
-  import ietf-yang-types {
-      prefix yang;
-  }
-
-  import ietf-interfaces {
-      prefix if;
-  }
-
-  import yang-ext {
-      prefix "ext";
   }
 
   typedef operation {

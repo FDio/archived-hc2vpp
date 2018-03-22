@@ -3,20 +3,8 @@ module subinterface-span {
   namespace "urn:opendaylight:params:xml:ns:yang:subinterface-span";
   prefix "subif-span";
 
-  revision "2017-05-10" {
-    description
-      "Initialial revision that adds support for mirroring interfaces on subinterfaces.
-       Vpp implementation allows/implements only two cases:
-        - Src: interface |Dst: interface - covered in v3po.yang
-        - Src: interface |Dst: subinterface - covered by this model";
-  }
-
-  revision "2017-06-07" {
-    description "Eliminated config leafrefs in operational tree";
-  }
-
-  import v3po {
-    prefix "v3po";
+  import ietf-interfaces {
+    prefix "if";
   }
 
   import vpp-vlan {
@@ -25,6 +13,22 @@ module subinterface-span {
 
   import yang-ext {
     prefix "ext";
+  }
+
+  import v3po {
+    prefix "v3po";
+  }
+
+  revision "2017-06-07" {
+    description "Eliminated config leafrefs in operational tree";
+  }
+
+  revision "2017-05-10" {
+    description
+      "Initialial revision that adds support for mirroring interfaces on subinterfaces.
+       Vpp implementation allows/implements only two cases:
+        - Src: interface |Dst: interface - covered in v3po.yang
+        - Src: interface |Dst: subinterface - covered by this model";
   }
 
   augment /if:interfaces/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
