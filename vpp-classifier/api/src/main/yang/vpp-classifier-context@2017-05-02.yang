@@ -3,8 +3,32 @@ module vpp-classifier-context {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier:context";
   prefix "vpp-classifier-context";
 
+  organization
+    "FD.io - The Fast Data Project";
+
+  contact
+    "Hc2vpp Wiki <https://wiki.fd.io/view/Hc2vpp>
+     Mailing List <hc2vpp@lists.fd.io>";
+
   description
-    "This module contains vpp classfier metadata definition";
+    "This module provides metadata required for vpp-classifier management.
+
+     Metadata are managed internally by the HC vpp-classifier plugin.
+     They are exposed as operational state data for debugging purposes.
+
+     Copyright (c) 2016-2018 Cisco and/or its affiliates.
+
+     Licensed under the Apache License, Version 2.0 (the 'License');
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at:
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an 'AS IS' BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.";
 
   revision "2017-05-02" {
     description "Changed namespace";
@@ -26,8 +50,7 @@ module vpp-classifier-context {
        also finding base node that is needed to perform the conversion
        is not allways possible (https://jira.fd.io/browse/VPP-220).
 
-       Therefore Honeycomb needs to provide relative node to index mapping.
-       ";
+       Therefore Honeycomb needs to provide relative node to index mapping.";
 
     list classify-table-context {
       key "name";

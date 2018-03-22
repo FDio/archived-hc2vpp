@@ -15,8 +15,8 @@ module dhcp {
          Mailing List <hc2vpp@lists.fd.io>";
 
     description
-        "This YANG module defines the generic configuration and
-        operational data for dhcp in VPP
+        "This module contains a collection of YANG definitions for
+         managing DHCP in VPP.
 
          Copyright (c) 2017-2018 Cisco and/or its affiliates.
 

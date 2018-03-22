@@ -20,8 +20,10 @@ module interface-role {
      Mailing List <hc2vpp@lists.fd.io>";
 
   description
-    "Provides interface roles - additional metadata that can be assigned to interfaces.
-     Interface roles are visible in config DS, but not translated to VPP calls.
+    "This module contains a collection of YANG definitions for
+     assigning roles to VPP interfaces.
+     Interface roles provide additional metadata visible in config DS,
+     but not translated to VPP API calls.
 
      Copyright (c) 2017-2018 Cisco and/or its affiliates.
 

@@ -19,8 +19,12 @@ module vpp-acl-context {
          Mailing List <hc2vpp@lists.fd.io>";
 
     description
-        "Provides mapping between YANG identifiers (names)
-         and identifiers used by VPP ACL plugin.
+        "This module provides mapping between ACL identifiers
+         defined in the ietf-access-control-list module
+         and identifiers used by the VPP ACL plugin.
+
+         The mapping is managed internally by the HC ACL plugin.
+         It is exposed as operational state data for debugging purposes.
 
          Copyright (c) 2017 Cisco and/or its affiliates.
 

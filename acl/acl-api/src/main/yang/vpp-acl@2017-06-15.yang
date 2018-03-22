@@ -31,7 +31,9 @@ module vpp-acl {
      Mailing List <hc2vpp@lists.fd.io>";
 
   description
-    "Provides augmentations to ietf-access-control-list exposing VPP specific features of the VPP ACL plugin.
+    "This module contains a collection of YANG definitions
+     that extend ietf-access-control-list module
+     with VPP specific features provided by the VPP ACL plugin.
 
      Copyright (c) 2016 Cisco and/or its affiliates.
 

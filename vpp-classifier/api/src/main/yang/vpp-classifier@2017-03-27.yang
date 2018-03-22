@@ -11,10 +11,40 @@ module vpp-classifier {
     prefix "policer";
   }
 
+  organization
+    "FD.io - The Fast Data Project";
+
+  contact
+    "Hc2vpp Wiki <https://wiki.fd.io/view/Hc2vpp>
+     Mailing List <hc2vpp@lists.fd.io>";
+
+  description
+    "This module contains a collection of YANG definitions for
+     managing VPP packet classifier.
+
+     Copyright (c) 2016-2018 Cisco and/or its affiliates.
+
+     Licensed under the Apache License, Version 2.0 (the 'License');
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at:
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an 'AS IS' BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.";
+
   revision "2017-03-27" {
     description
       "This revision updates classify table ref to be compatible with LeafRefContext
         (ODL tool for checking leafrefs in runtime)";
+  }
+
+  revision "2017-03-15" {
+    description
+      "This revision adds policer support";
   }
 
   revision "2016-12-14" {
@@ -23,12 +53,7 @@ module vpp-classifier {
         - updates order of union types for opaque-index";
   }
 
-  revision "2016-03-15" {
-    description
-      "This revision adds policer support";
-  }
-
-  revision "2015-06-03" {
+  revision "2016-06-03" {
     description
       "Initial revision of model for VPP packet classifier.
       The model can be used ony to implement ACLs.
@@ -244,5 +269,4 @@ module vpp-classifier {
       uses classify-table-operational-attributes;
     }
   }
-
 }

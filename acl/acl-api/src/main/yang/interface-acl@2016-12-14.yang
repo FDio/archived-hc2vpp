@@ -23,7 +23,9 @@ module interface-acl {
      Mailing List <hc2vpp@lists.fd.io>";
 
   description
-    "Provides augmentations to ietf-interfaces model for assigning ACLs via ACL plugin of VPP.
+    "This module contains a collection of YANG definitions for
+     applying ACLs on VPP interfaces.
+     Uses ACL implementation provided by ACL plugin of VPP.
 
      Copyright (c) 2016 Cisco and/or its affiliates.
 
@@ -43,7 +45,7 @@ module interface-acl {
     description "Initial revision of interface-acl model";
   }
 
-  grouping vpp-acls-base-attributes  {
+  grouping vpp-acls-base-attributes {
     description
       "List of ACLs of vpp-acl type"; // TODO(HC2VPP-201): express constraint in the model if possible
     list vpp-acls {
@@ -61,7 +63,7 @@ module interface-acl {
     }
   }
 
-  grouping vpp-macip-acls-base-attributes  {
+  grouping vpp-macip-acls-base-attributes {
     container vpp-macip-acl {
       description
         "ACL of vpp-macip-acl type"; // TODO(HC2VPP-201): express constraint in the model if possible

@@ -24,7 +24,8 @@ module nd-proxy {
          Mailing List <hc2vpp@lists.fd.io>";
 
     description
-        "Neighbour discovery proxy model for VPP.
+        "This module contains a collection of YANG definitions for
+         managing neighbour discovery proxies in VPP.
 
          Copyright (c) 2017 Cisco and/or its affiliates.
 
@@ -44,7 +45,7 @@ module nd-proxy {
         description "Initial revision of neighbour discovery proxy model for VPP";
     }
 
-    augment /if:interfaces/if:interface/ip:ipv6  {
+    augment /if:interfaces/if:interface/ip:ipv6 {
         ext:augment-identifier "nd-proxy-ip6-augmentation";
         container nd-proxies {
             list nd-proxy {
@@ -66,5 +67,5 @@ module nd-proxy {
                 }
             }
         }
-  }
+    }
 }

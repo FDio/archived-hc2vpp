@@ -21,7 +21,8 @@ module proxy-arp {
      Mailing List <hc2vpp@lists.fd.io>";
 
   description
-    "Proxy ARP model for VPP.
+    "This module contains a collection of YANG definitions for
+     managing Proxy ARP in VPP.
 
      Copyright (c) 2017 Cisco and/or its affiliates.
 
