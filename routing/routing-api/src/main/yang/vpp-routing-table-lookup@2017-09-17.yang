@@ -2,14 +2,15 @@ module vpp-routing-table-lookup {
 
     namespace "urn:ietf:params:xml:ns:yang:vpp-routing-table-lookup";
     prefix "vpp-routing";
+
+    import vpp-routing {
+        prefix "vpp-r";
+    }
+
     description "General extensions for routes to be able to use VPP table lookup option";
 
     revision 2017-09-17 {
         description "Initial revision";
-    }
-
-    import vpp-routing {
-        prefix "vpp-r";
     }
 
     grouping table-lookup-case-params {

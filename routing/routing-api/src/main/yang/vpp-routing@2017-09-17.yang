@@ -2,15 +2,6 @@ module vpp-routing{
 
     namespace "urn:ietf:params:xml:ns:yang:vpp-routing";
     prefix "vpp-routing";
-    description "General extensions for routes to be able to use VPP route defining apis";
-
-    revision 2017-09-17 {
-        description "Support for table lookup option moved to separate model.";
-    }
-
-    revision 2016-12-14 {
-        description "Initial revision.";
-    }
 
     import yang-ext {
         prefix "ext";
@@ -22,6 +13,16 @@ module vpp-routing{
 
     import hc2vpp-ietf-routing {
         prefix "ietf-r";
+    }
+
+    description "General extensions for routes to be able to use VPP route defining apis";
+
+    revision 2017-09-17 {
+        description "Support for table lookup option moved to separate model.";
+    }
+
+    revision 2016-12-14 {
+        description "Initial revision.";
     }
 
     typedef vni-reference{
