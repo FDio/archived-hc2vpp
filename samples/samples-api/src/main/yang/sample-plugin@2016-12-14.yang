@@ -4,12 +4,12 @@ module sample-plugin {
     namespace "urn:opendaylight:params:xml:ns:yang:sample:plugin";
     prefix "samples";
 
-    revision 2016-12-14 {
-        description "Sample model for demonstration of transation code";
-    }
-
     import ietf-inet-types {
         prefix "inet";
+    }
+
+    revision 2016-12-14 {
+        description "Sample model for demonstration of transation code";
     }
 
     grouping sample-plugin-params {
