@@ -22,9 +22,12 @@ module vpp-mpls {
     prefix "ext";
   }
 
+  organization
+    "FD.io - The Fast Data Project";
+
   contact
-    "Hc2vpp: <https://wiki.fd.io/view/Hc2vpp>
-     Hc2vpp List:  <mailto:netmod@ietf.org>";
+    "Hc2vpp Wiki <https://wiki.fd.io/view/Hc2vpp>
+     Mailing List <hc2vpp@lists.fd.io>";
 
   description
     "This module contains a collection of YANG definitions for
