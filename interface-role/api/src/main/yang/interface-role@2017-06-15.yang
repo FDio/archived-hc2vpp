@@ -4,16 +4,16 @@ module interface-role {
   namespace "urn:opendaylight:params:xml:ns:yang:interface:role";
   prefix "if-role";
 
-  revision "2017-06-15" {
-    description "Basic specification of interface roles";
-  }
-
   import ietf-interfaces {
     prefix "if";
   }
 
   import yang-ext {
     prefix "ext";
+  }
+
+  revision "2017-06-15" {
+    description "Basic specification of interface roles";
   }
 
   identity network-role-base {
