@@ -4,6 +4,10 @@ module policer {
     namespace "urn:opendaylight:params:xml:ns:yang:policer";
     prefix "policer";
 
+    import ietf-inet-types {
+      prefix inet;
+    }
+
     description
         "VPP specific configuration of policer messages. Mapped to policer API:
          https://git.fd.io/vpp/tree/src/vnet/policer/policer.api
@@ -16,10 +20,6 @@ module policer {
 
     revision "2017-03-15" {
         description "Initial revision of policer model";
-    }
-
-    import ietf-inet-types {
-      prefix inet;
     }
 
     typedef policer-ref {

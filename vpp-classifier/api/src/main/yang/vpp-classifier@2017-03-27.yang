@@ -3,21 +3,29 @@ module vpp-classifier {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier";
   prefix "vpp-classifier";
 
+  import ietf-yang-types {
+    prefix "yang";
+  }
+
+  import policer {
+    prefix "policer";
+  }
+
   revision "2017-03-27" {
     description
       "This revision updates classify table ref to be compatible with LeafRefContext
         (ODL tool for checking leafrefs in runtime)";
   }
 
-  revision "2016-03-15" {
-    description
-      "This revision adds policer support";
-  }
-
   revision "2016-12-14" {
     description
       "This revision adds the following new features:
         - updates order of union types for opaque-index";
+  }
+
+  revision "2016-03-15" {
+    description
+      "This revision adds policer support";
   }
 
   revision "2015-06-03" {
@@ -28,16 +36,6 @@ module vpp-classifier {
       see https://jira.fd.io/browse/VPP-203 for details.";
     reference
       "https://wiki.fd.io/view/VPP/Introduction_To_N-tuple_Classifiers";
-  }
-
-  // TODO add revision (policer inclusion)
-
-  import ietf-yang-types {
-    prefix "yang";
-  }
-
-  import policer {
-    prefix "policer";
   }
 
   typedef classify-table-ref {

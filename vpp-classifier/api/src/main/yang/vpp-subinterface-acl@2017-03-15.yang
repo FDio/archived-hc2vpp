@@ -3,11 +3,6 @@ module vpp-subinterface-acl {
     namespace "urn:opendaylight:params:xml:ns:yang:vpp:subinterface:acl";
     prefix "vpp-subifc-acl";
 
-    revision "2017-03-15" {
-        description
-            "Initial revision of vpp-subinterface-acl model.";
-    }
-
     import ietf-interfaces {
         prefix "if";
     }
@@ -22,6 +17,11 @@ module vpp-subinterface-acl {
 
     import yang-ext {
         prefix "ext";
+    }
+
+    revision "2017-03-15" {
+        description
+            "Initial revision of vpp-subinterface-acl model.";
     }
 
     augment /if:interfaces/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {

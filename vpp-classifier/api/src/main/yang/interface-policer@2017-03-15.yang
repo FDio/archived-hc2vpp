@@ -4,16 +4,6 @@ module interface-policer {
     namespace "urn:opendaylight:params:xml:ns:yang:interface:policer";
     prefix "ifc-policer";
 
-    description
-        "This YANG module defines policer configuration and
-        operational data for interfaces in VPP.
-        Mapped to policer_classify_set_interface:
-        https://git.fd.io/vpp/tree/src/vnet/classify/classify.api#n119";
-
-    revision "2017-03-15" {
-        description "Initial revision of interface-policer model";
-    }
-
     import vpp-classifier {
         prefix "vpp-classifier";
     }
@@ -24,6 +14,16 @@ module interface-policer {
 
     import yang-ext {
         prefix "ext";
+    }
+
+    description
+        "This YANG module defines policer configuration and
+        operational data for interfaces in VPP.
+        Mapped to policer_classify_set_interface:
+        https://git.fd.io/vpp/tree/src/vnet/classify/classify.api#n119";
+
+    revision "2017-03-15" {
+        description "Initial revision of interface-policer model";
     }
 
     grouping interface-policer-attributes {

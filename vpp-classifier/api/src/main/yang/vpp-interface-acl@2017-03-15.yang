@@ -3,11 +3,6 @@ module vpp-interface-acl {
     namespace "urn:opendaylight:params:xml:ns:yang:vpp:interface:acl";
     prefix "vpp-ifc-acl";
 
-    revision "2017-03-15" {
-        description
-            "Initial revision of vpp-interface-acl model.";
-    }
-
     import ietf-interfaces {
         prefix "if";
     }
@@ -18,6 +13,11 @@ module vpp-interface-acl {
 
     import yang-ext {
         prefix "ext";
+    }
+
+    revision "2017-03-15" {
+        description
+            "Initial revision of vpp-interface-acl model.";
     }
 
     augment /if:interfaces/if:interface {

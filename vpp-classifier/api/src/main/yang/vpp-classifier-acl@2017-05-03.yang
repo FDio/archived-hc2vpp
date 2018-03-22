@@ -3,6 +3,10 @@ module vpp-classifier-acl {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:classifier:acl";
   prefix "vpp-classifier-acl";
 
+  import vpp-classifier {
+    prefix "vpp-classifier";
+  }
+
   revision "2017-05-03" {
     description
       "Removed support for ietf based acls.";
@@ -11,14 +15,6 @@ module vpp-classifier-acl {
   revision "2017-03-15" {
     description
       "Initial revision of vpp-classifier-acl model.";
-  }
-
-  import vpp-classifier {
-    prefix "vpp-classifier";
-  }
-
-  import yang-ext {
-    prefix "ext";
   }
 
   typedef interface-mode {
