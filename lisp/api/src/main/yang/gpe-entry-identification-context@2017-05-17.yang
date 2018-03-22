@@ -3,6 +3,10 @@ module gpe-entry-identification-context {
     namespace "urn:honeycomb:params:xml:ns:yang:gpe:entry:identification:context";
     prefix "gpe-entry-identification-context";
 
+    import ietf-lisp-address-types {prefix "lisp-types";}
+    import yang-ext {prefix "ext";}
+    import naming-context { prefix "nc";}
+
     description
             "This module contains mappings between gpe entry identificator and actual unique combination of
              remote/local eid and vni in vpp";
@@ -11,11 +15,6 @@ module gpe-entry-identification-context {
         description
             "Initial revision.";
     }
-
-    import lisp {prefix "lisp";}
-    import ietf-lisp-address-types {prefix "lisp-types";}
-    import yang-ext {prefix "ext";}
-    import naming-context { prefix "nc";}
 
     grouping gpe-entry-identification-context-attributes{
 

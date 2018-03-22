@@ -3,6 +3,10 @@ module adjacencies-identification-context {
     namespace "urn:honeycomb:params:xml:ns:yang:adjacencies:identification:context";
     prefix "adjacencies-identification-context";
 
+    import lisp {prefix "lisp";}
+    import yang-ext {prefix "ext";}
+    import naming-context { prefix "nc";}
+
     description
             "This module contains mappings between adjacency identificator and actual unique combination of
              remote and local eid in vpp";
@@ -11,12 +15,6 @@ module adjacencies-identification-context {
         description
             "Initial revision.";
     }
-
-    import lisp {prefix "lisp";}
-    import ietf-lisp-address-types {prefix "lisp-types";}
-    import yang-ext {prefix "ext";}
-    import naming-context { prefix "nc";}
-
     grouping adjacencies-identification-context-attributes{
 
         container adjacencies-identification-contexts {
