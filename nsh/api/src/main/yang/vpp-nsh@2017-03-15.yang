@@ -3,6 +3,10 @@ module vpp-nsh {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:nsh";
   prefix "vpp-nsh";
 
+  import yang-ext {
+    prefix "ext";
+  }
+
   revision "2017-03-15" {
     description
     "This revision adds support for NSH-MD2 features";
@@ -16,25 +20,6 @@ module vpp-nsh {
   revision "2016-06-24" {
     description
     "Initial revision of vpp-nsh model";
-  }
-
-  import iana-if-type {
-    prefix "ianaift";
-  }
-  import ietf-interfaces {
-    prefix "if";
-  }
-  import ietf-yang-types {
-    prefix "yang";
-  }
-  import ietf-inet-types {
-    prefix "inet";
-  }
-  import yang-ext {
-    prefix "ext";
-  }
-  import v3po {
-    prefix "v3po";
   }
   /*
    * Defines the supported next protocols that can be used for
