@@ -3,6 +3,15 @@ module interface-nat {
   namespace "urn:opendaylight:params:xml:ns:yang:interface:nat";
   prefix "ifc-nat";
 
+  import ietf-interfaces {
+    prefix "if";
+  }
+  import yang-ext {
+    prefix "ext";
+  }
+
+  description "Augmentations to interfaces model to connect interfaces with nat configuration.";
+
   revision "2017-08-16" {
     description "Added support for NAT64.";
   }
@@ -15,25 +24,13 @@ module interface-nat {
     description "Initial revision of interface-nat model.";
   }
 
-  import ietf-interfaces {
-    prefix "if";
-  }
-  import ietf-nat {
-    prefix "nat";
-  }
-  import yang-ext {
-    prefix "ext";
-  }
-
-  description "Augmentations to interfaces model to connect interfaces with nat configuration.";
-
   grouping interface-nat-vpp-feature-attributes {
     leaf post-routing {
       type boolean;
       default false;
       description
         "Indicates whether NAT translation should be applied after routing.
-         If true, nat_interface_add_del_output_feature message is used to enable NAT.
+         If true, nat_interface_anatdd_del_output_feature message is used to enable NAT.
          By default nat_interface_add_del_feature is used.";
       reference
         "https://git.fd.io/vpp/tree/src/plugins/nat/nat.api";

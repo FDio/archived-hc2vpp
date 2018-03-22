@@ -1,11 +1,7 @@
 module subinterface-nat {
   yang-version 1;
   namespace "urn:opendaylight:params:xml:ns:yang:subinterface:nat";
-  prefix "ifc-nat";
-
-  revision "2017-06-15" {
-    description "Initial revision of subinterface-nat model";
-  }
+  prefix "sub-ifc-nat";
 
   import ietf-interfaces {
     prefix "if";
@@ -21,6 +17,10 @@ module subinterface-nat {
   }
 
   description "Augmentations to subinterfaces model to connect subinterfaces with nat configuration";
+
+  revision "2017-06-15" {
+    description "Initial revision of subinterface-nat model";
+  }
 
   augment  /if:interfaces/if:interface/vpp-vlan:sub-interfaces/vpp-vlan:sub-interface {
     ext:augment-identifier "nat-subinterface-augmentation";

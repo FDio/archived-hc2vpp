@@ -3,10 +3,6 @@ module vpp-nat {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:nat";
   prefix "vpp-nat";
 
-  revision "2017-08-04" {
-    description "Initial revision of vpp-nat model.";
-  }
-
   import ietf-nat {
     prefix "nat";
   }
@@ -15,6 +11,10 @@ module vpp-nat {
   }
 
   description "Augmentations to ietf-nat model providing vpp specific attributes.";
+
+  revision "2017-08-04" {
+    description "Initial revision of vpp-nat model.";
+  }
 
   typedef nat-pool-type {
     type enumeration {

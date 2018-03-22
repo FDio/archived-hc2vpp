@@ -1,13 +1,7 @@
 module nat-context {
     yang-version 1;
     namespace "urn:honeycomb:params:xml:ns:yang:nat:context";
-    prefix "nc";
-
-    description "Context for nat mapping";
-
-    revision "2016-12-14" {
-        description "Initial revision.";
-    }
+    prefix "nat-ctx";
 
     import ietf-inet-types {
        prefix "inet";
@@ -19,6 +13,12 @@ module nat-context {
 
     import yang-ext {
        prefix "ext";
+    }
+
+    description "Context for nat mapping";
+
+    revision "2016-12-14" {
+        description "Initial revision.";
     }
 
     grouping mapping-entry-context-attributes {
