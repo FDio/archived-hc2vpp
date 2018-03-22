@@ -3,9 +3,6 @@ module proxy-arp {
   namespace "urn:opendaylight:params:xml:ns:yang:vpp:proxy:arp";
   prefix "proxy-arp";
 
-  revision "2017-03-15" {
-    description "Initial revision of proxy ARP model for VPP";
-  }
 
   import ietf-inet-types {
     prefix "inet";
@@ -15,6 +12,10 @@ module proxy-arp {
   }
   import yang-ext {
     prefix "ext";
+  }
+
+  revision "2017-03-15" {
+    description "Initial revision of proxy ARP model for VPP";
   }
 
   container proxy-ranges {
