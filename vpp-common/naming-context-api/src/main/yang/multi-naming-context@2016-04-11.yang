@@ -21,8 +21,8 @@ module multi-naming-context {
     description
         "This module contains data definition for naming multi-mapping context.
 
-         Multi-naming context provides mapping between string names used in YANG models
-         and integer indices used by VPP.
+         Multi-naming context provides one-to-many mapping
+         between string names used in YANG models and integer indices used by VPP.
 
          The mapping is managed internally by the HC plugins.
          It is exposed as operational state data for debugging purposes.
@@ -45,7 +45,6 @@ module multi-naming-context {
         description
             "Initial revision.";
     }
-    // TODO(HC2VPP-296): move to routing plugin
 
     grouping multi-naming-contexts-attributes {
         container multi-naming-contexts {

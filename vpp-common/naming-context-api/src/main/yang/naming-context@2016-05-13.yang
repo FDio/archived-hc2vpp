@@ -13,8 +13,8 @@ module naming-context {
     description
         "This module contains data definition for naming mapping context.
 
-         Naming context provides mapping between string names used in YANG models
-         and integer indices used by VPP.
+         Naming context provides one-to-one mapping
+         between string names used in YANG models and integer indices used by VPP.
 
          The mapping is managed internally by the HC plugins.
          It is exposed as operational state data for debugging purposes.
