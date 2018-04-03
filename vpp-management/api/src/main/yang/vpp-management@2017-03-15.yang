@@ -14,7 +14,7 @@ module vpp-management {
     "This module contains a collection of YANG definitions
      that expose VPP operational state.
 
-     Copyright (c) 2017-2018 Cisco and/or its affiliates.
+     Copyright (c) 2017 Cisco and/or its affiliates.
 
      Licensed under the Apache License, Version 2.0 (the 'License');
      you may not use this file except in compliance with the License.

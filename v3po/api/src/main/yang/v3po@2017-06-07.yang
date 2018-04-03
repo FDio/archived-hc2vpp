@@ -30,7 +30,7 @@ module v3po {
     "This module contains a collection of YANG definitions
      that extend ietf-interfaces module with VPP specific interface types.
 
-     Copyright (c) 2015-2018 Cisco and/or its affiliates.
+     Copyright (c) 2015-2017 Cisco and/or its affiliates.
 
      Licensed under the Apache License, Version 2.0 (the 'License');
      you may not use this file except in compliance with the License.
