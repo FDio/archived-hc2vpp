@@ -45,7 +45,6 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-spi</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
@@ -54,7 +53,6 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

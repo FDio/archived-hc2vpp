@@ -17,15 +17,62 @@
     <version>1.18.04-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <!-- import dependencies from honeycomb impl-parent  -->
     <dependencyManagement>
         <dependencies>
+            <!-- import dependencies from honeycomb impl-parent  -->
             <dependency>
                 <groupId>io.fd.honeycomb.common</groupId>
                 <artifactId>impl-parent</artifactId>
                 <version>1.18.04-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- honeycomb artifacts -->
+            <dependency>
+                <groupId>io.fd.honeycomb</groupId>
+                <artifactId>binding-init</artifactId>
+                <version>${honeycomb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fd.honeycomb</groupId>
+                <artifactId>cfg-init</artifactId>
+                <version>${honeycomb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fd.honeycomb</groupId>
+                <artifactId>notification-api</artifactId>
+                <version>${honeycomb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fd.honeycomb</groupId>
+                <artifactId>rpc-api</artifactId>
+                <version>${honeycomb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fd.honeycomb</groupId>
+                <artifactId>translate-api</artifactId>
+                <version>${honeycomb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fd.honeycomb</groupId>
+                <artifactId>translate-spi</artifactId>
+                <version>${honeycomb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fd.honeycomb</groupId>
+                <artifactId>translate-impl</artifactId>
+                <version>${honeycomb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fd.honeycomb</groupId>
+                <artifactId>translate-utils</artifactId>
+                <version>${honeycomb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.fd.honeycomb.infra</groupId>
+                <artifactId>test-tools</artifactId>
+                <version>${honeycomb.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -78,7 +125,7 @@
                         <dependency>
                             <groupId>io.fd.honeycomb.common</groupId>
                             <artifactId>common-scripts</artifactId>
-                            <version>${project.version}</version>
+                            <version>${honeycomb.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>

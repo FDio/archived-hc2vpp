@@ -67,12 +67,10 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-spi</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-utils</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fd.hc2vpp.common</groupId>

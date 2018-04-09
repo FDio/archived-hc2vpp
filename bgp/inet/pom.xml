@@ -20,7 +20,7 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>bgp-translate-api</artifactId>
-            <version>${project.version}</version>
+            <version>${honeycomb.version}</version>
         </dependency>
         <!-- BGP api -->
         <dependency>

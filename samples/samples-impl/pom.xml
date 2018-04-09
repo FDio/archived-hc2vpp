@@ -25,7 +25,6 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-spi</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Vpp api java wrapped -->
         <dependency>
@@ -36,7 +35,6 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-utils</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Jvpp specific utils for translation code -->
         <dependency>
@@ -48,13 +46,11 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Initialization interfaces for infrastructure-->
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>cfg-init</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Google juice injection -->
         <dependency>

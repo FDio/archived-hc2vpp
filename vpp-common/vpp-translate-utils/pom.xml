@@ -38,7 +38,6 @@
         <dependency>
             <groupId>io.fd.honeycomb</groupId>
             <artifactId>translate-utils</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -60,11 +59,6 @@
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
             <artifactId>ietf-interfaces</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.fd.honeycomb</groupId>
-            <artifactId>data-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -96,7 +90,6 @@
         <dependency>
             <groupId>io.fd.honeycomb.infra</groupId>
             <artifactId>test-tools</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
