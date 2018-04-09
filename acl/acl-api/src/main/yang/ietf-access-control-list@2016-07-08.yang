@@ -82,9 +82,13 @@ module ietf-access-control-list {
       "This type is used to refer to an Access Control List
       (ACL) type";
   }
+  /*
+  HC2VPP-290: access-control-list-ref was modified to fix pyang errors
+  TODO(HC2VPP-291): bump ietf-access-control-list version to resolve the issue
+  */
   typedef access-control-list-ref {
     type leafref {
-      path "/access-lists/acl/acl-name";
+      path "/acl:access-lists/acl:acl/acl:acl-name";
     }
     description
       "This type is used by data models that need to reference an
