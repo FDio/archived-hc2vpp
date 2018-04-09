@@ -105,7 +105,7 @@ public class ClassifySessionReader extends FutureJVppCustomizer
         if (classifySession.isPresent()) {
             final ClassifySessionDetails detail = classifySession.get();
             final Optional<VppNode> node =
-                readVppNode(detail.tableId, detail.hitNextIndex, classifyTableContext, ctx.getMappingContext(), LOG);
+                readVppNode(detail.tableId, detail.hitNextIndex, classifyTableContext, ctx.getMappingContext());
             final StandardBuilder nextNode = new StandardBuilder();
             if (node.isPresent()) {
                 nextNode.setHitNext(node.get());
@@ -131,7 +131,7 @@ public class ClassifySessionReader extends FutureJVppCustomizer
         // TODO: HONEYCOMB-118 the approach might fail if the opaqueIndex contains small value that collides
         // with some of the adjacent nodes
 
-        final Optional<VppNode> node = readVppNode(tableIndex, opaqueIndex, classifyTableContext, ctx, LOG);
+        final Optional<VppNode> node = readVppNode(tableIndex, opaqueIndex, classifyTableContext, ctx);
         if (node.isPresent()) {
             return new OpaqueIndex(node.get());
         } else {

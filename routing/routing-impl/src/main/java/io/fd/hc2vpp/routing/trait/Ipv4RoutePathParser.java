@@ -47,14 +47,14 @@ public interface Ipv4RoutePathParser extends RouteMapper {
                                         final Ipv4RouteNamesFactory namesFactory) {
         if (parsedHops.size() == 1) {
             final FibPath path = parsedHops.get(0);
-            if (RouteMapper.INSTANCE.isTableLookup(path)) return tableLookup(path);
+            if (RouteMapper.INSTANCE.isTableLookup(path)) return tableLookup();
             if (RouteMapper.INSTANCE.isSpecialHop(path)) return specialHop(path);
             return simpleHop(path, interfaceContext, mappingContext);
         }
         return hopList(routeName, parsedHops, interfaceContext, routeHopContext, mappingContext, namesFactory);
     }
 
-    static NextHopOptions tableLookup(final FibPath fibPath) {
+    static NextHopOptions tableLookup() {
         return new TableLookupBuilder()
                 .setTableLookupParams(
                         new TableLookupParamsBuilder()

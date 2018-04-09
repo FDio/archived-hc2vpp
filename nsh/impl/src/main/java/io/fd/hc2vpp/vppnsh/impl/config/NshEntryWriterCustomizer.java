@@ -68,7 +68,7 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
             throws WriteFailedException {
         LOG.debug("Creating nsh entry: iid={} dataAfter={}", id, dataAfter);
         final int newEntryIndex =
-                nshAddDelEntry(true, id, dataAfter, ~0 /* value not present */, writeContext.getMappingContext());
+                nshAddDelEntry(true, id, dataAfter);
         // Add nsh entry name <-> vpp index mapping to the naming context:
         nshEntryContext.addName(newEntryIndex, dataAfter.getName(), writeContext.getMappingContext());
         LOG.debug("Successfully created nsh entry(id={]): iid={} dataAfter={}", newEntryIndex, id, dataAfter);
@@ -84,7 +84,7 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
                 "Removing nsh entry {}, but index could not be found in the nsh entry context", entryName);
 
         final int entryIndex = nshEntryContext.getIndex(entryName, writeContext.getMappingContext());
-        nshAddDelEntry(false, id, dataBefore, entryIndex, writeContext.getMappingContext());
+        nshAddDelEntry(false, id, dataBefore);
 
         // Remove deleted interface from interface context:
         nshEntryContext.removeName(dataBefore.getName(), writeContext.getMappingContext());
@@ -92,10 +92,10 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
     }
 
     private int nshAddDelEntry(final boolean isAdd, @Nonnull final InstanceIdentifier<NshEntry> id,
-                               @Nonnull final NshEntry entry, final int entryId, final MappingContext ctx)
+                               @Nonnull final NshEntry entry)
             throws WriteFailedException {
         final CompletionStage<NshAddDelEntryReply> createNshEntryReplyCompletionStage =
-                getFutureJVppNsh().nshAddDelEntry(getNshAddDelEntryRequest(isAdd, entryId, entry, ctx));
+                getFutureJVppNsh().nshAddDelEntry(getNshAddDelEntryRequest(isAdd, entry));
 
         final NshAddDelEntryReply reply =
                 getReplyForWrite(createNshEntryReplyCompletionStage.toCompletableFuture(), id);
@@ -145,9 +145,7 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
         request.tlvLength = cur_len;
     }
 
-    private NshAddDelEntry getNshAddDelEntryRequest(final boolean isAdd, final int entryIndex,
-                                                    @Nonnull final NshEntry entry,
-                                                    @Nonnull final MappingContext ctx) {
+    private NshAddDelEntry getNshAddDelEntryRequest(final boolean isAdd, @Nonnull final NshEntry entry) {
         final NshAddDelEntry request = new NshAddDelEntry();
         request.isAdd = booleanToByte(isAdd);
 

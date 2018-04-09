@@ -59,7 +59,7 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, writeContext.getMappingContext());
         // TODO - HC2VPP-92 - Add more descriptive exception handling after https://jira.fd.io/browse/VPP-649
-        setAddress(true, id, interfaceName, interfaceIndex, dataAfter, writeContext);
+        setAddress(true, id, interfaceName, interfaceIndex, dataAfter);
     }
 
     @Override
@@ -69,12 +69,11 @@ public class Ipv4AddressCustomizer extends FutureJVppCustomizer
         final String interfaceName = id.firstKeyOf(Interface.class).getName();
         final int interfaceIndex = interfaceContext.getIndex(interfaceName, writeContext.getMappingContext());
 
-        setAddress(false, id, interfaceName, interfaceIndex, dataBefore, writeContext);
+        setAddress(false, id, interfaceName, interfaceIndex, dataBefore);
     }
 
     private void setAddress(boolean add, final InstanceIdentifier<Address> id, final String interfaceName,
-                            final int interfaceIndex, final Address address,
-                            final WriteContext writeContext) throws WriteFailedException {
+                            final int interfaceIndex, final Address address) throws WriteFailedException {
 
         Subnet subnet = address.getSubnet();
 

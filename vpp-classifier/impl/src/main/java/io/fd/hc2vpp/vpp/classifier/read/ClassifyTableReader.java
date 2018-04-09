@@ -119,7 +119,7 @@ public class ClassifyTableReader extends FutureJVppCustomizer
         }
 
         final Optional<VppNode> node =
-            readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext(), LOG);
+            readVppNode(reply.tableId, reply.missNextIndex, classifyTableContext, ctx.getMappingContext());
         if (node.isPresent()) {
             builder.setMissNext(node.get());
         } else {
