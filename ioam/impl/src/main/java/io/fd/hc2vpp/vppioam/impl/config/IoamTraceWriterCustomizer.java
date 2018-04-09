@@ -68,7 +68,7 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamtraceCustomizer
                                         @Nonnull final TraceConfig dataAfter,
                                         @Nonnull final WriteContext ctx) throws WriteFailedException {
         try {
-            deleteTraceConfig(dataBefore, id);
+            deleteTraceConfig(id);
             addTraceConfig(dataAfter, id);
         } catch (Exception exUpdate) {
             LOG.error("Update Trace Configuration failed", exUpdate);
@@ -83,7 +83,7 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamtraceCustomizer
                                         @Nonnull final TraceConfig dataBefore,
                                         @Nonnull final WriteContext ctx) throws WriteFailedException {
         try {
-            deleteTraceConfig(dataBefore, id);
+            deleteTraceConfig(id);
         } catch (Exception exDelete) {
             LOG.error("Delete Trace Configuration failed", exDelete);
             throw new WriteFailedException.DeleteFailedException(id, exDelete);
@@ -109,13 +109,13 @@ public class IoamTraceWriterCustomizer extends FutureJVppIoamtraceCustomizer
         return reply;
     }
 
-    public TraceProfileDelReply deleteTraceConfig(TraceConfig dataBefore,
-                                                  final InstanceIdentifier<TraceConfig> id) throws WriteFailedException {
+    public TraceProfileDelReply deleteTraceConfig(final InstanceIdentifier<TraceConfig> id)
+        throws WriteFailedException {
         TraceProfileDel del = new TraceProfileDel();
 
         /* Write to VPP */
-        TraceProfileDelReply reply = getReplyForWrite((getFutureJVppIoamtrace().
-                                                      traceProfileDel(del).toCompletableFuture()), id);
+        TraceProfileDelReply reply = getReplyForWrite(getFutureJVppIoamtrace().traceProfileDel(del)
+            .toCompletableFuture(), id);
 
         return reply;
     }

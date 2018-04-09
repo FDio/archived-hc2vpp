@@ -35,7 +35,7 @@ interface VppNodeReader {
      */
     default Optional<VppNode> readVppNode(final int tableIndex, final int nodeIndex,
                                           @Nonnull final VppClassifierContextManager vppClassifierContextManager,
-                                          @Nonnull final MappingContext ctx, @Nonnull final Logger log) {
+                                          @Nonnull final MappingContext ctx) {
         final PacketHandlingAction action = PacketHandlingAction.forValue(nodeIndex);
         if (action == null) {
             return vppClassifierContextManager.getNodeName(tableIndex, nodeIndex, ctx)

@@ -180,7 +180,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         builder.setTtl(resolveTtl(details.ttl));
         builder.setAuthoritative(
                 new RemoteMapping.Authoritative(byteToBoolean(details.authoritative)));
-        resolveMappings(id, builder, details, ctx.getModificationCache(), ctx.getMappingContext());
+        resolveMappings(builder, details, ctx.getModificationCache(), ctx.getMappingContext());
     }
 
     @Override
@@ -229,7 +229,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         ((RemoteMappingsBuilder) builder).setRemoteMapping(readData);
     }
 
-    private void resolveMappings(final InstanceIdentifier id, final RemoteMappingBuilder builder,
+    private void resolveMappings(final RemoteMappingBuilder builder,
                                  final OneEidTableDetails details,
                                  final ModificationCache cache,
                                  final MappingContext mappingContext) throws ReadFailedException {

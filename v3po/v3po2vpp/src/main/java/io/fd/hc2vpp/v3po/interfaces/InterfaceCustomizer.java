@@ -62,7 +62,7 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
                                         @Nonnull final Interface dataAfter,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        updateInterface(id, dataBefore, dataAfter, writeContext);
+        updateInterface(id, dataAfter, writeContext);
     }
 
     @Override
@@ -89,7 +89,6 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     }
 
     private void updateInterface(final InstanceIdentifier<Interface> id,
-                                 final Interface dataBefore,
                                  final Interface dataAfter, final WriteContext writeContext)
             throws WriteFailedException {
         LOG.debug("Updating interface:{} to: {}", id, dataAfter);
