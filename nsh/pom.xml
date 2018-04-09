@@ -18,13 +18,13 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>hc2vpp-parent</artifactId>
-    <version>1.18.04-SNAPSHOT</version>
+    <version>1.18.04-RC1</version>
     <relativePath>../common/hc2vpp-parent</relativePath>
   </parent>
 
   <groupId>io.fd.hc2vpp.nsh</groupId>
   <artifactId>vppnsh-aggregator</artifactId>
-  <version>1.18.04-SNAPSHOT</version>
+  <version>1.18.04-RC1</version>
   <name>${project.artifactId}</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
