@@ -15,8 +15,8 @@ echo $(expr $BUILD_NUMBER + 2000)
 # echo RC2~$BUILD_NUMBER
 # echo RC2
 #
-# Release snapshot (1.18.04~XXX, 1.18.04.1~XXX, ...)
+# Release snapshot (1.18.07~XXX, 1.18.07.1~XXX, ...)
 # echo RELEASE~$BUILD_NUMBER
 #
-# Release version (1.18.04, 1.18.04.1, ...)
+# Release version (1.18.07, 1.18.07.1, ...)
 # echo RELEASE
