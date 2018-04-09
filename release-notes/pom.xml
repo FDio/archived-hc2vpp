@@ -110,7 +110,7 @@
                 <project-config-version>1-18-04</project-config-version>
                 <project-version-in-jira>11102</project-version-in-jira>
                 <project-branch>master</project-branch>
-                <project-odl-version>nitrogen</project-odl-version>
+                <project-odl-version>oxygen</project-odl-version>
                 <project-vpp-version>18.04</project-vpp-version>
                 <!-- TODO set snapshot version to project-vpp-version after VPP is released-->
                 <!--<project-vpp-snapshot-version>18.04</project-vpp-snapshot-version>-->
