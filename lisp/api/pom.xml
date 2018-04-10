@@ -30,7 +30,6 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <project.translate.groupId>io.fd.honeycomb</project.translate.groupId>
         <naming.context.version>1.18.01.2-SNAPSHOT</naming.context.version>
     </properties>
 
