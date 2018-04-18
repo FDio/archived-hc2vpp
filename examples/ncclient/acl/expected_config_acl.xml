@@ -1,0 +1,183 @@
+<!--
+  ~ Copyright (c) 2018 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <nat-config xmlns="urn:ietf:params:xml:ns:yang:ietf-nat">
+        <nat-instances>
+            <nat-instance>
+                <id>0</id>
+            </nat-instance>
+        </nat-instances>
+    </nat-config>
+    <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+        <interface>
+            <name>local0</name>
+            <type xmlns:x="urn:ietf:params:xml:ns:yang:iana-if-type">x:ethernetCsmacd</type>
+            <enabled>false</enabled>
+        </interface>
+        <interface>
+            <name>loop1</name>
+            <description>for testing purposes</description>
+            <type xmlns:x="urn:opendaylight:params:xml:ns:yang:v3po">x:loopback</type>
+            <loopback xmlns="urn:opendaylight:params:xml:ns:yang:v3po">
+                <mac>00:ff:ff:ff:ff:ff</mac>
+            </loopback>
+            <acl xmlns="urn:opendaylight:params:xml:ns:yang:interface:acl">
+                <ingress>
+                    <vpp-acls>
+                        <type xmlns:x="urn:opendaylight:params:xml:ns:yang:vpp:acl">x:vpp-acl</type>
+                        <name>tcp-acl</name>
+                    </vpp-acls>
+                    <vpp-acls>
+                        <type xmlns:x="urn:opendaylight:params:xml:ns:yang:vpp:acl">x:vpp-acl</type>
+                        <name>udp-acl</name>
+                    </vpp-acls>
+                    <vpp-macip-acl>
+                        <type xmlns:x="urn:opendaylight:params:xml:ns:yang:vpp:acl">x:vpp-macip-acl</type>
+                        <name>macip-acl</name>
+                    </vpp-macip-acl>
+                </ingress>
+            </acl>
+        </interface>
+    </interfaces>
+    <access-lists xmlns="urn:ietf:params:xml:ns:yang:ietf-access-control-list">
+        <acl>
+            <acl-name>macip-acl</acl-name>
+            <acl-type xmlns:x="urn:opendaylight:params:xml:ns:yang:vpp:acl">x:vpp-macip-acl</acl-type>
+            <access-list-entries>
+                <ace>
+                    <rule-name>macip-rule</rule-name>
+                    <matches>
+                        <vpp-macip-ace-nodes xmlns="urn:opendaylight:params:xml:ns:yang:vpp:acl">
+                            <source-ipv4-network>192.168.2.2/32</source-ipv4-network>
+                            <source-mac-address>aa:aa:aa:aa:aa:aa</source-mac-address>
+                            <source-mac-address-mask>ff:00:00:00:00:00</source-mac-address-mask>
+                        </vpp-macip-ace-nodes>
+                    </matches>
+                    <actions>
+                        <permit/>
+                    </actions>
+                </ace>
+            </access-list-entries>
+        </acl>
+        <acl>
+            <acl-name>icmp-v6-acl</acl-name>
+            <acl-type xmlns:x="urn:opendaylight:params:xml:ns:yang:vpp:acl">x:vpp-acl</acl-type>
+            <access-list-entries>
+                <ace>
+                    <rule-name>imcp-v6-rule</rule-name>
+                    <matches>
+                        <vpp-ace-nodes xmlns="urn:opendaylight:params:xml:ns:yang:vpp:acl">
+                            <destination-ipv6-network>2001:0db8:0a0b:12f0:0000:0000:0000:0001/64
+                            </destination-ipv6-network>
+                            <source-ipv6-network>2001:0db8:0a0b:12f0:0000:0000:0000:0002/48</source-ipv6-network>
+                            <icmp-v6-nodes>
+                                <icmp-type-range>
+                                    <last>8</last>
+                                    <first>5</first>
+                                </icmp-type-range>
+                                <icmp-code-range>
+                                    <last>3</last>
+                                    <first>1</first>
+                                </icmp-code-range>
+                            </icmp-v6-nodes>
+                        </vpp-ace-nodes>
+                    </matches>
+                    <actions>
+                        <permit/>
+                    </actions>
+                </ace>
+            </access-list-entries>
+        </acl>
+        <acl>
+            <acl-name>udp-acl</acl-name>
+            <acl-type xmlns:x="urn:opendaylight:params:xml:ns:yang:vpp:acl">x:vpp-acl</acl-type>
+            <access-list-entries>
+                <ace>
+                    <rule-name>udp-rule</rule-name>
+                    <matches>
+                        <vpp-ace-nodes xmlns="urn:opendaylight:params:xml:ns:yang:vpp:acl">
+                            <destination-ipv4-network>192.168.2.1/24</destination-ipv4-network>
+                            <source-ipv4-network>192.168.2.2/32</source-ipv4-network>
+                            <udp-nodes>
+                                <source-port-range>
+                                    <upper-port>5487</upper-port>
+                                    <lower-port>1</lower-port>
+                                </source-port-range>
+                                <destination-port-range>
+                                    <upper-port>6745</upper-port>
+                                    <lower-port>87</lower-port>
+                                </destination-port-range>
+                            </udp-nodes>
+                        </vpp-ace-nodes>
+                    </matches>
+                    <actions>
+                        <permit/>
+                    </actions>
+                </ace>
+            </access-list-entries>
+        </acl>
+        <acl>
+            <acl-name>tcp-acl</acl-name>
+            <acl-type xmlns:x="urn:opendaylight:params:xml:ns:yang:vpp:acl">x:vpp-acl</acl-type>
+            <access-list-entries>
+                <ace>
+                    <rule-name>tcp-rule</rule-name>
+                    <matches>
+                        <vpp-ace-nodes xmlns="urn:opendaylight:params:xml:ns:yang:vpp:acl">
+                            <destination-ipv4-network>192.168.2.1/24</destination-ipv4-network>
+                            <source-ipv4-network>192.168.2.2/32</source-ipv4-network>
+                            <tcp-nodes>
+                                <source-port-range>
+                                    <upper-port>5487</upper-port>
+                                    <lower-port>1</lower-port>
+                                </source-port-range>
+                                <destination-port-range>
+                                    <upper-port>6745</upper-port>
+                                    <lower-port>87</lower-port>
+                                </destination-port-range>
+                                <tcp-flags-mask>1</tcp-flags-mask>
+                                <tcp-flags-value>7</tcp-flags-value>
+                            </tcp-nodes>
+                        </vpp-ace-nodes>
+                    </matches>
+                    <actions>
+                        <permit/>
+                    </actions>
+                </ace>
+            </access-list-entries>
+        </acl>
+        <acl>
+            <acl-name>icmp-acl</acl-name>
+            <acl-type xmlns:x="urn:opendaylight:params:xml:ns:yang:vpp:acl">x:vpp-acl</acl-type>
+            <access-list-entries>
+                <ace>
+                    <rule-name>imcp-rule</rule-name>
+                    <matches>
+                        <vpp-ace-nodes xmlns="urn:opendaylight:params:xml:ns:yang:vpp:acl">
+                            <destination-ipv4-network>192.168.2.1/24</destination-ipv4-network>
+                            <source-ipv4-network>192.168.2.2/32</source-ipv4-network>
+                            <icmp-nodes>
+                                <icmp-type-range>
+                                    <last>8</last>
+                                    <first>5</first>
+                                </icmp-type-range>
+                                <icmp-code-range>
+                                    <last>3</last>
+                                    <first>1</first>
+                                </icmp-code-range>
+                            </icmp-nodes>
+                        </vpp-ace-nodes>
+                    </matches>
+                    <actions>
+                        <permit/>
+                    </actions>
+                </ace>
+            </access-list-entries>
+        </acl>
+    </access-lists>
+</data>

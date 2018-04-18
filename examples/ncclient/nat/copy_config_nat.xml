@@ -1,0 +1,82 @@
+<!--
+  ~ Copyright (c) 2018 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+<config>
+    <nat-config xmlns="urn:ietf:params:xml:ns:yang:ietf-nat">
+        <nat-instances>
+            <nat-instance>
+                <id>0</id>
+                <external-ip-address-pool>
+                    <pool-id>2</pool-id>
+                    <external-ip-pool>172.16.2.123/32</external-ip-pool>
+                </external-ip-address-pool>
+                <external-ip-address-pool>
+                    <pool-id>3</pool-id>
+                    <external-ip-pool>10.10.10.1/30</external-ip-pool>
+                    <pool-type xmlns="urn:opendaylight:params:xml:ns:yang:vpp:nat">nat64</pool-type>
+                </external-ip-address-pool>
+                <external-ip-address-pool>
+                    <pool-id>1</pool-id>
+                    <external-ip-pool>172.16.2.0/30</external-ip-pool>
+                </external-ip-address-pool>
+                <mapping-table>
+                    <mapping-entry>
+                        <index>1</index>
+                        <external-src-address>10.1.1.3</external-src-address>
+                        <type>static</type>
+                        <transport-protocol>6</transport-protocol>
+                        <external-src-port>
+                            <single-port-number>5678</single-port-number>
+                        </external-src-port>
+                        <internal-src-port>
+                            <single-port-number>1234</single-port-number>
+                        </internal-src-port>
+                        <internal-src-address>2001:db8:85a3::8a2e:370:7334</internal-src-address>
+                    </mapping-entry>
+                </mapping-table>
+                <nat64-prefixes>
+                    <nat64-prefix-id>0</nat64-prefix-id>
+                    <nat64-prefix>2001:db8:122:300::/56</nat64-prefix>
+                </nat64-prefixes>
+            </nat-instance>
+        </nat-instances>
+    </nat-config>
+    <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+        <interface>
+            <name>local0</name>
+            <type xmlns:x="urn:ietf:params:xml:ns:yang:iana-if-type">x:ethernetCsmacd</type>
+            <enabled>false</enabled>
+        </interface>
+        <interface>
+            <name>loop1</name>
+            <description>for testing purposes</description>
+            <type xmlns:x="urn:opendaylight:params:xml:ns:yang:v3po">x:loopback</type>
+            <loopback xmlns="urn:opendaylight:params:xml:ns:yang:v3po">
+                <mac>01:ff:ff:ff:ff:ff</mac>
+            </loopback>
+            <nat xmlns="urn:opendaylight:params:xml:ns:yang:interface:nat">
+                <outbound>
+                    <post-routing>true</post-routing>
+                </outbound>
+            </nat>
+        </interface>
+        <interface>
+            <name>loop0</name>
+            <description>for testing purposes</description>
+            <type xmlns:x="urn:opendaylight:params:xml:ns:yang:v3po">x:loopback</type>
+            <loopback xmlns="urn:opendaylight:params:xml:ns:yang:v3po">
+                <mac>00:ff:ff:ff:ff:ff</mac>
+            </loopback>
+            <nat xmlns="urn:opendaylight:params:xml:ns:yang:interface:nat">
+                <inbound>
+                    <nat64-support>true</nat64-support>
+                    <nat44-support>false</nat44-support>
+                </inbound>
+            </nat>
+        </interface>
+    </interfaces>
+</config>
