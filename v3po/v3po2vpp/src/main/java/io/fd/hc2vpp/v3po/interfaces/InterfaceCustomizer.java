@@ -40,6 +40,8 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<Interface, InterfaceKey>, JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceCustomizer.class);
+    private static final String LOCAL0_NAME = "local0";
+
     private final NamingContext interfaceContext;
 
     public InterfaceCustomizer(final FutureJVppCore vppApi, final NamingContext interfaceContext) {
@@ -68,8 +70,14 @@ public class InterfaceCustomizer extends FutureJVppCustomizer
     @Override
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Interface> id,
                                         @Nonnull final Interface dataBefore,
-                                        @Nonnull final WriteContext writeContext) {
-        // Nothing to be done here, customizers for specific interface types e.g. vxlan handle the delete
+                                        @Nonnull final WriteContext writeContext)
+        throws WriteFailedException.DeleteFailedException {
+        // Special handling for local0 interface (HC2VPP-308):
+        if (LOCAL0_NAME.equals(dataBefore.getName())) {
+            throw new WriteFailedException.DeleteFailedException(id,
+                new UnsupportedOperationException("Removing " + LOCAL0_NAME + " interface is not supported"));
+        }
+        // For other interfaces, delegate delete  to customizers for specific interface types (e.g. VXLan, Tap).
     }
 
     private void setInterface(final InstanceIdentifier<Interface> id, final Interface swIf,

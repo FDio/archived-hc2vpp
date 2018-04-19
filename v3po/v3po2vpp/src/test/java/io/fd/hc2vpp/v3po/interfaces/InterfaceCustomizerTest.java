@@ -43,9 +43,13 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
     private static final String IF_NAME = "eth1";
     private static final int IF_INDEX = 1;
 
-    private InterfaceCustomizer customizer;
-    private InstanceIdentifier<Interface> IID =
+    private static final InstanceIdentifier<Interface> IID =
         InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(IF_NAME));
+
+    private static final String LOCAL0_IFC_NAME = "local0";
+    private static final InstanceIdentifier<Interface> LOCAL0_IID =
+        InstanceIdentifier.create(Interfaces.class).child(Interface.class, new InterfaceKey(LOCAL0_IFC_NAME));
+    private InterfaceCustomizer customizer;
 
     @Override
     protected void setUpTest() throws Exception {
@@ -99,6 +103,13 @@ public class InterfaceCustomizerTest extends WriterCustomizerTest implements Byt
     public void testDelete() throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, mock(Interface.class), writeContext);
         verifyZeroInteractions(api);
+    }
+
+    @Test(expected = WriteFailedException.DeleteFailedException.class)
+    public void testDeleteLocal0() throws WriteFailedException {
+        final Interface ifc = mock(Interface.class);
+        when(ifc.getName()).thenReturn(LOCAL0_IFC_NAME);
+        customizer.deleteCurrentAttributes(LOCAL0_IID, ifc, writeContext);
     }
 
     private Interface iface(final boolean enabled) {
