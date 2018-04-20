@@ -42,5 +42,12 @@ final class NatInstaceCustomizer implements ListWriterCustomizer<NatInstance, Na
                                         @Nonnull final NatInstance dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         LOG.trace("Deleting nat-instance: {}", id);
+
+        // For consistency with reader, forbid removing default NAT instance:
+        final Long vrfId = id.firstKeyOf(NatInstance.class).getId();
+        if (vrfId == 0) {
+            throw new WriteFailedException.DeleteFailedException(id,
+                new UnsupportedOperationException("Removing default NAT instance (vrf=0) is not supported."));
+        }
     }
 }
