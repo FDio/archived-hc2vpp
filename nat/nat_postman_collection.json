@@ -154,7 +154,7 @@
 		{
 			"id": "376fb011-96eb-fc09-4f87-0a16a9532ea9",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/external-ip-address-pool/1/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/external-ip-address-pool/3/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -169,7 +169,7 @@
 			"description": "CLI: vppctl nat64 add pool address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvppctl show nat64 pool\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT",
 			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
 			"responses": [],
-			"rawModeData": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 1,\r\n\t\t\"external-ip-pool\": \"172.16.2.0/30\",\r\n        \"vpp-nat:pool-type\": \"nat64\"\r\n\t}\r\n}"
+			"rawModeData": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 3,\r\n\t\t\"external-ip-pool\": \"172.16.2.0/30\",\r\n        \"vpp-nat:pool-type\": \"nat64\"\r\n\t}\r\n}"
 		},
 		{
 			"id": "3a930fbc-f103-63e9-8d9d-3ecf496f1d24",
