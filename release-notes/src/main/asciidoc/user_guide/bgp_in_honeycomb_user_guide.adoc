@@ -5,7 +5,7 @@ link:release_notes.html[< Home]
 Honeycomb uses link:https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP_Use_Cases[Opendaylight's BGP]
 as a part of default distribution.
 
-Following guide is based on ODL's link:http://docs.opendaylight.org/en/stable-{project-odl-version}/user-guide/bgp-user-guide.html#overview[BGP User Guide].
+Following guide is based on ODL's link:http://docs.opendaylight.org/en/stable-{project-odl-version}/user-guide/bgpcep-guide/bgp/index.html[BGP User Guide].
 
 == Basic configuration
 
@@ -128,7 +128,7 @@ Here is a sample basic neighbor configuration:
 }
 ----
 
-We can use link:http://docs.opendaylight.org/en/stable-{project-odl-version}/user-guide/bgp-user-guide.html#bgp-test-tool[BGP's testtool]
+We can use link:http://docs.opendaylight.org/en/stable-{project-odl-version}/user-guide/bgpcep-guide/bgp/bgp-user-guide-test-tools.html[BGP's testtool]
 to simulate remote BGP peer:
 
   java -jar ./target/bgp-testtool-*-executable.jar -ra 127.0.0.1:1790 -la 127.0.0.2:17900 -pr 2 -ll DEBUG --active true -as 65000 -mp true
@@ -704,7 +704,7 @@ Also the same route should appeared in Loc-RIB now:
 
 Honeycomb BGP implementation emits notifications on loc-rib modifications.
 Hc2vpp provides BgpInetModule module which translates
-link:http://docs.opendaylight.org/en/stable-{project-odl-version}/user-guide/bgp-user-guide.html#ip-unicast-api[IPv4/IPv6 unicast]
+link:http://docs.opendaylight.org/en/stable-{project-odl-version}/user-guide/bgpcep-guide/bgp/bgp-user-guide-ip-unicast-family.html[IP Unicast Family]
 routes from loc-rib into VPP FIB.
 
 The BgpInetModule is disabled by default. To enable it, edit
