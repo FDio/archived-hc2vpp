@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.export.rev170206.IoamExport;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.ioam.sb.export.rev170206.IoamExportBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

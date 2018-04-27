@@ -7,7 +7,7 @@
           "ingress": {
             "vpp-acls": [
               {
-                "type": "vpp-acl",
+                "type": "vpp-acl:vpp-acl",
                 "name": "acl1"
               }
             ]
@@ -20,7 +20,7 @@
           "egress": {
             "vpp-acls": [
               {
-                "type": "vpp-acl",
+                "type": "vpp-acl:vpp-acl",
                 "name": "acl1"
               }
             ]
@@ -28,7 +28,7 @@
           "ingress": {
             "vpp-acls": [
               {
-                "type": "vpp-acl",
+                "type": "vpp-acl:vpp-acl",
                 "name": "acl2"
               }
             ]
@@ -41,13 +41,13 @@
           "ingress": {
             "vpp-acls": [
               {
-                "type": "vpp-acl",
+                "type": "vpp-acl:vpp-acl",
                 "name": "acl1"
               }
             ],
             "vpp-macip-acl": {
               "name": "acl4",
-              "type": "vpp-macip-acl"
+              "type": "vpp-acl:vpp-macip-acl"
             }
           }
         }
