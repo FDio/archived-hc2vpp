@@ -31,14 +31,14 @@
     <version>1.18.04-SNAPSHOT</version>
 
     <properties>
-        <mockito-core.version>1.10.19</mockito-core.version>
-        <junit.version>4.12</junit.version>
+        <mockito-core.version>2.2.9</mockito-core.version>
+        <junit.version>4.11</junit.version>
         <guice.version>4.1.0</guice.version>
         <asm.version>5.2</asm.version>
         <asciidoctorj.version>1.5.4</asciidoctorj.version>
         <slf4j-simple.version>1.7.25</slf4j-simple.version>
         <jvpp.version>18.04-SNAPSHOT</jvpp.version>
-        <guava.version>19.0</guava.version>
+        <guava.version>23.6-jre</guava.version>
         <reflections.version>0.9.11</reflections.version>
 
         <coverage.modules/>
