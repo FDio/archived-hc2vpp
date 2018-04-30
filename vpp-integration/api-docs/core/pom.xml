@@ -29,7 +29,7 @@
     <groupId>io.fd.hc2vpp.docs</groupId>
     <artifactId>docs-core</artifactId>
     <version>1.18.07-SNAPSHOT</version>
-
+    <name>${project.artifactId}</name>
     <properties>
         <mockito-core.version>2.2.9</mockito-core.version>
         <junit.version>4.11</junit.version>

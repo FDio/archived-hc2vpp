@@ -27,6 +27,7 @@
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>vpp-common-integration</artifactId>
     <version>1.18.07-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
 
     <properties>
         <jvpp.version>18.07-SNAPSHOT</jvpp.version>

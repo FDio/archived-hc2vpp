@@ -26,6 +26,7 @@
     <groupId>io.fd.hc2vpp.routing</groupId>
     <artifactId>routing-api</artifactId>
     <version>1.18.07-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
     <packaging>bundle</packaging>
 
     <dependencies>

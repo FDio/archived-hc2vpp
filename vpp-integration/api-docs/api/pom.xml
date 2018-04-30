@@ -38,6 +38,7 @@
     </properties>
 
     <artifactId>docs-api</artifactId>
+    <name>${project.artifactId}</name>
     <groupId>io.fd.hc2vpp.docs</groupId>
     <version>1.18.07-SNAPSHOT</version>
 
