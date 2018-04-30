@@ -10,10 +10,14 @@ https://wiki.fd.io/view/Hc2vpp/Release_Plans/Release_Plan_{project-public-versio
 Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.18.01/hc2vpp-parent/release-notes-aggregator/release_notes.html#_features[1801 feature list]:
 
 === New features
+* https://jira.fd.io/browse/HC2VPP-312[<copy-config> support (1.18.04 extension)]
+* https://jira.fd.io/browse/HC2VPP-313[Configuration examples using ncclient library]
 
 === Removed features
 
 === Modified features
+* https://jira.fd.io/browse/HC2VPP-289[Fixed identity names in the vpp-vlan YANG model]
+* https://jira.fd.io/browse/HC2VPP-301[Fixed issues in YANG models reported by pyang]
 
 === Deprecated features
 
