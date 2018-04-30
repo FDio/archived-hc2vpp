@@ -29,6 +29,7 @@
 
     <groupId>io.fd.hc2vpp.management</groupId>
     <artifactId>vpp-management-impl</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.18.04-SNAPSHOT</version>
 
     <dependencies>

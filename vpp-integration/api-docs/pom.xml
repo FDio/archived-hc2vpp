@@ -28,6 +28,7 @@
 
     <groupId>io.fd.hc2vpp.docs</groupId>
     <artifactId>api-docs</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
     <version>1.18.04-SNAPSHOT</version>
 

@@ -27,6 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.routing</groupId>
     <artifactId>routing-impl</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.18.04-SNAPSHOT</version>
     <packaging>bundle</packaging>
 

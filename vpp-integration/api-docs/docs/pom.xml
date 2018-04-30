@@ -22,6 +22,7 @@
 
     <groupId>io.fd.hc2vpp.docs</groupId>
     <artifactId>docs</artifactId>
+    <name>${project.artifactId}</name>
     <version>1.18.04-SNAPSHOT</version>
 
     <properties>
