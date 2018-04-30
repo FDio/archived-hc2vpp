@@ -23,7 +23,7 @@
     <groupId>io.fd.hc2vpp.docs</groupId>
     <artifactId>scripts</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.04-SNAPSHOT</version>
+    <version>1.18.04</version>
 
     <properties>
         <groovy.version>2.4.7</groovy.version>
