@@ -60,7 +60,7 @@ public final class Ipv6RouteNamesFactory implements RouteMapper {
     public String uniqueRouteName(@Nonnull final Ip6FibDetails details, @Nonnull final MappingContext mappingContext) {
         return bindName(routingProtocolContext.getName(details.tableId, mappingContext),
                 doubleDotlessAddress(details.address),
-                String.valueOf(details.addressLength));
+                String.valueOf(Byte.toUnsignedInt(details.addressLength)));
     }
 
     public String uniqueRouteHopName(

@@ -63,7 +63,7 @@ public interface RouteRequestProducer extends ByteDataTranslator, AddressTransla
         checkArgument(
                 allowedPrefixPatterns.stream().anyMatch(pattern -> Pattern.compile(pattern).matcher(value).matches()),
                 "%s is not a valid Ip-prefix value");
-        return Byte.valueOf(value.substring(value.indexOf("/") + 1));
+        return Integer.valueOf(value.substring(value.indexOf("/") + 1)).byteValue();
     }
 
     default boolean classifyTablePresent(final String classifyTableName,
