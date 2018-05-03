@@ -60,7 +60,7 @@ public interface Ipv6Translator extends ByteDataTranslator {
     default byte extractPrefix(Ipv6Prefix data) {
         checkNotNull(data, "Cannot extract from null");
 
-        return Byte.valueOf(data.getValue().substring(data.getValue().indexOf('/') + 1));
+        return Integer.valueOf(data.getValue().substring(data.getValue().indexOf('/') + 1)).byteValue();
     }
 
     /**
