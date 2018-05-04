@@ -97,6 +97,7 @@ public class CoverageGenerator implements VppApiUtils {
                             // binds Yang types with links from pre-build index
                             // TODO - use deserialized yii e.g. /module:parent-node/child-node
                             builder.setYangTypes(handler.getHandledNodes().stream()
+                                .filter(YangTypeLinkIndex::hasQname)
                                 .map(type -> new YangType(type, yangTypeIndex.getLinkForType(type)))
                                 .collect(Collectors.toList()));
 

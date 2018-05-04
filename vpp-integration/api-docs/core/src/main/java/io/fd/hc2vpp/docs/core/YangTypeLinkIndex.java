@@ -20,9 +20,15 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
+
 import org.opendaylight.yangtools.yang.common.QName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class YangTypeLinkIndex {
+
+    private static final Logger LOG = LoggerFactory.getLogger(YangTypeLinkIndex.class);
 
     private final ModelLinkIndex modelLinkIndex;
     private final ModelTypeIndex modelTypeIndex;
@@ -36,6 +42,24 @@ public class YangTypeLinkIndex {
         }
     }
 
+    // to be able to skip augments without QNAME field
+    static boolean hasQname(final String classname) {
+        final Class<?> loadedClass;
+        try {
+            loadedClass = YangTypeLinkIndex.class.getClassLoader().loadClass(classname);
+            boolean
+                hasQname = Arrays.stream(loadedClass.getFields())
+                    .anyMatch(field -> field.getName().equalsIgnoreCase("QNAME"));
+            if (!hasQname) {
+                LOG.warn("Class {} does not have a QNAME field", classname);
+            }
+
+            return hasQname;
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(format("Unable to load classname: %s", classname), e);
+        }
+    }
+
     public String getLinkForType(final String classname) {
         final Class<?> loadedClass;
         final QName qname;
@@ -46,7 +70,6 @@ public class YangTypeLinkIndex {
         } catch (ClassNotFoundException | IllegalAccessException | NoSuchFieldException e) {
             throw new IllegalStateException(format("Unable to extract QNAME from %s", classname), e);
         }
-
 
         final String namespace = qname.getNamespace().toString();
         final String formattedRevision = qname.getRevision().get().toString();
