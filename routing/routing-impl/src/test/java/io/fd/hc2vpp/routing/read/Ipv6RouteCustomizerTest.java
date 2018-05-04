@@ -23,14 +23,17 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Receive;
 
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.Ipv6RouteData;
 import io.fd.hc2vpp.routing.RoutingConfiguration;
+import io.fd.hc2vpp.routing.helpers.ClassifyTableTestHelper;
 import io.fd.hc2vpp.routing.naming.Ipv6RouteNamesFactory;
 import io.fd.hc2vpp.routing.trait.RouteMapper;
+import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
@@ -45,28 +48,34 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.StaticRoutes2;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv6Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.RouteKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.NextHopOptions;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.SimpleNextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.SpecialNextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHopKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.RoutingProtocols;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocol;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocolKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.StaticRoutes1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.RouteKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.NextHop1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.NextHop1Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.SimpleNextHop1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Static;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.NextHopOptions;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.NextHopList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SimpleNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SpecialNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHopKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.ControlPlaneProtocols;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentationBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, RouteKey, RouteBuilder>
-        implements RouteMapper {
+        implements RouteMapper, ClassifyTableTestHelper {
 
     private static final String ROUTING_PROTOCOL_PREFIX = "route-p-";
     private DumpCacheManager<Ip6FibDetailsReplyDump, Void> manager;
@@ -82,6 +91,9 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
     @Mock
     private ModificationCache cache;
+
+    @Mock
+    private VppClassifierContextManager classifyManager;
 
     private NamingContext interfaceContext;
     private NamingContext routesContext;
@@ -107,15 +119,18 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         routesContext = new NamingContext("routes", "route-context");
         routingProtocolContext = new NamingContext("routing-protocol", "routing-protocol-context");
 
-        final InstanceIdentifier<Ipv6> ipv6InstanceIdentifier = InstanceIdentifier.create(RoutingProtocols.class)
-                .child(RoutingProtocol.class, new RoutingProtocolKey(ROUTE_PROTOCOL_NAME))
+        final InstanceIdentifier<Ipv6> ipv6InstanceIdentifier = InstanceIdentifier.create(ControlPlaneProtocols.class)
+                .child(ControlPlaneProtocol.class, new ControlPlaneProtocolKey(ROUTE_PROTOCOL_NAME, Static.class))
                 .child(StaticRoutes.class)
-                .augmentation(StaticRoutes2.class)
+                .augmentation(StaticRoutes1.class)
                 .child(Ipv6.class);
 
-        routeIdSpecialHop = ipv6InstanceIdentifier.child(Route.class, new RouteKey(1L));
-        routeIdSimpleHop = ipv6InstanceIdentifier.child(Route.class, new RouteKey(2L));
-        routeIdListHop = ipv6InstanceIdentifier.child(Route.class, new RouteKey(3L));
+        routeIdSpecialHop =
+            ipv6InstanceIdentifier.child(Route.class, new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::1/24")));
+        routeIdSimpleHop =
+            ipv6InstanceIdentifier.child(Route.class, new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/22")));
+        routeIdListHop =
+            ipv6InstanceIdentifier.child(Route.class, new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/16")));
 
         factory = new Ipv6RouteNamesFactory(interfaceContext, routingProtocolContext);
 
@@ -135,6 +150,8 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         Ip6FibDetails listRoute = replyDump.ip6FibDetails.get(2);
         String listRouteName = factory.uniqueRouteName(listRoute, mappingContext);
         defineMapping(mappingContext, listRouteName, 3, "route-context");
+
+        addMapping(classifyManager, CLASSIFY_TABLE_NAME, CLASSIFY_TABLE_INDEX, mappingContext);
 
         when(routeHopContext.getChildIndex(listRouteName, factory.uniqueRouteHopName(listRoute.path[0], mappingContext),
                 mappingContext))
@@ -201,7 +218,9 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         final List<RouteKey> keys = getCustomizer().getAllIds(routeIdSpecialHop, ctx);
 
         assertThat(keys, hasSize(3));
-        assertThat(keys, hasItems(new RouteKey(1L), new RouteKey(2L), new RouteKey(3L)));
+        assertThat(keys, hasItems(new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::1/24")),
+                                  new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/22")),
+                                  new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/16"))));
     }
 
     @Test
@@ -209,15 +228,14 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         final RouteBuilder builder = new RouteBuilder();
         getCustomizer().readCurrentAttributes(routeIdSpecialHop, builder, ctx);
 
-        assertEquals(1, builder.getId().intValue());
-        assertEquals(1, builder.getKey().getId().intValue());
+        assertEquals(new Ipv6Prefix("2001:db8:a0b:12f0::1/24"), builder.getDestinationPrefix());
         assertEquals("2001:db8:a0b:12f0::1/24", builder.getDestinationPrefix().getValue());
 
-        NextHopOptions hopOptions = builder.getNextHopOptions();
+        NextHopOptions hopOptions = builder.getNextHop().getNextHopOptions();
         assertTrue(hopOptions instanceof SpecialNextHop);
 
         SpecialNextHop hop = SpecialNextHop.class.cast(hopOptions);
-        assertEquals(SpecialNextHopGrouping.SpecialNextHop.Receive, hop.getSpecialNextHop());
+        assertEquals(Receive, hop.getSpecialNextHopEnum());
     }
 
     @Test
@@ -225,15 +243,15 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         final RouteBuilder builder = new RouteBuilder();
         getCustomizer().readCurrentAttributes(routeIdSimpleHop, builder, ctx);
 
-        assertEquals(2, builder.getId().intValue());
-        assertEquals(2, builder.getKey().getId().intValue());
+        assertEquals(new Ipv6Prefix("2001:db8:a0b:12f0::2/22"), builder.getDestinationPrefix());
         assertEquals("2001:db8:a0b:12f0::2/22", builder.getDestinationPrefix().getValue());
 
-        NextHopOptions hopOptions = builder.getNextHopOptions();
+        NextHopOptions hopOptions = builder.getNextHop().getNextHopOptions();
         assertTrue(hopOptions instanceof SimpleNextHop);
 
         SimpleNextHop hop = SimpleNextHop.class.cast(hopOptions);
-        assertEquals("2001:db8:a0b:12f0::1", hop.getNextHop().getValue());
+        assertEquals("2001:db8:a0b:12f0::1", hop.getAugmentation(SimpleNextHop1.class)
+            .getNextHopAddress().getValue());
         assertEquals("iface-1", hop.getOutgoingInterface());
     }
 
@@ -244,11 +262,10 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         final RouteBuilder builder = new RouteBuilder();
         getCustomizer().readCurrentAttributes(routeIdListHop, builder, ctx);
 
-        assertEquals(3, builder.getId().intValue());
-        assertEquals(3, builder.getKey().getId().intValue());
+        assertEquals(new Ipv6Prefix("2001:db8:a0b:12f0::2/16"), builder.getDestinationPrefix());
         assertEquals("2001:db8:a0b:12f0::2/16", builder.getDestinationPrefix().getValue());
 
-        NextHopOptions hopOptions = builder.getNextHopOptions();
+        NextHopOptions hopOptions = builder.getNextHop().getNextHopOptions();
         assertTrue(hopOptions instanceof NextHopList);
 
         NextHopList hop = NextHopList.class.cast(hopOptions);
@@ -256,32 +273,34 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
         assertThat(hops, hasSize(2));
 
-        assertTrue(areEqual(hops.get(0), desiredHop(0L, "2001:db8:a0b:12f0::1", 1, "iface-1")));
-        assertTrue(areEqual(hops.get(1), desiredHop(1L, "2001:db8:a0b:12f0::2", 2, "iface-1")));
+        assertTrue(areEqual(hops.get(0), desiredHop("0", "2001:db8:a0b:12f0::1", 1, "iface-1")));
+        assertTrue(areEqual(hops.get(1), desiredHop("1", "2001:db8:a0b:12f0::2", 2, "iface-1")));
     }
 
     private boolean areEqual(final NextHop first, final NextHop second) {
         return new EqualsBuilder()
-                .append(true, first.getAddress().getValue().equals(second.getAddress().getValue()))
-                .append(true, first.getId().equals(second.getId()))
+                .append(true, first.getAugmentation(NextHop1.class).getNextHopAddress().getValue()
+                    .equals(second.getAugmentation(NextHop1.class).getNextHopAddress().getValue()))
+                .append(true, first.getIndex().equals(second.getIndex()))
                 .append(true, first.getKey().equals(second.getKey()))
                 .append(true, first.getOutgoingInterface().equals(second.getOutgoingInterface()))
                 .isEquals();
     }
 
-    private NextHop desiredHop(final long id, final String address, final int weight, final String iface) {
+    private NextHop desiredHop(final String id, final String address, final int weight, final String iface) {
         return new NextHopBuilder()
-                .setAddress(new Ipv6Address(address))
-                .setWeight((short) weight)
-                .setOutgoingInterface(iface)
-                .setId(id)
-                .setKey(new NextHopKey(id))
-                .build();
+            .setOutgoingInterface(iface)
+            .setIndex(id)
+            .setKey(new NextHopKey(id))
+            .addAugmentation(NextHop1.class, new NextHop1Builder().setNextHopAddress(new Ipv6Address(address)).build())
+            .addAugmentation(VppIpv6NextHopAugmentation.class,
+                             new VppIpv6NextHopAugmentationBuilder().setWeight((short) weight).build())
+            .build();
     }
 
     @Override
     protected ReaderCustomizer<Route, RouteBuilder> initCustomizer() {
         return new Ipv6RouteCustomizer(manager, configuration, routeHopContext,
-                interfaceContext, routesContext, routingProtocolContext);
+                                       interfaceContext, routesContext, routingProtocolContext);
     }
 }

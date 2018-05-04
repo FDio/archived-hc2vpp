@@ -16,6 +16,9 @@
 
 package io.fd.hc2vpp.routing.write;
 
+import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_INDEX;
+import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_NAME;
+
 import com.google.common.collect.ImmutableList;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
@@ -36,28 +39,27 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.StaticRoutes1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.RouteKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.TableLookupBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.table.lookup.TableLookupParamsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.RoutingProtocols;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocol;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocolKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.VniReference;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.StaticRoutes1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.RouteKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Static;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.TableLookupCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.ControlPlaneProtocols;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.types.rev180406.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_INDEX;
-import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_NAME;
 
 @RunWith(HoneycombTestRunner.class)
 public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
         implements RoutingRequestTestHelper, ClassifyTableTestHelper, SchemaContextTestHelper {
 
     private static final int ROUTE_PROTOCOL_INDEX = 1;
+    public static final Ipv6Prefix IPV_6_PREFIX = new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/64");
     @Captor
     private ArgumentCaptor<IpAddDelRoute> requestCaptor;
 
@@ -84,8 +86,8 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
                 new Ipv6RouteCustomizer(api, interfaceContext, routeContext, routingProtocolContext, routeHopContext,
                         classifyManager);
 
-        validId = InstanceIdentifier.create(RoutingProtocols.class)
-                .child(RoutingProtocol.class, new RoutingProtocolKey(ROUTE_PROTOCOL_NAME))
+        validId = InstanceIdentifier.create(ControlPlaneProtocols.class)
+                .child(ControlPlaneProtocol.class, new ControlPlaneProtocolKey(ROUTE_PROTOCOL_NAME, Static.class))
                 .child(StaticRoutes.class)
                 .augmentation(StaticRoutes1.class)
                 .child(Ipv6.class)
@@ -103,7 +105,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
             @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
-        customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
+        customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, IPV_6_PREFIX), writeContext);
         verifyInvocation(1, ImmutableList
                 .of(desiredFlaglessResult(1, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
                         Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, ROUTE_PROTOCOL_INDEX,
@@ -114,19 +116,17 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
     @Test
     public void testWriteTableLookup() throws WriteFailedException {
         final Route route = new RouteBuilder()
-                .setKey(new RouteKey(2L))
-                .setDestinationPrefix(new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/24"))
-                .setNextHopOptions(new TableLookupBuilder()
-                        .setTableLookupParams(new TableLookupParamsBuilder()
-                                .setSecondaryVrf(new VniReference(4L))
-                                .build())
-                        .build())
+                .setKey(new RouteKey(IPV_6_PREFIX))
+                .setDestinationPrefix(IPV_6_PREFIX)
+                .setNextHop(new NextHopBuilder().setNextHopOptions(new TableLookupCaseBuilder()
+                        .setSecondaryVrf(new VniReference(4L))
+                        .build()).build())
                 .build();
         whenAddRouteThenSuccess(api);
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route), "route-context");
         customizer.writeCurrentAttributes(validId, route, writeContext);
         verifyInvocation(1, ImmutableList
-                        .of(desiredFlaglessResult(1, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
+                        .of(desiredFlaglessResult(1, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
                                 new byte[4], ~0, 0, ROUTE_PROTOCOL_INDEX, 4,
                                 0, 0)),
                 api, requestCaptor);
@@ -137,7 +137,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
             @InjectTestData(resourcePath = "/ipv6/multihop/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
-        customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
+        customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, IPV_6_PREFIX), writeContext);
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(1, 1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
@@ -160,11 +160,12 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
             @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
-        customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, 1L),
+        customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, IPV_6_PREFIX),
                 writeContext);
         verifyInvocation(1, ImmutableList
-                        .of(desiredSpecialResult(0, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0, ROUTE_PROTOCOL_INDEX, 0)), api,
-                requestCaptor);
+                        .of(desiredSpecialResult(0, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
+                                                 1, 0, 0, 0, ROUTE_PROTOCOL_INDEX, 0)),
+                         api, requestCaptor);
     }
 
     @Test
@@ -172,7 +173,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
             @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
-        customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
+        customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, IPV_6_PREFIX), writeContext);
         verifyInvocation(1, ImmutableList
                 .of(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
                         Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1,
@@ -184,7 +185,7 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
             @InjectTestData(resourcePath = "/ipv6/multihop/multiHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
-        customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, 1L), writeContext);
+        customizer.deleteCurrentAttributes(validId, getIpv6RouteWithId(route, IPV_6_PREFIX), writeContext);
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(0, 1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
@@ -201,10 +202,11 @@ public class Ipv6RouteCustomizerTest extends WriterCustomizerTest
             @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
         whenAddRouteThenSuccess(api);
-        customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, 1L),
+        customizer.writeCurrentAttributes(validId, getIpv6RouteWithId(route, IPV_6_PREFIX),
                 writeContext);
         verifyInvocation(1, ImmutableList
-                        .of(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0, ROUTE_PROTOCOL_INDEX, 0)), api,
-                requestCaptor);
+                        .of(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
+                                                 1, 0, 0, 0, ROUTE_PROTOCOL_INDEX, 0)),
+                         api, requestCaptor);
     }
 }

@@ -78,9 +78,13 @@ module hc2vpp-ietf-mpls {
   }
 
   /* Identities */
-
+  /*
+    added "-identity" to resolve class naming conflicts
+    bug in mdsal reported here: https://jira.opendaylight.org/browse/MDSAL-332
+    TODO(HC2VPP-298): remove "-identity" postfix when resolved
+  */
   identity mpls {
-    base rt:address-family;
+    base rt:address-family-identity;
     description
       "This identity represents the MPLS address family.";
   }
@@ -350,9 +354,6 @@ module hc2vpp-ietf-mpls {
         "MPLS local label.";
     }
   }
-/*
-  TODO: we use older routing model which does not define next-hop container under route.
-  Uncomment following augmentation after HC2VPP-253 is resolved.
 
   augment "/rt:routing-state/rt:ribs/rt:rib/rt:routes/rt:route/"
         + "rt:next-hop/rt:next-hop-options/rt:simple-next-hop" {
@@ -370,13 +371,10 @@ module hc2vpp-ietf-mpls {
     uses nhlfe-contents;
   }
 
-  */
-
-/*
-  TODO(HC2VPP-253): we use older routing model which does not define active-route
-  as action but as an RPC.
-  Even after bump to ietf-routing@2016-08-18, we would fail due to
-  https://jira.opendaylight.org/browse/YANGTOOLS-822
+  /*
+    TODO(HC2VPP-298):
+    needed to comment out action augmentations which caused problems. probapby simmilar to:
+    https://jira.opendaylight.org/browse/YANGTOOLS-841
 
   augment
     "/rt:routing-state/rt:ribs/rt:rib/rt:active-route/rt:input" {

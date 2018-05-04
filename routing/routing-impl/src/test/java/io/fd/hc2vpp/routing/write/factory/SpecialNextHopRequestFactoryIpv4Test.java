@@ -18,9 +18,10 @@ package io.fd.hc2vpp.routing.write.factory;
 
 import static io.fd.hc2vpp.routing.write.factory.SpecialNextHopRequestFactory.forContexts;
 import static org.junit.Assert.assertEquals;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Prohibit;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Receive;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Unreachable;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Blackhole;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Prohibit;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Receive;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Unreachable;
 
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -40,10 +41,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.StaticRoutes1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.StaticRoutes1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
 
 @RunWith(HoneycombTestRunner.class)
 public class SpecialNextHopRequestFactoryIpv4Test
@@ -52,6 +53,8 @@ public class SpecialNextHopRequestFactoryIpv4Test
 
     private static final String PARENT_PROTOCOL_4 = "parent-protocol-4";
     private static final int PARENT_PROTOCOL_4_INDEX = 4;
+    public static final Ipv4Prefix IPV_4_PREFIX = new Ipv4Prefix("192.168.2.1/24");
+    public static final int DST_PREFIX = 24;
 
     @Mock
     private VppClassifierContextManager classifierContextManager;
@@ -79,12 +82,14 @@ public class SpecialNextHopRequestFactoryIpv4Test
     @Test
     public void testIpv4WithClassifierBlackhole(
             @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH)
-                    StaticRoutes routes) {
+                StaticRoutes routes) {
         final IpAddDelRoute request =
-                factory.createIpv4SpecialHopRequest(true, PARENT_PROTOCOL_4, extractSingleRoute(routes, 1L), mappingContext,
-                        SpecialNextHopGrouping.SpecialNextHop.Blackhole);
+                factory.createIpv4SpecialHopRequest(true, PARENT_PROTOCOL_4, extractSingleRoute(routes, IPV_4_PREFIX),
+                                                    mappingContext, Blackhole);
 
-        assertEquals(desiredSpecialResult(1, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0, PARENT_PROTOCOL_4_INDEX, DEFAULT_VNI), request);
+        assertEquals(desiredSpecialResult(1, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, DST_PREFIX, 1, 0, 0, 0,
+                                          PARENT_PROTOCOL_4_INDEX, DEFAULT_VNI),
+                     request);
     }
 
     @Test
@@ -92,9 +97,12 @@ public class SpecialNextHopRequestFactoryIpv4Test
             @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteReceive.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
-                factory.createIpv4SpecialHopRequest(true, PARENT_PROTOCOL_4, extractSingleRoute(routes, 1L), mappingContext, Receive);
+                factory.createIpv4SpecialHopRequest(true, PARENT_PROTOCOL_4, extractSingleRoute(routes, IPV_4_PREFIX),
+                                                    mappingContext, Receive);
 
-        assertEquals(desiredSpecialResult(1, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 0, 1, 0, 0, PARENT_PROTOCOL_4_INDEX, DEFAULT_VNI), request);
+        assertEquals(desiredSpecialResult(1, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, DST_PREFIX, 0, 1, 0, 0,
+                                          PARENT_PROTOCOL_4_INDEX, DEFAULT_VNI),
+                     request);
     }
 
     @Test
@@ -102,9 +110,12 @@ public class SpecialNextHopRequestFactoryIpv4Test
             @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteUnreachable.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
-                factory.createIpv4SpecialHopRequest(true, PARENT_PROTOCOL_4, extractSingleRoute(routes, 1L), mappingContext, Unreachable);
+                factory.createIpv4SpecialHopRequest(true, PARENT_PROTOCOL_4, extractSingleRoute(routes, IPV_4_PREFIX),
+                                                    mappingContext, Unreachable);
 
-        assertEquals(desiredSpecialResult(1, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 0, 0, 1, 0, PARENT_PROTOCOL_4_INDEX, DEFAULT_VNI), request);
+        assertEquals(desiredSpecialResult(1, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, DST_PREFIX, 0, 0, 1, 0,
+                                          PARENT_PROTOCOL_4_INDEX, DEFAULT_VNI),
+                     request);
     }
 
     @Test
@@ -112,14 +123,17 @@ public class SpecialNextHopRequestFactoryIpv4Test
             @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteProhibited.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
-                factory.createIpv4SpecialHopRequest(true,PARENT_PROTOCOL_4,  extractSingleRoute(routes, 1L), mappingContext, Prohibit);
+                factory.createIpv4SpecialHopRequest(true, PARENT_PROTOCOL_4, extractSingleRoute(routes, IPV_4_PREFIX),
+                                                    mappingContext, Prohibit);
 
-        assertEquals(desiredSpecialResult(1, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 0, 0, 0, 1, PARENT_PROTOCOL_4_INDEX, DEFAULT_VNI), request);
+        assertEquals(desiredSpecialResult(1, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, DST_PREFIX, 0, 0, 0, 1,
+                                          PARENT_PROTOCOL_4_INDEX, DEFAULT_VNI),
+                     request);
     }
 
-    private Route extractSingleRoute(final StaticRoutes staticRoutes, final long id) {
+    private Route extractSingleRoute(final StaticRoutes staticRoutes, final Ipv4Prefix id) {
         return staticRoutes.getAugmentation(StaticRoutes1.class).getIpv4().getRoute().stream()
-                .filter(route -> route.getId() == id)
+                .filter(route -> route.getDestinationPrefix().getValue().equals(id.getValue()))
                 .collect(RWUtils.singleItemCollector());
     }
 }

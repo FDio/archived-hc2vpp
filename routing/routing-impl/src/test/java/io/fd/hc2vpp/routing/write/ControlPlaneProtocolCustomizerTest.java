@@ -26,29 +26,29 @@ import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Direct;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Static;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocol;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocolBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.RoutingProtocolVppAttr;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.RoutingProtocolVppAttrBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.VniReference;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol.VppProtocolAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Direct;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Static;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.RoutingProtocolVppAttr;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.RoutingProtocolVppAttrBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.routing.control.plane.protocols.control.plane.protocol.VppProtocolAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.types.rev180406.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class RoutingProtocolCustomizerTest extends WriterCustomizerTest {
+public class ControlPlaneProtocolCustomizerTest extends WriterCustomizerTest {
 
-    private InstanceIdentifier<RoutingProtocol> validId;
-    private RoutingProtocol validData;
-    private RoutingProtocol validData2;
-    private RoutingProtocol invalidData;
-    private RoutingProtocolCustomizer customizer;
+    private InstanceIdentifier<ControlPlaneProtocol> validId;
+    private ControlPlaneProtocol validData;
+    private ControlPlaneProtocol validData2;
+    private ControlPlaneProtocol invalidData;
+    private ControlPlaneProtocolCustomizer customizer;
     private NamingContext routingProtocolContext;
 
     @Before
     public void init() {
-        validId = InstanceIdentifier.create(RoutingProtocol.class);
-        validData = new RoutingProtocolBuilder()
+        validId = InstanceIdentifier.create(ControlPlaneProtocol.class);
+        validData = new ControlPlaneProtocolBuilder()
                 .setName(ROUTE_PROTOCOL_NAME)
                 .setType(Static.class)
                 .addAugmentation(RoutingProtocolVppAttr.class, new RoutingProtocolVppAttrBuilder()
@@ -58,7 +58,7 @@ public class RoutingProtocolCustomizerTest extends WriterCustomizerTest {
                         .build())
                 .build();
 
-        validData2= new RoutingProtocolBuilder()
+        validData2= new ControlPlaneProtocolBuilder()
                 .setName(ROUTE_PROTOCOL_NAME_2)
                 .setType(Static.class)
                 .addAugmentation(RoutingProtocolVppAttr.class, new RoutingProtocolVppAttrBuilder()
@@ -68,12 +68,12 @@ public class RoutingProtocolCustomizerTest extends WriterCustomizerTest {
                         .build())
                 .build();
 
-        invalidData = new RoutingProtocolBuilder()
+        invalidData = new ControlPlaneProtocolBuilder()
                 .setType(Direct.class)
                 .build();
 
         routingProtocolContext = new NamingContext("routing-protocol", "routing-protocol-context");
-        customizer = new RoutingProtocolCustomizer(routingProtocolContext);
+        customizer = new ControlPlaneProtocolCustomizer(routingProtocolContext);
     }
 
     @Test

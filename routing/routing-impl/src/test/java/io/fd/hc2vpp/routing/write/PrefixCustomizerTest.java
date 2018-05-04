@@ -31,41 +31,43 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaPrefix;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaPrefixReply;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.Interface1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.Ipv6RouterAdvertisements;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.ipv6.router.advertisements.PrefixList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.ipv6.router.advertisements.prefix.list.Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Routing;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.RoutingInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.RoutingInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.Ipv61;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.Ipv6RouterAdvertisements;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.ipv6.router.advertisements.PrefixList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.ipv6.router.advertisements.prefix.list.Prefix;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(HoneycombTestRunner.class)
 public class PrefixCustomizerTest extends WriterCustomizerTest implements SchemaContextTestHelper {
 
-    private static final String INSTANCE_NAME = "tst-protocol";
     private static final String CTX_NAME = "interface-context";
     private static final String IFC_NAME = "eth0";
     private static final int IFC_INDEX = 1;
-    private static final InstanceIdentifier<Prefix> IID = InstanceIdentifier.create(Routing.class)
-        .child(RoutingInstance.class, new RoutingInstanceKey(INSTANCE_NAME)).child(Interfaces.class)
-        .child(Interface.class, new InterfaceKey(IFC_NAME)).augmentation(
-            Interface1.class).child(Ipv6RouterAdvertisements.class).child(PrefixList.class).child(Prefix.class);
+    private static final InstanceIdentifier<Prefix> IID = InstanceIdentifier
+            .create(Interfaces.class)
+            .child(Interface.class, new InterfaceKey(IFC_NAME))
+            .augmentation(Interface1.class)
+            .child(Ipv6.class)
+            .augmentation(Ipv61.class)
+            .child(Ipv6RouterAdvertisements.class)
+            .child(PrefixList.class)
+            .child(Prefix.class);
 
-    private static final String RA_PATH = "/hc2vpp-ietf-routing:routing" +
-        "/hc2vpp-ietf-routing:routing-instance[hc2vpp-ietf-routing:name='" + INSTANCE_NAME + "']" +
-        "/hc2vpp-ietf-routing:interfaces" +
-        "/hc2vpp-ietf-routing:interface[hc2vpp-ietf-routing:name='" + IFC_NAME + "']" +
+    private static final String RA_PATH = "/ietf-interfaces:interfaces" +
+        "/ietf-interfaces:interface[ietf-interfaces:name='" + IFC_NAME + "']" +
+        "/ietf-ip:ipv6" +
         "/hc2vpp-ietf-ipv6-unicast-routing:ipv6-router-advertisements/hc2vpp-ietf-ipv6-unicast-routing:prefix-list";
 
     private PrefixCustomizer customizer;
     private NamingContext interfaceContext = new NamingContext("ifaces", CTX_NAME);
 
     @Override
-    protected void setUpTest() throws Exception {
+    protected void setUpTest() {
         customizer = new PrefixCustomizer(api, interfaceContext);
         defineMapping(mappingContext, IFC_NAME, IFC_INDEX, CTX_NAME);
         when(api.swInterfaceIp6NdRaPrefix(any())).thenReturn(future(new SwInterfaceIp6NdRaPrefixReply()));
@@ -80,7 +82,8 @@ public class PrefixCustomizerTest extends WriterCustomizerTest implements Schema
         request.swIfIndex = IFC_INDEX;
 
         // 2001:0db8:0a0b:12f0:0000:0000:0000:0002/64
-        request.address = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
+        request.address =
+            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
         request.addressLength = 64;
         request.valLifetime = 2592000; // default value
         request.prefLifetime = 604800; // default value
@@ -96,7 +99,8 @@ public class PrefixCustomizerTest extends WriterCustomizerTest implements Schema
         request.swIfIndex = IFC_INDEX;
 
         // 2001:0db8:0a0b:12f0:0000:0000:0000:0002/64
-        request.address = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
+        request.address =
+            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
         request.addressLength = 64;
         request.noAdvertise = 1;
         request.noAutoconfig = 1;
@@ -113,7 +117,8 @@ public class PrefixCustomizerTest extends WriterCustomizerTest implements Schema
         final SwInterfaceIp6NdRaPrefix request = new SwInterfaceIp6NdRaPrefix();
         request.swIfIndex = IFC_INDEX;
         // 2001:0db8:0a0b:12f0:0000:0000:0000:0002/64
-        request.address = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
+        request.address =
+            new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, 0x0a, 0x0b, 0x12, (byte) 0xf0, 0 ,0 ,0 ,0 ,0 ,0 ,0 ,0x02};
         request.addressLength = 64;
         request.isNo = 1;
         verify(api).swInterfaceIp6NdRaPrefix(request);

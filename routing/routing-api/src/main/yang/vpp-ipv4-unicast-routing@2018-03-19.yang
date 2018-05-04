@@ -1,0 +1,78 @@
+module vpp-ipv4-unicast-routing {
+
+    namespace "urn:ietf:params:xml:ns:yang:vpp-ipv4-unicast-routing";
+    prefix "vpp-v4ur";
+
+    import yang-ext {
+        prefix "ext";
+    }
+
+    import vpp-classifier {
+        prefix "classifier";
+    }
+
+    import hc2vpp-ietf-routing {
+        prefix "ietf-r";
+        revision-date 2018-03-13;
+    }
+
+    import hc2vpp-ietf-ipv4-unicast-routing {
+        prefix "v4ur";
+        revision-date 2018-03-13;
+    }
+
+    import vpp-routing {
+        prefix "vpp-rt";
+        revision-date 2018-03-19;
+    }
+
+    import vpp-routing-types {
+        prefix "vpp-rt-tp";
+        revision-date 2018-04-06;
+    }
+
+    organization
+        "FD.io - The Fast Data Project";
+
+    contact
+        "Hc2vpp Wiki <https://wiki.fd.io/view/Hc2vpp>
+         Mailing List <hc2vpp@lists.fd.io>";
+
+    description
+        "This module contains a collection of YANG definitions
+         that extend hc2vpp-ietf-routing module
+         with VPP specific ipv4 unicast routing features.
+
+         Copyright (c) 2018 Bell Canada, Pantheon.tech and/or its affiliates.
+
+         Licensed under the Apache License, Version 2.0 (the 'License');
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at:
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an 'AS IS' BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.";
+
+    revision 2018-03-19 {
+        description "Initial revision";
+    }
+
+    augment "/rt:routing/rt:control-plane-protocols/rt:control-plane-protocol/rt:static-routes/" +
+        "v4ur:ipv4/v4ur:route/v4ur:next-hop/v4ur:next-hop-options/v4ur:next-hop-list/v4ur:next-hop-list/v4ur:next-hop"
+    {
+        ext:augment-identifier "vpp-ipv4-next-hop-augmentation";
+        uses vpp-rt-tp:vpp-next-hop-attributes;
+    }
+
+    augment "/rt:routing/rt:control-plane-protocols/rt:control-plane-protocol/rt:static-routes/v4ur:ipv4/v4ur:route"
+    {
+        ext:augment-identifier "vpp-ipv4-route-attributes-augmentation";
+        container vpp-ipv4-route{
+            uses vpp-rt:vpp-route-attributes;
+        }
+    }
+}

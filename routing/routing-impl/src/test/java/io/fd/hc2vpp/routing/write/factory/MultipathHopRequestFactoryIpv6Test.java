@@ -35,10 +35,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.NextHopList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
 
 @RunWith(HoneycombTestRunner.class)
 public class MultipathHopRequestFactoryIpv6Test
@@ -78,22 +79,26 @@ public class MultipathHopRequestFactoryIpv6Test
         defineMapping(mappingContext, INTERFACE_NAME, INTERFACE_INDEX, "interface-context");
         defineMapping(mappingContext, ROUTE_PROTOCOL_NAME, 1, "routing-protocol-context");
 
-        ipv6MultipathRouteWithClassifier = getIpv6RouteWithId(ipv6StaticRoutesWithClassifier, 1L);
-        ipv6MultipathRouteWithoutClassifier = getIpv6RouteWithId(ipv6StaticRoutesWithoutClassifier, 1L);
+        ipv6MultipathRouteWithClassifier =
+            getIpv6RouteWithId(ipv6StaticRoutesWithClassifier,
+                               new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/64"));
+        ipv6MultipathRouteWithoutClassifier =
+            getIpv6RouteWithId(ipv6StaticRoutesWithoutClassifier,
+                               new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/64"));
 
         final List<NextHop> ipv6HopsClassified =
-                NextHopList.class.cast(ipv6MultipathRouteWithClassifier.getNextHopOptions()).getNextHopList()
-                        .getNextHop();
+            NextHopList.class.cast(ipv6MultipathRouteWithClassifier.getNextHop().getNextHopOptions())
+                .getNextHopList().getNextHop();
 
         final List<NextHop> ipv6HopsNonClassified =
-                NextHopList.class.cast(ipv6MultipathRouteWithoutClassifier.getNextHopOptions()).getNextHopList()
-                        .getNextHop();
+            NextHopList.class.cast(ipv6MultipathRouteWithoutClassifier.getNextHop().getNextHopOptions())
+                .getNextHopList().getNextHop();
 
         ipv6nextHopForClassified = ipv6HopsClassified.stream()
-                .filter(nextHop -> nextHop.getId() == 1L)
+                .filter(nextHop -> Integer.valueOf(nextHop.getIndex()) == 1L)
                 .findFirst().get();
         ipv6nextHopForNonClassified = ipv6HopsNonClassified.stream()
-                .filter(nextHop -> nextHop.getId() == 1L)
+                .filter(nextHop -> Integer.valueOf(nextHop.getIndex()) == 1L)
                 .findFirst().get();
     }
 

@@ -16,26 +16,34 @@
 
 package io.fd.hc2vpp.routing.trait;
 
+import static io.fd.hc2vpp.routing.trait.RouteMapper.isDefaultInterfaceIndex;
+
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.naming.Ipv6RouteNamesFactory;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.core.types.FibPath;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.NextHopOptions;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.*;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.NextHopListBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.table.lookup.TableLookupParamsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.VniReference;
-
-
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static io.fd.hc2vpp.routing.trait.RouteMapper.isDefaultInterfaceIndex;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.NextHop1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.NextHop1Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.SimpleNextHop1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.SimpleNextHop1Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.NextHopOptions;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.NextHopList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.NextHopListBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SimpleNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SimpleNextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SpecialNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SpecialNextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.TableLookupCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.types.rev180406.VniReference;
 
 public interface Ipv6RoutePathParser extends RouteMapper {
 
@@ -55,25 +63,23 @@ public interface Ipv6RoutePathParser extends RouteMapper {
     }
 
     static NextHopOptions tableLookup() {
-        return new TableLookupBuilder()
-                .setTableLookupParams(
-                        new TableLookupParamsBuilder()
-                                // TODO - https://jira.fd.io/browse/VPP-994
-                                .setSecondaryVrf(new VniReference(0L))
-                                .build()
-                ).build();
+        return new TableLookupCaseBuilder()
+            // TODO - https://jira.fd.io/browse/VPP-994
+            .setSecondaryVrf(new VniReference(0L)).build();
     }
 
     static SpecialNextHop specialHop(final FibPath fibPath) {
         return new SpecialNextHopBuilder()
-                .setSpecialNextHop(INSTANCE.specialHopType(fibPath))
+                .setSpecialNextHopEnum(INSTANCE.specialHopType(fibPath))
                 .build();
     }
 
     static SimpleNextHop simpleHop(final FibPath path, final NamingContext interfaceContext,
                                    final MappingContext mappingContext) {
         return resolveInterfaceIfSpecified(new SimpleNextHopBuilder(), path.swIfIndex, interfaceContext, mappingContext)
-                .setNextHop(AddressTranslator.INSTANCE.arrayToIpv6AddressNoZone(path.nextHop))
+                .addAugmentation(SimpleNextHop1.class, new SimpleNextHop1Builder()
+                    .setNextHopAddress(AddressTranslator.INSTANCE.arrayToIpv6AddressNoZone(path.nextHop))
+                    .build())
                 .build();
     }
 
@@ -87,35 +93,33 @@ public interface Ipv6RoutePathParser extends RouteMapper {
         return builder;
     }
 
-    static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.NextHopList hopList(
-            final String routeName,
-            final List<FibPath> parsedHops,
-            final NamingContext interfaceContext,
-            final MultiNamingContext routeHopContext,
-            final MappingContext mappingContext,
-            final Ipv6RouteNamesFactory namesFactory) {
-        return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.NextHopListBuilder()
-                .setNextHopList(
+    static NextHopList hopList(final String routeName, final List<FibPath> parsedHops,
+                               final NamingContext interfaceContext, final MultiNamingContext routeHopContext,
+                               final MappingContext mappingContext, final Ipv6RouteNamesFactory namesFactory) {
+        return new NextHopListBuilder()
+            .setNextHopList(
                         buildNextHopList(routeName, parsedHops, interfaceContext, routeHopContext, mappingContext,
                                 namesFactory))
                 .build();
     }
 
-    static NextHopList buildNextHopList(final String routeName, final List<FibPath> parsedHops,
-                                        final NamingContext interfaceContext,
-                                        final MultiNamingContext routeHopContext,
-                                        final MappingContext mappingContext,
-                                        final Ipv6RouteNamesFactory namesFactory) {
-        return new NextHopListBuilder().setNextHop(parsedHops.stream()
-                .map(fibPath -> resolveInterfaceIfSpecified(new NextHopBuilder(), fibPath.swIfIndex, interfaceContext,
-                        mappingContext)
-                        .setId(findIdWithinRouteContext(routeName, routeHopContext, mappingContext, fibPath,
-                                namesFactory))
-                        .setWeight((short) fibPath.weight)
-                        .setAddress(AddressTranslator.INSTANCE.arrayToIpv6AddressNoZone(fibPath.nextHop))
+    static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.NextHopList buildNextHopList(
+        final String routeName, final List<FibPath> parsedHops, final NamingContext interfaceContext,
+        final MultiNamingContext routeHopContext, final MappingContext mappingContext,
+        final Ipv6RouteNamesFactory namesFactory) {
+
+        return new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.NextHopListBuilder().setNextHop(parsedHops.stream()
+                .map(fibPath -> resolveInterfaceIfSpecified(new NextHopBuilder(), fibPath.swIfIndex,
+                                                            interfaceContext, mappingContext)
+                    .setIndex(String.valueOf(findIdWithinRouteContext(routeName, routeHopContext, mappingContext,
+                                                                      fibPath, namesFactory)))
+                    .addAugmentation(NextHop1.class, new NextHop1Builder()
+                        .setNextHopAddress(AddressTranslator.INSTANCE.arrayToIpv6AddressNoZone(fibPath.nextHop))
                         .build())
-                .collect(Collectors.toList()))
-                .build();
+                    .addAugmentation(VppIpv6NextHopAugmentation.class,
+                                     new VppIpv6NextHopAugmentationBuilder().setWeight((short) fibPath.weight).build())
+                        .build())
+                .collect(Collectors.toList())).build();
     }
 
     static NextHopBuilder resolveInterfaceIfSpecified(NextHopBuilder builder, final int index,
@@ -135,15 +139,19 @@ public interface Ipv6RoutePathParser extends RouteMapper {
                 .getChildIndex(routeName, namesFactory.uniqueRouteHopName(fibPath, mappingContext), mappingContext));
     }
 
-    default NextHopOptions resolveHopType(@Nonnull final String routeName,
-                                          final List<FibPath> parsedHops,
-                                          @Nonnull final NamingContext interfaceContext,
-                                          @Nonnull final MultiNamingContext routeHopContext,
-                                          @Nonnull final MappingContext mappingContext,
-                                          @Nonnull final Ipv6RouteNamesFactory namesFactory) {
+    default NextHop resolveHopType(@Nonnull final String routeName,
+                                   final List<FibPath> parsedHops,
+                                   @Nonnull final NamingContext interfaceContext,
+                                   @Nonnull final MultiNamingContext routeHopContext,
+                                   @Nonnull final MappingContext mappingContext,
+                                   @Nonnull final Ipv6RouteNamesFactory namesFactory) {
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.NextHopBuilder
+            nextHopBuilder = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.NextHopBuilder();
 
         return parsedHops == null || parsedHops.isEmpty()
                 ? null
-                : resolveOption(routeName, parsedHops, interfaceContext, routeHopContext, mappingContext, namesFactory);
+                : nextHopBuilder.setNextHopOptions(resolveOption(routeName, parsedHops, interfaceContext,
+                                                                 routeHopContext, mappingContext,
+                                                                 namesFactory)).build();
     }
 }

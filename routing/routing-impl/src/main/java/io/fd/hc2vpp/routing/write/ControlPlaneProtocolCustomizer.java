@@ -25,27 +25,27 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Static;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocol;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocolKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.RoutingProtocolVppAttr;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Static;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.RoutingProtocolVppAttr;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Customizer for handling of write operations for {@link RoutingProtocol}
+ * Customizer for handling of write operations for {@link ControlPlaneProtocol}
  */
-public class RoutingProtocolCustomizer
-        implements ListWriterCustomizer<RoutingProtocol, RoutingProtocolKey> {
+final class ControlPlaneProtocolCustomizer
+        implements ListWriterCustomizer<ControlPlaneProtocol, ControlPlaneProtocolKey> {
 
     private final NamingContext routingProtocolContext;
 
-    public RoutingProtocolCustomizer(@Nonnull final NamingContext routingProtocolContext) {
+    ControlPlaneProtocolCustomizer(@Nonnull final NamingContext routingProtocolContext) {
         this.routingProtocolContext = routingProtocolContext;
     }
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
-                                       @Nonnull final RoutingProtocol routingProtocol,
+    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<ControlPlaneProtocol> instanceIdentifier,
+                                       @Nonnull final ControlPlaneProtocol routingProtocol,
                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         checkIsStatic(routingProtocol);
@@ -72,21 +72,21 @@ public class RoutingProtocolCustomizer
     }
 
     @Override
-    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
-                                        @Nonnull final RoutingProtocol routingProtocol,
+    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<ControlPlaneProtocol> instanceIdentifier,
+                                        @Nonnull final ControlPlaneProtocol routingProtocol,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         routingProtocolContext.removeName(routingProtocol.getName(), writeContext.getMappingContext());
     }
 
     /**
-     * Checks whether routing protocol is static(we support only static ones for now)
+     * Checks whether control plane protocol is static(we support only static ones for now)
      */
-    private void checkIsStatic(final RoutingProtocol routingProtocol) {
+    private void checkIsStatic(final ControlPlaneProtocol routingProtocol) {
         checkArgument(routingProtocol.getType() == Static.class, "Only static routes are allowed");
     }
 
-    private int extractTableId(final RoutingProtocol protocol) {
+    private int extractTableId(final ControlPlaneProtocol protocol) {
         final RoutingProtocolVppAttr vppAttr = protocol.getAugmentation(RoutingProtocolVppAttr.class);
 
         checkState(vppAttr != null && vppAttr.getVppProtocolAttributes() != null,

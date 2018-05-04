@@ -3,10 +3,11 @@
     "ipv4": {
       "route": [
         {
-          "id": 1,
           "destination-prefix": "192.168.2.1/24",
-          "next-hop": "192.168.2.2",
-          "outgoing-interface": "iface"
+          "next-hop": {
+            "next-hop-address" : "192.168.2.2",
+            "outgoing-interface": "iface"
+          }
         }
       ]
     }

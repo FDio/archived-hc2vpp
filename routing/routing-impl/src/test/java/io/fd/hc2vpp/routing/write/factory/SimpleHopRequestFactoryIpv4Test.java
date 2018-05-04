@@ -34,8 +34,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.StaticRoutes1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.StaticRoutes1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
 
 @RunWith(HoneycombTestRunner.class)
 public class SimpleHopRequestFactoryIpv4Test
@@ -66,10 +67,10 @@ public class SimpleHopRequestFactoryIpv4Test
     @Test
     public void testIpv4WithClassifier(
             @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
-                    StaticRoutes ipv4StaticRouteWithClassifier) {
+                StaticRoutes ipv4StaticRouteWithClassifier) {
         final IpAddDelRoute request =
                 factory.createIpv4SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
-                        getIpv4RouteWithId(ipv4StaticRouteWithClassifier, 1L),
+                        getIpv4RouteWithId(ipv4StaticRouteWithClassifier, new Ipv4Prefix("192.168.2.1/24")),
                         mappingContext);
 
         assertEquals(desiredFlaglessResult(0, 0, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
@@ -88,7 +89,8 @@ public class SimpleHopRequestFactoryIpv4Test
 
         assertEquals(
                 desiredFlaglessResult(0, 0, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
-                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 0, 0, 0), request);
+                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 0, 0, 0),
+                request);
     }
 
     @Test
@@ -102,6 +104,7 @@ public class SimpleHopRequestFactoryIpv4Test
 
         assertEquals(
                 desiredFlaglessResult(0, 0, 0, Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY, 24,
-                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 0, 0, 0), request);
+                        Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, 1, 0, 0, 0),
+                request);
     }
 }

@@ -3,25 +3,26 @@
     "ipv6": {
       "route": [
         {
-          "id": 1,
           "destination-prefix": "2001:0db8:0a0b:12f0:0000:0000:0000:0001/64",
           "vpp-ipv6-route": {
           },
-          "next-hop-list": {
-            "next-hop": [
-              {
-                "id": "1",
-                "address": "2001:0db8:0a0b:12f0:0000:0000:0000:0002",
-                "outgoing-interface": "iface",
-                "weight": "2"
-              },
-              {
-                "id": "2",
-                "address": "2001:0db8:0a0b:12f0:0000:0000:0000:0002",
-                "outgoing-interface": "iface",
-                "weight": "2"
-              }
-            ]
+          "next-hop": {
+            "next-hop-list": {
+              "next-hop": [
+                {
+                  "index": "1",
+                  "next-hop-address": "2001:0db8:0a0b:12f0:0000:0000:0000:0002",
+                  "outgoing-interface": "iface",
+                  "weight": "2"
+                },
+                {
+                  "index": "2",
+                  "next-hop-address": "2001:0db8:0a0b:12f0:0000:0000:0000:0002",
+                  "outgoing-interface": "iface",
+                  "weight": "2"
+                }
+              ]
+            }
           }
         }
       ]

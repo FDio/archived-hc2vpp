@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.routing.helpers;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,10 +32,13 @@ import io.fd.vpp.jvpp.core.dto.IpAddDelRouteReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import org.mockito.ArgumentCaptor;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.StaticRoutes1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.StaticRoutes1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.NextHopList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
 
 public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProducer, RouteMapper {
 
@@ -43,9 +46,9 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
     String ROUTE_PROTOCOL_NAME_2 = "tst-protocol-2";
     String ROUTE_NAME = "tst-route";
     String STATIC_ROUTE_PATH = "/hc2vpp-ietf-routing:routing" +
-            "/hc2vpp-ietf-routing:routing-instance[hc2vpp-ietf-routing:name='" + ROUTE_PROTOCOL_NAME + "']" +
-            "/hc2vpp-ietf-routing:routing-protocols" +
-            "/hc2vpp-ietf-routing:routing-protocol[hc2vpp-ietf-routing:name='" + ROUTE_NAME + "']" +
+            "/hc2vpp-ietf-routing:control-plane-protocols" +
+            "/hc2vpp-ietf-routing:control-plane-protocol" +
+            "[hc2vpp-ietf-routing:name='" + ROUTE_NAME + "'][hc2vpp-ietf-routing:type='static']" +
             "/hc2vpp-ietf-routing:static-routes";
 
     default IpAddDelRoute desiredFlaglessResult(final int add, final int ipv6, final int isMultipath,
@@ -75,8 +78,9 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
                                                final int protocolTableId,
                                                final int secondaryTableId) {
         // verifiaction of special request that has only destination address and flag
-        return desiredResult(add, ipv6, 0, destinationAddress, destinationPrefixLength, null, 0, 0, protocolTableId, secondaryTableId, 0, 0,
-                isDrop, isReceive, isUnreach, isProhibit);
+        return desiredResult(add, ipv6, 0, destinationAddress, destinationPrefixLength, null, 0, 0,
+                             protocolTableId, secondaryTableId, 0, 0, isDrop,
+                             isReceive, isUnreach, isProhibit);
     }
 
     default IpAddDelRoute desiredResult(final int add, final int ipv6, final int isMultipath,
@@ -136,34 +140,33 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
         when(api.ipAddDelRoute(any())).thenReturn(future(new IpAddDelRouteReply()));
     }
 
-    default Route getIpv4RouteWithId(final StaticRoutes staticRoutes, final long id) {
+    default Route getIpv4RouteWithId(final StaticRoutes staticRoutes, final Ipv4Prefix id) {
         return staticRoutes.getAugmentation(StaticRoutes1.class)
                 .getIpv4()
                 .getRoute()
                 .stream()
-                .filter(route -> route.getId() == id)
+                .filter(route -> route.getDestinationPrefix().getValue().equals(id.getValue()))
                 .collect(RWUtils.singleItemCollector());
     }
 
     default NextHop getHopWithId(
             final Route route, final int id) {
-        return org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.NextHopList.class
-                .cast(route.getNextHopOptions())
-                .getNextHopList()
-                .getNextHop()
+        return NextHopList.class
+                .cast(route.getNextHop().getNextHopOptions())
+                .getNextHopList().getNextHop()
                 .stream()
-                .filter(nextHop -> nextHop.getKey().getId().intValue() == id)
+                .filter(nextHop -> Integer.valueOf(nextHop.getKey().getIndex()) == id)
                 .collect(RWUtils.singleItemCollector());
     }
 
-    default org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route getIpv6RouteWithId(
-            final StaticRoutes staticRoutes, final long id) {
+    default org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route getIpv6RouteWithId(
+            final StaticRoutes staticRoutes, final Ipv6Prefix id) {
         return staticRoutes.getAugmentation(
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.StaticRoutes1.class)
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.StaticRoutes1.class)
                 .getIpv6()
                 .getRoute()
                 .stream()
-                .filter(route -> route.getId() == id)
+                .filter(route -> route.getDestinationPrefix().getValue().equals(id.getValue()))
                 .collect(RWUtils.singleItemCollector());
     }
 

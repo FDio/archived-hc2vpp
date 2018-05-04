@@ -41,16 +41,16 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Static;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.RoutingProtocols;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.RoutingProtocolsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocol;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocolBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocolKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Static;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.ControlPlaneProtocols;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.ControlPlaneProtocolsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class RoutingProtocolCustomizerTest
-        extends ListReaderCustomizerTest<RoutingProtocol, RoutingProtocolKey, RoutingProtocolBuilder>
+public class ControlPlaneProtocolCustomizerTest
+        extends ListReaderCustomizerTest<ControlPlaneProtocol, ControlPlaneProtocolKey, ControlPlaneProtocolBuilder>
         implements ByteDataTranslator {
 
     private static final String VPP_PROTOCOL_PREFIX = "vpp-protocol";
@@ -65,8 +65,7 @@ public class RoutingProtocolCustomizerTest
 
     private NamingContext routingProtocolContext;
 
-    public RoutingProtocolCustomizerTest() {
-        super(RoutingProtocol.class, RoutingProtocolsBuilder.class);
+    public ControlPlaneProtocolCustomizerTest() { super(ControlPlaneProtocol.class, ControlPlaneProtocolsBuilder.class);
     }
 
     @Override
@@ -93,20 +92,22 @@ public class RoutingProtocolCustomizerTest
 
     @Test
     public void getAllIds() throws Exception {
-        final List<RoutingProtocolKey> keys =
-                getCustomizer().getAllIds(InstanceIdentifier.create(RoutingProtocol.class), ctx);
+        final List<ControlPlaneProtocolKey> keys =
+                getCustomizer().getAllIds(InstanceIdentifier.create(ControlPlaneProtocol.class), ctx);
 
         assertThat(keys, hasSize(3));
-        assertThat(keys, hasItems(new RoutingProtocolKey(ROUTE_PROTOCOL_NAME), new RoutingProtocolKey("tst-protocol-2"),
-                new RoutingProtocolKey("tst-protocol-3")));
+        assertThat(keys, hasItems(new ControlPlaneProtocolKey(ROUTE_PROTOCOL_NAME, Static.class),
+                                  new ControlPlaneProtocolKey("tst-protocol-2", Static.class),
+                                  new ControlPlaneProtocolKey("tst-protocol-3", Static.class)));
     }
 
     @Test
     public void readCurrentAttributes() throws Exception {
-        final InstanceIdentifier<RoutingProtocol> identifier = InstanceIdentifier.create(RoutingProtocols.class)
-                .child(RoutingProtocol.class, new RoutingProtocolKey(ROUTE_PROTOCOL_NAME));
+        final InstanceIdentifier<ControlPlaneProtocol> identifier =
+            InstanceIdentifier.create(ControlPlaneProtocols.class)
+                .child(ControlPlaneProtocol.class, new ControlPlaneProtocolKey(ROUTE_PROTOCOL_NAME, Static.class));
 
-        final RoutingProtocolBuilder builder = new RoutingProtocolBuilder();
+        final ControlPlaneProtocolBuilder builder = new ControlPlaneProtocolBuilder();
         getCustomizer().readCurrentAttributes(identifier, builder, ctx);
 
         assertEquals(ROUTE_PROTOCOL_NAME, builder.getName());
@@ -115,8 +116,8 @@ public class RoutingProtocolCustomizerTest
     }
 
     @Override
-    protected ReaderCustomizer<RoutingProtocol, RoutingProtocolBuilder> initCustomizer() {
-        return new RoutingProtocolCustomizer(routingProtocolContext, ipv4RoutesDumpManager, ipv6RoutesDumpManager);
+    protected ReaderCustomizer<ControlPlaneProtocol, ControlPlaneProtocolBuilder> initCustomizer() {
+        return new ControlPlaneProtocolCustomizer(routingProtocolContext, ipv4RoutesDumpManager, ipv6RoutesDumpManager);
     }
 
     private Ip6FibDetailsReplyDump replyDumpIpv6() {

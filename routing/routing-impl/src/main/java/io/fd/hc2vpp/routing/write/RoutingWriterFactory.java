@@ -25,7 +25,10 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.routing.Ipv4RoutingNodes;
+import io.fd.hc2vpp.routing.Ipv6RoutingNodes;
 import io.fd.hc2vpp.routing.RoutingConfiguration;
+import io.fd.hc2vpp.routing.RoutingIIds;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -33,37 +36,21 @@ import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.Interface1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.Ipv6RouterAdvertisements;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.ipv6.router.advertisements.PrefixList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.ipv6.router.advertisements.prefix.list.Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Routing;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.RoutingInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.RoutingProtocols;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocol;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev170502.ControlAdvPrefixesVppAugmentation;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev170502.Ipv6RouterAdvertisementsVppAugmentation;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.RoutingProtocolVppAttr;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol.VppProtocolAttributes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.Ipv6RouterAdvertisements;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.ipv6.router.advertisements.prefix.list.Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Routing;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.ControlPlaneProtocols;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev180319.ControlAdvPrefixesVppAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.ra.rev180319.Ipv6RouterAdvertisementsVppAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.RoutingProtocolVppAttr;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.routing.control.plane.protocols.control.plane.protocol.VppProtocolAttributes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Factory producing writers for routing plugin's data.
  */
-public final class RoutingWriterFactory implements WriterFactory, Ipv4WriteRoutingNodes, Ipv6WriteRoutingNodes {
-
-    private static final InstanceIdentifier<Routing> ROOT_CONTAINER_ID = InstanceIdentifier.create(Routing.class);
-    private static final InstanceIdentifier<Interface> ROUTING_INTERFACE_ID =
-        ROOT_CONTAINER_ID.child(RoutingInstance.class).child(Interfaces.class).child(Interface.class);
-    private static final InstanceIdentifier<Ipv6RouterAdvertisements> ROUTING_ADVERTISMENT_ID =
-        ROUTING_INTERFACE_ID.augmentation(
-            Interface1.class).child(Ipv6RouterAdvertisements.class);
-    private static final InstanceIdentifier<Prefix> PREFIX_ID =
-        ROUTING_ADVERTISMENT_ID.child(PrefixList.class).child(Prefix.class);
+public final class RoutingWriterFactory implements WriterFactory, Ipv4RoutingNodes, Ipv6RoutingNodes {
 
     private static final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> IFACE_ID =
             InstanceIdentifier.create(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces.class)
@@ -98,54 +85,45 @@ public final class RoutingWriterFactory implements WriterFactory, Ipv4WriteRouti
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
 
-        registry.subtreeAdd(rootNodeHandledChildren(ROOT_CONTAINER_ID),
-                new GenericWriter<>(ROOT_CONTAINER_ID, new RoutingCustomizer()));
+        registry.subtreeAdd(rootNodeHandledChildren(RoutingIIds.ROUTING),
+                new GenericWriter<>(RoutingIIds.ROUTING, new RoutingCustomizer()));
 
-        registry.add(new GenericWriter<>(routingInstanceIdentifier(), new RoutingInstanceCustomizer(configuration)));
+        registry.subtreeAdd(routingProtocolHandledChildren(),new GenericWriter<>(RoutingIIds.RT_CPS_CP,
+                new ControlPlaneProtocolCustomizer(routingProtocolContext)));
 
-        registry.subtreeAdd(routingProtocolHandledChildren(),new GenericWriter<>(routingProtocolIdentifier(),
-                new RoutingProtocolCustomizer(routingProtocolContext)));
+        registry.subtreeAddAfter(ipv4RoutingHandledChildren(RoutingIIds.RT_CPS_CP_SR_SRV4_IPV4_RT_PARENT),
+                                 new GenericWriter<>(RoutingIIds.RT_CPS_CP_SR_SRV4_IPV4_RT,
+                                                     new Ipv4RouteCustomizer(vppApi, interfaceContext, routeContext,
+                                                                             routingProtocolContext, routHopContext,
+                                                                             vppClassifierContextManager)), IFACE_ID);
+        registry.subtreeAddAfter(ipv6RoutingHandledChildren(RoutingIIds.RT_CPS_CP_SR_SRV6_IPV6_RT_PARENT),
+                                 new GenericWriter<>(RoutingIIds.RT_CPS_CP_SR_SRV6_IPV6_RT,
+                                                     new Ipv6RouteCustomizer(vppApi, interfaceContext, routeContext,
+                                                                             routingProtocolContext, routHopContext,
+                                                                             vppClassifierContextManager)), IFACE_ID);
 
-        final InstanceIdentifier<StaticRoutes> staticRoutesInstanceIdentifier = staticRoutesIdentifier();
-        final InstanceIdentifier<Route> ipv4RouteIdentifier = ipv4RouteIdentifier(staticRoutesInstanceIdentifier);
-        final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route>
-                ipv6RouteIdentifier = ipv6RouteIdentifier(staticRoutesInstanceIdentifier);
-        registry.subtreeAddAfter(ipv4RoutingHandledChildren(ipv4RouteSubtree()), new GenericWriter<>(ipv4RouteIdentifier,
-                new Ipv4RouteCustomizer(vppApi, interfaceContext, routeContext, routingProtocolContext, routHopContext,
-                        vppClassifierContextManager)), IFACE_ID);
-        registry.subtreeAddAfter(ipv6RoutingHandledChildren(ipv6RouteSubtree()), new GenericWriter<>(ipv6RouteIdentifier,
-                new Ipv6RouteCustomizer(vppApi, interfaceContext, routeContext, routingProtocolContext, routHopContext,
-                        vppClassifierContextManager)), IFACE_ID);
-        registry.add(new GenericWriter<>(ROUTING_INTERFACE_ID, new RoutingInterfaceCustomizer()));
+        //router advertisements
         registry.subtreeAdd(raHandledChildren(),
-            new GenericWriter<>(ROUTING_ADVERTISMENT_ID, new RouterAdvertisementsCustomizer(vppApi, interfaceContext)));
+            new GenericWriter<>(RoutingIIds.IFCS_IFC_IFC1_IPV6_IPV61_RTADV,
+                                new RouterAdvertisementsCustomizer(vppApi, interfaceContext)));
         registry.subtreeAdd(prefixHandledChildren(),
-            new GenericWriter<>(PREFIX_ID, new PrefixCustomizer(vppApi, interfaceContext)));
-
+            new GenericWriter<>(RoutingIIds.IFCS_IFC_IFC1_IPV6_IPV61_RTADV_PRLST_PRFX,
+                                new PrefixCustomizer(vppApi, interfaceContext)));
     }
 
     private static ImmutableSet<InstanceIdentifier<?>> routingProtocolHandledChildren() {
-        return ImmutableSet
-                .of(InstanceIdentifier.create(RoutingProtocol.class).augmentation(RoutingProtocolVppAttr.class).child(VppProtocolAttributes.class));
-    }
-
-    private static InstanceIdentifier<RoutingInstance> routingInstanceIdentifier() {
-        return ROOT_CONTAINER_ID.child(RoutingInstance.class);
-    }
-    private static InstanceIdentifier<RoutingProtocol> routingProtocolIdentifier() {
-        return routingInstanceIdentifier().child(RoutingProtocols.class).child(RoutingProtocol.class);
-    }
-
-    private static InstanceIdentifier<StaticRoutes> staticRoutesIdentifier() {
-        return routingProtocolIdentifier().child(StaticRoutes.class);
+        return ImmutableSet.of(InstanceIdentifier.create(ControlPlaneProtocol.class)
+                                   .augmentation(RoutingProtocolVppAttr.class)
+                                   .child(VppProtocolAttributes.class));
     }
 
     private static Set<InstanceIdentifier<?>> rootNodeHandledChildren(final InstanceIdentifier<Routing> parent) {
-        return ImmutableSet.of(parent.child(RoutingInstance.class).child(RoutingProtocols.class));
+        return ImmutableSet.of(parent.child(ControlPlaneProtocols.class));
     }
 
     private static Set<InstanceIdentifier<?>> raHandledChildren() {
-        final InstanceIdentifier<Ipv6RouterAdvertisements> raIID = InstanceIdentifier.create(Ipv6RouterAdvertisements.class);
+        final InstanceIdentifier<Ipv6RouterAdvertisements> raIID =
+            InstanceIdentifier.create(Ipv6RouterAdvertisements.class);
         return ImmutableSet.of(raIID.augmentation(Ipv6RouterAdvertisementsVppAugmentation.class));
     }
 

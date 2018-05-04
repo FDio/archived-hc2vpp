@@ -19,11 +19,8 @@ package io.fd.hc2vpp.routing.trait;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.vpp.jvpp.core.types.FibPath;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping;
-
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.stream.IntStream;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop;
 
 public interface RouteMapper extends AddressTranslator, ByteDataTranslator {
 
@@ -82,15 +79,15 @@ public interface RouteMapper extends AddressTranslator, ByteDataTranslator {
         return !isSpecialHop(path) && isArrayZeroed(path.nextHop);
     }
 
-    default SpecialNextHopGrouping.SpecialNextHop specialHopType(final FibPath singlePath) {
+    default SpecialNextHop.SpecialNextHopEnum specialHopType(final FibPath singlePath) {
         if (flagEnabled(singlePath.isDrop)) {
-            return SpecialNextHopGrouping.SpecialNextHop.Blackhole;
+            return SpecialNextHop.SpecialNextHopEnum.Blackhole;
         } else if (flagEnabled(singlePath.isLocal)) {
-            return SpecialNextHopGrouping.SpecialNextHop.Receive;
+            return SpecialNextHop.SpecialNextHopEnum.Receive;
         } else if (flagEnabled(singlePath.isProhibit)) {
-            return SpecialNextHopGrouping.SpecialNextHop.Prohibit;
+            return SpecialNextHop.SpecialNextHopEnum.Prohibit;
         } else if (flagEnabled(singlePath.isUnreach)) {
-            return SpecialNextHopGrouping.SpecialNextHop.Unreachable;
+            return SpecialNextHop.SpecialNextHopEnum.Unreachable;
         } else {
             throw new IllegalArgumentException(
                     String.format("An attempt to resolve illegal path %s detected ", singlePath.toString()));

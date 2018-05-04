@@ -19,6 +19,7 @@ package io.fd.hc2vpp.routing.naming;
 import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.trait.RouteMapper;
+import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.core.dto.Ip6FibDetails;
 import io.fd.vpp.jvpp.core.types.FibPath;
@@ -27,12 +28,16 @@ import java.net.UnknownHostException;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.NextHop1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentation;
 
+public final class Ipv6RouteNamesFactory implements RouteMapper, RouteRequestProducer {
 
-public final class Ipv6RouteNamesFactory implements RouteMapper {
-
-    private static final String DOUBLE_DOT = ":";
-    private static final String EMPTY = "";
+    private static final String COLON = ":";
+    private static final String DASH = "-";
+    private static final String UNDERSCORE = "_";
 
     private final NamingContext interfaceContext;
     private final NamingContext routingProtocolContext;
@@ -47,7 +52,7 @@ public final class Ipv6RouteNamesFactory implements RouteMapper {
      * Construct unique name from provided {@code Route}
      */
     public String uniqueRouteName(@Nonnull final String parentProtocolName,
-                                  @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route) {
+                                  @Nonnull final Route route) {
         return bindName(parentProtocolName,
                 // to have address in compressed form
                 doubleDotlessAddress(route.getDestinationPrefix()),
@@ -63,11 +68,23 @@ public final class Ipv6RouteNamesFactory implements RouteMapper {
                 String.valueOf(Byte.toUnsignedInt(details.addressLength)));
     }
 
-    public String uniqueRouteHopName(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHop hop) {
+    /**
+     * Construct unique name from provided parentProtocolName and {@code Ipv6Prefix}
+     */
+    public String uniqueRouteName(@Nonnull final String parentProtocolName, @Nonnull final Ipv6Prefix prefix) {
+        return bindName(parentProtocolName, doubleDotlessAddress(prefix), String.valueOf(extractPrefix(prefix)));
+    }
+
+
+    public Ipv6Prefix ipv6PrefixFromUniqueRouteName(@Nonnull final String uniqueName) {
+        String[] parts = uniqueName.split(UNDERSCORE);
+        return new Ipv6Prefix(coloned(parts[1]) + "/" + parts[2]);
+    }
+
+    public String uniqueRouteHopName(@Nonnull final NextHop hop) {
         return bindName(hop.getOutgoingInterface(),
-                doubleDotlessAddress(hop.getAddress()),
-                String.valueOf(hop.getWeight()));
+                doubleDotlessAddress(hop.getAugmentation(NextHop1.class).getNextHopAddress()),
+                String.valueOf(hop.getAugmentation(VppIpv6NextHopAugmentation.class).getWeight()));
     }
 
     public String uniqueRouteHopName(@Nonnull final FibPath path, @Nonnull final MappingContext mappingContext) {
@@ -117,6 +134,10 @@ public final class Ipv6RouteNamesFactory implements RouteMapper {
     }
 
     private String doubleDotless(@Nonnull final String input) {
-        return input.replace(DOUBLE_DOT, EMPTY);
+        return input.replace(COLON, DASH);
+    }
+
+    private String coloned(@Nonnull final String input) {
+        return input.replace(DASH, COLON);
     }
 }

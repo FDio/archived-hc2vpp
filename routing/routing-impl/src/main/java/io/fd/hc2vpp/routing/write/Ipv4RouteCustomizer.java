@@ -33,23 +33,22 @@ import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.RouteKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.SimpleNextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.SpecialNextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.TableLookup;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.RoutingProtocol;
-
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.RouteKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.NextHopList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SimpleNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SpecialNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.TableLookupCase;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Customizer for handling write operations for {@link Ipv4} according to ietf-ipv4-unicast-routing.yang
@@ -58,7 +57,6 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
         implements ListWriterCustomizer<Route, RouteKey>, JvppReplyConsumer, RouteMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4RouteCustomizer.class);
-
 
     private final NamingContext routesContext;
     private final MultiNamingContext routesHopsContext;
@@ -75,12 +73,12 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
      */
     private final Ipv4RouteNamesFactory routeNamesFactory;
 
-    public Ipv4RouteCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
-                               @Nonnull final NamingContext interfaceContext,
-                               @Nonnull final NamingContext routesContext,
-                               @Nonnull final NamingContext routingProtocolContext,
-                               @Nonnull final MultiNamingContext routesHopsContext,
-                               @Nonnull final VppClassifierContextManager classifierContextManager) {
+    Ipv4RouteCustomizer(@Nonnull final FutureJVppCore futureJVppCore,
+                        @Nonnull final NamingContext interfaceContext,
+                        @Nonnull final NamingContext routesContext,
+                        @Nonnull final NamingContext routingProtocolContext,
+                        @Nonnull final MultiNamingContext routesHopsContext,
+                        @Nonnull final VppClassifierContextManager classifierContextManager) {
         super(futureJVppCore);
 
         this.routesContext = routesContext;
@@ -92,14 +90,15 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
         specialNextHopRequestFactory = SpecialNextHopRequestFactory.forContexts(classifierContextManager,
                 interfaceContext, routingProtocolContext);
         routeNamesFactory = new Ipv4RouteNamesFactory(interfaceContext, routingProtocolContext);
-        tableLookupRequestFactory = new TableLookupRequestFactory(classifierContextManager, interfaceContext, routingProtocolContext);
+        tableLookupRequestFactory =
+            new TableLookupRequestFactory(classifierContextManager, interfaceContext, routingProtocolContext);
     }
 
     @Override
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Route> instanceIdentifier,
                                        @Nonnull final Route route,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        final String parentProtocolName = instanceIdentifier.firstKeyOf(RoutingProtocol.class).getName();
+        final String parentProtocolName = instanceIdentifier.firstKeyOf(ControlPlaneProtocol.class).getName();
         final String routeName = routeNamesFactory.uniqueRouteName(parentProtocolName, route);
         writeRoute(instanceIdentifier, parentProtocolName, routeName, route, writeContext, true);
 
@@ -120,7 +119,7 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Route> instanceIdentifier,
                                         @Nonnull final Route route,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        final String parentProtocolName = instanceIdentifier.firstKeyOf(RoutingProtocol.class).getName();
+        final String parentProtocolName = instanceIdentifier.firstKeyOf(ControlPlaneProtocol.class).getName();
         final String routeName = routeNamesFactory.uniqueRouteName(parentProtocolName, route);
         writeRoute(instanceIdentifier, parentProtocolName, routeName, route, writeContext, false);
         routesContext.removeName(routeName, writeContext.getMappingContext());
@@ -132,12 +131,12 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
                             @Nonnull final Route route,
                             @Nonnull final WriteContext writeContext,
                             final boolean isAdd) throws WriteFailedException {
-        if (route.getNextHopOptions() instanceof SimpleNextHop) {
+        if (route.getNextHop().getNextHopOptions() instanceof SimpleNextHop) {
             writeRoute(
                     simpleHopRequestFactory.createIpv4SimpleHopRequest(isAdd, parentProtocolName, route,
                             writeContext.getMappingContext()),
                     identifier);
-        } else if (route.getNextHopOptions() instanceof NextHopList) {
+        } else if (route.getNextHop().getNextHopOptions() instanceof NextHopList) {
             final List<NextHop> createdHops =
                     writeMultihopRoute(identifier, parentProtocolName, route, writeContext, isAdd);
 
@@ -147,10 +146,14 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
             } else {
                 removeMappingForEachHop(routeName, writeContext, createdHops);
             }
-        } else if (route.getNextHopOptions() instanceof SpecialNextHop) {
+        } else if (route.getNextHop().getNextHopOptions() instanceof SpecialNextHop) {
             writeSpecialHopRoute(identifier, route, parentProtocolName, writeContext, isAdd);
-        } else if (route.getNextHopOptions() instanceof TableLookup) {
-            writeRoute(tableLookupRequestFactory.createV4TableLookupRouteRequest(isAdd, parentProtocolName, route, writeContext.getMappingContext()), identifier);
+        } else if (route.getNextHop().getNextHopOptions() instanceof TableLookupCase) {
+            writeRoute(tableLookupRequestFactory.createV4TableLookupRouteRequest(isAdd,
+                                                                                 parentProtocolName,
+                                                                                 route,
+                                                                                 writeContext.getMappingContext()),
+                       identifier);
         } else {
             throw new IllegalArgumentException("Unsupported next-hop type");
         }
@@ -166,26 +169,23 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
     private void addMappingForEachHop(final @Nonnull String routeName, final @Nonnull WriteContext writeContext,
                                       final List<NextHop> createdHops) {
         createdHops.forEach(nextHop -> routesHopsContext.addChild(routeName,
-                nextHop.getId().intValue(),
+                Integer.valueOf(nextHop.getIndex()),
                 routeNamesFactory.uniqueRouteHopName(nextHop),
                 writeContext.getMappingContext()));
     }
 
     private List<NextHop> writeMultihopRoute(@Nonnull final InstanceIdentifier<Route> identifier,
-                                             @Nonnull final String parentProtocolName,
-                                             @Nonnull final Route route,
-                                             @Nonnull final WriteContext writeContext,
-                                             final boolean isAdd)
+                                             @Nonnull final String parentProtocolName, @Nonnull final Route route,
+                                             @Nonnull final WriteContext writeContext, final boolean isAdd)
             throws WriteFailedException {
         // list of next hops
-        final NextHopList hopList = NextHopList.class.cast(route.getNextHopOptions());
+        final NextHopList hopList = NextHopList.class.cast(route.getNextHop().getNextHopOptions());
         final MappingContext mappingContext = writeContext.getMappingContext();
         LOG.debug("Writing hop list {} for route {}", hopList, identifier);
 
         // order hops to preserve order by ids(even that model is not ordered)
-        final List<NextHop> orderedHops = hopList.getNextHopList().getNextHop()
-                .stream()
-                .sorted((left, right) -> (int) (left.getId() - right.getId()))
+        final List<NextHop> orderedHops = hopList.getNextHopList().getNextHop().stream()
+                .sorted(Comparator.comparing(NextHop::getIndex))
                 .collect(Collectors.toList());
 
         for (NextHop hop : orderedHops) {
@@ -200,16 +200,16 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
         return orderedHops;
     }
 
-
     private void writeSpecialHopRoute(final @Nonnull InstanceIdentifier<Route> identifier, final @Nonnull Route route,
-                                      final @Nonnull String parentProtocolName, final @Nonnull WriteContext writeContext,
-                                      final boolean isAdd)
+                                      final @Nonnull String parentProtocolName,
+                                      final @Nonnull WriteContext writeContext, final boolean isAdd)
             throws WriteFailedException {
-        final SpecialNextHop hop = SpecialNextHop.class.cast(route.getNextHopOptions());
+        final SpecialNextHop hop = SpecialNextHop.class.cast(route.getNextHop().getNextHopOptions());
         final MappingContext mappingContext = writeContext.getMappingContext();
 
-        final IpAddDelRoute request = specialNextHopRequestFactory
-                .createIpv4SpecialHopRequest(isAdd, parentProtocolName, route, mappingContext, hop.getSpecialNextHop());
+        final IpAddDelRoute request =
+            specialNextHopRequestFactory.createIpv4SpecialHopRequest(isAdd, parentProtocolName, route, mappingContext,
+                                                                     hop.getSpecialNextHopEnum());
 
         writeRoute(request, identifier);
     }

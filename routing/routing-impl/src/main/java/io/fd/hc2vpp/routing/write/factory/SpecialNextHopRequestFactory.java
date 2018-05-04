@@ -16,19 +16,19 @@
 
 package io.fd.hc2vpp.routing.write.factory;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.routing.write.factory.base.BasicHopRequestFactory;
 import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping;
-
-import javax.annotation.Nonnull;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop;
 
 public class SpecialNextHopRequestFactory extends BasicHopRequestFactory
         implements RouteRequestProducer {
@@ -48,9 +48,9 @@ public class SpecialNextHopRequestFactory extends BasicHopRequestFactory
 
     public IpAddDelRoute createIpv4SpecialHopRequest(final boolean add,
                                                      @Nonnull final String parentProtocolName,
-                                                     @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route route,
+                                                     @Nonnull final Route route,
                                                      @Nonnull final MappingContext mappingContext,
-                                                     @Nonnull final SpecialNextHopGrouping.SpecialNextHop flagsVariant) {
+                                                     @Nonnull final SpecialNextHop.SpecialNextHopEnum flagsVariant) {
         checkNotNull(route, "Route cannot be null");
         checkNotNull(mappingContext, "Mapping Context cannot be null");
         checkNotNull(flagsVariant, "Flags variant cannot be null");
@@ -61,9 +61,9 @@ public class SpecialNextHopRequestFactory extends BasicHopRequestFactory
 
     public IpAddDelRoute createIpv6SpecialHopRequest(final boolean add,
                                                      @Nonnull final String parentProtocolName,
-                                                     @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route,
+                                                     @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route route,
                                                      @Nonnull final MappingContext mappingContext,
-                                                     @Nonnull final SpecialNextHopGrouping.SpecialNextHop flagsVariant) {
+                                                     @Nonnull final SpecialNextHop.SpecialNextHopEnum flagsVariant) {
 
         checkNotNull(route, "Route cannot be null");
         checkNotNull(mappingContext, "Mapping Context cannot be null");
@@ -89,7 +89,7 @@ public class SpecialNextHopRequestFactory extends BasicHopRequestFactory
     }
 
     private IpAddDelRoute resolveFlags(IpAddDelRoute request,
-                                       final SpecialNextHopGrouping.SpecialNextHop flagsVariant) {
+                                       final SpecialNextHop.SpecialNextHopEnum flagsVariant) {
         switch (flagsVariant) {
             case Blackhole:
                 return resolveAsBlackholeVariant(request);

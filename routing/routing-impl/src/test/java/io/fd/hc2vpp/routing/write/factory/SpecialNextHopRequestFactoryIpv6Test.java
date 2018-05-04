@@ -18,10 +18,10 @@ package io.fd.hc2vpp.routing.write.factory;
 
 import static io.fd.hc2vpp.routing.write.trait.RouteRequestProducer.DEFAULT_VNI;
 import static org.junit.Assert.assertEquals;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Blackhole;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Prohibit;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Receive;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.SpecialNextHopGrouping.SpecialNextHop.Unreachable;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Blackhole;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Prohibit;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Receive;
+import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.SpecialNextHop.SpecialNextHopEnum.Unreachable;
 
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -40,9 +40,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.StaticRoutes1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.StaticRoutes1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
 
 @RunWith(HoneycombTestRunner.class)
 public class SpecialNextHopRequestFactoryIpv6Test
@@ -50,6 +51,8 @@ public class SpecialNextHopRequestFactoryIpv6Test
 
     private static final String PARENT_PROTOCOL_6 = "parent-protocol-6";
     private static final int PARENT_PROTOCOL_6_INDEX = 6;
+    public static final Ipv6Prefix IPV_6_PREFIX = new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/64");
+    public static final int DST_PREFIX = 64;
 
     @Mock
     private VppClassifierContextManager classifierContextManager;
@@ -66,8 +69,10 @@ public class SpecialNextHopRequestFactoryIpv6Test
     public void init() {
         MockitoAnnotations.initMocks(this);
         interfaceContext = new NamingContext("iface", "interface-context");
-        routingProtocolContextContext = new NamingContext("routingProtocol", "routing-protocol-context");
-        factory = SpecialNextHopRequestFactory.forContexts(classifierContextManager, interfaceContext, routingProtocolContextContext);
+        routingProtocolContextContext =
+            new NamingContext("routingProtocol", "routing-protocol-context");
+        factory = SpecialNextHopRequestFactory.forContexts(classifierContextManager, interfaceContext,
+                                                           routingProtocolContextContext);
 
         addMapping(classifierContextManager, CLASSIFY_TABLE_NAME, CLASSIFY_TABLE_INDEX, mappingContext);
         defineMapping(mappingContext, PARENT_PROTOCOL_6, PARENT_PROTOCOL_6_INDEX, "routing-protocol-context");
@@ -76,12 +81,14 @@ public class SpecialNextHopRequestFactoryIpv6Test
     @Test
     public void testIpv6Blackhole(
             @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH)
-                    StaticRoutes routes) {
+                StaticRoutes routes) {
         final IpAddDelRoute request =
-                factory.createIpv6SpecialHopRequest(true, PARENT_PROTOCOL_6, extractSingleRoute(routes, 1L), mappingContext, Blackhole);
+            factory.createIpv6SpecialHopRequest(true, PARENT_PROTOCOL_6, extractSingleRoute(routes, IPV_6_PREFIX),
+                                                mappingContext, Blackhole);
 
-        assertEquals(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0, PARENT_PROTOCOL_6_INDEX, DEFAULT_VNI),
-                request);
+        assertEquals(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, DST_PREFIX, 1, 0, 0, 0,
+                                          PARENT_PROTOCOL_6_INDEX, DEFAULT_VNI),
+                     request);
     }
 
     @Test
@@ -89,9 +96,12 @@ public class SpecialNextHopRequestFactoryIpv6Test
             @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteReceive.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
-                factory.createIpv6SpecialHopRequest(true, PARENT_PROTOCOL_6, extractSingleRoute(routes, 1L), mappingContext, Receive);
+                factory.createIpv6SpecialHopRequest(true, PARENT_PROTOCOL_6, extractSingleRoute(routes, IPV_6_PREFIX),
+                                                    mappingContext, Receive);
 
-        assertEquals(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 0, 1, 0, 0, PARENT_PROTOCOL_6_INDEX, DEFAULT_VNI), request);
+        assertEquals(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, DST_PREFIX, 0, 1, 0, 0,
+                                          PARENT_PROTOCOL_6_INDEX, DEFAULT_VNI),
+                     request);
     }
 
     @Test
@@ -99,9 +109,12 @@ public class SpecialNextHopRequestFactoryIpv6Test
             @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteUnreachable.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
-                factory.createIpv6SpecialHopRequest(true, PARENT_PROTOCOL_6, extractSingleRoute(routes, 1L), mappingContext, Unreachable);
+                factory.createIpv6SpecialHopRequest(true, PARENT_PROTOCOL_6, extractSingleRoute(routes, IPV_6_PREFIX),
+                                                    mappingContext, Unreachable);
 
-        assertEquals(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 0, 0, 1, 0, PARENT_PROTOCOL_6_INDEX, DEFAULT_VNI), request);
+        assertEquals(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, DST_PREFIX, 0, 0, 1, 0,
+                                          PARENT_PROTOCOL_6_INDEX, DEFAULT_VNI),
+                     request);
     }
 
     @Test
@@ -109,14 +122,17 @@ public class SpecialNextHopRequestFactoryIpv6Test
             @InjectTestData(resourcePath = "/ipv6/specialhop/specialHopRouteProhibited.json", id = STATIC_ROUTE_PATH)
                     StaticRoutes routes) {
         final IpAddDelRoute request =
-                factory.createIpv6SpecialHopRequest(true, PARENT_PROTOCOL_6, extractSingleRoute(routes, 1L), mappingContext, Prohibit);
+                factory.createIpv6SpecialHopRequest(true, PARENT_PROTOCOL_6, extractSingleRoute(routes, IPV_6_PREFIX),
+                                                    mappingContext, Prohibit);
 
-        assertEquals(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 24, 0, 0, 0, 1, PARENT_PROTOCOL_6_INDEX, DEFAULT_VNI), request);
+        assertEquals(desiredSpecialResult(1, 1, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, DST_PREFIX, 0, 0, 0, 1,
+                                          PARENT_PROTOCOL_6_INDEX, DEFAULT_VNI),
+                     request);
     }
 
-    private Route extractSingleRoute(final StaticRoutes staticRoutes, final long id) {
+    private Route extractSingleRoute(final StaticRoutes staticRoutes, final Ipv6Prefix id) {
         return staticRoutes.getAugmentation(StaticRoutes1.class).getIpv6().getRoute().stream()
-                .filter(route -> route.getId() == id).collect(
+                .filter(route -> route.getDestinationPrefix().getValue().equals(id.getValue())).collect(
                         RWUtils.singleItemCollector());
     }
 

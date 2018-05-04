@@ -3,13 +3,14 @@
     "ipv4": {
       "route": [
         {
-          "id": 1,
           "destination-prefix": "192.168.2.1/24",
-          "vpp-ipv4-route": {
-            "classify-table": "classify-table-one"
+          "next-hop": {
+            "next-hop-address" : "192.168.2.2",
+            "outgoing-interface": "iface"
           },
-          "next-hop": "192.168.2.2",
-          "outgoing-interface": "iface"
+          "vpp-ipv4-route" : {
+            "classify-table": "classify-table-one"
+          }
         }
       ]
     }

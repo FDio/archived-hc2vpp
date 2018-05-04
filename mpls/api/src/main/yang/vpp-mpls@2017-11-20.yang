@@ -10,7 +10,7 @@ module vpp-mpls {
 
   import hc2vpp-ietf-routing {
     prefix "rt";
-    revision-date 2014-05-24;
+    revision-date 2018-03-13;
   }
 
   import hc2vpp-ietf-mpls-static {

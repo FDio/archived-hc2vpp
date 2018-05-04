@@ -43,16 +43,9 @@ public class RoutingConfiguration {
      */
     public static final String ROUTE_HOP_CONTEXT = "route-hop-context";
 
-
-    @InjectConfig("default-routing-instance-name")
-    private String defaultRoutingInstanceName;
-
     @InjectConfig("learned-route-name-prefix")
     private String learnedRouteNamePrefix;
 
-    public String getDefaultRoutingInstanceName() {
-        return defaultRoutingInstanceName;
-    }
 
     public String getLearnedRouteNamePrefix() {
         return learnedRouteNamePrefix;

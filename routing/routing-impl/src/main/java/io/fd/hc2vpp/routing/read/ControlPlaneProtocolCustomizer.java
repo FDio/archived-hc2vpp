@@ -32,31 +32,31 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Static;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.RoutingProtocolsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocol;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocolBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocolKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.RoutingProtocolStateVppAttr;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.RoutingProtocolStateVppAttrBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.VniReference;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol.VppProtocolStateAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Static;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.ControlPlaneProtocolsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.RoutingProtocolVppAttr;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.RoutingProtocolVppAttrBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.rev180319.routing.control.plane.protocols.control.plane.protocol.VppProtocolAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.types.rev180406.VniReference;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-
-public class RoutingProtocolCustomizer
-        implements ListReaderCustomizer<RoutingProtocol, RoutingProtocolKey, RoutingProtocolBuilder>, RouteMapper {
+final class ControlPlaneProtocolCustomizer
+        implements ListReaderCustomizer<ControlPlaneProtocol, ControlPlaneProtocolKey, ControlPlaneProtocolBuilder>,
+        RouteMapper {
 
     private final NamingContext routingProtocolContext;
     private final DumpCacheManager<IpFibDetailsReplyDump, Void> ipv4RoutesDumpManager;
     private final DumpCacheManager<Ip6FibDetailsReplyDump, Void> ipv6RoutesDumpManager;
 
 
-    public RoutingProtocolCustomizer(@Nonnull final NamingContext routingProtocolContext,
-                                     @Nonnull final DumpCacheManager<IpFibDetailsReplyDump, Void> ipv4RoutesDumpManager,
-                                     @Nonnull final DumpCacheManager<Ip6FibDetailsReplyDump, Void> ipv6RoutesDumpManager) {
+    ControlPlaneProtocolCustomizer(@Nonnull final NamingContext routingProtocolContext,
+                                   @Nonnull final DumpCacheManager<IpFibDetailsReplyDump, Void> ipv4RoutesDumpManager,
+                                   @Nonnull final DumpCacheManager<Ip6FibDetailsReplyDump, Void> ipv6RoutesDumpManager) {
         this.routingProtocolContext = routingProtocolContext;
         this.ipv4RoutesDumpManager = ipv4RoutesDumpManager;
         this.ipv6RoutesDumpManager = ipv6RoutesDumpManager;
@@ -64,8 +64,8 @@ public class RoutingProtocolCustomizer
 
     @Nonnull
     @Override
-    public List<RoutingProtocolKey> getAllIds(@Nonnull final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
-                                              @Nonnull final ReadContext readContext) throws ReadFailedException {
+    public List<ControlPlaneProtocolKey> getAllIds(@Nonnull final InstanceIdentifier<ControlPlaneProtocol> instanceIdentifier,
+                                                   @Nonnull final ReadContext readContext) throws ReadFailedException {
 
         final ModificationCache modificationCache = readContext.getModificationCache();
 
@@ -76,11 +76,11 @@ public class RoutingProtocolCustomizer
                 .flatMap(Collection::stream)
                 .map(tableId -> routingProtocolContext.getName(tableId, readContext.getMappingContext()))
                 .distinct()
-                .map(RoutingProtocolKey::new)
+                .map(name -> new ControlPlaneProtocolKey(name, Static.class))
                 .collect(Collectors.toList());
     }
 
-    private List<Integer> ipv4TableIds(final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
+    private List<Integer> ipv4TableIds(final InstanceIdentifier<ControlPlaneProtocol> instanceIdentifier,
                                        final ModificationCache modificationCache) throws ReadFailedException {
         final Optional<IpFibDetailsReplyDump>
                 ipv4Routes = ipv4RoutesDumpManager.getDump(instanceIdentifier, modificationCache);
@@ -93,7 +93,7 @@ public class RoutingProtocolCustomizer
         return Collections.emptyList();
     }
 
-    private List<Integer> ipv6TableIds(final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
+    private List<Integer> ipv6TableIds(final InstanceIdentifier<ControlPlaneProtocol> instanceIdentifier,
                                        final ModificationCache modificationCache) throws ReadFailedException {
         final Optional<Ip6FibDetailsReplyDump>
                 ipv6Routes = ipv6RoutesDumpManager.getDump(instanceIdentifier, modificationCache);
@@ -107,28 +107,34 @@ public class RoutingProtocolCustomizer
     }
 
     @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<RoutingProtocol> list) {
-        RoutingProtocolsBuilder.class.cast(builder).setRoutingProtocol(list);
+    public void merge(@Nonnull final Builder<? extends DataObject> builder,
+                      @Nonnull final List<ControlPlaneProtocol> list) {
+        ((ControlPlaneProtocolsBuilder) builder).setControlPlaneProtocol(list);
     }
 
     @Nonnull
     @Override
-    public RoutingProtocolBuilder getBuilder(@Nonnull final InstanceIdentifier<RoutingProtocol> instanceIdentifier) {
-        return new RoutingProtocolBuilder();
+    public ControlPlaneProtocolBuilder getBuilder(@Nonnull final InstanceIdentifier<ControlPlaneProtocol> instanceIdentifier) {
+        return new ControlPlaneProtocolBuilder();
     }
 
     @Override
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<RoutingProtocol> instanceIdentifier,
-                                      @Nonnull final RoutingProtocolBuilder routingProtocolBuilder,
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<ControlPlaneProtocol> instanceIdentifier,
+                                      @Nonnull final ControlPlaneProtocolBuilder routingProtocolBuilder,
                                       @Nonnull final ReadContext readContext) throws ReadFailedException {
-
-        final RoutingProtocolKey key = instanceIdentifier.firstKeyOf(RoutingProtocol.class);
-        routingProtocolBuilder.setName(key.getName()).setKey(key).setType(Static.class)
-                .addAugmentation(RoutingProtocolStateVppAttr.class, new RoutingProtocolStateVppAttrBuilder()
-                        .setVppProtocolStateAttributes(new VppProtocolStateAttributesBuilder()
-                                .setPrimaryVrf(new VniReference(Long.valueOf(routingProtocolContext
-                                        .getIndex(key.getName(), readContext.getMappingContext()))))
-                                .build())
-                        .build());
+        final ControlPlaneProtocolKey key = instanceIdentifier.firstKeyOf(ControlPlaneProtocol.class);
+        routingProtocolBuilder
+            .setName(key.getName())
+            .setKey(key)
+            .setType(Static.class)
+            .addAugmentation(RoutingProtocolVppAttr.class, new RoutingProtocolVppAttrBuilder().setVppProtocolAttributes(
+                new VppProtocolAttributesBuilder()
+                    .setPrimaryVrf(
+                        new VniReference(
+                            Long.valueOf(routingProtocolContext.getIndex(key.getName(),
+                                                                         readContext.getMappingContext()))))
+                    .build())
+                .build())
+            .build();
     }
 }

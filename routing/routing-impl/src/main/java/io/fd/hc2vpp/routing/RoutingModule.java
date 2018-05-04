@@ -21,7 +21,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.routing.read.RoutingStateReaderFactory;
+import io.fd.hc2vpp.routing.read.RoutingReaderFactory;
 import io.fd.hc2vpp.routing.write.RoutingWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * RoutingModule class instantiating routing plugin components.
  */
-public final class RoutingModule extends AbstractModule {
+public class RoutingModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingModule.class);
 
@@ -44,22 +44,22 @@ public final class RoutingModule extends AbstractModule {
         requestInjection(RoutingConfiguration.class);
 
         bind(NamingContext.class)
-                .annotatedWith(Names.named(RoutingConfiguration.ROUTING_PROTOCOL_CONTEXT))
-                .toInstance(new NamingContext("learned-protocol-", RoutingConfiguration.ROUTING_PROTOCOL_CONTEXT));
+            .annotatedWith(Names.named(RoutingConfiguration.ROUTING_PROTOCOL_CONTEXT))
+            .toInstance(new NamingContext("learned-protocol-", RoutingConfiguration.ROUTING_PROTOCOL_CONTEXT));
 
         bind(NamingContext.class)
-                .annotatedWith(Names.named(RoutingConfiguration.ROUTE_CONTEXT))
-                .toInstance(new NamingContext("route-", RoutingConfiguration.ROUTE_CONTEXT));
+            .annotatedWith(Names.named(RoutingConfiguration.ROUTE_CONTEXT))
+            .toInstance(new NamingContext("route-", RoutingConfiguration.ROUTE_CONTEXT));
 
         bind(MultiNamingContext.class)
-                .annotatedWith(Names.named(RoutingConfiguration.ROUTE_HOP_CONTEXT))
-                .toInstance(new MultiNamingContext(RoutingConfiguration.ROUTE_HOP_CONTEXT,
-                        RoutingConfiguration.MULTI_MAPPING_START_INDEX));
+            .annotatedWith(Names.named(RoutingConfiguration.ROUTE_HOP_CONTEXT))
+            .toInstance(new MultiNamingContext(RoutingConfiguration.ROUTE_HOP_CONTEXT,
+                    RoutingConfiguration.MULTI_MAPPING_START_INDEX));
 
         LOG.info("Injecting reader factories");
         // creates reader factory binding
         final Multibinder<ReaderFactory> readerFactoryBinder = Multibinder.newSetBinder(binder(), ReaderFactory.class);
-        readerFactoryBinder.addBinding().to(RoutingStateReaderFactory.class);
+        readerFactoryBinder.addBinding().to(RoutingReaderFactory.class);
 
         LOG.info("Injecting writers factories");
         // create writer factory binding

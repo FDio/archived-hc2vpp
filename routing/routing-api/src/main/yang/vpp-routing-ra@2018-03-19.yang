@@ -9,10 +9,20 @@ module vpp-routing-ra {
 
     import hc2vpp-ietf-routing {
         prefix "ietf-r";
+        revision-date 2018-03-13;
     }
 
     import hc2vpp-ietf-ipv6-unicast-routing {
         prefix "v6ur";
+        revision-date 2018-03-13;
+    }
+
+    import ietf-ip {
+        prefix "ip";
+    }
+
+    import ietf-interfaces {
+        prefix "if";
     }
 
     organization
@@ -40,6 +50,11 @@ module vpp-routing-ra {
          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
          See the License for the specific language governing permissions and
          limitations under the License.";
+
+    revision 2018-03-19 {
+        description
+            "Update hc2vpp-ietf-routing revision-date to 2018-03-13";
+    }
 
     revision 2017-05-02 {
         description "Changed namespace";
@@ -117,14 +132,12 @@ module vpp-routing-ra {
             "https://docs.fd.io/vpp/17.04/clicmd_src_vnet_ip.html#clicmd_ip6_nd";
     }
 
-    augment "/ietf-r:routing/ietf-r:routing-instance/ietf-r:interfaces/ietf-r:interface/"
-            + "v6ur:ipv6-router-advertisements" {
+    augment "/if:interfaces/if:interface/ip:ipv6/v6ur:ipv6-router-advertisements" {
         ext:augment-identifier "ipv6-router-advertisements-vpp-augmentation";
         uses ipv6-router-advertisements-vpp-attributes;
     }
 
-    augment "/ietf-r:routing/ietf-r:routing-instance/ietf-r:interfaces/ietf-r:interface/"
-            + "v6ur:ipv6-router-advertisements/v6ur:prefix-list/v6ur:prefix" {
+    augment "/if:interfaces/if:interface/ip:ipv6/v6ur:ipv6-router-advertisements/v6ur:prefix-list/v6ur:prefix" {
         // TODO control-adv-prefixes/advertise case should be target node (change after yangtools issues are solved)
         ext:augment-identifier "control-adv-prefixes-vpp-augmentation";
         uses control-adv-prefixes-vpp-attributes;

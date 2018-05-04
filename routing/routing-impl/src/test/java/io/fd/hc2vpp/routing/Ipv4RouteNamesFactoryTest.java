@@ -34,8 +34,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.route.next.hop.NextHop1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.route.next.hop.NextHop1Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv4.unicast.routing.rev180319.VppIpv4NextHopAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv4.unicast.routing.rev180319.VppIpv4NextHopAugmentationBuilder;
 
 @RunWith(HoneycombTestRunner.class)
 public class Ipv4RouteNamesFactoryTest
@@ -73,19 +78,27 @@ public class Ipv4RouteNamesFactoryTest
     @Test
     public void testUniqueRouteName(
             @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
-                    StaticRoutes data) {
-        assertEquals("tst-protocol_19216821_24",
-                factory.uniqueRouteName(ROUTE_PROTOCOL_NAME, getIpv4RouteWithId(data, 1L)));
-        assertEquals("tst-protocol_19216821_24", factory.uniqueRouteName(vppRoute, mappingContext));
+                StaticRoutes data) {
+        assertEquals("tst-protocol_192-168-2-1_24",
+                     factory.uniqueRouteName(ROUTE_PROTOCOL_NAME,
+                                             getIpv4RouteWithId(data, new Ipv4Prefix("192.168.2.1/24"))));
+        assertEquals("tst-protocol_192-168-2-1_24", factory.uniqueRouteName(vppRoute, mappingContext));
     }
 
     @Test
     public void testUniqueRouteHopName() {
-        assertEquals("iface_19216821_3", factory.uniqueRouteHopName(new NextHopBuilder()
-                .setAddress(new Ipv4Address("192.168.2.1"))
-                .setWeight((short) 3)
+        assertEquals("iface_192-168-2-1_3", factory.uniqueRouteHopName(
+            new NextHopBuilder()
                 .setOutgoingInterface("iface")
+                .addAugmentation(NextHop1.class,
+                    new NextHop1Builder()
+                        .setNextHopAddress(new Ipv4Address("192.168.2.1"))
+                        .build())
+                .addAugmentation(VppIpv4NextHopAugmentation.class,
+                                 new VppIpv4NextHopAugmentationBuilder()
+                                     .setWeight((short) 3)
+                                     .build())
                 .build()));
-        assertEquals("iface_19216821_3", factory.uniqueRouteHopName(vppPath, mappingContext));
+        assertEquals("iface_192-168-2-1_3", factory.uniqueRouteHopName(vppPath, mappingContext));
     }
 }

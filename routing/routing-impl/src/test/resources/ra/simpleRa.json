@@ -3,9 +3,11 @@
     "interface": [
       {
         "name": "eth0",
-        "ipv6-router-advertisements": {
-          "send-advertisements": "true",
-          "managed-flag": "true"
+        "ietf-ip:ipv6": {
+          "hc2vpp-ietf-ipv6-unicast-routing:ipv6-router-advertisements": {
+            "send-advertisements": "true",
+            "managed-flag": "true"
+          }
         }
       }
     ]

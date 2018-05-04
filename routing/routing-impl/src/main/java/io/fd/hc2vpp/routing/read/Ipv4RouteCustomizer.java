@@ -35,19 +35,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.RouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.RouteKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.state.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.VppIpv4RouteStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.state.routing.instance.routing.protocols.RoutingProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.RouteKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv4.unicast.routing.rev180319.VppIpv4RouteAttributesAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv4.unicast.routing.rev180319.VppIpv4RouteAttributesAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv4.unicast.routing.rev180319.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.route.VppIpv4RouteBuilder;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class Ipv4RouteCustomizer
+final class Ipv4RouteCustomizer
         implements ListReaderCustomizer<Route, RouteKey, RouteBuilder>, RouteMapper, Ipv4RoutePathParser {
-
 
     private final DumpCacheManager<IpFibDetailsReplyDump, Void> ipv4RoutesDumpManager;
     private final RoutingConfiguration configuration;
@@ -58,12 +59,12 @@ public class Ipv4RouteCustomizer
 
     private final Ipv4RouteNamesFactory namesFactory;
 
-    public Ipv4RouteCustomizer(@Nonnull final DumpCacheManager<IpFibDetailsReplyDump, Void> ipv4RoutesDumpManager,
-                               @Nonnull final RoutingConfiguration configuration,
-                               @Nonnull final MultiNamingContext routeHopContext,
-                               @Nonnull final NamingContext interfaceContext,
-                               @Nonnull final NamingContext routesContext,
-                               @Nonnull final NamingContext routingProtocolContext) {
+    Ipv4RouteCustomizer(@Nonnull final DumpCacheManager<IpFibDetailsReplyDump, Void> ipv4RoutesDumpManager,
+                        @Nonnull final RoutingConfiguration configuration,
+                        @Nonnull final MultiNamingContext routeHopContext,
+                        @Nonnull final NamingContext interfaceContext,
+                        @Nonnull final NamingContext routesContext,
+                        @Nonnull final NamingContext routingProtocolContext) {
         this.ipv4RoutesDumpManager = ipv4RoutesDumpManager;
         this.configuration = configuration;
         this.interfaceContext = interfaceContext;
@@ -81,7 +82,7 @@ public class Ipv4RouteCustomizer
         final Optional<IpFibDetailsReplyDump> ipv4RoutesDump =
                 ipv4RoutesDumpManager.getDump(instanceIdentifier, readContext.getModificationCache());
 
-        final String protocolName = instanceIdentifier.firstKeyOf(RoutingProtocol.class).getName();
+        final String protocolName = instanceIdentifier.firstKeyOf(ControlPlaneProtocol.class).getName();
         final int protocolTableId = routingProtocolContext.getIndex(protocolName, readContext.getMappingContext());
 
         return ipv4RoutesDump.isPresent()
@@ -104,14 +105,19 @@ public class Ipv4RouteCustomizer
             if (!routesContext.containsIndex(learnedRouteName, mappingContext)) {
                 routesContext.addName(learnedRouteName, mappingContext);
             }
-            return keyForName(mappingContext, learnedRouteName);
+            return keyForLearnedName(learnedRouteName);
         }
-        return keyForName(mappingContext, routeName);
+        return keyForName(routeName);
     }
 
-    private RouteKey keyForName(final MappingContext mappingContext, final String name) {
-        return new RouteKey(
-                Long.valueOf(routesContext.getIndex(name, mappingContext)));
+    private RouteKey keyForName(final String name) {
+        // example learned-protocol-0_0-0-0-0_0
+        return new RouteKey(namesFactory.ipv4PrefixFromUniqueRouteName(name));
+    }
+
+    private RouteKey keyForLearnedName(final String name) {
+        // example learned-route_learned-protocol-0_0-0-0-0_0
+        return new RouteKey(namesFactory.ipv4PrefixFromUniqueRouteName(name.replace("learned-route_", "")));
     }
 
     @Override
@@ -130,8 +136,9 @@ public class Ipv4RouteCustomizer
                                       @Nonnull final RouteBuilder routeBuilder, @Nonnull final ReadContext readContext)
             throws ReadFailedException {
         final RouteKey key = instanceIdentifier.firstKeyOf(Route.class);
-        final String mappedName = routesContext.getName(key.getId().intValue(), readContext.getMappingContext());
-        final String protocolName = instanceIdentifier.firstKeyOf(RoutingProtocol.class).getName();
+        final String protocolName = instanceIdentifier.firstKeyOf(ControlPlaneProtocol.class).getName();
+        final String mappedName = namesFactory.uniqueRouteName(protocolName, key.getDestinationPrefix());
+
         final int protocolTableId = routingProtocolContext.getIndex(protocolName, readContext.getMappingContext());
         final Optional<IpFibDetailsReplyDump> ipv4RoutesDump =
                 ipv4RoutesDumpManager.getDump(instanceIdentifier, readContext.getModificationCache());
@@ -147,13 +154,16 @@ public class Ipv4RouteCustomizer
             if (opDetail.isPresent()) {
                 final IpFibDetails detail = opDetail.get();
 
-                routeBuilder.setNextHopOptions(
+                routeBuilder.setNextHop(
                         resolveHopType(mappedName, Arrays.asList(detail.path), interfaceContext, routeHopContext,
                                 readContext.getMappingContext(), namesFactory))
                         .setKey(key)
-                        .setId(key.getId())
                         .setDestinationPrefix(toIpv4Prefix(detail.address, toJavaByte(detail.addressLength)))
-                        .setVppIpv4RouteState(new VppIpv4RouteStateBuilder().build());
+                        .addAugmentation(VppIpv4RouteAttributesAugmentation.class,
+                                         new VppIpv4RouteAttributesAugmentationBuilder()
+                                             .setVppIpv4Route(new VppIpv4RouteBuilder()
+                                                                  .build())
+                                             .build());
             }
         }
     }

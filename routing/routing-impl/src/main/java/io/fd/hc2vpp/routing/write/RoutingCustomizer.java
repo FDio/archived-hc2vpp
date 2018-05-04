@@ -20,7 +20,7 @@ import io.fd.honeycomb.translate.spi.write.WriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Routing;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Routing;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Dummy customizer for Root node,to "handle" non-operational changes
  */
-public class RoutingCustomizer implements WriterCustomizer<Routing> {
+final class RoutingCustomizer implements WriterCustomizer<Routing> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingCustomizer.class);
 
@@ -37,6 +37,7 @@ public class RoutingCustomizer implements WriterCustomizer<Routing> {
                                        @Nonnull final Routing routing, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         LOG.debug("Writing {}", instanceIdentifier);
+        checkSingletonInstance(routing);
     }
 
     @Override
@@ -44,5 +45,12 @@ public class RoutingCustomizer implements WriterCustomizer<Routing> {
                                         @Nonnull final Routing routing, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         LOG.debug("Removing {}", instanceIdentifier);
+        checkSingletonInstance(routing);
+    }
+
+    private void checkSingletonInstance(final Routing data) {
+        if (data.getRouterId() != null) {
+            throw new UnsupportedOperationException("Setting RouterId is not supported.");
+        }
     }
 }

@@ -3,14 +3,16 @@
     "interface": [
       {
         "name": "eth0",
-        "ipv6-router-advertisements": {
-          "send-advertisements": "true",
-          "min-rtr-adv-interval": "20",
-          "max-rtr-adv-interval": "100",
-          "default-lifetime": "601",
-          "vpp-routing-ra:suppress-link-layer": "false",
-          "vpp-routing-ra:initial-count": "2",
-          "vpp-routing-ra:initial-interval": "15"
+        "ipv6" :{
+          "ipv6-router-advertisements": {
+            "send-advertisements": "true",
+            "min-rtr-adv-interval": "20",
+            "max-rtr-adv-interval": "100",
+            "default-lifetime": "601",
+            "vpp-routing-ra:suppress-link-layer": "false",
+            "vpp-routing-ra:initial-count": "2",
+            "vpp-routing-ra:initial-interval": "15"
+          }
         }
       }
     ]

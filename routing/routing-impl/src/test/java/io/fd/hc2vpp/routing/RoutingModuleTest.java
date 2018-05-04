@@ -31,7 +31,7 @@ import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.routing.read.RoutingStateReaderFactory;
+import io.fd.hc2vpp.routing.read.RoutingReaderFactory;
 import io.fd.hc2vpp.routing.write.RoutingWriterFactory;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
@@ -94,7 +94,7 @@ public class RoutingModuleTest {
         readerFactories.stream().forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
         assertEquals(1, readerFactories.size());
-        assertTrue(readerFactories.iterator().next() instanceof RoutingStateReaderFactory);
+        assertTrue(readerFactories.iterator().next() instanceof RoutingReaderFactory);
     }
 
     @Test

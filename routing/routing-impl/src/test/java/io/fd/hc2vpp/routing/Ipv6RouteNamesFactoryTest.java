@@ -35,8 +35,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.NextHop1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.NextHop1Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentationBuilder;
 
 @RunWith(HoneycombTestRunner.class)
 public class Ipv6RouteNamesFactoryTest implements RoutingRequestTestHelper, SchemaContextTestHelper,
@@ -73,20 +78,30 @@ public class Ipv6RouteNamesFactoryTest implements RoutingRequestTestHelper, Sche
     @Test
     public void testUniqueRouteName(
             @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH)
-                    StaticRoutes data) {
-        assertEquals("tst-protocol_2001db8a0b12f01_64",
-                factory.uniqueRouteName(ROUTE_PROTOCOL_NAME, getIpv6RouteWithId(data, 1L)));
-        assertEquals("tst-protocol_2001db8a0b12f01_64", factory.uniqueRouteName(vppRoute, mappingContext));
+                StaticRoutes data) {
+        assertEquals("tst-protocol_2001-db8-a0b-12f0--1_64",
+                     factory.uniqueRouteName(ROUTE_PROTOCOL_NAME,
+                                             getIpv6RouteWithId(data,
+                                                new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/64"))));
+        assertEquals("tst-protocol_2001-db8-a0b-12f0--1_64", factory.uniqueRouteName(vppRoute, mappingContext));
     }
 
     @Test
     public void testUniqueRouteHopName() {
-        assertEquals("iface_2001db8a0b12f01_3", factory.uniqueRouteHopName(new NextHopBuilder()
-                .setAddress(new Ipv6Address("2001:0db8:0a0b:12f0:0000:0000:0000:0001"))
-                .setWeight((short) 3)
+        assertEquals("iface_2001-db8-a0b-12f0--1_3", factory.uniqueRouteHopName(
+            new NextHopBuilder()
                 .setOutgoingInterface("iface")
-                .build()));
-        assertEquals("iface_2001db8a0b12f01_3",
+                .setIndex("1")
+                .addAugmentation(NextHop1.class,
+                    new NextHop1Builder()
+                        .setNextHopAddress(new Ipv6Address("2001:0db8:0a0b:12f0:0000:0000:0000:0001"))
+                        .build())
+                .addAugmentation(VppIpv6NextHopAugmentation.class,
+                    new VppIpv6NextHopAugmentationBuilder()
+                        .setWeight((short) 3)
+                        .build())
+                    .build()));
+        assertEquals("iface_2001-db8-a0b-12f0--1_3",
                 factory.uniqueRouteHopName(vppPath, mappingContext));
     }
 }

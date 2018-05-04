@@ -31,38 +31,37 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaConfig;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceIp6NdRaConfigReply;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.Interface1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.interfaces._interface.Ipv6RouterAdvertisements;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.Routing;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.RoutingInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.RoutingInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.Ipv61;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.interfaces._interface.ipv6.Ipv6RouterAdvertisements;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(HoneycombTestRunner.class)
 public class RouterAdvertisementsCustomizerTest extends WriterCustomizerTest implements SchemaContextTestHelper {
 
-    private static final String INSTANCE_NAME = "tst-protocol";
     private static final String CTX_NAME = "interface-context";
     private static final String IFC_NAME = "eth0";
     private static final int IFC_INDEX = 1;
-    private static final InstanceIdentifier<Ipv6RouterAdvertisements> IID = InstanceIdentifier.create(Routing.class)
-        .child(RoutingInstance.class, new RoutingInstanceKey(INSTANCE_NAME)).child(Interfaces.class)
-        .child(Interface.class, new InterfaceKey(IFC_NAME)).augmentation(
-            Interface1.class).child(Ipv6RouterAdvertisements.class);
+    private static final InstanceIdentifier<Ipv6RouterAdvertisements> IID = InstanceIdentifier
+        .create(Interfaces.class)
+        .child(Interface.class, new InterfaceKey(IFC_NAME))
+        .augmentation(Interface1.class)
+        .child(Ipv6.class)
+        .augmentation(Ipv61.class)
+        .child(Ipv6RouterAdvertisements.class);
 
-    private static final String RA_PATH = "/hc2vpp-ietf-routing:routing" +
-        "/hc2vpp-ietf-routing:routing-instance[hc2vpp-ietf-routing:name='" + INSTANCE_NAME + "']" +
-        "/hc2vpp-ietf-routing:interfaces";
+    private static final String RA_PATH = "/ietf-interfaces:interfaces";
 
     private RouterAdvertisementsCustomizer customizer;
     private NamingContext interfaceContext = new NamingContext("ifaces", CTX_NAME);
 
 
     @Override
-    protected void setUpTest() throws Exception {
+    protected void setUpTest() {
         customizer = new RouterAdvertisementsCustomizer(api, interfaceContext);
         defineMapping(mappingContext, IFC_NAME, IFC_INDEX, CTX_NAME);
         when(api.swInterfaceIp6NdRaConfig(any())).thenReturn(future(new SwInterfaceIp6NdRaConfigReply()));
@@ -106,6 +105,11 @@ public class RouterAdvertisementsCustomizerTest extends WriterCustomizerTest imp
     }
 
     private static Ipv6RouterAdvertisements getRA(final Interfaces ifc) {
-        return ifc.getInterface().get(0).getAugmentation(Interface1.class).getIpv6RouterAdvertisements();
+        return ifc.getInterface()
+            .get(0)
+            .getAugmentation(Interface1.class)
+            .getIpv6()
+            .getAugmentation(Ipv61.class)
+            .getIpv6RouterAdvertisements();
     }
 }

@@ -3,26 +3,27 @@
     "ipv4": {
       "route": [
         {
-          "id": 1,
           "destination-prefix": "192.168.2.1/24",
-          "vpp-ipv4-route": {
+          "vpp-v4ur:vpp-ipv4-route": {
             "classify-table": "classify-table-one"
           },
-          "next-hop-list": {
-            "next-hop": [
-              {
-                "id": "1",
-                "address": "192.168.2.1",
-                "outgoing-interface": "iface",
-                "weight": "2"
-              },
-              {
-                "id": "2",
-                "address": "192.168.2.2",
-                "outgoing-interface": "iface",
-                "weight": "3"
-              }
-            ]
+          "next-hop":{
+            "next-hop-list": {
+              "next-hop": [
+                {
+                  "index": "1",
+                  "next-hop-address": "192.168.2.1",
+                  "outgoing-interface": "iface",
+                  "weight": "2"
+                },
+                {
+                  "index": "2",
+                  "next-hop-address": "192.168.2.2",
+                  "outgoing-interface": "iface",
+                  "weight": "3"
+                }
+              ]
+            }
           }
         }
       ]

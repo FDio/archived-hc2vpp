@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.routing.write.factory;
 
-
 import static org.junit.Assert.assertEquals;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -36,10 +35,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.NextHopList;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.next.hop.list.next.hop.list.NextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev140524.routing.routing.instance.routing.protocols.routing.protocol.StaticRoutes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.NextHopList;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
 
 @RunWith(HoneycombTestRunner.class)
 public class MultipathHopRequestFactoryIpv4Test
@@ -85,26 +85,32 @@ public class MultipathHopRequestFactoryIpv4Test
         defineMapping(mappingContext, INTERFACE_NAME, INTERFACE_INDEX, "interface-context");
         defineMapping(mappingContext, ROUTE_PROTOCOL_NAME, 1, "routing-protocol-context");
 
-        ipv4MutlipathRouteWithClassifier = getIpv4RouteWithId(ipv4StaticRoutesWithClassifier, 1L);
+        ipv4MutlipathRouteWithClassifier = getIpv4RouteWithId(ipv4StaticRoutesWithClassifier,
+                                                              new Ipv4Prefix("192.168.2.1/24"));
         final List<NextHop> ipv4HopsClassified =
-                NextHopList.class.cast(ipv4MutlipathRouteWithClassifier.getNextHopOptions()).getNextHopList()
-                        .getNextHop();
+                NextHopList.class.cast(ipv4MutlipathRouteWithClassifier.getNextHop().getNextHopOptions())
+                    .getNextHopList().getNextHop();
         ipv4nextHopWithClassifier =
-                ipv4HopsClassified.stream().filter(nextHop -> nextHop.getId() == 1L).findFirst().get();
+                ipv4HopsClassified.stream().filter(nextHop -> Integer.valueOf(nextHop.getIndex()) == 1L)
+                    .findFirst().get();
 
-        ipv4MutlipathRouteWithoutClassifier = getIpv4RouteWithId(ipv4StaticRoutesWithoutClassifier, 1L);
+        ipv4MutlipathRouteWithoutClassifier = getIpv4RouteWithId(ipv4StaticRoutesWithoutClassifier,
+                                                                 new Ipv4Prefix("192.168.2.1/24"));
         final List<NextHop> ipv4HopsNonClassified =
-                NextHopList.class.cast(ipv4MutlipathRouteWithoutClassifier.getNextHopOptions()).getNextHopList()
-                        .getNextHop();
+                NextHopList.class.cast(ipv4MutlipathRouteWithoutClassifier.getNextHop().getNextHopOptions())
+                    .getNextHopList().getNextHop();
         ipv4nextHopWithoutClassifier =
-                ipv4HopsNonClassified.stream().filter(nextHop -> nextHop.getId() == 1L).findFirst().get();
+                ipv4HopsNonClassified.stream().filter(nextHop -> Integer.valueOf(nextHop.getIndex()) == 1L)
+                    .findFirst().get();
 
-        ipv4MutlipathRouteWithoutRouteAtts = getIpv4RouteWithId(ipv4StaticRoutesWithoutRouteAttrs, 1L);
+        ipv4MutlipathRouteWithoutRouteAtts = getIpv4RouteWithId(ipv4StaticRoutesWithoutRouteAttrs,
+                                                                new Ipv4Prefix("192.168.2.1/24"));
         final List<NextHop> ipv4HopsNonRouteAttrs =
-                NextHopList.class.cast(ipv4MutlipathRouteWithoutRouteAtts.getNextHopOptions()).getNextHopList()
-                        .getNextHop();
+                NextHopList.class.cast(ipv4MutlipathRouteWithoutRouteAtts.getNextHop().getNextHopOptions())
+                    .getNextHopList().getNextHop();
         ipv4nextHopWithoutRouteAtts =
-                ipv4HopsNonClassified.stream().filter(nextHop -> nextHop.getId() == 1L).findFirst().get();
+                ipv4HopsNonClassified.stream().filter(nextHop -> Integer.valueOf(nextHop.getIndex()) == 1L)
+                    .findFirst().get();
     }
 
     @Test

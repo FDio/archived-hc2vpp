@@ -1,11 +1,7 @@
-module vpp-routing-table-lookup {
+module vpp-routing-types {
 
-    namespace "urn:ietf:params:xml:ns:yang:vpp-routing-table-lookup";
-    prefix "vpp-routing";
-
-    import vpp-routing {
-        prefix "vpp-r";
-    }
+    namespace "urn:ietf:params:xml:ns:yang:vpp-routing-types";
+    prefix "vpp-routing-types";
 
     organization
         "FD.io - The Fast Data Project";
@@ -15,10 +11,11 @@ module vpp-routing-table-lookup {
          Mailing List <hc2vpp@lists.fd.io>";
 
     description
-        "This module extends hc2vpp-ietf-routing module
-         with VPP table lookup option.
+        "This module contains a collection of YANG definitions
+         that extend hc2vpp-ietf-routing-types module
+         with VPP specific data.
 
-         Copyright (c) 2017 Cisco and/or its affiliates.
+         Copyright (c) 2018 Bell Canada, Pantheon.tech and/or its affiliates.
 
          Licensed under the Apache License, Version 2.0 (the 'License');
          you may not use this file except in compliance with the License.
@@ -32,18 +29,32 @@ module vpp-routing-table-lookup {
          See the License for the specific language governing permissions and
          limitations under the License.";
 
-    revision 2017-09-17 {
-        description "Initial revision";
+    revision 2018-04-06 {
+        description "Initial revision.";
+    }
+
+    /*** Collection of types related to VPP routing ***/
+
+    typedef vni-reference {
+        type uint32;
+        description "Vrf index reference";
+    }
+
+    /*** Groupings ***/
+
+    grouping vpp-next-hop-attributes {
+        leaf weight{
+            type uint8;
+            description "Weight classification for next hop in list of next hops";
+        }
     }
 
     grouping table-lookup-case-params {
         leaf secondary-vrf {
-           type vpp-r:vni-reference;
-           mandatory true;
-           description "Secondary vrf used to lookup in";
+            type vni-reference;
+            mandatory true;
+            description "Secondary vrf used to lookup in";
         }
         // uses special deaggregation address every time : 0.0.0.0
     }
-
-    //TODO - HONEYCOMB-398/HC2VPP-237 - move table lookup case here
 }

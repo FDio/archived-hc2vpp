@@ -22,17 +22,18 @@ import io.fd.hc2vpp.routing.write.trait.RouteRequestProducer;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
-
 import javax.annotation.Nonnull;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.VppIpv4Route;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.route.next.hop.options.SimpleNextHop;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.VppIpv6Route;
-
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.route.next.hop.SimpleNextHop1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.SimpleNextHop;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv4.unicast.routing.rev180319.VppIpv4RouteAttributesAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv4.unicast.routing.rev180319.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.route.VppIpv4Route;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6RouteAttributesAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.VppIpv6Route;
 
 /**
  * Factory for creating requests to create route with hop simple hop
@@ -54,31 +55,35 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
 
     public IpAddDelRoute createIpv4SimpleHopRequest(final boolean add,
                                                     @Nonnull final String parentProtocolName,
-                                                    @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv4.Route route,
+                                                    @Nonnull final Route route,
                                                     @Nonnull final MappingContext mappingContext) {
+        SimpleNextHop simpleNextHop = (SimpleNextHop) route.getNextHop().getNextHopOptions();
+        SimpleNextHop1 hop = simpleNextHop.getAugmentation(SimpleNextHop1.class);
 
-        final SimpleNextHop hop = SimpleNextHop.class.cast(route.getNextHopOptions());
-        final VppIpv4Route routingAttributes = route.getVppIpv4Route();
         final int nextHopInterfaceIndex =
-                getInterfaceNamingContext().getIndex(hop.getOutgoingInterface(), mappingContext);
+                getInterfaceNamingContext().getIndex(simpleNextHop.getOutgoingInterface(), mappingContext);
+
+        final VppIpv4Route routingAttributes =
+            route.getAugmentation(VppIpv4RouteAttributesAugmentation.class) != null ?
+                route.getAugmentation(VppIpv4RouteAttributesAugmentation.class).getVppIpv4Route() : null;
 
         if (routingAttributes != null &&
                 classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
                         mappingContext)) {
             return getSimpleHopRequest(add,
-                    route.getDestinationPrefix(),
-                    nextHopInterfaceIndex,
-                    hop.getNextHop(),
-                    getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
-                    DEFAULT_VNI,
-                    classifyTableIndex(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
-                            mappingContext),
-                    true);
+                                       route.getDestinationPrefix(),
+                                       nextHopInterfaceIndex,
+                                       hop.getNextHopAddress(),
+                                       getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
+                                       DEFAULT_VNI,
+                                       classifyTableIndex(routingAttributes.getClassifyTable(),
+                                                          getVppClassifierContextManager(), mappingContext),
+                                       true);
         } else {
             return getSimpleHopRequest(add,
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
-                    hop.getNextHop(),
+                    hop.getNextHopAddress(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
                     DEFAULT_VNI,
                     0,
@@ -88,15 +93,17 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
 
     public IpAddDelRoute createIpv6SimpleHopRequest(final boolean add,
                                                     @Nonnull final String parentProtocolName,
-                                                    @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.Route route,
+                                                    @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route route,
                                                     @Nonnull final MappingContext mappingContext) {
-        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.SimpleNextHop
-                hop =
-                (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev170917.routing.routing.instance.routing.protocols.routing.protocol._static.routes.ipv6.route.next.hop.options.SimpleNextHop) route
-                        .getNextHopOptions();
-        final VppIpv6Route routingAttributes = route.getVppIpv6Route();
+        SimpleNextHop simpleNextHop = (SimpleNextHop) route.getNextHop().getNextHopOptions();
+        final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.SimpleNextHop1
+                hop = simpleNextHop.getAugmentation(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.route.next.hop.SimpleNextHop1.class);
         final int nextHopInterfaceIndex =
-                getInterfaceNamingContext().getIndex(hop.getOutgoingInterface(), mappingContext);
+                getInterfaceNamingContext().getIndex(simpleNextHop.getOutgoingInterface(), mappingContext);
+
+        VppIpv6Route routingAttributes =
+            route.getAugmentation(VppIpv6RouteAttributesAugmentation.class) != null ? route.getAugmentation(
+                VppIpv6RouteAttributesAugmentation.class).getVppIpv6Route() : null;
 
         if (routingAttributes != null &&
                 classifyTablePresent(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
@@ -104,7 +111,7 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
             return getSimpleHopRequest(add,
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
-                    hop.getNextHop(),
+                    hop.getNextHopAddress(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
                     DEFAULT_VNI,
                     classifyTableIndex(routingAttributes.getClassifyTable(), getVppClassifierContextManager(),
@@ -114,7 +121,7 @@ public class SimpleHopRequestFactory extends BasicHopRequestFactory implements R
             return getSimpleHopRequest(add,
                     route.getDestinationPrefix(),
                     nextHopInterfaceIndex,
-                    hop.getNextHop(),
+                    hop.getNextHopAddress(),
                     getRoutingProtocolContext().getIndex(parentProtocolName, mappingContext),
                     DEFAULT_VNI,
                     0,

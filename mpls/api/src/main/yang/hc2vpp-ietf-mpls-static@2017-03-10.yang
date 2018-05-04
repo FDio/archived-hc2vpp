@@ -91,10 +91,10 @@ module hc2vpp-ietf-mpls-static {
      "This YANG module augments the 'ietf-routing' module with basic
      configuration and operational state data for MPLS static";
 
-/*
-TODO: 2017-07-02 defines grouping in-segment but does not use it.
-Bump to newer version after the issue is resolved.
-*/
+  /*
+    TODO: 2017-07-02 defines grouping in-segment but does not use it.
+    Bump to newer version after the issue is resolved.
+  */
   revision "2017-03-10" {
     description
       "Latest revision:

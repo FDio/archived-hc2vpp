@@ -13,6 +13,12 @@ module vpp-routing {
 
     import hc2vpp-ietf-routing {
         prefix "ietf-r";
+        revision-date 2018-03-13;
+    }
+
+    import vpp-routing-types {
+        prefix vpp-routing-types;
+        revision-date 2018-04-06;
     }
 
     organization
@@ -41,17 +47,16 @@ module vpp-routing {
          See the License for the specific language governing permissions and
          limitations under the License.";
 
+    revision 2018-03-19 {
+        description "Update hc2vpp-ietf-routing revision-date to 2018-03-13";
+    }
+
     revision 2017-09-17 {
         description "Support for table lookup option moved to separate model.";
     }
 
     revision 2016-12-14 {
         description "Initial revision.";
-    }
-
-    typedef vni-reference{
-        type uint32;
-        description "Vrf index reference";
     }
 
     grouping vpp-route-attributes {
@@ -65,24 +70,16 @@ module vpp-routing {
     grouping vpp-routing-protocol-attributes{
         //vrf_id
         leaf primary-vrf{
-            type vni-reference;
+            type vpp-routing-types:vni-reference;
             mandatory true;
             description "Main vrf associated to route";
         }
     }
 
-    augment /ietf-r:routing/ietf-r:routing-instance/ietf-r:routing-protocols/ietf-r:routing-protocol{
+    augment /ietf-r:routing/ietf-r:control-plane-protocols/ietf-r:control-plane-protocol{
         ext:augment-identifier "routing-protocol-vpp-attr";
         container vpp-protocol-attributes {
             presence "Config attributes";
-            uses vpp-routing-protocol-attributes;
-        }
-    }
-
-    augment /ietf-r:routing-state/ietf-r:routing-instance/ietf-r:routing-protocols/ietf-r:routing-protocol{
-        ext:augment-identifier "routing-protocol-state-vpp-attr";
-        container vpp-protocol-state-attributes {
-            presence "Operational attributes";
             uses vpp-routing-protocol-attributes;
         }
     }
