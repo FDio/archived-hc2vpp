@@ -79,8 +79,7 @@ public interface RouteMapper extends AddressTranslator, ByteDataTranslator {
     }
 
     default boolean isTableLookup(@Nonnull final FibPath path) {
-        // TODO - remove isDrop condition https://jira.fd.io/browse/VPP-995
-        return path.isDrop == 1 && isArrayZeroed(path.nextHop);
+        return !isSpecialHop(path) && isArrayZeroed(path.nextHop);
     }
 
     default SpecialNextHopGrouping.SpecialNextHop specialHopType(final FibPath singlePath) {
