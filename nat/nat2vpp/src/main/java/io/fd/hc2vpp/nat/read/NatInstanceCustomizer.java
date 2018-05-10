@@ -27,11 +27,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstancesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.InstancesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -42,10 +41,10 @@ import org.slf4j.LoggerFactory;
  * Nat instance ID is mapped to VRF-ID in VPP.
  */
 final class NatInstanceCustomizer
-        implements InitializingListReaderCustomizer<NatInstance, NatInstanceKey, NatInstanceBuilder> {
+        implements InitializingListReaderCustomizer<Instance, InstanceKey, InstanceBuilder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInstanceCustomizer.class);
-    static final NatInstanceKey DEFAULT_VRF_ID = new NatInstanceKey(0L);
+    static final InstanceKey DEFAULT_VRF_ID = new InstanceKey(0L);
 
     private final DumpCacheManager<Nat44StaticMappingDetailsReplyDump, Void> nat44DumpManager;
     private final DumpCacheManager<Nat64BibDetailsReplyDump, Void> nat64DumpManager;
@@ -59,26 +58,26 @@ final class NatInstanceCustomizer
 
     @Nonnull
     @Override
-    public NatInstanceBuilder getBuilder(@Nonnull final InstanceIdentifier<NatInstance> id) {
-        return new NatInstanceBuilder();
+    public InstanceBuilder getBuilder(@Nonnull final InstanceIdentifier<Instance> id) {
+        return new InstanceBuilder();
     }
 
     @Override
-    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<NatInstance> id,
-                                      @Nonnull final NatInstanceBuilder builder, @Nonnull final ReadContext ctx)
+    public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Instance> id,
+                                      @Nonnull final InstanceBuilder builder, @Nonnull final ReadContext ctx)
             throws ReadFailedException {
         LOG.trace("Reading current attributes for nat-instance: {}", id);
-        builder.setId(id.firstKeyOf(NatInstance.class).getId());
+        builder.setId(id.firstKeyOf(Instance.class).getId());
     }
 
     @Nonnull
     @Override
-    public List<NatInstanceKey> getAllIds(@Nonnull final InstanceIdentifier<NatInstance> id,
+    public List<InstanceKey> getAllIds(@Nonnull final InstanceIdentifier<Instance> id,
                                           @Nonnull final ReadContext context) throws ReadFailedException {
         LOG.trace("Listing IDs for all nat-instances");
 
         // Find the nat instance IDs (vrf-ids) by listing all static mappings and their VRF assignment
-        final List<NatInstanceKey> vrfIds = Stream.concat(
+        final List<InstanceKey> vrfIds = Stream.concat(
                 nat44DumpManager.getDump(id, context.getModificationCache())
                         .or(new Nat44StaticMappingDetailsReplyDump()).nat44StaticMappingDetails.stream()
                         .map(detail -> detail.vrfId),
@@ -88,7 +87,7 @@ final class NatInstanceCustomizer
                 // V4 (nat44) and V6 (nat64) VRFs in VPP can have the same id. We store them under single nat instance,
                 // because the ietf-nat model does not require separate instances for nat44 and nat64 features.
                 .distinct()
-                .map(vrfId -> new NatInstanceKey((long) vrfId))
+                .map(vrfId -> new InstanceKey((long) vrfId))
                 .collect(Collectors.toList());
 
         // Add default vrf id if not present
@@ -101,27 +100,15 @@ final class NatInstanceCustomizer
     }
 
     @Override
-    public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<NatInstance> readData) {
-        ((NatInstancesBuilder) builder).setNatInstance(readData);
+    public void merge(@Nonnull final Builder<? extends DataObject> builder, @Nonnull final List<Instance> readData) {
+        ((InstancesBuilder) builder).setInstance(readData);
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance> init(
-            @Nonnull final InstanceIdentifier<NatInstance> id,
-            @Nonnull final NatInstance readValue,
+    public Initialized<Instance> init(
+            @Nonnull final InstanceIdentifier<Instance> id,
+            @Nonnull final Instance readValue,
             @Nonnull final ReadContext ctx) {
-        return Initialized.create(getCfgId(id),
-                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceBuilder()
-                        .setId(readValue.getId())
-                        .build());
-    }
-
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance> getCfgId(
-            @Nonnull final InstanceIdentifier<NatInstance> id) {
-        return InstanceIdentifier.create(NatConfig.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.NatInstances.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance.class,
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceKey(
-                                id.firstKeyOf(NatInstance.class).getId()));
+        return Initialized.create(id, readValue);
     }
 }

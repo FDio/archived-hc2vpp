@@ -20,31 +20,31 @@ import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class NatInstaceCustomizer implements ListWriterCustomizer<NatInstance, NatInstanceKey> {
+final class NatInstaceCustomizer implements ListWriterCustomizer<Instance, InstanceKey> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInstaceCustomizer.class);
 
     @Override
-    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<NatInstance> id,
-                                       @Nonnull final NatInstance dataAfter, @Nonnull final WriteContext writeContext)
+    public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Instance> id,
+                                       @Nonnull final Instance dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        LOG.trace("Writing nat-instance: {}", id);
+        LOG.trace("Writing NAT instance: {}", id);
     }
 
     @Override
-    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<NatInstance> id,
-                                        @Nonnull final NatInstance dataBefore, @Nonnull final WriteContext writeContext)
+    public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<Instance> id,
+                                        @Nonnull final Instance dataBefore, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        LOG.trace("Deleting nat-instance: {}", id);
+        LOG.trace("Deleting NAT instance: {}", id);
 
         // For consistency with reader, forbid removing default NAT instance:
-        final Long vrfId = id.firstKeyOf(NatInstance.class).getId();
+        final Long vrfId = id.firstKeyOf(Instance.class).getId();
         if (vrfId == 0) {
             throw new WriteFailedException.DeleteFailedException(id,
                 new UnsupportedOperationException("Removing default NAT instance (vrf=0) is not supported."));

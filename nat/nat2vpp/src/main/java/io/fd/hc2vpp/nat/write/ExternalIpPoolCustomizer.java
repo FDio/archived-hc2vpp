@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2018 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package io.fd.hc2vpp.nat.write;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.NatPoolType.Nat64;
+import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.NatPoolType.Nat64;
 
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.Ipv4AddressRange;
@@ -31,10 +31,10 @@ import io.fd.vpp.jvpp.nat.dto.Nat64AddDelPoolAddrRange;
 import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPoolKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.ExternalIpAddressPoolConfigAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPool;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPoolKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.ExternalIpAddressPoolAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<ExternalIpAddressPool> id,
                                        @Nonnull final ExternalIpAddressPool dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        checkArgument(id.firstKeyOf(NatInstance.class).getId() == 0,
+        checkArgument(id.firstKeyOf(Instance.class).getId() == 0,
                 "External IP pools are only assignable for nat instance(vrf-id) with ID 0");
         LOG.trace("Adding address range:{}, as: {}", id, dataAfter);
         // TODO check overlaps ? VPP-478 maybe no necessary, depending on how VPP handles them
@@ -75,8 +75,8 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
                                       @Nonnull final ExternalIpAddressPool addressPool,
                                       final boolean isAdd) throws WriteFailedException {
         boolean isNat64 = false;
-        final ExternalIpAddressPoolConfigAugmentation augmentation =
-                addressPool.getAugmentation(ExternalIpAddressPoolConfigAugmentation.class);
+        final ExternalIpAddressPoolAugmentation augmentation =
+                addressPool.getAugmentation(ExternalIpAddressPoolAugmentation.class);
         if (augmentation != null) {
             isNat64 = Nat64.equals(augmentation.getPoolType());
         }

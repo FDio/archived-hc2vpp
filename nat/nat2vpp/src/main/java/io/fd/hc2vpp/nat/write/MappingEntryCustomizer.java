@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2018 Cisco and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,10 @@ import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntryKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.port.number.PortType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.port.number.port.type.SinglePortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +63,9 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
             throws WriteFailedException {
         // Only static mapping supported by SNAT for now
         checkArgument(dataAfter.getType() ==
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.MappingEntry.Type.Static,
+                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.MappingEntry.Type.Static,
                 "Only static NAT entries are supported currently. Trying to write: %s entry", dataAfter.getType());
-        final Long natInstanceId = id.firstKeyOf(NatInstance.class).getId();
+        final Long natInstanceId = id.firstKeyOf(Instance.class).getId();
         final Long mappingEntryId = id.firstKeyOf(MappingEntry.class).getIndex();
         LOG.debug("Writing mapping entry: {} for nat-instance(vrf): {}", natInstanceId, mappingEntryId);
 
@@ -130,7 +128,7 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
     public void deleteCurrentAttributes(@Nonnull final InstanceIdentifier<MappingEntry> id,
                                         @Nonnull final MappingEntry dataBefore,
                                         @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        final long natInstanceId = id.firstKeyOf(NatInstance.class).getId();
+        final long natInstanceId = id.firstKeyOf(Instance.class).getId();
         final MappingEntryKey mappingEntryKey = id.firstKeyOf(MappingEntry.class);
         LOG.debug("Deleting mapping entry: {} for nat-instance(vrf): {}", natInstanceId, mappingEntryKey);
 
@@ -167,14 +165,12 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
             request.protocol = protocol.byteValue();
         }
 
-        Optional<Short> internalPortNumber = getPortNumber(id, mappingEntry,
-                (entry) -> Optional.fromNullable(entry.getInternalSrcPort()).transform(PortNumber::getPortType));
-        Optional<Short> externalPortNumber = getPortNumber(id, mappingEntry,
-                (entry) -> Optional.fromNullable(entry.getExternalSrcPort()).transform(PortNumber::getPortType));
-        if (internalPortNumber.isPresent() && externalPortNumber.isPresent()) {
+        final Short internalPortNumber = getPortNumber(id, mappingEntry.getInternalSrcPort());
+        final Short externalPortNumber = getPortNumber(id, mappingEntry.getExternalSrcPort());
+        if (internalPortNumber != null && externalPortNumber != null) {
             request.addrOnly = 0;
-            request.localPort = internalPortNumber.get();
-            request.externalPort = externalPortNumber.get();
+            request.localPort = internalPortNumber;
+            request.externalPort = externalPortNumber;
         }
         return request;
     }
@@ -205,32 +201,24 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
             request.proto = protocol.byteValue();
         }
 
-        Optional<Short> internalPortNumber = getPortNumber(id, mappingEntry,
-                (entry) -> Optional.fromNullable(entry.getInternalSrcPort()).transform(PortNumber::getPortType));
-        Optional<Short> externalPortNumber = getPortNumber(id, mappingEntry,
-                (entry) -> Optional.fromNullable(entry.getExternalSrcPort()).transform(PortNumber::getPortType));
-        if (internalPortNumber.isPresent() && externalPortNumber.isPresent()) {
-            request.iPort = internalPortNumber.get();
-            request.oPort = externalPortNumber.get();
+        final Short internalPortNumber = getPortNumber(id, mappingEntry.getInternalSrcPort());
+        final Short externalPortNumber = getPortNumber(id, mappingEntry.getExternalSrcPort());
+        if (internalPortNumber != null && externalPortNumber != null) {
+            request.iPort = internalPortNumber;
+            request.oPort = externalPortNumber;
         }
         return request;
     }
 
-
-    private Optional<Short> getPortNumber(final InstanceIdentifier<MappingEntry> id, final MappingEntry dataAfter,
-                                          final PortGetter portGetter) {
-        return portGetter.getPortType(dataAfter).transform(port -> {
-            if (port instanceof SinglePortNumber) {
-                return ((SinglePortNumber) port).getSinglePortNumber().getValue().shortValue();
+    private Short getPortNumber(final InstanceIdentifier<MappingEntry> id, final PortNumber portNumber) {
+        if (portNumber != null) {
+            if (portNumber.getStartPortNumber() != null && portNumber.getEndPortNumber() == null) {
+                return portNumber.getStartPortNumber().getValue().shortValue();
             } else {
                 throw new IllegalArgumentException(
-                        String.format("Only single port number supported. Submitted: %s for entry: %s",
-                                dataAfter.getInternalSrcPort(), id));
+                    String.format("Only single port number supported. Submitted: %s for entry: %s", portNumber, id));
             }
-        });
-    }
-
-    interface PortGetter {
-        Optional<PortType> getPortType(MappingEntry entry);
+        }
+        return null;
     }
 }

@@ -30,10 +30,10 @@ import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.nat64.prefixes.DestinationIpv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64PrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.nat64.prefixes.DestinationIpv4Prefix;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,14 +54,10 @@ final class Nat64PrefixesCustomizer
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<Nat64Prefixes> id,
                                        @Nonnull final Nat64Prefixes dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        final int natInstanceId = id.firstKeyOf(NatInstance.class).getId().intValue();
+        final int natInstanceId = id.firstKeyOf(Instance.class).getId().intValue();
         LOG.debug("Configuring nat64 prefix: {} for nat-instance(vrf): {}", dataAfter, natInstanceId);
 
-        // VPP supports only single nat64-prefix per VRF/nat-instance (we map nat-instances to VRFs)
-        // To ensure that (and for simplicity), we require nat64-prefix-id = 0.
-        final Long nat64PrefixId = id.firstKeyOf(Nat64Prefixes.class).getNat64PrefixId();
-        checkArgument(nat64PrefixId == 0, "Only single nat64 prefix is supported (expected id=0, but %s given)",
-                nat64PrefixId);
+        // TODO(HC2VPP-320): ensure at most one prefix is configured per NAT instance
 
         // VPP does not support configuring different nat64-prefixes depending on ipv4 destination prefix:
         final List<DestinationIpv4Prefix> destinationIpv4PrefixList = dataAfter.getDestinationIpv4Prefix();
@@ -77,7 +73,7 @@ final class Nat64PrefixesCustomizer
                                         @Nonnull final Nat64Prefixes dataBefore,
                                         @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        final int natInstanceId = id.firstKeyOf(NatInstance.class).getId().intValue();
+        final int natInstanceId = id.firstKeyOf(Instance.class).getId().intValue();
         LOG.debug("Removing nat64 prefix configuration: {} for nat-instance(vrf): {}", dataBefore, natInstanceId);
         // No need for validation here (it was done on write)
         addDelPrefix(id, dataBefore, natInstanceId, false);

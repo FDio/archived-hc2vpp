@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.nat.write;
 
+import static io.fd.hc2vpp.nat.NatIds.NAT_INSTANCES_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,12 +36,13 @@ import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPoolKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.Instances;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.Policy;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPool;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPoolKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(HoneycombTestRunner.class)
@@ -49,11 +51,11 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
 
     private static final long NAT_INSTANCE_ID = 0;
     private static final long POOL_ID = 22;
-    private static final InstanceIdentifier<ExternalIpAddressPool> IID = InstanceIdentifier.create(NatConfig.class)
-        .child(NatInstances.class).child(NatInstance.class, new NatInstanceKey(NAT_INSTANCE_ID))
+    private static final InstanceIdentifier<ExternalIpAddressPool> IID = NAT_INSTANCES_ID
+        .child(Instance.class, new InstanceKey(NAT_INSTANCE_ID)).child(Policy.class, new PolicyKey(0L))
         .child(ExternalIpAddressPool.class, new ExternalIpAddressPoolKey(POOL_ID));
 
-    private static final String NAT_INSTANCES_PATH = "/ietf-nat:nat-config/ietf-nat:nat-instances";
+    private static final String NAT_INSTANCES_PATH = "/ietf-nat:nat/ietf-nat:instances";
 
     @Mock
     private FutureJVppNatFacade jvppNat;
@@ -68,7 +70,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
 
     @Test
     public void testWriteNat44(
-            @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+            @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) Instances data)
             throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractIpPool(data), writeContext);
         final Nat44AddDelAddressRange expectedRequest = getExpectedRequestNat44(true);
@@ -77,7 +79,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
 
     @Test
     public void testWriteNat64(
-            @InjectTestData(resourcePath = "/nat64/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+            @InjectTestData(resourcePath = "/nat64/external-ip-pool.json", id = NAT_INSTANCES_PATH) Instances data)
             throws WriteFailedException {
         customizer.writeCurrentAttributes(IID, extractIpPool(data), writeContext);
         final Nat64AddDelPoolAddrRange expectedRequest = getExpectedRequestNat64(true);
@@ -92,7 +94,7 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
 
     @Test
     public void testDeleteNat44(
-            @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+            @InjectTestData(resourcePath = "/nat44/external-ip-pool.json", id = NAT_INSTANCES_PATH) Instances data)
             throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, extractIpPool(data), writeContext);
         final Nat44AddDelAddressRange expectedRequest = getExpectedRequestNat44(false);
@@ -101,16 +103,16 @@ public class ExternalIpPoolCustomizerTest extends WriterCustomizerTest implement
 
     @Test
     public void testDeleteNat64(
-            @InjectTestData(resourcePath = "/nat64/external-ip-pool.json", id = NAT_INSTANCES_PATH) NatInstances data)
+            @InjectTestData(resourcePath = "/nat64/external-ip-pool.json", id = NAT_INSTANCES_PATH) Instances data)
             throws WriteFailedException {
         customizer.deleteCurrentAttributes(IID, extractIpPool(data), writeContext);
         final Nat64AddDelPoolAddrRange expectedRequest = getExpectedRequestNat64(false);
         verify(jvppNat).nat64AddDelPoolAddrRange(expectedRequest);
     }
 
-    private static ExternalIpAddressPool extractIpPool(NatInstances data) {
+    private static ExternalIpAddressPool extractIpPool(Instances data) {
         // assumes single nat instance and single ip pool
-        return data.getNatInstance().get(0).getExternalIpAddressPool().get(0);
+        return data.getInstance().get(0).getPolicy().get(0).getExternalIpAddressPool().get(0);
     }
 
     private Nat44AddDelAddressRange getExpectedRequestNat44(final boolean isAdd) {

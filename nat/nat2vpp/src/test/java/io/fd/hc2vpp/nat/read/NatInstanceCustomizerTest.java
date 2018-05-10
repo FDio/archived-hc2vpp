@@ -35,28 +35,28 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstancesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.Instances;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.InstancesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class NatInstanceCustomizerTest
-        extends InitializingListReaderCustomizerTest<NatInstance, NatInstanceKey, NatInstanceBuilder> {
+        extends InitializingListReaderCustomizerTest<Instance, InstanceKey, InstanceBuilder> {
     @Mock
     private EntityDumpExecutor<Nat44StaticMappingDetailsReplyDump, Void> nat44DumpExecutor;
     @Mock
     private EntityDumpExecutor<Nat64BibDetailsReplyDump, Void> nat64DumpExecutor;
 
-    private KeyedInstanceIdentifier<NatInstance, NatInstanceKey> natInstanceId;
-    private InstanceIdentifier<NatInstance> natInstanceWildcarded;
+    private KeyedInstanceIdentifier<Instance, InstanceKey> natInstanceId;
+    private InstanceIdentifier<Instance> natInstanceWildcarded;
     private DumpCacheManager<Nat44StaticMappingDetailsReplyDump, Void> mapEntryNat44DumpMgr;
     private DumpCacheManager<Nat64BibDetailsReplyDump, Void> mapEntryNat64DumpMgr;
 
     public NatInstanceCustomizerTest() {
-        super(NatInstance.class, NatInstancesBuilder.class);
+        super(Instance.class, InstancesBuilder.class);
     }
 
     @Override
@@ -66,10 +66,10 @@ public class NatInstanceCustomizerTest
 
     @Override
     protected void setUp() throws Exception {
-        natInstanceId = InstanceIdentifier.create(NatInstances.class)
-                .child(NatInstance.class, new NatInstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID));
-        natInstanceWildcarded = InstanceIdentifier.create(NatInstances.class)
-                .child(NatInstance.class);
+        natInstanceId = InstanceIdentifier.create(Instances.class)
+                .child(Instance.class, new InstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID));
+        natInstanceWildcarded = InstanceIdentifier.create(Instances.class)
+                .child(Instance.class);
         mapEntryNat44DumpMgr = new DumpCacheManager.DumpCacheManagerBuilder<Nat44StaticMappingDetailsReplyDump, Void>()
                 .withExecutor(nat44DumpExecutor)
                 .acceptOnly(Nat44StaticMappingDetailsReplyDump.class)
@@ -82,7 +82,7 @@ public class NatInstanceCustomizerTest
 
     @Test
     public void testRead() throws ReadFailedException {
-        final NatInstanceBuilder builder = mock(NatInstanceBuilder.class);
+        final InstanceBuilder builder = mock(InstanceBuilder.class);
         getCustomizer().readCurrentAttributes(natInstanceId, builder, ctx);
         verify(builder).setId(natInstanceId.getKey().getId());
     }
@@ -91,11 +91,11 @@ public class NatInstanceCustomizerTest
     public void testReadAll() throws ReadFailedException {
         when(nat44DumpExecutor.executeDump(natInstanceWildcarded, null)).thenReturn(nat44NonEmptyDump());
         when(nat64DumpExecutor.executeDump(natInstanceWildcarded, null)).thenReturn(nat64NonEmptyDump());
-        final List<NatInstanceKey> allIds = getCustomizer().getAllIds(natInstanceWildcarded, ctx);
+        final List<InstanceKey> allIds = getCustomizer().getAllIds(natInstanceWildcarded, ctx);
         assertThat(allIds, hasSize(6));
         assertThat(allIds, hasItems(
-                new NatInstanceKey(0L), new NatInstanceKey(1L), new NatInstanceKey(2L), new NatInstanceKey(3L),
-                new NatInstanceKey(5L), new NatInstanceKey(6L)));
+                new InstanceKey(0L), new InstanceKey(1L), new InstanceKey(2L), new InstanceKey(3L),
+                new InstanceKey(5L), new InstanceKey(6L)));
     }
 
     private static Nat44StaticMappingDetailsReplyDump nat44NonEmptyDump() {

@@ -33,14 +33,15 @@ import java.util.List;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.Instances;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.Policy;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64PrefixesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Nat64PrefixesCustomizerTest extends ListReaderCustomizerTest<Nat64Prefixes, Nat64PrefixesKey, Nat64PrefixesBuilder> {
@@ -49,7 +50,7 @@ public class Nat64PrefixesCustomizerTest extends ListReaderCustomizerTest<Nat64P
     private FutureJVppNatFacade jvppNat;
 
     public Nat64PrefixesCustomizerTest() {
-        super(Nat64Prefixes.class, NatCurrentConfigBuilder.class);
+        super(Nat64Prefixes.class, PolicyBuilder.class);
     }
 
     @Override
@@ -70,14 +71,7 @@ public class Nat64PrefixesCustomizerTest extends ListReaderCustomizerTest<Nat64P
         final long vrfId = 0;
         final List<Nat64PrefixesKey> allIds = getCustomizer().getAllIds(getWildcardedId(vrfId), ctx);
         assertEquals(1, allIds.size());
-        assertEquals(new Nat64PrefixesKey(0L), allIds.get(0));
-    }
-
-    @Test
-    public void testReadNonZeroId() throws ReadFailedException {
-        final Nat64PrefixesBuilder builder = mock(Nat64PrefixesBuilder.class);
-        getCustomizer().readCurrentAttributes(getId(0L, 42L), builder, ctx);
-        verifyZeroInteractions(builder);
+        assertEquals(new Nat64PrefixesKey(new Ipv6Prefix("64:ff9b::1/96")), allIds.get(0));
     }
 
     @Test
@@ -85,7 +79,7 @@ public class Nat64PrefixesCustomizerTest extends ListReaderCustomizerTest<Nat64P
         final long vrfId = 123;
         when(jvppNat.nat64PrefixDump(any())).thenReturn(future(dump()));
         final Nat64PrefixesBuilder builder = mock(Nat64PrefixesBuilder.class);
-        getCustomizer().readCurrentAttributes(getId(vrfId, 0L), builder, ctx);
+        getCustomizer().readCurrentAttributes(getId(vrfId, "::1/128"), builder, ctx);
         verifyZeroInteractions(builder);
     }
 
@@ -94,23 +88,22 @@ public class Nat64PrefixesCustomizerTest extends ListReaderCustomizerTest<Nat64P
         final long vrfId = 1;
         when(jvppNat.nat64PrefixDump(any())).thenReturn(future(dump()));
         final Nat64PrefixesBuilder builder = mock(Nat64PrefixesBuilder.class);
-        getCustomizer().readCurrentAttributes(getId(vrfId, 0L), builder, ctx);
-        verify(builder).setNat64PrefixId(0L);
+        getCustomizer().readCurrentAttributes(getId(vrfId, "::1/128"), builder, ctx);
         verify(builder).setNat64Prefix(new Ipv6Prefix("::1/128"));
     }
 
     private static InstanceIdentifier<Nat64Prefixes> getWildcardedId(final long vrfId) {
-        return InstanceIdentifier.create(NatInstances.class)
-                .child(NatInstance.class, new NatInstanceKey(vrfId))
-                .child(NatCurrentConfig.class)
+        return InstanceIdentifier.create(Instances.class)
+                .child(Instance.class, new InstanceKey(vrfId))
+                .child(Policy.class, new PolicyKey(0L))
                 .child(Nat64Prefixes.class);
     }
 
-    private static InstanceIdentifier<Nat64Prefixes> getId(final long vrfId, final long prefixId) {
-        return InstanceIdentifier.create(NatInstances.class)
-                .child(NatInstance.class, new NatInstanceKey(vrfId))
-                .child(NatCurrentConfig.class)
-                .child(Nat64Prefixes.class, new Nat64PrefixesKey(prefixId));
+    private static InstanceIdentifier<Nat64Prefixes> getId(final long vrfId, final String prefix) {
+        return InstanceIdentifier.create(Instances.class)
+                .child(Instance.class, new InstanceKey(vrfId))
+            .child(Policy.class, new PolicyKey(0L))
+                .child(Nat64Prefixes.class, new Nat64PrefixesKey(new Ipv6Prefix(prefix)));
     }
 
     private Nat64PrefixDetailsReplyDump dump() {

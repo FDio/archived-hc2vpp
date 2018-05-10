@@ -16,14 +16,15 @@
 
 package io.fd.hc2vpp.nat.read;
 
+import static io.fd.hc2vpp.nat.NatIds.NAT_INSTANCES_ID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.NatPoolType.Nat44;
-import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.NatPoolType.Nat64;
+import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.NatPoolType.Nat44;
+import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.NatPoolType.Nat64;
 
 import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
 import io.fd.honeycomb.translate.spi.read.ReaderCustomizer;
@@ -37,37 +38,36 @@ import java.util.List;
 import java.util.stream.LongStream;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPoolBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPoolKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.ExternalIpAddressPoolStateAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.Policy;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPool;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPoolBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPoolKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.ExternalIpAddressPoolAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ExternalIpPoolCustomizerTest
     extends ListReaderCustomizerTest<ExternalIpAddressPool, ExternalIpAddressPoolKey, ExternalIpAddressPoolBuilder> {
 
-    private static final InstanceIdentifier<NatCurrentConfig> NAT_CONFIG_ID =
-            InstanceIdentifier.create(NatInstances.class)
-                    .child(NatInstance.class, new NatInstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID))
-                    .child(NatCurrentConfig.class);
+    private static final InstanceIdentifier<Policy> POLICY_ID =
+        NAT_INSTANCES_ID.child(Instance.class, new InstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID))
+                    .child(Policy.class, new PolicyKey(0L));
 
     private static final InstanceIdentifier<ExternalIpAddressPool> NAT_DEFAULT_POOL_WILDCARDED_ID =
-            NAT_CONFIG_ID.child(ExternalIpAddressPool.class);
+        POLICY_ID.child(ExternalIpAddressPool.class);
 
     private static final InstanceIdentifier<ExternalIpAddressPool> NAT_NON_DEFAULT_POOL_WILDCARDED_ID =
-            InstanceIdentifier.create(NatInstances.class).child(NatInstance.class, new NatInstanceKey(7L))
-                    .child(NatCurrentConfig.class).child(ExternalIpAddressPool.class);
+        NAT_INSTANCES_ID.child(Instance.class, new InstanceKey(7L))
+                    .child(Policy.class).child(ExternalIpAddressPool.class);
 
     @Mock
     private FutureJVppNatFacade jvppNat;
 
     public ExternalIpPoolCustomizerTest() {
-        super(ExternalIpAddressPool.class, NatCurrentConfigBuilder.class);
+        super(ExternalIpAddressPool.class, PolicyBuilder.class);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ExternalIpPoolCustomizerTest
 
         assertEquals("192.168.44.3/32", builder.getExternalIpPool().getValue());
         assertEquals(poolId, builder.getPoolId().longValue());
-        assertEquals(Nat44, builder.getAugmentation(ExternalIpAddressPoolStateAugmentation.class).getPoolType());
+        assertEquals(Nat44, builder.getAugmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ExternalIpPoolCustomizerTest
 
         assertEquals("192.168.64.3/32", builder.getExternalIpPool().getValue());
         assertEquals(poolId, builder.getPoolId().longValue());
-        assertEquals(Nat64, builder.getAugmentation(ExternalIpAddressPoolStateAugmentation.class).getPoolType());
+        assertEquals(Nat64, builder.getAugmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ExternalIpPoolCustomizerTest
 
         assertEquals("192.168.64.3/32", builder.getExternalIpPool().getValue());
         assertEquals(poolId, builder.getPoolId().longValue());
-        assertEquals(Nat64, builder.getAugmentation(ExternalIpAddressPoolStateAugmentation.class).getPoolType());
+        assertEquals(Nat64, builder.getAugmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ExternalIpPoolCustomizerTest
     }
 
     private static InstanceIdentifier<ExternalIpAddressPool> getId(final long id) {
-        return NAT_CONFIG_ID.child(ExternalIpAddressPool.class, new ExternalIpAddressPoolKey(id));
+        return POLICY_ID.child(ExternalIpAddressPool.class, new ExternalIpAddressPoolKey(id));
     }
 
     private static Nat44AddressDetailsReplyDump dumpReplyNat44Empty() {

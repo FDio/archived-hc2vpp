@@ -21,7 +21,7 @@ module vpp-nat {
     "This module contains a collection of YANG definitions that extend ietf-nat module
      with VPP specific features provided by the VPP NAT plugin.
 
-     Copyright (c) 2017 Cisco and/or its affiliates.
+     Copyright (c) 2018 Cisco and/or its affiliates.
 
      Licensed under the Apache License, Version 2.0 (the 'License');
      you may not use this file except in compliance with the License.
@@ -34,6 +34,10 @@ module vpp-nat {
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.";
+
+  revision "2018-05-10" {
+    description "Adapt to ietf-nat@2018-02-23.";
+  }
 
   revision "2017-08-04" {
     description "Initial revision of vpp-nat model.";
@@ -56,14 +60,8 @@ module vpp-nat {
     }
   }
 
-  augment /nat:nat-config/nat:nat-instances/nat:nat-instance/nat:external-ip-address-pool {
-    ext:augment-identifier "external-ip-address-pool-config-augmentation";
-
-    uses external-ip-address-pool-vpp-attributes;
-  }
-
-  augment /nat:nat-state/nat:nat-instances/nat:nat-instance/nat:nat-current-config/nat:external-ip-address-pool {
-    ext:augment-identifier "external-ip-address-pool-state-augmentation";
+  augment /nat:nat/nat:instances/nat:instance/nat:policy/nat:external-ip-address-pool {
+    ext:augment-identifier "external-ip-address-pool-augmentation";
 
     uses external-ip-address-pool-vpp-attributes;
   }

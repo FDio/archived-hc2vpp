@@ -24,7 +24,6 @@ import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.read.Initialized;
 import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
-import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.nat.dto.Nat44AddressDetails;
 import io.fd.vpp.jvpp.nat.dto.Nat44AddressDetailsReplyDump;
@@ -39,15 +38,15 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPoolBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPoolKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.ExternalIpAddressPoolStateAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.ExternalIpAddressPoolStateAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.NatPoolType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPool;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPoolBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPoolKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.ExternalIpAddressPoolAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.ExternalIpAddressPoolAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.NatPoolType;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -76,13 +75,8 @@ final class ExternalIpPoolCustomizer implements
     }
 
     private static void setPoolType(@Nonnull final ExternalIpAddressPoolBuilder builder, final NatPoolType poolType) {
-        builder.addAugmentation(ExternalIpAddressPoolStateAugmentation.class,
-                new ExternalIpAddressPoolStateAugmentationBuilder().setPoolType(poolType).build());
-    }
-
-    static InstanceIdentifier<ExternalIpAddressPool> getCfgId(final @Nonnull InstanceIdentifier<ExternalIpAddressPool> id) {
-        return NatInstanceCustomizer.getCfgId(RWUtils.cutId(id, NatInstance.class))
-                .child(ExternalIpAddressPool.class, id.firstKeyOf(ExternalIpAddressPool.class));
+        builder.addAugmentation(ExternalIpAddressPoolAugmentation.class,
+                new ExternalIpAddressPoolAugmentationBuilder().setPoolType(poolType).build());
     }
 
     @Nonnull
@@ -138,7 +132,7 @@ final class ExternalIpPoolCustomizer implements
     @Override
     public List<ExternalIpAddressPoolKey> getAllIds(@Nonnull final InstanceIdentifier<ExternalIpAddressPool> id,
                                                     @Nonnull final ReadContext ctx) throws ReadFailedException {
-        final NatInstanceKey natKey = id.firstKeyOf(NatInstance.class);
+        final InstanceKey natKey = id.firstKeyOf(Instance.class);
         if (!natKey.equals(NatInstanceCustomizer.DEFAULT_VRF_ID)) {
             // IP Pools are not vrf aware ... so they are only visible under default vrf (nat-instance)
             return Collections.emptyList();
@@ -174,7 +168,7 @@ final class ExternalIpPoolCustomizer implements
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder,
                       @Nonnull final List<ExternalIpAddressPool> readData) {
-        ((NatCurrentConfigBuilder) builder).setExternalIpAddressPool(readData);
+        ((PolicyBuilder) builder).setExternalIpAddressPool(readData);
     }
 
     @Override
@@ -182,6 +176,6 @@ final class ExternalIpPoolCustomizer implements
             @Nonnull final InstanceIdentifier<ExternalIpAddressPool> id,
             @Nonnull final ExternalIpAddressPool readValue,
             @Nonnull final ReadContext ctx) {
-        return Initialized.create(getCfgId(id), readValue);
+        return Initialized.create(id, readValue);
     }
 }

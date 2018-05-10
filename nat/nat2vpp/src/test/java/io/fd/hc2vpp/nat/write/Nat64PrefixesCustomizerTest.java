@@ -16,8 +16,8 @@
 
 package io.fd.hc2vpp.nat.write;
 
+import static io.fd.hc2vpp.nat.NatIds.NAT_INSTANCES_ID;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,28 +26,27 @@ import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.vpp.jvpp.nat.dto.Nat64AddDelPrefix;
 import io.fd.vpp.jvpp.nat.dto.Nat64AddDelPrefixReply;
 import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
-import java.util.Collections;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.nat64.prefixes.DestinationIpv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.Policy;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64PrefixesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Nat64PrefixesCustomizerTest extends WriterCustomizerTest implements ByteDataTranslator {
 
     private static final long VRF_ID = 123;
 
-    private static final InstanceIdentifier<NatInstance> NAT_INSTANCE_ID =
-            InstanceIdentifier.create(NatConfig.class).child(NatInstances.class).child(NatInstance.class, new NatInstanceKey(VRF_ID));
+    private static final InstanceIdentifier<Policy> POLICY_ID =
+        NAT_INSTANCES_ID.child(Instance.class, new InstanceKey(VRF_ID)).child(Policy.class, new PolicyKey(0L));
 
-    private static final Nat64Prefixes VALID_DATA = new Nat64PrefixesBuilder().setNat64Prefix(new Ipv6Prefix("2001:db8::/32")).build();
+    private static final Nat64Prefixes
+        VALID_DATA = new Nat64PrefixesBuilder().setNat64Prefix(new Ipv6Prefix("2001:db8::/32")).build();
 
     @Mock
     private FutureJVppNatFacade jvppNat;
@@ -60,32 +59,20 @@ public class Nat64PrefixesCustomizerTest extends WriterCustomizerTest implements
         when(jvppNat.nat64AddDelPrefix(any())).thenReturn(future(new Nat64AddDelPrefixReply()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWriteNonZeroPrefixIdFails() throws Exception {
-        customizer.writeCurrentAttributes(getID(1), mock(Nat64Prefixes.class), writeContext);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testWriteDestinationPrefixFails() throws Exception {
-        final Nat64Prefixes data = mock(Nat64Prefixes.class);
-        when(data.getDestinationIpv4Prefix()).thenReturn(Collections.singletonList(mock(DestinationIpv4Prefix.class)));
-        customizer.writeCurrentAttributes(getID(1), data, writeContext);
-    }
-
     @Test
     public void testWrite() throws Exception {
-        customizer.writeCurrentAttributes(getID(0), VALID_DATA, writeContext);
+        customizer.writeCurrentAttributes(getID("::1/128"), VALID_DATA, writeContext);
         verify(jvppNat).nat64AddDelPrefix(expectedRequest(true));
     }
 
     @Test
     public void testDelete() throws Exception {
-        customizer.deleteCurrentAttributes(getID(0), VALID_DATA, writeContext);
+        customizer.deleteCurrentAttributes(getID("::1/128"), VALID_DATA, writeContext);
         verify(jvppNat).nat64AddDelPrefix(expectedRequest(false));
     }
 
-    private static InstanceIdentifier<Nat64Prefixes> getID(final long prefixId) {
-        return NAT_INSTANCE_ID.child(Nat64Prefixes.class, new Nat64PrefixesKey(prefixId));
+    private static InstanceIdentifier<Nat64Prefixes> getID(final String prefix) {
+        return POLICY_ID.child(Nat64Prefixes.class, new Nat64PrefixesKey(new Ipv6Prefix(prefix)));
     }
 
     private Nat64AddDelPrefix expectedRequest(final boolean isAdd) {

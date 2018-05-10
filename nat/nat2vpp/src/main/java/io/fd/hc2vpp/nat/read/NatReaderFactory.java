@@ -16,6 +16,15 @@
 
 package io.fd.hc2vpp.nat.read;
 
+import static io.fd.hc2vpp.nat.NatIds.ADDRESS_POOL_ID;
+import static io.fd.hc2vpp.nat.NatIds.MAPPING_ENTRY_ID;
+import static io.fd.hc2vpp.nat.NatIds.MAPPING_TABLE_ID;
+import static io.fd.hc2vpp.nat.NatIds.NAT64_PREFIXES_ID;
+import static io.fd.hc2vpp.nat.NatIds.NAT_ID;
+import static io.fd.hc2vpp.nat.NatIds.NAT_INSTANCES_ID;
+import static io.fd.hc2vpp.nat.NatIds.NAT_INSTANCE_ID;
+import static io.fd.hc2vpp.nat.NatIds.POLICY_ID;
+
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.nat.util.MappingEntryContext;
@@ -27,39 +36,26 @@ import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetailsReplyDump;
 import io.fd.vpp.jvpp.nat.dto.Nat64BibDetailsReplyDump;
 import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
+import java.util.Collections;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatStateBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.ExternalSrcPort;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.InternalSrcPort;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.nat64.prefixes.DestinationIpv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstancesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.MappingTable;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.MappingTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.mapping.table.MappingEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.NatBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.mapping.entry.ExternalSrcPort;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.mapping.entry.InternalSrcPort;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.InstancesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.MappingTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.nat64.prefixes.DestinationIpv4Prefix;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class NatReaderFactory implements ReaderFactory {
-
-    private static final InstanceIdentifier<NatState> NAT_OPER_ID = InstanceIdentifier.create(NatState.class);
-    private static final InstanceIdentifier<NatInstances> NAT_INSTANCES_ID = NAT_OPER_ID.child(NatInstances.class);
-    private static final InstanceIdentifier<NatInstance> NAT_INSTANCE_ID = NAT_INSTANCES_ID.child(NatInstance.class);
-    private static final InstanceIdentifier<NatCurrentConfig> CURRENT_CONFIG =
-            NAT_INSTANCE_ID.child(NatCurrentConfig.class);
-    private static final InstanceIdentifier<MappingTable> MAP_TABLE_ID = NAT_INSTANCE_ID.child(MappingTable.class);
-    private static final InstanceIdentifier<MappingEntry> MAP_ENTRY_ID = MAP_TABLE_ID.child(MappingEntry.class);
 
     private final FutureJVppNatFacade jvppNat;
     private final MappingEntryContext mappingEntryContext;
     private final DumpCacheManager<Nat44StaticMappingDetailsReplyDump, Void> mapEntryNat44DumpMgr;
     private final DumpCacheManager<Nat64BibDetailsReplyDump, Void> mapEntryNat64DumpMgr;
-
 
     @Inject
     public NatReaderFactory(final FutureJVppNatFacade jvppNat,
@@ -80,24 +76,23 @@ public class NatReaderFactory implements ReaderFactory {
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
-        registry.addStructuralReader(NAT_OPER_ID, NatStateBuilder.class);
-        registry.addStructuralReader(NAT_INSTANCES_ID, NatInstancesBuilder.class);
+        registry.addStructuralReader(NAT_ID, NatBuilder.class);
+        registry.addStructuralReader(NAT_INSTANCES_ID, InstancesBuilder.class);
         registry.add(new GenericInitListReader<>(NAT_INSTANCE_ID,
                 new NatInstanceCustomizer(mapEntryNat44DumpMgr, mapEntryNat64DumpMgr)));
-        registry.addStructuralReader(MAP_TABLE_ID, MappingTableBuilder.class);
+        registry.addStructuralReader(MAPPING_TABLE_ID, MappingTableBuilder.class);
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(MappingEntry.class).child(ExternalSrcPort.class),
                 InstanceIdentifier.create(MappingEntry.class).child(InternalSrcPort.class)),
-                new GenericInitListReader<>(MAP_ENTRY_ID,
+                new GenericInitListReader<>(MAPPING_ENTRY_ID,
                         new MappingEntryCustomizer(mapEntryNat44DumpMgr, mapEntryNat64DumpMgr, mappingEntryContext)));
 
-        registry.addStructuralReader(CURRENT_CONFIG, NatCurrentConfigBuilder.class);
-        registry.add(new GenericInitListReader<>(CURRENT_CONFIG.child(ExternalIpAddressPool.class),
-                new ExternalIpPoolCustomizer(jvppNat)));
+        // Ony single policy is supported
+        registry.addStructuralListReader(POLICY_ID, PolicyBuilder.class, Collections.singletonList(new PolicyKey(0L)));
+        registry.add(new GenericInitListReader<>(ADDRESS_POOL_ID, new ExternalIpPoolCustomizer(jvppNat)));
 
         // nat64-prefixes
         registry.subtreeAdd(
                 Sets.newHashSet(InstanceIdentifier.create(Nat64Prefixes.class).child(DestinationIpv4Prefix.class)),
-                new GenericListReader<>(CURRENT_CONFIG.child(Nat64Prefixes.class),
-                        new Nat64PrefixesCustomizer(jvppNat)));
+                new GenericListReader<>(NAT64_PREFIXES_ID, new Nat64PrefixesCustomizer(jvppNat)));
     }
 }

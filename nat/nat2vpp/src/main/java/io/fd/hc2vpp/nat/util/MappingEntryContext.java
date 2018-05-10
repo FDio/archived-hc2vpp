@@ -59,7 +59,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
      */
     public synchronized void addEntry(final long natInstanceId,
                                       final long entryId,
-                                      @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry entry,
+                                      @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry entry,
                                       @Nonnull final MappingContext mappingContext) {
         final InstanceIdentifier<MappingEntry> id = getId(natInstanceId, entryToKey(entry));
         checkArgument(!containsEntry(natInstanceId, entry, mappingContext), "Mapping for %s already present", id);
@@ -70,7 +70,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
      * Check whether mapping entry to index mapping already exists in context.
      */
     public synchronized boolean containsEntry(final long natInstanceId,
-                                              @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry entry,
+                                              @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry entry,
                                               @Nonnull final MappingContext mappingContext) {
         final InstanceIdentifier<MappingEntry> id = getId(natInstanceId, entryToKey(entry));
         return mappingContext.read(id).isPresent();
@@ -92,7 +92,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
 
     @VisibleForTesting
     static MappingEntryKey entryToKey(
-            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry entry) {
+            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry entry) {
         // Only IPv4
         return new MappingEntryKey(new IpAddress(entry.getExternalSrcAddress()), entry.getInternalSrcAddress());
     }
@@ -144,7 +144,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
 
     @VisibleForTesting
     static MappingEntry toCtxMapEntry(
-            @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry entry,
+            @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry entry,
             final long entryId) {
         return new MappingEntryBuilder()
                 .setKey(entryToKey(entry))
@@ -170,7 +170,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
      * Delete mapping of mapping entry to index from context.
      */
     public synchronized void removeEntry(final long natInstanceId,
-                                         @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry entry,
+                                         @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry entry,
                                          @Nonnull final MappingContext mappingContext) {
         mappingContext.delete(getId(natInstanceId, entryToKey(entry)));
     }
@@ -245,7 +245,7 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
      * Get index for a stored mapping entry.
      */
     public synchronized Optional<Long> getStoredIndex(final long natInstanceId,
-                                                      @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry entry,
+                                                      @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry entry,
                                                       @Nonnull final MappingContext mappingContext) {
         return mappingContext.read(getId(natInstanceId, entryToKey(entry)))
                 .transform(MappingEntry::getIndex);

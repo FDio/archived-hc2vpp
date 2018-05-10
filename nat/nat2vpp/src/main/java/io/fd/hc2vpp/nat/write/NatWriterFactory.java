@@ -16,6 +16,12 @@
 
 package io.fd.hc2vpp.nat.write;
 
+import static io.fd.hc2vpp.nat.NatIds.ADDRESS_POOL_ID;
+import static io.fd.hc2vpp.nat.NatIds.MAPPING_ENTRY_ID;
+import static io.fd.hc2vpp.nat.NatIds.NAT64_PREFIXES_ID;
+import static io.fd.hc2vpp.nat.NatIds.NAT_INSTANCE_ID;
+import static io.fd.hc2vpp.nat.NatIds.POLICY_ID;
+
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.nat.util.MappingEntryContext;
@@ -24,29 +30,19 @@ import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.ExternalSrcPort;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.mapping.entry.InternalSrcPort;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.MappingTable;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.ExternalIpAddressPool;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.nat64.prefixes.DestinationIpv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev170804.ExternalIpAddressPoolConfigAugmentation;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.mapping.entry.ExternalSrcPort;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.mapping.entry.InternalSrcPort;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.ExternalIpAddressPool;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.nat64.prefixes.DestinationIpv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.nat.rev180510.ExternalIpAddressPoolAugmentation;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Nat Writers registration.
  */
 public final class NatWriterFactory implements WriterFactory {
-
-    private static final InstanceIdentifier<NatConfig> NAT_CFG_ID = InstanceIdentifier.create(NatConfig.class);
-    private static final InstanceIdentifier<NatInstance> NAT_INSTANCE_ID =
-            NAT_CFG_ID.child(NatInstances.class).child(NatInstance.class);
-    private static final InstanceIdentifier<MappingEntry> MAP_ENTRY_ID =
-            NAT_INSTANCE_ID.child(MappingTable.class).child(MappingEntry.class);
 
     private final FutureJVppNatFacade jvppNat;
     private final MappingEntryContext mappingEntryContext;
@@ -60,26 +56,28 @@ public final class NatWriterFactory implements WriterFactory {
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
-        // Nat-instance
+        // +-- nat
+        //    +-- instances/instance
         registry.add(new GenericListWriter<>(NAT_INSTANCE_ID, new NatInstaceCustomizer()));
-        //  Mapping-entry
+        //       +-- mapping-table/mapping-entry
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(MappingEntry.class).child(ExternalSrcPort.class),
                 InstanceIdentifier.create(MappingEntry.class).child(InternalSrcPort.class)),
-                new GenericListWriter<>(MAP_ENTRY_ID, new MappingEntryCustomizer(jvppNat, mappingEntryContext)));
+                new GenericListWriter<>(MAPPING_ENTRY_ID, new MappingEntryCustomizer(jvppNat, mappingEntryContext)));
 
-        // External address pool has to be executed before mapping entry. Because adding mapping entries requires to
-        //  already have an IP range predefined ... in some cases
+        //       +-- policy
+        registry.add(new GenericListWriter<>(POLICY_ID, new PolicyCustomizer()));
+
+        //          +-- external-ip-address-pool
         registry.subtreeAddBefore(
-                Sets.newHashSet(InstanceIdentifier.create(ExternalIpAddressPool.class)
-                                .augmentation(ExternalIpAddressPoolConfigAugmentation.class)),
-                        new GenericListWriter<>(NAT_INSTANCE_ID.child(ExternalIpAddressPool.class),
-                new ExternalIpPoolCustomizer(jvppNat)),
-                MAP_ENTRY_ID);
+            // External address pool has to be executed before mapping entry. Because adding mapping entries
+            // requires to already have an IP range predefined ... in some cases
+            Sets.newHashSet(InstanceIdentifier.create(ExternalIpAddressPool.class)
+                .augmentation(ExternalIpAddressPoolAugmentation.class)),
+            new GenericListWriter<>(ADDRESS_POOL_ID, new ExternalIpPoolCustomizer(jvppNat)), MAPPING_ENTRY_ID);
 
-        // nat64-prefixes
+        //          +-- nat64-prefixes
         registry.subtreeAdd(
                 Sets.newHashSet(InstanceIdentifier.create(Nat64Prefixes.class).child(DestinationIpv4Prefix.class)),
-                new GenericListWriter<>(NAT_INSTANCE_ID.child(Nat64Prefixes.class),
-                        new Nat64PrefixesCustomizer(jvppNat)));
+                new GenericListWriter<>(NAT64_PREFIXES_ID, new Nat64PrefixesCustomizer(jvppNat)));
     }
 }

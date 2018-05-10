@@ -37,12 +37,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64Prefixes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.parameters.Nat64PrefixesKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.NatCurrentConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.PolicyBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64Prefixes;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.policy.Nat64PrefixesKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -70,16 +71,15 @@ final class Nat64PrefixesCustomizer
     public List<Nat64PrefixesKey> getAllIds(@Nonnull final InstanceIdentifier<Nat64Prefixes> id,
                                             @Nonnull final ReadContext context)
             throws ReadFailedException {
-        final NatInstanceKey natKey = id.firstKeyOf(NatInstance.class);
+        final InstanceKey natKey = id.firstKeyOf(Instance.class);
         LOG.trace("Listing IDs for all nat64 prefixes within nat-instance(vrf): {}", natKey);
 
+        // VPP supports only single nat64-prefix per VRF/nat-instance (we map nat-instances to VRFs)
         final Map<Long, Nat64PrefixDetails> prefixesByVrfId =
                 dumpManager.getDump(id, context.getModificationCache()).get();
-        final Nat64PrefixDetails nat64PrefixDetails = prefixesByVrfId.get(natKey.getId());
-        if (nat64PrefixDetails != null) {
-            // VPP supports only single nat64-prefix per VRF/nat-instance (we map nat-instances to VRFs)
-            // To ensure that (and for simplicity), we set nat64-prefix-id to 0.
-            return Collections.singletonList(new Nat64PrefixesKey(0L));
+        final Nat64PrefixDetails details = prefixesByVrfId.get(natKey.getId());
+        if (details != null) {
+            return Collections.singletonList(new Nat64PrefixesKey(readPrefix(details)));
         } else {
             return Collections.emptyList();
         }
@@ -88,7 +88,7 @@ final class Nat64PrefixesCustomizer
     @Override
     public void merge(@Nonnull final Builder<? extends DataObject> builder,
                       @Nonnull final List<Nat64Prefixes> readData) {
-        ((NatCurrentConfigBuilder) builder).setNat64Prefixes(readData);
+        ((PolicyBuilder) builder).setNat64Prefixes(readData);
     }
 
     @Nonnull
@@ -102,19 +102,16 @@ final class Nat64PrefixesCustomizer
                                       @Nonnull final Nat64PrefixesBuilder builder, @Nonnull final ReadContext context)
             throws ReadFailedException {
         LOG.trace("Reading nat64-prefixes: {}", id);
-        final long prefixId = id.firstKeyOf(Nat64Prefixes.class).getNat64PrefixId().longValue();
-        if (prefixId != 0L) {
-            // Ignore non zero IDs (VPP supports single nat64 prefix per VRF)
-            return;
-        }
         final Map<Long, Nat64PrefixDetails> prefixesByVrfId =
                 dumpManager.getDump(id, context.getModificationCache()).get();
-        final Nat64PrefixDetails prefixDetails = prefixesByVrfId.get(id.firstKeyOf(NatInstance.class).getId());
-        if (prefixDetails != null) {
-            builder.setNat64PrefixId(prefixId);
-            builder.setNat64Prefix(
-                    toIpv6Prefix(prefixDetails.prefix, UnsignedBytes.toInt(prefixDetails.prefixLen)));
+        final Nat64PrefixDetails details = prefixesByVrfId.get(id.firstKeyOf(Instance.class).getId());
+        if (details != null) {
+            builder.setNat64Prefix(readPrefix(details));
         }
+    }
+
+    private Ipv6Prefix readPrefix(final Nat64PrefixDetails details) {
+        return toIpv6Prefix(details.prefix, UnsignedBytes.toInt(details.prefixLen));
     }
 
     private final class Nat64PrefixesExecutor implements EntityDumpExecutor<Map<Long, Nat64PrefixDetails>, Void> {

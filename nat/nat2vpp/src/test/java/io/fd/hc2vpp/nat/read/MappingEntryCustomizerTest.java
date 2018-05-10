@@ -36,15 +36,14 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.NatInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.MappingTable;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.MappingTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.mapping.table.MappingEntry;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.mapping.table.MappingEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.state.nat.instances.nat.instance.mapping.table.MappingEntryKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.port.number.port.type.SinglePortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.Instances;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.MappingTable;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.MappingTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MappingEntryCustomizerTest
@@ -71,12 +70,12 @@ public class MappingEntryCustomizerTest
 
     @Override
     protected void setUp() throws Exception {
-        mappingEntryId = InstanceIdentifier.create(NatInstances.class)
-                .child(NatInstance.class, new NatInstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID))
+        mappingEntryId = InstanceIdentifier.create(Instances.class)
+                .child(Instance.class, new InstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID))
                 .child(MappingTable.class)
                 .child(MappingEntry.class, new MappingEntryKey(NAT_MAPPING_ID));
-        mappingEntryWildcarded = InstanceIdentifier.create(NatInstances.class)
-                .child(NatInstance.class, new NatInstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID))
+        mappingEntryWildcarded = InstanceIdentifier.create(Instances.class)
+                .child(Instance.class, new InstanceKey(NatInstanceCustomizer.DEFAULT_VRF_ID))
                 .child(MappingTable.class)
                 .child(MappingEntry.class);
         nat44DumpManager = new DumpCacheManager.DumpCacheManagerBuilder<Nat44StaticMappingDetailsReplyDump, Void>()
@@ -100,13 +99,9 @@ public class MappingEntryCustomizerTest
 
         assertEquals(NAT_MAPPING_ID, builder.getIndex().longValue());
         assertEquals("192.168.3.8", builder.getExternalSrcAddress().getValue());
-        assertEquals(6874,
-            ((SinglePortNumber) builder.getExternalSrcPort().getPortType()).getSinglePortNumber().getValue()
-                .intValue());
+        assertEquals(6874, builder.getExternalSrcPort().getStartPortNumber().getValue().intValue());
         assertArrayEquals("192.168.2.2".toCharArray(), builder.getInternalSrcAddress().getValue());
-        assertEquals(1274,
-            ((SinglePortNumber) builder.getInternalSrcPort().getPortType()).getSinglePortNumber().getValue()
-                .intValue());
+        assertEquals(1274, builder.getInternalSrcPort().getStartPortNumber().getValue().intValue());
     }
 
     @Test
@@ -118,12 +113,8 @@ public class MappingEntryCustomizerTest
         final MappingEntryBuilder builder = new MappingEntryBuilder();
         getCustomizer().readCurrentAttributes(mappingEntryId, builder, ctx);
 
-        assertEquals(65535,
-            ((SinglePortNumber) builder.getExternalSrcPort().getPortType()).getSinglePortNumber().getValue()
-                .intValue());
-        assertEquals(60000,
-            ((SinglePortNumber) builder.getInternalSrcPort().getPortType()).getSinglePortNumber().getValue()
-                .intValue());
+        assertEquals(65535, builder.getExternalSrcPort().getStartPortNumber().getValue().intValue());
+        assertEquals(60000, builder.getInternalSrcPort().getStartPortNumber().getValue().intValue());
     }
 
     @Test
@@ -138,13 +129,9 @@ public class MappingEntryCustomizerTest
 
         assertEquals(NAT_MAPPING_ID, builder.getIndex().longValue());
         assertEquals("192.168.64.3", builder.getExternalSrcAddress().getValue());
-        assertEquals(6874,
-            ((SinglePortNumber) builder.getExternalSrcPort().getPortType()).getSinglePortNumber().getValue()
-                .intValue());
+        assertEquals(6874, builder.getExternalSrcPort().getStartPortNumber().getValue().intValue());
         assertArrayEquals("2001:db8:85a3::8a2e:370:7303".toCharArray(), builder.getInternalSrcAddress().getValue());
-        assertEquals(1274,
-            ((SinglePortNumber) builder.getInternalSrcPort().getPortType()).getSinglePortNumber().getValue()
-                .intValue());
+        assertEquals(1274, builder.getInternalSrcPort().getStartPortNumber().getValue().intValue());
     }
 
     @Test
@@ -157,12 +144,8 @@ public class MappingEntryCustomizerTest
         final MappingEntryBuilder builder = new MappingEntryBuilder();
         getCustomizer().readCurrentAttributes(mappingEntryId, builder, ctx);
 
-        assertEquals(65535,
-            ((SinglePortNumber) builder.getExternalSrcPort().getPortType()).getSinglePortNumber().getValue()
-                .intValue());
-        assertEquals(60000,
-            ((SinglePortNumber) builder.getInternalSrcPort().getPortType()).getSinglePortNumber().getValue()
-                .intValue());
+        assertEquals(65535, builder.getExternalSrcPort().getStartPortNumber().getValue().intValue());
+        assertEquals(60000, builder.getInternalSrcPort().getStartPortNumber().getValue().intValue());
     }
 
     @Test

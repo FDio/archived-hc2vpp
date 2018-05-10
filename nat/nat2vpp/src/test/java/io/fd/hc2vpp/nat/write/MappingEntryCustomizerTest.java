@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.nat.write;
 
+import static io.fd.hc2vpp.nat.NatIds.NAT_INSTANCES_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,13 +35,11 @@ import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.NatConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.NatInstances;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.NatInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.MappingTable;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntry;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev150908.nat.config.nat.instances.nat.instance.mapping.table.MappingEntryKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.InstanceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.MappingTable;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(HoneycombTestRunner.class)
@@ -48,12 +47,12 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
 
     private static final long NAT_INSTANCE_ID = 1;
     private static final long MAPPING_ID = 22;
-    private static final InstanceIdentifier<MappingEntry> IID = InstanceIdentifier.create(NatConfig.class)
-        .child(NatInstances.class).child(NatInstance.class, new NatInstanceKey(NAT_INSTANCE_ID))
+    private static final InstanceIdentifier<MappingEntry> IID = NAT_INSTANCES_ID
+        .child(Instance.class, new InstanceKey(NAT_INSTANCE_ID))
         .child(MappingTable.class).child(MappingEntry.class, new MappingEntryKey(MAPPING_ID));
 
-    private static final String MAPPING_TABLE_PATH = "/ietf-nat:nat-config/ietf-nat:nat-instances/"
-        + "ietf-nat:nat-instance[ietf-nat:id='" + NAT_INSTANCE_ID + "']/ietf-nat:mapping-table";
+    private static final String MAPPING_TABLE_PATH = "/ietf-nat:nat/ietf-nat:instances/"
+        + "ietf-nat:instance[ietf-nat:id='" + NAT_INSTANCE_ID + "']/ietf-nat:mapping-table";
 
     @Mock
     private FutureJVppNatFacade jvppNat;
@@ -145,7 +144,9 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         expectedRequest.proto = 58; // icmp v6
         expectedRequest.vrfId = (int) NAT_INSTANCE_ID;
         expectedRequest.iAddr = new byte[] {0x20, 0x01, 0x0d, (byte) 0xb8, (byte) 0x85, (byte) 0xa3, 0, 0, 0, 0, (byte) 0x8a, 0x2e, 0x03, 0x70, 0x73, 0x33};
+        expectedRequest.iPort = 123;
         expectedRequest.oAddr = new byte[] {10, 1, 1, 3};
+        expectedRequest.oPort = 456;
         return expectedRequest;
     }
 
