@@ -159,6 +159,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         when(routeHopContext.getChildIndex(listRouteName, factory.uniqueRouteHopName(listRoute.path[1], mappingContext),
                 mappingContext))
                 .thenReturn(1);
+        when(configuration.getLearnedRouteNamePrefix()).thenReturn("learned-route");
     }
 
     private Ip6FibDetailsReplyDump replyDump() {

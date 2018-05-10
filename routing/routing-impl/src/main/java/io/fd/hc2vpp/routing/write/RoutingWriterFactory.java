@@ -29,6 +29,7 @@ import io.fd.hc2vpp.routing.Ipv4RoutingNodes;
 import io.fd.hc2vpp.routing.Ipv6RoutingNodes;
 import io.fd.hc2vpp.routing.RoutingConfiguration;
 import io.fd.hc2vpp.routing.RoutingIIds;
+import io.fd.hc2vpp.routing.services.FibTableService;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.impl.write.GenericWriter;
 import io.fd.honeycomb.translate.write.WriterFactory;
@@ -63,6 +64,9 @@ public final class RoutingWriterFactory implements WriterFactory, Ipv4RoutingNod
     private RoutingConfiguration configuration;
 
     @Inject
+    private FibTableService fibTableService;
+
+    @Inject
     @Named("interface-context")
     private NamingContext interfaceContext;
 
@@ -89,7 +93,7 @@ public final class RoutingWriterFactory implements WriterFactory, Ipv4RoutingNod
                 new GenericWriter<>(RoutingIIds.ROUTING, new RoutingCustomizer()));
 
         registry.subtreeAdd(routingProtocolHandledChildren(),new GenericWriter<>(RoutingIIds.RT_CPS_CP,
-                new ControlPlaneProtocolCustomizer(routingProtocolContext)));
+                new ControlPlaneProtocolCustomizer(routingProtocolContext, fibTableService)));
 
         registry.subtreeAddAfter(ipv4RoutingHandledChildren(RoutingIIds.RT_CPS_CP_SR_SRV4_IPV4_RT_PARENT),
                                  new GenericWriter<>(RoutingIIds.RT_CPS_CP_SR_SRV4_IPV4_RT,

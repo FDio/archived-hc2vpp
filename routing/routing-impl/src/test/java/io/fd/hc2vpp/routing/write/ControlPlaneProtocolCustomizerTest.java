@@ -23,9 +23,11 @@ import static org.junit.Assert.fail;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.routing.services.FibTableService;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Direct;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Static;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
@@ -44,6 +46,9 @@ public class ControlPlaneProtocolCustomizerTest extends WriterCustomizerTest {
     private ControlPlaneProtocol invalidData;
     private ControlPlaneProtocolCustomizer customizer;
     private NamingContext routingProtocolContext;
+
+    @Mock
+    protected FibTableService fibTableService;
 
     @Before
     public void init() {
@@ -73,7 +78,7 @@ public class ControlPlaneProtocolCustomizerTest extends WriterCustomizerTest {
                 .build();
 
         routingProtocolContext = new NamingContext("routing-protocol", "routing-protocol-context");
-        customizer = new ControlPlaneProtocolCustomizer(routingProtocolContext);
+        customizer = new ControlPlaneProtocolCustomizer(routingProtocolContext, fibTableService);
     }
 
     @Test
