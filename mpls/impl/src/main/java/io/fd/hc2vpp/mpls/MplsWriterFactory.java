@@ -27,12 +27,15 @@ import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.Mpls1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp.Config;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.InSegment;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.out.segment.path.list.Paths;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls.StaticLsps;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls._static.lsps.StaticLsp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.Mpls1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.multiple.paths.paths.Path;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.simple.path.SimplePath;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.multiple.paths.Paths;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.top.Config;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment.InSegment;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.OutgoingLabels;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.routing.mpls.StaticLsps;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.routing.mpls._static.lsps.StaticLsp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.Routing1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.interfaces.mpls.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.routing.Mpls;
@@ -80,10 +83,27 @@ final class MplsWriterFactory implements WriterFactory {
         // First enable MPLS on interface, then configure it:
         registry.subtreeAddAfter(
             ImmutableSet
-                .of(CONFIG_ID, InstanceIdentifier.create(StaticLsp.class).child(Config.class).child(InSegment.class),
-                    InstanceIdentifier.create(StaticLsp.class).child(Config.class).child(Paths.class),
+                .of(CONFIG_ID,
+                    InstanceIdentifier.create(StaticLsp.class).child(Config.class).child(InSegment.class),
+                    InstanceIdentifier.create(StaticLsp.class)
+                        .child(Config.class)
+                        .child(InSegment.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment.in.segment.Config.class),
                     InstanceIdentifier.create(StaticLsp.class).child(Config.class)
-                        .augmentation(StaticLspVppLookupAugmentation.class).child(LabelLookup.class)),
+                        .augmentation(StaticLspVppLookupAugmentation.class).child(LabelLookup.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(Paths.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(Paths.class).child(OutgoingLabels.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(Paths.class).child(OutgoingLabels.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.OutgoingLabels.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(Paths.class).child(OutgoingLabels.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.OutgoingLabels.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.outgoing.labels.Config.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(Paths.class).child(Path.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(Paths.class).child(Path.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.multiple.paths.paths.path.Config.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(SimplePath.class),
+                    InstanceIdentifier.create(StaticLsp.class).child(SimplePath.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.simple.path.simple.path.Config.class)),
             new GenericWriter<>(STATIC_LSP_ID, new StaticLspCustomizer(vppApi, ifcContext)),
             INTERFACE_ID);
     }

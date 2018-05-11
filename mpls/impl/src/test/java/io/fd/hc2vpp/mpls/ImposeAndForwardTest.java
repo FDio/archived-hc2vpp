@@ -36,18 +36,20 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.Mpls1;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp.ConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.InSegmentBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.in.segment.type.IpPrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.out.segment.PathListBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.out.segment.SimplePathBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.out.segment.path.list.PathsBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls.StaticLsps;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls._static.lsps.StaticLsp;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls._static.lsps.StaticLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls._static.lsps.StaticLspKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.Mpls1;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.MplsOperationsType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.MultiplePathsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.multiple.paths.PathsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.multiple.paths.paths.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.simple.path.SimplePathBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.top.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment.InSegmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment_config.type.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.OutgoingLabelsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.routing.mpls.StaticLsps;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.routing.mpls._static.lsps.StaticLsp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.routing.mpls._static.lsps.StaticLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.routing.mpls._static.lsps.StaticLspKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.Routing1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.routing.Mpls;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Routing;
@@ -73,44 +75,76 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
     private static StaticLsp getSimpleLsp(final long label) {
         return getSimpleLsp(label, IpAddressBuilder.getDefaultInstance("5.6.7.8"));
     }
-    private static StaticLsp getSimpleLsp(final long label,
-                                          final IpAddress nextHop) {
-        return new StaticLspBuilder()
-            .setName(LSP_NAME)
-            .setConfig(new ConfigBuilder()
-                .setInSegment(new InSegmentBuilder()
-                    .setType(new IpPrefixBuilder().setIpPrefix(getDefaultInstance("1.2.3.4/24"))
-                        .build())
-                    .build()
-                )
-                .setOperation(StaticLspConfig.Operation.ImposeAndForward)
-                .setOutSegment(new SimplePathBuilder()
-                    .setNextHop(nextHop)
-                    .setOutgoingInterface(IF_NAME)
-                    .setOutgoingLabel(new MplsLabel(label))
+
+    private static StaticLsp getSimpleLsp(final long label, final IpAddress nextHop) {
+        return new StaticLspBuilder().setName(LSP_NAME)
+            .setConfig(new ConfigBuilder().setInSegment(new InSegmentBuilder().setConfig(
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment.in.segment.ConfigBuilder()
+                    .setType(new IpPrefixBuilder().setIpPrefix(getDefaultInstance("1.2.3.4/24")).build())
                     .build())
-                .build())
+                                                            .build())
+                           .setOperation(MplsOperationsType.ImposeAndForward)
+                           .build())
+            .setOutSegment(
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.SimplePathBuilder()
+                    .setSimplePath(new SimplePathBuilder().setConfig(
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.simple.path.simple.path.ConfigBuilder()
+                            .setNextHop(nextHop)
+                            .setOutgoingInterface(IF_NAME)
+                            .setOutgoingLabel(new MplsLabel(label))
+                            .build()).build())
+                    .build())
             .build();
     }
 
     private static StaticLsp getComplexLsp() {
-        return new StaticLspBuilder()
-            .setName(LSP_NAME)
-            .setConfig(new ConfigBuilder()
-                .setInSegment(new InSegmentBuilder()
-                    .setType(new IpPrefixBuilder().setIpPrefix(getDefaultInstance("10.10.24.0/24"))
-                        .build())
-                    .build()
-                )
-                .setOperation(StaticLspConfig.Operation.ImposeAndForward)
-                .setOutSegment(new PathListBuilder()
-                    .setPaths(Collections.singletonList(new PathsBuilder()
-                        .setNextHop(IpAddressBuilder.getDefaultInstance("10.10.12.2"))
-                        .setOutgoingInterface(IF_NAME)
-                        .setOutgoingLabels(Arrays.asList(new MplsLabel(102L), new MplsLabel(104L)))
-                        .build()))
+        return new StaticLspBuilder().setName(LSP_NAME)
+            .setConfig(
+                new ConfigBuilder()
+                    .setInSegment(
+                        new InSegmentBuilder()
+                            .setConfig(
+                                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment.in.segment.ConfigBuilder()
+                                    .setType(
+                                        new IpPrefixBuilder()
+                                            .setIpPrefix(getDefaultInstance("10.10.24.0/24"))
+                                            .build())
+                                    .build())
+                            .build())
+                    .setOperation(MplsOperationsType.ImposeAndForward)
                     .build())
-                .build())
+            .setOutSegment(
+                new MultiplePathsBuilder()
+                    .setPaths(
+                        new PathsBuilder()
+                            .setPath(
+                                Collections.singletonList(new PathBuilder()
+                                                              .setConfig(
+                                                                  new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.multiple.paths.paths.path.ConfigBuilder()
+                                                                      .setNextHop(
+                                                                          IpAddressBuilder
+                                                                              .getDefaultInstance("10.10.12.2"))
+                                                                      .setOutgoingInterface(IF_NAME)
+
+                                                                      .build()).build()))
+                            .setOutgoingLabels(
+                                new OutgoingLabelsBuilder()
+                                    .setOutgoingLabels(Arrays.asList(
+                                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.OutgoingLabelsBuilder()
+                                            .setIndex((short) 0)
+                                            .setConfig(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.outgoing.labels.ConfigBuilder()
+                                                           .setLabel(new MplsLabel(102L))
+                                                           .build())
+                                            .build(),
+                                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.OutgoingLabelsBuilder()
+                                            .setIndex((short) 1)
+                                            .setConfig(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.outgoing.labels.ConfigBuilder()
+                                                           .setLabel(new MplsLabel(104L))
+                                                           .build())
+                                            .build()))
+                                    .build())
+                        .build())
+                    .build())
             .build();
     }
 

@@ -20,9 +20,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.InSegment;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.in.segment.Type;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.in.segment.type.MplsLabel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment.InSegment;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment_config.Type;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment_config.type.MplsLabel;
 
 /**
  * Mixin that translates {@link InSegment} of {@link MplsLabel} type to {@link MplsRouteAddDel} message.
@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._stati
 interface MplsInSegmentTranslator {
     default void translate(@Nonnull final InSegment inSegment, @Nonnull final MplsRouteAddDel request) {
         checkArgument(inSegment != null, "Missing in-segment");
-        final Type type = inSegment.getType();
+        final Type type = inSegment.getConfig().getType();
         checkArgument(type instanceof MplsLabel, "Expecting in-segment of type mpls-label, but %s given.", type);
         final Long label = ((MplsLabel) type).getIncomingLabel().getValue();
         request.mrLabel = label.intValue();

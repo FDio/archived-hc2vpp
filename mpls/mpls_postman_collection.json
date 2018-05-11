@@ -1,372 +1,396 @@
 {
-	"id": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-	"name": "Honeycomb MPLS calls",
-	"description": "",
-	"order": [
-		"e8d94648-0106-feaa-f436-1c0cd327d89c",
-		"94581eee-036d-dced-1495-1b5c8c35059d",
-		"14fedcfb-faf6-00f5-4673-c1074923b92e",
-		"22964c4c-3ba1-39fe-9a24-de6af2ca53a2",
-		"48779e1a-5a6d-9e76-c646-8f3eea9433d2",
-		"65f84720-3266-322f-9739-af804da451b7",
-		"15a16a52-17fe-f50a-a973-90947ef6c625",
-		"1b3c51b3-0675-61e3-6670-d8b7fcdd2884",
-		"6fcda03b-3efa-3ae9-a1a0-5fafef5732a0",
-		"11f04e55-6c1f-38ad-ed12-dab1f1c5df97",
-		"15f14fb1-a102-e482-814f-7c8afca13812",
-		"5a271f51-ab7e-c007-882b-d5e0a99da138",
-		"b98635ba-fc25-feb7-8281-1654a7639ebd",
-		"3e9ec3af-3d8b-6b1e-c193-22c702c3e81e",
-		"590a3bad-ecbc-7309-1357-50e678036e17",
-		"1297c446-dc5f-51b1-3368-9d64e48fff83",
-		"27b745d3-2fbe-0f02-d605-904f8188088f"
-	],
-	"folders": [],
-	"timestamp": 1509091634177,
-	"owner": 0,
-	"public": false,
-	"requests": [
+	"info": {
+		"_postman_id": "a86a2f22-d753-4a4b-a1a4-ade4f9bbfb2f",
+		"name": "Honeycomb MPLS calls",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "11f04e55-6c1f-38ad-ed12-dab1f1c5df97",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp4",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511436906647,
-			"name": "Swap label and forward",
-			"description": "Corresponding CLI command:\n\nmpls local-label add eos 123 via 10.10.24.4 loop0 out-labels 123\n\n\nCan be verified via CLI using:\n\nshow mpls fib 123",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"static-lsp4\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 123\n        },\n        \"operation\": \"swap-and-forward\",\n        \"next-hop\": \"10.10.24.5\",\n        \"outgoing-label\": 123,\n        \"outgoing-interface\": \"loop0\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "1297c446-dc5f-51b1-3368-9d64e48fff83",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp4",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511430765571,
-			"name": "Delete label swap FIB entry",
-			"description": "Corresponding CLI command:\n\nmpls local-label del eos 123 via 10.10.24.4 loop0 out-labels 123\n\nCan be verified via CLI using:\n\nshow mpls fib",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "14fedcfb-faf6-00f5-4673-c1074923b92e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"data": [],
-			"dataMode": "raw",
-			"name": "List ifcs - oper",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1509094553742,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "15a16a52-17fe-f50a-a973-90947ef6c625",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511436768230,
-			"name": "Push two MPLS labels",
-			"description": "Corresponding CLI command:\n\nip route add 10.10.24.0/24 via 10.10.12.2 loop1 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.10.24.0/24",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"static-lsp1\",\n      \"config\": {\n        \"in-segment\": {\n          \"ip-prefix\": \"10.10.24.0/24\"\n        },\n        \"operation\": \"impose-and-forward\",\n        \"paths\": [\n          {\n            \"path-index\": 0,\n            \"next-hop\": \"10.10.12.2\",\n            \"outgoing-labels\": [\n              102,\n              104\n            ],\n            \"outgoing-interface\": \"loop0\"\n          }\n        ]\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "15f14fb1-a102-e482-814f-7c8afca13812",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1509715185345,
-			"name": "Get static LSPs (cfg)",
-			"description": "",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "1b3c51b3-0675-61e3-6670-d8b7fcdd2884",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp2",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511358690276,
-			"name": "Pop label and MPLS lookup",
-			"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 102 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 102",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"static-lsp2\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 102\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"mpls\",\n          \"mpls-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "22964c4c-3ba1-39fe-9a24-de6af2ca53a2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/loop0",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511172459957,
-			"name": "Enable mpls on loop0 interface",
-			"description": "Correspondig CLI command:\n\nset interface mpls loop0 enable",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"loop0\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "27b745d3-2fbe-0f02-d605-904f8188088f",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/loop0",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511172494988,
-			"name": "Disable mpls on loop0 interface",
-			"description": "Correspondig CLI command:\n\nset interface mpls loop0 disable",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "3e9ec3af-3d8b-6b1e-c193-22c702c3e81e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp2",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511436719275,
-			"name": "Delete label pop and MPLS lookup FIB entry",
-			"description": "Corresponding CLI command:\n\nmpls local-label del non-eos 102 mpls-lookup-in-table 0\n\nCan be verified via CLI using:\n\nshow mpls fib",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "48779e1a-5a6d-9e76-c646-8f3eea9433d2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1509715030301,
-			"name": "Get mpls interfaces (cfg)",
-			"description": "",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "590a3bad-ecbc-7309-1357-50e678036e17",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp3",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511437151063,
-			"name": "Delete label pop and IPv4 lookup FIB entry",
-			"description": "Corresponding CLI command:\n\nmpls local-label del eos 104 ip4-lookup-in-table 0\n\nCan be verified via CLI using:\n\nshow mpls fib",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "5a271f51-ab7e-c007-882b-d5e0a99da138",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp0",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511172422196,
-			"name": "Delete single MPLS label push FIB entry",
-			"description": "Corresponding CLI command:\n\nip route del 10.10.34.0/24 via 10.10.13.3 loop0 out-labels 111\n\nCan be verified via CLI using:\n\nshow ip fib",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "65f84720-3266-322f-9739-af804da451b7",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp0",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511436775238,
-			"name": "Push single MPLS label",
-			"description": "Corresponding CLI command:\n\nip route add 10.10.34.0/24 via 10.10.13.3 loop0 out-labels 111\n\nCan be verified via CLI using:\n\nshow ip fib 10.10.34.0/24",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"static-lsp0\",\n      \"config\": {\n        \"in-segment\": {\n          \"ip-prefix\": \"10.10.34.0/24\"\n        },\n        \"operation\": \"impose-and-forward\",\n        \"next-hop\": \"10.10.13.3\",\n        \"outgoing-label\": 111,\n        \"outgoing-interface\": \"loop0\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "6fcda03b-3efa-3ae9-a1a0-5fafef5732a0",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp3",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511360517399,
-			"name": "Pop label and IPv4 lookup",
-			"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 ip4-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"static-lsp3\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 104\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"ipv4\",\n          \"ip4-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "94581eee-036d-dced-1495-1b5c8c35059d",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"data": [],
-			"dataMode": "raw",
-			"name": "List ifcs - cfg",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1509094536608,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "b98635ba-fc25-feb7-8281-1654a7639ebd",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511172427485,
-			"name": "Delete FIB entry that pushes two MPLS labels",
-			"description": "Corresponding CLI command:\n\nip route add 10.10.24.0/24 via 10.10.12.2 loop1 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "e8d94648-0106-feaa-f436-1c0cd327d89c",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/loop0",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511172015125,
 			"name": "Add loopback ifc ",
-			"description": "Corresponding CLI command:\n\ncreate loop interface",
-			"collectionId": "5e8b5d56-56c7-e7b4-452a-0da051658425",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n    \"interface\": [\r\n        {\r\n            \"name\": \"loop0\",\r\n            \"description\": \"for testing purposes\",\r\n            \"type\": \"v3po:loopback\",\r\n            \"loopback\" :{\r\n                \"mac\" : \"00:ff:ff:ff:ff:ff\"\r\n            }\r\n        }\r\n    ]\r\n    \r\n}"
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n    \"interface\": [\r\n        {\r\n            \"name\": \"loop0\",\r\n            \"description\": \"for testing purposes\",\r\n            \"type\": \"v3po:loopback\",\r\n            \"loopback\" :{\r\n                \"mac\" : \"00:ff:ff:ff:ff:ff\"\r\n            }\r\n        }\r\n    ]\r\n    \r\n}"
+				},
+				"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/loop0",
+				"description": "Corresponding CLI command:\n\ncreate loop interface"
+			},
+			"response": []
+		},
+		{
+			"name": "List ifcs - cfg",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+				},
+				"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/"
+			},
+			"response": []
+		},
+		{
+			"name": "List ifcs - oper",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+				},
+				"url": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/"
+			},
+			"response": []
+		},
+		{
+			"name": "Enable mpls on loop0 interface",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"loop0\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/loop0",
+				"description": "Correspondig CLI command:\n\nset interface mpls loop0 enable"
+			},
+			"response": []
+		},
+		{
+			"name": "Get mpls interfaces (cfg)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
+			},
+			"response": []
+		},
+		{
+			"name": "Push single MPLS label",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"static-lsp\": [{\n    \"name\": \"static-lsp0\",\n    \"config\": {\n      \"in-segment\": {\n        \"config\": {\n          \"ip-prefix\": \"10.10.34.0/24\"\n        }\n      },\n      \"operation\": \"impose-and-forward\"\n    },\n    \"simple-path\": {\n      \"config\": {\n        \"next-hop\": \"10.10.13.3\",\n        \"outgoing-label\": 111,\n        \"outgoing-interface\": \"loop0\"\n      }\n    }\n  }]\n}"
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp0",
+				"description": "Corresponding CLI command:\n\nip route add 10.10.34.0/24 via 10.10.13.3 loop0 out-labels 111\n\nCan be verified via CLI using:\n\nshow ip fib 10.10.34.0/24"
+			},
+			"response": []
+		},
+		{
+			"name": "Push two MPLS labels",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"static-lsp\": [{\r\n    \"name\": \"static-lsp1\",\r\n    \"config\": {\r\n      \"in-segment\": {\r\n        \"config\": {\r\n          \"ip-prefix\": \"10.10.24.0/24\"\r\n        }\r\n      },\r\n      \"operation\": \"impose-and-forward\"\r\n    },\r\n    \"paths\": {\r\n      \"path\": [{\r\n        \"path-index\": 0,\r\n        \"config\" : {\r\n          \"path-index\": 0,\r\n          \"next-hop\": \"10.10.12.2\",\r\n          \"outgoing-interface\": \"loop0\"  \r\n        }\r\n      }],\r\n      \"outgoing-labels\": {\r\n        \"outgoing-labels\": [\r\n          {\r\n            \"index\": 0,\r\n            \"config\": {\r\n              \"index\": 0,\r\n              \"label\": 102\r\n            }\r\n          },\r\n          {\r\n            \"index\": 1,\r\n            \"config\": {\r\n              \"index\": 1,\r\n              \"label\": 104\r\n            }\r\n          }\r\n          ]\r\n      }\r\n    }\r\n  }]\r\n}"
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp1",
+				"description": "Corresponding CLI command:\n\nip route add 10.10.24.0/24 via 10.10.12.2 loop1 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.10.24.0/24"
+			},
+			"response": []
+		},
+		{
+			"name": "Pop label and MPLS lookup",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"static-lsp\": [{\n    \"name\": \"static-lsp2\",\n    \"config\": {\n      \"in-segment\": {\n        \"config\": {\n          \"incoming-label\": 102\n        }\n      },\n      \"operation\": \"pop-and-lookup\",\n      \"vpp-mpls:label-lookup\": {\n        \"type\": \"mpls\",\n        \"mpls-lookup-in-table\": 0\n      }\n    }\n  }]\n}"
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp2",
+				"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 102 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 102"
+			},
+			"response": []
+		},
+		{
+			"name": "Pop label and IPv4 lookup",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"static-lsp\": [{\n    \"name\": \"static-lsp3\",\n    \"config\": {\n      \"in-segment\": {\n        \"config\": {\n          \"incoming-label\": 104\n        }\n      },\n      \"operation\": \"pop-and-lookup\",\n      \"vpp-mpls:label-lookup\": {\n        \"type\": \"ipv4\",\n        \"ip4-lookup-in-table\": 0\n      }\n    }\n  }]\n}"
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp3",
+				"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 ip4-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
+			},
+			"response": []
+		},
+		{
+			"name": "Swap label and forward",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"static-lsp\": [{\n    \"name\": \"static-lsp4\",\n    \"config\": {\n      \"in-segment\": {\n        \"config\": {\n          \"incoming-label\": 123\n        }\n      },\n      \"operation\": \"swap-and-forward\"\n    },\n    \"simple-path\": {\n      \"config\": {\n        \"next-hop\": \"10.10.24.5\",\n        \"outgoing-label\": 123,\n        \"outgoing-interface\": \"loop0\"\n      }\n    }\n  }]\n}"
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp4",
+				"description": "Corresponding CLI command:\n\nmpls local-label add eos 123 via 10.10.24.4 loop0 out-labels 123\n\n\nCan be verified via CLI using:\n\nshow mpls fib 123"
+			},
+			"response": []
+		},
+		{
+			"name": "Get static LSPs (cfg)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete single MPLS label push FIB entry",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp0",
+				"description": "Corresponding CLI command:\n\nip route del 10.10.34.0/24 via 10.10.13.3 loop0 out-labels 111\n\nCan be verified via CLI using:\n\nshow ip fib"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete FIB entry that pushes two MPLS labels",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp1",
+				"description": "Corresponding CLI command:\n\nip route add 10.10.24.0/24 via 10.10.12.2 loop1 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete label pop and MPLS lookup FIB entry",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp2",
+				"description": "Corresponding CLI command:\n\nmpls local-label del non-eos 102 mpls-lookup-in-table 0\n\nCan be verified via CLI using:\n\nshow mpls fib"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete label pop and IPv4 lookup FIB entry",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp3",
+				"description": "Corresponding CLI command:\n\nmpls local-label del eos 104 ip4-lookup-in-table 0\n\nCan be verified via CLI using:\n\nshow mpls fib"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete label swap FIB entry",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp4",
+				"description": "Corresponding CLI command:\n\nmpls local-label del eos 123 via 10.10.24.4 loop0 out-labels 123\n\nCan be verified via CLI using:\n\nshow mpls fib"
+			},
+			"response": []
+		},
+		{
+			"name": "Disable mpls on loop0 interface",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/loop0",
+				"description": "Correspondig CLI command:\n\nset interface mpls loop0 disable"
+			},
+			"response": []
 		}
 	]
 }

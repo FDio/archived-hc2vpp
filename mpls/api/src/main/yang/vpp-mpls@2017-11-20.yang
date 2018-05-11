@@ -15,7 +15,7 @@ module vpp-mpls {
 
   import hc2vpp-ietf-mpls-static {
     prefix "mpls-static";
-    revision-date 2017-03-10;
+    revision-date 2017-07-02;
   }
 
   import yang-ext {

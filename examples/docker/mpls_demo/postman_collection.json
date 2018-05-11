@@ -1,997 +1,1050 @@
 {
-	"id": "775eb149-1920-2405-14f1-0a578e6dfa17",
-	"name": "Honeycomb SR MPLS",
-	"description": "Examples of configuring some basic MPLS SR scenariou using hc2vpp",
-	"order": [],
-	"folders": [
+	"info": {
+		"_postman_id": "4165ed66-ad4e-4003-99dd-285a50e86f15",
+		"name": "Honeycomb SR MPLS",
+		"description": "Examples of configuring some basic MPLS SR scenariou using hc2vpp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "43395a46-591f-06e1-c6f7-2d3be218f4b7",
-			"name": "vpp1",
-			"description": "",
-			"order": [
-				"16657be6-c235-6e55-46aa-bfcd9509c677",
-				"563861ed-4363-071e-9bd5-eaff5eb8c98b",
-				"2cf9511c-b24b-b79e-d73a-2c22b1ad0399",
-				"c013c45c-91d1-1a3b-f79d-70b3b64b9e80",
-				"8822aefb-a139-52a4-b013-d27e34038e3b",
-				"6180b672-0422-1c86-6982-213d297f644e",
-				"7c820a89-b5b6-de2d-a24e-272e8652132e",
-				"5f3d1085-288d-b0cd-d0fc-4c9d5e56bb97",
-				"b884638e-79a4-525b-45aa-82833fdd1dfb",
-				"aeb31fa2-4e55-2d4f-eb86-09ee2cf61d18",
-				"786bf7e9-315d-4367-6bab-044f197182f4",
-				"c6f22ad3-fb95-f8d5-59ae-46bb1187161d",
-				"21677d79-6b69-ec38-6547-9aaace9a2a22"
-			],
-			"owner": 0,
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17"
-		},
-		{
-			"id": "527edbd2-7633-b78f-eef0-f8286979c6ea",
-			"name": "vpp2",
-			"description": "",
-			"order": [
-				"8207832c-31f7-3a6c-635d-84acb0dc5aec",
-				"b9f4ce2e-514f-5bbc-adf1-8a21e9930f0c",
-				"45abf6ec-633c-24da-ba25-47e918e6de6c",
-				"c81edfa7-eed8-7034-2b2f-b51d1790769b",
-				"7db6d85d-ece1-aac3-d22f-d0d1a235cafc",
-				"747b2251-395e-610b-7645-9a41b0b64488",
-				"1454328e-2d83-bc67-7a8f-271d11fc18cb",
-				"336475cb-227c-e04d-5726-c7fcfd87dbaa",
-				"c8669e95-8c4f-4ab7-2c4a-676349929ecc"
-			],
-			"owner": 0,
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17"
-		},
-		{
-			"id": "ef180850-5af2-a60b-eeca-85252e9ce8ec",
 			"name": "vpp3",
 			"description": "",
-			"order": [
-				"119ec4e0-605d-08b4-fec1-cf4a131ad000",
-				"13c7a902-2a09-dbcb-15e2-44bad8fef7db",
-				"dcbbd269-63b7-910c-a710-4ad8fd0573ee",
-				"c3f46171-f7c7-f959-ef2d-2c0c7a2b42c9",
-				"cca562e5-6677-83b3-c694-e2852ae34582",
-				"21db6249-27ed-7f90-07c3-0596d703916f",
-				"0fb225aa-cb57-8823-6b10-fe11bfa5b722",
-				"d968a2a2-8c53-528e-31a7-4d34e85c3fd9",
-				"5e1eb658-1b3d-7033-3f76-3077d62550b4",
-				"608eb5d9-ec75-80f8-5f68-ad8393fbaa06",
-				"cc6688cb-9b65-e4d0-4985-d4d9dec14ca6"
-			],
-			"owner": 0,
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17"
+			"item": [
+				{
+					"name": "Enable mpls on host-veth341",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth341\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth341",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth341 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "List ifcs - cfg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/ietf-interfaces:interfaces/"
+					},
+					"response": []
+				},
+				{
+					"name": "Get mpls (cfg)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
+					},
+					"response": []
+				},
+				{
+					"name": "Enable mpls on host-veth342",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth342\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth342",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth342 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "Enable mpls on host-veth31",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth31\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth31",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth31 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "Pop 103 and MPLS lookup",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp1\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 103\n        \t}\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"mpls\",\n          \"mpls-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
+						"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 103 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 103"
+					},
+					"response": []
+				},
+				{
+					"name": "Swap 104 and forward via veth341",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp2\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 104\n        \t}\n        },\n        \"operation\": \"swap-and-forward\"\n      },\n        \"simple-path\": {\n\t\t\t\"config\": {\n\t\t        \"next-hop\": \"10.34.1.4\",\n\t\t        \"outgoing-label\": 104,\n\t\t        \"outgoing-interface\": \"host-veth341\"\n\t\t\t}\n\t\t}\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp2",
+						"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.34.1.4 host-veth341 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
+					},
+					"response": []
+				},
+				{
+					"name": "Swap 104 and forward via veth342",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp3\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 104\n        \t}\n        },\n        \"operation\": \"swap-and-forward\"\n      },\n        \"simple-path\": {\n\t\t\t\"config\": {\n\t\t        \"next-hop\": \"10.34.2.4\",\n\t\t        \"outgoing-label\": 104,\n\t\t        \"outgoing-interface\": \"host-veth342\"\n\t\t\t}\n\t\t}\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp3",
+						"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.34.2.4 host-veth342 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
+					},
+					"response": []
+				},
+				{
+					"name": "List ifcs - oper",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/operational/ietf-interfaces:interfaces-state/"
+					},
+					"response": []
+				},
+				{
+					"name": "Swap 10341 and forward via veth341",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp4\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 10341\n        \t}\n        },\n        \"operation\": \"swap-and-forward\"\n      },\n        \"simple-path\": {\n\t\t\t\"config\": {\n\t\t        \"next-hop\": \"10.34.1.4\",\n\t\t        \"outgoing-label\": 104,\n\t\t        \"outgoing-interface\": \"host-veth341\"\n\t\t\t}\n\t\t}\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp4",
+						"description": "Corresponding CLI command:\n\nmpls local-label add eos 10341 via 10.34.1.4 host-veth341 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 10341"
+					},
+					"response": []
+				},
+				{
+					"name": "Swap 10342 and forward via veth342",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp5\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 10342\n        \t}\n        },\n        \"operation\": \"swap-and-forward\"\n      },\n        \"simple-path\": {\n\t\t\t\"config\": {\n\t\t        \"next-hop\": \"10.34.2.4\",\n\t\t        \"outgoing-label\": 104,\n\t\t        \"outgoing-interface\": \"host-veth342\"\n\t\t\t}\n\t\t}\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp5",
+						"description": "Corresponding CLI command:\n\nmpls local-label add eos 10342 via 10.34.2.4 host-veth342 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 10342"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "d51a02ef-c70d-b9cf-496f-9f4bd807476e",
 			"name": "vpp4",
 			"description": "",
-			"order": [
-				"d1f8d9e4-9546-1aae-2b86-b88a5baa53e4",
-				"0cb9c591-37ea-1f32-403b-a28097796e37",
-				"045b4a83-98da-a106-a82c-066e4ee6538f",
-				"2fab46ad-11bd-4d1f-acee-612e03b5c6a2",
-				"36bd3b64-d122-4f11-69e1-99848539cc47",
-				"9d7d5222-0fdb-5779-1afd-34d2991d7de7",
-				"d98ec90f-b870-6ab7-ce74-46b78e4c4615",
-				"fc075349-ef0d-a0cc-dd7e-1de162c42c64",
-				"33de5e94-c1fd-96bc-e5e0-3bd586c87886",
-				"51b46690-bab5-dcfc-bb2e-8b61f666adda",
-				"c8e47113-0a93-33c7-d2e3-872a831aa0aa",
-				"51d3fcb9-bbf8-0a54-8d1a-c50372554a45"
-			],
-			"owner": 0,
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17"
-		}
-	],
-	"timestamp": 1511524812433,
-	"owner": 0,
-	"public": false,
-	"requests": [
+			"item": [
+				{
+					"name": "Enable mpls on veth431",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth431\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth431",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth431 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "Enable mpls on veth432",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth432\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth432",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth432 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "Create config for vrf0",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"control-plane-protocol\":[\r\n\t\t{\r\n\t\t\t\"name\":\"learned-protocol-0\",\r\n\t\t\t\"type\":\"static\",\r\n\t\t\t\"vpp-protocol-attributes\": {\r\n\t              \"primary-vrf\": 0\r\n            }\r\n\t\t}\t\r\n\t]\r\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0",
+						"description": "Hc2vpp by default stores it under learned-protocol-0"
+					},
+					"response": []
+				},
+				{
+					"name": "Add reverse direction for 10.13.1.0/24",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"route\": [\n\t\t{\n\t\t\t\"destination-prefix\": \"10.13.1.0/24\",\n\t\t\t\"next-hop\": {\n            \t\"next-hop-address\" : \"10.34.2.3\",\n\t\t\t\t\"outgoing-interface\": \"host-veth432\"\n            }\n\t}]\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0/static-routes/ipv4/route/10.13.1.0%2f24",
+						"description": "Send reverse traffic using IP.\n\nCorresponding CLI command:\n\nip route add 10.13.1.0/24 via 10.34.2.3 host-veth432"
+					},
+					"response": []
+				},
+				{
+					"name": "List ifcs - oper",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/operational/ietf-interfaces:interfaces-state/"
+					},
+					"response": []
+				},
+				{
+					"name": "Configure tap for host A",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"A\",\r\n                \"description\": \"Host A\",\r\n                \"type\": \"v3po:tap\",\r\n                \"tap\" : {\r\n                    \"tap-name\" : \"A\"\r\n                },\r\n                \"ipv4\" : {\r\n                \t\"address\" :  [{\r\n                \t\t\"ip\" : \"10.100.1.1\",\r\n                \t\t\"prefix-length\" : \"24\"\r\n                \t}]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/interface/A"
+					},
+					"response": []
+				},
+				{
+					"name": "Pop 104 and IPv4 lookup",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp1\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 104\n        \t}\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"ipv4\",\n          \"ip4-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
+						"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 ip4-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
+					},
+					"response": []
+				},
+				{
+					"name": "Add reverse direction for 10.12.1.0/24",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"route\": [\n\t\t{\n\t\t\t\"destination-prefix\": \"10.12.1.0/24\",\n\t\t\t\"next-hop\": {\n            \t\"next-hop-address\" : \"10.24.1.2\",\n\t\t\t\t\"outgoing-interface\": \"host-veth42\"\n            }\n\t}]\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0/static-routes/ipv4/route/10.12.1.0%2F24",
+						"description": "Send reverse traffic using IP.\n\nCorresponding CLI command:\n\nip route add 10.12.1.0/24 via 10.24.1.2 host-veth42"
+					},
+					"response": []
+				},
+				{
+					"name": "Configure tap for host B",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"B\",\r\n                \"description\": \"Host B\",\r\n                \"type\": \"v3po:tap\",\r\n                \"tap\" : {\r\n                    \"tap-name\" : \"B\"\r\n                },\r\n                \"ipv4\" : {\r\n                \t\"address\" :  [{\r\n                \t\t\"ip\" : \"10.200.1.1\",\r\n                \t\t\"prefix-length\" : \"24\"\r\n                \t}]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/interface/B"
+					},
+					"response": []
+				},
+				{
+					"name": "Enable mpls on host-veth42",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth42\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth42",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth42 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "List ifcs - cfg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/"
+					},
+					"response": []
+				},
+				{
+					"name": "Get mpls (cfg)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
+					},
+					"response": []
+				}
+			]
+		},
 		{
-			"id": "045b4a83-98da-a106-a82c-066e4ee6538f",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/interface/A",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511854983587,
-			"name": "Configure tap for host A",
+			"name": "vpp1",
 			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"A\",\r\n                \"description\": \"Host A\",\r\n                \"type\": \"v3po:tap\",\r\n                \"tap\" : {\r\n                    \"tap-name\" : \"A\"\r\n                },\r\n                \"ipv4\" : {\r\n                \t\"address\" :  [{\r\n                \t\t\"ip\" : \"10.100.1.1\",\r\n                \t\t\"prefix-length\" : \"24\"\r\n                \t}]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+			"item": [
+				{
+					"name": "Get mpls (cfg)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
+					},
+					"response": []
+				},
+				{
+					"name": "Enable mpls on host-veth12",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth12\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth12",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth12 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "Send traffic to A via 103, 104",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToA\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"ip-prefix\": \"10.100.1.1/24\"\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"paths\": {\n\t\t\t\"path\": [{\n\t\t\t\t\"path-index\": 0,\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"path-index\": 0,\n\t\t\t\t\t\"next-hop\": \"10.13.1.3\",\n\t\t\t\t\t\"outgoing-interface\": \"host-veth13\"\n\t\t\t\t}\n\t\t\t}],\n\t\t\t\"outgoing-labels\": {\n\t\t\t\t\"outgoing-labels\": [{\n\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\t\"label\": 103\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\t\"label\": 104\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}\n\t\t}\n\t}]\n}"
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
+						"description": "Corresponding CLI command:\n\nip route add 10.100.1.1/24 via 10.13.1.3 host-veth13 out-labels 103 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.100.1.1/24"
+					},
+					"response": []
+				},
+				{
+					"name": "Send traffic to A via 103, 10341",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToA\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"ip-prefix\": \"10.100.1.1/24\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"paths\": {\n\t\t\t\"path\": [{\n\t\t\t\t\"path-index\": 0,\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"path-index\": 0,\n\t\t\t\t\t\"next-hop\": \"10.13.1.3\",\n\t\t\t\t\t\"outgoing-interface\": \"host-veth13\"\n\t\t\t\t}\n\t\t\t}],\n\t\t\t\"outgoing-labels\": {\n\t\t\t\t\"outgoing-labels\": [{\n\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\t\"label\": 103\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\t\"label\": 10341\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}\n\t\t}\n\t}]\n}"
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
+						"description": "Node + adjacency SID example.\n\nSteers traffic to A veth341 (the first interface between vpp3 and vpp4)."
+					},
+					"response": []
+				},
+				{
+					"name": "List ifcs - oper",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.2:8445/restconf/operational/ietf-interfaces:interfaces-state/"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete rule for traffic to B",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB"
+					},
+					"response": []
+				},
+				{
+					"name": "Send traffic to A via 103, 10342",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToA\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"ip-prefix\": \"10.100.1.1/24\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"paths\": {\n\t\t\t\"path\": [{\n\t\t\t\t\"path-index\": 0,\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"path-index\": 0,\n\t\t\t\t\t\"next-hop\": \"10.13.1.3\",\n\t\t\t\t\t\"outgoing-interface\": \"host-veth13\"\n\t\t\t\t}\n\t\t\t}],\n\t\t\t\"outgoing-labels\": {\n\t\t\t\t\"outgoing-labels\": [{\n\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\t\"label\": 103\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\t\"label\": 10342\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}\n\t\t}\n\t}]\n}\n"
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
+						"description": "Node + adjacency SID example.\n\nSteers traffic to A veth342 (the second interface between vpp3 and vpp4)."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete rule for traffic to B",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB"
+					},
+					"response": []
+				},
+				{
+					"name": "List ifcs - cfg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/ietf-interfaces:interfaces/"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete rule for traffic to A",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete rule for traffic to A",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA"
+					},
+					"response": []
+				},
+				{
+					"name": "Send traffic to B via 102,104",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToB\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"config\" : {\n\t\t\t\t\t\t\"ip-prefix\": \"10.200.1.1/24\"\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"paths\": {\n\t\t\t\"path\": [{\n\t\t\t\t\"path-index\": 0,\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"path-index\": 0,\n\t\t\t\t\t\"next-hop\": \"10.12.1.2\",\n\t\t\t\t\t\"outgoing-interface\": \"host-veth12\"\n\t\t\t\t}\n\t\t\t}],\n\t\t\t\"outgoing-labels\": {\n\t\t\t\t\"outgoing-labels\": [{\n\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\t\"label\": 102\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\t\"label\": 104\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}\n\t\t}\n\t}]\n}"
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
+						"description": "Corresponding CLI command:\n\nip route add 10.200.1.1/24 via 10.12.1.2 host-veth12 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.200.1.1/24"
+					},
+					"response": []
+				},
+				{
+					"name": "Send traffic to B via 102",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToB\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"ip-prefix\": \"10.200.1.1/24\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"simple-path\": {\n\t\t\t\"config\": {\n\t\t\t\t\"next-hop\": \"10.12.1.2\",\n\t\t\t\t\"outgoing-label\": 102,\n\t\t\t\t\"outgoing-interface\": \"host-veth12\"\n\t\t\t}\n\t\t}\n\t}]\n}"
+						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "0cb9c591-37ea-1f32-403b-a28097796e37",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/operational/ietf-interfaces:interfaces-state/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511784764401,
-			"name": "List ifcs - oper",
+			"name": "vpp2",
 			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "0fb225aa-cb57-8823-6b10-fe11bfa5b722",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp2",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511801165058,
-			"name": "Swap 104 and forward via veth341",
-			"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.34.1.4 host-veth341 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp2\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 104\n        },\n        \"operation\": \"swap-and-forward\",\n        \"next-hop\": \"10.34.1.4\",\n        \"outgoing-label\": 104,\n        \"outgoing-interface\": \"host-veth341\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "119ec4e0-605d-08b4-fec1-cf4a131ad000",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/ietf-interfaces:interfaces/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511787251902,
-			"name": "List ifcs - cfg",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "13c7a902-2a09-dbcb-15e2-44bad8fef7db",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/operational/ietf-interfaces:interfaces-state/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511787294881,
-			"name": "List ifcs - oper",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "1454328e-2d83-bc67-7a8f-271d11fc18cb",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp3",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511879008223,
-			"name": "Pop 102 and IPv4 lookup",
-			"description": "In case 102 is the last label,\npop it and check if we have route for destination.",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp3\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 102\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"ipv4\",\n          \"ip4-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "16657be6-c235-6e55-46aa-bfcd9509c677",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/ietf-interfaces:interfaces/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511561704894,
-			"name": "List ifcs - cfg",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "21677d79-6b69-ec38-6547-9aaace9a2a22",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511781091941,
-			"name": "Get mpls (cfg)",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "21db6249-27ed-7f90-07c3-0596d703916f",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511801154966,
-			"name": "Pop 103 and MPLS lookup",
-			"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 103 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 103",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp1\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 103\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"mpls\",\n          \"mpls-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "2cf9511c-b24b-b79e-d73a-2c22b1ad0399",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth12",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511782604060,
-			"name": "Enable mpls on host-veth12",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth12 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth12\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "2fab46ad-11bd-4d1f-acee-612e03b5c6a2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/interface/B",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511855043182,
-			"name": "Configure tap for host B",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"B\",\r\n                \"description\": \"Host B\",\r\n                \"type\": \"v3po:tap\",\r\n                \"tap\" : {\r\n                    \"tap-name\" : \"B\"\r\n                },\r\n                \"ipv4\" : {\r\n                \t\"address\" :  [{\r\n                \t\t\"ip\" : \"10.200.1.1\",\r\n                \t\t\"prefix-length\" : \"24\"\r\n                \t}]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "336475cb-227c-e04d-5726-c7fcfd87dbaa",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511879106545,
-			"name": "Send traffic to B via 104",
-			"description": "Simulates route that could be received via BGP.",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"trafficToB\",\n      \"config\": {\n        \"in-segment\": {\n          \"ip-prefix\": \"10.200.1.1/24\"\n        },\n        \"operation\": \"impose-and-forward\",\n        \"paths\": [\n          {\n            \"path-index\": 0,\n            \"next-hop\": \"10.24.1.4\",\n            \"outgoing-labels\": [\n              104\n            ],\n            \"outgoing-interface\": \"host-veth24\"\n          }\n        ]\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "33de5e94-c1fd-96bc-e5e0-3bd586c87886",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/learned-protocol-0",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511791932269,
-			"name": "Create config for vrf0",
-			"description": "Hc2vpp by default stores it under learned-protocol-0",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n\t\"routing-protocol\":[\n\t\t{\n\t\t\t\"name\":\"learned-protocol-0\",\n\t\t\t\"enabled\":\"true\",\n\t\t\t\"type\":\"static\",\n\t\t\t\"vpp-protocol-attributes\": {\n\t              \"primary-vrf\": 0\n            }\n\t\t}\t\n\t]\n}"
-		},
-		{
-			"id": "36bd3b64-d122-4f11-69e1-99848539cc47",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth42",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511784773818,
-			"name": "Enable mpls on host-veth42",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth42 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth42\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "45abf6ec-633c-24da-ba25-47e918e6de6c",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth21",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511783000679,
-			"name": "Enable mpls on host-veth21 interface",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth21 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth21\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "51b46690-bab5-dcfc-bb2e-8b61f666adda",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/learned-protocol-0/static-routes/ipv4/route/1",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511796631088,
-			"name": "Add reverse direction for 10.12.1.0/24",
-			"description": "Send reverse traffic using IP.\n\nCorresponding CLI command:\n\nip route add 10.12.1.0/24 via 10.24.1.2 host-veth42",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n\t\"route\": [\n\t\t{\n\t\t\t\"id\": 1,\n\t\t\t\"destination-prefix\": \"10.12.1.0/24\",\n\t\t\t\"next-hop\": \"10.24.1.2\",\n\t\t\t\"outgoing-interface\": \"host-veth42\"\n\t\t\t\n\t\t}]\n}"
-		},
-		{
-			"id": "51d3fcb9-bbf8-0a54-8d1a-c50372554a45",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511784778628,
-			"name": "Get mpls (cfg)",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "563861ed-4363-071e-9bd5-eaff5eb8c98b",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/operational/ietf-interfaces:interfaces-state/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511781058381,
-			"name": "List ifcs - oper",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "5e1eb658-1b3d-7033-3f76-3077d62550b4",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp4",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511801190473,
-			"name": "Swap 10341 and forward via veth341",
-			"description": "Corresponding CLI command:\n\nmpls local-label add eos 10341 via 10.34.1.4 host-veth341 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 10341",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp4\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 10341\n        },\n        \"operation\": \"swap-and-forward\",\n        \"next-hop\": \"10.34.1.4\",\n        \"outgoing-label\": 104,\n        \"outgoing-interface\": \"host-veth341\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "5f3d1085-288d-b0cd-d0fc-4c9d5e56bb97",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511857030755,
-			"name": "Send traffic to A via 103, 104",
-			"description": "Corresponding CLI command:\n\nip route add 10.100.1.1/24 via 10.13.1.3 host-veth13 out-labels 103 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.100.1.1/24",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"trafficToA\",\n      \"config\": {\n        \"in-segment\": {\n          \"ip-prefix\": \"10.100.1.1/24\"\n        },\n        \"operation\": \"impose-and-forward\",\n        \"paths\": [\n          {\n            \"path-index\": 0,\n            \"next-hop\": \"10.13.1.3\",\n            \"outgoing-labels\": [\n              103,\n              104\n            ],\n            \"outgoing-interface\": \"host-veth13\"\n          }\n        ]\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "608eb5d9-ec75-80f8-5f68-ad8393fbaa06",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp5",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511802701919,
-			"name": "Swap 10342 and forward via veth342",
-			"description": "Corresponding CLI command:\n\nmpls local-label add eos 10342 via 10.34.2.4 host-veth342 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 10342",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp5\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 10342\n        },\n        \"operation\": \"swap-and-forward\",\n        \"next-hop\": \"10.34.2.4\",\n        \"outgoing-label\": 104,\n        \"outgoing-interface\": \"host-veth342\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "6180b672-0422-1c86-6982-213d297f644e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511879726989,
-			"name": "Send traffic to B via 102",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"trafficToB\",\n      \"config\": {\n        \"in-segment\": {\n          \"ip-prefix\": \"10.200.1.1/24\"\n        },\n        \"operation\": \"impose-and-forward\",\n        \"next-hop\": \"10.12.1.2\",\n        \"outgoing-label\" : 102,\n        \"outgoing-interface\": \"host-veth12\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "747b2251-395e-610b-7645-9a41b0b64488",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp2",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511804026118,
-			"name": "Swap 104 and forward",
-			"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.24.1.4 host-veth24 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp2\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 104\n        },\n        \"operation\": \"swap-and-forward\",\n        \"next-hop\": \"10.24.1.4\",\n        \"outgoing-label\": 104,\n        \"outgoing-interface\": \"host-veth24\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "786bf7e9-315d-4367-6bab-044f197182f4",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511878077664,
-			"name": "Delete rule for traffic to A",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "7c820a89-b5b6-de2d-a24e-272e8652132e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511856670841,
-			"name": "Delete rule for traffic to B",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"isFromCollection": true,
-			"collectionRequestId": "8822aefb-a139-52a4-b013-d27e34038e3b",
-			"folder": "43395a46-591f-06e1-c6f7-2d3be218f4b7",
-			"rawModeData": ""
-		},
-		{
-			"id": "7db6d85d-ece1-aac3-d22f-d0d1a235cafc",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511804019361,
-			"name": "Pop 102 and MPLS lookup",
-			"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 102 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 102",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp1\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 102\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"mpls\",\n          \"mpls-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "8207832c-31f7-3a6c-635d-84acb0dc5aec",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/config/ietf-interfaces:interfaces/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511782986509,
-			"name": "List ifcs - cfg",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "8822aefb-a139-52a4-b013-d27e34038e3b",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511856670841,
-			"name": "Delete rule for traffic to B",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "9d7d5222-0fdb-5779-1afd-34d2991d7de7",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth431",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511790495962,
-			"name": "Enable mpls on veth431",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth431 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth431\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "aeb31fa2-4e55-2d4f-eb86-09ee2cf61d18",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511862434935,
-			"name": "Send traffic to A via 103, 10341",
-			"description": "Node + adjacency SID example.\n\nSteers traffic to A veth341 (the first interface between vpp3 and vpp4).",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"trafficToA\",\n      \"config\": {\n        \"in-segment\": {\n          \"ip-prefix\": \"10.100.1.1/24\"\n        },\n        \"operation\": \"impose-and-forward\",\n        \"paths\": [\n          {\n            \"path-index\": 0,\n            \"next-hop\": \"10.13.1.3\",\n            \"outgoing-labels\": [\n              103,\n              10341\n            ],\n            \"outgoing-interface\": \"host-veth13\"\n          }\n        ]\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "b884638e-79a4-525b-45aa-82833fdd1dfb",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511878069136,
-			"name": "Delete rule for traffic to A",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "b9f4ce2e-514f-5bbc-adf1-8a21e9930f0c",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/operational/ietf-interfaces:interfaces-state/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511782992979,
-			"name": "List ifcs - oper",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "c013c45c-91d1-1a3b-f79d-70b3b64b9e80",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511856993179,
-			"name": "Send traffic to B via 102,104",
-			"description": "Corresponding CLI command:\n\nip route add 10.200.1.1/24 via 10.12.1.2 host-veth12 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.200.1.1/24",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"trafficToB\",\n      \"config\": {\n        \"in-segment\": {\n          \"ip-prefix\": \"10.200.1.1/24\"\n        },\n        \"operation\": \"impose-and-forward\",\n        \"paths\": [\n          {\n            \"path-index\": 0,\n            \"next-hop\": \"10.12.1.2\",\n            \"outgoing-labels\": [\n              102,\n              104\n            ],\n            \"outgoing-interface\": \"host-veth12\"\n          }\n        ]\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "c3f46171-f7c7-f959-ef2d-2c0c7a2b42c9",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth341",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511787493647,
-			"name": "Enable mpls on host-veth341",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth341 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth341\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "c6f22ad3-fb95-f8d5-59ae-46bb1187161d",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511862579692,
-			"name": "Send traffic to A via 103, 10342",
-			"description": "Node + adjacency SID example.\n\nSteers traffic to A veth342 (the second interface between vpp3 and vpp4).",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"trafficToA\",\n      \"config\": {\n        \"in-segment\": {\n          \"ip-prefix\": \"10.100.1.1/24\"\n        },\n        \"operation\": \"impose-and-forward\",\n        \"paths\": [\n          {\n            \"path-index\": 0,\n            \"next-hop\": \"10.13.1.3\",\n            \"outgoing-labels\": [\n              103,\n              10342\n            ],\n            \"outgoing-interface\": \"host-veth13\"\n          }\n        ]\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "c81edfa7-eed8-7034-2b2f-b51d1790769b",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth24",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511783009910,
-			"name": "Enable mpls on host-veth24 interface",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth24 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth24\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "c8669e95-8c4f-4ab7-2c4a-676349929ecc",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511783016510,
-			"name": "Get mpls (cfg)",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "c8e47113-0a93-33c7-d2e3-872a831aa0aa",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/learned-protocol-0/static-routes/ipv4/route/2",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511797454889,
-			"name": "Add reverse direction for 10.13.1.0/24",
-			"description": "Send reverse traffic using IP.\n\nCorresponding CLI command:\n\nip route add 10.13.1.0/24 via 10.34.2.3 host-veth432",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n\t\"route\": [\n\t\t{\n\t\t\t\"id\": 2,\n\t\t\t\"destination-prefix\": \"10.13.1.0/24\",\n\t\t\t\"next-hop\": \"10.34.2.3\",\n\t\t\t\"outgoing-interface\": \"host-veth432\"\n\t\t\t\n\t\t}]\n}"
-		},
-		{
-			"id": "cc6688cb-9b65-e4d0-4985-d4d9dec14ca6",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511787309539,
-			"name": "Get mpls (cfg)",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "cca562e5-6677-83b3-c694-e2852ae34582",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth342",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511787556015,
-			"name": "Enable mpls on host-veth342",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth342 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth342\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "d1f8d9e4-9546-1aae-2b86-b88a5baa53e4",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511784757365,
-			"name": "List ifcs - cfg",
-			"description": "",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "d968a2a2-8c53-528e-31a7-4d34e85c3fd9",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp3",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511801173478,
-			"name": "Swap 104 and forward via veth342",
-			"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.34.2.4 host-veth342 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp3\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 104\n        },\n        \"operation\": \"swap-and-forward\",\n        \"next-hop\": \"10.34.2.4\",\n        \"outgoing-label\": 104,\n        \"outgoing-interface\": \"host-veth342\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "d98ec90f-b870-6ab7-ce74-46b78e4c4615",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth432",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511790503226,
-			"name": "Enable mpls on veth432",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth432 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth432\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "dcbbd269-63b7-910c-a710-4ad8fd0573ee",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth31",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511787499174,
-			"name": "Enable mpls on host-veth31",
-			"description": "Correspondig CLI command:\n\nset interface mpls host-veth31 enable",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth31\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
-		},
-		{
-			"id": "fc075349-ef0d-a0cc-dd7e-1de162c42c64",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1511804229802,
-			"name": "Pop 104 and IPv4 lookup",
-			"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 ip4-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104",
-			"collectionId": "775eb149-1920-2405-14f1-0a578e6dfa17",
-			"responses": [],
-			"rawModeData": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp1\",\n      \"config\": {\n        \"in-segment\": {\n          \"incoming-label\": 104\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"ipv4\",\n          \"ip4-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
+			"item": [
+				{
+					"name": "Enable mpls on host-veth24 interface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth24\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth24",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth24 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "List ifcs - oper",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.3:8445/restconf/operational/ietf-interfaces:interfaces-state/"
+					},
+					"response": []
+				},
+				{
+					"name": "Enable mpls on host-veth21 interface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth21\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth21",
+						"description": "Correspondig CLI command:\n\nset interface mpls host-veth21 enable"
+					},
+					"response": []
+				},
+				{
+					"name": "List ifcs - cfg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": "https://172.17.0.3:8445/restconf/config/ietf-interfaces:interfaces/"
+					},
+					"response": []
+				},
+				{
+					"name": "Get mpls (cfg)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
+					},
+					"response": []
+				},
+				{
+					"name": "Send traffic to B via 104",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"trafficToB\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n          \"ip-prefix\": \"10.200.1.1/24\"\n        \t}\n        },\n        \"operation\": \"impose-and-forward\"\n      },\n      \"simple-path\": {\n\t\t\"config\": {\n\t\t\t\"next-hop\": \"10.24.1.4\",\n\t\t\t\"outgoing-label\": 104,\n\t\t\t\"outgoing-interface\": \"host-veth24\"\n\t\t}\n\t  }\n    }\n  ]\n}"
+						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
+						"description": "Simulates route that could be received via BGP."
+					},
+					"response": []
+				},
+				{
+					"name": "Pop 102 and MPLS lookup",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"lsp1\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"incoming-label\": 102\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"pop-and-lookup\",\n\t\t\t\"vpp-mpls:label-lookup\": {\n\t\t\t\t\"type\": \"mpls\",\n\t\t\t\t\"mpls-lookup-in-table\": 0\n\t\t\t}\n\t\t}\n\t}]\n}"
+						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
+						"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 102 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 102"
+					},
+					"response": []
+				},
+				{
+					"name": "Pop 102 and IPv4 lookup",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"lsp3\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"incoming-label\": 102\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"pop-and-lookup\",\n\t\t\t\"vpp-mpls:label-lookup\": {\n\t\t\t\t\"type\": \"ipv4\",\n\t\t\t\t\"ip4-lookup-in-table\": 0\n\t\t\t}\n\t\t}\n\t}]\n}"
+						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp3",
+						"description": "In case 102 is the last label,\npop it and check if we have route for destination."
+					},
+					"response": []
+				},
+				{
+					"name": "Swap 104 and forward",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"lsp2\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"incoming-label\": 104\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"swap-and-forward\"\n\t\t},\n\t\t\"simple-path\": {\n\t\t\t\"config\": {\n\t\t\t\t\"next-hop\": \"10.24.1.4\",\n\t\t\t\t\"outgoing-label\": 104,\n\t\t\t\t\"outgoing-interface\": \"host-veth24\"\n\t\t\t}\n\t\t}\n\t}]\n}"
+						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp2",
+						"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.24.1.4 host-veth24 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

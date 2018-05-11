@@ -29,16 +29,16 @@ import io.fd.vpp.jvpp.core.types.FibMplsLabel;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.StaticLspConfig;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp.Config;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.OutSegment;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310._static.lsp_config.out.segment.SimplePath;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170310.routing.mpls._static.lsps.StaticLsp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.MplsOperationsType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.OutSegment;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.SimplePath;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.top.Config;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.routing.mpls._static.lsps.StaticLsp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.MplsLabel;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
- * Translates {@link StaticLspConfig.Operation#SwapAndForward} operation to mpls_route_add_del API.
+ * Translates {@link MplsOperationsType#SwapAndForward} operation to mpls_route_add_del API.
  *
  * @see <a href="https://git.fd.io/vpp/tree/src/vnet/mpls/mpls.api">mpls_route_add_del</a> definition
  */
@@ -61,7 +61,7 @@ final class MplsSwapWriter implements LspWriter, Ipv4Translator, MplsInSegmentTr
         request.mrEos = 1; // only SWAP for the last label in the stack is currently supported
 
         translate(config.getInSegment(), request);
-        translate(config.getOutSegment(), request, ctx);
+        translate(data.getOutSegment(), request, ctx);
 
         // default values based on inspecting VPP's CLI and make test code
         request.mrClassifyTableIndex = -1;
@@ -75,7 +75,7 @@ final class MplsSwapWriter implements LspWriter, Ipv4Translator, MplsInSegmentTr
                            @Nonnull final MappingContext ctx) {
         checkArgument(outSegment instanceof SimplePath, "Unsupported out-segment type: %s", outSegment);
         final SimplePath path = (SimplePath) outSegment;
-        final IpAddress nextHop = path.getNextHop();
+        final IpAddress nextHop = path.getSimplePath().getConfig().getNextHop();
         checkArgument(nextHop != null, "Configuring swap-and-forward, but next-hop is missing.");
 
         // TODO(HC2VPP-264): add support for mpls + v6
@@ -83,12 +83,12 @@ final class MplsSwapWriter implements LspWriter, Ipv4Translator, MplsInSegmentTr
         checkArgument(address != null, "Only IPv4 next-hop address is supported.");
         request.mrNextHop = ipv4AddressNoZoneToArray(address.getValue());
 
-        final MplsLabel outgoingLabel = path.getOutgoingLabel();
+        final MplsLabel outgoingLabel = path.getSimplePath().getConfig().getOutgoingLabel();
         checkArgument(outgoingLabel != null, "Configuring swap-and-forward, but outgoing-label is missing.");
         request.mrNextHopOutLabelStack = new FibMplsLabel[] {translate(outgoingLabel.getValue())};
         request.mrNextHopNOutLabels = 1;
 
-        final String outgoingInterface = path.getOutgoingInterface();
+        final String outgoingInterface = path.getSimplePath().getConfig().getOutgoingInterface();
         checkArgument(outgoingInterface != null, "Configuring swap-and-forward, but outgoing-interface is missing.");
         request.mrNextHopSwIfIndex = interfaceContext.getIndex(outgoingInterface, ctx);
     }
