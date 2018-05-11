@@ -124,12 +124,12 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
         if (detail.addrOnly == 0) {
             builder.setExternalSrcPort(new ExternalSrcPortBuilder()
                     .setPortType(new SinglePortNumberBuilder().setSinglePortNumber(new PortNumber(
-                            (int) detail.externalPort))
+                            Short.toUnsignedInt(detail.externalPort)))
                             .build())
                     .build());
             builder.setInternalSrcPort(new InternalSrcPortBuilder()
                     .setPortType(new SinglePortNumberBuilder().setSinglePortNumber(new PortNumber(
-                            (int) detail.localPort))
+                            Short.toUnsignedInt(detail.localPort)))
                             .build())
                     .build());
         }
@@ -151,12 +151,12 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
 
         builder.setExternalSrcPort(new ExternalSrcPortBuilder()
                 .setPortType(new SinglePortNumberBuilder().setSinglePortNumber(new PortNumber(
-                        (int) detail.oPort))
+                        Short.toUnsignedInt(detail.oPort)))
                         .build())
                 .build());
         builder.setInternalSrcPort(new InternalSrcPortBuilder()
                 .setPortType(new SinglePortNumberBuilder().setSinglePortNumber(new PortNumber(
-                        (int) detail.iPort))
+                        Short.toUnsignedInt(detail.iPort)))
                         .build())
                 .build());
     }
