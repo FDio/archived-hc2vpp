@@ -21,9 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.routing.services.FibTableService;
 import io.fd.honeycomb.translate.ModificationCache;
-import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpTableAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -33,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 public class FibTableRequest implements AddressTranslator, JvppReplyConsumer {
 
-    private final FibTableService fibTableService;
     private final ModificationCache modificationCache;
     private static final Logger LOG = LoggerFactory.getLogger(FibTableRequest.class);
 
@@ -53,31 +50,14 @@ public class FibTableRequest implements AddressTranslator, JvppReplyConsumer {
      */
     private boolean isIpv6;
 
-    public FibTableRequest(FutureJVppCore api, FibTableService fibTableService, ModificationCache modificationCache) {
+    public FibTableRequest(FutureJVppCore api, ModificationCache modificationCache) {
         this.api = api;
-        this.fibTableService = fibTableService;
         this.modificationCache = modificationCache;
     }
 
     public void checkValid() {
         checkNotNull(getFibName(), "Fib table name not set");
         checkArgument(!getFibName().isEmpty(), "Fib table name must not be empty");
-    }
-
-    public void delete(InstanceIdentifier<?> identifier) throws WriteFailedException {
-        try {
-            fibTableService.checkTableExist(getFibTable(), modificationCache);
-            IpTableAddDel tableAddDel = new IpTableAddDel();
-            tableAddDel.tableId = getFibTable();
-            tableAddDel.isIpv6 = (booleanToByte(isIpv6()));
-            tableAddDel.isAdd = (booleanToByte(false));
-            tableAddDel.name = getFibName().getBytes();
-            getReplyForWrite(api.ipTableAddDel(tableAddDel).toCompletableFuture(), identifier);
-        } catch (ReadFailedException e) {
-            throw new IllegalArgumentException(e);
-        } catch (FibTableService.FibTableDoesNotExistException e){
-            LOG.debug("Request to delete non existing Fib table");
-        }
     }
 
     public void write(InstanceIdentifier<?> identifier) throws WriteFailedException {
@@ -88,7 +68,7 @@ public class FibTableRequest implements AddressTranslator, JvppReplyConsumer {
             tableAddDel.isAdd = (booleanToByte(true));
             tableAddDel.name = getFibName().getBytes();
             getReplyForWrite(api.ipTableAddDel(tableAddDel).toCompletableFuture(), identifier);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             LOG.error("Error writing fib table. fibTable: {}, api: {}, cache: {}, id: {}", tableAddDel, api,
                       modificationCache, identifier);
             throw new WriteFailedException(identifier, ex);

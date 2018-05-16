@@ -67,8 +67,8 @@ public class FibTableServiceImpl extends FutureJVppCustomizer implements FibTabl
     @Override
     public void write(InstanceIdentifier<?> identifier, @Nonnegative int tableId, @Nonnull String tableName,
                       boolean isIpv6) throws WriteFailedException {
-        //register fib table in VPP
-        FibTableRequest fibTableRequest = new FibTableRequest(getFutureJVpp(), this, modificationCache);
+        // Register fib table in VPP
+        FibTableRequest fibTableRequest = new FibTableRequest(getFutureJVpp(), modificationCache);
         fibTableRequest.setFibName(tableName);
         fibTableRequest.setIpv6(isIpv6);
         fibTableRequest.setFibTable(tableId);
