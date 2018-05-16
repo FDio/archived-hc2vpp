@@ -76,8 +76,8 @@ final class ControlPlaneProtocolCustomizer
                             instanceIdentifier);
                     throw new WriteFailedException(instanceIdentifier, e);
                 } catch (FibTableService.FibTableDoesNotExistException e) {
-                    LOG.trace("VRF Fib table does not exist. creating new entry for Fib table.");
-                    //Write IPv4 and IPv6 Fib table for this VRF
+                    LOG.trace("VRF Fib table does not exist. creating new entry for Fib table.", e);
+                    // Write IPv4 and IPv6 Fib table for this VRF
                     fibTableService.write(instanceIdentifier, tableId, "Vrf-IPv4-" + tableId, false);
                     fibTableService.write(instanceIdentifier, tableId, "Vrf-IPv6-" + tableId, true);
                 }
