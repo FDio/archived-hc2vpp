@@ -57,8 +57,6 @@ final class Nat64PrefixesCustomizer
         final int natInstanceId = id.firstKeyOf(Instance.class).getId().intValue();
         LOG.debug("Configuring nat64 prefix: {} for nat-instance(vrf): {}", dataAfter, natInstanceId);
 
-        // TODO(HC2VPP-320): ensure at most one prefix is configured per NAT instance
-
         // VPP does not support configuring different nat64-prefixes depending on ipv4 destination prefix:
         final List<DestinationIpv4Prefix> destinationIpv4PrefixList = dataAfter.getDestinationIpv4Prefix();
         checkArgument(destinationIpv4PrefixList == null || destinationIpv4PrefixList.isEmpty(),
