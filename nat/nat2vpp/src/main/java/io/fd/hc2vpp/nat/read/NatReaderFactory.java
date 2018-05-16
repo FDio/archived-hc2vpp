@@ -86,8 +86,7 @@ public class NatReaderFactory implements ReaderFactory {
                 new GenericInitListReader<>(MAPPING_ENTRY_ID,
                         new MappingEntryCustomizer(mapEntryNat44DumpMgr, mapEntryNat64DumpMgr, mappingEntryContext)));
 
-        // Ony single policy is supported
-        registry.addStructuralListReader(POLICY_ID, PolicyBuilder.class, Collections.singletonList(new PolicyKey(0L)));
+        registry.add(new GenericInitListReader<>(POLICY_ID, new PolicyCustomizer()));
         registry.add(new GenericInitListReader<>(ADDRESS_POOL_ID, new ExternalIpPoolCustomizer(jvppNat)));
 
         // nat64-prefixes
