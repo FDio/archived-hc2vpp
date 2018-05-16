@@ -111,7 +111,7 @@
 		{
 			"id": "21c3c008-6053-8984-6f0b-a99093923f26",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
@@ -154,7 +154,7 @@
 		{
 			"id": "376fb011-96eb-fc09-4f87-0a16a9532ea9",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/external-ip-address-pool/3/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/3/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -195,7 +195,7 @@
 		{
 			"id": "cff7d30d-f0d3-3750-76fb-94500340bc9e",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/nat64-prefixes/0",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/nat64-prefixes/2001%3Adb8%3A122%3A300%3A%3A%2F56",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -210,7 +210,7 @@
 			"description": "Configures NAT64 prefix for default VRF\n\nCLI: nat64 add prefix <ip6-prefix>/<plen> [tenant-vrf <vrf-id>] [del]\n\nCan be verified with\n\nCLI: show nat64 prefix\n\nMore information: https://wiki.fd.io/view/VPP/SNAT",
 			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
 			"responses": [],
-			"rawModeData": "{\r\n\t\"nat64-prefixes\" : {\r\n\t\t\"nat64-prefix-id\" : 0,\r\n\t\t\"nat64-prefix\" : \"2001:db8:122:300::/56\"\r\n\t}\r\n}"
+			"rawModeData": "{\r\n\t\"nat64-prefixes\" : {\r\n\t\t\"nat64-prefix\" : \"2001:db8:122:300::/56\"\r\n\t}\r\n}"
 		},
 		{
 			"id": "4a9a9b25-ea4e-7d4f-1fd0-b4d7d7f60ad3",
@@ -235,7 +235,7 @@
 		{
 			"id": "4f7bf0d9-f468-0041-e7e3-44386b74bb7e",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/mapping-table/mapping-entry/1/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "DELETE",
@@ -275,7 +275,7 @@
 		{
 			"id": "58d78b6d-673f-ae1e-767f-fb970609b34a",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/external-ip-address-pool/1/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/1/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "DELETE",
@@ -356,7 +356,7 @@
 		{
 			"id": "7b92417d-e638-9e8c-23c7-a4aab3220a4f",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/external-ip-address-pool/2/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/2/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -399,7 +399,7 @@
 		{
 			"id": "84c2abaa-67f5-305e-e536-4bddcb8230cc",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/external-ip-address-pool/1/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/3/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "DELETE",
@@ -419,7 +419,7 @@
 		{
 			"id": "8cc85522-d230-fa19-dc00-e9ad4ef52b8e",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/mapping-table/mapping-entry/1/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -462,7 +462,7 @@
 		{
 			"id": "9795bd6e-a1ec-dbaa-822c-328e3604e94e",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/external-ip-address-pool/1/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/1/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -483,7 +483,7 @@
 		{
 			"id": "a21bb084-d606-4a90-bd2d-60b866771f90",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/mapping-table/mapping-entry/1/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
 			"pathVariables": {},
 			"preRequestScript": "",
 			"method": "DELETE",
@@ -505,7 +505,7 @@
 		{
 			"id": "afdc45a9-cf39-379b-5bb2-4a909512aee3",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/external-ip-address-pool/2/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/2/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "DELETE",
@@ -567,7 +567,7 @@
 		{
 			"id": "2992acee-87da-3d9f-8bec-f00721d0c7e0",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/nat64-prefixes/0",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/nat64-prefixes/2001%3Adb8%3A122%3A300%3A%3A%2F56",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "DELETE",
@@ -645,7 +645,7 @@
 		{
 			"id": "c256b9c8-c530-acc2-f197-fd59e0d6843f",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat-config/nat-instances/nat-instance/0/mapping-table/mapping-entry/1/",
+			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -660,7 +660,7 @@
 			"description": "CLI: nat64 add static bib 2001:db8:85a3::8a2e:370:7334 1234 10.1.1.3 5678 tcp\n\nMore information: https://wiki.fd.io/view/VPP/NAT#Stateful_NAT64",
 			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
 			"responses": [],
-			"rawModeData": "{\n  \"mapping-entry\": {\n    \"index\": 1,\n    \"type\": \"static\",\n    \"transport-protocol\": 6,\n    \"internal-src-address\": \"2001:db8:85a3::8a2e:370:7334\",\n    \"external-src-address\": \"10.1.1.3\",\n    \"internal-src-port\": {\n      \"single-port-number\": 1234\n    },\n    \"external-src-port\": {\n      \"single-port-number\": 5678\n    }\n  }\n}"
+			"rawModeData": "{\n  \"mapping-entry\": {\n    \"index\": 1,\n    \"type\": \"static\",\n    \"transport-protocol\": 6,\n    \"internal-src-address\": \"2001:db8:85a3::8a2e:370:7334\",\n    \"external-src-address\": \"10.1.1.3\",\n    \"internal-src-port\": {\n      \"start-port-number\": 1234\n    },\n    \"external-src-port\": {\n      \"start-port-number\": 5678\n    }\n  }\n}"
 		},
 		{
 			"id": "c47386c4-520b-78a5-9c52-a0f36e8aa6d0",
@@ -703,7 +703,7 @@
 		{
 			"id": "c4a57265-e848-274d-35d1-6b12f1f39e62",
 			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/ietf-nat:nat-state",
+			"url": "http://localhost:8183/restconf/operational/ietf-nat:nat",
 			"pathVariables": {},
 			"preRequestScript": "",
 			"method": "GET",
@@ -711,7 +711,7 @@
 			"data": [],
 			"dataMode": "raw",
 			"name": "Get NAT state",
-			"description": "Read nat-state\n\nCLI: show nat44 [detail|verbose]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
+			"description": "Read NAT state\n\nCLI: show nat44 [detail|verbose]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
 			"descriptionFormat": "html",
 			"time": 1475677867416,
 			"version": 2,
