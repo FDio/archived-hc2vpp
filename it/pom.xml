@@ -33,6 +33,7 @@
 
     <modules>
         <module>api-test</module>
+        <module>jvpp-benchmark</module>
     </modules>
 
     <profiles>
