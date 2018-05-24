@@ -19,17 +19,17 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.18.01.2-SNAPSHOT</version>
+        <version>1.18.01.2</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>vpp-common-integration</artifactId>
-    <version>1.18.01.2-SNAPSHOT</version>
+    <version>1.18.01.2</version>
 
     <properties>
-        <honeycomb.min.distro.version>1.18.01.2-SNAPSHOT</honeycomb.min.distro.version>
+        <honeycomb.min.distro.version>1.18.01.2</honeycomb.min.distro.version>
         <jvpp.version>18.01.2</jvpp.version>
         <hamcrest.version>1.3</hamcrest.version>
     </properties>
