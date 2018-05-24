@@ -89,7 +89,7 @@
     <dependency>
         <groupId>io.fd.vpp</groupId>
         <artifactId>jvpp-registry</artifactId>
-        <version>18.01.1</version>
+        <version>18.01.2</version>
     </dependency>
     <dependency>
         <groupId>io.fd.nsh_sfc</groupId>
