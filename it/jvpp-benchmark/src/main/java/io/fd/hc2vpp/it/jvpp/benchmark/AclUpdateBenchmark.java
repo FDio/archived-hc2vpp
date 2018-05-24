@@ -16,8 +16,6 @@
 
 package io.fd.hc2vpp.it.jvpp.benchmark;
 
-import static org.openjdk.jmh.annotations.Mode.Throughput;
-
 import com.google.common.io.CharStreams;
 import io.fd.vpp.jvpp.JVppRegistryImpl;
 import io.fd.vpp.jvpp.acl.JVppAclImpl;
