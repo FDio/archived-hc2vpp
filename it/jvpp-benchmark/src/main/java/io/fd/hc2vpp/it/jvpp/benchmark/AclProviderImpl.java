@@ -27,6 +27,7 @@ class AclProviderImpl implements AclProvider {
 
     private final int aclSetSize;
     private final AclAddReplace[] acls;
+    private final IpProvider ipProvider = new IpProvider();
 
     /**
      * Pointer to ACL to be returned by invocation of {@link #next()} method.
@@ -54,29 +55,28 @@ class AclProviderImpl implements AclProvider {
     }
 
     private void initAcls(final int aclSetSize, final int aclSize) {
-        long ip = 0x01000000; // 1.0.0.0
         for (int i = 0; i < aclSetSize; ++i) {
-            acls[i] = createAddReplaceRequest(aclSize, CREATE_NEW_ACL, (int) (ip++));
+            acls[i] = createAddReplaceRequest(aclSize, CREATE_NEW_ACL);
         }
     }
 
-    private static AclAddReplace createAddReplaceRequest(final int size, final int index, final int ip) {
+    private AclAddReplace createAddReplaceRequest(final int size, final int index) {
         AclAddReplace request = new AclAddReplace();
         request.aclIndex = index;
         request.count = size;
-        request.r = createRules(size, ip);
+        request.r = createRules(size);
         return request;
     }
 
-    private static AclRule[] createRules(final int size, final int ip) {
+    private AclRule[] createRules(final int size) {
         final AclRule[] rules = new AclRule[size];
         for (int i = 0; i < size; ++i) {
             rules[i] = new AclRule();
             rules[i].isIpv6 = 0;
             rules[i].isPermit = 1;
-            rules[i].srcIpAddr = getIp(ip);
+            rules[i].srcIpAddr = ipProvider.next();
             rules[i].srcIpPrefixLen = 32;
-            rules[i].dstIpAddr = getIp(ip);
+            rules[i].dstIpAddr = ipProvider.next();
             rules[i].dstIpPrefixLen = 32;
             rules[i].dstportOrIcmpcodeFirst = 0;
             rules[i].dstportOrIcmpcodeLast = MAX_PORT_NUMBER;
@@ -87,11 +87,19 @@ class AclProviderImpl implements AclProvider {
         return rules;
     }
 
-    private static byte[] getIp(final int i) {
-        int b1 = (i >> 24) & 0xff;
-        int b2 = (i >> 16) & 0xff;
-        int b3 = (i >> 8) & 0xff;
-        int b4 = i & 0xff;
-        return new byte[] {(byte) b1, (byte) b2, (byte) b3, (byte) b4};
+    private static final class IpProvider {
+        private long ip = 0x01000000; // 1.0.0.0
+
+        private static byte[] getIp(final int i) {
+            int b1 = (i >> 24) & 0xff;
+            int b2 = (i >> 16) & 0xff;
+            int b3 = (i >> 8) & 0xff;
+            int b4 = i & 0xff;
+            return new byte[] {(byte) b1, (byte) b2, (byte) b3, (byte) b4};
+        }
+
+        private byte[] next() {
+            return getIp((int) (ip++));
+        }
     }
 }
