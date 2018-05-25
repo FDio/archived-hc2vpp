@@ -26,6 +26,7 @@ import io.fd.hc2vpp.l3.write.ipv4.ProxyRangeCustomizer;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
+import io.fd.vpp.jvpp.core.types.ProxyArp;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -88,9 +89,10 @@ public class ProxyRangeCustomizerTest extends WriterCustomizerTest implements By
     private ProxyArpAddDel expectedAddDelRequest(final boolean isAdd) {
         final ProxyArpAddDel request = new ProxyArpAddDel();
         request.isAdd = booleanToByte(isAdd);
-        request.vrfId = 123;
-        request.lowAddress = new byte[] {10, 1, 1, 1};
-        request.hiAddress = new byte[] {10, 1, 1, 2};
+        request.proxy = new ProxyArp();
+        request.proxy.vrfId = 123;
+        request.proxy.lowAddress = new byte[] {10, 1, 1, 1};
+        request.proxy.hiAddress = new byte[] {10, 1, 1, 2};
         return request;
     }
 }

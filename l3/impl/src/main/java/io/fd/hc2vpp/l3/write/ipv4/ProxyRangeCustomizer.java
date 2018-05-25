@@ -25,6 +25,7 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.ProxyArp;
 import java.net.InetAddress;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
@@ -88,9 +89,10 @@ public class ProxyRangeCustomizer extends FutureJVppCustomizer
                                                          final int vrfId) {
         final ProxyArpAddDel proxyArpAddDel = new ProxyArpAddDel();
         proxyArpAddDel.isAdd = isAdd;
-        proxyArpAddDel.lowAddress = lAddr;
-        proxyArpAddDel.hiAddress = hAddr;
-        proxyArpAddDel.vrfId = vrfId;
+        proxyArpAddDel.proxy = new ProxyArp();
+        proxyArpAddDel.proxy.lowAddress = lAddr;
+        proxyArpAddDel.proxy.hiAddress = hAddr;
+        proxyArpAddDel.proxy.vrfId = vrfId;
         return proxyArpAddDel;
     }
 }
