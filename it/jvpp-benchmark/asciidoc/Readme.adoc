@@ -5,7 +5,7 @@ Provides JMH based benchmarks JVpp (Java API for VPP).
 == AclUpdateBenchmark
 
 Creates ACL of size aclSize using acl_add_replace,
-then assigns it to local0 using acl_interface_set_acl_list.
+then assigns it to loopback interface using acl_interface_set_acl_list.
 
 Then ACL is updated synchronously using acl_add_replace.
 By default 20x2s warmup and 100x2s measurment iterations
@@ -40,6 +40,12 @@ To specify aclSetSize (default=100), use:
 [source,shell]
 ---
 sudo java -jar ./target/jvpp-benchmark-exec.jar -p aclSetSize=1000
+---
+
+To test interface in bridged (L2) / routed (L3) mode (default=L3), use:
+[source,shell]
+---
+sudo java -jar ./target/jvpp-benchmark-exec.jar -p mode=L2
 ---
 
 To see more options, use

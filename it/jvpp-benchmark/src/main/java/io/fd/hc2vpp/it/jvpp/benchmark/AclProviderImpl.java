@@ -88,7 +88,7 @@ class AclProviderImpl implements AclProvider {
     }
 
     private static final class IpProvider {
-        private long ip = 0x01000000; // 1.0.0.0
+        private long ip = 0x01000001; // 1.0.0.1
 
         private static byte[] getIp(final int i) {
             int b1 = (i >> 24) & 0xff;
