@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.it.jvpp.benchmark;
+package io.fd.hc2vpp.it.jvpp.benchmark.acl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

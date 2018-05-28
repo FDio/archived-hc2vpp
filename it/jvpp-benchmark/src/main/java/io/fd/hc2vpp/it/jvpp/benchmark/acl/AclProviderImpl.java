@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.it.jvpp.benchmark;
+package io.fd.hc2vpp.it.jvpp.benchmark.acl;
 
 import io.fd.vpp.jvpp.acl.dto.AclAddReplace;
 import io.fd.vpp.jvpp.acl.types.AclRule;

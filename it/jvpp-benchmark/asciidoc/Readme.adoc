@@ -2,21 +2,6 @@
 
 Provides JMH based benchmarks JVpp (Java API for VPP).
 
-== AclUpdateBenchmark
-
-Creates ACL of size aclSize using acl_add_replace,
-then assigns it to loopback interface using acl_interface_set_acl_list.
-
-Then ACL is updated synchronously using acl_add_replace.
-By default 20x2s warmup and 100x2s measurment iterations
-are performed.
-
-VPP is restarted after each iteration.
-
-Each invocation of acl_add_replace uses ACL from precomputed
-set of ACLs of size aclSetSize.
-ACLs from the set are used in round-robin fashion.
-
 Compile:
 [source,shell]
 ---
@@ -24,32 +9,70 @@ cd $HC2VPP_ROOT/it/jvpp-benchmark
 mvn clean install
 ---
 
+To display JMH options, use
+[source,shell]
+---
+java -jar ./target/jvpp-benchmark-exec.jar -h
+---
+
+== AclUpdateBenchmark
+
+Creates ACL of size aclSize using acl_add_replace,
+then assigns it to loopback interface using acl_interface_set_acl_list.
+
+Then ACL is updated synchronously using acl_add_replace.
+By default 20x2s warmup and 100x2s measurement iterations are performed.
+
+VPP is restarted after each iteration.
+
+Each invocation of acl_add_replace uses ACL from precomputed
+set of ACLs of size aclSetSize.
+ACLs from the set are used in round-robin fashion.
+
 Run with:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar
+sudo java -jar ./target/jvpp-benchmark-exec.jar AclUpdateBenchmark
 ---
 
 To specify aclSize (default=100), use:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar -p aclSize=1000
+sudo java -jar ./target/jvpp-benchmark-exec.jar -p aclSize=1000 AclUpdateBenchmark
 ---
 
 To specify aclSetSize (default=100), use:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar -p aclSetSize=1000
+sudo java -jar ./target/jvpp-benchmark-exec.jar -p aclSetSize=1000 AclUpdateBenchmark
 ---
 
 To test interface in bridged (L2) / routed (L3) mode (default=L3), use:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar -p mode=L2
+sudo java -jar ./target/jvpp-benchmark-exec.jar -p mode=L2 AclUpdateBenchmark
 ---
 
-To see more options, use
+
+== ClassifyTableCreateBenchmark
+
+Synchronously creates classify tables using classifyAddDelTable operation.
+By default 20x2s warmup and 100x2s measurement iterations are performed.
+
+VPP is restarted after each iteration.
+
+Each invocation of classifyAddDelTable uses tables
+from precomputed set of size tableSetSize.
+Tables from the set are used in round-robin fashion.
+
+Run with:
 [source,shell]
 ---
-java -jar ./target/jvpp-benchmark-exec.jar -h
+sudo java -jar ./target/jvpp-benchmark-exec.jar ClassifyTableCreateBenchmark
+---
+
+To specify tableSetSize (default=100), use:
+[source,shell]
+---
+sudo java -jar ./target/jvpp-benchmark-exec.jar ClassifyTableCreateBenchmark -p aclSetSize=1000
 ---

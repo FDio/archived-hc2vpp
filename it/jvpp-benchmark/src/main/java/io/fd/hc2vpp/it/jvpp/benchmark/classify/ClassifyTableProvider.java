@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.it.jvpp.benchmark;
+package io.fd.hc2vpp.it.jvpp.benchmark.classify;
 
-import io.fd.vpp.jvpp.acl.dto.AclAddReplace;
+import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
 
-/**
- * Provides ACLs for JVpp Benchmark.
- */
-interface AclProvider {
-    AclAddReplace next();
-    void setAclIndex(final int index);
+interface ClassifyTableProvider {
+    ClassifyAddDelTable next();
 }
