@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.it.jvpp.benchmark.classify;
+package io.fd.hc2vpp.it.jvpp.benchmark.util;
 
 import com.google.common.io.CharStreams;
+import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.JVppRegistryImpl;
+import io.fd.vpp.jvpp.acl.JVppAclImpl;
+import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
 import io.fd.vpp.jvpp.core.JVppCoreImpl;
-import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
+import io.fd.vpp.jvpp.dto.JVppReply;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -48,41 +51,34 @@ import org.slf4j.LoggerFactory;
 @State(Scope.Thread)
 @Fork(1)
 @Threads(1)
-@Timeout(time = 5)
+@Timeout(time = 10)
 @Warmup(iterations = 20, time = 2)
 @Measurement(iterations = 100, time = 2)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-public class ClassifyTableCreateBenchmark {
-    private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableCreateBenchmark.class);
-
-    @Param( {"100"})
-    private int tableSetSize;
-
+public abstract class JVppBenchmark {
+    private static final Logger LOG = LoggerFactory.getLogger(JVppBenchmark.class);
     private JVppRegistryImpl registry;
-    private FutureJVppCoreFacade jvppCore;
-    private ClassifyTableProvider classifyTableProvider;
-
-    @Benchmark
-    public ClassifyAddDelTableReply testMethod() throws Exception {
-        // Caller may want to process reply, so return it to prevent JVM from dead code elimination
-        return jvppCore.classifyAddDelTable(classifyTableProvider.next()).toCompletableFuture().get();
-    }
 
     @Setup(Level.Iteration)
-    public void setup() throws Exception {
-        initProvider();
+    public final void setup() throws Exception {
         startVpp();
-        connect();
+        jVppConnect();
+        iterationSetup();
+    }
+
+    protected void iterationSetup() throws Exception {
+        // NOOP
     }
 
     @TearDown(Level.Iteration)
-    public void tearDown() throws Exception {
-        disconnect();
+    public final void tearDown() throws Exception {
+        iterationTearDown();
+        jVppDisconnect();
         stopVpp();
     }
 
-    private void initProvider() {
-        classifyTableProvider = new ClassifyTableProviderImpl(tableSetSize);
+    protected void iterationTearDown() throws Exception {
+        // NOOP
     }
 
     private void startVpp() throws Exception {
@@ -101,10 +97,11 @@ public class ClassifyTableCreateBenchmark {
         // Prevents VPP start failure: "vpp.service: Start request repeated too quickly".
         Thread.sleep(1500);
         LOG.info("VPP stopped successfully");
+
     }
 
     private static void exec(String[] command) throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec(command);
+        final Process process = Runtime.getRuntime().exec(command);
         process.waitFor();
         if (process.exitValue() != 0) {
             String error_msg = "Failed to execute " + Arrays.toString(command) + ": " +
@@ -113,17 +110,33 @@ public class ClassifyTableCreateBenchmark {
         }
     }
 
-    private void connect() throws IOException {
-        LOG.info("Connecting to JVPP ...");
+    private void jVppConnect() throws IOException {
+        LOG.info("Connecting JVpp ...");
         registry = new JVppRegistryImpl("ACLUpdateBenchmark");
-        jvppCore = new FutureJVppCoreFacade(registry, new JVppCoreImpl());
+        connect(registry);
         LOG.info("Successfully connected to JVPP");
     }
 
-    private void disconnect() throws Exception {
-        LOG.info("Disconnecting ...");
-        jvppCore.close();
+    /**
+     * Connects JVpp plugins.
+     * @param registry manages JVpp connection
+     */
+    protected abstract void connect(final JVppRegistry registry) throws IOException;
+
+    private void jVppDisconnect() throws Exception {
+        LOG.info("Disconnecting JVpp...");
+        disconnect();
         registry.close();
         LOG.info("Successfully disconnected ...");
+    }
+
+    /**
+     * Disconnects JVpp plugins.
+     */
+    protected abstract void disconnect() throws Exception;
+
+    protected static <R extends JVppReply<?>> R invoke(final CompletionStage<R> completionStage)
+        throws ExecutionException, InterruptedException {
+        return completionStage.toCompletableFuture().get();
     }
 }

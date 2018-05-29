@@ -54,7 +54,7 @@ sudo java -jar ./target/jvpp-benchmark*executable.jar -p mode=L2 AclUpdateBenchm
 ---
 
 
-== ClassifyTableCreateBenchmark
+== ClassifyTableBenchmark
 
 Synchronously creates classify tables using classifyAddDelTable operation.
 By default 20x2s warmup and 100x2s measurement iterations are performed.
@@ -68,11 +68,11 @@ Tables from the set are used in round-robin fashion.
 Run with:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark*executable.jar ClassifyTableCreateBenchmark
+sudo java -jar ./target/jvpp-benchmark*executable.jar ClassifyTableBenchmark
 ---
 
 To specify tableSetSize (default=100), use:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark*executable.jar ClassifyTableCreateBenchmark -p aclSetSize=1000
+sudo java -jar ./target/jvpp-benchmark*executable.jar ClassifyTableBenchmark -p aclSetSize=1000
 ---
