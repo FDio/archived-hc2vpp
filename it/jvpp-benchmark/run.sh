@@ -17,19 +17,19 @@ echo "Stopping VPP"
 sudo service vpp stop
 
 echo "Single JVM fork 20x2s warmup iterations, 100x2s measurment iterations, aclSize=100"
-sudo java -jar ./target/jvpp-benchmark-exec.jar
+sudo java -jar ./target/jvpp-benchmark*executable.jar
 
 echo "Single JVM fork 20x2s warmup iterations, 100x2s measurment iterations, aclSize=1000"
-sudo java -jar ./target/jvpp-benchmark-exec.jar -p aclSize=1000
+sudo java -jar ./target/jvpp-benchmark*executable.jar -p aclSize=1000
 
 echo "100 JVP forks, 1 invocation each (single shot mode), no warmup, aclSize=100"
-sudo java -jar ./target/jvpp-benchmark-exec.jar -bm ss -f 100 -i 1 -wi 0
+sudo java -jar ./target/jvpp-benchmark*executable.jar -bm ss -f 100 -i 1 -wi 0
 
 echo "100 JVP forks, 1 invocation each (single shot mode), no warmup, aclSize=1000"
-sudo java -jar ./target/jvpp-benchmark-exec.jar -bm ss -f 100 -i 1 -wi 0 -p aclSize=1000
+sudo java -jar ./target/jvpp-benchmark*executable.jar -bm ss -f 100 -i 1 -wi 0 -p aclSize=1000
 
 echo "100 JVP forks, 1 iteration each, no warmup, aclSize=100"
-sudo java -jar ./target/jvpp-benchmark-exec.jar -f 100 -i 1 -wi 0
+sudo java -jar ./target/jvpp-benchmark*executable.jar -f 100 -i 1 -wi 0
 
 echo "100 JVP forks, 1 iteration each, no warmup, aclSize=1000"
-sudo java -jar ./target/jvpp-benchmark-exec.jar -f 100 -i 1 -wi 0 -p aclSize=1000
+sudo java -jar ./target/jvpp-benchmark*executable.jar -f 100 -i 1 -wi 0 -p aclSize=1000

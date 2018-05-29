@@ -12,7 +12,7 @@ mvn clean install
 To display JMH options, use
 [source,shell]
 ---
-java -jar ./target/jvpp-benchmark-exec.jar -h
+java -jar ./target/jvpp-benchmark*executable.jar -h
 ---
 
 == AclUpdateBenchmark
@@ -32,25 +32,25 @@ ACLs from the set are used in round-robin fashion.
 Run with:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar AclUpdateBenchmark
+sudo java -jar ./target/jvpp-benchmark*executable.jar AclUpdateBenchmark
 ---
 
 To specify aclSize (default=100), use:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar -p aclSize=1000 AclUpdateBenchmark
+sudo java -jar ./target/jvpp-benchmark*executable.jar -p aclSize=1000 AclUpdateBenchmark
 ---
 
 To specify aclSetSize (default=100), use:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar -p aclSetSize=1000 AclUpdateBenchmark
+sudo java -jar ./target/jvpp-benchmark*executable.jar -p aclSetSize=1000 AclUpdateBenchmark
 ---
 
 To test interface in bridged (L2) / routed (L3) mode (default=L3), use:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar -p mode=L2 AclUpdateBenchmark
+sudo java -jar ./target/jvpp-benchmark*executable.jar -p mode=L2 AclUpdateBenchmark
 ---
 
 
@@ -68,11 +68,11 @@ Tables from the set are used in round-robin fashion.
 Run with:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar ClassifyTableCreateBenchmark
+sudo java -jar ./target/jvpp-benchmark*executable.jar ClassifyTableCreateBenchmark
 ---
 
 To specify tableSetSize (default=100), use:
 [source,shell]
 ---
-sudo java -jar ./target/jvpp-benchmark-exec.jar ClassifyTableCreateBenchmark -p aclSetSize=1000
+sudo java -jar ./target/jvpp-benchmark*executable.jar ClassifyTableCreateBenchmark -p aclSetSize=1000
 ---

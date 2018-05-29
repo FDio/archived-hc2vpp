@@ -33,7 +33,6 @@
 
     <properties>
         <jmh.version>1.21</jmh.version>
-        <shaded.name>jvpp-benchmark-exec</shaded.name>
         <jvpp.version>18.07-SNAPSHOT</jvpp.version>
     </properties>
 
@@ -93,14 +92,14 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!-- fixme: includevesion in artifact name, deploy to nexus -->
-                            <finalName>${shaded.name}</finalName>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.openjdk.jmh.Main</mainClass>
                                 </transformer>
                             </transformers>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>executable</shadedClassifierName>
                         </configuration>
                     </execution>
                 </executions>
