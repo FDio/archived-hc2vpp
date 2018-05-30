@@ -420,8 +420,7 @@ module ietf-nat {
     }
 
     leaf internal-src-address {
-    // TODO(HC2VPP-325): original model uses inet:ip-prefix;
-      type inet:ip-address;
+      type inet:ip-prefix;
       description
         "Corresponds to the source IPv4/IPv6 address/prefix
          of the packet received on an internal
@@ -444,8 +443,7 @@ module ietf-nat {
     }
 
     leaf external-src-address {
-    // TODO(HC2VPP-325): original model uses inet:ip-prefix;
-      type inet:ipv4-address;
+      type inet:ip-prefix;
       description
         "Source IP address/prefix of the packet sent on an
          external interface of the NAT.";
@@ -462,8 +460,7 @@ module ietf-nat {
     }
 
     leaf internal-dst-address {
-    // TODO(HC2VPP-325): original model uses inet:ip-prefix;
-      type inet:ipv4-prefix;
+      type inet:ip-prefix;
       description
         "Corresponds to the destination IP address/prefix
          of the packet received on an internal interface
@@ -487,8 +484,7 @@ module ietf-nat {
     }
 
     leaf external-dst-address {
-    // TODO(HC2VPP-325): original model uses inet:ip-prefix;
-      type inet:ipv4-address;
+      type inet:ip-prefix;
       description
         "Corresponds to the destination IP address/prefix
          of the packet sent on an external interface

@@ -26,8 +26,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import io.fd.honeycomb.translate.MappingContext;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
+import io.fd.honeycomb.translate.MappingContext;
 import io.fd.vpp.jvpp.nat.dto.Nat44StaticMappingDetails;
 import java.util.Collections;
 import java.util.List;
@@ -35,8 +35,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.MappingTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntryKey;
@@ -59,7 +59,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
         when(mappingCtx.read(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
         final long natId = 7;
         final long entryId = 99;
-        final MappingEntry entry = getEntry(natId, "192.168.1.5", "17.14.4.6");
+        final MappingEntry entry = getEntry(natId, "192.168.1.5/32", "17.14.4.6/32");
 
         ctx.addEntry(natId, entryId, entry, mappingCtx);
 
@@ -69,7 +69,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
     @Test
     public void testRemove() throws Exception {
         final long natId = 0;
-        final MappingEntry entry = getEntry(natId, "192.168.1.5", "17.14.4.6");
+        final MappingEntry entry = getEntry(natId, "192.168.1.5/32", "17.14.4.6/32");
 
         ctx.removeEntry(natId, entry, mappingCtx);
 
@@ -80,7 +80,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
     public void testGetExistingIndex() throws Exception {
         final long natId = 0;
         final long entryId = 12;
-        final MappingEntry entry = getEntry(entryId, "192.168.1.5", "17.14.4.6");
+        final MappingEntry entry = getEntry(entryId, "192.168.1.5/32", "17.14.4.6/32");
         final Nat44StaticMappingDetails details = getDetails(entryId, "192.168.1.5", "17.14.4.6");
 
         when(mappingCtx.read(MappingEntryContext.getId(natId, MappingEntryContext.entryToKey(entry))))
@@ -93,9 +93,9 @@ public class MappingEntryContextTest implements Ipv4Translator {
     @Test
     public void testFindDetails() throws Exception {
         final long natId = 0;
-        final MappingEntry entry = getEntry(0, "192.168.1.5", "17.14.4.6");
+        final MappingEntry entry = getEntry(0, "192.168.1.5/32", "17.14.4.6/32");
         final Nat44StaticMappingDetails details = getDetails(0, "192.168.1.5", "17.14.4.6");
-        final MappingEntry entry2 = getEntry(1, "192.168.1.8", "17.14.4.10");
+        final MappingEntry entry2 = getEntry(1, "192.168.1.8/32", "17.14.4.10/32");
         final Nat44StaticMappingDetails details2 = getDetails(1, "192.168.1.8", "17.14.4.10");
 
         final List<Nat44StaticMappingDetails> someDetails = Lists.newArrayList(details, details2);
@@ -138,16 +138,16 @@ public class MappingEntryContextTest implements Ipv4Translator {
     public void testGetArtificialIndex() throws Exception {
         final long natId = 0;
         final long entryId = 0;
-        final MappingEntry entry = getEntry(entryId, "192.168.1.5", "17.14.4.6");
+        final MappingEntry entry = getEntry(entryId, "192.168.1.5/32", "17.14.4.6/32");
         final long entryId2 = 55;
-        final MappingEntry entry2 = getEntry(entryId2, "192.168.1.6", "17.14.4.7");
+        final MappingEntry entry2 = getEntry(entryId2, "192.168.1.6/32", "17.14.4.7/32");
         final long entryId3 = 18954;
-        final MappingEntry entry3 = getEntry(entryId3, "192.168.1.7", "17.14.4.8");
+        final MappingEntry entry3 = getEntry(entryId3, "192.168.1.7/32", "17.14.4.8/32");
         final long entryId4 = 18955;
-        final MappingEntry entry4 = getEntry(entryId4, "192.168.1.8", "17.14.4.9");
+        final MappingEntry entry4 = getEntry(entryId4, "192.168.1.8/32", "17.14.4.9/32");
 
         final long newEntryId = 18956;
-        final MappingEntry newEntry = getEntry(newEntryId, "192.168.1.99", "17.14.4.99");
+        final MappingEntry newEntry = getEntry(newEntryId, "192.168.1.99/32", "17.14.4.99/32");
         final Nat44StaticMappingDetails newDetails = getDetails(newEntryId, "192.168.1.99", "17.14.4.99");
         when(mappingCtx.read(MappingEntryContext.getId(natId, MappingEntryContext.entryToKey(newEntry))))
                 .thenReturn(Optional.absent());
@@ -178,7 +178,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
     public void testAddExisting() throws Exception {
         final long natId = 7;
         final long entryId = 99;
-        final MappingEntry entry = getEntry(natId, "192.168.1.5", "17.14.4.6");
+        final MappingEntry entry = getEntry(natId, "192.168.1.5/32", "17.14.4.6/32");
         final org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntry
                 data = MappingEntryContext.toCtxMapEntry(entry, entryId);
         when(mappingCtx.read(any(InstanceIdentifier.class))).thenReturn(Optional.of(data));
@@ -190,8 +190,8 @@ public class MappingEntryContextTest implements Ipv4Translator {
         return new MappingEntryBuilder()
                 .setKey(new MappingEntryKey(id))
                 .setType(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.MappingEntry.Type.Static)
-                .setInternalSrcAddress(new IpAddress(new Ipv4Address(longernalIpv4)))
-                .setExternalSrcAddress(new Ipv4Address(externalIpv4))
+                .setInternalSrcAddress(new IpPrefix(new Ipv4Prefix(longernalIpv4)))
+                .setExternalSrcAddress(new IpPrefix(new Ipv4Prefix(externalIpv4)))
                 .build();
     }
 }

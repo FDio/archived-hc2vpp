@@ -65,12 +65,12 @@ module nat-context {
                         unique "index";
 
                         leaf internal {
-                            type inet:ip-address;
+                            type inet:ip-prefix;
                             description "Local IP address set in VPP";
                         }
 
                         leaf external {
-                            type inet:ip-address;
+                            type inet:ip-prefix;
                             description "Extarnal IP address set in VPP";
                         }
 

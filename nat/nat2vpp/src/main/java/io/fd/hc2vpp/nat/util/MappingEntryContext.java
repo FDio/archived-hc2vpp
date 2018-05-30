@@ -40,8 +40,11 @@ import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.honeycomb.params.xml.ns.yang.nat.context.rev161214.mapping.entry.context.attributes.nat.mapping.entry.context.nat.instance.mapping.table.MappingEntryKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,32 +97,30 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
     static MappingEntryKey entryToKey(
             final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry entry) {
         // Only IPv4
-        return new MappingEntryKey(new IpAddress(entry.getExternalSrcAddress()), entry.getInternalSrcAddress());
+        return new MappingEntryKey(entry.getExternalSrcAddress(), entry.getInternalSrcAddress());
     }
 
     private MappingEntryKey entryToKey(final Nat44StaticMappingDetails entry) {
         // Only IPv4
         return new MappingEntryKey(
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(entry.externalIpAddress))),
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(entry.localIpAddress))));
+            new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.externalIpAddress,32))),
+            new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.localIpAddress, 32))));
     }
 
     private MappingEntryKey entryToKey(final Nat64BibDetails entry) {
         return new MappingEntryKey(
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(entry.oAddr))),
-                new IpAddress(new Ipv6Address(arrayToIpv6AddressNoZone(entry.iAddr))));
+                new IpPrefix(new Ipv4Prefix(toIpv4Prefix(entry.oAddr, 32))),
+                new IpPrefix(new Ipv6Prefix(toIpv6Prefix(entry.iAddr, 128))));
     }
 
     private boolean equalEntries(final Nat44StaticMappingDetails detail, final MappingEntry ctxMappingEntry) {
-        final IpAddress internalAddrFromDetails =
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.localIpAddress)));
         // Only IPv4
+        final IpPrefix internalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.localIpAddress, 32));
         if (!ctxMappingEntry.getInternal().equals(internalAddrFromDetails)) {
             return false;
         }
         // Only IPv4
-        final IpAddress externalAddrFromDetails =
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.externalIpAddress)));
+        final IpPrefix externalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.externalIpAddress, 32));
         if (!ctxMappingEntry.getExternal().equals(externalAddrFromDetails)) {
             return false;
         }
@@ -127,15 +128,13 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
     }
 
     private boolean equalEntries(final Nat64BibDetails detail, final MappingEntry ctxMappingEntry) {
-        final IpAddress internalAddrFromDetails =
-                new IpAddress(new Ipv6Address(arrayToIpv6AddressNoZone(detail.iAddr)));
         // Only IPv6
+        final IpPrefix internalAddrFromDetails = new IpPrefix(toIpv6Prefix(detail.iAddr, 128));
         if (!ctxMappingEntry.getInternal().equals(internalAddrFromDetails)) {
             return false;
         }
         // Only IPv4
-        final IpAddress externalAddrFromDetails =
-                new IpAddress(new Ipv4Address(arrayToIpv4AddressNoZone(detail.oAddr)));
+        final IpPrefix externalAddrFromDetails = new IpPrefix(toIpv4Prefix(detail.oAddr, 32));
         if (!ctxMappingEntry.getExternal().equals(externalAddrFromDetails)) {
             return false;
         }

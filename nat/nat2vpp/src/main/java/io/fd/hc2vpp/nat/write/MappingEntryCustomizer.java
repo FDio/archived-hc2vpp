@@ -32,9 +32,9 @@ import io.fd.vpp.jvpp.nat.dto.Nat44AddDelStaticMapping;
 import io.fd.vpp.jvpp.nat.dto.Nat64AddDelStaticBib;
 import io.fd.vpp.jvpp.nat.future.FutureJVppNatFacade;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry;
@@ -85,15 +85,15 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
                                   @Nonnull final MappingEntry entry,
                                   @Nonnull final Long natInstanceId,
                                   final boolean isAdd) throws WriteFailedException {
-        final IpAddress internalSrcAddress = entry.getInternalSrcAddress();
-        final Ipv4Address internalV4SrcAddress = internalSrcAddress.getIpv4Address();
-        final Ipv6Address internalV6SrcAddress = internalSrcAddress.getIpv6Address();
-        if (internalV4SrcAddress != null) {
+        final IpPrefix internalSrcPrefix = entry.getInternalSrcAddress();
+        final Ipv4Prefix internalV4SrcPrefix = internalSrcPrefix.getIpv4Prefix();
+        final Ipv6Prefix internalV6SrcPrefix = internalSrcPrefix.getIpv6Prefix();
+        if (internalV4SrcPrefix != null) {
             final Nat44AddDelStaticMapping request = getNat44Request(id, entry, natInstanceId, isAdd);
             getReplyForWrite(jvppNat.nat44AddDelStaticMapping(request).toCompletableFuture(), id);
         } else {
-            checkState(internalV6SrcAddress != null,
-                    "internalSrcAddress.getIpv6Address() should not return null if v4 address is not given");
+            checkState(internalV6SrcPrefix != null,
+                    "internalSrcPrefix.getIpv4Prefix() should not return null if v4 prefix is not given");
             final Nat64AddDelStaticBib request = getNat64Request(id, entry, natInstanceId, isAdd);
             getReplyForWrite(jvppNat.nat64AddDelStaticBib(request).toCompletableFuture(), id);
         }
@@ -147,14 +147,15 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         // VPP uses int, model long
         request.vrfId = natInstanceId.intValue();
 
-        final Ipv4Address internalAddress = mappingEntry.getInternalSrcAddress().getIpv4Address();
+        final Ipv4Prefix internalAddress = mappingEntry.getInternalSrcAddress().getIpv4Prefix();
         checkArgument(internalAddress != null, "No Ipv4 present in internal-src-address %s",
-                mappingEntry.getInternalSrcAddress());
+            mappingEntry.getInternalSrcAddress());
+        checkArgument(extractPrefix(internalAddress) == 32,
+            "Only /32 prefix in internal-src-address is supported, but was %s", internalAddress);
 
         request.addrOnly = 1;
-        request.localIpAddress =
-                ipv4AddressNoZoneToArray(mappingEntry.getInternalSrcAddress().getIpv4Address().getValue());
-        request.externalIpAddress = ipv4AddressNoZoneToArray(mappingEntry.getExternalSrcAddress().getValue());
+        request.localIpAddress = ipv4AddressPrefixToArray(internalAddress);
+        request.externalIpAddress = ipv4AddressPrefixToArray(getExternalAddress(mappingEntry));
         request.externalSwIfIndex = -1; // external ip address is ignored if externalSwIfIndex is given
         request.protocol = -1;
         final Short protocol = mappingEntry.getTransportProtocol();
@@ -185,13 +186,14 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         // VPP uses int, model long
         request.vrfId = natInstanceId.intValue();
 
-        final Ipv6Address internalAddress = mappingEntry.getInternalSrcAddress().getIpv6Address();
+        final Ipv6Prefix internalAddress = mappingEntry.getInternalSrcAddress().getIpv6Prefix();
         checkArgument(internalAddress != null, "No Ipv6 present in internal-src-address %s",
                 mappingEntry.getInternalSrcAddress());
+        checkArgument(extractPrefix(internalAddress) == (byte)128,
+            "Only /128 prefix in internal-src-address is supported, but was %s", internalAddress);
 
-
-        request.iAddr = ipv6AddressNoZoneToArray(internalAddress);
-        request.oAddr = ipv4AddressNoZoneToArray(mappingEntry.getExternalSrcAddress().getValue());
+        request.iAddr = ipv6AddressPrefixToArray(internalAddress);
+        request.oAddr = ipv4AddressPrefixToArray(getExternalAddress(mappingEntry));
         request.proto = -1;
         final Short protocol = mappingEntry.getTransportProtocol();
         if (protocol != null) {
@@ -208,6 +210,15 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
             request.oPort = externalPortNumber;
         }
         return request;
+    }
+
+    private Ipv4Prefix getExternalAddress(final MappingEntry mappingEntry) {
+        final Ipv4Prefix externalAddress = mappingEntry.getExternalSrcAddress().getIpv4Prefix();
+        checkArgument(externalAddress != null, "No Ipv4 present in external-src-address %s",
+            mappingEntry.getExternalSrcAddress());
+        checkArgument(extractPrefix(externalAddress) == 32,
+            "Only /32 prefix in external-src-address is supported, but was %s", externalAddress);
+        return externalAddress;
     }
 
     private Short getPortNumber(final InstanceIdentifier<MappingEntry> id, final PortNumber portNumber) {

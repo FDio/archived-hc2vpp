@@ -98,9 +98,9 @@ public class MappingEntryCustomizerTest
         getCustomizer().readCurrentAttributes(mappingEntryId, builder, ctx);
 
         assertEquals(NAT_MAPPING_ID, builder.getIndex().longValue());
-        assertEquals("192.168.3.8", builder.getExternalSrcAddress().getValue());
+        assertEquals("192.168.3.8/32", builder.getExternalSrcAddress().getIpv4Prefix().getValue());
         assertEquals(6874, builder.getExternalSrcPort().getStartPortNumber().getValue().intValue());
-        assertArrayEquals("192.168.2.2".toCharArray(), builder.getInternalSrcAddress().getValue());
+        assertEquals("192.168.2.2/32", builder.getInternalSrcAddress().getIpv4Prefix().getValue());
         assertEquals(1274, builder.getInternalSrcPort().getStartPortNumber().getValue().intValue());
     }
 
@@ -128,9 +128,9 @@ public class MappingEntryCustomizerTest
         getCustomizer().readCurrentAttributes(mappingEntryId, builder, ctx);
 
         assertEquals(NAT_MAPPING_ID, builder.getIndex().longValue());
-        assertEquals("192.168.64.3", builder.getExternalSrcAddress().getValue());
+        assertEquals("192.168.64.3/32", builder.getExternalSrcAddress().getIpv4Prefix().getValue());
         assertEquals(6874, builder.getExternalSrcPort().getStartPortNumber().getValue().intValue());
-        assertArrayEquals("2001:db8:85a3::8a2e:370:7303".toCharArray(), builder.getInternalSrcAddress().getValue());
+        assertEquals("2001:db8:85a3::8a2e:370:7303/128", builder.getInternalSrcAddress().getIpv6Prefix().getValue());
         assertEquals(1274, builder.getInternalSrcPort().getStartPortNumber().getValue().intValue());
     }
 

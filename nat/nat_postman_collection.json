@@ -434,7 +434,7 @@
 			"description": "CLI: nat44 add static mapping local 10.0.0.3 external 4.4.4.4\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
 			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
 			"responses": [],
-			"rawModeData": "{\r\n\t\"mapping-entry\" : {\r\n\t\t\"index\": 1,\r\n\t\t\"type\": \"static\",\r\n\t\t\"internal-src-address\": \"192.168.1.87\",\r\n\t\t\"external-src-address\": \"45.1.5.7\"\r\n\t}\r\n}",
+			"rawModeData": "{\r\n\t\"mapping-entry\" : {\r\n\t\t\"index\": 1,\r\n\t\t\"type\": \"static\",\r\n\t\t\"internal-src-address\": \"192.168.1.87/32\",\r\n\t\t\"external-src-address\": \"45.1.5.7/32\"\r\n\t}\r\n}",
 			"folder": "d256d898-3c36-7ce5-cf2a-74370463d78f"
 		},
 		{
@@ -499,8 +499,7 @@
 			"tests": "",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"folder": "d256d898-3c36-7ce5-cf2a-74370463d78f",
-			"rawModeData": "{\r\n\t\"mapping-entry\" : {\r\n\t\t\"index\": 1,\r\n\t\t\"type\": \"static\",\r\n\t\t\"internal-src-address\": \"192.168.1.87\",\r\n\t\t\"external-src-address\": \"45.1.5.7\"\r\n\t}\r\n}"
+			"folder": "d256d898-3c36-7ce5-cf2a-74370463d78f"
 		},
 		{
 			"id": "afdc45a9-cf39-379b-5bb2-4a909512aee3",
@@ -660,7 +659,7 @@
 			"description": "CLI: nat64 add static bib 2001:db8:85a3::8a2e:370:7334 1234 10.1.1.3 5678 tcp\n\nMore information: https://wiki.fd.io/view/VPP/NAT#Stateful_NAT64",
 			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
 			"responses": [],
-			"rawModeData": "{\n  \"mapping-entry\": {\n    \"index\": 1,\n    \"type\": \"static\",\n    \"transport-protocol\": 6,\n    \"internal-src-address\": \"2001:db8:85a3::8a2e:370:7334\",\n    \"external-src-address\": \"10.1.1.3\",\n    \"internal-src-port\": {\n      \"start-port-number\": 1234\n    },\n    \"external-src-port\": {\n      \"start-port-number\": 5678\n    }\n  }\n}"
+			"rawModeData": "{\n  \"mapping-entry\": {\n    \"index\": 1,\n    \"type\": \"static\",\n    \"transport-protocol\": 6,\n    \"internal-src-address\": \"2001:db8:85a3::8a2e:370:7334/128\",\n    \"external-src-address\": \"10.1.1.3/32\",\n    \"internal-src-port\": {\n      \"start-port-number\": 1234\n    },\n    \"external-src-port\": {\n      \"start-port-number\": 5678\n    }\n  }\n}"
 		},
 		{
 			"id": "c47386c4-520b-78a5-9c52-a0f36e8aa6d0",

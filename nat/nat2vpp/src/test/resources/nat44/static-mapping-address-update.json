@@ -4,8 +4,8 @@
       "index": 22,
       "type": "static",
       "transport-protocol": 17,
-      "internal-src-address": "192.168.1.86",
-      "external-src-address": "45.1.5.6"
+      "internal-src-address": "192.168.1.86/32",
+      "external-src-address": "45.1.5.6/32"
     }
   }
 }
