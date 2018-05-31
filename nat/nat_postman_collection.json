@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b0eb6655-433f-430c-87a0-3ba2dbbb534e",
+		"_postman_id": "782eee7d-0707-428c-8d39-5d4533fefd1a",
 		"name": "Honeycomb NAT RESTCONF calls",
 		"description": "Common management operations for Honeycomb + VPP + SNAT plugin",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -8,10 +8,10 @@
 	"item": [
 		{
 			"name": "1:1 static",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"name": "Add SNAT 1:1 static entry IPv4 -cfg",
+					"name": "Add NAT 1:1 static entry IPv4 -cfg",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -97,10 +97,10 @@
 		},
 		{
 			"name": "DYNAMIC",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"name": "Add SNAT address pool",
+					"name": "Add NAT address pool",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -143,7 +143,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete SNAT address pool",
+					"name": "Delete NAT address pool",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -275,7 +275,7 @@
 		},
 		{
 			"name": "Nat64",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "Add NAT64 static BIB entry -cfg",
@@ -691,7 +691,7 @@
 		},
 		{
 			"name": "Sub-interface assignment",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "Set NAT inbound for subifc - cfg",
@@ -751,7 +751,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/inbound",
@@ -835,7 +835,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
@@ -862,7 +862,7 @@
 		},
 		{
 			"name": "interface assignment",
-			"description": "",
+			"description": null,
 			"item": [
 				{
 					"name": "Set NAT inbound for ifc - cfg",
@@ -919,7 +919,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
@@ -997,7 +997,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
