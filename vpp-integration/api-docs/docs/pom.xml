@@ -46,7 +46,6 @@
             io.fd.hc2vpp.dhcp.DhcpModule,
             io.fd.hc2vpp.policer.PolicerModule,
             io.fd.hc2vpp.mpls.MplsModule,
-            io.fd.hc2vpp.docs.core.mock.binding.MockNshModule,
             io.fd.hc2vpp.docs.core.mock.binding.MockIoamModule,
             io.fd.hc2vpp.bgp.inet.BgpInetModule,
             io.fd.hc2vpp.bgp.prefix.sid.BgpPrefixSidModule

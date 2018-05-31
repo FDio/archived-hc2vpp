@@ -26,7 +26,6 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore
 import io.fd.vpp.jvpp.ioamexport.future.FutureJVppIoamexport
 import io.fd.vpp.jvpp.ioampot.future.FutureJVppIoampot
 import io.fd.vpp.jvpp.ioamtrace.future.FutureJVppIoamtrace
-import io.fd.vpp.jvpp.nsh.future.FutureJVppNsh
 import io.fd.vpp.jvpp.nat.future.FutureJVppNat
 
 import java.nio.charset.StandardCharsets
@@ -45,7 +44,7 @@ class ApiDocsIndexGenerator {
     private static def NL = System.lineSeparator()
     // TODO - check if list of plugin classes can be generated based on list of modules enabled for doc generation
     private static
-    def PLUGIN_CLASSES = [FutureJVppCore.class, FutureJVppAcl.class, FutureJVppNat.class, FutureJVppNsh.class,
+    def PLUGIN_CLASSES = [FutureJVppCore.class, FutureJVppAcl.class, FutureJVppNat.class,
                           FutureJVppIoamexport.class, FutureJVppIoampot.class, FutureJVppIoamtrace.class]
     private static def TABLE_PART_MARK = "|"
 

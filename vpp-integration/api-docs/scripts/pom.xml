@@ -86,11 +86,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.fd.hc2vpp.nsh</groupId>
-            <artifactId>vppnsh-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>io.fd.hc2vpp.v3po</groupId>
             <artifactId>v3po2vpp</artifactId>
             <version>${project.version}</version>

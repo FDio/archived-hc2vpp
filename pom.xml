@@ -39,7 +39,8 @@
     <module>vpp-common</module>
     <module>v3po</module>
     <module>ioam</module>
-    <module>nsh</module>
+    <!-- TODO(HC2VPP-336): reenable after NSH build issues are resolved -->
+    <!--<module>nsh</module>-->
     <module>routing</module>
     <module>nat</module>
     <module>lisp</module>
