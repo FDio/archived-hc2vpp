@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -35,7 +36,7 @@ public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTr
     };
 
     default byte[] ipAddressToArray(IpAddress address) {
-        checkNotNull(address, "Cannot resolve null adddress");
+        checkNotNull(address, "Cannot resolve null address");
 
         if (isIpv6(address)) {
             return ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(address.getIpv6Address()));
@@ -74,5 +75,27 @@ public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTr
     // Ex. Key for MapResolver contains Ipv4Address as value but we translate addresses from binary data to Ipv4AddressNoZone
     default boolean addressesEqual(final IpAddress left, final IpAddress right) {
         return Arrays.equals(left.getValue(), right.getValue());
+    }
+
+    /**
+     * Extract mask length from prefixed address
+     */
+    default byte extractPrefix(IpPrefix ipPrefix) {
+        if (isIpv6(ipPrefix)) {
+            return extractPrefix(ipPrefix.getIpv6Prefix());
+        } else {
+            return extractPrefix(ipPrefix.getIpv4Prefix());
+        }
+    }
+
+    /**
+     * Convert address part of prefix to byte array
+     */
+    default byte[] ipPrefixToArray(IpPrefix ipPrefix) {
+        if (isIpv6(ipPrefix)) {
+            return ipv6AddressPrefixToArray(ipPrefix.getIpv6Prefix());
+        } else {
+            return ipv4AddressPrefixToArray(ipPrefix.getIpv4Prefix());
+        }
     }
 }
