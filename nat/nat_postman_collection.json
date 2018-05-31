@@ -1,853 +1,1355 @@
 {
-	"id": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-	"name": "Honeycomb NAT RESTCONF calls",
-	"description": "Common management operations for Honeycomb + VPP + SNAT plugin",
-	"order": [
-		"70096d81-aeb7-01a9-2a10-b01872ff0b86",
-		"c4a57265-e848-274d-35d1-6b12f1f39e62",
-		"21c3c008-6053-8984-6f0b-a99093923f26",
-		"cdedb3f4-e4ab-1ea8-07b8-53639b44a257",
-		"2ac9831e-1fca-cbca-fb42-2b8b15e751b3"
-	],
-	"folders": [
+	"info": {
+		"_postman_id": "b0eb6655-433f-430c-87a0-3ba2dbbb534e",
+		"name": "Honeycomb NAT RESTCONF calls",
+		"description": "Common management operations for Honeycomb + VPP + SNAT plugin",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "d256d898-3c36-7ce5-cf2a-74370463d78f",
 			"name": "1:1 static",
 			"description": "",
-			"order": [
-				"8cc85522-d230-fa19-dc00-e9ad4ef52b8e",
-				"a21bb084-d606-4a90-bd2d-60b866771f90"
-			],
-			"owner": 0,
-			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde"
+			"item": [
+				{
+					"name": "Add SNAT 1:1 static entry IPv4 -cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"mapping-entry\" : {\r\n\t\t\"index\": 1,\r\n\t\t\"type\": \"static\",\r\n\t\t\"internal-src-address\": \"192.168.1.87/32\",\r\n\t\t\"external-src-address\": \"45.1.5.7/32\"\r\n\t}\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"mapping-table",
+								"mapping-entry",
+								"1",
+								""
+							]
+						},
+						"description": "CLI: nat44 add static mapping local 10.0.0.3 external 4.4.4.4\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete SNAT 1:1 static entry IPv4 -cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"mapping-table",
+								"mapping-entry",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "d8c6ccdb-0df5-032d-6865-d2ea2a0782fc",
 			"name": "DYNAMIC",
 			"description": "",
-			"order": [
-				"9795bd6e-a1ec-dbaa-822c-328e3604e94e",
-				"58d78b6d-673f-ae1e-767f-fb970609b34a",
-				"7b92417d-e638-9e8c-23c7-a4aab3220a4f",
-				"afdc45a9-cf39-379b-5bb2-4a909512aee3"
-			],
-			"owner": 0,
-			"collectionId": "f9258895-49e9-596f-d413-698cbcadfbde"
+			"item": [
+				{
+					"name": "Add SNAT address pool",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 1,\r\n\t\t\"external-ip-pool\": \"172.16.2.0/30\"\r\n\t}\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/1/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"policy",
+								"0",
+								"external-ip-address-pool",
+								"1",
+								""
+							]
+						},
+						"description": "CLI: vppctl nat44 add address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvat# nat44_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete SNAT address pool",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/1/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"policy",
+								"0",
+								"external-ip-address-pool",
+								"1",
+								""
+							]
+						},
+						"description": "CLI: vppctl nat44 del address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvat# nat44_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Add single address to pool",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 2,\r\n\t\t\"external-ip-pool\": \"172.16.2.123/32\"\r\n\t}\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/2/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"policy",
+								"0",
+								"external-ip-address-pool",
+								"2",
+								""
+							]
+						},
+						"description": "CLI: vppctl nat44 add address 172.16.2.123\n\nCan be verified with\nvat# nat44_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete single address",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/2/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"policy",
+								"0",
+								"external-ip-address-pool",
+								"2",
+								""
+							]
+						},
+						"description": "CLI: vppctl nat44 del address 172.16.2.123\n\nCan be verified with\nvat# nat44_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "a7c4171f-5d1c-0e1e-16cd-dc62f7377848",
 			"name": "Nat64",
 			"description": "",
-			"order": [
-				"c256b9c8-c530-acc2-f197-fd59e0d6843f",
-				"376fb011-96eb-fc09-4f87-0a16a9532ea9",
-				"cbad80e8-367a-6d8b-0a93-a81c717057aa",
-				"cff7d30d-f0d3-3750-76fb-94500340bc9e",
-				"4a9a9b25-ea4e-7d4f-1fd0-b4d7d7f60ad3",
-				"501132a6-ac08-bc36-e5f4-0fb2dda82c4d",
-				"b7c9a0d0-394d-eeb3-1615-af7349ba229e",
-				"2992acee-87da-3d9f-8bec-f00721d0c7e0",
-				"4f7bf0d9-f468-0041-e7e3-44386b74bb7e",
-				"84c2abaa-67f5-305e-e536-4bddcb8230cc"
-			],
-			"owner": 0
+			"item": [
+				{
+					"name": "Add NAT64 static BIB entry -cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mapping-entry\": {\n    \"index\": 1,\n    \"type\": \"static\",\n    \"transport-protocol\": 6,\n    \"internal-src-address\": \"2001:db8:85a3::8a2e:370:7334/128\",\n    \"external-src-address\": \"10.1.1.3/32\",\n    \"internal-src-port\": {\n      \"start-port-number\": 1234\n    },\n    \"external-src-port\": {\n      \"start-port-number\": 5678\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"mapping-table",
+								"mapping-entry",
+								"1",
+								""
+							]
+						},
+						"description": "CLI: nat64 add static bib 2001:db8:85a3::8a2e:370:7334 1234 10.1.1.3 5678 tcp\n\nMore information: https://wiki.fd.io/view/VPP/NAT#Stateful_NAT64"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Nat64 address pool",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 3,\r\n\t\t\"external-ip-pool\": \"172.16.2.0/30\",\r\n        \"vpp-nat:pool-type\": \"nat64\"\r\n\t}\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/3/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"policy",
+								"0",
+								"external-ip-address-pool",
+								"3",
+								""
+							]
+						},
+						"description": "CLI: vppctl nat64 add pool address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvppctl show nat64 pool\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Set NAT64 inbound for ifc - cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"inbound\" : {\r\n        \t\"nat44-support\" : false,\r\n        \t\"nat64-support\" : true\r\n        }\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"inbound"
+							]
+						},
+						"description": "Setting interface NAT64 inbound feature\n\nCLI: set interface nat64 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Set NAT64 prefix",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"nat64-prefixes\" : {\r\n\t\t\"nat64-prefix\" : \"2001:db8:122:300::/56\"\r\n\t}\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/nat64-prefixes/2001%3Adb8%3A122%3A300%3A%3A%2F56",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"policy",
+								"0",
+								"nat64-prefixes",
+								"2001%3Adb8%3A122%3A300%3A%3A%2F56"
+							]
+						},
+						"description": "Configures NAT64 prefix for default VRF\n\nCLI: nat64 add prefix <ip6-prefix>/<plen> [tenant-vrf <vrf-id>] [del]\n\nCan be verified with\n\nCLI: show nat64 prefix\n\nMore information: https://wiki.fd.io/view/VPP/SNAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Disable NAT64 inbound for ifc - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"inbound"
+							]
+						},
+						"description": "Disabling interface NAT64 inbound feature\n\nCLI: set interface nat64 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Set NAT64 outbound for ifc - cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"outbound\" : {\r\n        \t\"nat44-support\" : false,\r\n        \t\"nat64-support\" : true\r\n        }\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"outbound"
+							]
+						},
+						"description": "Setting interface NAT64 outbound feature\n\nCLI: set interface nat64 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Disable NAT64 outbound for ifc - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"outbound"
+							]
+						},
+						"description": "Disabling interface NAT64 outbound feature\n\nCLI: set interface nat64 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete NAT64 prefix",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/nat64-prefixes/2001%3Adb8%3A122%3A300%3A%3A%2F56",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"policy",
+								"0",
+								"nat64-prefixes",
+								"2001%3Adb8%3A122%3A300%3A%3A%2F56"
+							]
+						},
+						"description": "Removes configured NAT64 prefix:\n\nCLI: nat64 add prefix <ip6-prefix>/<plen> [tenant-vrf <vrf-id>] [del]\n\nCan be verified with\n\nCLI: show nat64 prefix\n\nMore information: https://wiki.fd.io/view/VPP/SNAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete NAT64 static BIB entry -cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"mapping-table",
+								"mapping-entry",
+								"1",
+								""
+							]
+						},
+						"description": "CLI: nat64 add static bib 2001:db8:85a3::8a2e:370:7334 1234 10.1.1.3 5678 tcp del\n\nMore information: https://wiki.fd.io/view/VPP/NAT#Stateful_NAT64"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Nat64 address pool",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/3/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-nat:nat",
+								"instances",
+								"instance",
+								"0",
+								"policy",
+								"0",
+								"external-ip-address-pool",
+								"3",
+								""
+							]
+						},
+						"description": "CLI: vppctl nat64 add pool address 172.16.2.0 - 172.16.2.4 del\n\nCan be verified with\nvppctl show nat64 pool\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "f01be22c-297e-e3e5-7859-bc8f40887321",
 			"name": "Sub-interface assignment",
 			"description": "",
-			"order": [
-				"de4621a3-0a50-bc14-36af-535aa4f9f6af",
-				"bb79f635-3d21-8f07-a2e9-fc2c1a7b7f4a",
-				"65149945-471e-cf86-dbe3-198584a32fe6",
-				"c47386c4-520b-78a5-9c52-a0f36e8aa6d0"
-			],
-			"owner": 0,
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154"
+			"item": [
+				{
+					"name": "Set NAT inbound for subifc - cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/inbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F9%2F0",
+								"vpp-vlan:sub-interfaces",
+								"sub-interface",
+								"1",
+								"subinterface-nat:nat",
+								"inbound"
+							]
+						},
+						"description": "Setting sub-interface NAT inbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Disable NAT inbound for subifc - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/inbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F9%2F0",
+								"vpp-vlan:sub-interfaces",
+								"sub-interface",
+								"1",
+								"subinterface-nat:nat",
+								"inbound"
+							]
+						},
+						"description": "Unsetting sub-interface NAT inbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Set NAT outbound for subifc - cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/outbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F9%2F0",
+								"vpp-vlan:sub-interfaces",
+								"sub-interface",
+								"1",
+								"subinterface-nat:nat",
+								"outbound"
+							]
+						},
+						"description": "Setting sub-interface NAT outbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Disable NAT outbound for subifc - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"outbound"
+							]
+						},
+						"description": "Unsetting sub-interface NAT outbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "b22a3174-1314-bfbb-91f8-86c57b71b0cb",
 			"name": "interface assignment",
 			"description": "",
-			"order": [
-				"e37a052c-7d36-7db7-2657-3d97cc0beac2",
-				"7c21fede-28ce-28a6-44ec-dc91ef9a99f8",
-				"079316ae-dfb3-1160-6f60-35030528cda7",
-				"922bd899-44b1-eb14-49c7-7cb9e9984481",
-				"3a930fbc-f103-63e9-8d9d-3ecf496f1d24",
-				"bef09aa4-dcf2-1ec8-43e9-6991d8686100",
-				"b707bb28-9f4d-bedd-c690-549b68d6220c",
-				"d18c452e-0932-fa52-051d-8ad59cbaaede"
-			],
-			"owner": 0,
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154"
-		}
-	],
-	"timestamp": 1475147449190,
-	"owner": 0,
-	"public": false,
-	"requests": [
-		{
-			"id": "079316ae-dfb3-1160-6f60-35030528cda7",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1475154424741,
-			"name": "Set NAT outbound for ifc - cfg",
-			"description": "Setting interface NAT outbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}",
-			"folder": "b22a3174-1314-bfbb-91f8-86c57b71b0cb"
-		},
-		{
-			"id": "21c3c008-6053-8984-6f0b-a99093923f26",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1475678997603,
-			"name": "Get NAT config",
-			"description": "",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}",
-			"isFromCollection": true,
-			"collectionRequestId": "21c3c008-6053-8984-6f0b-a99093923f26"
-		},
-		{
-			"id": "2ac9831e-1fca-cbca-fb42-2b8b15e751b3",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
-			"name": "List ifcs - config",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1487678576123,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "376fb011-96eb-fc09-4f87-0a16a9532ea9",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/3/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1502799964039,
-			"name": "Add Nat64 address pool",
-			"description": "CLI: vppctl nat64 add pool address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvppctl show nat64 pool\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 3,\r\n\t\t\"external-ip-pool\": \"172.16.2.0/30\",\r\n        \"vpp-nat:pool-type\": \"nat64\"\r\n\t}\r\n}"
-		},
-		{
-			"id": "3a930fbc-f103-63e9-8d9d-3ecf496f1d24",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1501658658435,
-			"name": "Set NAT inbound for ifc (post routing) - cfg",
-			"description": "Setting interface NAT inbound output-feature (post routing)\n\nCLI: set interface nat44 in <intfc> out <intfc> output-feature [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {\r\n        \t\"post-routing\" : true\r\n        }\r\n    \r\n}",
-			"folder": "b22a3174-1314-bfbb-91f8-86c57b71b0cb"
-		},
-		{
-			"id": "cff7d30d-f0d3-3750-76fb-94500340bc9e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/nat64-prefixes/2001%3Adb8%3A122%3A300%3A%3A%2F56",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1503467548572,
-			"name": "Set NAT64 prefix",
-			"description": "Configures NAT64 prefix for default VRF\n\nCLI: nat64 add prefix <ip6-prefix>/<plen> [tenant-vrf <vrf-id>] [del]\n\nCan be verified with\n\nCLI: show nat64 prefix\n\nMore information: https://wiki.fd.io/view/VPP/SNAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n\t\"nat64-prefixes\" : {\r\n\t\t\"nat64-prefix\" : \"2001:db8:122:300::/56\"\r\n\t}\r\n}"
-		},
-		{
-			"id": "4a9a9b25-ea4e-7d4f-1fd0-b4d7d7f60ad3",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1502969752143,
-			"name": "Disable NAT64 inbound for ifc - cfg",
-			"description": "Disabling interface NAT64 inbound feature\n\nCLI: set interface nat64 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "4f7bf0d9-f468-0041-e7e3-44386b74bb7e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1502969982987,
-			"name": "Delete NAT64 static BIB entry -cfg",
-			"description": "CLI: nat64 add static bib 2001:db8:85a3::8a2e:370:7334 1234 10.1.1.3 5678 tcp del\n\nMore information: https://wiki.fd.io/view/VPP/NAT#Stateful_NAT64",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "501132a6-ac08-bc36-e5f4-0fb2dda82c4d",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1502969736196,
-			"name": "Set NAT64 outbound for ifc - cfg",
-			"description": "Setting interface NAT64 outbound feature\n\nCLI: set interface nat64 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"outbound\" : {\r\n        \t\"nat44-support\" : false,\r\n        \t\"nat64-support\" : true\r\n        }\r\n    \r\n}"
-		},
-		{
-			"id": "58d78b6d-673f-ae1e-767f-fb970609b34a",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/1/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1487678255065,
-			"name": "Delete SNAT address pool",
-			"description": "CLI: vppctl nat44 del address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvat# nat44_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "",
-			"folder": "d8c6ccdb-0df5-032d-6865-d2ea2a0782fc"
-		},
-		{
-			"id": "65149945-471e-cf86-dbe3-198584a32fe6",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"headerData": [
+			"item": [
 				{
-					"key": "Authorization",
-					"value": "Basic YWRtaW46YWRtaW4=",
-					"description": "",
-					"enabled": true
+					"name": "Set NAT inbound for ifc - cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"inbound"
+							]
+						},
+						"description": "Setting interface NAT inbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
 				},
 				{
-					"key": "Content-Type",
-					"value": "application/json",
-					"description": "",
-					"enabled": true
+					"name": "Disable NAT inbound for ifc - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"inbound"
+							]
+						},
+						"description": "Unsetting interface NAT inbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Set NAT outbound for ifc - cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"outbound"
+							]
+						},
+						"description": "Setting interface NAT outbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Disable NAT outbound for ifc - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"outbound"
+							]
+						},
+						"description": "Unsetting interface NAT outbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Set NAT inbound for ifc (post routing) - cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"inbound\" : {\r\n        \t\"post-routing\" : true\r\n        }\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"inbound"
+							]
+						},
+						"description": "Setting interface NAT inbound output-feature (post routing)\n\nCLI: set interface nat44 in <intfc> out <intfc> output-feature [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Disable NAT inbound for ifc (post routing) - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"inbound"
+							]
+						},
+						"description": "Unsetting interface NAT inbound output-feature (post routing)\n\nCLI: set interface nat44 in <intfc> out <intfc> output-feature [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Set NAT outbound for ifc (post routing) - cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"outbound\" : {\r\n        \t\"post-routing\" : true\r\n        }\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"outbound"
+							]
+						},
+						"description": "Setting interface NAT outbound feature (post routing)\n\nCLI: set interface nat44 in <intfc> out <intfc> output-feature [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
+				},
+				{
+					"name": "Disable NAT outbound for ifc (post routing) - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"interface-nat:nat",
+								"outbound"
+							]
+						},
+						"description": "Unsetting interface NAT outbound feature (post routing)\n\nCLI: set interface nat44 in <intfc> out <intfc> output-feature [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+					},
+					"response": []
 				}
-			],
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/outbound",
-			"queryParams": [],
-			"preRequestScript": "",
-			"pathVariables": {},
-			"pathVariableData": [],
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1498726954006,
-			"name": "Set NAT outbound for subifc - cfg",
-			"description": "Setting sub-interface NAT outbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}",
-			"folder": "f01be22c-297e-e3e5-7859-bc8f40887321"
+			]
 		},
 		{
-			"id": "70096d81-aeb7-01a9-2a10-b01872ff0b86",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/naming-context:contexts",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
 			"name": "Get NAT context",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1475678940763,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}",
-			"isFromCollection": true,
-			"collectionRequestId": "70096d81-aeb7-01a9-2a10-b01872ff0b86"
-		},
-		{
-			"id": "7b92417d-e638-9e8c-23c7-a4aab3220a4f",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/2/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1487676902330,
-			"name": "Add single address to pool",
-			"description": "CLI: vppctl nat44 add address 172.16.2.123\n\nCan be verified with\nvat# nat44_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 2,\r\n\t\t\"external-ip-pool\": \"172.16.2.123/32\"\r\n\t}\r\n}",
-			"folder": "d8c6ccdb-0df5-032d-6865-d2ea2a0782fc"
-		},
-		{
-			"id": "7c21fede-28ce-28a6-44ec-dc91ef9a99f8",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "DELETE",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
-			"name": "Disable NAT inbound for ifc - cfg",
-			"description": "Unsetting interface NAT inbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"descriptionFormat": "html",
-			"time": 1475835912474,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}",
-			"folder": "b22a3174-1314-bfbb-91f8-86c57b71b0cb"
-		},
-		{
-			"id": "84c2abaa-67f5-305e-e536-4bddcb8230cc",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/3/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1502970015631,
-			"name": "Delete Nat64 address pool",
-			"description": "CLI: vppctl nat64 add pool address 172.16.2.0 - 172.16.2.4 del\n\nCan be verified with\nvppctl show nat64 pool\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "8cc85522-d230-fa19-dc00-e9ad4ef52b8e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1475758450889,
-			"name": "Add SNAT 1:1 static entry IPv4 -cfg",
-			"description": "CLI: nat44 add static mapping local 10.0.0.3 external 4.4.4.4\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n\t\"mapping-entry\" : {\r\n\t\t\"index\": 1,\r\n\t\t\"type\": \"static\",\r\n\t\t\"internal-src-address\": \"192.168.1.87/32\",\r\n\t\t\"external-src-address\": \"45.1.5.7/32\"\r\n\t}\r\n}",
-			"folder": "d256d898-3c36-7ce5-cf2a-74370463d78f"
-		},
-		{
-			"id": "922bd899-44b1-eb14-49c7-7cb9e9984481",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "DELETE",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
-			"name": "Disable NAT outbound for ifc - cfg",
-			"description": "Unsetting interface NAT outbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"descriptionFormat": "html",
-			"time": 1475835941689,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}",
-			"folder": "b22a3174-1314-bfbb-91f8-86c57b71b0cb"
-		},
-		{
-			"id": "9795bd6e-a1ec-dbaa-822c-328e3604e94e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/1/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1487676498064,
-			"name": "Add SNAT address pool",
-			"description": "CLI: vppctl nat44 add address 172.16.2.0 - 172.16.2.4\n\nCan be verified with\nvat# nat44_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n\t\"external-ip-address-pool\" : {\r\n\t\t\"pool-id\": 1,\r\n\t\t\"external-ip-pool\": \"172.16.2.0/30\"\r\n\t}\r\n}",
-			"folder": "d8c6ccdb-0df5-032d-6865-d2ea2a0782fc"
-		},
-		{
-			"id": "a21bb084-d606-4a90-bd2d-60b866771f90",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "DELETE",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
-			"name": "Delete SNAT 1:1 static entry IPv4 -cfg",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1475761660317,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"folder": "d256d898-3c36-7ce5-cf2a-74370463d78f"
-		},
-		{
-			"id": "afdc45a9-cf39-379b-5bb2-4a909512aee3",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/external-ip-address-pool/2/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1487678215755,
-			"name": "Delete single address",
-			"description": "CLI: vppctl nat44 del address 172.16.2.123\n\nCan be verified with\nvat# nat44_address_dump\n\nMore information:\nhttps://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "",
-			"folder": "d8c6ccdb-0df5-032d-6865-d2ea2a0782fc"
-		},
-		{
-			"id": "b707bb28-9f4d-bedd-c690-549b68d6220c",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1501658393667,
-			"name": "Set NAT outbound for ifc (post routing) - cfg",
-			"description": "Setting interface NAT outbound feature (post routing)\n\nCLI: set interface nat44 in <intfc> out <intfc> output-feature [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"outbound\" : {\r\n        \t\"post-routing\" : true\r\n        }\r\n    \r\n}",
-			"folder": "b22a3174-1314-bfbb-91f8-86c57b71b0cb"
-		},
-		{
-			"id": "b7c9a0d0-394d-eeb3-1615-af7349ba229e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1502969748622,
-			"name": "Disable NAT64 outbound for ifc - cfg",
-			"description": "Disabling interface NAT64 outbound feature\n\nCLI: set interface nat64 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "2992acee-87da-3d9f-8bec-f00721d0c7e0",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/policy/0/nat64-prefixes/2001%3Adb8%3A122%3A300%3A%3A%2F56",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1503488485762,
-			"name": "Delete NAT64 prefix",
-			"description": "Removes configured NAT64 prefix:\n\nCLI: nat64 add prefix <ip6-prefix>/<plen> [tenant-vrf <vrf-id>] [del]\n\nCan be verified with\n\nCLI: show nat64 prefix\n\nMore information: https://wiki.fd.io/view/VPP/SNAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "bb79f635-3d21-8f07-a2e9-fc2c1a7b7f4a",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"headerData": [
-				{
-					"key": "Authorization",
-					"value": "Basic YWRtaW46YWRtaW4=",
-					"description": "",
-					"enabled": true
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
 				},
-				{
-					"key": "Content-Type",
-					"value": "application/json",
-					"description": "",
-					"enabled": true
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/naming-context:contexts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"naming-context:contexts"
+					]
 				}
-			],
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/inbound",
-			"queryParams": [],
-			"preRequestScript": "",
-			"pathVariables": {},
-			"pathVariableData": [],
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1498726948962,
-			"name": "Disable NAT inbound for subifc - cfg",
-			"description": "Unsetting sub-interface NAT inbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}",
-			"folder": "f01be22c-297e-e3e5-7859-bc8f40887321"
+			},
+			"response": []
 		},
 		{
-			"id": "bef09aa4-dcf2-1ec8-43e9-6991d8686100",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1501658697686,
-			"name": "Disable NAT inbound for ifc (post routing) - cfg",
-			"description": "Unsetting interface NAT inbound output-feature (post routing)\n\nCLI: set interface nat44 in <intfc> out <intfc> output-feature [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "",
-			"folder": "b22a3174-1314-bfbb-91f8-86c57b71b0cb"
-		},
-		{
-			"id": "c256b9c8-c530-acc2-f197-fd59e0d6843f",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-nat:nat/instances/instance/0/mapping-table/mapping-entry/1/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1502272808631,
-			"name": "Add NAT64 static BIB entry -cfg",
-			"description": "CLI: nat64 add static bib 2001:db8:85a3::8a2e:370:7334 1234 10.1.1.3 5678 tcp\n\nMore information: https://wiki.fd.io/view/VPP/NAT#Stateful_NAT64",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\n  \"mapping-entry\": {\n    \"index\": 1,\n    \"type\": \"static\",\n    \"transport-protocol\": 6,\n    \"internal-src-address\": \"2001:db8:85a3::8a2e:370:7334/128\",\n    \"external-src-address\": \"10.1.1.3/32\",\n    \"internal-src-port\": {\n      \"start-port-number\": 1234\n    },\n    \"external-src-port\": {\n      \"start-port-number\": 5678\n    }\n  }\n}"
-		},
-		{
-			"id": "c47386c4-520b-78a5-9c52-a0f36e8aa6d0",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"headerData": [
-				{
-					"key": "Authorization",
-					"value": "Basic YWRtaW46YWRtaW4=",
-					"description": "",
-					"enabled": true
-				},
-				{
-					"key": "Content-Type",
-					"value": "application/json",
-					"description": "",
-					"enabled": true
-				}
-			],
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
-			"queryParams": [],
-			"pathVariables": {},
-			"pathVariableData": [],
-			"preRequestScript": "",
-			"method": "DELETE",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
-			"name": "Disable NAT outbound for subifc - cfg",
-			"description": "Unsetting sub-interface NAT outbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"descriptionFormat": "html",
-			"time": 1498726898787,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"folder": "f01be22c-297e-e3e5-7859-bc8f40887321",
-			"rawModeData": "{\r\n    \r\n        \"outbound\" : {}\r\n    \r\n}"
-		},
-		{
-			"id": "c4a57265-e848-274d-35d1-6b12f1f39e62",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/ietf-nat:nat",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
 			"name": "Get NAT state",
-			"description": "Read NAT state\n\nCLI: show nat44 [detail|verbose]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"descriptionFormat": "html",
-			"time": 1475677867416,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}",
-			"isFromCollection": true,
-			"collectionRequestId": "c4a57265-e848-274d-35d1-6b12f1f39e62"
-		},
-		{
-			"id": "cbad80e8-367a-6d8b-0a93-a81c717057aa",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1502969740040,
-			"name": "Set NAT64 inbound for ifc - cfg",
-			"description": "Setting interface NAT64 inbound feature\n\nCLI: set interface nat64 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {\r\n        \t\"nat44-support\" : false,\r\n        \t\"nat64-support\" : true\r\n        }\r\n    \r\n}"
-		},
-		{
-			"id": "cdedb3f4-e4ab-1ea8-07b8-53639b44a257",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
-			"name": "List ifcs - state",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1487678587771,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"id": "d18c452e-0932-fa52-051d-8ad59cbaaede",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/outbound",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1501658438697,
-			"name": "Disable NAT outbound for ifc (post routing) - cfg",
-			"description": "Unsetting interface NAT outbound feature (post routing)\n\nCLI: set interface nat44 in <intfc> out <intfc> output-feature [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"responses": [],
-			"rawModeData": "",
-			"isFromCollection": true,
-			"collectionRequestId": "d18c452e-0932-fa52-051d-8ad59cbaaede",
-			"folder": "b22a3174-1314-bfbb-91f8-86c57b71b0cb"
-		},
-		{
-			"id": "de4621a3-0a50-bc14-36af-535aa4f9f6af",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"headerData": [
-				{
-					"key": "Authorization",
-					"value": "Basic YWRtaW46YWRtaW4=",
-					"description": "",
-					"enabled": true
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
 				},
-				{
-					"key": "Content-Type",
-					"value": "application/json",
-					"description": "",
-					"enabled": true
-				}
-			],
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-vlan:sub-interfaces/sub-interface/1/subinterface-nat:nat/inbound",
-			"queryParams": [],
-			"pathVariables": {},
-			"pathVariableData": [],
-			"preRequestScript": "",
-			"method": "PUT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
-			"name": "Set NAT inbound for subifc - cfg",
-			"description": "Setting sub-interface NAT inbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"descriptionFormat": "html",
-			"time": 1498726706031,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"isFromCollection": true,
-			"folder": "f01be22c-297e-e3e5-7859-bc8f40887321",
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/ietf-nat:nat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"ietf-nat:nat"
+					]
+				},
+				"description": "Read NAT state\n\nCLI: show nat44 [detail|verbose]\n\nMore information: https://wiki.fd.io/view/VPP/NAT"
+			},
+			"response": []
 		},
 		{
-			"id": "e37a052c-7d36-7db7-2657-3d97cc0beac2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/interface-nat:nat/inbound",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "PUT",
-			"collectionId": "87e0bcaa-5031-9a2b-8a6b-329758310154",
-			"data": [],
-			"dataMode": "raw",
-			"name": "Set NAT inbound for ifc - cfg",
-			"description": "Setting interface NAT inbound feature\n\nCLI: set interface nat44 in <intfc> out <intfc> [del]\n\nMore information: https://wiki.fd.io/view/VPP/NAT",
-			"descriptionFormat": "html",
-			"time": 1475154374071,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}",
-			"isFromCollection": true,
-			"collectionRequestId": "e37a052c-7d36-7db7-2657-3d97cc0beac2",
-			"folder": "b22a3174-1314-bfbb-91f8-86c57b71b0cb"
+			"name": "Get NAT config",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"inbound\" : {}\r\n    \r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/ietf-nat:nat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"ietf-nat:nat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List ifcs - state",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"ietf-interfaces:interfaces-state",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List ifcs - config",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"ietf-interfaces:interfaces",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
