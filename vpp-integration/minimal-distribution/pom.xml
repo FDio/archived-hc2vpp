@@ -65,6 +65,8 @@
       io.fd.hc2vpp.dhcp.DhcpModule,
       io.fd.hc2vpp.policer.PolicerModule,
       io.fd.hc2vpp.mpls.MplsModule,
+      <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
+      // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- iOAM module by default disabled, because it needs ioam plugin (not part of vpp codebase.)-->
       // io.fd.hc2vpp.vppioam.impl.VppIoamModule,
       <!-- Bgp modules disabled by default, because it BGP northbound interface is not enabled by default -->
@@ -126,6 +128,11 @@
       <groupId>io.fd.hc2vpp.lisp</groupId>
       <artifactId>lisp2vpp</artifactId>
       <version>${lisp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.nsh</groupId>
+      <artifactId>vppnsh-impl</artifactId>
+      <version>${vppnsh.version}</version>
     </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.nat</groupId>

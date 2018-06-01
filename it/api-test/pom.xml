@@ -87,6 +87,12 @@
 
         <!-- Open source plugins -->
         <dependency>
+            <groupId>io.fd.hc2vpp.nsh</groupId>
+            <artifactId>vppnsh-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.fd.hc2vpp.ioam</groupId>
             <artifactId>vppioam-api</artifactId>
             <version>${project.version}</version>
