@@ -1,234 +1,419 @@
 {
-	"id": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-	"name": "Interface/SubInterface v4/v6 routing",
-	"description": "Provides example requests on how to configure v4/v6 vrf id for Interfaces/SubInterfaces",
-	"order": [],
-	"folders": [
+	"info": {
+		"_postman_id": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
+		"name": "Interface/SubInterface v4/v6 routing",
+		"description": "Provides example requests on how to configure v4/v6 vrf id for Interfaces/SubInterfaces",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "3efd368a-fb93-a6dc-b3a9-bde67b497527",
+			"_postman_id": "f95b119a-18ed-437f-93d4-70ed30ded5a5",
 			"name": "Interface",
 			"description": "",
-			"order": [
-				"db3bbb6a-cd82-749f-3e79-4b2220badb65",
-				"a159201f-37f9-b44f-a65a-f7d9f5a8651e",
-				"9e3949bf-b0d4-b79d-645b-4f9d3288dc77",
-				"cf22b25c-82cf-d6bb-ae62-af122e3d6dea",
-				"9cbe3511-150b-f37a-4a84-7bb6a83f1930"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "eb215c9b-c6d9-4427-a74a-803fd3d0758c",
+					"name": "Add ipv4 routing for interface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "4c0ffb6f-b200-4f44-a023-feadb69eacee",
+					"name": "Add both routings for interface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":2,\n\t\t\"ipv6-vrf-id\":8\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "12f76245-db74-48ca-b522-ebec7403f1e9",
+					"name": "Add ipv6 routing for interface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv6-vrf-id\":12\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "52dd090b-5fb7-4e58-9ca8-59dea1552743",
+					"name": "Get interface routing config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "47cf91e3-071e-44a6-9f6f-8642bc905e26",
+					"name": "Get interface routing operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "77eaa7bb-3194-7a79-b8ee-fd2ad944759e",
+			"_postman_id": "2c0c458c-168b-4873-b0da-ba6b4712bc37",
 			"name": "SubInterface",
 			"description": "",
-			"order": [
-				"1a4b0595-f4b1-83ba-28ea-c0e077c09abb",
-				"b7d0d85e-12a9-b244-af10-4364d1dd6cac",
-				"2f085988-b580-de67-a523-e60f5d812154",
-				"f3228265-d4b6-bce7-3eba-26da0a5ed334",
-				"6034808b-de49-1a46-e138-e0a850949f73"
-			],
-			"owner": "658985"
-		}
-	],
-	"timestamp": 1494325250561,
-	"owner": "658985",
-	"public": false,
-	"requests": [
-		{
-			"id": "1a4b0595-f4b1-83ba-28ea-c0e077c09abb",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494324879172,
-			"name": "Add ipv4 routing for subinterface",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"folder": "77eaa7bb-3194-7a79-b8ee-fd2ad944759e",
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
-		},
-		{
-			"id": "2f085988-b580-de67-a523-e60f5d812154",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494324943267,
-			"name": "Add ipv6 routing for subinterface",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"folder": "77eaa7bb-3194-7a79-b8ee-fd2ad944759e",
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv6-vrf-id\":7\n\t}\n\t\n}"
-		},
-		{
-			"id": "6034808b-de49-1a46-e138-e0a850949f73",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494325005141,
-			"name": "Get subinterface routing state",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"folder": "77eaa7bb-3194-7a79-b8ee-fd2ad944759e",
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
-		},
-		{
-			"id": "9cbe3511-150b-f37a-4a84-7bb6a83f1930",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494398532104,
-			"name": "Get interface routing operational",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
-		},
-		{
-			"id": "9e3949bf-b0d4-b79d-645b-4f9d3288dc77",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494398578232,
-			"name": "Add ipv6 routing for interface",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv6-vrf-id\":12\n\t}\n\t\n}"
-		},
-		{
-			"id": "a159201f-37f9-b44f-a65a-f7d9f5a8651e",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494398570514,
-			"name": "Add both routings for interface",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":2,\n\t\t\"ipv6-vrf-id\":8\n\t}\n\t\n}"
-		},
-		{
-			"id": "b7d0d85e-12a9-b244-af10-4364d1dd6cac",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494324983984,
-			"name": "Add both routings for subinterface",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"folder": "77eaa7bb-3194-7a79-b8ee-fd2ad944759e",
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4,\n\t\t\"ipv6-vrf-id\":7\n\t}\n\t\n}"
-		},
-		{
-			"id": "cf22b25c-82cf-d6bb-ae62-af122e3d6dea",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494398536355,
-			"name": "Get interface routing config",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
-		},
-		{
-			"id": "db3bbb6a-cd82-749f-3e79-4b2220badb65",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494398551994,
-			"name": "Add ipv4 routing for interface",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
-		},
-		{
-			"id": "f3228265-d4b6-bce7-3eba-26da0a5ed334",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494324988961,
-			"name": "Get subinterface routing config",
-			"description": "",
-			"collectionId": "2aa13182-abbc-189b-6b63-f5f74ccd177f",
-			"responses": [],
-			"folder": "77eaa7bb-3194-7a79-b8ee-fd2ad944759e",
-			"rawModeData": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
+			"item": [
+				{
+					"_postman_id": "5a4015ca-7c75-4920-a438-a93c3c83e15c",
+					"name": "Add ipv4 routing for subinterface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"vpp-vlan:sub-interfaces",
+								"sub-interface",
+								"1",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "8375ac69-65e7-41e2-97fa-e36b940adc7e",
+					"name": "Add both routings for subinterface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4,\n\t\t\"ipv6-vrf-id\":7\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"vpp-vlan:sub-interfaces",
+								"sub-interface",
+								"1",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "76065950-d2cf-4562-b06e-c2bc9badcb81",
+					"name": "Add ipv6 routing for subinterface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv6-vrf-id\":7\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"vpp-vlan:sub-interfaces",
+								"sub-interface",
+								"1",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "bcb02312-4cba-4de4-b70a-5d6fdc8f058a",
+					"name": "Get subinterface routing config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"vpp-vlan:sub-interfaces",
+								"sub-interface",
+								"1",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "e22c2378-8dbd-4b78-8834-b7990f90436e",
+					"name": "Get subinterface routing state",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"routing\":{\n\t\t\"ipv4-vrf-id\":4\n\t}\n\t\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/GigabitEthernet0%2F8%2F0/vpp-vlan:sub-interfaces/sub-interface/1/routing",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"ietf-interfaces:interfaces-state",
+								"interface",
+								"GigabitEthernet0%2F8%2F0",
+								"vpp-vlan:sub-interfaces",
+								"sub-interface",
+								"1",
+								"routing"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

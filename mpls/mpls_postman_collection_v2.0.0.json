@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "339d199d-968a-4087-82cf-322a6ccd249f",
+		"_postman_id": "a86a2f22-d753-4a4b-a1a4-ade4f9bbfb2f",
 		"name": "Honeycomb MPLS calls",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
 		{
@@ -23,21 +23,7 @@
 					"mode": "raw",
 					"raw": "{\r\n    \r\n    \"interface\": [\r\n        {\r\n            \"name\": \"loop0\",\r\n            \"description\": \"for testing purposes\",\r\n            \"type\": \"v3po:loopback\",\r\n            \"loopback\" :{\r\n                \"mac\" : \"00:ff:ff:ff:ff:ff\"\r\n            }\r\n        }\r\n    ]\r\n    \r\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/loop0",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"ietf-interfaces:interfaces",
-						"interface",
-						"loop0"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/loop0",
 				"description": "Corresponding CLI command:\n\ncreate loop interface"
 			},
 			"response": []
@@ -60,20 +46,7 @@
 					"mode": "raw",
 					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"ietf-interfaces:interfaces",
-						""
-					]
-				}
+				"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/"
 			},
 			"response": []
 		},
@@ -95,20 +68,7 @@
 					"mode": "raw",
 					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"operational",
-						"ietf-interfaces:interfaces-state",
-						""
-					]
-				}
+				"url": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/"
 			},
 			"response": []
 		},
@@ -130,22 +90,7 @@
 					"mode": "raw",
 					"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"loop0\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/loop0",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"interface",
-						"loop0"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/loop0",
 				"description": "Correspondig CLI command:\n\nset interface mpls loop0 enable"
 			},
 			"response": []
@@ -168,20 +113,7 @@
 					"mode": "raw",
 					"raw": ""
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls"
-					]
-				}
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
 			},
 			"response": []
 		},
@@ -203,23 +135,7 @@
 					"mode": "raw",
 					"raw": "{\n  \"static-lsp\": [{\n    \"name\": \"static-lsp0\",\n    \"config\": {\n      \"in-segment\": {\n        \"config\": {\n          \"ip-prefix\": \"10.10.34.0/24\"\n        }\n      },\n      \"operation\": \"impose-and-forward\"\n    },\n    \"simple-path\": {\n      \"config\": {\n        \"next-hop\": \"10.10.13.3\",\n        \"outgoing-label\": 111,\n        \"outgoing-interface\": \"loop0\"\n      }\n    }\n  }]\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp0",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp0"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp0",
 				"description": "Corresponding CLI command:\n\nip route add 10.10.34.0/24 via 10.10.13.3 loop0 out-labels 111\n\nCan be verified via CLI using:\n\nshow ip fib 10.10.34.0/24"
 			},
 			"response": []
@@ -242,23 +158,7 @@
 					"mode": "raw",
 					"raw": "{\r\n  \"static-lsp\": [{\r\n    \"name\": \"static-lsp1\",\r\n    \"config\": {\r\n      \"in-segment\": {\r\n        \"config\": {\r\n          \"ip-prefix\": \"10.10.24.0/24\"\r\n        }\r\n      },\r\n      \"operation\": \"impose-and-forward\"\r\n    },\r\n    \"paths\": {\r\n      \"path\": [{\r\n        \"path-index\": 0,\r\n        \"config\" : {\r\n          \"path-index\": 0,\r\n          \"next-hop\": \"10.10.12.2\",\r\n          \"outgoing-interface\": \"loop0\"  \r\n        }\r\n      }],\r\n      \"outgoing-labels\": {\r\n        \"outgoing-labels\": [\r\n          {\r\n            \"index\": 0,\r\n            \"config\": {\r\n              \"index\": 0,\r\n              \"label\": 102\r\n            }\r\n          },\r\n          {\r\n            \"index\": 1,\r\n            \"config\": {\r\n              \"index\": 1,\r\n              \"label\": 104\r\n            }\r\n          }\r\n          ]\r\n      }\r\n    }\r\n  }]\r\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp1"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp1",
 				"description": "Corresponding CLI command:\n\nip route add 10.10.24.0/24 via 10.10.12.2 loop1 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.10.24.0/24"
 			},
 			"response": []
@@ -281,23 +181,7 @@
 					"mode": "raw",
 					"raw": "{\n  \"static-lsp\": [{\n    \"name\": \"static-lsp2\",\n    \"config\": {\n      \"in-segment\": {\n        \"config\": {\n          \"incoming-label\": 102\n        }\n      },\n      \"operation\": \"pop-and-lookup\",\n      \"vpp-mpls:label-lookup\": {\n        \"type\": \"mpls\",\n        \"mpls-lookup-in-table\": 0\n      }\n    }\n  }]\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp2",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp2"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp2",
 				"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 102 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 102"
 			},
 			"response": []
@@ -320,23 +204,7 @@
 					"mode": "raw",
 					"raw": "{\n  \"static-lsp\": [{\n    \"name\": \"static-lsp3\",\n    \"config\": {\n      \"in-segment\": {\n        \"config\": {\n          \"incoming-label\": 104\n        }\n      },\n      \"operation\": \"pop-and-lookup\",\n      \"vpp-mpls:label-lookup\": {\n        \"type\": \"ipv4\",\n        \"ip4-lookup-in-table\": 0\n      }\n    }\n  }]\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp3",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp3"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp3",
 				"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 ip4-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
 			},
 			"response": []
@@ -359,23 +227,7 @@
 					"mode": "raw",
 					"raw": "{\n  \"static-lsp\": [{\n    \"name\": \"static-lsp4\",\n    \"config\": {\n      \"in-segment\": {\n        \"config\": {\n          \"incoming-label\": 123\n        }\n      },\n      \"operation\": \"swap-and-forward\"\n    },\n    \"simple-path\": {\n      \"config\": {\n        \"next-hop\": \"10.10.24.5\",\n        \"outgoing-label\": 123,\n        \"outgoing-interface\": \"loop0\"\n      }\n    }\n  }]\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp4",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp4"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp4",
 				"description": "Corresponding CLI command:\n\nmpls local-label add eos 123 via 10.10.24.4 loop0 out-labels 123\n\n\nCan be verified via CLI using:\n\nshow mpls fib 123"
 			},
 			"response": []
@@ -398,22 +250,7 @@
 					"mode": "raw",
 					"raw": ""
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						""
-					]
-				}
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/"
 			},
 			"response": []
 		},
@@ -435,23 +272,7 @@
 					"mode": "raw",
 					"raw": ""
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp0",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp0"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp0",
 				"description": "Corresponding CLI command:\n\nip route del 10.10.34.0/24 via 10.10.13.3 loop0 out-labels 111\n\nCan be verified via CLI using:\n\nshow ip fib"
 			},
 			"response": []
@@ -474,23 +295,7 @@
 					"mode": "raw",
 					"raw": ""
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp1"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp1",
 				"description": "Corresponding CLI command:\n\nip route add 10.10.24.0/24 via 10.10.12.2 loop1 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib"
 			},
 			"response": []
@@ -513,23 +318,7 @@
 					"mode": "raw",
 					"raw": ""
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp2",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp2"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp2",
 				"description": "Corresponding CLI command:\n\nmpls local-label del non-eos 102 mpls-lookup-in-table 0\n\nCan be verified via CLI using:\n\nshow mpls fib"
 			},
 			"response": []
@@ -552,23 +341,7 @@
 					"mode": "raw",
 					"raw": ""
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp3",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp3"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp3",
 				"description": "Corresponding CLI command:\n\nmpls local-label del eos 104 ip4-lookup-in-table 0\n\nCan be verified via CLI using:\n\nshow mpls fib"
 			},
 			"response": []
@@ -591,23 +364,7 @@
 					"mode": "raw",
 					"raw": ""
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp4",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"hc2vpp-ietf-mpls-static:static-lsps",
-						"static-lsp",
-						"static-lsp4"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/static-lsp4",
 				"description": "Corresponding CLI command:\n\nmpls local-label del eos 123 via 10.10.24.4 loop0 out-labels 123\n\nCan be verified via CLI using:\n\nshow mpls fib"
 			},
 			"response": []
@@ -630,22 +387,7 @@
 					"mode": "raw",
 					"raw": ""
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/loop0",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing",
-						"hc2vpp-ietf-mpls:mpls",
-						"interface",
-						"loop0"
-					]
-				},
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/loop0",
 				"description": "Correspondig CLI command:\n\nset interface mpls loop0 disable"
 			},
 			"response": []

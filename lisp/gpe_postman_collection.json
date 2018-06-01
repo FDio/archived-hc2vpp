@@ -1,340 +1,467 @@
 {
-	"id": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-	"name": "Lisp gpe RESTCONF collection",
-	"description": "",
-	"order": [
-		"f0ae8c21-de3e-2ec1-c816-4cc2e970a839",
-		"6a934021-ad9b-d1ef-4059-8639caddc2bf",
-		"7ff012c8-9065-008b-4552-cf0de8846426",
-		"2b9b1bec-1e40-b7c9-4756-c2eee3936d73",
-		"478e1140-d6e6-56ab-e9b7-11628a06b8ee",
-		"afd22ac4-448b-157a-de99-cdb353859546",
-		"1bbf9810-f369-a2a1-95cc-5f42529480fe",
-		"3b529c6c-f4f0-7e69-c61f-4dc8f16d3c65",
-		"12fac9c2-162d-7274-5f90-6e943f7a9433",
-		"5682b704-dc88-8186-c0ed-f7bb952f8150"
-	],
-	"folders": [
+	"info": {
+		"_postman_id": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
+		"name": "Lisp gpe RESTCONF collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "a2b53670-baa2-92ae-6309-08d23db0a70d",
+			"_postman_id": "69973200-c6fd-444e-8212-e6e927ea4156",
 			"name": "Native entries",
 			"description": "",
-			"order": [
-				"33fc474a-30f2-ec43-eb3d-7de056dbcda0",
-				"108cdf05-a647-ee74-f59e-e224f5827073"
-			],
-			"owner": "658985"
-		}
-	],
-	"timestamp": 0,
-	"owner": "658985",
-	"public": false,
-	"requests": [
-		{
-			"id": "108cdf05-a647-ee74-f59e-e224f5827073",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"headerData": [
+			"item": [
 				{
-					"key": "Authorization",
-					"value": "Basic YWRtaW46YWRtaW4=",
-					"description": "",
-					"enabled": true
+					"_postman_id": "c78fc116-dc68-4668-a82b-ebac3aff2818",
+					"name": "Add table with entries",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"native-forward-paths-table\":{\n\t  \"table-id\":\"4\",\n\t  \"native-forward-path\":[\n\t  \t{\n\t  \t\t\"next-hop-address\":\"192.168.2.1\",\n\t  \t\t\"next-hop-interface\":\"local0\"\n\t  \t},\n\t  \t{\n\t  \t\t\"next-hop-address\":\"192.168.3.1\"\n\t  \t},\n\t  \t{\n\t  \t\t\"next-hop-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t  \t}\n\t  \t]\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/gpe:native-forward-paths-tables/native-forward-paths-table/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"gpe:native-forward-paths-tables",
+								"native-forward-paths-table",
+								"4"
+							]
+						}
+					},
+					"response": []
 				},
 				{
-					"key": "Content-Type",
-					"value": "application/json",
-					"description": "",
-					"enabled": true
+					"_postman_id": "3f93c8db-06c3-49df-bb03-24a74578461c",
+					"name": "Get table 4",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"native-forward-paths-table\":{\n\t  \"table-id\":\"4\",\n\t  \"native-forward-path\":[\n\t  \t{\n\t  \t\t\"next-hop-address\":\"192.168.2.1\",\n\t  \t\t\"next-hop-interface\":\"local0\"\n\t  \t},\n\t  \t{\n\t  \t\t\"next-hop-address\":\"192.168.3.1\"\n\t  \t},\n\t  \t{\n\t  \t\t\"next-hop-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t  \t}\n\t  \t]\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/gpe:native-forward-paths-tables/native-forward-paths-table/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"gpe:native-forward-paths-tables",
+								"native-forward-paths-table",
+								"4"
+							]
+						}
+					},
+					"response": []
 				}
-			],
-			"url": "http://localhost:8183/restconf/config/gpe:native-forward-paths-tables/native-forward-paths-table/4",
-			"queryParams": [],
-			"preRequestScript": null,
-			"pathVariables": {},
-			"pathVariableData": [],
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1497354248641,
-			"name": "Get table 4",
-			"description": "",
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"isFromCollection": true,
-			"collectionRequestId": "9e99cfa4-474d-1f4d-26b3-c6caa7460d4b",
-			"folder": "a2b53670-baa2-92ae-6309-08d23db0a70d",
-			"rawModeData": "{\n\t\"native-forward-paths-table\":{\n\t  \"table-id\":\"4\",\n\t  \"native-forward-path\":[\n\t  \t{\n\t  \t\t\"next-hop-address\":\"192.168.2.1\",\n\t  \t\t\"next-hop-interface\":\"local0\"\n\t  \t},\n\t  \t{\n\t  \t\t\"next-hop-address\":\"192.168.3.1\"\n\t  \t},\n\t  \t{\n\t  \t\t\"next-hop-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t  \t}\n\t  \t]\n\t}\n}"
+			]
 		},
 		{
-			"folder": null,
-			"id": "12fac9c2-162d-7274-5f90-6e943f7a9433",
-			"name": "Delete gpe entry- negative mapping",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "DELETE",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/gpe:gpe/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-2",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
-		},
-		{
-			"folder": null,
-			"id": "1bbf9810-f369-a2a1-95cc-5f42529480fe",
-			"name": "Get gpe entry- negative mapping",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/gpe:gpe-state/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-2",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
-		},
-		{
-			"folder": null,
-			"id": "2b9b1bec-1e40-b7c9-4756-c2eee3936d73",
-			"name": "Add gpe entry - negative mapping",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "gpe entry add vni 10 vrf 1 leid 192.100.2.1/24 reid 192.100.3.1/24 negative action 2\n\n to verify \n \nshow gpe entry",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/gpe:gpe/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-2",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe-entry\":\n  {\n    \"id\":\"gpe-entry-2\",\n    \"dp-table\":\"2\",\n    \"vni\":11,\n    \"local-eid\":{\n      \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n           \"virtual-network-id\":\"11\",\n           \"ipv4-prefix\":\"192.100.2.1/24\"\n    },\n    \"remote-eid\":{\n      \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n           \"virtual-network-id\":\"11\",\n           \"ipv4-prefix\":\"192.100.3.1/24\"\n    },\n    \"action\":\"send-map-request\"\n  }  \n}"
-		},
-		{
-			"id": "33fc474a-30f2-ec43-eb3d-7de056dbcda0",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"headerData": [
-				{
-					"key": "Authorization",
-					"value": "Basic YWRtaW46YWRtaW4=",
-					"description": "",
-					"enabled": true
-				},
-				{
-					"key": "Content-Type",
-					"value": "application/json",
-					"description": "",
-					"enabled": true
-				}
-			],
-			"url": "http://localhost:8183/restconf/config/gpe:native-forward-paths-tables/native-forward-paths-table/4",
-			"queryParams": [],
-			"preRequestScript": null,
-			"pathVariables": {},
-			"pathVariableData": [],
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1497354971312,
-			"name": "Add table with entries",
-			"description": "",
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"isFromCollection": true,
-			"collectionRequestId": "72c8c426-ac72-0c24-a4c1-9b5903f7fbd1",
-			"folder": "a2b53670-baa2-92ae-6309-08d23db0a70d",
-			"rawModeData": "{\n\t\"native-forward-paths-table\":{\n\t  \"table-id\":\"4\",\n\t  \"native-forward-path\":[\n\t  \t{\n\t  \t\t\"next-hop-address\":\"192.168.2.1\",\n\t  \t\t\"next-hop-interface\":\"local0\"\n\t  \t},\n\t  \t{\n\t  \t\t\"next-hop-address\":\"192.168.3.1\"\n\t  \t},\n\t  \t{\n\t  \t\t\"next-hop-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t  \t}\n\t  \t]\n\t}\n}"
-		},
-		{
-			"folder": null,
-			"id": "3b529c6c-f4f0-7e69-c61f-4dc8f16d3c65",
-			"name": "Delete gpe entry- positive mapping",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "DELETE",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/gpe:gpe/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
-		},
-		{
-			"folder": null,
-			"id": "478e1140-d6e6-56ab-e9b7-11628a06b8ee",
-			"name": "Get gpe status",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/gpe:gpe-state",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
-		},
-		{
-			"folder": null,
-			"id": "5682b704-dc88-8186-c0ed-f7bb952f8150",
-			"name": "Disable gpe",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "DELETE",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/gpe:gpe",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
-		},
-		{
-			"folder": null,
-			"id": "6a934021-ad9b-d1ef-4059-8639caddc2bf",
-			"name": "Enable gpe",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": "html",
-			"description": "vppstl gpe enable\n\n to verify\n\nvppctl show lisp status",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/gpe:gpe",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
-		},
-		{
-			"folder": null,
-			"id": "7ff012c8-9065-008b-4552-cf0de8846426",
-			"name": "Add gpe entry - positive mapping",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": "html",
-			"description": "gpe entry add vni 10 vrf 1 leid 192.168.2.1/24 reid 192.168.3.1/24 loc-pair 192.168.7.7 192.168.7.8 w 3\n\n to verify\n \nshow gpe entry\n",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/gpe:gpe/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe-entry\":\n  {\n    \"id\":\"gpe-entry-1\",\n    \"dp-table\":\"1\",\n    \"vni\":10,\n    \"local-eid\":{\n      \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n           \"virtual-network-id\":\"10\",\n           \"ipv4-prefix\":\"192.168.2.1/24\"\n    },\n    \"remote-eid\":{\n      \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n           \"virtual-network-id\":\"10\",\n           \"ipv4-prefix\":\"192.168.3.1/24\"\n    },\n    \"locator-pair\":[\n      {\n         \"local-locator\":\"192.168.7.7\",\n          \"remote-locator\":\"192.168.7.8\",\n          \"weight\":3\n      },\n      {\n          \"local-locator\":\"192.168.9.7\",\n          \"remote-locator\":\"192.168.9.8\",\n          \"weight\":2\n       }  \n    ]\n  }  \n}"
-		},
-		{
-			"folder": null,
-			"id": "afd22ac4-448b-157a-de99-cdb353859546",
-			"name": "Get gpe entry- positive mapping",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/gpe:gpe-state/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"queryParams": null,
-			"headerData": null,
-			"pathVariableData": null,
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
-		},
-		{
-			"id": "f0ae8c21-de3e-2ec1-c816-4cc2e970a839",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"headerData": [
-				{
-					"key": "Authorization",
-					"value": "Basic YWRtaW46YWRtaW4=",
-					"description": "",
-					"enabled": true
-				},
-				{
-					"key": "Content-Type",
-					"value": "application/json",
-					"description": "",
-					"enabled": true
-				}
-			],
-			"url": "http://localhost:8183/restconf/operational/naming-context:contexts",
-			"queryParams": [],
-			"preRequestScript": "",
-			"pathVariables": {},
-			"pathVariableData": [],
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1496403090883,
+			"_postman_id": "a7939122-f5a8-4e1f-88a3-67537467fc4a",
 			"name": "ctx",
-			"description": "",
-			"collectionId": "71b7e698-4b8c-0ad6-38af-8304b6a5c4e0",
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/naming-context:contexts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"naming-context:contexts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "f9a1830d-aa3e-4def-8b72-a3fb22dcf73d",
+			"name": "Enable gpe",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/gpe:gpe",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"gpe:gpe"
+					]
+				},
+				"description": "vppstl gpe enable\n\n to verify\n\nvppctl show lisp status"
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "c4323077-6a62-4670-a1d4-1e3da4bad1cb",
+			"name": "Add gpe entry - positive mapping",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe-entry\":\n  {\n    \"id\":\"gpe-entry-1\",\n    \"dp-table\":\"1\",\n    \"vni\":10,\n    \"local-eid\":{\n      \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n           \"virtual-network-id\":\"10\",\n           \"ipv4-prefix\":\"192.168.2.1/24\"\n    },\n    \"remote-eid\":{\n      \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n           \"virtual-network-id\":\"10\",\n           \"ipv4-prefix\":\"192.168.3.1/24\"\n    },\n    \"locator-pair\":[\n      {\n         \"local-locator\":\"192.168.7.7\",\n          \"remote-locator\":\"192.168.7.8\",\n          \"weight\":3\n      },\n      {\n          \"local-locator\":\"192.168.9.7\",\n          \"remote-locator\":\"192.168.9.8\",\n          \"weight\":2\n       }  \n    ]\n  }  \n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/gpe:gpe/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"gpe:gpe",
+						"gpe-feature-data",
+						"gpe-entry-table",
+						"gpe-entry",
+						"gpe-entry-1"
+					]
+				},
+				"description": "gpe entry add vni 10 vrf 1 leid 192.168.2.1/24 reid 192.168.3.1/24 loc-pair 192.168.7.7 192.168.7.8 w 3\n\n to verify\n \nshow gpe entry\n"
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "8d061c24-a24e-4981-a3bb-35418c9f2231",
+			"name": "Add gpe entry - negative mapping",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe-entry\":\n  {\n    \"id\":\"gpe-entry-2\",\n    \"dp-table\":\"2\",\n    \"vni\":11,\n    \"local-eid\":{\n      \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n           \"virtual-network-id\":\"11\",\n           \"ipv4-prefix\":\"192.100.2.1/24\"\n    },\n    \"remote-eid\":{\n      \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n           \"virtual-network-id\":\"11\",\n           \"ipv4-prefix\":\"192.100.3.1/24\"\n    },\n    \"action\":\"send-map-request\"\n  }  \n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/gpe:gpe/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"gpe:gpe",
+						"gpe-feature-data",
+						"gpe-entry-table",
+						"gpe-entry",
+						"gpe-entry-2"
+					]
+				},
+				"description": "gpe entry add vni 10 vrf 1 leid 192.100.2.1/24 reid 192.100.3.1/24 negative action 2\n\n to verify \n \nshow gpe entry"
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "19f3a90e-5631-4121-a11e-cc45526bcee4",
+			"name": "Get gpe status",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/gpe:gpe-state",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"gpe:gpe-state"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "2bb6749e-d6db-4a92-9d2c-127bb64425d5",
+			"name": "Get gpe entry- positive mapping",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/gpe:gpe-state/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"gpe:gpe-state",
+						"gpe-feature-data",
+						"gpe-entry-table",
+						"gpe-entry",
+						"gpe-entry-1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "a45f1a89-181a-4443-9f94-516745fd5d35",
+			"name": "Get gpe entry- negative mapping",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/gpe:gpe-state/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"gpe:gpe-state",
+						"gpe-feature-data",
+						"gpe-entry-table",
+						"gpe-entry",
+						"gpe-entry-2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "14822d53-1a85-4224-a7fb-d73f6038393c",
+			"name": "Delete gpe entry- positive mapping",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/gpe:gpe/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"gpe:gpe",
+						"gpe-feature-data",
+						"gpe-entry-table",
+						"gpe-entry",
+						"gpe-entry-1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "86f7ead7-6add-42f5-9db8-0cb9ad18f7a4",
+			"name": "Delete gpe entry- negative mapping",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/gpe:gpe/gpe-feature-data/gpe-entry-table/gpe-entry/gpe-entry-2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"gpe:gpe",
+						"gpe-feature-data",
+						"gpe-entry-table",
+						"gpe-entry",
+						"gpe-entry-2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "e292e385-6428-48c6-a3f2-2026d408fc1b",
+			"name": "Disable gpe",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"gpe\":{\n    \"gpe-feature-data\":{\n      \"enable\":true\n    }\n  }\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/gpe:gpe",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"gpe:gpe"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

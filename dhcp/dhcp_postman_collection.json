@@ -1,182 +1,327 @@
 {
-	"id": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-	"name": "DHCP",
-	"description": "Provides DHCP configuration examples for hc2vpp.",
-	"order": [
-		"990feae9-d039-4f1e-6c2d-df1a16ee2ba5",
-		"4cf4fe5e-158f-a36d-0cc4-412e99475870",
-		"ca4b868e-dcab-b87e-f6d9-99ff297b9f38",
-		"24669f87-8005-8c09-c516-d9fa3ba4b470",
-		"c5791bcb-a98e-b6a9-e143-4f0af0453164",
-		"d312ab52-434d-2838-aa94-cea8eb1d2d50",
-		"45f81f14-e5d8-db5c-a8c3-12238b78c28d",
-		"3d271bcc-ca7b-aa7f-3446-c8fc52a9f1e9"
-	],
-	"folders": [],
-	"timestamp": 1487055938314,
-	"owner": "567303",
-	"public": false,
-	"requests": [
+	"info": {
+		"_postman_id": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
+		"name": "DHCP",
+		"description": "Provides DHCP configuration examples for hc2vpp.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "24669f87-8005-8c09-c516-d9fa3ba4b470",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0/server/0/1.2.3.4",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488460094116,
-			"name": "Delete one of DHCP servers",
-			"description": "Equivalent of\n\nvppctl set dhcp proxy del server 1.2.3.4\n\nvppctl show dhcp proxy",
-			"collectionId": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-			"responses": [],
-			"rawModeData": ""
-		},
-		{
-			"id": "3d271bcc-ca7b-aa7f-3446-c8fc52a9f1e9",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/",
-			"pathVariables": {},
-			"preRequestScript": null,
-			"method": "GET",
-			"collectionId": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-			"data": [],
-			"dataMode": "raw",
-			"name": "Show DHCP Relay oper",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1488193893443,
-			"version": 2,
-			"responses": [],
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
-		},
-		{
-			"id": "45f81f14-e5d8-db5c-a8c3-12238b78c28d",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1487059202453,
-			"name": "Show DHCP Relay cfg",
-			"description": "",
-			"collectionId": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-			"responses": [],
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
-		},
-		{
-			"id": "4cf4fe5e-158f-a36d-0cc4-412e99475870",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/1",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488458844687,
-			"name": "Add IP4 DHCP Relay #2",
-			"description": "Equivalent of\n\nvppctl set dhcp proxy server 1.2.3.6 src-address 5.6.7.9 rx-fib-id 1\n\ncan be verified with\n\nvppctl show dhcp proxy",
-			"collectionId": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-			"responses": [],
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 1,\n\t\t\t\"gateway-address\": \"5.6.7.9\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.6\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
-		},
-		{
-			"id": "990feae9-d039-4f1e-6c2d-df1a16ee2ba5",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488459981869,
+			"_postman_id": "92a6f186-c4ea-4781-85a5-2b9c79884349",
 			"name": "Add IP4 DHCP Relay #1",
-			"description": "Equivalent of\n\nvppctl set dhcp proxy server 1.2.3.3 src-address 5.6.7.8\nvppctl set dhcp proxy server 1.2.3.4 src-address 5.6.7.8\nvppctl set dhcp proxy server 1.2.3.5 src-address 5.6.7.8 rx-fib-id 1\n\n\ncan be verified with\n\nvppctl show dhcp proxy",
-			"collectionId": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-			"responses": [],
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"gateway-address\": \"5.6.7.8\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.3\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.4\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 1,\n\t\t\t\t\t\"address\": \"1.2.3.5\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"gateway-address\": \"5.6.7.8\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.3\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.4\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 1,\n\t\t\t\t\t\"address\": \"1.2.3.5\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"dhcp:dhcp",
+						"relays",
+						"relay",
+						"dhcp:ipv4",
+						"0"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set dhcp proxy server 1.2.3.3 src-address 5.6.7.8\nvppctl set dhcp proxy server 1.2.3.4 src-address 5.6.7.8\nvppctl set dhcp proxy server 1.2.3.5 src-address 5.6.7.8 rx-fib-id 1\n\n\ncan be verified with\n\nvppctl show dhcp proxy"
+			},
+			"response": []
 		},
 		{
-			"id": "c5791bcb-a98e-b6a9-e143-4f0af0453164",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1487059058881,
-			"name": "Delete IP4 DHCP Relay #1",
-			"description": "Removes DHCP relay configuration for rx-fib-id=0\n\nCan be verified with:\n\nvppctl show dhcp proxy",
-			"collectionId": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-			"responses": [],
-			"rawModeData": ""
+			"_postman_id": "e0eef0a4-fb27-4a99-933d-2ea4aff476f5",
+			"name": "Add IP4 DHCP Relay #2",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 1,\n\t\t\t\"gateway-address\": \"5.6.7.9\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.6\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"dhcp:dhcp",
+						"relays",
+						"relay",
+						"dhcp:ipv4",
+						"1"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set dhcp proxy server 1.2.3.6 src-address 5.6.7.9 rx-fib-id 1\n\ncan be verified with\n\nvppctl show dhcp proxy"
+			},
+			"response": []
 		},
 		{
-			"id": "ca4b868e-dcab-b87e-f6d9-99ff297b9f38",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv6/1",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488458977472,
+			"_postman_id": "10d6a414-e469-4352-b905-a376bf04e530",
 			"name": "Configure IP6 DHCP Relay",
-			"description": "Configuration of IP6 DHCP proxy is not supported trough CLI",
-			"collectionId": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-			"responses": [],
-			"rawModeData": "{\n\t\"relay\": [\n\t\t{\n\t        \"address-type\": \"ipv6\",\n\t        \"rx-vrf-id\": 1,\n\t        \"gateway-address\": \"2001::2\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 2,\n\t\t\t\t\t\"address\": \"2001::1\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t        \"address-type\": \"ipv6\",\n\t        \"rx-vrf-id\": 1,\n\t        \"gateway-address\": \"2001::2\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 2,\n\t\t\t\t\t\"address\": \"2001::1\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv6/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"dhcp:dhcp",
+						"relays",
+						"relay",
+						"dhcp:ipv6",
+						"1"
+					]
+				},
+				"description": "Configuration of IP6 DHCP proxy is not supported trough CLI"
+			},
+			"response": []
 		},
 		{
-			"id": "d312ab52-434d-2838-aa94-cea8eb1d2d50",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/1",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1487059316221,
+			"_postman_id": "ec6ef8ec-689b-4ca8-8b5d-93f5a00618af",
+			"name": "Delete one of DHCP servers",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0/server/0/1.2.3.4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"dhcp:dhcp",
+						"relays",
+						"relay",
+						"dhcp:ipv4",
+						"0",
+						"server",
+						"0",
+						"1.2.3.4"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set dhcp proxy del server 1.2.3.4\n\nvppctl show dhcp proxy"
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "f249a24a-d940-4a88-9738-b41e9fe16c92",
+			"name": "Delete IP4 DHCP Relay #1",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"dhcp:dhcp",
+						"relays",
+						"relay",
+						"dhcp:ipv4",
+						"0"
+					]
+				},
+				"description": "Removes DHCP relay configuration for rx-fib-id=0\n\nCan be verified with:\n\nvppctl show dhcp proxy"
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "8d735396-317f-48c5-9af8-b51831f26084",
 			"name": "Delete IP4 DHCP Relay #2",
-			"description": "Removes DHCP relay configuration for rx-fib-id=1\n\nCan be verified with:\n\nvppctl show dhcp proxy",
-			"collectionId": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
-			"responses": [],
-			"rawModeData": ""
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"dhcp:dhcp",
+						"relays",
+						"relay",
+						"dhcp:ipv4",
+						"1"
+					]
+				},
+				"description": "Removes DHCP relay configuration for rx-fib-id=1\n\nCan be verified with:\n\nvppctl show dhcp proxy"
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "88cff2b2-7506-43db-abc3-3609f1c93622",
+			"name": "Show DHCP Relay cfg",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"dhcp:dhcp",
+						"relays",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"_postman_id": "49d460d8-688e-43b5-a29d-d8fab9a940bd",
+			"name": "Show DHCP Relay oper",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"dhcp:dhcp",
+						"relays",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

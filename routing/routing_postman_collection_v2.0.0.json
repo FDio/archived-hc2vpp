@@ -1,17 +1,17 @@
 {
 	"info": {
-		"_postman_id": "ad50e1ac-df20-4667-82cf-41321601c1f9",
+		"_postman_id": "926b89ec-267c-68e1-a4ba-0373a956f692",
 		"name": "Routing",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "IPv4",
-			"description": null,
+			"description": "",
 			"item": [
 				{
 					"name": "SimpleNextHop",
-					"description": null,
+					"description": "",
 					"item": [
 						{
 							"name": "Add single hop ipv4",
@@ -31,20 +31,7 @@
 									"mode": "raw",
 									"raw": "{\n\t\"routing\": {\n\t\t\"control-plane-protocols\": {\n\t\t\t\"control-plane-protocol\": [\n\t\t\t{\n\t\t\t\t\"type\": \"static\",\n\t\t\t\t\"name\": \"test-routing-protocol-1\",\n\t\t\t\t\"description\":\"Test routing protocol\",\n\t\t\t\t\"vpp-protocol-attributes\": {\n                \t\"primary-vrf\": \"1\"\n\t            },\n\t    \t\t\"static-routes\":{\n\t    \t\t\t\"ipv4\":{\n\t    \t\t\t\t\"route\":[\n\t\t\t            {\n\t\t\t            \t\"description\":\"Test static route single hop ipv4\",\n\t\t\t                \"destination-prefix\":\"192.168.2.3/32\",\n\t\t\t                \"next-hop\": {\n\t\t\t                \t\"next-hop-address\" : \"192.168.2.8\",\n            \t\t\t\t\t\"outgoing-interface\": \"local0\"\n\t\t\t                },\n\t\t\t                \"vpp-ipv4-route\":{\n\t\t\t                \t\"classify-table\":\"1\"\n\t\t\t            \t}\n\t\t\t            }\n\t\t\t            ]\n\t\t\t        }\n\t    \t\t}\n\t\t\t}\t\t\t\n\t\t\t]\n\t\t}\n\t}\n}"
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										""
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/"
 							},
 							"response": []
 						},
@@ -66,27 +53,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.3%2F32",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.2.3%2F32"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.3%2F32"
 							},
 							"response": []
 						},
@@ -108,27 +75,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.3%2F32",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"operational",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.2.3%2F32"
-									]
-								}
+								"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.3%2F32"
 							},
 							"response": []
 						},
@@ -150,27 +97,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.3%2F32",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.2.3%2F32"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.3%2F32"
 							},
 							"response": []
 						}
@@ -179,7 +106,7 @@
 				},
 				{
 					"name": "MultiNextHop",
-					"description": null,
+					"description": "",
 					"item": [
 						{
 							"name": "Add multi hop ipv4",
@@ -199,20 +126,7 @@
 									"mode": "raw",
 									"raw": "{\n\t\"routing\": {\n\t\t\"control-plane-protocols\": {\n\t\t\t\"control-plane-protocol\": [\n\t\t\t{\n\t\t\t\t\"type\": \"static\",\n\t\t\t\t\"name\": \"test-routing-protocol-1\",\n\t\t\t\t\"description\":\"Test routing protocol\",\n\t\t\t\t\"vpp-protocol-attributes\": {\n                \t\"primary-vrf\": \"1\"\n\t            },\n\t    \t\t\"static-routes\": {\n\t\t\t\t    \"ipv4\": {\n\t\t\t\t      \"route\": [\n\t\t\t\t        {\n\t\t\t\t          \"destination-prefix\": \"192.168.2.1/24\",\n\t\t\t\t          \"vpp-v4ur:vpp-ipv4-route\": {\n\t\t\t\t            \"classify-table\": \"1\"\n\t\t\t\t          },\n\t\t\t\t          \"next-hop\":{\n\t\t\t\t            \t\"next-hop-list\": {\n\t\t\t\t            \t\t\"next-hop\": [\n\t\t\t\t                \t\t{\n\t\t\t\t                \t\t\t\"index\": \"1\",\n\t\t\t\t                \t\t\t\"next-hop-address\": \"192.168.2.1\",\n\t\t\t\t                \t\t\t\"outgoing-interface\": \"local0\",\n\t\t\t\t                \t\t\t\"weight\": \"2\"\n\t\t\t\t                \t\t},\n\t\t\t\t                \t\t{\n\t\t\t\t\t\t                    \"index\": \"2\",\n\t\t\t\t\t\t                    \"next-hop-address\": \"192.168.2.2\",\n\t\t\t\t\t\t                    \"outgoing-interface\": \"local0\",\n\t\t\t\t\t\t                \t\"weight\": \"3\"\n\t\t\t\t                \t\t}\n\t\t\t\t            \t\t]\n\t\t\t\t            \t\t}\n\t\t\t\t        \t\t}\n\t\t\t\t        \t}\n\t\t\t\t    \t]\n\t\t\t\t    }\n\t\t\t\t}\n\t\t\t}\t\t\t\n\t\t\t]\n\t\t}\n\t}\n}"
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										""
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/"
 							},
 							"response": []
 						},
@@ -234,27 +148,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.2.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.1%2F24"
 							},
 							"response": []
 						},
@@ -276,27 +170,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"operational",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.2.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.1%2F24"
 							},
 							"response": []
 						},
@@ -318,27 +192,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.2.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.2.1%2F24"
 							},
 							"response": []
 						}
@@ -347,7 +201,7 @@
 				},
 				{
 					"name": "SpecialHop",
-					"description": null,
+					"description": "",
 					"item": [
 						{
 							"name": "Add special hop ipv4",
@@ -367,20 +221,7 @@
 									"mode": "raw",
 									"raw": "{\n\t\"routing\": {\n\t\t\"control-plane-protocols\": {\n\t\t\t\"control-plane-protocol\": [\n\t\t\t{\n\t\t\t\t\"type\": \"static\",\n\t\t\t\t\"name\": \"test-routing-protocol-1\",\n\t\t\t\t\"description\":\"Test routing protocol\",\n\t\t\t\t\"vpp-protocol-attributes\": {\n                \t\"primary-vrf\": \"1\"\n\t            },\n\t    \t\t\"static-routes\": {\n\t\t\t\t\"ipv4\": {\n\t\t\t\t\t\"route\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"destination-prefix\": \"192.168.3.1/24\",\n\t\t\t\t\t\t\t\"next-hop\": {\n\t\t\t\t\t\t\t\t\"special-next-hop-enum\": \"blackhole\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\t\t\t\n\t\t\t]\n\t\t}\n\t}\n}"
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										""
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/"
 							},
 							"response": []
 						},
@@ -402,27 +243,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.3.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.3.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.3.1%2F24"
 							},
 							"response": []
 						},
@@ -444,27 +265,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.3.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"operational",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.3.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.3.1%2F24"
 							},
 							"response": []
 						},
@@ -486,27 +287,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.3.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.3.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.3.1%2F24"
 							},
 							"response": []
 						}
@@ -515,7 +296,7 @@
 				},
 				{
 					"name": "TableHop",
-					"description": null,
+					"description": "",
 					"item": [
 						{
 							"name": "Add tablehop ipv4",
@@ -535,20 +316,7 @@
 									"mode": "raw",
 									"raw": "{\n\t\"routing\": {\n\t\t\"control-plane-protocols\": {\n\t\t\t\"control-plane-protocol\": [\n\t\t\t{\n\t\t\t\t\"type\": \"static\",\n\t\t\t\t\"name\": \"test-routing-protocol-1\",\n\t\t\t\t\"description\":\"Test routing protocol\",\n\t\t\t\t\"vpp-protocol-attributes\": {\n                \t\"primary-vrf\": \"1\"\n\t            },\n\t    \t\t\"static-routes\": {\n\t\t\t\t\"ipv4\": {\n\t\t\t\t\t\"route\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"destination-prefix\": \"192.168.4.1/24\",\n\t\t\t\t\t\t\t\"next-hop\": {\n                                \"secondary-vrf\": 0\n                            }\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\t\t\t\n\t\t\t]\n\t\t}\n\t}\n}"
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										""
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/"
 							},
 							"response": []
 						},
@@ -570,27 +338,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.4.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.4.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.4.1%2F24"
 							},
 							"response": []
 						},
@@ -612,27 +360,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.4.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"operational",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.4.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.4.1%2F24"
 							},
 							"response": []
 						},
@@ -654,27 +382,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.4.1%2F24",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv4",
-										"route",
-										"192.168.4.1%2F24"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv4/route/192.168.4.1%2F24"
 							},
 							"response": []
 						}
@@ -685,11 +393,11 @@
 		},
 		{
 			"name": "IPv6",
-			"description": null,
+			"description": "",
 			"item": [
 				{
 					"name": "SimpleNextHop",
-					"description": null,
+					"description": "",
 					"item": [
 						{
 							"name": "Add single hop ipv6",
@@ -709,20 +417,7 @@
 									"mode": "raw",
 									"raw": "{\n\t\"routing\": {\n\t\t\"control-plane-protocols\": {\n\t\t\t\"control-plane-protocol\": [\n\t\t\t{\n\t\t\t\t\"type\": \"static\",\n\t\t\t\t\"name\": \"test-routing-protocol-1\",\n\t\t\t\t\"description\":\"Test routing protocol\",\n\t\t\t\t\"vpp-protocol-attributes\": {\n                \t\"primary-vrf\": \"1\"\n\t            },\n\t    \t\t\"static-routes\":{\n\t    \t\t\t\"ipv6\":{\n\t    \t\t\t\t\"route\":[\n\t\t\t            {\n\t\t\t            \t\"description\":\"Test static route single hop ipv6\",\n\t\t\t                \"destination-prefix\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001/64\",\n\t\t\t                \"next-hop\": {\n\t\t\t                \t\"next-hop-address\" : \"2001:0db8:0a0b:12f0:0000:0000:0000:0002\",\n            \t\t\t\t\t\"outgoing-interface\": \"local0\"\n\t\t\t                },\n\t\t\t                \"vpp-ipv6-route\":{\n\t\t\t                \t\"classify-table\":\"1\"\n\t\t\t            \t}\n\t\t\t            }\n\t\t\t            ]\n\t\t\t        }\n\t    \t\t}\n\t\t\t}\t\t\t\n\t\t\t]\n\t\t}\n\t}\n}"
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										""
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/"
 							},
 							"response": []
 						},
@@ -744,27 +439,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						},
@@ -786,27 +461,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"operational",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						},
@@ -828,27 +483,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						}
@@ -857,7 +492,7 @@
 				},
 				{
 					"name": "MultiNextHop",
-					"description": null,
+					"description": "",
 					"item": [
 						{
 							"name": "Add multi hop ipv6",
@@ -877,20 +512,7 @@
 									"mode": "raw",
 									"raw": "{\n\t\"routing\": {\n\t\t\"control-plane-protocols\": {\n\t\t\t\"control-plane-protocol\": [\n\t\t\t{\n\t\t\t\t\"type\": \"static\",\n\t\t\t\t\"name\": \"test-routing-protocol-1\",\n\t\t\t\t\"description\":\"Test routing protocol\",\n\t\t\t\t\"vpp-protocol-attributes\": {\n                \t\"primary-vrf\": \"1\"\n\t            },\n\t    \t\t\"static-routes\": {\n\t\t\t\t    \"ipv6\": {\n\t\t\t\t      \"route\": [\n\t\t\t\t        {\n\t\t\t\t          \"destination-prefix\": \"2001:0db8:0a0b:12f0:0000:0000:0000:0001/64\",\n\t\t\t\t          \"vpp-ipv6-unicast-routing:vpp-ipv6-route\": {\n\t\t\t\t              \"classify-table\": \"classify-table-1\"\n\t\t\t\t          },\n\t\t\t\t          \"next-hop\":{\n\t\t\t\t            \t\"next-hop-list\": {\n\t\t\t\t            \t\t\"next-hop\": [\n\t\t\t\t                \t\t{\n\t\t\t\t                \t\t\t\"index\": \"1\",\n\t\t\t\t                \t\t\t\"next-hop-address\": \"2001:0db8:0a0b:12f0:0000:0000:0000:0002\",\n\t\t\t\t                \t\t\t\"outgoing-interface\": \"local0\",\n\t\t\t\t                \t\t\t\"weight\": \"2\"\n\t\t\t\t                \t\t},\n\t\t\t\t                \t\t{\n\t\t\t\t\t\t                    \"index\": \"2\",\n\t\t\t\t\t\t                    \"next-hop-address\": \"2001:0db8:0a0b:12f0:0000:0000:0000:0003\",\n\t\t\t\t\t\t                    \"outgoing-interface\": \"local0\",\n\t\t\t\t\t\t                \t\"weight\": \"3\"\n\t\t\t\t                \t\t}\n\t\t\t\t            \t\t]\n\t\t\t\t            \t\t}\n\t\t\t\t        \t\t}\n\t\t\t\t        \t}\n\t\t\t\t    \t]\n\t\t\t\t    }\n\t\t\t\t}\n\t\t\t}\t\t\t\n\t\t\t]\n\t\t}\n\t}\n}"
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										""
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/"
 							},
 							"response": []
 						},
@@ -912,27 +534,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						},
@@ -954,27 +556,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"operational",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						},
@@ -996,27 +578,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						}
@@ -1025,7 +587,7 @@
 				},
 				{
 					"name": "SpecialHop",
-					"description": null,
+					"description": "",
 					"item": [
 						{
 							"name": "Add special hop ipv6",
@@ -1045,20 +607,7 @@
 									"mode": "raw",
 									"raw": "{\n\t\"routing\": {\n\t\t\"control-plane-protocols\": {\n\t\t\t\"control-plane-protocol\": [\n\t\t\t{\n\t\t\t\t\"type\": \"static\",\n\t\t\t\t\"name\": \"test-routing-protocol-1\",\n\t\t\t\t\"description\":\"Test routing protocol\",\n\t\t\t\t\"vpp-protocol-attributes\": {\n                \t\"primary-vrf\": \"1\"\n\t            },\n\t    \t\t\"static-routes\": {\n\t\t\t\t\"ipv6\": {\n\t\t\t\t\t\"route\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"destination-prefix\": \"2001:0db8:0a0b:12f0:0000:0000:0000:0001/64\",\n\t\t\t\t\t\t\t\"next-hop\": {\n\t\t\t\t\t\t\t\t\"special-next-hop-enum\": \"receive\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\t\t\t\n\t\t\t]\n\t\t}\n\t}\n}"
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										""
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/"
 							},
 							"response": []
 						},
@@ -1080,27 +629,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						},
@@ -1122,27 +651,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"operational",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						},
@@ -1164,27 +673,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						}
@@ -1193,7 +682,7 @@
 				},
 				{
 					"name": "TableHop",
-					"description": null,
+					"description": "",
 					"item": [
 						{
 							"name": "Add tablehop ipv6",
@@ -1213,20 +702,7 @@
 									"mode": "raw",
 									"raw": "{\n\t\"routing\": {\n\t\t\"control-plane-protocols\": {\n\t\t\t\"control-plane-protocol\": [\n\t\t\t{\n\t\t\t\t\"type\": \"static\",\n\t\t\t\t\"name\": \"test-routing-protocol-1\",\n\t\t\t\t\"description\":\"Test routing protocol\",\n\t\t\t\t\"vpp-protocol-attributes\": {\n                \t\"primary-vrf\": \"1\"\n\t            },\n\t    \t\t\"static-routes\": {\n\t\t\t\t\"ipv6\": {\n\t\t\t\t\t\"route\": [\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"destination-prefix\": \"2001:0db8:0a0b:12f0:0000:0000:0000:0001/64\",\n\t\t\t\t\t\t\t\"next-hop\": {\n                                \"secondary-vrf\": 0\n                            }\n\t\t\t\t\t\t}\n\t\t\t\t\t]\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\t\t\t\n\t\t\t]\n\t\t}\n\t}\n}"
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										""
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/"
 							},
 							"response": []
 						},
@@ -1248,27 +724,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						},
@@ -1290,27 +746,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						},
@@ -1332,27 +768,7 @@
 									"mode": "raw",
 									"raw": ""
 								},
-								"url": {
-									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8183",
-									"path": [
-										"restconf",
-										"config",
-										"hc2vpp-ietf-routing:routing",
-										"hc2vpp-ietf-routing:control-plane-protocols",
-										"hc2vpp-ietf-routing:control-plane-protocol",
-										"hc2vpp-ietf-routing:static",
-										"test-routing-protocol-1",
-										"static-routes",
-										"ipv6",
-										"route",
-										"2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
-									]
-								}
+								"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-routing:control-plane-protocols/hc2vpp-ietf-routing:control-plane-protocol/hc2vpp-ietf-routing:static/test-routing-protocol-1/static-routes/ipv6/route/2001:0db8:0a0b:12f0:0000:0000:0000:0001%2F64"
 							},
 							"response": []
 						}
@@ -1379,19 +795,7 @@
 					"mode": "raw",
 					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/operational/naming-context:contexts",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"operational",
-						"naming-context:contexts"
-					]
-				}
+				"url": "http://localhost:8183/restconf/operational/naming-context:contexts"
 			},
 			"response": []
 		},
@@ -1413,19 +817,7 @@
 					"mode": "raw",
 					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/operational/naming-context:contexts\\multi-naming-context:multi-naming-contexts",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"operational",
-						"naming-context:contexts\\multi-naming-context:multi-naming-contexts"
-					]
-				}
+				"url": "http://localhost:8183/restconf/operational/naming-context:contexts\\multi-naming-context:multi-naming-contexts"
 			},
 			"response": []
 		},
@@ -1447,19 +839,7 @@
 					"mode": "raw",
 					"raw": "{\n  \"routing-instance\":\n  {\n    \"name\":\"routing-1\",\n    \"enabled\":\"true\",\n    \"router-id\":\"192.168.2.1\",\n    \"description\":\"Test routing instance\",\n    \"routing-protocols\":{\n      \"routing-protocol\":[\n        {\n          \"name\":\"test-routing-protocol\",\n          \"description\":\"Test routing protocol\",\n          \"enabled\":\"true\",\n          \"type\":\"static\",\n          \"static-routes\":{\n            \"ipv4\":{\n              \"route\":[\n                {\n                  \"id\":1,\n                  \"description\":\"Test static route\",\n                  \"destination-prefix\":\"192.168.2.3/32\",\n                  \"next-hop\":\"192.168.2.8\"\n                }\n              ]\n            }\n          }\n        }  \n      ]\n    }\n  }  \n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"config",
-						"hc2vpp-ietf-routing:routing"
-					]
-				}
+				"url": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing"
 			},
 			"response": []
 		},
@@ -1481,19 +861,7 @@
 					"mode": "raw",
 					"raw": "{\n  \"routing-instance\":\n  {\n    \"name\":\"routing-1\",\n    \"enabled\":\"true\",\n    \"router-id\":\"192.168.2.1\",\n    \"description\":\"Test routing instance\",\n    \"routing-protocols\":{\n      \"routing-protocol\":[\n        {\n          \"name\":\"test-routing-protocol\",\n          \"description\":\"Test routing protocol\",\n          \"enabled\":\"true\",\n          \"type\":\"static\",\n          \"static-routes\":{\n            \"ipv4\":{\n              \"route\":[\n                {\n                  \"id\":1,\n                  \"description\":\"Test static route\",\n                  \"destination-prefix\":\"192.168.2.3/32\",\n                  \"next-hop\":\"192.168.2.8\"\n                }\n              ]\n            }\n          }\n        }  \n      ]\n    }\n  }  \n}"
 				},
-				"url": {
-					"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8183",
-					"path": [
-						"restconf",
-						"operational",
-						"hc2vpp-ietf-routing:routing"
-					]
-				}
+				"url": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing"
 			},
 			"response": []
 		}

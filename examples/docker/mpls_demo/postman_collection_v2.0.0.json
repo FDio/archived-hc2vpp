@@ -1,14 +1,14 @@
 {
 	"info": {
-		"_postman_id": "fb857a99-6ac3-41e4-8a0d-2dd8cc508661",
+		"_postman_id": "4165ed66-ad4e-4003-99dd-285a50e86f15",
 		"name": "Honeycomb SR MPLS",
 		"description": "Examples of configuring some basic MPLS SR scenariou using hc2vpp",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "vpp3",
-			"description": null,
+			"description": "",
 			"item": [
 				{
 					"name": "Enable mpls on host-veth341",
@@ -28,25 +28,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth341\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth341",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth341"
-							]
-						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth341",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth341 enable"
 					},
 					"response": []
@@ -69,23 +51,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/ietf-interfaces:interfaces/",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"ietf-interfaces:interfaces",
-								""
-							]
-						}
+						"url": "https://172.17.0.4:8445/restconf/config/ietf-interfaces:interfaces/"
 					},
 					"response": []
 				},
@@ -107,23 +73,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls"
-							]
-						}
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
 					},
 					"response": []
 				},
@@ -145,25 +95,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth342\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth342",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth342"
-							]
-						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth342",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth342 enable"
 					},
 					"response": []
@@ -186,25 +118,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth31\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth31",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth31"
-							]
-						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth31",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth31 enable"
 					},
 					"response": []
@@ -227,26 +141,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp1\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 103\n        \t}\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"mpls\",\n          \"mpls-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp1"
-							]
-						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
 						"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 103 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 103"
 					},
 					"response": []
@@ -269,26 +164,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp2\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 104\n        \t}\n        },\n        \"operation\": \"swap-and-forward\"\n      },\n        \"simple-path\": {\n\t\t\t\"config\": {\n\t\t        \"next-hop\": \"10.34.1.4\",\n\t\t        \"outgoing-label\": 104,\n\t\t        \"outgoing-interface\": \"host-veth341\"\n\t\t\t}\n\t\t}\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp2",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp2"
-							]
-						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp2",
 						"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.34.1.4 host-veth341 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
 					},
 					"response": []
@@ -311,26 +187,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp3\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 104\n        \t}\n        },\n        \"operation\": \"swap-and-forward\"\n      },\n        \"simple-path\": {\n\t\t\t\"config\": {\n\t\t        \"next-hop\": \"10.34.2.4\",\n\t\t        \"outgoing-label\": 104,\n\t\t        \"outgoing-interface\": \"host-veth342\"\n\t\t\t}\n\t\t}\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp3",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp3"
-							]
-						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp3",
 						"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.34.2.4 host-veth342 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
 					},
 					"response": []
@@ -353,23 +210,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/operational/ietf-interfaces:interfaces-state/",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"operational",
-								"ietf-interfaces:interfaces-state",
-								""
-							]
-						}
+						"url": "https://172.17.0.4:8445/restconf/operational/ietf-interfaces:interfaces-state/"
 					},
 					"response": []
 				},
@@ -391,26 +232,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp4\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 10341\n        \t}\n        },\n        \"operation\": \"swap-and-forward\"\n      },\n        \"simple-path\": {\n\t\t\t\"config\": {\n\t\t        \"next-hop\": \"10.34.1.4\",\n\t\t        \"outgoing-label\": 104,\n\t\t        \"outgoing-interface\": \"host-veth341\"\n\t\t\t}\n\t\t}\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp4",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp4"
-							]
-						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp4",
 						"description": "Corresponding CLI command:\n\nmpls local-label add eos 10341 via 10.34.1.4 host-veth341 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 10341"
 					},
 					"response": []
@@ -433,26 +255,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp5\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 10342\n        \t}\n        },\n        \"operation\": \"swap-and-forward\"\n      },\n        \"simple-path\": {\n\t\t\t\"config\": {\n\t\t        \"next-hop\": \"10.34.2.4\",\n\t\t        \"outgoing-label\": 104,\n\t\t        \"outgoing-interface\": \"host-veth342\"\n\t\t\t}\n\t\t}\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp5",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"4"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp5"
-							]
-						},
+						"url": "https://172.17.0.4:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp5",
 						"description": "Corresponding CLI command:\n\nmpls local-label add eos 10342 via 10.34.2.4 host-veth342 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 10342"
 					},
 					"response": []
@@ -461,7 +264,7 @@
 		},
 		{
 			"name": "vpp4",
-			"description": null,
+			"description": "",
 			"item": [
 				{
 					"name": "Enable mpls on veth431",
@@ -481,25 +284,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth431\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth431",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth431"
-							]
-						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth431",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth431 enable"
 					},
 					"response": []
@@ -522,25 +307,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth432\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth432",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth432"
-							]
-						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth432",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth432 enable"
 					},
 					"response": []
@@ -563,26 +330,7 @@
 							"mode": "raw",
 							"raw": "{\r\n\t\"control-plane-protocol\":[\r\n\t\t{\r\n\t\t\t\"name\":\"learned-protocol-0\",\r\n\t\t\t\"type\":\"static\",\r\n\t\t\t\"vpp-protocol-attributes\": {\r\n\t              \"primary-vrf\": 0\r\n            }\r\n\t\t}\t\r\n\t]\r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"control-plane-protocols",
-								"control-plane-protocol",
-								"hc2vpp-ietf-routing:static",
-								"learned-protocol-0"
-							]
-						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0",
 						"description": "Hc2vpp by default stores it under learned-protocol-0"
 					},
 					"response": []
@@ -605,30 +353,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"route\": [\n\t\t{\n\t\t\t\"destination-prefix\": \"10.13.1.0/24\",\n\t\t\t\"next-hop\": {\n            \t\"next-hop-address\" : \"10.34.2.3\",\n\t\t\t\t\"outgoing-interface\": \"host-veth432\"\n            }\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0/static-routes/ipv4/route/10.13.1.0%2f24",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"control-plane-protocols",
-								"control-plane-protocol",
-								"hc2vpp-ietf-routing:static",
-								"learned-protocol-0",
-								"static-routes",
-								"ipv4",
-								"route",
-								"10.13.1.0%2f24"
-							]
-						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0/static-routes/ipv4/route/10.13.1.0%2f24",
 						"description": "Send reverse traffic using IP.\n\nCorresponding CLI command:\n\nip route add 10.13.1.0/24 via 10.34.2.3 host-veth432"
 					},
 					"response": []
@@ -651,23 +376,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/operational/ietf-interfaces:interfaces-state/",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"operational",
-								"ietf-interfaces:interfaces-state",
-								""
-							]
-						}
+						"url": "https://172.17.0.5:8445/restconf/operational/ietf-interfaces:interfaces-state/"
 					},
 					"response": []
 				},
@@ -689,24 +398,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"A\",\r\n                \"description\": \"Host A\",\r\n                \"type\": \"v3po:tap\",\r\n                \"tap\" : {\r\n                    \"tap-name\" : \"A\"\r\n                },\r\n                \"ipv4\" : {\r\n                \t\"address\" :  [{\r\n                \t\t\"ip\" : \"10.100.1.1\",\r\n                \t\t\"prefix-length\" : \"24\"\r\n                \t}]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/interface/A",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"ietf-interfaces:interfaces",
-								"interface",
-								"A"
-							]
-						}
+						"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/interface/A"
 					},
 					"response": []
 				},
@@ -728,26 +420,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"lsp1\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n        \t\t\"incoming-label\": 104\n        \t}\n        },\n        \"operation\": \"pop-and-lookup\",\n        \"vpp-mpls:label-lookup\" : {\n          \"type\": \"ipv4\",\n          \"ip4-lookup-in-table\": 0\n        }\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp1"
-							]
-						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
 						"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 ip4-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
 					},
 					"response": []
@@ -770,30 +443,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"route\": [\n\t\t{\n\t\t\t\"destination-prefix\": \"10.12.1.0/24\",\n\t\t\t\"next-hop\": {\n            \t\"next-hop-address\" : \"10.24.1.2\",\n\t\t\t\t\"outgoing-interface\": \"host-veth42\"\n            }\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0/static-routes/ipv4/route/10.12.1.0%2F24",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"control-plane-protocols",
-								"control-plane-protocol",
-								"hc2vpp-ietf-routing:static",
-								"learned-protocol-0",
-								"static-routes",
-								"ipv4",
-								"route",
-								"10.12.1.0%2F24"
-							]
-						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0/static-routes/ipv4/route/10.12.1.0%2F24",
 						"description": "Send reverse traffic using IP.\n\nCorresponding CLI command:\n\nip route add 10.12.1.0/24 via 10.24.1.2 host-veth42"
 					},
 					"response": []
@@ -816,24 +466,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"B\",\r\n                \"description\": \"Host B\",\r\n                \"type\": \"v3po:tap\",\r\n                \"tap\" : {\r\n                    \"tap-name\" : \"B\"\r\n                },\r\n                \"ipv4\" : {\r\n                \t\"address\" :  [{\r\n                \t\t\"ip\" : \"10.200.1.1\",\r\n                \t\t\"prefix-length\" : \"24\"\r\n                \t}]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/interface/B",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"ietf-interfaces:interfaces",
-								"interface",
-								"B"
-							]
-						}
+						"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/interface/B"
 					},
 					"response": []
 				},
@@ -855,25 +488,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth42\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth42",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth42"
-							]
-						},
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth42",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth42 enable"
 					},
 					"response": []
@@ -896,23 +511,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"ietf-interfaces:interfaces",
-								""
-							]
-						}
+						"url": "https://172.17.0.5:8445/restconf/config/ietf-interfaces:interfaces/"
 					},
 					"response": []
 				},
@@ -934,23 +533,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"5"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls"
-							]
-						}
+						"url": "https://172.17.0.5:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
 					},
 					"response": []
 				}
@@ -958,7 +541,7 @@
 		},
 		{
 			"name": "vpp1",
-			"description": null,
+			"description": "",
 			"item": [
 				{
 					"name": "Get mpls (cfg)",
@@ -978,23 +561,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls"
-							]
-						}
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
 					},
 					"response": []
 				},
@@ -1016,25 +583,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth12\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth12",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth12"
-							]
-						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth12",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth12 enable"
 					},
 					"response": []
@@ -1057,26 +606,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToA\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"ip-prefix\": \"10.100.1.1/24\"\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"paths\": {\n\t\t\t\"path\": [{\n\t\t\t\t\"path-index\": 0,\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"path-index\": 0,\n\t\t\t\t\t\"next-hop\": \"10.13.1.3\",\n\t\t\t\t\t\"outgoing-interface\": \"host-veth13\"\n\t\t\t\t}\n\t\t\t}],\n\t\t\t\"outgoing-labels\": {\n\t\t\t\t\"outgoing-labels\": [{\n\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\t\"label\": 103\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\t\"label\": 104\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}\n\t\t}\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToA"
-							]
-						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
 						"description": "Corresponding CLI command:\n\nip route add 10.100.1.1/24 via 10.13.1.3 host-veth13 out-labels 103 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.100.1.1/24"
 					},
 					"response": []
@@ -1099,26 +629,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToA\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"ip-prefix\": \"10.100.1.1/24\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"paths\": {\n\t\t\t\"path\": [{\n\t\t\t\t\"path-index\": 0,\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"path-index\": 0,\n\t\t\t\t\t\"next-hop\": \"10.13.1.3\",\n\t\t\t\t\t\"outgoing-interface\": \"host-veth13\"\n\t\t\t\t}\n\t\t\t}],\n\t\t\t\"outgoing-labels\": {\n\t\t\t\t\"outgoing-labels\": [{\n\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\t\"label\": 103\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\t\"label\": 10341\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}\n\t\t}\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToA"
-							]
-						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
 						"description": "Node + adjacency SID example.\n\nSteers traffic to A veth341 (the first interface between vpp3 and vpp4)."
 					},
 					"response": []
@@ -1141,23 +652,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/operational/ietf-interfaces:interfaces-state/",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"operational",
-								"ietf-interfaces:interfaces-state",
-								""
-							]
-						}
+						"url": "https://172.17.0.2:8445/restconf/operational/ietf-interfaces:interfaces-state/"
 					},
 					"response": []
 				},
@@ -1179,26 +674,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToB"
-							]
-						}
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB"
 					},
 					"response": []
 				},
@@ -1220,26 +696,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToA\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"ip-prefix\": \"10.100.1.1/24\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"paths\": {\n\t\t\t\"path\": [{\n\t\t\t\t\"path-index\": 0,\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"path-index\": 0,\n\t\t\t\t\t\"next-hop\": \"10.13.1.3\",\n\t\t\t\t\t\"outgoing-interface\": \"host-veth13\"\n\t\t\t\t}\n\t\t\t}],\n\t\t\t\"outgoing-labels\": {\n\t\t\t\t\"outgoing-labels\": [{\n\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\t\"label\": 103\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\t\"label\": 10342\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}\n\t\t}\n\t}]\n}\n"
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToA"
-							]
-						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
 						"description": "Node + adjacency SID example.\n\nSteers traffic to A veth342 (the second interface between vpp3 and vpp4)."
 					},
 					"response": []
@@ -1262,26 +719,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToB"
-							]
-						}
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB"
 					},
 					"response": []
 				},
@@ -1303,23 +741,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/ietf-interfaces:interfaces/",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"ietf-interfaces:interfaces",
-								""
-							]
-						}
+						"url": "https://172.17.0.2:8445/restconf/config/ietf-interfaces:interfaces/"
 					},
 					"response": []
 				},
@@ -1341,26 +763,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToA"
-							]
-						}
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA"
 					},
 					"response": []
 				},
@@ -1382,26 +785,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToA"
-							]
-						}
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToA"
 					},
 					"response": []
 				},
@@ -1423,26 +807,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToB\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"config\" : {\n\t\t\t\t\t\t\"ip-prefix\": \"10.200.1.1/24\"\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"paths\": {\n\t\t\t\"path\": [{\n\t\t\t\t\"path-index\": 0,\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"path-index\": 0,\n\t\t\t\t\t\"next-hop\": \"10.12.1.2\",\n\t\t\t\t\t\"outgoing-interface\": \"host-veth12\"\n\t\t\t\t}\n\t\t\t}],\n\t\t\t\"outgoing-labels\": {\n\t\t\t\t\"outgoing-labels\": [{\n\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 0,\n\t\t\t\t\t\t\"label\": 102\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\"config\": {\n\t\t\t\t\t\t\"index\": 1,\n\t\t\t\t\t\t\"label\": 104\n\t\t\t\t\t}\n\t\t\t\t}]\n\t\t\t}\n\t\t}\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToB"
-							]
-						},
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
 						"description": "Corresponding CLI command:\n\nip route add 10.200.1.1/24 via 10.12.1.2 host-veth12 out-labels 102 104\n\nCan be verified via CLI using:\n\nshow ip fib 10.200.1.1/24"
 					},
 					"response": []
@@ -1465,26 +830,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"trafficToB\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"ip-prefix\": \"10.200.1.1/24\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"impose-and-forward\"\n\t\t},\n\t\t\"simple-path\": {\n\t\t\t\"config\": {\n\t\t\t\t\"next-hop\": \"10.12.1.2\",\n\t\t\t\t\"outgoing-label\": 102,\n\t\t\t\t\"outgoing-interface\": \"host-veth12\"\n\t\t\t}\n\t\t}\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"2"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToB"
-							]
-						}
+						"url": "https://172.17.0.2:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB"
 					},
 					"response": []
 				}
@@ -1492,7 +838,7 @@
 		},
 		{
 			"name": "vpp2",
-			"description": null,
+			"description": "",
 			"item": [
 				{
 					"name": "Enable mpls on host-veth24 interface",
@@ -1512,25 +858,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth24\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth24",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth24"
-							]
-						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth24",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth24 enable"
 					},
 					"response": []
@@ -1553,23 +881,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/operational/ietf-interfaces:interfaces-state/",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"operational",
-								"ietf-interfaces:interfaces-state",
-								""
-							]
-						}
+						"url": "https://172.17.0.3:8445/restconf/operational/ietf-interfaces:interfaces-state/"
 					},
 					"response": []
 				},
@@ -1591,25 +903,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"interface\": [\n    {\n      \"name\": \"host-veth21\",\n      \"config\": {\n        \"enabled\": \"true\"\n      }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth21",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"interface",
-								"host-veth21"
-							]
-						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/interface/host-veth21",
 						"description": "Correspondig CLI command:\n\nset interface mpls host-veth21 enable"
 					},
 					"response": []
@@ -1632,23 +926,7 @@
 							"mode": "raw",
 							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/config/ietf-interfaces:interfaces/",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"ietf-interfaces:interfaces",
-								""
-							]
-						}
+						"url": "https://172.17.0.3:8445/restconf/config/ietf-interfaces:interfaces/"
 					},
 					"response": []
 				},
@@ -1670,23 +948,7 @@
 							"mode": "raw",
 							"raw": ""
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls"
-							]
-						}
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls"
 					},
 					"response": []
 				},
@@ -1708,26 +970,7 @@
 							"mode": "raw",
 							"raw": "{\n  \"static-lsp\": [\n    {\n      \"name\": \"trafficToB\",\n      \"config\": {\n        \"in-segment\": {\n        \t\"config\" : {\n          \"ip-prefix\": \"10.200.1.1/24\"\n        \t}\n        },\n        \"operation\": \"impose-and-forward\"\n      },\n      \"simple-path\": {\n\t\t\"config\": {\n\t\t\t\"next-hop\": \"10.24.1.4\",\n\t\t\t\"outgoing-label\": 104,\n\t\t\t\"outgoing-interface\": \"host-veth24\"\n\t\t}\n\t  }\n    }\n  ]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"trafficToB"
-							]
-						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/trafficToB",
 						"description": "Simulates route that could be received via BGP."
 					},
 					"response": []
@@ -1750,26 +993,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"lsp1\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"incoming-label\": 102\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"pop-and-lookup\",\n\t\t\t\"vpp-mpls:label-lookup\": {\n\t\t\t\t\"type\": \"mpls\",\n\t\t\t\t\"mpls-lookup-in-table\": 0\n\t\t\t}\n\t\t}\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp1"
-							]
-						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp1",
 						"description": "Corresponding CLI command:\n\nmpls local-label add non-eos 102 mpls-lookup-in-table 0\n\n\nCan be verified via CLI using:\n\nshow mpls fib 102"
 					},
 					"response": []
@@ -1792,26 +1016,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"lsp3\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"incoming-label\": 102\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"pop-and-lookup\",\n\t\t\t\"vpp-mpls:label-lookup\": {\n\t\t\t\t\"type\": \"ipv4\",\n\t\t\t\t\"ip4-lookup-in-table\": 0\n\t\t\t}\n\t\t}\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp3",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp3"
-							]
-						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp3",
 						"description": "In case 102 is the last label,\npop it and check if we have route for destination."
 					},
 					"response": []
@@ -1834,26 +1039,7 @@
 							"mode": "raw",
 							"raw": "{\n\t\"static-lsp\": [{\n\t\t\"name\": \"lsp2\",\n\t\t\"config\": {\n\t\t\t\"in-segment\": {\n\t\t\t\t\"config\": {\n\t\t\t\t\t\"incoming-label\": 104\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"operation\": \"swap-and-forward\"\n\t\t},\n\t\t\"simple-path\": {\n\t\t\t\"config\": {\n\t\t\t\t\"next-hop\": \"10.24.1.4\",\n\t\t\t\t\"outgoing-label\": 104,\n\t\t\t\t\"outgoing-interface\": \"host-veth24\"\n\t\t\t}\n\t\t}\n\t}]\n}"
 						},
-						"url": {
-							"raw": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp2",
-							"protocol": "https",
-							"host": [
-								"172",
-								"17",
-								"0",
-								"3"
-							],
-							"port": "8445",
-							"path": [
-								"restconf",
-								"config",
-								"hc2vpp-ietf-routing:routing",
-								"hc2vpp-ietf-mpls:mpls",
-								"hc2vpp-ietf-mpls-static:static-lsps",
-								"static-lsp",
-								"lsp2"
-							]
-						},
+						"url": "https://172.17.0.3:8445/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-mpls:mpls/hc2vpp-ietf-mpls-static:static-lsps/static-lsp/lsp2",
 						"description": "Corresponding CLI command:\n\nmpls local-label add eos 104 via 10.24.1.4 host-veth24 out-labels 104\n\n\nCan be verified via CLI using:\n\nshow mpls fib 104"
 					},
 					"response": []

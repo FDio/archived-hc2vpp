@@ -1,263 +1,478 @@
 {
-	"id": "5f48ebd9-e156-043d-48a5-00da9142c738",
-	"name": "Vpp Classifier ACl Collection",
-	"description": "",
-	"order": [],
-	"folders": [
+	"info": {
+		"_postman_id": "5f48ebd9-e156-043d-48a5-00da9142c738",
+		"name": "Vpp Classifier ACl Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
 		{
-			"owner": "658985",
-			"lastUpdatedBy": "658985",
-			"lastRevision": 967405087,
-			"id": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
+			"_postman_id": "b2ccf814-b527-482a-96de-e26d2246ea35",
 			"name": "ACL",
 			"description": "",
-			"order": [
-				"b5c46425-e432-25e6-5fe0-4d212f42c0fe",
-				"1a02c8e5-5a14-9ee9-398c-f069d62a9dee",
-				"2cc814a0-5eca-857d-b647-b8b9627a1ee2",
-				"49bbb895-48f4-a78f-d4f3-9a8169824391",
-				"fe6f32a1-6c05-8d15-d795-c854ea6c7dbd",
-				"2f01b177-0649-a3c2-17da-7aec9a0f8074",
-				"3deb9342-0574-63a8-5880-1824afdf8953",
-				"5d311a46-aed2-3e58-793e-24c8053b8dba",
-				"7584ee44-de47-97b6-4f0d-4989aa04787f",
-				"f92b2685-3801-c771-7002-36b96ecd679e",
-				"9b33cd88-8be2-e232-5d5e-fa90d2613ac2",
-				"78dc955d-2113-c90b-c54c-7528ae463526"
+			"item": [
+				{
+					"_postman_id": "b42a331f-2d74-498c-95b7-8c725c392842",
+					"name": "Get classify tables - cfg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-classifier:vpp-classifier",
+								""
+							]
+						},
+						"description": "Shows classify table configuration."
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "2ff0a5bd-9f65-4cca-9230-24709bdfdf5c",
+					"name": "Get classify tables - oper",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/vpp-classifier:vpp-classifier-state/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"vpp-classifier:vpp-classifier-state",
+								""
+							]
+						},
+						"description": "Shows classify tables configured in the VPP.\n\nCorresponds to:\n\nvppctl sh class table verbose"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "a616e4a5-54fc-4cb5-9a71-856912c673aa",
+					"name": "Add classify table0",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"classify-table\": [\n        {\n            \"name\": \"table0\",\n            \"nbuckets\": \"2\",\n            \"memory_size\": \"1048576\",\n            \"miss_next\": \"permit\",\n            \"mask\": \"00:00:00:00:00:00:ff:ff:ff:ff:ff:ff:00:00:00:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-classifier:vpp-classifier",
+								"classify-table",
+								"table0"
+							]
+						},
+						"description": "Adds classify table0. Corresponding vpp cli command:\n\nvppctl classify table mask l2 src\n\nTo verify invoke:\n\nvppctl sh class table verbose\n\nor:\n\nvat# classify_table_info table_id 0"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "b177fbd9-f0c8-4948-8b33-f7742960c81d",
+					"name": "Get classify table - oper",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/vpp-classifier:vpp-classifier-state/classify-table/table0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"vpp-classifier:vpp-classifier-state",
+								"classify-table",
+								"table0"
+							]
+						},
+						"description": "Shows classify table 0 operational state.\n\nCorresponds to:\n\nvat# classify_table_info table_id 0"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "de273226-a6ac-4239-a623-5fc9bee250b5",
+					"name": "Add classify table1",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"classify-table\": [\n        {\n            \"name\": \"table1\",\n            \"next_table\": \"table0\",\n            \"nbuckets\": \"2\",\n            \"memory_size\": \"1048576\",\n            \"miss_next\": \"permit\",\n            \"mask\": \"ff:ff:ff:ff:ff:ff:00:00:00:00:00:00:00:00:00:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-classifier:vpp-classifier",
+								"classify-table",
+								"table1"
+							]
+						},
+						"description": "Adds classify table1 chained to classify table0.\n\nCorresponding vpp cli command:\n\nvppctl classify table mask l2 dst next-table 0\n\nTo verify invoke:\n\nvppctl sh class table verbose\n\nor:\n\nvat# classify_table_info table_id 1"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "5ca03ab9-b123-4a16-8201-1ad5f2b20bc4",
+					"name": "Add classify session",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"classify-session\": [\n        {\n            \"hit_next\": \"deny\",\n            \"match\": \"00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0/classify-session/00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-classifier:vpp-classifier",
+								"classify-table",
+								"table0",
+								"classify-session",
+								"00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00"
+							]
+						},
+						"description": "Adds classify session to table0. Corresponding vpp cli command:\n\nvppctl classify session acl-hit-next deny opaque-index 0 table-index 0 match l2 src 01:02:03:04:05:06\n\nTo verify invoke:\n\nvppctl sh class table verbose"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "cff7e1d2-2575-494b-8d8a-f97d476bc335",
+					"name": "Add another classify session",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"classify-session\": [\n        {\n            \"hit_next\": \"deny\",\n            \"match\": \"00:00:00:00:00:00:01:02:03:04:05:07:00:00:00:00\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0/classify-session/00:00:00:00:00:00:01:02:03:04:05:07:00:00:00:00",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-classifier:vpp-classifier",
+								"classify-table",
+								"table0",
+								"classify-session",
+								"00:00:00:00:00:00:01:02:03:04:05:07:00:00:00:00"
+							]
+						},
+						"description": "Adds second classify session to table0. Corresponding vpp cli command:\n\nvppctl classify session acl-hit-next deny opaque-index 0 table-index 0 match l2 src 01:02:03:04:05:07\n\nTo verify invoke:\n\nvppctl sh class table verbose"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "72d75a3f-2899-49de-8d4e-f9350d694b5a",
+					"name": "Enable L2 and Ipv4 ACL on local0 interface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vpp-interface-acl:acl\": {\n    \t\"ingress\":{\n    \t\t\"l2-acl\": {\n        \"classify-table\": \"table0\"\n      },\n      \"ip4-acl\": {\n        \"classify-table\": \"table0\"\n      }\t\t\n    \t}\n     \n    }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/vpp-interface-acl:acl",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"vpp-interface-acl:acl"
+							]
+						},
+						"description": "Enables L2 and Ipv4 ACL on local0. Corresponding vpp cli commands:\n\nset int input acl intfc local0 l2-table 0\n\nset int input acl intfc local0 ip4-table 0\n\nTo verify invoke:\n\nvppctl show inacl type l2\n\nthen:\n\nvppctl show inacl type ip4"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "e5cf2d76-1425-4c53-91e6-c1650ce8c3dd",
+					"name": "Disable ACL on local0 interface",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/vpp-interface-acl:acl",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"local0",
+								"vpp-interface-acl:acl"
+							]
+						},
+						"description": "Disables ACL on local0. To verify invoke:\n\nvppctl show inacl type l2\n\nand:\n\nvppctl show inacl type ip4"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "4ea4d2ff-1ad5-46b9-855c-ebee47c954c6",
+					"name": "Remove classify session",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0/classify-session/00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-classifier:vpp-classifier",
+								"classify-table",
+								"table0",
+								"classify-session",
+								"00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00"
+							]
+						},
+						"description": "Removes classify session. To verify invoke:\n\nvppctl sh class table verbose"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "31cacf49-fbb0-432b-b57d-96c04043e7bd",
+					"name": "Remove classify table0",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-classifier:vpp-classifier",
+								"classify-table",
+								"table0"
+							]
+						},
+						"description": "Removes classify table0. Corresponds to the following command:\n\nvppctl classify table del table 0\n\nTo verify invoke:\n\nvppctl sh class table verbose"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "54ea2192-04c6-4aa5-8c44-d54c9d305ffa",
+					"name": "Remove classify table1",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-classifier:vpp-classifier",
+								"classify-table",
+								"table1"
+							]
+						},
+						"description": "Removes classify table1. Corresponds to the following command:\n\nvppctl classify table del table 1\n\nTo verify invoke:\n\nvppctl sh class table verbose"
+					},
+					"response": []
+				}
 			]
-		}
-	],
-	"timestamp": 1488184412015,
-	"owner": "658985",
-	"public": false,
-	"requests": [
-		{
-			"id": "1a02c8e5-5a14-9ee9-398c-f069d62a9dee",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/vpp-classifier:vpp-classifier-state/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488183841509,
-			"name": "Get classify tables - oper",
-			"description": "Shows classify tables configured in the VPP.\n\nCorresponds to:\n\nvppctl sh class table verbose",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": ""
-		},
-		{
-			"id": "2cc814a0-5eca-857d-b647-b8b9627a1ee2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488183851373,
-			"name": "Add classify table0",
-			"description": "Adds classify table0. Corresponding vpp cli command:\n\nvppctl classify table mask l2 src\n\nTo verify invoke:\n\nvppctl sh class table verbose\n\nor:\n\nvat# classify_table_info table_id 0",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": "{\n    \"classify-table\": [\n        {\n            \"name\": \"table0\",\n            \"nbuckets\": \"2\",\n            \"memory_size\": \"1048576\",\n            \"miss_next\": \"permit\",\n            \"mask\": \"00:00:00:00:00:00:ff:ff:ff:ff:ff:ff:00:00:00:00\"\n        }\n    ]\n}"
-		},
-		{
-			"id": "2f01b177-0649-a3c2-17da-7aec9a0f8074",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0/classify-session/00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488183887727,
-			"name": "Add classify session",
-			"description": "Adds classify session to table0. Corresponding vpp cli command:\n\nvppctl classify session acl-hit-next deny opaque-index 0 table-index 0 match l2 src 01:02:03:04:05:06\n\nTo verify invoke:\n\nvppctl sh class table verbose",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": "{\n    \"classify-session\": [\n        {\n            \"hit_next\": \"deny\",\n            \"match\": \"00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00\"\n        }\n    ]\n}"
-		},
-		{
-			"id": "3deb9342-0574-63a8-5880-1824afdf8953",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0/classify-session/00:00:00:00:00:00:01:02:03:04:05:07:00:00:00:00",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488183895189,
-			"name": "Add another classify session",
-			"description": "Adds second classify session to table0. Corresponding vpp cli command:\n\nvppctl classify session acl-hit-next deny opaque-index 0 table-index 0 match l2 src 01:02:03:04:05:07\n\nTo verify invoke:\n\nvppctl sh class table verbose",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": "{\n    \"classify-session\": [\n        {\n            \"hit_next\": \"deny\",\n            \"match\": \"00:00:00:00:00:00:01:02:03:04:05:07:00:00:00:00\"\n        }\n    ]\n}"
-		},
-		{
-			"id": "49bbb895-48f4-a78f-d4f3-9a8169824391",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/vpp-classifier:vpp-classifier-state/classify-table/table0",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488183870073,
-			"name": "Get classify table - oper",
-			"description": "Shows classify table 0 operational state.\n\nCorresponds to:\n\nvat# classify_table_info table_id 0",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": ""
-		},
-		{
-			"id": "5d311a46-aed2-3e58-793e-24c8053b8dba",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/vpp-interface-acl:acl",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488184203115,
-			"name": "Enable L2 and Ipv4 ACL on local0 interface",
-			"description": "Enables L2 and Ipv4 ACL on local0. Corresponding vpp cli commands:\n\nset int input acl intfc local0 l2-table 0\n\nset int input acl intfc local0 ip4-table 0\n\nTo verify invoke:\n\nvppctl show inacl type l2\n\nthen:\n\nvppctl show inacl type ip4",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": "{\n    \"vpp-interface-acl:acl\": {\n    \t\"ingress\":{\n    \t\t\"l2-acl\": {\n        \"classify-table\": \"table0\"\n      },\n      \"ip4-acl\": {\n        \"classify-table\": \"table0\"\n      }\t\t\n    \t}\n     \n    }\n}"
-		},
-		{
-			"id": "7584ee44-de47-97b6-4f0d-4989aa04787f",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/vpp-interface-acl:acl",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488184365057,
-			"name": "Disable ACL on local0 interface",
-			"description": "Disables ACL on local0. To verify invoke:\n\nvppctl show inacl type l2\n\nand:\n\nvppctl show inacl type ip4",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": ""
-		},
-		{
-			"id": "78dc955d-2113-c90b-c54c-7528ae463526",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488184388131,
-			"name": "Remove classify table1",
-			"description": "Removes classify table1. Corresponds to the following command:\n\nvppctl classify table del table 1\n\nTo verify invoke:\n\nvppctl sh class table verbose",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": ""
-		},
-		{
-			"id": "9b33cd88-8be2-e232-5d5e-fa90d2613ac2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488184380564,
-			"name": "Remove classify table0",
-			"description": "Removes classify table0. Corresponds to the following command:\n\nvppctl classify table del table 0\n\nTo verify invoke:\n\nvppctl sh class table verbose",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": ""
-		},
-		{
-			"id": "b5c46425-e432-25e6-5fe0-4d212f42c0fe",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488183829071,
-			"name": "Get classify tables - cfg",
-			"description": "Shows classify table configuration.",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": ""
-		},
-		{
-			"id": "f92b2685-3801-c771-7002-36b96ecd679e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table0/classify-session/00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "DELETE",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488184372640,
-			"name": "Remove classify session",
-			"description": "Removes classify session. To verify invoke:\n\nvppctl sh class table verbose",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": ""
-		},
-		{
-			"id": "fe6f32a1-6c05-8d15-d795-c854ea6c7dbd",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/vpp-classifier:vpp-classifier/classify-table/table1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1488183879955,
-			"name": "Add classify table1",
-			"description": "Adds classify table1 chained to classify table0.\n\nCorresponding vpp cli command:\n\nvppctl classify table mask l2 dst next-table 0\n\nTo verify invoke:\n\nvppctl sh class table verbose\n\nor:\n\nvat# classify_table_info table_id 1",
-			"collectionId": "5f48ebd9-e156-043d-48a5-00da9142c738",
-			"folder": "f3f79eb2-7264-9f3f-9a5f-b5a1fc50e743",
-			"rawModeData": "{\n    \"classify-table\": [\n        {\n            \"name\": \"table1\",\n            \"next_table\": \"table0\",\n            \"nbuckets\": \"2\",\n            \"memory_size\": \"1048576\",\n            \"miss_next\": \"permit\",\n            \"mask\": \"ff:ff:ff:ff:ff:ff:00:00:00:00:00:00:00:00:00:00\"\n        }\n    ]\n}"
 		}
 	]
 }

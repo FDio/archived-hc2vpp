@@ -1,0 +1,106 @@
+{
+	"id": "b638a073-6954-5c89-320a-7105437dae94",
+	"name": "Vpp management Collection",
+	"description": "",
+	"order": [
+		"1bfd69f7-e187-beb0-447c-0074aa636045"
+	],
+	"folders": [
+		{
+			"id": "299be85f-5ada-34f7-bd80-9fbc4e5b200a",
+			"name": "RPCs",
+			"description": "",
+			"order": [
+				"1c552a48-498c-f2e8-8dee-2d5b67120a3a",
+				"2df7f806-dfb3-bf4f-9cab-0c9863ed4486",
+				"d4f87db0-06e5-b309-8918-d1c29f59fab1"
+			],
+			"owner": "658985"
+		}
+	],
+	"timestamp": 1489148746054,
+	"owner": "658985",
+	"public": false,
+	"requests": [
+		{
+			"id": "1bfd69f7-e187-beb0-447c-0074aa636045",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/operational/vpp-management:vpp-state",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1489149850732,
+			"name": "Read vpp-state - oper",
+			"description": "",
+			"collectionId": "b638a073-6954-5c89-320a-7105437dae94",
+			"responses": [],
+			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+		},
+		{
+			"id": "1c552a48-498c-f2e8-8dee-2d5b67120a3a",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/operations/vpp-management:cli-inband",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1489149921151,
+			"name": "show version",
+			"description": "The cli-inband rpc provides support for CLI commands.\nHere is equivalent of show version.",
+			"collectionId": "b638a073-6954-5c89-320a-7105437dae94",
+			"responses": [],
+			"rawModeData": "{\n  \"input\" :\n  {\n     \"cmd\" : \"show version\"\n  }\n}"
+		},
+		{
+			"id": "2df7f806-dfb3-bf4f-9cab-0c9863ed4486",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/operations/vpp-management:cli-inband",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1489149929797,
+			"name": "show interfaces",
+			"description": "The cli-inband rpc provides support for CLI commands.\nHere is equivalent of show int.",
+			"collectionId": "b638a073-6954-5c89-320a-7105437dae94",
+			"responses": [],
+			"rawModeData": "{\n  \"input\" :\n  {\n     \"cmd\" : \"show int\"\n  }\n}"
+		},
+		{
+			"id": "d4f87db0-06e5-b309-8918-d1c29f59fab1",
+			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
+			"url": "http://localhost:8183/restconf/operations/vpp-management:cli-inband",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1489149940101,
+			"name": "create loopback interface",
+			"description": "The cli-inband rpc provides support for CLI commands.\nHere is equivalent of create loopback interface",
+			"collectionId": "b638a073-6954-5c89-320a-7105437dae94",
+			"responses": [],
+			"rawModeData": "{\n  \"input\" :\n  {\n     \"cmd\" : \"create loopback interface\"\n  }\n}"
+		}
+	]
+}

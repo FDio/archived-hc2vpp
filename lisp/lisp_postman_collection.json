@@ -1,1577 +1,3034 @@
 {
-	"id": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-	"name": "Lisp Postman Collection L2 copy",
-	"description": "",
-	"order": [
-		"c99e6e24-5d9c-040a-68f3-5a0dbed98cc1"
-	],
-	"folders": [
+	"info": {
+		"_postman_id": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
+		"name": "Lisp Postman Collection L2 copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
 		{
-			"id": "7e8099bb-e5d7-4e89-cc42-45b186b76c3c",
+			"_postman_id": "f8125233-0c5d-4f35-872e-30a36f8f222e",
 			"name": "Adjacency",
 			"description": "",
-			"order": [
-				"32abc7d1-bdcf-26f3-c726-a385b3b86ec5",
-				"929f03e4-aeba-3599-1bf2-1730913bdea6",
-				"11cf57b3-d985-6dc2-805a-8d408679b35b",
-				"f6c1d4a8-9e5a-bac2-7476-c5ded4a545cc"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "01315bab-5f4e-49e1-bc0d-927ed71506ea",
+					"name": "Add adjacency",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1/adjacencies/adjacency/adj_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_1",
+								"adjacencies",
+								"adjacency",
+								"adj_1"
+							]
+						},
+						"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "626e4c63-72dd-4d39-88aa-d56e3b0fe47e",
+					"name": "Add adjacency prefix based",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_10\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.3.8/8\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.2.4/24\"\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_11/adjacencies/adjacency/adj_10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_11",
+								"adjacencies",
+								"adjacency",
+								"adj_10"
+							]
+						},
+						"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "3823533c-790a-4d0d-974b-9edec4197898",
+					"name": "Get adjacency - Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1/adjacencies/adjacency/adj_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_1",
+								"adjacencies",
+								"adjacency",
+								"adj_1"
+							]
+						},
+						"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "be3e1571-e9a4-44b4-89c9-1204a6383aca",
+					"name": "Get adjacency - Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1/adjacencies/adjacency/adj_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_1",
+								"adjacencies",
+								"adjacency",
+								"adj_1"
+							]
+						},
+						"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
+			"_postman_id": "c1971f3b-46a9-4650-85ca-e0f80a80736f",
 			"name": "Bridge domain",
 			"description": "",
-			"order": [
-				"bad5a024-ed9f-93d6-da06-1686d675dc50",
-				"32cdac07-fe1b-ae10-1e3d-9c5e64c8fbe7",
-				"7eaaefcc-784b-897f-dde1-0d47741dfe56",
-				"2506fe37-668b-7d0b-a76e-a592263dee65",
-				"1e18c440-3841-2cdd-9a88-cd4bde729a17"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "42bcb62b-a102-4514-a644-bcd42751a24d",
+					"name": "Create bridge testBD",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"testBD\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/v3po:bridge-domains/bridge-domain/testBD",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"v3po:bridge-domains",
+								"bridge-domain",
+								"testBD"
+							]
+						},
+						"description": "Creates bridgfe domain. Corresponds to invoking:\n\nvat#  bridge_domain_add_del bd_id [bd_id] learn 0 forward 0 uu-flood 0 flood 1 arp-term 0\n\nTo verify run:\n\nvppctl show bridge-domain [bd_id] detail"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "b8ab3aa7-252a-4aca-a10f-962f893e4244",
+					"name": "Delete bridge testBD",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"testBD\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/v3po:vpp/bridge-domains/bridge-domain/testBD",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"v3po:vpp",
+								"bridge-domains",
+								"bridge-domain",
+								"testBD"
+							]
+						},
+						"description": "Creates bridgfe domain. Corresponds to invoking:\n\nvat#  bridge_domain_add_del bd_id [bd_id] learn 0 forward 0 uu-flood 0 flood 1 arp-term 0\n\nTo verify run:\n\nvppctl show bridge-domain [bd_id] detail"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "3b7bdedf-5476-4cfb-b0d7-fa7ebce18bbc",
+					"name": "Add Bridge Domain Subtable 10",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n    \"bridge-domain-subtable\":{\r\n      \"bridge-domain-ref\":\"testBD\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "d397aaa4-dbdd-447a-b6d3-ffac09a818c4",
+					"name": "Get Bridge Domain Subtable 10 Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "1ca8b5f2-6f7f-4a8d-8d9a-3d9940718a2a",
+					"name": "Get Bridge Domain Subtable 10 Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
+			"_postman_id": "08e0dfed-bfcc-4e12-b424-87ef86c8e0be",
 			"name": "Lisp",
 			"description": "",
-			"order": [
-				"da8d61ce-1f0d-8ab8-e1de-50d094a266e2",
-				"e5b786a5-cab9-9fd7-4a23-20840e00098a",
-				"b1c9fcf9-89bf-86c5-a350-60535b748ee9",
-				"36a847e5-e3b8-ff07-4e88-f5a841fcaca6"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "49220a97-f4bb-46c2-bb35-aa413c5781c7",
+					"name": "Enable Lisp",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lisp\": {\n    \"enable\": true,\n    \"lisp-feature-data\": {\n      \"pitr-cfg\": {\n        \"locator-set\": \"N/A\"\n      },\n      \"rloc-probe\": {\n        \"enabled\": false\n      },\n      \"map-register\": {\n        \"enabled\": false\n      },\n      \"map-request-mode\": {\n        \"mode\": \"destination-only\"\n      },\n      \"eid-table\": {\n        \"vni-table\": [\n          {\n            \"virtual-network-identifier\": 0,\n            \"vrf-subtable\": {\n              \"table-id\": 0\n            }\n          }\n        ]\n      }\n    }\n  }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp"
+							]
+						},
+						"description": "Enables Lisp feature\n\nequivalent of \n\n    lisp_enable_disable is_en 1\n\ncan be verified with \n\n    show_lisp_status"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "4717ed60-b712-4c56-857f-3fb6fe1c1794",
+					"name": "Get Lisp Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "ce5c0f07-51da-48d1-960f-7b51c39cb64e",
+					"name": "Get Lisp Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state"
+							]
+						},
+						"description": "Reads status of lisp feature\n\nequivalent of \n\n    show_lisp_status"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "3b809542-d3fd-4125-ab61-9b772ecf160b",
+					"name": "Delete Lisp",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\",\r\n        \"eid-table\": {\r\n              \"vni-table\": [\r\n                {\r\n                  \"virtual-network-identifier\": 0,\r\n                  \"remote-mappings\": {},\r\n                  \"table-id\": 0,\r\n                  \"local-mappings\": {},\r\n                  \"adjacencies\": {}\r\n                }\r\n              ]\r\n            },\r\n        \"pitr-cfg\":{\r\n            \"locator-set\":\"N/A\"\r\n        }\r\n    }    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
+			"_postman_id": "df938116-92ed-4eda-8f3b-97101c381f35",
 			"name": "Local mapping",
 			"description": "",
-			"order": [
-				"8f3ede8b-aab7-ac3b-3041-9cdb7bc0e6ec",
-				"368c6c84-05ac-217f-32ed-0225db44f1cd",
-				"3bd39b05-9986-ffc0-6977-c41d41c98060",
-				"eef057eb-f4a5-4903-1e31-06082511d677",
-				"0b807adc-2277-db3f-8e3e-c6b74888018d",
-				"0b756f48-88b5-c015-a271-01b69a9ab2a4",
-				"5462a723-5b0c-34f0-1359-5e53a77e3a52",
-				"cd18d003-6bc9-cfff-46e8-7dffcd1f8497",
-				"1493eeb4-7306-9770-a2ed-4a59763240d1"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "87e75c95-c0ba-43ee-8092-519c59a5e1ca",
+					"name": "Add local mapping loc_map_1 - Vrf ",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.1\"\n            },\n            \"locator-set\":\"loc_1\"\n         }\n\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_1"
+							]
+						},
+						"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "69f2defb-14dc-472e-9dc8-c0fd470e8a6e",
+					"name": "Add local mapping loc_map_10 - prefix based",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_10\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4-prefix\":\"192.168.3.8/8\"\n            },\n            \"locator-set\":\"loc_1\"\n         }\n\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_10"
+							]
+						},
+						"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.3.8 prefix_len 24 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 24 vni 12 eid_type 0 eid 192.168.3.8 filter 1\n    \n"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "d9884047-923e-44ae-bc74-e60c19878390",
+					"name": "Add local mapping with hmac key",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.1\"\n            },\n            \"locator-set\":\"loc_1\",\n            \"hmac-key\":{\n            \t\"key-type\":\"sha-1-96-key\",\n            \t\"key\":\"abcd1234\"\n            }\n         }\n\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_1"
+							]
+						},
+						"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "685af375-db67-4f65-8834-303cc0b34f08",
+					"name": "Get local mapping loc_map_1 Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_1"
+							]
+						},
+						"description": "Get details about local mapping\n\nequivalent of\n    \n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "df72d741-39ea-4113-9bce-5bef97adf3eb",
+					"name": "Get local mapping loc_map_1 Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_1"
+							]
+						},
+						"description": "Get details about local mapping\n\nequivalent of\n    \n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "4cbc9aa2-807d-4b88-892d-173d4b098905",
+					"name": "Get local mapping loc_map_10 Operational ",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_10"
+							]
+						},
+						"description": "Get details about local mapping\n\nequivalent of\n    \n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "dbe1ea6e-495a-40a0-a78f-209202860477",
+					"name": "Add local mapping loc_map_2 - Bridge Domain",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:aa:aa:aa:aa:aa\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/local-mappings/local-mapping/loc_map_2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_2"
+							]
+						},
+						"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "5b512348-7f0f-437e-a8ac-e2be08fe9809",
+					"name": "Add local mapping loc_map_2 Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/local-mappings/local-mapping/loc_map_2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_2"
+							]
+						},
+						"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "95cd8547-13e0-4fcd-9902-c3ef8a97923a",
+					"name": "Add local mapping loc_map_2 Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"local-mappings",
+								"local-mapping",
+								"loc_map_1"
+							]
+						},
+						"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "a48c17bb-504b-f843-5098-b9d550a67301",
+			"_postman_id": "8fd1fc05-7d5a-4c25-84bc-f85a9da666ef",
 			"name": "Locator Set",
 			"description": "",
-			"order": [
-				"0ce07f8f-0e45-ea05-4c62-76d7076a444f",
-				"c0611a78-1410-52b6-a886-ca84e4dacb8e",
-				"14239ebd-752b-e2f6-ba5f-4fdb79819b92",
-				"3fe6bbb8-eca4-8b49-9092-1300aeac51e0",
-				"4b606776-aa33-ff85-9784-f76d2e457dea",
-				"385ab15d-6e4e-9fe9-9f4a-244a64f90c21",
-				"61af7f4c-6071-e881-cfbc-548abab4ba9f"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "514c0930-9b17-41f9-ae86-cea59c94f895",
+					"name": "Negative Case -  Locator set loc_1 as empty",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\"\n   }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"locator-sets",
+								"locator-set",
+								"loc_1"
+							]
+						},
+						"description": "Add new locator set\n\nequivalent of \n    \n    lisp_add_del_locator_set is_add 1 locator_set_name loc_1\n    \ncan be verified with \n\n    lisp_locator_set_dump\n\nRequests to add empty locator-sets will be rejected"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "6c5df26d-b041-45e6-81b1-f5d6f0d1a3ed",
+					"name": "Add Locator set loc_1 with locator for local0",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"locator-sets",
+								"locator-set",
+								"loc_1"
+							]
+						},
+						"description": "Add new locator set\n\nequivalent of \n    \n    lisp_add_del_locator_set is_add 1 locator_set_name loc_1\n    \ncan be verified with \n\n    lisp_locator_set_dump\n\nRequests to add empty locator-sets will be rejected"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "4f1d6529-f646-4104-b15f-4bcdd1d12c30",
+					"name": "Add Locator set loc_1 with locator for local0 copy",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"locator-sets",
+								"locator-set",
+								"loc_1"
+							]
+						},
+						"description": "Add new locator set\n\nequivalent of \n    \n    lisp_add_del_locator_set is_add 1 locator_set_name loc_1\n    \ncan be verified with \n\n    lisp_locator_set_dump\n\nRequests to add empty locator-sets will be rejected"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "9d13cb96-2c0f-4c78-852d-5f6528b8a67e",
+					"name": "Get Locator set loc_1 Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"locator-sets",
+								"locator-set",
+								"loc_1"
+							]
+						},
+						"description": "Add new locator set\n\nequivalent of \n    \n    lisp_add_del_locator_set is_add 1 locator_set_name loc_1\n    \ncan be verified with \n\n    lisp_locator_set_dump\n\nRequests to add empty locator-sets will be rejected"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "45540669-7462-4d91-ac1d-105df2c98906",
+					"name": "Get Locator set loc_1 Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/locator-sets",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"locator-sets"
+							]
+						},
+						"description": "Reads data of locator set \n\nequivalent of \n    \n    lisp_locator_set_dump"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "28b4bace-ecf1-45ac-b733-1aa965086b94",
+					"name": "Add Locator for GigabitEthernet0/8/0",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"interface\":{\r\n       \"interface-ref\":\"GigabitEthernet0/8/0\",\r\n       \"priority\":\"2\",\r\n       \"weight\":\"3\"\r\n   }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1/interface/GigabitEthernet0%2F8%2F0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"locator-sets",
+								"locator-set",
+								"loc_1",
+								"interface",
+								"GigabitEthernet0%2F8%2F0"
+							]
+						},
+						"description": "Add locator under locator-set\n\nequivalent of \n\n    lisp_add_del_locator is_add 1 locator_set_name loc_1 sw_if_index INDEX priority 2 weight 3\n\ncan be verified with \n\n    lisp_locator_dump locator_set_index INDEX "
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "895e4032-b1ad-4e24-9cd8-f77b5180c2ac",
+					"name": "Get Locator for GigabitEthernet0/8/0",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"locator-set\":{\r\n        \"name\":\"loc_1\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/locator-sets/locator-set/loc_1/interface/GigabitEthernet0%2F8%2F0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"locator-sets",
+								"locator-set",
+								"loc_1",
+								"interface",
+								"GigabitEthernet0%2F8%2F0"
+							]
+						},
+						"description": "Reads data of specified locator\n\nequivalent of\n\n    lisp_locator_dump locator_set_index INDEX"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "ec468419-e334-7311-2b34-2b6ddde851f0",
+			"_postman_id": "72adc834-9080-45ae-8543-76659d54df3a",
 			"name": "Map Server",
 			"description": "",
-			"order": [
-				"1d1c7d25-94af-2dfa-97ec-33710f47d04d",
-				"7a314526-67d0-d126-009a-656e6cf99f1e",
-				"8c8ee757-8bac-5e86-d5d6-3cb8c89ccac5"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "9d567bd3-bdfd-4cbb-a9ee-2dbf79416eb8",
+					"name": "Put map servers",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:db8:a0b:12f0::1\"\n\t\t\t}\n\t\t]\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-servers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"map-servers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "2693a771-9261-4b99-b37a-b9bf8f668a3d",
+					"name": "Get map server config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t\t\t}\n\t\t]\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-servers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"map-servers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "c2d6839f-6958-424e-bacd-b0feb621145a",
+					"name": "Get map server operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t\t\t}\n\t\t]\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/map-servers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"map-servers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "48325084-4625-703e-d6fd-3f11351ded23",
+			"_postman_id": "cc13318f-63a8-4493-ba2d-10a0c2ac68a8",
 			"name": "Map register",
 			"description": "",
-			"order": [
-				"1a65220c-e906-c56c-9d32-4ee27e30cfbd",
-				"080a7c73-3ffc-86f9-8d67-fc9a64bd2f46",
-				"531ac705-5ed0-04bc-fb4b-43e729b7c4e4"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "12b946b7-23e5-49eb-8062-f2841ff6050e",
+					"name": "Enable map-register",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n,\"ttl\":45\t}\n\n,\"fallback-threshold\":45\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"map-register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "7a38b433-6673-438b-93f9-ac6e4fd3d8d5",
+					"name": "Map register config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"map-register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "2dba2493-6b09-4ab6-b0bb-2fa3f2dbc085",
+					"name": "Map Register operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/map-register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"map-register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "829d2e08-2373-756e-8a7d-1451610f45b3",
+			"_postman_id": "b730f916-2129-4063-9a78-da1c952f5141",
 			"name": "Map request mode",
 			"description": "",
-			"order": [
-				"1d0a2f13-a4d5-69da-2960-e368a67e9129",
-				"a0babf59-f72b-3412-3146-52e6312e063f",
-				"b1746c42-9991-7992-b8da-80c025981e9d"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "a3c59a23-e934-4223-bb32-e00c77e9b9ea",
+					"name": "Put Map request mode",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-request-mode",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"map-request-mode"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "f1ff1dba-44de-4d7a-896f-7615972aa012",
+					"name": "Get map request config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-request-mode",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"map-request-mode"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "780800a0-5ea9-4000-afdd-ebecb96effc2",
+					"name": "Get map request operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/map-request-mode",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"map-request-mode"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "383c8da3-cd29-79aa-e0d1-36e3b7bd3e9c",
+			"_postman_id": "9c3aee23-c19d-4ff6-af55-ff5fadfacaf4",
 			"name": "Map resolver",
 			"description": "",
-			"order": [
-				"c52b0be2-67d4-642b-fd7b-43598f2c4e3f",
-				"5ac994f5-18e3-5101-23c1-32995dae6ec9",
-				"f8d1b8a6-7a79-8be1-dbf3-fc02c5688df4"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "d1e1c909-7f4b-4934-93d5-4b76a49148fd",
+					"name": "Add map resolver",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"map-resolver\":{\r\n       \"ip-address\":\"192.168.2.1\"\r\n   }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-resolvers/map-resolver/192.168.2.1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"map-resolvers",
+								"map-resolver",
+								"192.168.2.1"
+							]
+						},
+						"description": "Reads data of map resolver\n\nequivalent of \n\n    lisp_map_resolver_dump"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "3a0cdd38-f7e7-495e-a27f-730a2fcb777b",
+					"name": "Get map resolver - Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"map-resolver\":{\r\n       \"ip-address\":\"192.168.2.1\"\r\n   }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/state/lisp:lisp/lisp-feature-data/map-resolvers/map-resolver/192.168.2.1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"state",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"map-resolvers",
+								"map-resolver",
+								"192.168.2.1"
+							]
+						},
+						"description": "Adds new map resolver\n\nequivalent of\n\n    lisp_add_del_map_resolver is_add 1 is_ipv6 0 ip_address 192.168.2.1\n\ncan be verified with\n    \n    lisp_map_resolver_dump"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "7d1c2403-6fdf-498d-8c8b-80e933ba3a5d",
+					"name": "Get map resolver - Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"map-resolver\":{\r\n       \"ip-address\":\"192.168.2.1\"\r\n   }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/map-resolvers/map-resolver/192.168.2.1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"map-resolvers",
+								"map-resolver",
+								"192.168.2.1"
+							]
+						},
+						"description": "Reads data of map resolver\n\nequivalent of \n\n    lisp_map_resolver_dump"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "fa3ffa80-51de-1e69-1f1e-4f77e69876b1",
+			"_postman_id": "517165c6-b132-4292-bfd6-556e5a4614a9",
 			"name": "Petr use",
 			"description": "",
-			"order": [
-				"2ab426c2-1c94-fe0b-08a4-c2579f6fea3d",
-				"459bacc9-b049-b78f-5d50-7f2a0f8a182e",
-				"d547003e-cb16-6971-a5f9-66c400a921a1"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "e38e6b69-322c-4e2c-ac08-b18411c0f2b5",
+					"name": "Add Petr use",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"2001:db8:a0b:12f0::2\"\n    }  \n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/petr-cfg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"petr-cfg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "d6bf6820-bad9-42a6-93cc-0f9b66ba0b10",
+					"name": "Get Petr Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"192.168.2.1\"\n    }  \n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/petr-cfg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"petr-cfg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "57075ec4-cf0a-429e-868b-060af485163a",
+					"name": "Get Petr Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"192.168.2.1\"\n    }  \n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/petr-cfg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"petr-cfg"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "da8bf0a1-22cf-8f24-0673-531e1a82de9b",
+			"_postman_id": "dede860f-67ae-4597-acd7-749e0750a7e0",
 			"name": "Pitr cfg",
 			"description": "",
-			"order": [
-				"c50bc4c0-1a64-7130-4b8b-e1f12f55d4d7",
-				"65167fb8-0d64-d13e-27ad-0f7d3e8c7fe4"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "09cfeed1-a5fe-4980-892b-a024b581f1d0",
+					"name": "Add Pitr-cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pitr-cfg\": {\n      \"locator-set\": \"loc_1\"\n    }  \n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/pitr-cfg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"pitr-cfg"
+							]
+						},
+						"description": "Enable Pitr feature \n\nequivalent of \n\n    lisp_pitr_set_locator_set is_add 1 ls_name loc_1\n    \ncan be verified with\n\n    show_lisp_pitr"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "3b58360e-b954-45ff-8608-c87ec4d2aadb",
+					"name": "Get Pitr-cfg ",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pitr-cfg\": {\n      \"locator-set\": \"N/A\"\n        }  \n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/pitr-cfg",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"pitr-cfg"
+							]
+						},
+						"description": "Reads Pitr feature status\n\nequivalent of\n\n    show_lisp_pitr"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
+			"_postman_id": "f7b8d000-8e4c-4f37-8010-dd5a9bf66684",
 			"name": "Remote mapping",
 			"description": "",
-			"order": [
-				"523f68fe-ee0f-8e28-2a8a-87f6a459e03b",
-				"6a13d31b-937d-0f94-cc96-fe5b152fad52",
-				"cf99137e-694d-8a9c-45f0-9361840f4c25",
-				"7a748095-2530-5bbd-7e5d-6d1cbd225c65",
-				"749351c9-3d31-cd54-500f-a628c7e134cd",
-				"27ee8b67-7986-d169-bb89-ad147c7fb57c",
-				"54de6ea7-94a6-e8f2-1ed5-c209d8e3c25f",
-				"49cc1e34-af2a-0ccc-3beb-dab09c4a7869",
-				"fceee914-148f-c74e-3ad5-c2dbb988edf2",
-				"ad739651-3137-a535-5066-28a313cf7aa2",
-				"d01b27de-fef9-a333-3075-f431412a56d8",
-				"0ce2444e-3779-c247-6f0a-e9aabc7536eb",
-				"e6c236d4-96f6-b999-5e4e-9e8c93be6090",
-				"f18a7c8a-1c04-18b8-75d8-e2d8d08c3ef0",
-				"70790149-793f-242a-ebb8-032188d5bce5"
-			],
-			"owner": "658985",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075"
+			"item": [
+				{
+					"_postman_id": "958ebea4-a1aa-4362-b120-6ab9724d8acc",
+					"name": "Add remote  negative mapping -  Vrf",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_1"
+							]
+						},
+						"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "022b82a3-8307-4add-ba19-f297632fe323",
+					"name": "Add remote  negative mapping 10 -  Vrf - Prefix based",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_10\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv6-prefix\":\"2001:0db8:85a3:0000:0000:8a2e:0370:7334/64\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_10"
+							]
+						},
+						"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "0d0c6ae9-c3d5-4c05-b48c-a81506fccee6",
+					"name": "Add remote  negative mapping 11 -  Vrf - Prefix based",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_11\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.2.4/24\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_11",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_11"
+							]
+						},
+						"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "2122018f-1fc3-41e8-8ef7-da6efa5ac01c",
+					"name": "Get remote negative mapping Config - Vrf",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.2\",\r\n                \"priority\":1,\r\n                \"weight\":1\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_1"
+							]
+						},
+						"description": "Reads data of remote mapping\n\nequivalent of \n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.3 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "a9989cae-7f25-408c-a53a-faf44d2e605b",
+					"name": "Get remote negative mapping Operational - Vrf",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.2\",\r\n                \"priority\":1,\r\n                \"weight\":1\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_1"
+							]
+						},
+						"description": "Reads data of remote mapping\n\nequivalent of \n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.3 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "cdd91fcd-217d-4992-8a7d-7fbe366918d3",
+					"name": "Get remote  negative mapping 10 -  Vrf - Prefix based",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_10\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv6-prefix\":\"2001:0db8:85a3:0000:0000:8a2e:0370:7334/64\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_10"
+							]
+						},
+						"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "befc5fe2-bc79-49d5-928e-dab28b3ede27",
+					"name": "Add remote  negative mapping -  Bridge Domain",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:aa:aa:aa:aa\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_2"
+							]
+						},
+						"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "1fa8ba7a-1a83-4b6f-8d7e-7ce6a07c98a1",
+					"name": "Get remote  negative mapping Config -  Bridge Domain",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:aa:aa:aa:aa\"\r\n        },\r\n        \"map-reply-action\":\"no-action\"\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "e25cfa38-b9d9-4781-880e-726eb05fc958",
+					"name": "Get remote  negative mapping Operational -  Bridge Domain",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:aa:aa:aa:aa\"\r\n        },\r\n        \"map-reply-action\":\"no-action\"\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "6c455cc1-d7eb-4509-b548-f500ce0ba736",
+					"name": "Add remote positive mapping - VrfSubtable",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_3\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.3\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.2\",\r\n                \"priority\":1,\r\n                \"weight\":1\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_3"
+							]
+						},
+						"description": "Adds new remote mapping with positive mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 rloc_num NR_OF_LOCATORS rlocs BINARY_DATA eid_type 0 eid 192.168.2.3 eid_len 32\n    \nbinary data of remote locators should be in format\n\n    [1 byte(ipv4/ipv6), 1 byte(priority), 1 byte(weight), 16 byte(address),...]\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.3 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "6bf1eb2d-baff-47c5-b579-e694066e77a9",
+					"name": "Get remote positive mapping - Config -  Vrf",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_3"
+							]
+						},
+						"description": "can be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "a2642f18-ef69-45dc-bea0-4c5fbe5903f9",
+					"name": "Get remote positive mapping - Operational - Vrf",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_3"
+							]
+						},
+						"description": "can be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "18dd75b6-3b66-4a33-8ba1-4988b441de27",
+					"name": "Add remote positive mapping - Bridge Domain",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_4\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:cc:aa:bb:cc\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.3\",\r\n                \"priority\":1,\r\n                \"weight\":2\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_4"
+							]
+						},
+						"description": "Adds new remote mapping with positive mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 rloc_num NR_OF_LOCATORS rlocs BINARY_DATA eid_type 0 eid 192.168.2.3 eid_len 32\n    \nbinary data of remote locators should be in format\n\n    [1 byte(ipv4/ipv6), 1 byte(priority), 1 byte(weight), 16 byte(address),...]\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.3 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "5d82f64b-d14c-4176-8bdd-aaff78a02318",
+					"name": "Get remote positive mapping - Config - Bridge Domain",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_4"
+							]
+						},
+						"description": "can be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "3cb324ce-c12c-443c-bf34-01dfe3974220",
+					"name": "Get remote positive mapping - Operational - Bridge Domain",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"bridge-domain-subtable",
+								"remote-mappings",
+								"remote-mapping",
+								"remote_map_4"
+							]
+						},
+						"description": "can be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2"
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "113ca8db-2c5a-398e-7a97-cbcecae624de",
+			"_postman_id": "53b74c07-ec5c-4cb2-8d55-09026ca1742c",
 			"name": "Rloc probe",
 			"description": "",
-			"order": [
-				"29c9a114-5552-701b-787d-895a8b03f2a6",
-				"1a6bbb6d-467d-dba6-0fc9-230cbcd85c47",
-				"ac4e4f66-fab7-fbbc-ca89-00bafd242361"
-			],
-			"owner": "658985"
+			"item": [
+				{
+					"_postman_id": "787f1211-3f93-41b0-9de1-29a99809c5a3",
+					"name": "Enable rloc-probe",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/rloc-probe",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"rloc-probe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "8e8b9171-9d8c-41e1-9985-1bec99aa9e0f",
+					"name": "Get rloc probe config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/rloc-probe",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"rloc-probe"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "1abc0ed9-9a89-42ee-a4ba-b2383fa1feee",
+					"name": "Get rloc probe operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/rloc-probe",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"rloc-probe"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "e9d9c898-2a90-945e-34a8-106d16062ba8",
+			"_postman_id": "b372d378-fc04-453a-b851-690cd82ebba0",
 			"name": "Vrf",
 			"description": "",
-			"order": [
-				"44c349c4-c0ca-f5d9-53e1-8bf92eca5c73",
-				"b19d4109-d47a-c368-a7d4-1e5baad88d6d",
-				"4ceea4ca-a442-edc1-30d4-4e28e1d15ac3",
-				"3c3d5346-fd09-0c1b-31dc-5e549c1a4adb",
-				"7beac5a7-38d0-dd68-2e65-352418c285fd",
-				"a517428f-a35e-5e75-5e5b-7f560d42332b",
-				"d106d7bf-ff65-6c13-397d-7cb765c71124"
-			],
-			"owner": "658985"
-		}
-	],
-	"timestamp": 0,
-	"owner": "658985",
-	"public": false,
-	"requests": [
-		{
-			"id": "080a7c73-3ffc-86f9-8d67-fc9a64bd2f46",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-register",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489066007652,
-			"name": "Map register config",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "48325084-4625-703e-d6fd-3f11351ded23",
-			"rawModeData": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n\t}\n}"
+			"item": [
+				{
+					"_postman_id": "66da1d85-6695-40b2-8bc2-a79982b837d8",
+					"name": "Add subtable subtree",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \n   \"vrf-subtable\":{  \n      \"table-id\":10,\n      \"local-mappings\":{  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.1\"\n            },\n            \"locator-set\":\"loc_1\"\n         }\n      },\n      \"remote-mappings\":{  \n         \"remote-mapping\":{  \n            \"id\":\"remote_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.5\"\n            },\n            \"map-reply\":{  \n               \"map-reply-action\":\"no-action\"\n            }\n         }\n      }\n   }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "a72eac1a-0a97-49bb-81de-21e2f7c45331",
+					"name": "Add Vrf Subtable 10",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vrf-subtable\":{\r\n      \"table-id\":10\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "a9e92a3b-5d75-4b36-982a-22fb27dd78f4",
+					"name": "Get Vrf Subtable 10 Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "07e56625-3671-4fd1-b7a3-67c77d3c8ec9",
+					"name": "Get Vrf Subtable 10 Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12",
+								"vrf-subtable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "c0c73659-cd7f-4647-93ba-0c4d772d24f5",
+					"name": "Negative Case - Add VNI Table 12",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12"
+							]
+						},
+						"description": "Adding empty vni reference is disallowed/not possible.\nIt can be added only if vrf-subtable/bridge-domain-subtable"
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "ee6f60f7-34bd-4439-be8d-272080f7bc65",
+					"name": "Get VNI Table 12 Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"lisp:lisp",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"_postman_id": "5d160e5b-bb02-4f25-b04c-06ee8483a379",
+					"name": "Get VNI Table 12 Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"lisp:lisp-state",
+								"lisp-feature-data",
+								"eid-table",
+								"vni-table",
+								"12"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
-			"id": "0b756f48-88b5-c015-a271-01b69a9ab2a4",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_10",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494599860466,
-			"name": "Get local mapping loc_map_10 Operational ",
-			"description": "Get details about local mapping\n\nequivalent of\n    \n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
-		},
-		{
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"id": "0b807adc-2277-db3f-8e3e-c6b74888018d",
-			"name": "Get local mapping loc_map_1 Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Get details about local mapping\n\nequivalent of\n    \n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
-		},
-		{
-			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
-			"id": "0ce07f8f-0e45-ea05-4c62-76d7076a444f",
-			"name": "Negative Case -  Locator set loc_1 as empty",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Add new locator set\n\nequivalent of \n    \n    lisp_add_del_locator_set is_add 1 locator_set_name loc_1\n    \ncan be verified with \n\n    lisp_locator_set_dump\n\nRequests to add empty locator-sets will be rejected",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\"\n   }\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "0ce2444e-3779-c247-6f0a-e9aabc7536eb",
-			"name": "Get remote positive mapping - Operational - Vrf",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "can be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_3",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "7e8099bb-e5d7-4e89-cc42-45b186b76c3c",
-			"id": "11cf57b3-d985-6dc2-805a-8d408679b35b",
-			"name": "Get adjacency - Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1/adjacencies/adjacency/adj_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
-			"id": "14239ebd-752b-e2f6-ba5f-4fdb79819b92",
-			"name": "Add Locator set loc_1 with locator for local0 copy",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Add new locator set\n\nequivalent of \n    \n    lisp_add_del_locator_set is_add 1 locator_set_name loc_1\n    \ncan be verified with \n\n    lisp_locator_set_dump\n\nRequests to add empty locator-sets will be rejected",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "DELETE",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
-		},
-		{
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"id": "1493eeb4-7306-9770-a2ed-4a59763240d1",
-			"name": "Add local mapping loc_map_2 Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
-		},
-		{
-			"id": "1a65220c-e906-c56c-9d32-4ee27e30cfbd",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-register",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489065869736,
-			"name": "Enable map-register",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "48325084-4625-703e-d6fd-3f11351ded23",
-			"rawModeData": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n,\"ttl\":45\t}\n\n,\"fallback-threshold\":45\t}\n}"
-		},
-		{
-			"id": "1a6bbb6d-467d-dba6-0fc9-230cbcd85c47",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/rloc-probe",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489125008882,
-			"name": "Get rloc probe config",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "113ca8db-2c5a-398e-7a97-cbcecae624de",
-			"rawModeData": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
-		},
-		{
-			"id": "1d0a2f13-a4d5-69da-2960-e368a67e9129",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-request-mode",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489125138809,
-			"name": "Put Map request mode",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "829d2e08-2373-756e-8a7d-1451610f45b3",
-			"rawModeData": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
-		},
-		{
-			"id": "1d1c7d25-94af-2dfa-97ec-33710f47d04d",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-servers",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489392003255,
-			"name": "Put map servers",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "ec468419-e334-7311-2b34-2b6ddde851f0",
-			"rawModeData": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:db8:a0b:12f0::1\"\n\t\t\t}\n\t\t]\n\t}\n}"
-		},
-		{
-			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
-			"id": "1e18c440-3841-2cdd-9a88-cd4bde729a17",
-			"name": "Get Bridge Domain Subtable 10 Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
-			"id": "2506fe37-668b-7d0b-a76e-a592263dee65",
-			"name": "Get Bridge Domain Subtable 10 Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"id": "27ee8b67-7986-d169-bb89-ad147c7fb57c",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_10",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494600878314,
-			"name": "Get remote  negative mapping 10 -  Vrf - Prefix based",
-			"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_10\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv6-prefix\":\"2001:0db8:85a3:0000:0000:8a2e:0370:7334/64\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"id": "29c9a114-5552-701b-787d-895a8b03f2a6",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/rloc-probe",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489124966053,
-			"name": "Enable rloc-probe",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "113ca8db-2c5a-398e-7a97-cbcecae624de",
-			"rawModeData": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
-		},
-		{
-			"id": "2ab426c2-1c94-fe0b-08a4-c2579f6fea3d",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/petr-cfg",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489392797864,
-			"name": "Add Petr use",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "fa3ffa80-51de-1e69-1f1e-4f77e69876b1",
-			"rawModeData": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"2001:db8:a0b:12f0::2\"\n    }  \n}"
-		},
-		{
-			"folder": "7e8099bb-e5d7-4e89-cc42-45b186b76c3c",
-			"id": "32abc7d1-bdcf-26f3-c726-a385b3b86ec5",
-			"name": "Add adjacency",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1/adjacencies/adjacency/adj_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
-			"id": "32cdac07-fe1b-ae10-1e3d-9c5e64c8fbe7",
-			"name": "Delete bridge testBD",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Creates bridgfe domain. Corresponds to invoking:\n\nvat#  bridge_domain_add_del bd_id [bd_id] learn 0 forward 0 uu-flood 0 flood 1 arp-term 0\n\nTo verify run:\n\nvppctl show bridge-domain [bd_id] detail",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"method": "DELETE",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/v3po:vpp/bridge-domains/bridge-domain/testBD",
-			"preRequestScript": "",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"testBD\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
-		},
-		{
-			"id": "368c6c84-05ac-217f-32ed-0225db44f1cd",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_10",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494833563002,
-			"name": "Add local mapping loc_map_10 - prefix based",
-			"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.3.8 prefix_len 24 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 24 vni 12 eid_type 0 eid 192.168.3.8 filter 1\n    \n",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"rawModeData": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_10\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4-prefix\":\"192.168.3.8/8\"\n            },\n            \"locator-set\":\"loc_1\"\n         }\n\n}"
-		},
-		{
-			"folder": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
-			"id": "36a847e5-e3b8-ff07-4e88-f5a841fcaca6",
-			"name": "Delete Lisp",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "DELETE",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\",\r\n        \"eid-table\": {\r\n              \"vni-table\": [\r\n                {\r\n                  \"virtual-network-identifier\": 0,\r\n                  \"remote-mappings\": {},\r\n                  \"table-id\": 0,\r\n                  \"local-mappings\": {},\r\n                  \"adjacencies\": {}\r\n                }\r\n              ]\r\n            },\r\n        \"pitr-cfg\":{\r\n            \"locator-set\":\"N/A\"\r\n        }\r\n    }    \r\n}"
-		},
-		{
-			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
-			"id": "385ab15d-6e4e-9fe9-9f4a-244a64f90c21",
-			"name": "Add Locator for GigabitEthernet0/8/0",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Add locator under locator-set\n\nequivalent of \n\n    lisp_add_del_locator is_add 1 locator_set_name loc_1 sw_if_index INDEX priority 2 weight 3\n\ncan be verified with \n\n    lisp_locator_dump locator_set_index INDEX ",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1/interface/GigabitEthernet0%2F8%2F0",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n   \"interface\":{\r\n       \"interface-ref\":\"GigabitEthernet0/8/0\",\r\n       \"priority\":\"2\",\r\n       \"weight\":\"3\"\r\n   }\r\n}"
-		},
-		{
-			"id": "3bd39b05-9986-ffc0-6977-c41d41c98060",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1491553886750,
-			"name": "Add local mapping with hmac key",
-			"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"rawModeData": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.1\"\n            },\n            \"locator-set\":\"loc_1\",\n            \"hmac-key\":{\n            \t\"key-type\":\"sha-1-96-key\",\n            \t\"key\":\"abcd1234\"\n            }\n         }\n\n}"
-		},
-		{
-			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
-			"id": "3c3d5346-fd09-0c1b-31dc-5e549c1a4adb",
-			"name": "Get Vrf Subtable 10 Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
-			"id": "3fe6bbb8-eca4-8b49-9092-1300aeac51e0",
-			"name": "Get Locator set loc_1 Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Add new locator set\n\nequivalent of \n    \n    lisp_add_del_locator_set is_add 1 locator_set_name loc_1\n    \ncan be verified with \n\n    lisp_locator_set_dump\n\nRequests to add empty locator-sets will be rejected",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
-		},
-		{
-			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
-			"id": "44c349c4-c0ca-f5d9-53e1-8bf92eca5c73",
-			"name": "Add subtable subtree",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{  \n   \"vrf-subtable\":{  \n      \"table-id\":10,\n      \"local-mappings\":{  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.1\"\n            },\n            \"locator-set\":\"loc_1\"\n         }\n      },\n      \"remote-mappings\":{  \n         \"remote-mapping\":{  \n            \"id\":\"remote_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.5\"\n            },\n            \"map-reply\":{  \n               \"map-reply-action\":\"no-action\"\n            }\n         }\n      }\n   }\n}"
-		},
-		{
-			"id": "459bacc9-b049-b78f-5d50-7f2a0f8a182e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/petr-cfg",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489065358252,
-			"name": "Get Petr Config",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "fa3ffa80-51de-1e69-1f1e-4f77e69876b1",
-			"rawModeData": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"192.168.2.1\"\n    }  \n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "49cc1e34-af2a-0ccc-3beb-dab09c4a7869",
-			"name": "Get remote  negative mapping Config -  Bridge Domain",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_2",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:aa:aa:aa:aa\"\r\n        },\r\n        \"map-reply-action\":\"no-action\"\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
-			"id": "4b606776-aa33-ff85-9784-f76d2e457dea",
-			"name": "Get Locator set loc_1 Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Reads data of locator set \n\nequivalent of \n    \n    lisp_locator_set_dump",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/locator-sets",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
-		},
-		{
-			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
-			"id": "4ceea4ca-a442-edc1-30d4-4e28e1d15ac3",
-			"name": "Get Vrf Subtable 10 Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\",\r\n        \"vrf-subtable\":{\r\n          \"table-id\":10\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "523f68fe-ee0f-8e28-2a8a-87f6a459e03b",
-			"name": "Add remote  negative mapping -  Vrf",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"id": "531ac705-5ed0-04bc-fb4b-43e729b7c4e4",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/map-register",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489066019718,
-			"name": "Map Register operational",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "48325084-4625-703e-d6fd-3f11351ded23",
-			"rawModeData": "{\n\t\"map-register\":{\n\t\t\"enabled\":true\t\n\t}\n}"
-		},
-		{
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"id": "5462a723-5b0c-34f0-1359-5e53a77e3a52",
-			"name": "Add local mapping loc_map_2 - Bridge Domain",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/local-mappings/local-mapping/loc_map_2",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:aa:aa:aa:aa:aa\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "54de6ea7-94a6-e8f2-1ed5-c209d8e3c25f",
-			"name": "Add remote  negative mapping -  Bridge Domain",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_2",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:aa:aa:aa:aa\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"folder": "383c8da3-cd29-79aa-e0d1-36e3b7bd3e9c",
-			"id": "5ac994f5-18e3-5101-23c1-32995dae6ec9",
-			"name": "Get map resolver - Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new map resolver\n\nequivalent of\n\n    lisp_add_del_map_resolver is_add 1 is_ipv6 0 ip_address 192.168.2.1\n\ncan be verified with\n    \n    lisp_map_resolver_dump",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/state/lisp:lisp/lisp-feature-data/map-resolvers/map-resolver/192.168.2.1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n   \"map-resolver\":{\r\n       \"ip-address\":\"192.168.2.1\"\r\n   }\r\n}"
-		},
-		{
-			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
-			"id": "61af7f4c-6071-e881-cfbc-548abab4ba9f",
-			"name": "Get Locator for GigabitEthernet0/8/0",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Reads data of specified locator\n\nequivalent of\n\n    lisp_locator_dump locator_set_index INDEX",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/locator-sets/locator-set/loc_1/interface/GigabitEthernet0%2F8%2F0",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"locator-set\":{\r\n        \"name\":\"loc_1\"\r\n    }\r\n}"
-		},
-		{
-			"folder": "da8bf0a1-22cf-8f24-0673-531e1a82de9b",
-			"id": "65167fb8-0d64-d13e-27ad-0f7d3e8c7fe4",
-			"name": "Get Pitr-cfg ",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Reads Pitr feature status\n\nequivalent of\n\n    show_lisp_pitr",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/pitr-cfg",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\n    \"pitr-cfg\": {\n      \"locator-set\": \"N/A\"\n        }  \n}"
-		},
-		{
-			"id": "6a13d31b-937d-0f94-cc96-fe5b152fad52",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_10",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494600828746,
-			"name": "Add remote  negative mapping 10 -  Vrf - Prefix based",
-			"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_10\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv6-prefix\":\"2001:0db8:85a3:0000:0000:8a2e:0370:7334/64\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "70790149-793f-242a-ebb8-032188d5bce5",
-			"name": "Get remote positive mapping - Operational - Bridge Domain",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "can be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_4",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "749351c9-3d31-cd54-500f-a628c7e134cd",
-			"name": "Get remote negative mapping Operational - Vrf",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Reads data of remote mapping\n\nequivalent of \n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.3 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.2\",\r\n                \"priority\":1,\r\n                \"weight\":1\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"id": "7a314526-67d0-d126-009a-656e6cf99f1e",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-servers",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489125350941,
-			"name": "Get map server config",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "ec468419-e334-7311-2b34-2b6ddde851f0",
-			"rawModeData": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t\t\t}\n\t\t]\n\t}\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "7a748095-2530-5bbd-7e5d-6d1cbd225c65",
-			"name": "Get remote negative mapping Config - Vrf",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Reads data of remote mapping\n\nequivalent of \n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.3 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.2\",\r\n                \"priority\":1,\r\n                \"weight\":1\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
-			"id": "7beac5a7-38d0-dd68-2e65-352418c285fd",
-			"name": "Negative Case - Add VNI Table 12",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adding empty vni reference is disallowed/not possible.\nIt can be added only if vrf-subtable/bridge-domain-subtable",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\"\r\n    }\r\n}"
-		},
-		{
-			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
-			"id": "7eaaefcc-784b-897f-dde1-0d47741dfe56",
-			"name": "Add Bridge Domain Subtable 10",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n\r\n    \"bridge-domain-subtable\":{\r\n      \"bridge-domain-ref\":\"testBD\"\r\n    }\r\n}"
-		},
-		{
-			"id": "8c8ee757-8bac-5e86-d5d6-3cb8c89ccac5",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/map-servers",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489125378144,
-			"name": "Get map server operational",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "ec468419-e334-7311-2b34-2b6ddde851f0",
-			"rawModeData": "{\n\t\"map-servers\":{\n\t\t\"map-server\":\n\t\t[\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.1\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"192.168.2.5\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"ip-address\":\"2001:0db8:0a0b:12f0:0000:0000:0000:0001\"\n\t\t\t}\n\t\t]\n\t}\n}"
-		},
-		{
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"id": "8f3ede8b-aab7-ac3b-3041-9cdb7bc0e6ec",
-			"name": "Add local mapping loc_map_1 - Vrf ",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{  \n  \n  \n         \"local-mapping\":{  \n            \"id\":\"loc_map_1\",\n            \"eid\":{  \n               \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\n               \"virtual-network-id\":\"12\",\n               \"ipv4\":\"192.168.2.1\"\n            },\n            \"locator-set\":\"loc_1\"\n         }\n\n}"
-		},
-		{
-			"id": "929f03e4-aeba-3599-1bf2-1730913bdea6",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_11/adjacencies/adjacency/adj_10",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494844965761,
-			"name": "Add adjacency prefix based",
-			"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_10\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.3.8/8\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.2.4/24\"\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"id": "a0babf59-f72b-3412-3146-52e6312e063f",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-request-mode",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489125169469,
-			"name": "Get map request config",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "829d2e08-2373-756e-8a7d-1451610f45b3",
-			"rawModeData": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
-		},
-		{
-			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
-			"id": "a517428f-a35e-5e75-5e5b-7f560d42332b",
-			"name": "Get VNI Table 12 Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\"\r\n    }\r\n}"
-		},
-		{
-			"id": "ac4e4f66-fab7-fbbc-ca89-00bafd242361",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/rloc-probe",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489125022692,
-			"name": "Get rloc probe operational",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "113ca8db-2c5a-398e-7a97-cbcecae624de",
-			"rawModeData": "{\n\t\"rloc-probe\":{\n\t\t\"enabled\":true\t\n\t}\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "ad739651-3137-a535-5066-28a313cf7aa2",
-			"name": "Add remote positive mapping - VrfSubtable",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new remote mapping with positive mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 rloc_num NR_OF_LOCATORS rlocs BINARY_DATA eid_type 0 eid 192.168.2.3 eid_len 32\n    \nbinary data of remote locators should be in format\n\n    [1 byte(ipv4/ipv6), 1 byte(priority), 1 byte(weight), 16 byte(address),...]\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.3 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_3",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_3\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.3\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.2\",\r\n                \"priority\":1,\r\n                \"weight\":1\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"id": "b1746c42-9991-7992-b8da-80c025981e9d",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/map-request-mode",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489125180968,
-			"name": "Get map request operational",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"responses": [],
-			"folder": "829d2e08-2373-756e-8a7d-1451610f45b3",
-			"rawModeData": "{\n\t\"map-request-mode\":{\n\t\t\"mode\":\"source-destination\"\t\n\t}\n}"
-		},
-		{
-			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
-			"id": "b19d4109-d47a-c368-a7d4-1e5baad88d6d",
-			"name": "Add Vrf Subtable 10",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"vrf-subtable\":{\r\n      \"table-id\":10\r\n    }\r\n}"
-		},
-		{
-			"folder": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
-			"id": "b1c9fcf9-89bf-86c5-a350-60535b748ee9",
-			"name": "Get Lisp Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Reads status of lisp feature\n\nequivalent of \n\n    show_lisp_status",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
-		},
-		{
-			"id": "bad5a024-ed9f-93d6-da06-1686d675dc50",
-			"headers": "Content-Type: application/json\nAuthorization: Basic YWRtaW46YWRtaW4=\n",
-			"url": "http://localhost:8183/restconf/config/v3po:bridge-domains/bridge-domain/testBD",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494593326359,
-			"name": "Create bridge testBD",
-			"description": "Creates bridgfe domain. Corresponds to invoking:\n\nvat#  bridge_domain_add_del bd_id [bd_id] learn 0 forward 0 uu-flood 0 flood 1 arp-term 0\n\nTo verify run:\n\nvppctl show bridge-domain [bd_id] detail",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "9b1be7a6-e7ca-88c3-d32d-151815ee3c57",
-			"rawModeData": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"testBD\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
-		},
-		{
-			"folder": "a48c17bb-504b-f843-5098-b9d550a67301",
-			"id": "c0611a78-1410-52b6-a886-ca84e4dacb8e",
-			"name": "Add Locator set loc_1 with locator for local0",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Add new locator set\n\nequivalent of \n    \n    lisp_add_del_locator_set is_add 1 locator_set_name loc_1\n    \ncan be verified with \n\n    lisp_locator_set_dump\n\nRequests to add empty locator-sets will be rejected",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/locator-sets/locator-set/loc_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{  \n   \"locator-set\":{  \n      \"name\":\"loc_1\",\n      \"interface\":{  \n         \"interface-ref\":\"local0\",\n         \"priority\":\"2\",\n         \"weight\":\"3\"\n      }\n   }\n}"
-		},
-		{
-			"folder": "da8bf0a1-22cf-8f24-0673-531e1a82de9b",
-			"id": "c50bc4c0-1a64-7130-4b8b-e1f12f55d4d7",
-			"name": "Add Pitr-cfg",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Enable Pitr feature \n\nequivalent of \n\n    lisp_pitr_set_locator_set is_add 1 ls_name loc_1\n    \ncan be verified with\n\n    show_lisp_pitr",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/pitr-cfg",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\n    \"pitr-cfg\": {\n      \"locator-set\": \"loc_1\"\n    }  \n}"
-		},
-		{
-			"folder": "383c8da3-cd29-79aa-e0d1-36e3b7bd3e9c",
-			"id": "c52b0be2-67d4-642b-fd7b-43598f2c4e3f",
-			"name": "Add map resolver",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Reads data of map resolver\n\nequivalent of \n\n    lisp_map_resolver_dump",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/map-resolvers/map-resolver/192.168.2.1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n   \"map-resolver\":{\r\n       \"ip-address\":\"192.168.2.1\"\r\n   }\r\n}"
-		},
-		{
-			"folder": null,
-			"id": "c99e6e24-5d9c-040a-68f3-5a0dbed98cc1",
+			"_postman_id": "ae88805e-abf2-4608-ba2c-1b083de3ac29",
 			"name": "Eid mapping Context Read",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/eid-mapping-context:contexts",
-			"preRequestScript": "",
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
-		},
-		{
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"id": "cd18d003-6bc9-cfff-46e8-7dffcd1f8497",
-			"name": "Add local mapping loc_map_2 Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new local mapping\n\nequivalent of \n\n    lisp_add_del_local_eid is_add 1 eid_type 0 eid 192.168.2.1 prefix_len 32 vni 12 locator_set_name loc_1\n    \ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1\n    \n",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/local-mappings/local-mapping/loc_map_2",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
-		},
-		{
-			"id": "cf99137e-694d-8a9c-45f0-9361840f4c25",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_11",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1494844942341,
-			"name": "Add remote  negative mapping 11 -  Vrf - Prefix based",
-			"description": "Adds new remote mapping with negative mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 action 0 eid_type 0 eid 192.168.2.1 eid_len 32\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_11\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv6-prefix-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4-prefix\":\"192.168.2.4/24\"\r\n        },\r\n        \"map-reply\":{\r\n          \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "d01b27de-fef9-a333-3075-f431412a56d8",
-			"name": "Get remote positive mapping - Config -  Vrf",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "can be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_3",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "e9d9c898-2a90-945e-34a8-106d16062ba8",
-			"id": "d106d7bf-ff65-6c13-397d-7cb765c71124",
-			"name": "Get VNI Table 12 Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"vni-table\":{\r\n        \"virtual-network-identifier\":\"12\"\r\n    }\r\n}"
-		},
-		{
-			"id": "d547003e-cb16-6971-a5f9-66c400a921a1",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/petr-cfg",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489065349598,
-			"name": "Get Petr Operational",
-			"description": "",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "fa3ffa80-51de-1e69-1f1e-4f77e69876b1",
-			"rawModeData": "{\n    \"petr-cfg\": {\n      \"petr-address\":\"192.168.2.1\"\n    }  \n}"
-		},
-		{
-			"id": "da8d61ce-1f0d-8ab8-e1de-50d094a266e2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"url": "http://localhost:8183/restconf/config/lisp:lisp",
-			"preRequestScript": null,
-			"pathVariables": {},
-			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1489395590834,
-			"name": "Enable Lisp",
-			"description": "Enables Lisp feature\n\nequivalent of \n\n    lisp_enable_disable is_en 1\n\ncan be verified with \n\n    show_lisp_status",
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"folder": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
-			"rawModeData": "{\n  \"lisp\": {\n    \"enable\": true,\n    \"lisp-feature-data\": {\n      \"pitr-cfg\": {\n        \"locator-set\": \"N/A\"\n      },\n      \"rloc-probe\": {\n        \"enabled\": false\n      },\n      \"map-register\": {\n        \"enabled\": false\n      },\n      \"map-request-mode\": {\n        \"mode\": \"destination-only\"\n      },\n      \"eid-table\": {\n        \"vni-table\": [\n          {\n            \"virtual-network-identifier\": 0,\n            \"vrf-subtable\": {\n              \"table-id\": 0\n            }\n          }\n        ]\n      }\n    }\n  }\n}"
-		},
-		{
-			"folder": "3a00485d-a0bf-98ca-c2fa-9cb14f4c3082",
-			"id": "e5b786a5-cab9-9fd7-4a23-20840e00098a",
-			"name": "Get Lisp Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"lisp\":{\r\n        \"enable\":\"true\"\r\n    }    \r\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "e6c236d4-96f6-b999-5e4e-9e8c93be6090",
-			"name": "Add remote positive mapping - Bridge Domain",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Adds new remote mapping with positive mapping\n\nequivalent of \n\n    lisp_add_del_remote_mapping is_add 1 vni 12 rloc_num NR_OF_LOCATORS rlocs BINARY_DATA eid_type 0 eid 192.168.2.3 eid_len 32\n    \nbinary data of remote locators should be in format\n\n    [1 byte(ipv4/ipv6), 1 byte(priority), 1 byte(weight), 16 byte(address),...]\n\ncan be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.3 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "PUT",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_4",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_4\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:cc:aa:bb:cc\"\r\n        },\r\n    \r\n        \"rlocs\":{\r\n            \"locator\":{\r\n                \"address\":\"192.168.2.3\",\r\n                \"priority\":1,\r\n                \"weight\":2\r\n            }\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "5b5a13db-f0e7-f944-e779-905c7f8561e7",
-			"id": "eef057eb-f4a5-4903-1e31-06082511d677",
-			"name": "Get local mapping loc_map_1 Config",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Get details about local mapping\n\nequivalent of\n    \n    lisp_eid_table_dump eid_set 1 prefix_length 32 vni 12 eid_type 0 eid 192.168.2.1 filter 1",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/local-mappings/local-mapping/loc_map_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"local-mapping\":{\r\n        \"id\":\"loc_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"00:11:22:00:11:22\"\r\n        },\r\n        \"locator-set\":\"loc_1\"\r\n    }\r\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "f18a7c8a-1c04-18b8-75d8-e2d8d08c3ef0",
-			"name": "Get remote positive mapping - Config - Bridge Domain",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "can be verified with\n\n    lisp_eid_table_dump eid_set 1 prefix_len 32 vni 12 eid_type 0 eid 192.168.2.1 filter 2",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/config/lisp:lisp/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_4",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_1\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n    \r\n        \"negative-mapping\":{\r\n            \"map-reply-action\":\"no-action\"\r\n        }\r\n        \r\n    }\r\n}"
-		},
-		{
-			"folder": "7e8099bb-e5d7-4e89-cc42-45b186b76c3c",
-			"id": "f6c1d4a8-9e5a-bac2-7476-c5ded4a545cc",
-			"name": "Get adjacency - Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Add new adjacency\nThere must be existing local/remote mappings to specified eid's\n\nequivalent of \n\n    lisp_add_del_adjacency is_add 1 vni 12 eid_type 0 deid 192.168.2.1 seid 192.168.2.3 deid_len 32 seid_len 32\n\nright now no dump variant is existing in api",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/vrf-subtable/remote-mappings/remote-mapping/remote_map_1/adjacencies/adjacency/adj_1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"adjacency\":{\r\n        \"id\":\"adj_1\",\r\n        \"local-eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.1\"\r\n        },\r\n        \"remote-eid\":{\r\n           \"address-type\":\"ietf-lisp-address-types:ipv4-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"ipv4\":\"192.168.2.5\"\r\n        }\r\n    }\r\n}"
-		},
-		{
-			"folder": "383c8da3-cd29-79aa-e0d1-36e3b7bd3e9c",
-			"id": "f8d1b8a6-7a79-8be1-dbf3-fc02c5688df4",
-			"name": "Get map resolver - Operational",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "Reads data of map resolver\n\nequivalent of \n\n    lisp_map_resolver_dump",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/map-resolvers/map-resolver/192.168.2.1",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n   \"map-resolver\":{\r\n       \"ip-address\":\"192.168.2.1\"\r\n   }\r\n}"
-		},
-		{
-			"folder": "3e31c5d9-746a-da3c-79aa-681beedf8d25",
-			"id": "fceee914-148f-c74e-3ad5-c2dbb988edf2",
-			"name": "Get remote  negative mapping Operational -  Bridge Domain",
-			"dataMode": "raw",
-			"data": [],
-			"descriptionFormat": null,
-			"description": "",
-			"headers": "Authorization: Basic YWRtaW46YWRtaW4=\nContent-Type: application/json\n",
-			"method": "GET",
-			"pathVariables": {},
-			"url": "http://localhost:8183/restconf/operational/lisp:lisp-state/lisp-feature-data/eid-table/vni-table/12/bridge-domain-subtable/remote-mappings/remote-mapping/remote_map_2",
-			"preRequestScript": null,
-			"tests": null,
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"collectionId": "6d0c6545-0c6c-6ba3-0c28-d213ebef7075",
-			"rawModeData": "{\r\n    \"remote-mapping\":{\r\n        \"id\":\"remote_map_2\",\r\n        \"eid\":{\r\n            \"address-type\":\"ietf-lisp-address-types:mac-afi\",\r\n            \"virtual-network-id\":\"12\",\r\n            \"mac\":\"aa:bb:aa:aa:aa:aa\"\r\n        },\r\n        \"map-reply-action\":\"no-action\"\r\n        \r\n    }\r\n}"
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/eid-mapping-context:contexts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"eid-mapping-context:contexts"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
