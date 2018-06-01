@@ -278,7 +278,7 @@ module v3po {
             "L2 FIB action. For filter action, entry must be configured as static.";
         }
         leaf bridged-virtual-interface {
-          when "../action = 'forward'";
+          when "../action = 'l2-fib-forward'";
           type boolean;
           config false; // FIXME setting bvi is currently not supported by VPP's binary api
         }
