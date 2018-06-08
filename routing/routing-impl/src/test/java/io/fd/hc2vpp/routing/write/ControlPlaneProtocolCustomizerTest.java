@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
 
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.routing.services.FibTableService;
+import io.fd.hc2vpp.fib.management.services.FibTableService;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import org.junit.Before;
 import org.junit.Test;

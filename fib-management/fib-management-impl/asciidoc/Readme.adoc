@@ -1,0 +1,8 @@
+= fib-management-impl
+
+# Supported Features
+
+FIB management plugin allows to create Ipv4/6 based FIB tables.
+
+Provides readers and writers to read or write FIB configuration to VPP. +
+Uses vpp-fib-management yang model (see fib-management-api for details).

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.routing.services;
+package io.fd.hc2vpp.fib.management.services;
 
 import static io.fd.honeycomb.translate.util.read.cache.EntityDumpExecutor.NO_PARAMS;
 
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.hc2vpp.routing.RoutingIIds;
-import io.fd.hc2vpp.routing.write.factory.FibTableRequest;
+import io.fd.hc2vpp.fib.management.FibManagementIIds;
+import io.fd.hc2vpp.fib.management.request.FibTableRequest;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
@@ -46,12 +46,9 @@ public class FibTableServiceImpl extends FutureJVppCustomizer implements FibTabl
     private static final Logger LOG = LoggerFactory.getLogger(FibTableServiceImpl.class);
     private final DumpCacheManager<IpFibDetailsReplyDump, Void> v4DumpManager;
     private final DumpCacheManager<Ip6FibDetailsReplyDump, Void> v6DumpManager;
-    private ModificationCache modificationCache;
 
-    public FibTableServiceImpl(@Nonnull FutureJVppCore futureJVppCore, ModificationCache modificationCache) {
+    public FibTableServiceImpl(@Nonnull FutureJVppCore futureJVppCore) {
         super(futureJVppCore);
-        this.modificationCache = modificationCache;
-
         v4DumpManager = new DumpCacheManager.DumpCacheManagerBuilder<IpFibDetailsReplyDump, Void>()
                 .acceptOnly(IpFibDetailsReplyDump.class)
                 .withExecutor((identifier, params) -> getReplyForRead(
@@ -67,8 +64,8 @@ public class FibTableServiceImpl extends FutureJVppCustomizer implements FibTabl
     @Override
     public void write(InstanceIdentifier<?> identifier, @Nonnegative int tableId, @Nonnull String tableName,
                       boolean isIpv6) throws WriteFailedException {
-        // Register fib table in VPP
-        FibTableRequest fibTableRequest = new FibTableRequest(getFutureJVpp(), modificationCache);
+        // Register FIB table in VPP
+        FibTableRequest fibTableRequest = new FibTableRequest(getFutureJVpp());
         fibTableRequest.setFibName(tableName);
         fibTableRequest.setIpv6(isIpv6);
         fibTableRequest.setFibTable(tableId);
@@ -79,13 +76,12 @@ public class FibTableServiceImpl extends FutureJVppCustomizer implements FibTabl
                     fibTableRequest);
         } catch (WriteFailedException e) {
             LOG.warn("Fib table write failed. request: {}", fibTableRequest);
-            throw new WriteFailedException(identifier, "Failed to write fib table to VPP.", e);
+            throw new WriteFailedException(identifier, "Failed to write FIB table to VPP.", e);
         }
     }
 
     @Override
-    public void checkTableExist(@Nonnegative final int index,
-                                @Nonnull final ModificationCache cache)
+    public void checkTableExist(@Nonnegative final int index, @Nonnull final ModificationCache cache)
             throws ReadFailedException, FibTableService.FibTableDoesNotExistException {
 
         if (Stream.concat(dumpV4FibTableIdsStream(cache), dumpV6FibTableIdsStream(cache))
@@ -95,7 +91,7 @@ public class FibTableServiceImpl extends FutureJVppCustomizer implements FibTabl
     }
 
     private Stream<Integer> dumpV6FibTableIdsStream(final ModificationCache cache) throws ReadFailedException {
-        return v6DumpManager.getDump(RoutingIIds.ROUTING, cache, NO_PARAMS)
+        return v6DumpManager.getDump(FibManagementIIds.FIB_MNGMNT, cache, NO_PARAMS)
                 .toJavaUtil()
                 .map(ip6FibDetailsReplyDump -> ip6FibDetailsReplyDump.ip6FibDetails)
                 .orElse(Collections.emptyList())
@@ -104,7 +100,7 @@ public class FibTableServiceImpl extends FutureJVppCustomizer implements FibTabl
     }
 
     private Stream<Integer> dumpV4FibTableIdsStream(final ModificationCache cache) throws ReadFailedException {
-        return v4DumpManager.getDump(RoutingIIds.ROUTING, cache, NO_PARAMS)
+        return v4DumpManager.getDump(FibManagementIIds.FIB_MNGMNT, cache, NO_PARAMS)
                 .toJavaUtil()
                 .map(ipFibDetailsReplyDump -> ipFibDetailsReplyDump.ipFibDetails)
                 .orElse(Collections.emptyList())

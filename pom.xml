@@ -41,6 +41,7 @@
     <module>ioam</module>
     <module>nsh</module>
     <module>routing</module>
+    <module>fib-management</module>
     <module>nat</module>
     <module>lisp</module>
     <module>release-notes</module>

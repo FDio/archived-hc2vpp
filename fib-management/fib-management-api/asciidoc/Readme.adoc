@@ -1,0 +1,7 @@
+= fib-management-api
+
+Provides vpp-fib-table-management model to store configuration of FIB tables:
+
+- supports IPv4 and IPv6 Fib table configuration
+- uses AddressFamily to distinguish between IPv4 and IPv6 FIB table type
+- uses vni-reference type to store FIB table id

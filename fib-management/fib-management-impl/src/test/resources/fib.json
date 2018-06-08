@@ -1,0 +1,26 @@
+{
+  "fib-tables": {
+    "vpp-fib-table-management:table": [
+      {
+        "table-id": 0,
+        "address-family": "vpp-fib-table-management:ipv4",
+        "name": "ipv4-VRF:0"
+      },
+      {
+        "table-id": 12,
+        "address-family": "vpp-fib-table-management:ipv4",
+        "name": "ipv4-VRF:12"
+      },
+      {
+        "table-id": 0,
+        "address-family": "vpp-fib-table-management:ipv6",
+        "name": "ipv6-VRF:0"
+      },
+      {
+        "table-id": 25,
+        "address-family": "vpp-fib-table-management:ipv6",
+        "name": "ipv6-VRF:25"
+      }
+    ]
+  }
+}

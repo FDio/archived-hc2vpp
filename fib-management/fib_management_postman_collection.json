@@ -1,0 +1,322 @@
+{
+	"info": {
+		"_postman_id": "485269bc-c9b2-4173-b596-7919bd028016",
+		"name": "FIB Table Management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Write IPv6 FIB 25",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vpp-fib-table-management:table\": [\n        {\n            \"table-id\": 25,\n            \"address-family\": \"vpp-fib-table-management:ipv6\",\n            \"name\": \"ipv6-VRF:25\"\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/25/vpp-fib-table-management:ipv6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"vpp-fib-table-management:fib-table-management",
+						"vpp-fib-table-management:fib-tables",
+						"table",
+						"25",
+						"vpp-fib-table-management:ipv6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete IPv6 FIB 25",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/25/vpp-fib-table-management:ipv6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"vpp-fib-table-management:fib-table-management",
+						"vpp-fib-table-management:fib-tables",
+						"table",
+						"25",
+						"vpp-fib-table-management:ipv6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Write IPv6 FIB 15 - without name",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vpp-fib-table-management:table\": [\n        {\n            \"table-id\": 15,\n            \"address-family\": \"vpp-fib-table-management:ipv6\"\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/15/vpp-fib-table-management:ipv6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"vpp-fib-table-management:fib-table-management",
+						"vpp-fib-table-management:fib-tables",
+						"table",
+						"15",
+						"vpp-fib-table-management:ipv6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete IPv6 FIB 15 - without name",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/15/vpp-fib-table-management:ipv6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"vpp-fib-table-management:fib-table-management",
+						"vpp-fib-table-management:fib-tables",
+						"table",
+						"15",
+						"vpp-fib-table-management:ipv6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Write IPv4 FIB 12",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vpp-fib-table-management:table\": [\n        {\n            \"table-id\": 12,\n            \"address-family\": \"vpp-fib-table-management:ipv4\",\n            \"name\": \"ipv4-VRF:12\"\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/12/vpp-fib-table-management:ipv4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"vpp-fib-table-management:fib-table-management",
+						"vpp-fib-table-management:fib-tables",
+						"table",
+						"12",
+						"vpp-fib-table-management:ipv4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete IPv4 FIB 12",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/12/vpp-fib-table-management:ipv4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"vpp-fib-table-management:fib-table-management",
+						"vpp-fib-table-management:fib-tables",
+						"table",
+						"12",
+						"vpp-fib-table-management:ipv4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "read all FIB tables - config",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/fib-tables/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"vpp-fib-table-management:fib-table-management",
+						"fib-tables",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "read all FIB tables - operational",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/vpp-fib-table-management:fib-table-management/fib-tables/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"vpp-fib-table-management:fib-table-management",
+						"fib-tables",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "admin",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "admin",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "e5a43a42-2764-434d-8aaa-59b56d8ae0ab",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "576d0f8e-9325-4391-b6ba-4deb41ef90ec",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

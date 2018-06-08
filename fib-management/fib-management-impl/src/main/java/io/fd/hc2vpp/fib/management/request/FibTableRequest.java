@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.routing.write.factory;
+package io.fd.hc2vpp.fib.management.request;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
-import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpTableAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import java.nio.charset.StandardCharsets;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FibTableRequest implements AddressTranslator, JvppReplyConsumer {
-
-    private final ModificationCache modificationCache;
-    private static final Logger LOG = LoggerFactory.getLogger(FibTableRequest.class);
 
     private final FutureJVppCore api;
     /**
@@ -46,13 +42,12 @@ public class FibTableRequest implements AddressTranslator, JvppReplyConsumer {
     private int fibTable;
 
     /**
-     * Whether to write IPv6 fib table or IPv4
+     * Whether to write IPv6 FIB table or IPv4
      */
     private boolean isIpv6;
 
-    public FibTableRequest(FutureJVppCore api, ModificationCache modificationCache) {
+    public FibTableRequest(FutureJVppCore api) {
         this.api = api;
-        this.modificationCache = modificationCache;
     }
 
     public void checkValid() {
@@ -61,18 +56,24 @@ public class FibTableRequest implements AddressTranslator, JvppReplyConsumer {
     }
 
     public void write(InstanceIdentifier<?> identifier) throws WriteFailedException {
+        sendRequest(identifier, ByteDataTranslator.BYTE_TRUE);
+    }
+
+    public void delete(InstanceIdentifier<?> identifier) throws WriteFailedException {
+        sendRequest(identifier, ByteDataTranslator.BYTE_FALSE);
+    }
+
+    private void sendRequest(final InstanceIdentifier<?> identifier, final byte isAdd)
+            throws WriteFailedException {
         IpTableAddDel tableAddDel = new IpTableAddDel();
-        try {
-            tableAddDel.tableId = getFibTable();
-            tableAddDel.isIpv6 = (booleanToByte(isIpv6()));
-            tableAddDel.isAdd = (booleanToByte(true));
-            tableAddDel.name = getFibName().getBytes();
-            getReplyForWrite(api.ipTableAddDel(tableAddDel).toCompletableFuture(), identifier);
-        } catch (Exception ex) {
-            LOG.error("Error writing fib table. fibTable: {}, api: {}, cache: {}, id: {}", tableAddDel, api,
-                      modificationCache, identifier);
-            throw new WriteFailedException(identifier, ex);
+        tableAddDel.tableId = getFibTable();
+        tableAddDel.isIpv6 = booleanToByte(isIpv6());
+        tableAddDel.isAdd = isAdd;
+        if (getFibName() != null) {
+            // FIB table name is optional
+            tableAddDel.name = getFibName().getBytes(StandardCharsets.UTF_8);
         }
+        getReplyForWrite(api.ipTableAddDel(tableAddDel).toCompletableFuture(), identifier);
     }
 
     public int getFibTable() {

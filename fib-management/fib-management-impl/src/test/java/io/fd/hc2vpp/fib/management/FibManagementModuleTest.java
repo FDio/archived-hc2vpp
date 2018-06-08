@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco and/or its affiliates.
+ * Copyright (c) 2018 Bell Canada, Pantheon Technologies and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.routing;
+package io.fd.hc2vpp.fib.management;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -30,11 +30,8 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
-import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.fib.management.services.FibTableService;
-import io.fd.hc2vpp.routing.read.RoutingReaderFactory;
-import io.fd.hc2vpp.routing.write.RoutingWriterFactory;
-import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
+import io.fd.hc2vpp.fib.management.read.FibManagementReaderFactory;
+import io.fd.hc2vpp.fib.management.write.FibManagementWriterFactory;
 import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
 import io.fd.honeycomb.translate.read.ReaderFactory;
@@ -48,7 +45,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 
-public class RoutingModuleTest {
+public class FibManagementModuleTest {
 
     @Named("honeycomb-context")
     @Bind
@@ -60,22 +57,9 @@ public class RoutingModuleTest {
     @Mock
     private DataBroker honeycombInitializer;
 
-    @Named("interface-context")
-    @Bind
-    private NamingContext interfaceContext;
-
-    @Named("classify-table-context")
-    @Bind
-    @Mock
-    private VppClassifierContextManager classifierContextManager;
-
     @Bind
     @Mock
     private FutureJVppCore futureJVppCore;
-
-    @Bind
-    @Mock
-    private FibTableService fibTableService;
 
     @Inject
     private Set<ReaderFactory> readerFactories = new HashSet<>();
@@ -86,31 +70,30 @@ public class RoutingModuleTest {
     @Before
     public void setUp() {
         initMocks(this);
-        interfaceContext = new NamingContext("interfaceContext", "interfaceContext");
-        Guice.createInjector(new RoutingModule(), BoundFieldModule.of(this)).injectMembers(this);
+        Guice.createInjector(new FibManagementModule(), BoundFieldModule.of(this)).injectMembers(this);
     }
 
     @Test
-    public void testReaderFactories() throws Exception {
+    public void testReaderFactories() {
         assertThat(readerFactories, is(not(empty())));
 
         // Test registration process (all dependencies present, topological order of readers does exist, etc.)
         final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder(new YangDAG());
-        readerFactories.stream().forEach(factory -> factory.init(registryBuilder));
+        readerFactories.forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
         assertEquals(1, readerFactories.size());
-        assertTrue(readerFactories.iterator().next() instanceof RoutingReaderFactory);
+        assertTrue(readerFactories.iterator().next() instanceof FibManagementReaderFactory);
     }
 
     @Test
-    public void testWriterFactories() throws Exception {
+    public void testWriterFactories() {
         assertThat(writerFactories, is(not(empty())));
 
         // Test registration process (all dependencies present, topological order of writers does exist, etc.)
         final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
-        writerFactories.stream().forEach(factory -> factory.init(registryBuilder));
+        writerFactories.forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
         assertEquals(1, writerFactories.size());
-        assertTrue(writerFactories.iterator().next() instanceof RoutingWriterFactory);
+        assertTrue(writerFactories.iterator().next() instanceof FibManagementWriterFactory);
     }
 }

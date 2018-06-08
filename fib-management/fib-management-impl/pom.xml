@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2016 Cisco and/or its affiliates.
+  ~ Copyright (c) 2018 Bell Canada, Pantheon Technologies and/or its affiliates.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fd.hc2vpp.routing</groupId>
-    <artifactId>routing-impl</artifactId>
+    <groupId>io.fd.hc2vpp.fib.management</groupId>
+    <artifactId>fib-management-impl</artifactId>
     <version>1.18.07-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <packaging>bundle</packaging>
@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>routing-api</artifactId>
+            <artifactId>fib-management-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -74,12 +74,6 @@
             <artifactId>guice-multibindings</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.fd.hc2vpp.fib.management</groupId>
-            <artifactId>fib-management-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- Testing dependencies-->
         <dependency>
             <groupId>junit</groupId>
@@ -106,12 +100,6 @@
             <artifactId>vpp-translate-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <!-- Because of use of VppClassifierContext -->
-        <dependency>
-            <groupId>io.fd.hc2vpp.vpp.classifier</groupId>
-            <artifactId>vpp-classifier-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.fd.honeycomb.infra</groupId>

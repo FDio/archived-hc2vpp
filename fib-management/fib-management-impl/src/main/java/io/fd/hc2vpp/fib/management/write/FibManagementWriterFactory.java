@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-
-package io.fd.hc2vpp.routing.services;
+package io.fd.hc2vpp.fib.management.write;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
-import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.hc2vpp.fib.management.FibManagementIIds;
+import io.fd.honeycomb.translate.impl.write.GenericListWriter;
+import io.fd.honeycomb.translate.write.WriterFactory;
+import io.fd.honeycomb.translate.write.registry.ModifiableWriterRegistryBuilder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import javax.annotation.Nonnull;
 
-public class FibTableServiceProvider implements Provider<FibTableService> {
+/**
+ * Factory producing writers for FIB table management plugin's data.
+ */
+public final class FibManagementWriterFactory implements WriterFactory {
 
     @Inject
-    private
-    FutureJVppCore api;
-
-    @Inject
-    private ModificationCache modificationCache;
+    private FutureJVppCore vppApi;
 
     @Override
-    public FibTableService get() {
-        return new FibTableServiceImpl(api, modificationCache);
+    public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
+        registry.add(new GenericListWriter<>(FibManagementIIds.FM_FTBLS_TABLE, new FibTableCustomizer(vppApi)));
     }
 }

@@ -30,6 +30,7 @@
         <api.docs.modules>
             io.fd.hc2vpp.docs.core.mock.binding.MockBindingModule,
             io.fd.hc2vpp.management.VppManagementModule,
+            io.fd.hc2vpp.fib.management.FibManagementModule,
             io.fd.hc2vpp.lisp.LispModule,
             io.fd.hc2vpp.lisp.gpe.GpeModule,
             io.fd.hc2vpp.v3po.V3poModule,

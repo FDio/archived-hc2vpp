@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.routing.services;
+package io.fd.hc2vpp.fib.management.services;
 
 import static java.lang.String.format;
 
@@ -30,7 +30,7 @@ public interface FibTableService {
     /**
      * Checks whether FIB table with provided index exist in VPP
      *
-     * @throws ReadFailedException                           if there was an error while reading fib tables
+     * @throws ReadFailedException                           if there was an error while reading FIB tables
      * @throws FibTableService.FibTableDoesNotExistException if requested index does not exist
      */
     void checkTableExist(@Nonnegative final int index, @Nonnull final ModificationCache cache)
@@ -45,6 +45,7 @@ public interface FibTableService {
      * @param isIpv6     true if adding IPv6 FIB table, false if adding IPv4 table
      * @throws WriteFailedException if there was an error while writing FIB tables
      */
+    @Deprecated
     void write(InstanceIdentifier<?> identifier, @Nonnegative int tableId, @Nonnull String tableName, boolean isIpv6)
             throws WriteFailedException;
 

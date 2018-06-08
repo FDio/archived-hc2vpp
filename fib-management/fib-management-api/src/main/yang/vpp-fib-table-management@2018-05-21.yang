@@ -1,0 +1,117 @@
+module vpp-fib-table-management {
+    yang-version "1.1";
+    namespace "urn:opendaylight:params:xml:ns:yang:vpp-fib-table-management";
+    prefix "vpp-fib-table-management";
+
+    organization
+        "FD.io - The Fast Data Project";
+
+    contact
+        "Hc2vpp Wiki <https://wiki.fd.io/view/Hc2vpp>
+         Mailing List <hc2vpp@lists.fd.io>";
+
+    description
+        "This module contains a collection of YANG definitions
+         that extend hc2vpp-ietf-routing module
+         with VPP FIB table management features.
+
+         Copyright (c) 2018 Bell Canada, Pantheon Technologies and/or its affiliates.
+
+         Licensed under the Apache License, Version 2.0 (the 'License');
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at:
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an 'AS IS' BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.";
+
+    revision 2018-05-21 {
+        description "Initial revision.";
+    }
+
+    typedef vni-reference {
+        type uint32;
+        description "VRF index reference";
+    }
+
+    identity address-family-identity {
+        description "Base identity from which identities describing address families are derived.";
+    }
+
+    identity ipv4 {
+        base vpp-fib-table-management:address-family-identity;
+        description "This identity represents an IPv4 address family.";
+    }
+
+    identity ipv6 {
+        base vpp-fib-table-management:address-family-identity;
+        description "This identity represents an IPv6 address family.";
+    }
+
+    grouping vpp-fib-table-management {
+        container fib-tables {
+            description
+            "The FIB tables that are managed by control-plane-protocol";
+
+            list table {
+                key "table-id address-family";
+
+                description
+                    "FIB table that is represented by VNI index (VRF reference index) and addres-family.
+                     Each FIB table is uniquely identified by its index and addres family (e.g. IPv4 or IPv6).
+                     Table cantains name for easier identification and description for a short summary of its
+                     function.
+                     In VPP this table is mapped to ip_table_add_del VPP API message:
+                     Add/del table request
+                         A table can be added multiple times, but need be deleted only once.
+                         @param is_ipv6 - V4 or V6 table
+                         @param table_id - table ID associated with the route
+                                           This table ID will apply to both the unicats and mlticast FIBs
+                         @param name - A client provided name/tag for the table. If this is
+                                       not set by the client, then VPP will generate something meaningfull";
+                leaf address-family {
+                    type identityref {
+                        base address-family-identity;
+                    }
+                    mandatory true;
+                    description
+                        "A reference to the address-family that the table represents (IPv4 or IPv6).
+                         Mapped to is_ipv6 parameter of ip_table_add_del message.";
+                }
+
+                leaf table-id {
+                    type vni-reference;
+                    mandatory true;
+                    description
+                        "VRF index reference.
+                         Mapped to table_id parameter of ip_table_add_del message.";
+                }
+
+                leaf name {
+                    type string {
+                        length "1..64";
+                    }
+                    description
+                        "Name of FIB table.
+                         Mapped to name parameter of ip_table_add_del message.";
+                }
+
+                leaf description {
+                    type string;
+                    config true;
+                    description "Description of FIB table";
+                }
+            }
+        }
+    }
+
+    container fib-table-management {
+        description "Configuration parameters for FIB table management";
+
+        uses vpp-fib-table-management;
+    }
+}

@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.routing.services.FibTableService;
+import io.fd.hc2vpp.fib.management.services.FibTableService;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;

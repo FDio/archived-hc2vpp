@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.routing.services;
+package io.fd.hc2vpp.fib.management.services;
 
 import static io.fd.vpp.jvpp.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,13 +23,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.inject.Inject;
+import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
-import io.fd.hc2vpp.routing.RoutingIIds;
-import io.fd.hc2vpp.routing.helpers.RoutingRequestTestHelper;
-import io.fd.hc2vpp.routing.helpers.SchemaContextTestHelper;
+import io.fd.hc2vpp.fib.management.FibManagementIIds;
+import io.fd.hc2vpp.fib.management.helpers.SchemaContextTestHelper;
 import io.fd.honeycomb.translate.ModificationCache;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.Ip6FibDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpFibDetailsReplyDump;
@@ -44,7 +43,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-public class FibTableServiceImplTest implements RoutingRequestTestHelper, SchemaContextTestHelper {
+public class FibTableServiceImplTest implements SchemaContextTestHelper, ByteDataTranslator, FutureProducer {
 
     private static final int FIB_TABLE_ID = 123456;
     private static final String FIB_TABLE_NAME = "VRF123456";
@@ -52,9 +51,6 @@ public class FibTableServiceImplTest implements RoutingRequestTestHelper, Schema
     @Inject
     @Mock
     private static FutureJVppCore api;
-
-    @Mock
-    private static WriteContext ctx;
 
     @Mock
     private ModificationCache modificationCache;
@@ -74,35 +70,32 @@ public class FibTableServiceImplTest implements RoutingRequestTestHelper, Schema
 
     @Test(expected = FibTableService.FibTableDoesNotExistException.class)
     public void checkTableExistTest() throws ReadFailedException, FibTableService.FibTableDoesNotExistException {
-        FibTableServiceImpl fibService = new FibTableServiceImpl(api, ctx.getModificationCache());
-
+        FibTableServiceImpl fibService = new FibTableServiceImpl(api);
         fibService.checkTableExist(FIB_TABLE_ID, modificationCache);
     }
 
     @Test
     public void writeIpv4Test() throws WriteFailedException {
-        FibTableServiceImpl fibTableService = new FibTableServiceImpl(api, ctx.getModificationCache());
-        fibTableService.write(RoutingIIds.ROUTING, FIB_TABLE_ID, FIB_TABLE_NAME, false);
+        FibTableServiceImpl fibTableService = new FibTableServiceImpl(api);
+        fibTableService.write(FibManagementIIds.FIB_MNGMNT, FIB_TABLE_ID, FIB_TABLE_NAME, false);
 
         verify(api, times(1)).ipTableAddDel(argumentCaptor.capture());
 
-        final IpTableAddDel jvppRequest = argumentCaptor.getValue();
-        assertTableAddDelRequest(jvppRequest, true, false);
+        assertTableAddDelRequest(argumentCaptor.getValue(), false);
     }
 
     @Test
     public void writeIpv6Test() throws WriteFailedException {
-        FibTableServiceImpl fibTableService = new FibTableServiceImpl(api, ctx.getModificationCache());
-        fibTableService.write(RoutingIIds.ROUTING, FIB_TABLE_ID, FIB_TABLE_NAME, true);
+        FibTableServiceImpl fibTableService = new FibTableServiceImpl(api);
+        fibTableService.write(FibManagementIIds.FIB_MNGMNT, FIB_TABLE_ID, FIB_TABLE_NAME, true);
 
         verify(api, times(1)).ipTableAddDel(argumentCaptor.capture());
 
-        final IpTableAddDel jvppRequest = argumentCaptor.getValue();
-        assertTableAddDelRequest(jvppRequest, true, true);
+        assertTableAddDelRequest(argumentCaptor.getValue(), true);
     }
 
-    private void assertTableAddDelRequest(IpTableAddDel jvppRequest, boolean isAdd, boolean isIpv6) {
-        assertEquals(ByteDataTranslator.INSTANCE.booleanToByte(isAdd), jvppRequest.isAdd);
+    private void assertTableAddDelRequest(IpTableAddDel jvppRequest, boolean isIpv6) {
+        assertEquals(ByteDataTranslator.BYTE_TRUE, jvppRequest.isAdd);
         assertEquals(ByteDataTranslator.INSTANCE.booleanToByte(isIpv6), jvppRequest.isIpv6);
         assertEquals(FIB_TABLE_ID, jvppRequest.tableId);
         Assert.assertArrayEquals(FIB_TABLE_NAME.getBytes(), jvppRequest.name);
