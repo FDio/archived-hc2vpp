@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetMtu;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetMtuReply;
+import io.fd.vpp.jvpp.core.dto.HwInterfaceSetMtu;
+import io.fd.vpp.jvpp.core.dto.HwInterfaceSetMtuReply;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -55,22 +55,22 @@ public class EthernetCustomizerTest extends WriterCustomizerTest {
 
     @Test
     public void testWrite() throws WriteFailedException {
-        when(api.swInterfaceSetMtu(any())).thenReturn(future(new SwInterfaceSetMtuReply()));
+        when(api.hwInterfaceSetMtu(any())).thenReturn(future(new HwInterfaceSetMtuReply()));
         final int mtu = 1234;
         customizer.writeCurrentAttributes(IF_IID, ethernet(mtu), writeContext);
-        verify(api).swInterfaceSetMtu(mtuSetRequest(mtu));
+        verify(api).hwInterfaceSetMtu(mtuSetRequest(mtu));
     }
 
     @Test
     public void testUpdate() throws WriteFailedException {
-        when(api.swInterfaceSetMtu(any())).thenReturn(future(new SwInterfaceSetMtuReply()));
+        when(api.hwInterfaceSetMtu(any())).thenReturn(future(new HwInterfaceSetMtuReply()));
         final int mtu = 5678;
         customizer.updateCurrentAttributes(IF_IID, mock(Ethernet.class), ethernet(mtu), writeContext);
-        verify(api).swInterfaceSetMtu(mtuSetRequest(mtu));
+        verify(api).hwInterfaceSetMtu(mtuSetRequest(mtu));
     }
 
-    private SwInterfaceSetMtu mtuSetRequest(final int mtu) {
-        final SwInterfaceSetMtu request = new SwInterfaceSetMtu();
+    private HwInterfaceSetMtu mtuSetRequest(final int mtu) {
+        final HwInterfaceSetMtu request = new HwInterfaceSetMtu();
         request.swIfIndex = IF_INDEX;
         request.mtu = (short)mtu;
         return request;

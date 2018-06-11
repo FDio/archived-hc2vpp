@@ -337,7 +337,9 @@ module v3po {
       default 9216;
       description
       "The size, in octets, of the largest packet that the
-       hardware interface will send and receive.";
+       hardware interface will send and receive.
+
+       Mapped to hw_interface_set_mtu VPP API message which programs the NIC.";
     }
   }
 

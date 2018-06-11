@@ -21,7 +21,7 @@ import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
-import io.fd.vpp.jvpp.core.dto.SwInterfaceSetMtu;
+import io.fd.vpp.jvpp.core.dto.HwInterfaceSetMtu;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
@@ -75,10 +75,16 @@ public class EthernetCustomizer extends AbstractInterfaceTypeCustomizer<Ethernet
         final String name = id.firstKeyOf(Interface.class).getName();
         final int index = interfaceContext.getIndex(name, writeContext.getMappingContext());
         LOG.debug("Setting Ethernet attributes for interface: {}, {}. Ethernet: {}", name, index, dataAfter);
-        final SwInterfaceSetMtu request = new SwInterfaceSetMtu();
+
+        // Set the physical payload MTU. I.e. not including L2 overhead.
+        // Setting the hardware MTU will program the NIC.
+        // Setting MTU for software interfaces is currently not supported (TODO: HC2VPP-355).
+        // More details:
+        // https://git.fd.io/vpp/tree/src/vnet/MTU.md
+        final HwInterfaceSetMtu request = new HwInterfaceSetMtu();
         request.swIfIndex = index;
         request.mtu = dataAfter.getMtu().shortValue();
-        getReplyForWrite(getFutureJVpp().swInterfaceSetMtu(request).toCompletableFuture(), id);
+        getReplyForWrite(getFutureJVpp().hwInterfaceSetMtu(request).toCompletableFuture(), id);
         LOG.debug("Ethernet attributes set successfully for: {}, {}. Ethernet: {}", name, index, dataAfter);
     }
 }

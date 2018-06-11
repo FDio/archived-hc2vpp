@@ -65,6 +65,11 @@ public class EthernetCustomizer
         final SwInterfaceDetails iface = dumpManager.getInterfaceDetail(id, ctx, key.getName());
 
         if (iface.linkMtu != 0) {
+            // Read physical payload MTU (link_mtu) if given.
+            // VPP since 18.07 supports also setting MTUs for software interfaces,
+            // but these are not supported by HC (TODO: HC2VPP-355).
+            // More details:
+            // https://git.fd.io/vpp/tree/src/vnet/MTU.md
             builder.setMtu((int) iface.linkMtu);
         }
 
