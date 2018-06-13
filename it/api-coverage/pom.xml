@@ -38,7 +38,7 @@
     <dependencies>
         <dependency>
             <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp-registry</artifactId>
+            <artifactId>jvpp-acl</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
@@ -48,17 +48,7 @@
         </dependency>
         <dependency>
             <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp-acl</artifactId>
-            <version>${jvpp.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp-nat</artifactId>
-            <version>${jvpp.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fd.vpp</groupId>
-            <artifactId>jvpp-ioamtrace</artifactId>
+            <artifactId>jvpp-gtpu</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>
@@ -69,6 +59,26 @@
         <dependency>
             <groupId>io.fd.vpp</groupId>
             <artifactId>jvpp-ioampot</artifactId>
+            <version>${jvpp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-ioamtrace</artifactId>
+            <version>${jvpp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-nat</artifactId>
+            <version>${jvpp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-pppoe</artifactId>
+            <version>${jvpp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.fd.vpp</groupId>
+            <artifactId>jvpp-registry</artifactId>
             <version>${jvpp.version}</version>
         </dependency>
         <dependency>

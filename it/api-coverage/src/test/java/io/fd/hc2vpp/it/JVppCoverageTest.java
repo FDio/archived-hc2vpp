@@ -18,10 +18,12 @@ package io.fd.hc2vpp.it;
 
 import io.fd.vpp.jvpp.acl.JVppAcl;
 import io.fd.vpp.jvpp.core.JVppCore;
+import io.fd.vpp.jvpp.gtpu.JVppGtpu;
 import io.fd.vpp.jvpp.ioamexport.JVppIoamexport;
 import io.fd.vpp.jvpp.ioampot.JVppIoampot;
 import io.fd.vpp.jvpp.ioamtrace.JVppIoamtrace;
 import io.fd.vpp.jvpp.nat.JVppNat;
+import io.fd.vpp.jvpp.pppoe.JVppPppoe;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Scanner;
@@ -36,12 +38,14 @@ public class JVppCoverageTest {
     @Test
     public void coverageTest() throws IOException {
         final Class[] apis = new Class[] {
-            JVppCore.class,
             JVppAcl.class,
-            JVppNat.class,
-            JVppIoamtrace.class,
+            JVppCore.class,
+            JVppGtpu.class,
             JVppIoamexport.class,
-            JVppIoampot.class
+            JVppIoampot.class,
+            JVppIoamtrace.class,
+            JVppNat.class,
+            JVppPppoe.class
         };
         int covered = 0;
         int methods = 0;
