@@ -1,0 +1,17 @@
+{
+  "access-lists": {
+    "acl": [
+      {
+        "acl-name": "standard-acl",
+        "acl-type": "ipv4-acl",
+        "access-list-entries": {
+          "ace": [
+            {
+              "rule-name": "rule1"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

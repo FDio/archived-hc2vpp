@@ -18,9 +18,7 @@ package io.fd.hc2vpp.acl.write;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,7 +41,6 @@ import io.fd.vpp.jvpp.acl.types.AclRule;
 import io.fd.vpp.jvpp.acl.types.MacipAclRule;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -53,10 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160708.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang._interface.acl.rev161214.VppAclInterfaceStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.acl.rev170615.VppAcl;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -276,27 +269,6 @@ public class VppAclCustomizerTest extends WriterCustomizerTest implements AclTes
 
         verify(aclApi, times(1)).aclDel(aclDelRequestCaptor.capture());
         assertEquals(aclIndex, aclDelRequestCaptor.getValue().aclIndex);
-    }
-
-    @Test
-    public void deleteCurrentAttributesUdpReferenced(
-            @InjectTestData(resourcePath = "/acl/standard/standard-acl-udp.json")
-                    AccessLists standardAcls,
-            @InjectTestData(resourcePath = "/acl/standard/interface-ref-acl-udp.json")
-                    Interfaces references) throws Exception {
-        // TODO - HONEYCOMB-349 - change after resolving to specific node injection
-        when(writeContext.readAfter(InstanceIdentifier.create(Interfaces.class))).thenReturn(
-                Optional.of(new InterfacesBuilder().setInterface(references.getInterface()).build()));
-
-        final int aclIndex = 4;
-        when(standardAclContext.getAclIndex("standard-acl", mappingContext)).thenReturn(aclIndex);
-        try {
-            aclCustomizer.deleteCurrentAttributes(validId, standardAcls.getAcl().get(0), writeContext);
-        } catch (IllegalStateException e) {
-            verify(aclApi, never()).aclDel(any(AclDel.class));
-            return;
-        }
-        fail("IllegalStateException should have been thrown");
     }
 
     private void verifyUdpRequest(final int aclIndex) {

@@ -1,0 +1,15 @@
+<!--
+  ~ Copyright (c) 2018 Cisco Systems, Inc. and others.  All rights reserved.
+  ~
+  ~ This program and the accompanying materials are made available under the
+  ~ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  ~ and is available at http://www.eclipse.org/legal/epl-v10.html
+  -->
+<config xmlns:xc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <access-lists xmlns="urn:ietf:params:xml:ns:yang:ietf-access-control-list" xc:operation="create">
+        <acl>
+            <acl-name>acl0</acl-name>
+            <acl-type>ipv4-acl</acl-type>
+        </acl>
+    </access-lists>
+</config>
