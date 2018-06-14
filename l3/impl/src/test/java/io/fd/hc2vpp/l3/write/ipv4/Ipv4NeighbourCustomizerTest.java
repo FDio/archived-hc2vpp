@@ -23,7 +23,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
@@ -36,16 +35,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.Interface1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.Neighbor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev140616.interfaces._interface.ipv4.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VppInterfaceAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VppInterfaceAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.RoutingBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements Ipv4Translator {
@@ -67,7 +62,6 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
 
     @Test
     public void testWriteCurrentAttributes() throws WriteFailedException {
-        when(writeContext.readBefore(IID.firstIdentifierOf(Interface.class))).thenReturn(Optional.absent());
         when(api.ipNeighborAddDel(any())).thenReturn(future(new IpNeighborAddDelReply()));
         customizer.writeCurrentAttributes(IID, getData(), writeContext);
         verify(api).ipNeighborAddDel(getExpectedRequest(true));
@@ -75,7 +69,6 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
 
     @Test
     public void testWriteCurrentAttributesFailed() {
-        when(writeContext.readBefore(IID.firstIdentifierOf(Interface.class))).thenReturn(Optional.absent());
         when(api.ipNeighborAddDel(any())).thenReturn(failedFuture());
         try {
             customizer.writeCurrentAttributes(IID, getData(), writeContext);
@@ -93,7 +86,6 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
 
     @Test
     public void testDeleteCurrentAttributes() throws WriteFailedException {
-        when(writeContext.readBefore(IID.firstIdentifierOf(Interface.class))).thenReturn(Optional.absent());
         when(api.ipNeighborAddDel(any())).thenReturn(future(new IpNeighborAddDelReply()));
         customizer.deleteCurrentAttributes(IID, getData(), writeContext);
         verify(api).ipNeighborAddDel(getExpectedRequest(false));
@@ -101,7 +93,6 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
 
     @Test
     public void testDeleteCurrentAttributesFailed() {
-        when(writeContext.readBefore(IID.firstIdentifierOf(Interface.class))).thenReturn(Optional.absent());
         when(api.ipNeighborAddDel(any())).thenReturn(failedFuture());
         try {
             customizer.deleteCurrentAttributes(IID, getData(), writeContext);
@@ -116,20 +107,6 @@ public class Ipv4NeighbourCustomizerTest extends WriterCustomizerTest implements
     @Test
     public void testVrfExtractionCornerCases() throws WriteFailedException {
         when(api.ipNeighborAddDel(any())).thenReturn(future(new IpNeighborAddDelReply()));
-
-        when(writeContext.readBefore(IID.firstIdentifierOf(Interface.class)))
-                // no augment
-                .thenReturn(Optional.of(new InterfaceBuilder().build()))
-                // empty augment
-                .thenReturn(Optional.of(new InterfaceBuilder()
-                        .addAugmentation(VppInterfaceAugmentation.class, new VppInterfaceAugmentationBuilder().build()).build()))
-                //empty routing
-                .thenReturn(Optional.of(new InterfaceBuilder()
-                        .addAugmentation(VppInterfaceAugmentation.class, new VppInterfaceAugmentationBuilder()
-                                .setRouting(new RoutingBuilder().build())
-                                .build()).build()));
-
-
         customizer.writeCurrentAttributes(IID, getData(), writeContext);
         customizer.writeCurrentAttributes(IID, getData(), writeContext);
         customizer.writeCurrentAttributes(IID, getData(), writeContext);

@@ -22,9 +22,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -95,7 +93,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     @Test
     public void testAddPrefixLengthIpv4Address() throws Exception {
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
-        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
         Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
         PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
@@ -113,7 +110,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     @Test
     public void testAddPrefixLengthIpv4AddressFailed() throws Exception {
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
-        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
         Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
         PrefixLength length = new PrefixLengthBuilder().setPrefixLength(new Integer(24).shortValue()).build();
@@ -197,7 +193,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
         final int expectedPrefixLength = 1;
         final String stringMask = "128.0.0.0";
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
-        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
         Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
         Netmask subnet = new NetmaskBuilder().setNetmask(new DottedQuad(stringMask)).build();
@@ -220,7 +215,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
 
     private void testSingleNetmask(final int expectedPrefixLength, final String stringMask) throws Exception {
         final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
-        when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
         Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
         Netmask subnet = new NetmaskBuilder().setNetmask(new DottedQuad(stringMask)).build();
@@ -238,7 +232,6 @@ public class Ipv4AddressCustomizerTest extends WriterCustomizerTest {
     private void testSingleIllegalNetmask(final String stringMask) throws Exception {
         try {
             final InstanceIdentifier<Address> id = getAddressId(IFACE_NAME);
-            when(writeContext.readBefore(id)).thenReturn(Optional.absent());
 
             Ipv4AddressNoZone noZoneIp = new Ipv4AddressNoZone(new Ipv4Address("192.168.2.1"));
             Netmask subnet = new NetmaskBuilder().setNetmask(new DottedQuad(stringMask)).build();
