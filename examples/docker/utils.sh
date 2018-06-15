@@ -59,5 +59,9 @@ function create_link {
   # Bring interfaces up
   ip netns exec $container1 ip link set $if1 up
   ip netns exec $container2 ip link set $if2 up
+
+  # Set interfaces mtu to 9000 to match default VPP mtu values
+  ip netns exec ${container1} ifconfig ${if1} mtu 9000
+  ip netns exec ${container2} ifconfig ${if2} mtu 9000
   echo "Link created successfully"
 }
