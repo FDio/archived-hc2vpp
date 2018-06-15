@@ -38,7 +38,7 @@ public class Srv6WriterFactory implements WriterFactory {
     @Inject
     private LocalSidFunctionWriteBindingRegistry bindingRegistry;
     @Inject
-    protected LocatorContextManager locatorContext;
+    private LocatorContextManager locatorContext;
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {

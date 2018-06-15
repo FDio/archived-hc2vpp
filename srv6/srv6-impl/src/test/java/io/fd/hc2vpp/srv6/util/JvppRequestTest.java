@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionReadBindingRegistry;
 import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionWriteBindingRegistry;
@@ -35,12 +36,18 @@ import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.SchemaContextProvider;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.vpp.jvpp.core.dto.SrSteeringAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+
 
 @RunWith(HoneycombTestRunner.class)
 public abstract class JvppRequestTest implements FutureProducer, NamingContextHelper {
@@ -48,6 +55,14 @@ public abstract class JvppRequestTest implements FutureProducer, NamingContextHe
             new LocalSidFunctionReadBindingRegistry();
     protected static final LocalSidFunctionWriteBindingRegistry WRITE_REGISTRY =
             new LocalSidFunctionWriteBindingRegistry();
+
+    protected static final String NAMED_SEG_LISTS_PATH = "/hc2vpp-oc-srte-policy:segment-routing" +
+            "/hc2vpp-oc-srte-policy:traffic-engineering" +
+            "/hc2vpp-oc-srte-policy:named-segment-lists";
+
+    protected static final String POLICIES_LISTS_PATH = "/hc2vpp-oc-srte-policy:segment-routing" +
+            "/hc2vpp-oc-srte-policy:traffic-engineering" +
+            "/hc2vpp-oc-srte-policy:policies";
 
     @Inject
     @Mock
@@ -104,9 +119,35 @@ public abstract class JvppRequestTest implements FutureProducer, NamingContextHe
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.$YangModuleInfoImpl
                         .getInstance(),
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.$YangModuleInfoImpl
+                        .getInstance(),
+                org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.$YangModuleInfoImpl
+                        .getInstance(),
+                org.opendaylight.yang.gen.v1.urn.hc2vpp.params.xml.ns.yang.vpp.oc.srte.policy.rev180514.$YangModuleInfoImpl
                         .getInstance()));
         return mibContext;
     }
 
     protected abstract void init();
+
+    protected void testSrSteeringAddDelValidity(SrSteeringAddDel srSteering, byte isDel, byte trafficType, boolean ipV6,
+                                                Ipv6Address bsidAdr, IpPrefix prefix) {
+        Assert.assertEquals((long) 0, srSteering.tableId);
+        Assert.assertArrayEquals(AddressTranslator.INSTANCE.ipAddressToArray(new IpAddress(bsidAdr)),
+                srSteering.bsidAddr);
+        Assert.assertEquals(isDel, srSteering.isDel);
+        Assert.assertEquals(trafficType, srSteering.trafficType);
+
+        if (ipV6) {
+            Assert.assertArrayEquals(AddressTranslator.INSTANCE.ipv6AddressPrefixToArray(prefix.getIpv6Prefix()),
+                    srSteering.prefixAddr);
+            Assert.assertEquals(AddressTranslator.INSTANCE.extractPrefix(prefix.getIpv6Prefix()),
+                    srSteering.maskWidth);
+        } else {
+            Assert.assertArrayEquals(AddressTranslator.INSTANCE.ipv4AddressPrefixToArray(prefix.getIpv4Prefix()),
+                    srSteering.prefixAddr);
+            Assert.assertEquals(AddressTranslator.INSTANCE.extractPrefix(prefix.getIpv4Prefix()),
+                    srSteering.maskWidth);
+        }
+
+    }
 }

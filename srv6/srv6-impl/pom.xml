@@ -35,8 +35,7 @@
         <dependency>
             <groupId>io.fd.hc2vpp.routing</groupId>
             <artifactId>routing-impl</artifactId>
-            <version>1.18.07-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
         <!-- Honeycomb infrastructure -->
         <dependency>

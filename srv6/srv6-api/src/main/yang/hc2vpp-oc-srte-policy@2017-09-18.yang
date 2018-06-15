@@ -1,0 +1,1507 @@
+module hc2vpp-oc-srte-policy {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://cisco.com/ns/yang"+
+    "/oc-srte-policy";
+
+
+  prefix "oc-srte";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import ietf-inet-types { prefix "inet"; }
+
+  import ietf-interfaces { prefix if; }
+
+  import ietf-yang-types {
+    prefix "yang";
+  }
+
+  /*** META INFORMATION ***/
+
+  organization "Cisco Systems, Inc.";
+
+  contact
+    "Cisco Systems, Inc.
+     Customer Service
+
+     Postal: 170 West Tasman Drive
+     San Jose, CA 95134
+
+     E-mail: ";
+
+  description
+    "This module contains a collection of YANG definitions
+     for SR TE policy module.
+
+     Copyright (c) 2017 by Cisco Systems, Inc.
+     All rights reserved.";
+
+  revision "2017-09-18" {
+    description
+      "Initial version";
+    reference
+      "draft-filsfils-spring-segment-routing-policy";
+  }
+
+  /* Identities */
+  identity path-not-selected-reason {
+    description
+      "Base identity for which reasons for not selecting
+      candidate path are derived from";
+  }
+  identity path-not-selected-not-best {
+    base path-not-selected-reason;
+    description
+      "Higher preference path exists";
+  }
+  identity path-not-selected-no-active-segmet-list {
+    base path-not-selected-reason;
+    description
+      "Candidate path has no active segment list(s)";
+  }
+  identity path-not-selected-empty-segmet-list {
+    base path-not-selected-reason;
+    description
+      "Candidate path has empty segment list(s)";
+  }
+  identity path-not-selected-invalid-binding-sid {
+    base path-not-selected-reason;
+    description
+      "Candidate path has invalid binding SID";
+  }
+
+  identity resource-affinities-type {
+    description
+      "Base identity for resource affinities";
+  }
+  identity resource-aff-include-all {
+    base resource-affinities-type;
+    description
+      "The set of bitmap attributes all of which
+      must be present on a link so it is considered
+      acceptable";
+  }
+  identity resource-aff-include-any {
+    base resource-affinities-type;
+    description
+      "The set of bitmap attributes any of which
+      must be present on a link so it is considered
+      acceptable";
+  }
+  identity resource-aff-exclude-any {
+    base resource-affinities-type;
+    description
+      "The set of bitmap attributes any of which
+      present reders the link to be considered
+      unacceptable";
+  }
+
+  identity path-computation-method {
+    description
+     "base identity for supported path computation
+      mechanisms";
+  }
+  identity path-locally-computed {
+    base path-computation-method;
+    description
+      "indicates a constrained-path LSP in which the
+      path is computed by the local LER";
+  }
+  identity path-externally-queried {
+    base path-computation-method;
+    description
+     "Constrained-path in which the path is
+      obtained by querying an external source, such as a PCE server.
+      In the case that a path is defined to be externally queried, it
+      may also have associated explicit definitions (which are provided
+      to the external source to aid computation); and the path that is
+      returned by the external source is not required to provide a
+      wholly resolved path back to the originating system - that is to
+      say, some local computation may also be required";
+  }
+  identity path-explicitly-defined {
+    base path-computation-method;
+    description
+     "constrained-path LSP in which the path is
+      explicitly specified as a collection of strict or/and loose
+      hops";
+  }
+
+  identity provisioning-method-type {
+    description "Candidate path provisioning source type";
+  }
+  identity provisioning-method-config {
+    base provisioning-method-type;
+    description
+        "Candidate path is provisioned via configuration";
+  }
+  identity provisioning-method-bgp {
+    base provisioning-method-type;
+    description
+        "Candidate path is provisioned via BGP signaling";
+  }
+  identity provisioning-method-pcep {
+    base provisioning-method-type;
+    description
+        "Candidate path is provisioned via PCEP signaling";
+  }
+
+  /* Typdefs */
+  typedef segment-list-oper-state {
+    type enumeration {
+      enum ACTIVE {
+        description
+          "Segment-list is resolved and active in forwarding";
+      }
+      enum INACTIVE {
+        description
+          "Segment-list is unresolved and inactive in forwarding";
+      }
+    }
+    description
+      "Segment list operational state type";
+  }
+  typedef mpls-label {
+    type union {
+      type uint32 {
+        range 16..1048575;
+      }
+      type enumeration {
+        enum IPV4_EXPLICIT_NULL {
+          value 0;
+          description
+            "valid at the bottom of the label stack,
+            indicates that stack must be popped and packet forwarded
+            based on IPv4 header";
+        }
+        enum ROUTER_ALERT {
+          value 1;
+          description
+            "allowed anywhere in the label stack except
+            the bottom, local router delivers packet to the local CPU
+            when this label is at the top of the stack";
+        }
+        enum IPV6_EXPLICIT_NULL {
+          value 2;
+          description
+            "valid at the bottom of the label stack,
+            indicates that stack must be popped and packet forwarded
+            based on IPv6 header";
+        }
+        enum IMPLICIT_NULL {
+          value 3;
+          description
+            "assigned by local LSR but not carried in
+            packets";
+        }
+        enum ENTROPY_LABEL_INDICATOR {
+          value 7;
+          description
+            "Entropy label indicator, to allow an LSR
+            to distinguish between entropy label and applicaiton
+            labels RFC 6790";
+        }
+      }
+    }
+    description
+      "type for MPLS label value encoding";
+    reference "RFC 3032 - MPLS Label Stack Encoding";
+  }
+  typedef sid-value-type {
+    type union {
+      type mpls-label;
+      type inet:ip-address;
+    }
+    description "The SID value type";
+  }
+  typedef path-margin-type {
+    type enumeration {
+      enum relative {
+        value 1;
+        description "Path margin type relative";
+      }
+      enum absolute {
+        value 2;
+        description "Path margin type relative";
+      }
+    }
+    description "Path margin types";
+  }
+  typedef binding-sid-oper-state {
+    type enumeration {
+      enum ALLOC-PENDING {
+        value 1;
+        description "BSID is allocate pending";
+      }
+      enum PROG-PENDING {
+        value 2;
+        description "BSID is programed pending";
+      }
+      enum PROGRAMMED {
+        value 3;
+        description "BSID is programmed";
+      }
+      enum CONFLICT {
+        value 4;
+        description "BSID is in-conflict state";
+      }
+    }
+    description
+      "Binding SID operational state type";
+  }
+  typedef policy-admin-state {
+    type enumeration {
+      enum UP {
+        value 1;
+        description "SR policy is administratively up";
+      }
+      enum DOWN {
+        value 2;
+        description "SR policy is administratively down";
+      }
+    }
+    description "SR policy admin state";
+  }
+  typedef policy-oper-state {
+    type enumeration {
+      enum UP {
+        value 1;
+        description "SR policy is opertionally up";
+      }
+      enum DOWN {
+        value 2;
+        description "SR policy is opertionally down";
+      }
+    }
+    description "SR policy oper state";
+  }
+  typedef explicit-binding-sid-rule-type {
+    type enumeration {
+      enum fallback-dynamic {
+        value 1;
+        description
+            "Explicit Binding SID falls back to dynamic in
+            case explicit label is not available.";
+      }
+      enum enforce-srlb {
+        value 2;
+        description
+            "Explicit Binding SID is enforced with no
+             fallback if label does not fall in SRLB or
+             if no SRLB is configured";
+      }
+    }
+    description "SRTE binding SID explicit rule";
+  }
+  typedef segment-type {
+    type enumeration {
+      enum type-1 {
+        value 1;
+        description "SID only, in the form of MPLS Label";
+      }
+      enum type-2 {
+        value 2;
+        description "SID only, in the form of IPv6 address";
+      }
+      enum type-3 {
+        value 3;
+        description "IPv4 Node Address with optional SID";
+      }
+      enum type-4 {
+        value 4;
+        description "IPv6 Node Address with optional SID";
+      }
+      enum type-5 {
+        value 5;
+        description "IPv4 Address + index with optional SID";
+      }
+      enum type-6 {
+        value 6;
+        description "IPv4 Local and Remote addresses with optional SID";
+      }
+      enum type-7 {
+        value 7;
+        description "IPv6 Address + index with optional SID";
+      }
+      enum type-8 {
+        value 8;
+        description "IPv6 Local and Remote addresses with optional SID";
+      }
+    }
+    description "SR segment type";
+  }
+  typedef dataplane-type {
+    type enumeration {
+      enum mpls {
+        value 1;
+        description "Segment-routing MPLS";
+      }
+      enum srv6 {
+        value 2;
+        description "Segment-routing v6";
+      }
+    }
+
+    // Add all the types in draft-ietf-idr-segment-routing-te-policy
+    description "SRTE path hop";
+  }
+  typedef path-metric-type {
+    type enumeration {
+      enum igp {
+        value 1;
+        description "IGP path metric type";
+      }
+      enum te {
+        value 2;
+        description "TE path metric type";
+      }
+    }
+    description "Path metric types";
+  }
+  typedef binding-sid-alloc-mode {
+    type enumeration {
+      enum explicit {
+        value 1;
+        description "Explicitly specified BSID";
+      }
+      enum dynamic {
+        value 2;
+        description "Dynamically allocated BSID";
+      }
+    }
+    description "binding SID allocation mode";
+  }
+  typedef auto-route-metric-type {
+    type enumeration {
+      enum constant {
+        value 1;
+        description "Autoroute constant metric type";
+      }
+      enum relative {
+        value 2;
+        description "Autoroute relative metric type";
+      }
+    }
+    description "SRTE auto route metric";
+  }
+
+  grouping ENABLE {
+    description
+      "Reusable node that enables a specific feature";
+    leaf enable {
+      type empty;
+      description "True only";
+    }
+  }
+
+  grouping affinity-constraints-contents_config {
+    description
+      "Path affinities constraints grouping";
+    leaf constraint {
+      type identityref {
+        base resource-affinities-type;
+      }
+      description "Affinities constraint";
+    }
+    list affinity-names {
+      key "name";
+      leaf name {
+        type leafref {
+          path "../config/name";
+        }
+        description "Affinity name";
+      }
+      container config {
+        description
+          "Configuration intended parameters";
+        leaf name {
+          type string;
+          description "Affinity name";
+        }
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        leaf name {
+          type string;
+          description "Affinity name";
+        }
+      }
+      description
+        "List of named affinities";
+    }
+  }
+
+  grouping affinity-constraints {
+    description
+      "Path affinities grouping";
+    container affinity-constraints {
+      description
+        "Path affinities container";
+      list affinity-constraint {
+        key "constraint";
+        description
+          "List of named affinity constraints";
+        leaf constraint {
+          type leafref {
+            path "../config/constraint";
+          }
+          description "Affinities constraint";
+        }
+        container config {
+          description
+            "Configuration intended parameters";
+          uses affinity-constraints-contents_config;
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses affinity-constraints-contents_config;
+        }
+      }
+    }
+  }
+
+  grouping segment_config {
+    description "Segment properties grouping";
+    leaf index {
+      type uint32;
+      description "Segment index";
+    }
+    leaf type {
+      type segment-type;
+      description "Segment type";
+    }
+    leaf ip-address {
+      when "../segment-type = 'type-3' or " +
+           "../segment-type = 'type-4' or " +
+           "../segment-type = 'type-5' or " +
+           "../segment-type = 'type-7'";
+      type inet:ip-address;
+      description "Segment IPv4/v6 address";
+    }
+    leaf local-ip-address {
+      when "../segment-type = 'type-6' or " +
+           "../segment-type = 'type-8'";
+      type inet:ip-address;
+      description "Segment local IPv4/v6 adjacency address";
+    }
+    leaf remote-ip-address {
+      when "../segment-type = 'type-6' or " +
+           "../segment-type = 'type-8'";
+      type inet:ip-address;
+      description "Segment remote IPv4/v6 adjacency address";
+    }
+    leaf sid-index {
+      when "../segment-type = 'type-5' or " +
+           "../segment-type = 'type-7'";
+      type uint32;
+      description "Segment SID index";
+    }
+    leaf sid-value  {
+      type sid-value-type;
+      description "Segment MPLS Label";
+    }
+  }
+
+  grouping segment-properties {
+    description
+      "SR segment properties grouping";
+    container config {
+      description
+        "Configuration intended parameters";
+      uses segment_config;
+    }
+    container state {
+      config false;
+      description
+        "Configuration applied parameters and state";
+      uses segment_config;
+    }
+  }
+
+  grouping segment-list_config {
+    description
+      "Segment SID list properties configuration grouping";
+    leaf name {
+      type string;
+      description "Segment-list name";
+    }
+  }
+
+  grouping segment-list-properties {
+    description "Segment SID list properties";
+    container config {
+      description
+        "Configuration intended parameters";
+      uses segment-list_config;
+    }
+    container state {
+      config false;
+      description
+        "Configuration applied parameters and state";
+      uses segment-list_config;
+    }
+  }
+
+  grouping named-segment-lists {
+    description
+      "Named segment lists grouping";
+    container named-segment-lists {
+      description "Segment-lists properties";
+
+      list named-segment-list {
+        key "name";
+        description "Segment-list properties";
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description "Segment list name";
+        }
+        uses segment-list-properties;
+        container segments {
+          description
+            "Segments for given segment list";
+
+          list segment {
+            key "index";
+            leaf index {
+              type leafref {
+                path "../config/index";
+              }
+              description "The segment index";
+            }
+            description "Configure Segment/hop at the index";
+            uses segment-properties;
+          }
+        }
+      }
+    }
+  }
+
+  grouping named-affinity-bitmap_config {
+    description
+      "Global named administrative groups configuration
+      grouping";
+    leaf name {
+      type string;
+      description
+        "A string name that uniquely identifies a TE
+        interface named admin-group";
+    }
+    leaf bit-position {
+      type uint32;
+      description
+        "Bit position representing the administrative group";
+    }
+  }
+  grouping named-affinity-bitmaps {
+    description
+      "Global named administrative groups grouping";
+    container named-affinity-bitmaps {
+      description "TE named admin groups container";
+      list named-affinity-bitmap {
+        key "name";
+        description
+          "List of named TE admin-groups";
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description "Admin-group name";
+        }
+        container config {
+          description
+            "Configuration intended parameters";
+          uses named-affinity-bitmap_config;
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses named-affinity-bitmap_config;
+        }
+      }
+    }
+  }
+
+  grouping explicit-binding-sid-fallback-rules_config {
+    description "Binding SID fallback rules";
+    leaf fallback-rule {
+      type explicit-binding-sid-rule-type;
+      description "Binding sid explicit rule";
+    }
+  }
+
+  grouping explicit-binding-sid-rules {
+    description
+      "Explicit binding SID rules";
+    container explicit-binding-sid-rules {
+      description "Binding sid rules";
+      container config {
+        description
+          "Configuration intended parameters";
+        uses explicit-binding-sid-fallback-rules_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses explicit-binding-sid-fallback-rules_config;
+      }
+    }
+  }
+
+  grouping binding-sid_config {
+    description
+      "Binding SID configuration properties grouping";
+    leaf alloc-mode {
+      type binding-sid-alloc-mode;
+      description "Binding SID type";
+    }
+    leaf type {
+      type dataplane-type;
+      description "Binding SID type";
+    }
+    leaf value {
+      when "../alloc-mode = 'explicit'" {
+        description "This leaf is valid only if alloc-mode is explicit";
+      }
+      /*
+        TODO (HC2VPP-356): This was valid for MPLS label only, there is no definition for SRv6.
+                           Changed to sid-value-type to support both SRv6 and MPLS
+
+      type uint32 {
+        range "16..1048575";
+      }
+      */
+      type sid-value-type;
+      description "Segment SID";
+    }
+  }
+
+  grouping binding-sid_state {
+    description
+      "Binding SID state properties grouping";
+    leaf oper-state {
+      type binding-sid-oper-state;
+      description
+        "Binding SID operational state";
+    }
+    leaf forwarding-stats-pkts {
+      type yang:counter64;
+      description "Number of packets forwarded";
+    }
+    leaf forwarding-stats-bytes {
+      type yang:counter64;
+      units "byte";
+      description "Number of bytes forwarded";
+    }
+  }
+
+  grouping binding-sid-properties {
+    description
+      "Binding SID properties grouping";
+    container binding-sid {
+      description "Binding Segment ID";
+      container config {
+        description
+          "Configuration intended parameters";
+        uses binding-sid_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses binding-sid_config;
+        uses binding-sid_state;
+      }
+    }
+  }
+
+  grouping autoroute-metric_config {
+    description
+      "Autoroute metric configuration properties grouping";
+    leaf metric-type {
+      type auto-route-metric-type;
+      description "Metric type";
+    }
+    leaf metric-constant {
+      type uint32 {
+        range "0..1000";
+      }
+      description "Autoroute constant metric";
+    }
+    leaf metric-relative {
+      type int32 {
+        range "-10..10";
+      }
+      description "Autoroute relative metric";
+    }
+  }
+
+  grouping autoroute-metric {
+    description
+      "Autoroute metric properties grouping";
+    container metric {
+      description "Autoroute metric properties";
+      container config {
+        description
+          "Configuration intended parameters";
+        uses autoroute-metric_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses autoroute-metric_config;
+      }
+    }
+  }
+
+  grouping prefixes-properties {
+    description
+      "Autoroute include prefix table properties grouping";
+    container prefixes {
+      description
+        "Autoroute include prefix table properties";
+      container config {
+        description
+          "Configuration intended parameters";
+        leaf prefixes-all {
+          type boolean;
+          default 'false';
+          description
+            "Indicates whether all prefixes allowed to be
+            steered over the policy";
+        }
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        leaf prefixes-all {
+          type boolean;
+          description
+            "Indicates whether all prefixes allowed to be
+            steered over the policy";
+        }
+      }
+
+      list prefix {
+        key  "ip-prefix";
+        description "Autoroute IP prefix to include";
+        leaf ip-prefix {
+          type leafref {
+            path "../config/ip-prefix";
+          }
+          description "Autoroute prefix IP address";
+        }
+        uses include-prefix;
+      }
+    }
+  }
+
+  grouping autoroute-include {
+    description
+      "Autoroute include properties grouping";
+    container autoroute-include {
+      description
+        "Autoroute include properties container";
+      container config {
+        description
+          "Configuration intended parameters";
+        uses autoroute-metric_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses autoroute-metric_config;
+      }
+      uses prefixes-properties;
+    }
+  }
+
+  grouping include-prefix_config {
+    description
+      "Autoroute include prefix configuration";
+    leaf ip-prefix {
+      type inet:ip-prefix;
+      description "Autoroute prefix IP address";
+    }
+  }
+
+  grouping include-prefix {
+    description
+      "Autoroute include prefixes";
+    container config {
+      description
+        "Configuration intended parameters";
+      uses include-prefix_config;
+    }
+    container state {
+      config false;
+      description
+        "Configuration applied parameters and state";
+      uses include-prefix_config;
+    }
+  }
+
+  grouping metric-properties_config {
+    description
+      "SR path metric properties";
+    leaf metric-type {
+      type path-metric-type;
+      description "Metric type";
+    }
+    leaf metric-margin-absolute {
+      type uint32 {
+        range "0..2147483647";
+      }
+      description "Absolute metric margin";
+    }
+    leaf metric-margin-relative {
+      type uint32 {
+        range "0..100";
+      }
+      description "Relative metric margin";
+    }
+  }
+
+  grouping path-computation-constraints_config {
+    description
+      "Candidate path constraints configuration grouping";
+    leaf sid-limit {
+      type uint32 {
+        range "0..255";
+      }
+      description "The path maximum number of SIDs";
+    }
+    leaf metric-limit {
+      type uint32;
+      description "The path accumulative metric limit";
+    }
+  }
+
+  grouping path-computation-constraints {
+    description
+      "Candidate path computation constraints grouping";
+    container path-computation-constratints {
+      description
+        "Candidate path computation constraints";
+      container config {
+        description
+          "Configuration intended parameters";
+        uses path-computation-constraints_config;
+        uses metric-properties_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses path-computation-constraints_config;
+        uses metric-properties_config;
+      }
+      uses affinity-constraints;
+    }
+  }
+
+  grouping path-forwarding_state {
+    description "Policy Forwarding path information";
+    leaf outgoing-interface {
+      type if:interface-ref;
+      description "Outgoing interface handle";
+    }
+    leaf next-hop-address {
+      type inet:ip-address;
+      description "Nexthop address";
+    }
+    leaf next-hop-table {
+      type uint32;
+      description "Table ID for nexthop address";
+    }
+    list out-label-stack {
+      description
+        "Output label stack for this path";
+      leaf index {
+        type mpls-label;
+        description
+          "The index in the MPLS label stack, index 0 indicates
+           the top of the stack";
+      }
+      leaf label {
+        type mpls-label;
+        description "Path outgoing labels";
+      }
+    }
+    leaf is-protected {
+      type boolean;
+      description "Is this path protected ?";
+    }
+    leaf is-pure-backup {
+      type boolean;
+      description "Is this path a pure backup ?";
+    }
+    leaf weight {
+      type uint32;
+      description "Path's weight for W-ECMP balancing";
+    }
+    leaf primary-path-id {
+      type uint8;
+      description "path Id";
+    }
+    leaf backup-path-id {
+      type uint8;
+      description "Backup path Id";
+    }
+    leaf forwarding-stats-pkts {
+      type yang:counter64;
+      description "Number of packets forwarded on this path";
+    }
+    leaf forwarding-stats-bytes {
+      type yang:counter64;
+      units "byte";
+      description "Number of bytes forwarded on this path";
+    }
+  }
+
+  grouping pathlist-forwarding_state {
+    description "Policy forwarding information";
+    list path-list {
+      description "Forwarding paths";
+      uses path-forwarding_state;
+    }
+  }
+
+  grouping path-segment-list_config {
+    description
+      "Candidate path segment list configuration properties";
+    leaf name {
+      type string;
+      description "Segment-list name";
+    }
+    leaf weight {
+      type uint32;
+      description "Segment-list weighted loadshare";
+    }
+  }
+
+  grouping path-segment-list_state {
+    description
+      "Path segment list state grouping";
+    leaf oper-state {
+      type segment-list-oper-state;
+      description
+        "The segment list operation state";
+    }
+    container forwarding {
+      description
+        "Path segment list forwarding state";
+      uses pathlist-forwarding_state;
+    }
+  }
+
+  grouping path-segment-list {
+    description
+      "Candidate path segment list(s) properties";
+    container config {
+      description
+        "Configuration intended parameters";
+      uses path-segment-list_config;
+    }
+    container state {
+      config false;
+      description
+        "Configuration applied parameters and state";
+      uses path-segment-list_config;
+      uses path-segment-list_state;
+    }
+  }
+
+  grouping path-segment-list-properties {
+    description
+      "Candidate path properties ";
+    uses path-computation-constraints;
+    container segment-lists {
+      description
+        "Path segment list(s) properties";
+      list segment-list {
+        key "name";
+        description "SR policy candidate path segment lists";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description "Segment-list name";
+        }
+        uses path-segment-list;
+      }
+    }
+  }
+
+  grouping candidate-path_config {
+    description
+      "Candidate path configuration properties grouping";
+    leaf name {
+      type string;
+      description "Candidate path name";
+    }
+    leaf provisioning-method {
+      type identityref {
+        base provisioning-method-type;
+      }
+      description "Candidate path provisioning method";
+    }
+    leaf computation-method {
+      type identityref {
+        base path-computation-method;
+      }
+      description "Path computation method";
+    }
+    leaf preference {
+      type uint32 {
+        range "1..65535";
+      }
+      description "Candidate path preference";
+    }
+    leaf distinguisher {
+      type uint32;
+      description "Candidate path distinguisher";
+    }
+  }
+
+  grouping candidate-path_state {
+    description
+      "Candidate path state properties grouping";
+    leaf is-active-path {
+      type boolean;
+      default 'false';
+      description
+        "True if the candidate path is ACTIVE, False otherwise";
+    }
+    leaf not-selected-reason {
+      type identityref {
+        base path-not-selected-reason;
+      }
+      description
+        "Candidate path not selected reason";
+    }
+  }
+
+  grouping unauthorized-steering-apps {
+    description
+      "Unauthorized to steer application properties";
+    container steering-unauthorized-applications {
+      presence
+        "Presence of this container enables unauthorized
+         steering filter. By default steering is authorized";
+      description
+        "Unauthorized to steer application properties";
+      container config {
+        description
+          "Configuration intended parameters";
+        leaf-list steering-unauthorized-application {
+          type string;
+          description
+            "List of unauthorized steering applications";
+        }
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        leaf-list steering-unauthorized-application {
+          type string;
+          description
+            "List of unauthorized steering applications";
+        }
+      }
+    }
+  }
+
+  grouping policy-properties_config {
+    description
+      "SR policy configuration grouping";
+    leaf name {
+      type string {
+        length "1..128";
+      }
+      description "SR policy name";
+    }
+    leaf color {
+      type uint32 {
+        range "1..4294967295";
+      }
+      description "Color associated with the policy";
+    }
+    leaf endpoint {
+      type inet:ip-address;
+      description "Policy end point IP address";
+    }
+    leaf admin-state {
+      type policy-admin-state;
+      default 'UP';
+      description
+        "SR policy administrative state, true for
+        enabled, false for disabled";
+    }
+  }
+
+  grouping policy-properties_state {
+    description
+      "SR policy property grouping";
+    leaf oper-state {
+      type policy-oper-state;
+      description
+        "SR policy operational state";
+    }
+    leaf transition-count {
+      type uint32;
+      description "Indicates number of up/down transitions";
+    }
+    leaf up-time {
+      type yang:date-and-time;
+      description "Policy up time in seconds";
+    }
+    leaf down-time {
+      type yang:date-and-time;
+      description "Policy down time in seconds";
+    }
+  }
+
+  grouping policy-properties {
+    description
+      "SR policy properties";
+    container config {
+      description
+        "Configuration intended parameters";
+      uses policy-properties_config;
+    }
+    container state {
+      config false;
+      description
+        "Configuration applied parameters and state";
+      uses policy-properties_config;
+      uses policy-properties_state;
+    }
+    uses binding-sid-properties;
+    uses unauthorized-steering-apps;
+  }
+
+  grouping candidate-paths {
+    description "SR policy candidate path grouping";
+    container candidate-paths {
+      description "SR policy candidate path(s) ";
+
+      list candidate-path {
+        key "provisioning-method preference distinguisher";
+        description "SR policy Candidate path(s) list entry";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description "Candidate-path name";
+        }
+        leaf provisioning-method {
+          type leafref {
+            path "../config/provisioning-method";
+          }
+          description "Candidate path provisioning method";
+        }
+        /*
+            TODO (HC2VPP-356): fixed path for preference, probably copy/paste error
+                               before pointed to "../config/name"
+        */
+        leaf preference {
+          type leafref {
+            path "../config/preference";
+          }
+          description "Candidate path preference";
+        }
+        leaf distinguisher {
+          type leafref {
+            path "../config/distinguisher";
+          }
+          description "Candidate path distinguisher";
+        }
+        container config {
+          description
+            "Configuration intended parameters";
+          uses candidate-path_config;
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses candidate-path_config;
+          uses candidate-path_state;
+        }
+        uses binding-sid-properties;
+        uses unauthorized-steering-apps;
+        uses path-segment-list-properties;
+      }
+    }
+  }
+
+  grouping policies {
+    description "SR policy grouping";
+    container policies {
+      description "SR Policy container";
+
+      list policy {
+        key "color endpoint";
+        unique "name";
+        description "SR Policy properties";
+
+        leaf name {
+          type leafref {
+            path "../config/name";
+          }
+          description "SR policy name";
+        }
+        leaf color {
+          type leafref {
+            path "../config/color";
+          }
+          description "Policy color";
+        }
+        leaf endpoint {
+          type leafref {
+            path "../config/endpoint";
+          }
+          description "Policy endpoint";
+        }
+
+        uses policy-properties;
+
+        uses candidate-paths;
+
+        uses autoroute-include;
+      }
+    }
+  }
+
+  grouping on-demand-colors_state {
+    description
+      "On demand color template state properties grouping";
+    leaf registered-application-count {
+      type uint8;
+      description "The number of registered application count";
+    }
+    leaf unused-duration {
+      type yang:date-and-time;
+      description
+        "Duration for which the on-demand policy has no
+         no registered clients";
+
+    }
+  }
+
+  grouping on-demand-colors_config {
+    description
+      "On demand color template configuration grouping";
+    leaf color {
+      type uint32;
+      description "The on-demand SR policy color";
+    }
+  }
+
+  grouping on-demand-colors {
+    description "On demand color properties grouping";
+    container on-demand-colors {
+      description "On demand color properties";
+      list on-demand-color {
+        key "color";
+        description "On demand color template list";
+
+        leaf color {
+          type leafref {
+            path "../config/color";
+          }
+          description "The on-demand SR policy color";
+        }
+        container config {
+          description
+            "Configuration intended parameters";
+          uses on-demand-colors_config;
+        }
+        container state {
+          config false;
+          description
+            "Configuration applied parameters and state";
+          uses on-demand-colors_config;
+          uses on-demand-colors_state;
+        }
+        uses path-segment-list-properties;
+      }
+    }
+  }
+
+  grouping segment-routing-te-attributes {
+    description "SRTE attributes configuration grouping";
+    container config {
+      description
+        "Configuration parameters for interface TE
+         attributes";
+      uses srte-interface-attributes_config;
+    }
+    container state {
+      config false;
+      description
+        "State parameters for interface TE metric";
+      uses srte-interface-attributes_config;
+    }
+  }
+
+  grouping srte-interface-attributes_config {
+    description
+      "global level definitions for interfaces
+      on which TE is run";
+
+    leaf name {
+      type if:interface-ref;
+      description
+        "reference to interface name";
+    }
+
+    leaf te-metric {
+      type uint32;
+      description
+        "TE specific metric for the link";
+    }
+
+    leaf-list named-affinities {
+      type string;
+      description
+        "list of admin groups (by name) on the interface";
+    }
+  }
+
+
+  grouping interfaces-grouping {
+    description
+      "Interface TE configuration data grouping";
+    container interfaces {
+      description
+        "Configuration data model for TE interfaces.";
+      list interface {
+        key "interface";
+        description "TE interfaces.";
+        leaf interface {
+          type if:interface-ref;
+          description
+            "TE interface name.";
+        }
+        /* TE interface parameters */
+        uses segment-routing-te-attributes;
+      }
+    }
+  }
+
+
+
+  grouping pcc-pce-peers_config {
+    description
+      "The PCC's PCE peers configuration properties";
+    leaf address {
+      type inet:ip-address;
+      description "Remote PCE address";
+    }
+    leaf precedence {
+      type uint32 {
+        range "0..255";
+      }
+      mandatory true;
+      description "Precedence value of this PCE";
+    }
+  }
+
+  grouping pcc_config {
+    description
+      "The PCC configuration properties";
+    leaf source-address {
+      type inet:ip-address-no-zone;
+      description
+        "Local source IP address to use on PCEP
+        sessions";
+    }
+    leaf delegation-timeout {
+      type uint32 {
+        range "0..4294967295";
+      }
+      description
+        "The maximum time delegated SR-TE policies can
+        remain up without an active connection to a
+        PCE";
+    }
+  }
+
+  grouping pcc {
+    description "Path computation client SRTE properties grouping";
+    container pcc {
+      description "Path Computation Client";
+
+      container pce-peers {
+        description "PCE peer list configuration";
+
+        list pce-peer {
+          key "address";
+          description "PCE peer list";
+          leaf address {
+            type leafref {
+              path "../config/address";
+            }
+            description "Remote PCE address";
+          }
+          // TODO (HC2VPP-356): PCE peer contains leaf address pointing to config/address, but config params were
+          //                    not encapsulated in config container.
+          container config {
+            description
+              "Configuration intended parameters";
+            uses pcc-pce-peers_config;
+          }
+        }
+      }
+      container config {
+        description
+          "Configuration intended parameters";
+        uses pcc_config;
+      }
+      container state {
+        config false;
+        description
+          "Configuration applied parameters and state";
+        uses pcc_config;
+      }
+    }
+  }
+
+  /* Main SR container */
+  container segment-routing {
+    description "Main segment routing container";
+
+    container traffic-engineering {
+      description "Traffic Engineering container";
+
+      uses named-segment-lists;
+
+      uses named-affinity-bitmaps;
+
+      uses explicit-binding-sid-rules;
+
+      uses policies;
+
+      uses interfaces-grouping;
+
+      uses on-demand-colors;
+    }
+  }
+}

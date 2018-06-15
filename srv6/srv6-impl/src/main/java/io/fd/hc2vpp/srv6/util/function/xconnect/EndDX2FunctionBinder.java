@@ -52,6 +52,8 @@ public class EndDX2FunctionBinder extends XConnectFunctionBinder {
                 "Failed to map data: {} for request: {}", data, request);
         request.setOutgoingInterfaceIndex(getInterfaceIndex(ctx.getMappingContext(), outInterface));
         request.setFunction(getBehaviourFunctionType());
+        // TODO (HC2VPP-357): check model for ENDDX2V support, when added we can set the VLAN index
+        // request.setVlanIndex(getVLanIndex(ctx.getMappingContext(), ));
         return request;
     }
 

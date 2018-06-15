@@ -31,7 +31,9 @@ import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.srv6.read.Srv6PolicyReaderFactory;
 import io.fd.hc2vpp.srv6.read.Srv6ReaderFactory;
+import io.fd.hc2vpp.srv6.write.Srv6PolicyWriterFactory;
 import io.fd.hc2vpp.srv6.write.Srv6WriterFactory;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.ModificationCache;
@@ -42,6 +44,7 @@ import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,8 +103,10 @@ public class Srv6ModuleTest {
         readerFactories.forEach(factory -> factory.init(registryBuilder));
         registryBuilder.addStructuralReader(Srv6IIds.RT, RoutingBuilder.class);
         assertNotNull(registryBuilder.build());
-        assertEquals(1, readerFactories.size());
-        assertTrue(readerFactories.iterator().next() instanceof Srv6ReaderFactory);
+        assertEquals(2, readerFactories.size());
+        Iterator<ReaderFactory> readerFactoryIterator = readerFactories.iterator();
+        assertTrue(readerFactoryIterator.next() instanceof Srv6ReaderFactory);
+        assertTrue(readerFactoryIterator.next() instanceof Srv6PolicyReaderFactory);
     }
 
     @Test
@@ -112,7 +117,9 @@ public class Srv6ModuleTest {
         final FlatWriterRegistryBuilder registryBuilder = new FlatWriterRegistryBuilder(new YangDAG());
         writerFactories.forEach(factory -> factory.init(registryBuilder));
         assertNotNull(registryBuilder.build());
-        assertEquals(1, writerFactories.size());
-        assertTrue(writerFactories.iterator().next() instanceof Srv6WriterFactory);
+        assertEquals(2, writerFactories.size());
+        Iterator<WriterFactory> writerFactoryIterator = writerFactories.iterator();
+        assertTrue(writerFactoryIterator.next() instanceof Srv6WriterFactory);
+        assertTrue(writerFactoryIterator.next() instanceof Srv6PolicyWriterFactory);
     }
 }

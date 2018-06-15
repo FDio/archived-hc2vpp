@@ -1,0 +1,74 @@
+{
+  "named-segment-lists": {
+    "named-segment-list": [
+      {
+        "name": "a::e-0",
+        "config": {
+          "name": "a::e-0"
+        },
+        "segments": {
+          "segment": [
+            {
+              "index": 1,
+              "config": {
+                "index": 1,
+                "type": "type-2",
+                "sid-value": "c::"
+              }
+            },
+            {
+              "index": 2,
+              "config": {
+                "index": 2,
+                "type": "type-2",
+                "sid-value": "b::"
+              }
+            },
+            {
+              "index": 3,
+              "config": {
+                "index": 3,
+                "type": "type-2",
+                "sid-value": "a::"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "a::e-1",
+        "config": {
+          "name": "a::e-1"
+        },
+        "segments": {
+          "segment": [
+            {
+              "index": 1,
+              "config": {
+                "index": 1,
+                "type": "type-2",
+                "sid-value": "b::"
+              }
+            },
+            {
+              "index": 2,
+              "config": {
+                "index": 2,
+                "type": "type-2",
+                "sid-value": "c::"
+              }
+            },
+            {
+              "index": 3,
+              "config": {
+                "index": 3,
+                "type": "type-2",
+                "sid-value": "a::"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

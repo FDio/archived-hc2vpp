@@ -1,0 +1,151 @@
+module vpp-oc-srte-policy {
+
+    namespace "urn:hc2vpp:params:xml:ns:yang:vpp-oc-srte-policy";
+    prefix vpp-oc-srte-policy;
+
+    import hc2vpp-oc-srte-policy {
+        prefix "oc-srte";
+        revision-date 2017-09-18;
+    }
+
+    import vpp-fib-table-management {
+        prefix fib-management;
+        revision-date 2018-05-21;
+    }
+
+    import ietf-interfaces { prefix if; }
+
+    import yang-ext { prefix "ext"; }
+
+    organization
+        "FD.io - The Fast Data Project";
+
+    contact
+        "Hc2vpp Wiki <https://wiki.fd.io/view/Hc2vpp>
+         Mailing List <hc2vpp@lists.fd.io>";
+
+    description
+        "This module provides VPP specific configuration of L2 steering policy configuration
+         and vpp policy configuration for SRv6 policies.
+
+         Copyright (c) 2018 Bell Canada, Pantheon Technologies and/or its affiliates.
+
+         Licensed under the Apache License, Version 2.0 (the 'License');
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at:
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an 'AS IS' BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.";
+
+    revision 2018-05-14 {
+        description "initial revision";
+    }
+
+    typedef segment-routing-policy-behavior {
+        type enumeration {
+            enum SegmentRoutingHeaderInsert {
+                value 0;
+            }
+            enum Encapsulation {
+                value 1;
+            }
+        }
+    }
+
+    typedef segment-routing-policy-type {
+        type enumeration {
+            enum Default {
+                value 0;
+            }
+            enum Spray {
+                value 1;
+            }
+        }
+    }
+
+    grouping sr-interfaces-config {
+        leaf input-interface {
+           type if:interface-ref;
+           description "Incoming interface for L2 traffic";
+        }
+    }
+
+    grouping sr-interfaces {
+        list interface {
+            key "input-interface";
+
+            leaf input-interface {
+                type leafref {
+                    path "../config/input-interface";
+                }
+                description "Incoming interface for L2 traffic";
+            }
+
+            container config {
+                uses sr-interfaces-config;
+            }
+
+            container state {
+                config false;
+                uses sr-interfaces-config;
+            }
+        }
+    }
+
+    grouping sr-policy-config {
+        leaf policy-type {
+           type segment-routing-policy-type;
+           description "SR policy type definition. Either Spray (1) or Default (0)";
+        }
+
+        leaf policy-behavior {
+           type segment-routing-policy-behavior;
+           description "SR policy behavior definition. Either Encapsulation (1) or SegmentRoutingHeaderInsert (0)";
+        }
+
+        leaf table-id {
+            type fib-management:fib-table-list-ref;
+            description "VRF index reference.";
+        }
+        leaf address-family {
+            type fib-management:address-family-type;
+            description "Address family reference. For SRv6 has to be always Ipv6.";
+        }
+    }
+
+    grouping sr-policy {
+        container config {
+            uses sr-policy-config;
+        }
+
+        container state {
+            config false;
+            uses sr-policy-config;
+        }
+    }
+
+    augment "/oc-srte:segment-routing/oc-srte:traffic-engineering/oc-srte:policies/oc-srte:policy/oc-srte:autoroute-include/" {
+        description "This augments autoroute-include in policy configuration with L2 steering interfaces.";
+        ext:augment-identifier "vpp-l2-autoroute-include-augmentation";
+
+        container interfaces {
+        description "L2 steering policy configuration dataplane.";
+          uses sr-interfaces;
+        }
+    }
+
+    augment "/oc-srte:segment-routing/oc-srte:traffic-engineering/oc-srte:policies/oc-srte:policy/" {
+        description "This augments vpp specific configuration for srte policy.";
+        ext:augment-identifier "vpp-sr-policy-augmentation";
+
+        container vpp-sr-policy {
+        description "VPP SR policy configuration dataplane.";
+          uses sr-policy;
+        }
+    }
+}

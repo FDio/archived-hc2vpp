@@ -1,0 +1,126 @@
+module policy-context {
+    yang-version 1;
+    namespace "urn:honeycomb:params:xml:ns:yang:policy:context";
+    prefix "policy-ctx";
+
+    import hc2vpp-oc-srte-policy {
+       prefix "oc-srte";
+       revision-date 2017-09-18;
+    }
+
+    import ietf-inet-types {
+       prefix "inet";
+    }
+
+    import naming-context {
+       prefix "nc";
+    }
+
+    import yang-ext {
+       prefix "ext";
+    }
+
+    organization
+        "FD.io - The Fast Data Project";
+
+    contact
+        "Hc2vpp Wiki <https://wiki.fd.io/view/Hc2vpp>
+         Mailing List <hc2vpp@lists.fd.io>";
+
+    description
+        "This module provides mapping between SRV6 policy identifiers (color and endpoint)
+         defined in the hc2vpp-oc-srte-policy module and identifiers used by the VPP SRV6
+         policy plugin. VPP uses BSID as policy identifier, which is mapped to color and
+         endpoint identifiers in the model.
+
+         The mapping is managed internally by the HC SRV6 plugin.
+         It is exposed as operational state data for debugging purposes.
+
+         Copyright (c) 2018 Bell Canada, Pantheon Technologies and/or its affiliates.
+
+         Licensed under the Apache License, Version 2.0 (the 'License');
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at:
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an 'AS IS' BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.";
+
+    revision "2018-06-07" {
+        description "Initial revision.";
+    }
+
+    grouping srv6-policy-context-attributes {
+        container srv6-policy-mappings {
+            list srv6-policy-mapping {
+                key "bsid";
+
+                leaf name {
+                    type string;
+                    description "Srv6 policy name";
+                }
+
+                leaf color {
+                    type uint32;
+                    description "Srv6 policy color";
+                }
+
+                leaf endpoint {
+                    type inet:ipv6-address;
+                    description "Policy endpoint represented by IPv6 address";
+                }
+
+                leaf bsid {
+                    type inet:ipv6-address;
+                    description "Policy represented by IPv6 address";
+                }
+            }
+        }
+
+    }
+
+    grouping srv6-candidate-path-context-attributes {
+        container srv6-candidate-path-mappings {
+            list srv6-candidate-path-mapping {
+                key "bsid";
+
+                leaf name {
+                    type string;
+                    description "Srv6 policy candidate path name";
+                }
+
+                leaf provisioning-method {
+                    type identityref {
+                        base oc-srte:provisioning-method-type;
+                    }
+                    description "Srv6 policy candidate path provisioning-method";
+                }
+
+                leaf preference {
+                    type uint32;
+                    description "Srv6 policy candidate path preference";
+                }
+
+                leaf distinguisher {
+                    type uint32;
+                    description "Srv6 policy candidate path distinguisher";
+                }
+
+                leaf bsid {
+                    type inet:ipv6-address;
+                    description "Candidate path represented by IPv6 address";
+                }
+            }
+        }
+    }
+
+    augment /nc:contexts {
+        ext:augment-identifier "srv6-policy-context-augmentation";
+        uses srv6-policy-context-attributes;
+        uses srv6-candidate-path-context-attributes;
+    }
+}

@@ -1,0 +1,94 @@
+{
+  "policies": {
+    "policy": [{
+      "name": "a::e",
+      "config": {
+        "name": "a::e",
+        "color": 1,
+        "endpoint": "e::1",
+        "admin-state": "UP"
+      },
+      "color": 1,
+      "endpoint": "e::1",
+      "candidate-paths": {
+        "candidate-path": [{
+          "name": "candidatePath1",
+          "provisioning-method": "provisioning-method-config",
+          "preference": 100,
+          "distinguisher": 0,
+          "config": {
+            "name": "candidatePath1",
+            "provisioning-method": "provisioning-method-config",
+            "computation-method": "path-explicitly-defined",
+            "preference": 100,
+            "distinguisher": 0
+          },
+          "binding-sid": {
+            "config": {
+              "alloc-mode": "explicit",
+              "type": "srv6",
+              "value": "a::e"
+            }
+          },
+          "segment-lists": {
+            "segment-list": [{
+              "name": "a::e-0",
+              "config": {
+                "name": "a::e-0",
+                "weight": 0
+              }
+            },
+              {
+                "name": "a::e-1",
+                "config": {
+                  "name": "a::e-1",
+                  "weight": 1
+                }
+              }
+            ]
+          }
+        }]
+      },
+      "autoroute-include": {
+        "config": {
+          "metric-type": "constant",
+          "metric-constant": 0
+        },
+        "prefixes": {
+          "config": {
+            "prefixes-all": false
+          },
+          "prefix": [{
+            "ip-prefix": "e::/64",
+            "config": {
+              "ip-prefix": "e::/64"
+            }
+          }]
+        },
+        "interfaces": {
+          "interface": [{
+            "input-interface": "loop0",
+            "config": {
+              "input-interface": "loop0"
+            }
+          }]
+        }
+      },
+      "binding-sid": {
+        "config": {
+          "alloc-mode": "explicit",
+          "type": "srv6",
+          "value": "a::e"
+        }
+      },
+      "vpp-oc-srte-policy:vpp-sr-policy": {
+        "config": {
+          "policy-type": "Default",
+          "policy-behavior": "Encapsulation",
+          "table-id": 0,
+          "address-family": "vpp-fib-table-management:ipv6"
+        }
+      }
+    }]
+  }
+}

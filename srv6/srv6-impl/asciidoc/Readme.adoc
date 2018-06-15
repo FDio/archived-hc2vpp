@@ -11,6 +11,18 @@
 - encapsulation source write and delete requests and customizers,
   based on augmentation of routing model in: +
   `hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/hc2vpp-ietf-srv6-base:encapsulation`
+- Srv6 policy read,write and delete requests and customizers based on hc2vpp-oc-srte@2017-09-18.yang +
+  model, defined in: +
+  `hc2vpp-oc-srte-policy:segment-routing/traffic-engineering/policies` +
+  and +
+  `hc2vpp-oc-srte-policy:segment-routing/traffic-engineering/named-segment-lists`
+- Srv6 L3 steering read,write and delete requests and customizers based on hc2vpp-oc-srte@2017-09-18.yang +
+  model, defined in: +
+  `hc2vpp-oc-srte-policy:segment-routing/traffic-engineering/policies/policy/autoroute-include/prefixes`
+- Srv6 L2 steering read,write and delete requests and customizers based on augmentation of +
+  hc2vpp-oc-srte@2017-09-18.yang model in vpp-oc-srte-policy@2018-05-14.yang model, defined in: +
+    `hc2vpp-oc-srte-policy:segment-routing/traffic-engineering/policies/policy/autoroute-include/vpp-oc-srte-policy:interfaces`
+
 
 == VPP mapping
 
@@ -29,7 +41,24 @@
   *IPv6 SR Set SRv6 encapsulation source params:* +
       *bsid* is the bindingSID of the SR Policy +
       *index* is the index of the SR policy
-
+- srv6 policy configuration maps to *sr_policy_add* in VPP API: +
+  *IPv6 SR policy add params:* +
+      *bsid* is the bindingSID of the SR Policy +
+      *weight* is the weight of the sid list. optional. +
+      *is_encap* is the behavior of the SR policy. (0.SRH insert // 1.Encapsulation) +
+      *type* is the type of the SR policy. (0.Default // 1.Spray) +
+      *fib_table* is the VRF where to install the FIB entry for the BSID +
+      *sids* is a srv6_sid_list object
+- srv6 steering configuration maps to *sr_steering_add_del* in VPP API: +
+  *IPv6 SR steering add/del params:* +
+      *is_del* +
+      *bsid* is the bindingSID of the SR Policy (alt to sr_policy_index) +
+      *sr_policy* is the index of the SR Policy (alt to bsid) +
+      *table_id* is the VRF where to install the FIB entry for the BSID +
+      *prefix* is the IPv4/v6 address for L3 traffic type +
+      *mask_width* is the mask for L3 traffic type +
+      *sw_if_index* is the incoming interface for L2 traffic +
+      *traffic_type* describes the type of traffic
 
 == Supported End function configurations:
 

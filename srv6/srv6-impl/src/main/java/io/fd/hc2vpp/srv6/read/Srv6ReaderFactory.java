@@ -43,7 +43,7 @@ public class Srv6ReaderFactory implements ReaderFactory {
     private LocalSidFunctionReadBindingRegistry bindingRegistry;
 
     @Inject
-    protected LocatorContextManager locatorContext;
+    private LocatorContextManager locatorContext;
 
     @Override
     public void init(@Nonnull final ModifiableReaderRegistryBuilder registry) {
