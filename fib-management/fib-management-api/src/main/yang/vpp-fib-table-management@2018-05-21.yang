@@ -33,11 +33,7 @@ module vpp-fib-table-management {
         description "Initial revision.";
     }
 
-    typedef vni-reference {
-        type uint32;
-        description "VRF index reference";
-    }
-
+    /* IDENTITIES */
     identity address-family-identity {
         description "Base identity from which identities describing address families are derived.";
     }
@@ -52,6 +48,28 @@ module vpp-fib-table-management {
         description "This identity represents an IPv6 address family.";
     }
 
+    /* TYPE DEFINITIONS */
+    typedef vni-reference {
+        type uint32;
+        description "VRF index reference";
+    }
+
+    typedef address-family-type {
+        type identityref {
+            base vpp-fib-table-management:address-family-identity;
+        }
+        description "This type is used to refer to a FIB table type";
+    }
+
+    typedef fib-table-list-ref {
+        type leafref {
+            path "/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/" +
+                 "vpp-fib-table-management:table/vpp-fib-table-management:table-id";
+        }
+        description "This type is used by data models that need to reference a FIB table";
+    }
+
+    /* GROUPINGS */
     grouping vpp-fib-table-management {
         container fib-tables {
             description
@@ -109,6 +127,7 @@ module vpp-fib-table-management {
         }
     }
 
+    /* MAIN CONTAINER */
     container fib-table-management {
         description "Configuration parameters for FIB table management";
 
