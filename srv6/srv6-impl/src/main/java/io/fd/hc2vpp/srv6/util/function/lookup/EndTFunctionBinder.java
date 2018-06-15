@@ -18,13 +18,21 @@ package io.fd.hc2vpp.srv6.util.function.lookup;
 
 import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.srv6.write.sid.request.TableLookupLocalSidRequest;
+import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.vpp.jvpp.core.dto.SrLocalsidsDetails;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.Sid;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.SidBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.EndTBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.EndT;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.Srv6EndpointType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.TableId;
 
 public class EndTFunctionBinder extends TableLookupFunctionBinder {
+
+    private static final int END_T_FUNCTION_VALUE = 3;
 
     public EndTFunctionBinder(@Nonnull FutureJVppCore api) {
         super(api);
@@ -40,8 +48,21 @@ public class EndTFunctionBinder extends TableLookupFunctionBinder {
     }
 
     @Override
+    public void translateFromDump(@Nonnull SrLocalsidsDetails data, @Nonnull ReadContext ctx,
+                                  @Nonnull final SidBuilder builder) {
+        builder.setEndT(
+                new EndTBuilder().setLookupTableIpv6(new TableId(Integer.toUnsignedLong(data.xconnectIfaceOrVrfTable)))
+                        .build());
+    }
+
+    @Override
     @Nonnull
     public Class<? extends Srv6EndpointType> getHandledFunctionType() {
-        return org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.EndT.class;
+        return EndT.class;
+    }
+
+    @Override
+    public int getBehaviourFunctionType() {
+        return END_T_FUNCTION_VALUE;
     }
 }

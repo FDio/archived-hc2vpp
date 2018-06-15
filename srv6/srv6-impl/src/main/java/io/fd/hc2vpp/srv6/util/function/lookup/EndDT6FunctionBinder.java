@@ -18,14 +18,21 @@ package io.fd.hc2vpp.srv6.util.function.lookup;
 
 import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.srv6.write.sid.request.TableLookupLocalSidRequest;
+import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.vpp.jvpp.core.dto.SrLocalsidsDetails;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.Sid;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.SidBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.EndDt6Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.EndDT6;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.Srv6EndpointType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.TableId;
 
 public class EndDT6FunctionBinder extends TableLookupFunctionBinder {
+
+    private static final int END_DT6_FUNCTION_VALUE = 8;
 
     public EndDT6FunctionBinder(@Nonnull final FutureJVppCore api) {
         super(api);
@@ -42,8 +49,20 @@ public class EndDT6FunctionBinder extends TableLookupFunctionBinder {
     }
 
     @Override
+    public void translateFromDump(@Nonnull SrLocalsidsDetails data, @Nonnull ReadContext ctx,
+                                  @Nonnull final SidBuilder builder) {
+        builder.setEndDt6(new EndDt6Builder()
+                .setLookupTableIpv6(new TableId(Integer.toUnsignedLong(data.xconnectIfaceOrVrfTable))).build());
+    }
+
+    @Override
     @Nonnull
     public Class<? extends Srv6EndpointType> getHandledFunctionType() {
         return EndDT6.class;
+    }
+
+    @Override
+    public int getBehaviourFunctionType() {
+        return END_DT6_FUNCTION_VALUE;
     }
 }

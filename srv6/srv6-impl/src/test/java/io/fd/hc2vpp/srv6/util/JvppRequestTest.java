@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import io.fd.hc2vpp.common.test.util.FutureProducer;
 import io.fd.hc2vpp.common.test.util.NamingContextHelper;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionReadBindingRegistry;
 import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionWriteBindingRegistry;
 import io.fd.hc2vpp.srv6.util.function.lookup.EndDT4FunctionBinder;
 import io.fd.hc2vpp.srv6.util.function.lookup.EndDT6FunctionBinder;
@@ -43,6 +44,8 @@ import org.opendaylight.mdsal.binding.generator.impl.ModuleInfoBackedContext;
 
 @RunWith(HoneycombTestRunner.class)
 public abstract class JvppRequestTest implements FutureProducer, NamingContextHelper {
+    protected static final LocalSidFunctionReadBindingRegistry READ_REGISTRY =
+            new LocalSidFunctionReadBindingRegistry();
     protected static final LocalSidFunctionWriteBindingRegistry WRITE_REGISTRY =
             new LocalSidFunctionWriteBindingRegistry();
 
@@ -69,14 +72,22 @@ public abstract class JvppRequestTest implements FutureProducer, NamingContextHe
         EndDX2FunctionBinder endDX2FunctionBinder = new EndDX2FunctionBinder(api, interfaceContext);
         EndDX4FunctionBinder endDX4FunctionBinder = new EndDX4FunctionBinder(api, interfaceContext);
         EndDX6FunctionBinder endDX6FunctionBinder = new EndDX6FunctionBinder(api, interfaceContext);
-        WRITE_REGISTRY.registerFunctionType(endFunctionBinder);
-        WRITE_REGISTRY.registerFunctionType(endTFunctionBinder);
-        WRITE_REGISTRY.registerFunctionType(endDT4FunctionBinder);
-        WRITE_REGISTRY.registerFunctionType(endDT6FunctionBinder);
-        WRITE_REGISTRY.registerFunctionType(endXFunctionBinder);
-        WRITE_REGISTRY.registerFunctionType(endDX2FunctionBinder);
-        WRITE_REGISTRY.registerFunctionType(endDX4FunctionBinder);
-        WRITE_REGISTRY.registerFunctionType(endDX6FunctionBinder);
+        READ_REGISTRY.registerReadFunctionType(endFunctionBinder);
+        READ_REGISTRY.registerReadFunctionType(endTFunctionBinder);
+        READ_REGISTRY.registerReadFunctionType(endDT4FunctionBinder);
+        READ_REGISTRY.registerReadFunctionType(endDT6FunctionBinder);
+        READ_REGISTRY.registerReadFunctionType(endXFunctionBinder);
+        READ_REGISTRY.registerReadFunctionType(endDX2FunctionBinder);
+        READ_REGISTRY.registerReadFunctionType(endDX4FunctionBinder);
+        READ_REGISTRY.registerReadFunctionType(endDX6FunctionBinder);
+        WRITE_REGISTRY.registerWriteFunctionType(endFunctionBinder);
+        WRITE_REGISTRY.registerWriteFunctionType(endTFunctionBinder);
+        WRITE_REGISTRY.registerWriteFunctionType(endDT4FunctionBinder);
+        WRITE_REGISTRY.registerWriteFunctionType(endDT6FunctionBinder);
+        WRITE_REGISTRY.registerWriteFunctionType(endXFunctionBinder);
+        WRITE_REGISTRY.registerWriteFunctionType(endDX2FunctionBinder);
+        WRITE_REGISTRY.registerWriteFunctionType(endDX4FunctionBinder);
+        WRITE_REGISTRY.registerWriteFunctionType(endDX6FunctionBinder);
         init();
     }
 

@@ -24,14 +24,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.
 
 /**
  * Binder interface, which is used to map yang model data classes of local sid functions to local sid function requests
- * used to configure endpoint functions on VPP. It uses behavior function type integer value defined by VPP API, to find
- * suitable binder. This value is translated to {@link Srv6EndpointType} in model, which represents the same endpoint
- * function as defined by VPP API.
+ * used to configure endpoint functions on VPP. It uses {@link Srv6EndpointType} class value, to find suitable binder.
+ * This value is translated to behavior function type integer value defined by VPP API, which represents the same
+ * function as defined by the model.
  *
  * @param <T> Type which extends general interface for {@link LocalSidFunctionRequest} and represents template binder
  *            that is used to process end function data represented by provided class type.
  */
-public interface LocalSidFunctionBinder<T extends LocalSidFunctionRequest> {
+public interface LocalSidFunctionWriteBinder<T extends LocalSidFunctionRequest> {
 
     /**
      * Binds request accordingly to type of function implemented by this interface
@@ -43,20 +43,14 @@ public interface LocalSidFunctionBinder<T extends LocalSidFunctionRequest> {
 
     /**
      * Provides Endpoint function type class.
+     *
      * @return Endpoint function class
      */
     @Nonnull
     Class<? extends Srv6EndpointType> getHandledFunctionType();
 
     /**
-     * Provide behavior function type integer value.
-     *
-     * @return integer value of behaviour function type as defined in VPP api
-     */
-    int getBehaviourFunctionType();
-
-    /**
-     * Checks whether binder can handle provided data
+     * Checks whether binder can handle provided Sid data from model
      *
      * @param data sid function data to be checked
      * @return true if function binder is able to process provided data, false otherwise

@@ -28,23 +28,40 @@ import org.slf4j.LoggerFactory;
 abstract class LocalSidFunctionBindingRegistry<T extends LocalSidFunctionRequest> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalSidFunctionBindingRegistry.class);
-    final List<LocalSidFunctionBinder<T>> binders;
+    final List<LocalSidFunctionWriteBinder<T>> wBinders;
+    final List<LocalSidFunctionReadBinder> rBinders;
+
 
     LocalSidFunctionBindingRegistry() {
-        binders = new ArrayList<>();
+        wBinders = new ArrayList<>();
+        rBinders = new ArrayList<>();
     }
 
     @SuppressWarnings("unchecked")
-    public void registerFunctionType(@Nonnull final LocalSidFunctionBinder binder) {
+    public void registerWriteFunctionType(@Nonnull final LocalSidFunctionWriteBinder binder) {
         checkNotNull(binder, "Cannot register null binder");
         if (!isFunctionRegistered(binder)) {
-            binders.add(binder);
+            wBinders.add(binder);
         } else {
             LOG.warn("Binder for class already registered. Canceling registration for {}.", binder);
         }
     }
 
-    private boolean isFunctionRegistered(@Nonnull final LocalSidFunctionBinder binder) {
-        return binders.stream().parallel().anyMatch(locBinder -> locBinder.getClass().equals(binder.getClass()));
+    private boolean isFunctionRegistered(@Nonnull final LocalSidFunctionWriteBinder binder) {
+        return wBinders.stream().parallel().anyMatch(locBinder -> locBinder.getClass().equals(binder.getClass()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public void registerReadFunctionType(@Nonnull final LocalSidFunctionReadBinder binder) {
+        checkNotNull(binder, "Cannot register null binder");
+        if (!isFunctionRegistered(binder)) {
+            rBinders.add(binder);
+        } else {
+            LOG.warn("Binder for class already registered. Canceling registration for {}.", binder);
+        }
+    }
+
+    private boolean isFunctionRegistered(@Nonnull final LocalSidFunctionReadBinder binder) {
+        return rBinders.stream().parallel().anyMatch(locBinder -> locBinder.getClass().equals(binder.getClass()));
     }
 }

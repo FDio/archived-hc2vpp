@@ -18,16 +18,22 @@ package io.fd.hc2vpp.srv6.util.function.nofunction;
 
 import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
-import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionBinder;
+import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionReadBinder;
+import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionWriteBinder;
 import io.fd.hc2vpp.srv6.write.sid.request.NoProtocolLocalSidRequest;
+import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.vpp.jvpp.core.dto.SrLocalsidsDetails;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.Sid;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.SidBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.EndBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.End;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.Srv6EndpointType;
 
 public class EndFunctionBinder extends FutureJVppCustomizer implements
-        LocalSidFunctionBinder<NoProtocolLocalSidRequest> {
+        LocalSidFunctionWriteBinder<NoProtocolLocalSidRequest>, LocalSidFunctionReadBinder {
 
     private static final int END_FUNCTION_VALUE = 1;
 
@@ -45,10 +51,16 @@ public class EndFunctionBinder extends FutureJVppCustomizer implements
         return request;
     }
 
+    @Override
+    public void translateFromDump(@Nonnull SrLocalsidsDetails data, @Nonnull ReadContext ctx,
+                                  @Nonnull final SidBuilder builder) {
+        builder.setEnd(new EndBuilder().build());
+    }
+
     @Nonnull
     @Override
     public Class<? extends Srv6EndpointType> getHandledFunctionType() {
-        return org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.End.class;
+        return End.class;
     }
 
     @Override

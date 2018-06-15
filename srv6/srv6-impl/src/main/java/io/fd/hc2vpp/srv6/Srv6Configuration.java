@@ -19,17 +19,10 @@ package io.fd.hc2vpp.srv6;
 public class Srv6Configuration {
 
     /**
-     * Used to map Srv6 Sids to locator length values
+     * Provides default locator length value for locator context. Since local SID is represented as IPv6 address, which
+     * represents LOCATOR+FUNCTION. This address with total length of 128 bits is divided into these parts by defining
+     * locator length. Because ietf-srv6-types model defines local SIds OpCode (function) as uint32, it leaves 96 bits
+     * for the locator part. This way we can use full range of the IPv6 address without loosing any bits.
      */
-    public static final String LOCATOR_CONTEXT = "locator-context";
-
-    /**
-     * Locator length context child name for locator length
-     */
-    public static final String LOCATOR_LENGTH = "locator-length";
-
-    /**
-     * Locator length context child name for locator length
-     */
-    public static final String LOCATOR_IPV6_ADDRESS = "locator-ipv6-address";
+    public static final Integer DEFAULT_LOCATOR_LENGTH = 96;
 }

@@ -19,6 +19,7 @@ package io.fd.hc2vpp.srv6.write;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.srv6.Srv6IIds;
+import io.fd.hc2vpp.srv6.util.LocatorContextManager;
 import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionWriteBindingRegistry;
 import io.fd.hc2vpp.srv6.write.encap.source.EncapsulationSourceCustomizer;
 import io.fd.hc2vpp.srv6.write.sid.LocatorCustomizer;
@@ -36,6 +37,8 @@ public class Srv6WriterFactory implements WriterFactory {
     private FutureJVppCore futureJVppCore;
     @Inject
     private LocalSidFunctionWriteBindingRegistry bindingRegistry;
+    @Inject
+    protected LocatorContextManager locatorContext;
 
     @Override
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
@@ -43,7 +46,7 @@ public class Srv6WriterFactory implements WriterFactory {
         registry.add(new GenericWriter<>(Srv6IIds.RT_SRV6, new Srv6Customizer()));
 
         registry.subtreeAdd(ImmutableSet.of(Srv6IIds.LOC_PREFIX, Srv6IIds.LOC_FT_AUG, Srv6IIds.LOC_FT),
-                new GenericWriter<>(Srv6IIds.RT_SRV6_LOCS_LOCATOR, new LocatorCustomizer(futureJVppCore)));
+                new GenericWriter<>(Srv6IIds.RT_SRV6_LOCS_LOCATOR, new LocatorCustomizer(futureJVppCore, locatorContext)));
 
         registry.add(new GenericWriter<>(Srv6IIds.RT_SRV6_ENCAP, new EncapsulationSourceCustomizer(futureJVppCore)));
 

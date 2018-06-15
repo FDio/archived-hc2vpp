@@ -19,14 +19,21 @@ package io.fd.hc2vpp.srv6.util.function.xconnect;
 import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.srv6.write.sid.request.XConnectLocalSidRequest;
+import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.vpp.jvpp.core.dto.SrLocalsidsDetails;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.Sid;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.SidBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.EndDx2Builder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.end.dx2.PathsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.EndDX2;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.Srv6EndpointType;
 
 public class EndDX2FunctionBinder extends XConnectFunctionBinder {
+
+    private static final int END_DX2_FUNCTION_VALUE = 5;
 
     public EndDX2FunctionBinder(@Nonnull final FutureJVppCore api, @Nonnull final NamingContext interfaceContext) {
         super(api, interfaceContext);
@@ -48,9 +55,21 @@ public class EndDX2FunctionBinder extends XConnectFunctionBinder {
         return request;
     }
 
+    @Override
+    public void translateFromDump(@Nonnull SrLocalsidsDetails data, @Nonnull ReadContext ctx,
+                                  @Nonnull final SidBuilder builder) {
+        String interfaceName = getInterfaceName(ctx.getMappingContext(), data.xconnectIfaceOrVrfTable);
+        builder.setEndDx2(new EndDx2Builder().setPaths(new PathsBuilder().setInterface(interfaceName).build()).build());
+    }
+
     @Nonnull
     @Override
     public Class<? extends Srv6EndpointType> getHandledFunctionType() {
         return EndDX2.class;
+    }
+
+    @Override
+    public int getBehaviourFunctionType() {
+        return END_DX2_FUNCTION_VALUE;
     }
 }

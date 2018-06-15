@@ -17,18 +17,20 @@
 package io.fd.hc2vpp.srv6.util.function;
 
 import io.fd.hc2vpp.srv6.write.sid.request.LocalSidFunctionRequest;
+import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.util.RWUtils;
-import io.fd.honeycomb.translate.write.WriteContext;
+import io.fd.vpp.jvpp.core.dto.SrLocalsidsDetails;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.Sid;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6._static.cfg.SidBuilder;
 
-public class LocalSidFunctionWriteBindingRegistry<T extends LocalSidFunctionRequest>
+public class LocalSidFunctionReadBindingRegistry<T extends LocalSidFunctionRequest>
         extends LocalSidFunctionBindingRegistry<T> {
 
-    public LocalSidFunctionRequest bind(final Sid localSid, @Nonnull final WriteContext ctx) {
-        return wBinders.parallelStream()
-                .filter(toLocalSidFunctionBinder -> toLocalSidFunctionBinder.canHandle(localSid))
-                .map(binder -> binder.createWriteRequestAndBind(localSid, ctx))
-                .collect(RWUtils.singleItemCollector());
+    public void bind(@Nonnull final SrLocalsidsDetails details, @Nonnull final ReadContext ctx,
+                     @Nonnull final SidBuilder builder) {
+        rBinders.parallelStream()
+                .filter(localSidFunctionBinder -> localSidFunctionBinder.canHandle(details.behavior))
+                .collect(RWUtils.singleItemCollector())
+                .translateFromDump(details, ctx, builder);
     }
 }

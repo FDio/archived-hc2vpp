@@ -25,6 +25,7 @@ import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.srv6.Srv6IIds;
 import io.fd.hc2vpp.srv6.util.JvppRequestTest;
+import io.fd.hc2vpp.srv6.util.LocatorContextManager;
 import io.fd.vpp.jvpp.core.dto.SrLocalsidAddDel;
 import io.fd.vpp.jvpp.core.dto.SrLocalsidAddDelReply;
 import java.util.Arrays;
@@ -59,6 +60,9 @@ public abstract class LocalSidRequestTest extends JvppRequestTest {
     protected static Locator LOCATOR = new LocatorBuilder().setName("a::").setPrefix(
             new PrefixBuilder().setLength(new Srv6LocatorLen((short) 64)).setAddress(new Ipv6Address("a::")).build())
             .build();
+
+    @Mock
+    protected static LocatorContextManager locatorContext;
 
     @Captor
     ArgumentCaptor<SrLocalsidAddDel> requestcaptor;

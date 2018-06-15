@@ -19,6 +19,7 @@ package io.fd.hc2vpp.srv6.util.function;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.fib.management.FibManagementIIds;
 import io.fd.hc2vpp.srv6.util.JvppRequestTest;
 import io.fd.hc2vpp.srv6.write.sid.request.LocalSidFunctionRequest;
@@ -26,6 +27,7 @@ import io.fd.hc2vpp.srv6.write.sid.request.NoProtocolLocalSidRequest;
 import io.fd.hc2vpp.srv6.write.sid.request.TableLookupLocalSidRequest;
 import io.fd.hc2vpp.srv6.write.sid.request.XConnectLocalSidRequest;
 import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.vpp.jvpp.core.dto.SrLocalsidsDetails;
 import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
@@ -114,6 +116,16 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
     }
 
     @Test
+    public void testEndVpp() {
+        SrLocalsidsDetails details = new SrLocalsidsDetails();
+        details.behavior = 1;
+        details.endPsp = 0;
+        SidBuilder builder = new SidBuilder();
+        READ_REGISTRY.bind(details, readCtx, builder);
+        Assert.assertNotNull(builder.getEnd());
+    }
+
+    @Test
     public void testEndX() {
         EndX endX = new EndXBuilder()
                 .setPaths(new PathsBuilder().setPath(Collections.singletonList(
@@ -138,6 +150,20 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
     }
 
     @Test
+    public void testEndXVpp() {
+        SrLocalsidsDetails details = new SrLocalsidsDetails();
+        details.behavior = 2;
+        details.endPsp = 0;
+        details.xconnectNhAddr6 = AddressTranslator.INSTANCE.ipv6AddressNoZoneToArray(A);
+        details.xconnectIfaceOrVrfTable = 1;
+        SidBuilder builder = new SidBuilder();
+        READ_REGISTRY.bind(details, readCtx, builder);
+        Assert.assertNotNull(builder.getEndX());
+        Assert.assertEquals(LOCAL_0, builder.getEndX().getPaths().getPath().get(0).getInterface());
+        Assert.assertEquals(A_NO_ZONE, builder.getEndX().getPaths().getPath().get(0).getNextHop());
+    }
+
+    @Test
     public void testEndDX2() {
         EndDx2 endDx2 = new EndDx2Builder().setPaths(
                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6._static.rev180301.srv6.sid.config.end.dx2.PathsBuilder()
@@ -153,6 +179,17 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
         XConnectLocalSidRequest xConnectRequest = XConnectLocalSidRequest.class.cast(request);
         Assert.assertNull(xConnectRequest.getNextHopAddress());
         Assert.assertEquals(1, xConnectRequest.getOutgoingInterfaceIndex());
+    }
+
+    @Test
+    public void testEndDX2Vpp() {
+        SrLocalsidsDetails details = new SrLocalsidsDetails();
+        details.behavior = 5;
+        details.xconnectIfaceOrVrfTable = 1;
+        SidBuilder builder = new SidBuilder();
+        READ_REGISTRY.bind(details, readCtx, builder);
+        Assert.assertNotNull(builder.getEndDx2());
+        Assert.assertEquals(LOCAL_0, builder.getEndDx2().getPaths().getInterface());
     }
 
     @Test
@@ -175,6 +212,19 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
         XConnectLocalSidRequest xConnectRequest = XConnectLocalSidRequest.class.cast(request);
         Assert.assertEquals(A, xConnectRequest.getNextHopAddress().getIpv6Address());
         Assert.assertEquals(1, xConnectRequest.getOutgoingInterfaceIndex());
+    }
+
+    @Test
+    public void testEndDX6Vpp() {
+        SrLocalsidsDetails details = new SrLocalsidsDetails();
+        details.behavior = 6;
+        details.xconnectIfaceOrVrfTable = 1;
+        details.xconnectNhAddr6 = AddressTranslator.INSTANCE.ipv6AddressNoZoneToArray(A);
+        SidBuilder builder = new SidBuilder();
+        READ_REGISTRY.bind(details, readCtx, builder);
+        Assert.assertNotNull(builder.getEndDx6());
+        Assert.assertEquals(LOCAL_0, builder.getEndDx6().getPaths().getPath().get(0).getInterface());
+        Assert.assertEquals(A_NO_ZONE, builder.getEndDx6().getPaths().getPath().get(0).getNextHop());
     }
 
     @Test
@@ -202,6 +252,19 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
     }
 
     @Test
+    public void testEndDX4Vpp() {
+        SrLocalsidsDetails details = new SrLocalsidsDetails();
+        details.behavior = 7;
+        details.xconnectIfaceOrVrfTable = 1;
+        details.xconnectNhAddr4 = AddressTranslator.INSTANCE.ipv4AddressNoZoneToArray(A_V4);
+        SidBuilder builder = new SidBuilder();
+        READ_REGISTRY.bind(details, readCtx, builder);
+        Assert.assertNotNull(builder.getEndDx4());
+        Assert.assertEquals(LOCAL_0, builder.getEndDx4().getPaths().getPath().get(0).getInterface());
+        Assert.assertEquals(A_V4, builder.getEndDx4().getPaths().getPath().get(0).getNextHop());
+    }
+
+    @Test
     public void testEndT() {
         EndT endT = new EndTBuilder().setLookupTableIpv6(TABLE_ID_4).build();
         Sid localSid = new SidBuilder()
@@ -214,6 +277,18 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
         Assert.assertEquals(3, request.getFunction());
         TableLookupLocalSidRequest tableLookupRequest = TableLookupLocalSidRequest.class.cast(request);
         Assert.assertEquals(TABLE_ID_4.getValue().intValue(), tableLookupRequest.getLookupFibTable());
+    }
+
+    @Test
+    public void testEndDTVpp() {
+        SrLocalsidsDetails details = new SrLocalsidsDetails();
+        details.behavior = 3;
+        details.xconnectIfaceOrVrfTable = TABLE_ID_4.getValue().intValue();
+        SidBuilder builder = new SidBuilder();
+        READ_REGISTRY.bind(details, readCtx, builder);
+        Assert.assertNotNull(builder.getEndT());
+        Assert.assertEquals(TABLE_ID_4.getValue().intValue(),
+                builder.getEndT().getLookupTableIpv6().getValue().intValue());
     }
 
     @Test
@@ -231,6 +306,18 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
     }
 
     @Test
+    public void testEndDT6Vpp() {
+        SrLocalsidsDetails details = new SrLocalsidsDetails();
+        details.behavior = 8;
+        details.xconnectIfaceOrVrfTable = TABLE_ID_4.getValue().intValue();
+        SidBuilder builder = new SidBuilder();
+        READ_REGISTRY.bind(details, readCtx, builder);
+        Assert.assertNotNull(builder.getEndDt6());
+        Assert.assertEquals(TABLE_ID_4.getValue().intValue(),
+                builder.getEndDt6().getLookupTableIpv6().getValue().intValue());
+    }
+
+    @Test
     public void testEndDT4() {
         EndDt4 endDt4 = new EndDt4Builder().setLookupTableIpv4(TABLE_ID_4).build();
         Sid localSid = new SidBuilder()
@@ -242,5 +329,17 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
         Assert.assertEquals(9, request.getFunction());
         TableLookupLocalSidRequest tableLookupRequest = TableLookupLocalSidRequest.class.cast(request);
         Assert.assertEquals(TABLE_ID_4.getValue().intValue(), tableLookupRequest.getLookupFibTable());
+    }
+
+    @Test
+    public void testEndDT4Vpp() {
+        SrLocalsidsDetails details = new SrLocalsidsDetails();
+        details.behavior = 9;
+        details.xconnectIfaceOrVrfTable = TABLE_ID_4.getValue().intValue();
+        SidBuilder builder = new SidBuilder();
+        READ_REGISTRY.bind(details, readCtx, builder);
+        Assert.assertNotNull(builder.getEndDt4());
+        Assert.assertEquals(TABLE_ID_4.getValue().intValue(),
+                builder.getEndDt4().getLookupTableIpv4().getValue().intValue());
     }
 }

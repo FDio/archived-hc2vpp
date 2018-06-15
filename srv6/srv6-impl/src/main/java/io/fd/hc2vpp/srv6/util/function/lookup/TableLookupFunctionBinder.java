@@ -16,21 +16,14 @@
 
 package io.fd.hc2vpp.srv6.util.function.lookup;
 
-import static com.google.common.base.Preconditions.checkState;
-
-import com.google.common.collect.ImmutableMap;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.fib.management.FibManagementIIds;
-import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionBinder;
+import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionReadBinder;
+import io.fd.hc2vpp.srv6.util.function.LocalSidFunctionWriteBinder;
 import io.fd.hc2vpp.srv6.write.sid.request.TableLookupLocalSidRequest;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
-import java.util.Map;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.EndDT4;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.EndDT6;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.EndT;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.srv6.types.rev180301.Srv6EndpointType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.AddressFamilyIdentity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv6;
@@ -40,18 +33,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 abstract class TableLookupFunctionBinder extends FutureJVppCustomizer
-        implements LocalSidFunctionBinder<TableLookupLocalSidRequest> {
-
-    private static final Map<Class<? extends Srv6EndpointType>, Integer> REGISTER = ImmutableMap.of(
-            EndT.class, 3,
-            EndDT6.class, 8,
-            EndDT4.class, 9
-    );
+        implements LocalSidFunctionWriteBinder<TableLookupLocalSidRequest>, LocalSidFunctionReadBinder {
 
     TableLookupFunctionBinder(@Nonnull final FutureJVppCore api) {
         super(api);
-        checkState(REGISTER.containsKey(getHandledFunctionType()),
-                "Unsupported type of Local SID function %s", getHandledFunctionType());
     }
 
     TableLookupLocalSidRequest bindData(TableLookupLocalSidRequest request, int tableIndex, final boolean isIpv6,
@@ -67,10 +52,5 @@ abstract class TableLookupFunctionBinder extends FutureJVppCustomizer
         request.setLookupFibTable(tableIndex);
         request.setFunction(getBehaviourFunctionType());
         return request;
-    }
-
-    @Override
-    public int getBehaviourFunctionType() {
-        return REGISTER.get(getHandledFunctionType());
     }
 }

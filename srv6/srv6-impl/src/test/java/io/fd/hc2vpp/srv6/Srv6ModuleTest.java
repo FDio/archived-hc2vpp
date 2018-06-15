@@ -31,10 +31,13 @@ import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
+import io.fd.hc2vpp.srv6.read.Srv6ReaderFactory;
 import io.fd.hc2vpp.srv6.write.Srv6WriterFactory;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.ModificationCache;
+import io.fd.honeycomb.translate.impl.read.registry.CompositeReaderRegistryBuilder;
 import io.fd.honeycomb.translate.impl.write.registry.FlatWriterRegistryBuilder;
+import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.util.YangDAG;
 import io.fd.honeycomb.translate.write.WriterFactory;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
@@ -44,6 +47,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.RoutingBuilder;
 
 public class Srv6ModuleTest {
 
@@ -75,6 +79,9 @@ public class Srv6ModuleTest {
     private VppClassifierContextManager classifierContextManager;
 
     @Inject
+    private Set<ReaderFactory> readerFactories = new HashSet<>();
+
+    @Inject
     private Set<WriterFactory> writerFactories = new HashSet<>();
 
     @Before
@@ -82,6 +89,19 @@ public class Srv6ModuleTest {
         initMocks(this);
         interfaceContext = new NamingContext("interfaceContext", "interfaceContext");
         Guice.createInjector(new Srv6Module(), BoundFieldModule.of(this)).injectMembers(this);
+    }
+
+    @Test
+    public void testReaderFactories() {
+        assertThat(readerFactories, is(not(empty())));
+
+        // Test registration process (all dependencies present, topological order of readers does exist, etc.)
+        final CompositeReaderRegistryBuilder registryBuilder = new CompositeReaderRegistryBuilder(new YangDAG());
+        readerFactories.forEach(factory -> factory.init(registryBuilder));
+        registryBuilder.addStructuralReader(Srv6IIds.RT, RoutingBuilder.class);
+        assertNotNull(registryBuilder.build());
+        assertEquals(1, readerFactories.size());
+        assertTrue(readerFactories.iterator().next() instanceof Srv6ReaderFactory);
     }
 
     @Test

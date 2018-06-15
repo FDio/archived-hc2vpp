@@ -30,7 +30,7 @@ import io.fd.hc2vpp.srv6.util.function.xconnect.EndXFunctionBinder;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.inject.Named;
 
-public class LocalSidFunctionWriteBindingRegistryProvider implements Provider<LocalSidFunctionWriteBindingRegistry> {
+public class LocalSidFunctionReadBindingRegistryProvider implements Provider<LocalSidFunctionReadBindingRegistry> {
 
     @Inject
     @Named("interface-context")
@@ -38,18 +38,18 @@ public class LocalSidFunctionWriteBindingRegistryProvider implements Provider<Lo
 
     @Inject
     private FutureJVppCore api;
-    private final LocalSidFunctionWriteBindingRegistry registry = new LocalSidFunctionWriteBindingRegistry();
+    private final LocalSidFunctionReadBindingRegistry registry = new LocalSidFunctionReadBindingRegistry();
 
     @Override
-    public LocalSidFunctionWriteBindingRegistry get() {
-        registry.registerWriteFunctionType(new EndFunctionBinder(api));
-        registry.registerWriteFunctionType(new EndTFunctionBinder(api));
-        registry.registerWriteFunctionType(new EndDT4FunctionBinder(api));
-        registry.registerWriteFunctionType(new EndDT6FunctionBinder(api));
-        registry.registerWriteFunctionType(new EndXFunctionBinder(api, interfaceContext));
-        registry.registerWriteFunctionType(new EndDX2FunctionBinder(api, interfaceContext));
-        registry.registerWriteFunctionType(new EndDX4FunctionBinder(api, interfaceContext));
-        registry.registerWriteFunctionType(new EndDX6FunctionBinder(api, interfaceContext));
+    public LocalSidFunctionReadBindingRegistry get() {
+        registry.registerReadFunctionType(new EndFunctionBinder(api));
+        registry.registerReadFunctionType(new EndTFunctionBinder(api));
+        registry.registerReadFunctionType(new EndDT4FunctionBinder(api));
+        registry.registerReadFunctionType(new EndDT6FunctionBinder(api));
+        registry.registerReadFunctionType(new EndXFunctionBinder(api, interfaceContext));
+        registry.registerReadFunctionType(new EndDX2FunctionBinder(api, interfaceContext));
+        registry.registerReadFunctionType(new EndDX4FunctionBinder(api, interfaceContext));
+        registry.registerReadFunctionType(new EndDX6FunctionBinder(api, interfaceContext));
 
         return registry;
     }
