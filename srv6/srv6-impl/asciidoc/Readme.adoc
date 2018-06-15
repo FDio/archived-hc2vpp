@@ -1,0 +1,43 @@
+= srv6-impl
+
+== Implemented features:
+
+- locator read,write and delete requests and customizers,
+  based on augmentation of routing model in: +
+  `hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator`
+- local sid read,write and delete requests and customizers,
+  based on augmentation of routing model in: +
+  `hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/static/local-sids/sid/`
+- encapsulation source write and delete requests and customizers,
+  based on augmentation of routing model in: +
+  `hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/hc2vpp-ietf-srv6-base:encapsulation`
+
+== VPP mapping
+
+- local sid and locator configuration maps to *sr_localsid_add_del* in VPP API:
+  *IPv6 SR LocalSID add/del params:* +
+      *is_del* Boolean of whether its a delete instruction +
+      *localsid_addr* IPv6 address of the localsid +
+      *end_psp* Boolean of whether decapsulation is allowed in this function +
+      *behavior* Type of behavior (function) for this localsid +
+      *sw_if_index* Only for L2/L3 xconnect. OIF. In VRF variant the fib_table. +
+      *vlan_index* Only for L2 xconnect. Outgoing VLAN tag. +
+      *fib_table*  FIB table in which we should install the localsid entry +
+      *nh_addr6* Next Hop IPv6 address. Only for L2/L3 xconnect. +
+      *nh_addr4* Next Hop IPv6 address. Only for L2/L3 xconnect. +
+- encapsulation source maps to *sr_set_encap_source* in VPP API: +
+  *IPv6 SR Set SRv6 encapsulation source params:* +
+      *bsid* is the bindingSID of the SR Policy +
+      *index* is the index of the SR policy
+
+
+== Supported End function configurations:
+
+- *END* (VPP behavior type 1)
+- *END X* (VPP behavior type 2)
+- *END DX2* (VPP behavior type 5)
+- *END DX4* (VPP behavior type 7)
+- *END DX6* (VPP behavior type 6)
+- *END T* (VPP behavior type 3)
+- *END DT4* (VPP behavior type 9)
+- *END DT6* (VPP behavior type 8)

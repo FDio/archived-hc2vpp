@@ -1,0 +1,15 @@
+= srv6-api
+
+SRv6 API consists of models obtained
+from https://datatracker.ietf.org/doc/draft-raza-spring-srv6-yang/[draft-raza-spring-srv6-yang]:
+
+- `hc2vpp-ietf-srv6-base@2018-03-01.yang`
+- `hc2vpp-ietf-srv6-static@2018-03-01.yang`
+- `ietf-srv6-types@2018-03-01.yang`
+
+Models *hc2vpp-ietf-srv6-base* and *hc2vpp-ietf-srv6-static*
+are changed (https://jira.fd.io/browse/HC2VPP-332[HC2VPP-332]):
+
+ - imports for routing models (https://jira.fd.io/browse/HC2VPP-298[HC2VPP-298])
+ - presence in end function containers was added to fix
+   mandatory child verification if parent container is not present

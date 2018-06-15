@@ -1,0 +1,2411 @@
+{
+	"info": {
+		"_postman_id": "a946df2e-1831-4fab-9a47-8d2923353a1f",
+		"name": "Honeycomb SRv6-LocalSids collection copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "0.SRv6 (unsuported)",
+			"description": null,
+			"item": [
+				{
+					"name": "SRv6",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"hc2vpp-ietf-srv6-base:srv6\": {\n        \"enable\": true\n    }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"hc2vpp-ietf-routing:routing",
+								"hc2vpp-ietf-srv6-base:srv6",
+								""
+							]
+						},
+						"description": "setting of SRv6 enabled is not supported by VPP now"
+					},
+					"response": []
+				},
+				{
+					"name": "SRv6 config",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"hc2vpp-ietf-routing:routing",
+								"hc2vpp-ietf-srv6-base:srv6",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SRv6 oper",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"hc2vpp-ietf-routing:routing",
+								"hc2vpp-ietf-srv6-base:srv6",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SRv6",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"hc2vpp-ietf-routing:routing",
+								"hc2vpp-ietf-srv6-base:srv6",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1.FIB-TABLE (precondition)",
+			"description": "",
+			"item": [
+				{
+					"name": "Write IPv6 FIB 0 (to store SIDs)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vpp-fib-table-management:table\": [\n        {\n            \"table-id\": 0,\n            \"address-family\": \"vpp-fib-table-management:ipv6\",\n            \"name\": \"ipv6-VRF:0\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/0/vpp-fib-table-management:ipv6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-fib-table-management:fib-table-management",
+								"vpp-fib-table-management:fib-tables",
+								"table",
+								"0",
+								"vpp-fib-table-management:ipv6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete IPv6 FIB 0",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/0/vpp-fib-table-management:ipv6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-fib-table-management:fib-table-management",
+								"vpp-fib-table-management:fib-tables",
+								"table",
+								"0",
+								"vpp-fib-table-management:ipv6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Write IPv6 FIB 1 (lookup table for END T functions)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vpp-fib-table-management:table\": [\n        {\n            \"table-id\": 1,\n            \"address-family\": \"vpp-fib-table-management:ipv6\",\n            \"name\": \"ipv6-VRF:1\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/1/vpp-fib-table-management:ipv6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-fib-table-management:fib-table-management",
+								"vpp-fib-table-management:fib-tables",
+								"table",
+								"1",
+								"vpp-fib-table-management:ipv6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete IPv6 FIB 1 (lookup table for END T functions)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/1/vpp-fib-table-management:ipv6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-fib-table-management:fib-table-management",
+								"vpp-fib-table-management:fib-tables",
+								"table",
+								"1",
+								"vpp-fib-table-management:ipv6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Write IPv4 FIB 1 (lookup table for END T functions)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vpp-fib-table-management:table\": [\n        {\n            \"table-id\": 1,\n            \"address-family\": \"vpp-fib-table-management:ipv4\",\n            \"name\": \"ipv4-VRF:1\"\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/1/vpp-fib-table-management:ipv4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-fib-table-management:fib-table-management",
+								"vpp-fib-table-management:fib-tables",
+								"table",
+								"1",
+								"vpp-fib-table-management:ipv4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteIPv4 FIB 1 (lookup table for END T functions)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/table/1/vpp-fib-table-management:ipv4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-fib-table-management:fib-table-management",
+								"vpp-fib-table-management:fib-tables",
+								"table",
+								"1",
+								"vpp-fib-table-management:ipv4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read IPv6 FIBs operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"vpp-fib-table-management:fib-table-management",
+								"vpp-fib-table-management:fib-tables",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read IPv6 FIBs config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/vpp-fib-table-management:fib-tables",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-fib-table-management:fib-table-management",
+								"vpp-fib-table-management:fib-tables"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2.LOCATORS",
+			"description": null,
+			"item": [
+				{
+					"name": "A::",
+					"description": null,
+					"item": [
+						{
+							"name": "locator A::",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"hc2vpp-ietf-srv6-base:locator\": [\n        {\n            \"name\": \"a::\",\n            \"is-default\": false,\n            \"prefix\": {\n                \"address\": \"a::\",\n                \"length\": 64\n            },\n            \"enable\": true,\n            \"vpp-ietf-srv6-base:fib-table\" : {\n\t            \"table-id\": 0,\n\t            \"address-family\": \"vpp-fib-table-management:ipv6\"\n            }\n        }\n    ]\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "locator A:: config",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "locator A:: operational",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "locator A::",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "B::",
+					"description": null,
+					"item": [
+						{
+							"name": "locator B::",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"hc2vpp-ietf-srv6-base:locator\": [\n        {\n            \"name\": \"b::\",\n            \"is-default\": false,\n            \"prefix\": {\n                \"address\": \"b::\",\n                \"length\": 64\n            },\n            \"enable\": true,\n            \"vpp-ietf-srv6-base:fib-table\" : {\n\t            \"table-id\": 0,\n\t            \"address-family\": \"vpp-fib-table-management:ipv6\"\n            }\n        }\n    ]\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/b::",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"b::"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "locator B:: config",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/b::/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"b::",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "locator B:: operational",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/b::/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"b::",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "locator B::",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/b::",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"b::"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "3.Encapsulation Policy",
+			"description": null,
+			"item": [
+				{
+					"name": "Encapsulation policy",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"hc2vpp-ietf-srv6-base:encapsulation\": {\n        \"ip-ttl-propagation\": false,\n        \"source-address\": \"a::1\"\n    }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/hc2vpp-ietf-srv6-base:encapsulation",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"hc2vpp-ietf-routing:routing",
+								"hc2vpp-ietf-srv6-base:srv6",
+								"hc2vpp-ietf-srv6-base:encapsulation"
+							]
+						},
+						"description": "equivalent to vpp command:\r\n-> vppctl set sr encaps source addr A::1"
+					},
+					"response": []
+				},
+				{
+					"name": "Encapsulation policy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/encapsulation",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"hc2vpp-ietf-routing:routing",
+								"hc2vpp-ietf-srv6-base:srv6",
+								"encapsulation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Encapsulation policy",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/hc2vpp-ietf-srv6-base:encapsulation",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"hc2vpp-ietf-routing:routing",
+								"hc2vpp-ietf-srv6-base:srv6",
+								"hc2vpp-ietf-srv6-base:encapsulation"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4.END-FUNCTIONS",
+			"description": null,
+			"item": [
+				{
+					"name": "END",
+					"description": null,
+					"item": [
+						{
+							"name": "End local sid B::100",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-static:sid\": [\r\n\t\t{\r\n\t\t\t\"opcode\": 100,\r\n\t\t\t\"end-behavior-type\": \"ietf-srv6-types:End\",\r\n\t\t\t\"end\": {}\r\n\t\t}\r\n\t]\r\n}\r\n"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/b::/static/local-sids/sid/100",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"b::",
+										"static",
+										"local-sids",
+										"sid",
+										"100"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address B:: behavior end"
+							},
+							"response": []
+						},
+						{
+							"name": "End local sid B::100 config",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-base:locator\": [\r\n        {\r\n\t\t\t\"name\": \"b::\",\r\n\t\t\t\"enable\": true,\r\n\t\t\t\"is-default\": true,\r\n\t\t\t\"prefix\": {\r\n\t\t\t\t\"address\": \"b::\",\r\n\t\t\t\t\"length\": 64\r\n\t\t\t},\r\n\t\t\t\"static\": {\r\n\t\t\t\t\"local-sids\": {\r\n\t\t\t\t\t\"sid\": [\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"opcode\": 100,\r\n\t\t\t\t\t\t\t\"end-behavior-type\": \"End\",\r\n\t\t\t\t\t\t\t\"end\": {\r\n\t\t\t\t\t\t\t\t\"usp\" : false\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t}\r\n        }\r\n\t]\r\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/b::/static/local-sids/sid/100",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"b::",
+										"static",
+										"local-sids",
+										"sid",
+										"100"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address B:: behavior end"
+							},
+							"response": []
+						},
+						{
+							"name": "End local sid B::100 operational",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-base:locator\": [\r\n        {\r\n\t\t\t\"name\": \"b::\",\r\n\t\t\t\"enable\": true,\r\n\t\t\t\"is-default\": true,\r\n\t\t\t\"prefix\": {\r\n\t\t\t\t\"address\": \"b::\",\r\n\t\t\t\t\"length\": 64\r\n\t\t\t},\r\n\t\t\t\"static\": {\r\n\t\t\t\t\"local-sids\": {\r\n\t\t\t\t\t\"sid\": [\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"opcode\": 100,\r\n\t\t\t\t\t\t\t\"end-behavior-type\": \"End\",\r\n\t\t\t\t\t\t\t\"end\": {\r\n\t\t\t\t\t\t\t\t\"usp\" : false\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t}\r\n        }\r\n\t]\r\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/b::/static/local-sids/sid/100",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"b::",
+										"static",
+										"local-sids",
+										"sid",
+										"100"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address B:: behavior end"
+							},
+							"response": []
+						},
+						{
+							"name": "End local sid B::100",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/b::/static/local-sids/sid/100",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"b::",
+										"static",
+										"local-sids",
+										"sid",
+										"100"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address B:: behavior end"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "END.X",
+					"description": null,
+					"item": [
+						{
+							"name": "EndX local sid A::101",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-static:sid\": [\r\n\t\t{\r\n\t\t\t\"opcode\": 101,\r\n\t\t\t\"end-behavior-type\": \"ietf-srv6-types:End.X\",\r\n\t\t\t\"end-x\": {\r\n\t\t\t\t\"paths\": {\r\n\t\t\t\t\t\"path\": [\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"path-index\": 1,\r\n\t\t\t\t\t\t\t\"interface\": \"local0\",\r\n\t\t\t\t\t\t\t\"next-hop\": \"a::1\",\r\n\t\t\t\t\t\t\t\"weight\": 1,\r\n\t\t\t\t\t\t\t\"role\": \"PRIMARY\"\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t]\r\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/101",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"101"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.x local0 A::1\r\n\r\nSid name in VPP (A::101) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"101\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndX local sid A::101 conf",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/101",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"101"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.x local0 A::1\r\n\r\nSid name in VPP (A::101) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"101\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndX local sid A::101 oper",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/101",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"101"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.x local0 A::1\r\n\r\nSid name in VPP (A::101) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"101\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndX local sid A::101",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/101",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"101"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.x local0 A::1\r\n\r\nSid name in VPP (A::101) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"101\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "END.DX6",
+					"description": null,
+					"item": [
+						{
+							"name": "EndDX6 local sid A::201",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-static:sid\": [\r\n\t\t{\r\n\t\t\t\"opcode\": 201,\r\n\t\t\t\"end-behavior-type\": \"ietf-srv6-types:End.DX6\",\r\n\t\t\t\"end-dx6\": {\r\n\t\t\t\t\"paths\": {\r\n\t\t\t\t\t\"path\": [\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"path-index\": 1,\r\n\t\t\t\t\t\t\t\"interface\": \"local0\",\r\n\t\t\t\t\t\t\t\"next-hop\": \"a::1\",\r\n\t\t\t\t\t\t\t\"weight\": 1,\r\n\t\t\t\t\t\t\t\"role\": \"PRIMARY\"\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t]\r\n}"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/201",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"201"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx6 local0 A::1\r\n\r\nSid name in VPP (A::201) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"201\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX6 A::201 config",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/201",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"201"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX6 A::201 oper",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "admin",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/201",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"201"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX6 local sid A::201",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/201",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"201"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx6 local0 A::1\r\n\r\nSid name in VPP (A::201) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"201\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "END.DX4",
+					"description": null,
+					"item": [
+						{
+							"name": "EndDX4 local sid A::301",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-static:sid\": [\r\n\t\t{\r\n\t\t\t\"opcode\": 301,\r\n\t\t\t\"end-behavior-type\": \"ietf-srv6-types:End.DX4\",\r\n\t\t\t\"end-dx4\": {\r\n\t\t\t\t\"paths\": {\r\n\t\t\t\t\t\"path\": [\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"path-index\": 1,\r\n\t\t\t\t\t\t\t\"interface\": \"local0\",\r\n\t\t\t\t\t\t\t\"next-hop\": \"10.0.0.1\",\r\n\t\t\t\t\t\t\t\"weight\": 1,\r\n\t\t\t\t\t\t\t\"role\": \"PRIMARY\"\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t]\r\n}\r\n\t"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/301",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"301"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx4 local0 10.0.0.1\r\n\r\nSid name in VPP (A::301) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"301\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX4 local sid A::301 conf",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/301",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"301"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx4 local0 10.0.0.1\r\n\r\nSid name in VPP (A::301) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"301\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX4 local sid A::301 oper",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/301",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"301"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx4 local0 10.0.0.1\r\n\r\nSid name in VPP (A::301) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"301\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX4 local sid A::301",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/301",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"301"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx4 local0 10.0.0.1\r\n\r\nSid name in VPP (A::301) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"301\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "END.DX2",
+					"description": null,
+					"item": [
+						{
+							"name": "EndDX2 local sid A::401",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-static:sid\": [\r\n\t\t{\r\n\t\t\t\"opcode\": 401,\r\n\t\t\t\"end-behavior-type\": \"ietf-srv6-types:End.DX2\",\r\n\t\t\t\"end-dx2\": {\r\n\t\t\t\t\"paths\": {\r\n\t\t\t\t\t\"interface\": \"local0\"\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t]\r\n}\r\n\t"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/401",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"401"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx2 local0\r\n\r\nSid name in VPP (A::401) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"401\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX2 local sid A::401 conf",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/401",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"401"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx2 local0\r\n\r\nSid name in VPP (A::401) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"401\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX2 local sid A::401 oper",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/401",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"401"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx2 local0\r\n\r\nSid name in VPP (A::401) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"401\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDX2 local sid A::401",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/401",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"401"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A:: behavior end.dx2 local0\r\n\r\nSid name in VPP (A::401) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"401\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "END.T",
+					"description": null,
+					"item": [
+						{
+							"name": "EndDT local sid A::501",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-static:sid\": [\r\n\t\t{\r\n\t\t\t\"opcode\": 501,\r\n\t\t\t\"end-behavior-type\": \"ietf-srv6-types:End.T\",\r\n\t\t\t\"end-t\": {\r\n\t\t\t\t\"lookup-table-ipv6\" : \"1\"\r\n\t\t\t}\r\n\t\t}\r\n\t]\r\n}\r\n\t"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/501",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"501"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid del address A::501 behavior end.t 1\r\n\r\nPRECONDITION:\r\nIPv6 Fib table must exist on VPP -> sudo vppctl ip6 table add 1\r\n\r\nSid name in VPP (A::501) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"501\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT local sid A::501 conf",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/501",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"501"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid del address A::501 behavior end.t 1\r\n\r\nSid name in VPP (A::501) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"501\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT local sid A::501 oper",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/501",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"501"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid del address A::501 behavior end.t 1\r\n\r\nSid name in VPP (A::501) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"501\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT local sid A::501",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/501",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"501"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid del address A::501 behavior end.t 1\r\n\r\nSid name in VPP (A::501) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"501\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "END.DT4",
+					"description": null,
+					"item": [
+						{
+							"name": "EndDT4 local sid A::601",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-static:sid\": [\r\n\t\t{\r\n\t\t\t\"opcode\": 601,\r\n\t\t\t\"end-behavior-type\": \"ietf-srv6-types:End.DT4\",\r\n\t\t\t\"end-dt4\": {\r\n\t\t\t\t\"lookup-table-ipv4\" : \"1\"\r\n\t\t\t}\r\n\t\t}\r\n\t]\r\n}\r\n\t"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/601",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"601"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A::601 behavior end.dt4 1\r\n\r\nPRECONDITION:\r\nIPv4 Fib table must exist on VPP -> sudo vppctl ip table add 1\r\n\r\nSid name in VPP (A::601) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"601\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT4 local sid A::601 conf",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/601",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"601"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A::601 behavior end.dt4 1\r\n\r\nSid name in VPP (A::601) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"601\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT4 local sid A::601 oper",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/601",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"601"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A::601 behavior end.dt4 1\r\n\r\nSid name in VPP (A::601) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"601\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT4 local sid A::601",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/601",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"601"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A::601 behavior end.dt4 1\r\n\r\nSid name in VPP (A::601) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"601\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "END.DT6",
+					"description": null,
+					"item": [
+						{
+							"name": "EndDT6 local sid A::701",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hc2vpp-ietf-srv6-static:sid\": [\r\n\t\t{\r\n\t\t\t\"opcode\": 701,\r\n\t\t\t\"end-behavior-type\": \"ietf-srv6-types:End.DT6\",\r\n\t\t\t\"end-dt6\": {\r\n\t\t\t\t\"lookup-table-ipv6\" : \"1\"\r\n\t\t\t}\r\n\t\t}\r\n\t]\r\n}\r\n\t"
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/701",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"701"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A::701 behavior end.dt6 1\r\n\r\nPRECONDITION:\r\nIPv6 Fib table must exist on VPP -> sudo vppctl ip6 table add 1\r\n\r\nSid name in VPP (A::701) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"701\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT6 local sid A::701 conf",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/701",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"701"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A::701 behavior end.dt6 1\r\n\r\nSid name in VPP (A::701) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"701\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT6 local sid A::701 oper",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/701",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"operational",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"701"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A::701 behavior end.dt6 1\r\n\r\nSid name in VPP (A::701) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"701\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						},
+						{
+							"name": "EndDT6 local sid A::701",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-routing:routing/hc2vpp-ietf-srv6-base:srv6/locators/locator/a::/static/local-sids/sid/701",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8183",
+									"path": [
+										"restconf",
+										"config",
+										"hc2vpp-ietf-routing:routing",
+										"hc2vpp-ietf-srv6-base:srv6",
+										"locators",
+										"locator",
+										"a::",
+										"static",
+										"local-sids",
+										"sid",
+										"701"
+									]
+								},
+								"description": "equivalent to vpp command:\r\n-> vppctl sr localsid address A::701 behavior end.dt6 1\r\n\r\nSid name in VPP (A::701) consists of two parts:\r\n- First part is Locator e.g. \"A::\" (mapped to locator -> name)\r\n- Second part is function e.g. \"701\" (mapped to sid -> opcode)"
+							},
+							"response": []
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		},
+		{
+			"name": "Locator Context Read",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"testInterface\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"iana-if-type:ethernetCsmacd\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"ietf-ip:ipv4\": {\r\n                    \"enabled\": \"true\",\r\n                    \"mtu\": \"1500\",\r\n                    \"address\": [\r\n                        {\r\n                            \"ip\": \"1.2.3.0\",\r\n                            \"netmask\": \"255.255.255.0\"\r\n                        }\r\n                    ]\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/naming-context:contexts\\locator-context:srv6-locator-mappings\\",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"naming-context:contexts\\locator-context:srv6-locator-mappings\\"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "admin",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "admin",
+				"type": "string"
+			}
+		]
+	}
+}

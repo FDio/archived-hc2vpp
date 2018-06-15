@@ -56,5 +56,6 @@
     <module>interface-role</module>
     <module>bgp</module>
     <module>mpls</module>
+    <module>srv6</module>
   </modules>
 </project>
