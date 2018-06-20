@@ -16,18 +16,12 @@
 
 package io.fd.hc2vpp.fib.management;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import io.fd.hc2vpp.fib.management.read.FibManagementReaderFactory;
-import io.fd.hc2vpp.fib.management.services.FibTableService;
-import io.fd.hc2vpp.fib.management.services.FibTableServiceProvider;
 import io.fd.hc2vpp.fib.management.write.FibManagementWriterFactory;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.write.WriterFactory;
-import javax.annotation.Nonnull;
 import net.jmob.guice.conf.core.ConfigurationModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,23 +32,12 @@ import org.slf4j.LoggerFactory;
 public class FibManagementModule extends AbstractModule {
 
     private static final Logger LOG = LoggerFactory.getLogger(FibManagementModule.class);
-    private final Class<? extends Provider<FibTableService>> fibTableServiceProvider;
-
-    public FibManagementModule() {
-        this(FibTableServiceProvider.class);
-    }
-
-    @VisibleForTesting
-    protected FibManagementModule(@Nonnull final Class<? extends Provider<FibTableService>> fibTableServiceProvider) {
-        this.fibTableServiceProvider = fibTableServiceProvider;
-    }
 
     @Override
     protected void configure() {
         LOG.info("Starting FibManagementModule initialization");
         // requests injection of properties
         install(ConfigurationModule.create());
-        bind(FibTableService.class).toProvider(fibTableServiceProvider).in(Singleton.class);
 
         LOG.debug("Injecting FibManagementModule reader factories");
         // creates reader factory binding
