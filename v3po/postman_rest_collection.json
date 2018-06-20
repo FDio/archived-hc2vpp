@@ -1,18 +1,16 @@
 {
 	"info": {
-		"_postman_id": "5bad4634-e5cf-900e-9733-0976aa9bea64",
+		"_postman_id": "4a6ffe04-00bb-41a4-b64e-94b012c0c211",
 		"name": "Honeycomb V3PO RESTCONF calls",
 		"description": "Common mgmt operations on VPP core using Honeycomb REST interface",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"_postman_id": "20099c89-1295-492c-a90f-6d7b7e505d98",
 			"name": "Loopback",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "8f3021a4-4a3b-4ee9-b229-992d542f6e73",
 					"name": "Add loopback ifc - cfg ",
 					"request": {
 						"method": "PUT",
@@ -50,7 +48,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "2d32776a-56ed-4f4b-b436-14a0d6e33a77",
 					"name": "Delete loopback ifc - cfg ",
 					"request": {
 						"method": "DELETE",
@@ -90,12 +87,10 @@
 			]
 		},
 		{
-			"_postman_id": "4d5c9ca1-b61d-46f8-8ec1-19bf71111c7f",
 			"name": "Bridge Domain management",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "ea275a44-43ed-4635-a40b-16e090c55ab3",
 					"name": "Create bridge domain - cfg",
 					"request": {
 						"method": "PUT",
@@ -133,7 +128,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "4dd8b1f3-fdbb-4f1a-87c5-54b4b511f8f6",
 					"name": "Show bridge domain - cfg",
 					"request": {
 						"method": "GET",
@@ -171,7 +165,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0acf1e74-318c-4ced-b8fd-c043465629e5",
 					"name": "Show bridge domain - oper",
 					"request": {
 						"method": "GET",
@@ -209,7 +202,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "bc795b3d-533e-4881-9dde-d9c174b29a58",
 					"name": "Add local0 to bridge domain",
 					"request": {
 						"method": "PUT",
@@ -248,7 +240,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "9e460d4d-af88-4f15-b6e5-6d2e63c7bdb3",
 					"name": "Show local0 - cfg",
 					"request": {
 						"method": "GET",
@@ -262,7 +253,10 @@
 								"value": "application/json"
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/",
 							"protocol": "http",
@@ -284,7 +278,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0982eadb-109d-42b1-bb3c-bad07c3e0ef6",
 					"name": "Show local0 - oper",
 					"request": {
 						"method": "GET",
@@ -298,7 +291,10 @@
 								"value": "application/json"
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/local0/",
 							"protocol": "http",
@@ -320,7 +316,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "05181eab-b3fd-48ff-92ce-6dbedc49b070",
 					"name": "Add L2 FIB entry (forward)",
 					"request": {
 						"method": "PUT",
@@ -361,7 +356,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "b3a3ba1e-afa0-41cf-88dd-2412d213ba67",
 					"name": "Delete L2 FIB entry",
 					"request": {
 						"method": "DELETE",
@@ -402,7 +396,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "4b3c51ed-c9aa-431c-8a0e-305788727322",
 					"name": "Add L2 FIB entry (static, forward)",
 					"request": {
 						"method": "PUT",
@@ -443,7 +436,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0b8acac3-f9ad-4943-9779-5364b5408bd0",
 					"name": "Add L2 FIB entry (filter)",
 					"request": {
 						"method": "PUT",
@@ -484,7 +476,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "cccac9dd-7e79-4176-b523-dbc33a99266d",
 					"name": "Remove local0 from bridge domain",
 					"request": {
 						"method": "DELETE",
@@ -523,7 +514,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "1b89aecc-2831-4dee-97d8-4b17b529e355",
 					"name": "Add ARP termination table entry ",
 					"request": {
 						"method": "PUT",
@@ -565,7 +555,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "03a0cc22-5952-4a4c-8d10-30590bf1f021",
 					"name": "Delete ARP termination table entry ",
 					"request": {
 						"method": "DELETE",
@@ -609,12 +598,10 @@
 			]
 		},
 		{
-			"_postman_id": "28e6d8b2-3cb9-4534-990e-69b1735ebd5b",
 			"name": "Context",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "3e08d4a5-5d4a-4a09-ba30-95f7dedd1eb0",
 					"name": "List naming contexts - context",
 					"request": {
 						"method": "GET",
@@ -650,7 +637,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "691cc54c-d8a6-42de-a302-d64c18c9f4e2",
 					"name": "List disabled interfaces - context",
 					"request": {
 						"method": "GET",
@@ -686,7 +672,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "17ce9fce-4de7-4eb7-acaa-16086e599629",
 					"name": "List ACL contexts - context",
 					"request": {
 						"method": "GET",
@@ -724,12 +709,10 @@
 			]
 		},
 		{
-			"_postman_id": "37be85a9-2f50-43e5-8606-d517f6429aea",
 			"name": "ETH",
 			"description": "Example requests for management of Ethernet type interfaces",
 			"item": [
 				{
-					"_postman_id": "e05674d3-ec39-43bc-acba-96cb0319b8c5",
 					"name": "Set interface mtu",
 					"request": {
 						"method": "PUT",
@@ -766,7 +749,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "c0665d69-6d64-4a68-8580-2d812e431961",
 					"name": "Get interface cfg",
 					"request": {
 						"method": "GET",
@@ -804,7 +786,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "f0ef21c4-c8f0-4479-9a53-5cd6f2d167c6",
 					"name": "Get interface - oper",
 					"request": {
 						"method": "GET",
@@ -844,12 +825,10 @@
 			]
 		},
 		{
-			"_postman_id": "d303e470-87e9-4e1c-9f57-0b1eb1e8d1b3",
 			"name": "GRE-TUNNEL",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "4df072e4-901e-4f82-b318-cd89e5b88ef3",
 					"name": "Add gre ifc - cfg",
 					"request": {
 						"method": "PUT",
@@ -886,7 +865,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "6fc51538-e99d-4f8e-a11b-d39d04d1a5be",
 					"name": "Delete gre ifc - cfg",
 					"request": {
 						"method": "DELETE",
@@ -925,12 +903,10 @@
 			]
 		},
 		{
-			"_postman_id": "c75d6e5b-a972-40c2-b149-8e9eee2a110c",
 			"name": "PBB",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "2bc0e030-c016-4cb3-8ce2-9424ca75d70e",
 					"name": "Enable local0 + configure Pbb",
 					"request": {
 						"method": "PUT",
@@ -967,7 +943,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "43cdd8a0-708f-4d92-a08b-ef588bb2a9c0",
 					"name": "Update ppb rewrite",
 					"request": {
 						"method": "PUT",
@@ -1005,7 +980,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "1a18c8ca-344c-4fab-a5e5-858bd5ffac2e",
 					"name": "Get ppb rewrite",
 					"request": {
 						"method": "GET",
@@ -1042,7 +1016,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0b119f89-6436-4e53-837f-a7645dcfcfc9",
 					"name": "Disable ppb rewrite",
 					"request": {
 						"method": "DELETE",
@@ -1081,12 +1054,10 @@
 			]
 		},
 		{
-			"_postman_id": "e6365da5-8f1e-41a4-a368-46db86851e3f",
 			"name": "IP",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "a6921252-acf0-409d-8861-317c30553f43",
 					"name": "Ip Neighbour Get",
 					"request": {
 						"method": "GET",
@@ -1127,7 +1098,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "a310f762-5438-4b9c-86cf-ef98964693a8",
 					"name": "Ip Neighbour Add",
 					"request": {
 						"method": "PUT",
@@ -1168,7 +1138,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "822e5779-6fb3-4358-825b-7b0c8d100846",
 					"name": "Ip Neighbour Delete",
 					"request": {
 						"method": "DELETE",
@@ -1209,7 +1178,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "46eb69c2-48e2-4cc2-8649-1684104b705a",
 					"name": "Read local0 - oper",
 					"request": {
 						"method": "GET",
@@ -1246,7 +1214,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "b78adf18-8ee3-419b-b08a-d95a633f4d2f",
 					"name": "Set ipv4 local0 interface - cfg",
 					"request": {
 						"method": "PUT",
@@ -1286,7 +1253,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "5576d8e1-8dfe-4baf-9755-f3042424d3eb",
 					"name": "Remove ipv4 from local0 interface - cfg",
 					"request": {
 						"method": "DELETE",
@@ -1326,7 +1292,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "799b95f1-a743-46d5-8c57-bd40cda7c636",
 					"name": "Set ipv4 local0 interface - cfg netmask",
 					"request": {
 						"method": "PUT",
@@ -1366,7 +1331,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "71645064-7551-4556-a418-5cef82e53e9c",
 					"name": "Read local0/ipv4 - oper",
 					"request": {
 						"method": "GET",
@@ -1404,7 +1368,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "87da0992-97d4-46ab-abea-85cc8f3cfb72",
 					"name": "Read local0/ipv4 - cfg",
 					"request": {
 						"method": "GET",
@@ -1442,7 +1405,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "a270bf57-133f-4756-9777-15d477ec84cb",
 					"name": "Set ipv4 for sub-interface - cfg",
 					"request": {
 						"method": "PUT",
@@ -1486,7 +1448,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "cad56b78-12b4-4968-bed1-b6fefb4b066d",
 					"name": "Set local0 as unnumbered (use GigabitEthernet0/8/0)",
 					"request": {
 						"method": "PUT",
@@ -1527,12 +1488,10 @@
 			]
 		},
 		{
-			"_postman_id": "1c5a1eb8-1e0e-4c17-9865-974d76122b75",
 			"name": "Proxy Arp",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "6a8888c4-1e77-4017-9af4-a547c2be6308",
 					"name": "Add arp proxy range #1",
 					"request": {
 						"method": "PUT",
@@ -1572,7 +1531,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "348eabc8-47e1-47a1-9044-28e2508473db",
 					"name": "Add arp proxy range #2",
 					"request": {
 						"method": "PUT",
@@ -1612,7 +1570,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "2254cd6a-0022-4ada-b740-80f7e0995235",
 					"name": "Enable proxy arp for local0",
 					"request": {
 						"method": "PUT",
@@ -1651,7 +1608,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "cc27a6ff-a194-4c5a-b665-28f50e0cec8b",
 					"name": "Delete arp proxy range #1",
 					"request": {
 						"method": "DELETE",
@@ -1691,7 +1647,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "4a0e534e-31c4-400d-94c6-54ba8d0adad6",
 					"name": "Delete arp proxy range #2",
 					"request": {
 						"method": "DELETE",
@@ -1731,7 +1686,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "c599da02-cc49-415a-b9cf-522da147f743",
 					"name": "Disable proxy arp for local0",
 					"request": {
 						"method": "DELETE",
@@ -1772,12 +1726,10 @@
 			]
 		},
 		{
-			"_postman_id": "74f93062-2b4f-4e30-aed2-a39fe9a2183e",
 			"name": "SPAN",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "f5a08951-cff3-4a7e-9d96-9dedc343c034",
 					"name": "Set port mirroring local0 -> GigabiteEthernet0/8/0",
 					"request": {
 						"method": "PUT",
@@ -1816,7 +1768,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "5e12862a-528a-4dac-8fd2-a3613dcf5f37",
 					"name": "Read port mirroring",
 					"request": {
 						"method": "GET",
@@ -1855,7 +1806,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "baba13ea-47ac-4a8e-87f3-624728f68cda",
 					"name": "Delete port mirroring local0 -> GigabiteEthernet0/8/0",
 					"request": {
 						"method": "DELETE",
@@ -1895,12 +1845,10 @@
 			]
 		},
 		{
-			"_postman_id": "55f58331-d246-46fd-9943-8d26264d8c34",
 			"name": "TAP",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "bad09c1a-de5c-41ce-a6f9-866e1471c72f",
 					"name": "Add simple tap ifc -cfg",
 					"request": {
 						"method": "PUT",
@@ -1937,7 +1885,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "433127d4-cf54-4b99-93ca-f2cedc02dcd4",
 					"name": "Add complex tap ifc - cfg",
 					"request": {
 						"method": "PUT",
@@ -1974,7 +1921,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "3d90af20-03e9-40d6-9d8d-05f9dfef7866",
 					"name": "Modify complex tap ifc - cfg",
 					"request": {
 						"method": "PUT",
@@ -2011,7 +1957,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0cbcde4f-80e7-4a9c-a97e-48e91c39bbe0",
 					"name": "Delete complex tap ifc - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2050,12 +1995,10 @@
 			]
 		},
 		{
-			"_postman_id": "5e4f2f9f-2356-4f5d-b88c-a81e12f51dad",
 			"name": "VHOST",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "80c234b8-ca6c-42a7-8dfb-5967d1868eda",
 					"name": "Add vhost user ifc - cfg",
 					"request": {
 						"method": "PUT",
@@ -2093,7 +2036,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "f406bdcd-4eaa-41ad-94a1-a5d8110d0022",
 					"name": "Modify vhost user ifc - cfg",
 					"request": {
 						"method": "PUT",
@@ -2131,7 +2073,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "142af8b2-1ed3-466e-9006-42d8183fa3af",
 					"name": "Delete vhost user ifc - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2171,12 +2112,10 @@
 			]
 		},
 		{
-			"_postman_id": "b0012a4c-6871-460b-9a81-f438cb52763d",
 			"name": "VLAN",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "2805bb68-ddcc-4c7c-81d8-60dcd45578e9",
 					"name": "Add sub interface - cfg",
 					"request": {
 						"method": "PUT",
@@ -2217,7 +2156,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0d66d2e9-5502-454d-a98a-dd9f1ecc12ab",
 					"name": "Enable GigabitEthernet0/9/0 interface - cfg",
 					"request": {
 						"method": "PUT",
@@ -2255,7 +2193,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0b2e7523-9058-4150-9351-2131b6d378fd",
 					"name": "Enable GigabitEthernet0/9/0.1 interface - cfg",
 					"request": {
 						"method": "PUT",
@@ -2296,7 +2233,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "340bcd77-72af-4808-88df-aed71b8c015c",
 					"name": "Add sub interface to bridge-domain",
 					"request": {
 						"method": "PUT",
@@ -2338,7 +2274,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "043d9429-4c87-4e7a-9f59-5b59da05c051",
 					"name": "Enable tag-rewrite push - cfg",
 					"request": {
 						"method": "PUT",
@@ -2381,7 +2316,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "e84519dd-acd7-46c0-949f-8de3d247ca3f",
 					"name": "Enable tag-rewrite pop 1 - cfg",
 					"request": {
 						"method": "PUT",
@@ -2424,7 +2358,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "88f5d1f6-ae07-44b3-a43e-4f7b22fe9425",
 					"name": "Enable tag-rewrite translate 1-2 - cfg",
 					"request": {
 						"method": "PUT",
@@ -2467,7 +2400,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "9c657ac7-fd34-4578-abd5-33ffc7e1bfbf",
 					"name": "Disable tag-rewrite - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2512,12 +2444,10 @@
 			]
 		},
 		{
-			"_postman_id": "a4941d69-03d1-4c75-a943-9f120ce5bb3d",
 			"name": "VXLAN-GPE-TUNNEL",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "ce1d25ee-dfec-424d-b03b-88b8ee40b2fa",
 					"name": "Add vxlan-gpe - cfg",
 					"request": {
 						"method": "PUT",
@@ -2554,7 +2484,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "3b16e4d1-cd30-4707-a4d0-a8870f512408",
 					"name": "Delete vxlan-gpe - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2593,12 +2522,10 @@
 			]
 		},
 		{
-			"_postman_id": "56789d99-20d2-4470-8a5d-de9d7f7a8d50",
 			"name": "VXLAN-TUNNEL",
-			"description": "",
+			"description": null,
 			"item": [
 				{
-					"_postman_id": "27bc98e0-0aac-4f9b-8f6a-4d8845683821",
 					"name": "Add virtual ifc - cfg",
 					"request": {
 						"method": "PUT",
@@ -2635,7 +2562,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "7d6082c3-e098-42ff-8c35-48957473ca73",
 					"name": "Delete virtual ifc - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2674,7 +2600,195 @@
 			]
 		},
 		{
-			"_postman_id": "d32ff862-e554-4f4f-818a-5728794bb1b9",
+			"name": "AF_PACKET",
+			"description": "",
+			"item": [
+				{
+					"name": "Add af_packet interface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"veth0\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:af-packet\",\r\n                \"af-packet\": {\r\n                \t\"host-interface-name\": \"veth0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/veth0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"veth0"
+							]
+						},
+						"description": "Creates host (af_packet) interface in VPP.\nRequires creating veth pair in the linux first:\n\nsudo ip link add veth0 type veth peer name veth1\n\nCorresponds to following CLI command:\n\nvppctl create host-interface name veth0\n\nMore info:\nhttps://wiki.fd.io/view/VPP/Tutorial_Routing_and_Switching#Virtual_Network_Setup"
+					},
+					"response": []
+				},
+				{
+					"name": "Modify af_packet interface",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"veth0\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:af-packet\",\r\n                \"af-packet\": {\r\n                \t\"host-interface-name\": \"veth0\",\r\n                    \"mac\" : \"01:02:03:04:05:06\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/veth0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"veth0"
+							]
+						},
+						"description": "Updates mac address of af_packet interface.\n\nSince VPP does not support ad-packet update,\nthe request is internally translated into delete + create."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete af_packet interface",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/veth0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"veth0"
+							]
+						},
+						"description": "Deletes host (af_packet) interface in VPP.\n\nCorresponds to following CLI command:\n\nvppctl delete host-interface name veth0"
+					},
+					"response": []
+				},
+				{
+					"name": "Show af_packet interface configuration",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/veth0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"veth0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show af_packet interface state",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/veth0",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"ietf-interfaces:interfaces-state",
+								"interface",
+								"veth0"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "List ifcs - cfg",
 			"request": {
 				"method": "GET",
@@ -2711,7 +2825,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "ffa170fe-f846-4abc-b5a8-4cd8383aa035",
 			"name": "List ifcs - oper",
 			"request": {
 				"method": "GET",
@@ -2747,7 +2860,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "4e91b318-dba1-42a3-b48b-77324077d431",
 			"name": "Enable local0 interface - cfg",
 			"request": {
 				"method": "PUT",
@@ -2784,7 +2896,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "3dded5ad-bbb4-41e5-80bd-cd63ae39d701",
 			"name": "Set vrf id for local0 - cfg",
 			"request": {
 				"method": "PUT",

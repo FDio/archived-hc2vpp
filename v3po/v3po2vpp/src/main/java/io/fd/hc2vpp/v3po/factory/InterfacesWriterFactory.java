@@ -30,6 +30,7 @@ import io.fd.hc2vpp.v3po.interfaces.L2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.LoopbackCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VhostUserCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.AfPacketCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanGpeCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.pbb.PbbRewriteCustomizer;
@@ -53,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.Span;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.AfPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.attributes.MirroredInterfaces;
@@ -102,6 +104,10 @@ public final class InterfacesWriterFactory implements WriterFactory {
         final InstanceIdentifier<VhostUser> vhostId = VPP_IFC_AUG_ID.child(VhostUser.class);
         registry.addBefore(new GenericWriter<>(vhostId, new VhostUserCustomizer(jvpp, ifcNamingContext)),
                 ifcId);
+        // AfPacket(Needs to be executed before Interface customizer) =
+        final InstanceIdentifier<AfPacket> afpacketId = VPP_IFC_AUG_ID.child(AfPacket.class);
+        registry.addBefore(new GenericWriter<>(afpacketId, new AfPacketCustomizer(jvpp, ifcNamingContext)),
+                ifcId);
         // Vxlan(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<Vxlan> vxlanId = VPP_IFC_AUG_ID.child(Vxlan.class);
         registry.addBefore(new GenericWriter<>(vxlanId, new VxlanCustomizer(jvpp, ifcNamingContext, ifcDisableContext)),
@@ -124,8 +130,8 @@ public final class InterfacesWriterFactory implements WriterFactory {
         registry.addBefore(new GenericWriter<>(greId, new GreCustomizer(jvpp, ifcNamingContext)),
                 ifcId);
 
-
-        final Set<InstanceIdentifier<?>> specificIfcTypes = Sets.newHashSet(vhostId, vxlanId, vxlanGpeId, tapId, loopbackId);
+        final Set<InstanceIdentifier<?>> specificIfcTypes =
+            Sets.newHashSet(vhostId, afpacketId, vxlanId, vxlanGpeId, tapId, loopbackId);
 
         // Ethernet =
         registry.add(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class),

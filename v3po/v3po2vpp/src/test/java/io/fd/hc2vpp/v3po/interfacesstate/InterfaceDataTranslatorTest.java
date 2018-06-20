@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.AfPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VxlanGpeTunnel;
@@ -64,6 +65,7 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
         assertEquals(VxlanTunnel.class, getInterfaceType("vxlan0"));
         assertEquals(VxlanGpeTunnel.class, getInterfaceType("vxlan_gpe0"));
         assertEquals(VhostUser.class, getInterfaceType("VirtualEthernet0/0/0"));
+        assertEquals(AfPacket.class, getInterfaceType("host-veth0"));
         assertEquals(EthernetCsmacd.class, getInterfaceType("eth0.0"));
         assertEquals(EthernetCsmacd.class, getInterfaceType("local0"));
     }
@@ -74,6 +76,7 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
         assertTrue(isInterfaceOfType(VxlanTunnel.class, interfaceDetails("vxlan0")));
         assertTrue(isInterfaceOfType(VxlanGpeTunnel.class, interfaceDetails("vxlan_gpe0")));
         assertTrue(isInterfaceOfType(VhostUser.class, interfaceDetails("VirtualEthernet0/0/0")));
+        assertTrue(isInterfaceOfType(AfPacket.class, interfaceDetails("host-veth0")));
         assertTrue(isInterfaceOfType(EthernetCsmacd.class, interfaceDetails("eth0.0")));
         assertTrue(isInterfaceOfType(EthernetCsmacd.class, interfaceDetails("local0")));
     }

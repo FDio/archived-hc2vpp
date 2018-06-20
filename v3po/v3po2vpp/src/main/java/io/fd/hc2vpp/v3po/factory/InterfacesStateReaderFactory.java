@@ -28,6 +28,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.InterfaceRoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.L2Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.TapCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.AfPacketCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanGpeCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
@@ -52,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.SpanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.VhostUser;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.AfPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.span.state.attributes.MirroredInterfaces;
@@ -119,6 +121,9 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         //    VhostUser
         registry.add(new GenericInitReader<>(vppIfcAugId.child(VhostUser.class),
                 new VhostUserCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
+        //    AfPacket
+        registry.add(new GenericInitReader<>(vppIfcAugId.child(AfPacket.class),
+                new AfPacketCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
         //    Vxlan
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Vxlan.class),
                 new VxlanCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));

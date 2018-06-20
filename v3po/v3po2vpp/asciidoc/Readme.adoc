@@ -9,6 +9,7 @@ Current order of v3po-api writers is:
 
 . BridgeDomain
 . VhostUser
+. AfPacket
 . VxlanGpe
 . Tap
 . Vxlan
@@ -50,6 +51,7 @@ Contexts
 . Ethernet
 . Tap
 . VhostUser
+. AfPacket
 . Vxlan
 . VxlanGpe
 . L2
