@@ -30,6 +30,9 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class Srv6Util {
+    private Srv6Util() {
+        throw new UnsupportedOperationException("Creating Srv6Util instance is not allowed.");
+    }
 
     /**
      * Constructs unique name for candidate path based on binding sid and weight
