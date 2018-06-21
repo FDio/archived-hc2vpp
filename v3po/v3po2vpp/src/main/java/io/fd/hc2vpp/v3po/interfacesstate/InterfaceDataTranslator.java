@@ -29,6 +29,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.stream.Collector;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -177,9 +178,13 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
         return isInterfaceOfType(ifcType, vppInterfaceDetails);
     }
 
-    default boolean isInterfaceOfType(final Class<? extends InterfaceType> ifcType,
-                                      final SwInterfaceDetails cachedDetails) {
-        return ifcType.equals(getInterfaceType(toString(cachedDetails.interfaceName)));
+    default boolean isInterfaceOfType(@Nonnull final Class<? extends InterfaceType> ifcType,
+                                      @Nullable final SwInterfaceDetails cachedDetails) {
+        if (cachedDetails == null) {
+            return false;
+        } else {
+            return ifcType.equals(getInterfaceType(toString(cachedDetails.interfaceName)));
+        }
     }
 
     /**

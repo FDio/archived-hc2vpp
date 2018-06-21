@@ -17,22 +17,35 @@
 package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
+import io.fd.honeycomb.translate.read.ReadContext;
+import io.fd.honeycomb.translate.read.ReadFailedException;
+import io.fd.vpp.jvpp.core.dto.SwInterfaceDetails;
+import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.EthernetCsmacd;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.Tap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VxlanTunnel;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
 
     @Test
     public void testVppPhysAddrToYang() throws Exception {
-        assertEquals("01:02:03:04:05:06", vppPhysAddrToYang(new byte[]{1, 2, 3, 4, 5, 6}));
+        assertEquals("01:02:03:04:05:06", vppPhysAddrToYang(new byte[] {1, 2, 3, 4, 5, 6}));
         // Extended (64-bit) MAC addresses are currently not supported (it might require yang model update),
         // so test if extended part is ignored
-        assertEquals("0a:0b:0c:0d:0e:0f", vppPhysAddrToYang(new byte[]{0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0, 0}));
+        assertEquals("0a:0b:0c:0d:0e:0f", vppPhysAddrToYang(new byte[] {0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0, 0}));
     }
 
     @Test(expected = NullPointerException.class)
@@ -42,7 +55,7 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
 
     @Test(expected = IllegalArgumentException.class)
     public void testVppPhysAddrToYangInvalidByteArrayLength() throws Exception {
-        vppPhysAddrToYang(new byte[]{1, 2, 3, 4, 5});
+        vppPhysAddrToYang(new byte[] {1, 2, 3, 4, 5});
     }
 
     @Test
@@ -54,4 +67,35 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
         assertEquals(EthernetCsmacd.class, getInterfaceType("eth0.0"));
         assertEquals(EthernetCsmacd.class, getInterfaceType("local0"));
     }
+
+    @Test
+    public void testIsInterfaceOfType() {
+        assertTrue(isInterfaceOfType(Tap.class, interfaceDetails("tap0")));
+        assertTrue(isInterfaceOfType(VxlanTunnel.class, interfaceDetails("vxlan0")));
+        assertTrue(isInterfaceOfType(VxlanGpeTunnel.class, interfaceDetails("vxlan_gpe0")));
+        assertTrue(isInterfaceOfType(VhostUser.class, interfaceDetails("VirtualEthernet0/0/0")));
+        assertTrue(isInterfaceOfType(EthernetCsmacd.class, interfaceDetails("eth0.0")));
+        assertTrue(isInterfaceOfType(EthernetCsmacd.class, interfaceDetails("local0")));
+    }
+
+    @Test
+    public void testIsInterfaceOfTypeMissingIfc() throws ReadFailedException {
+        final InterfaceCacheDumpManager dumpManager = mock(InterfaceCacheDumpManager.class);
+        final ReadContext ctx = mock(ReadContext.class);
+        final String ifcName = "tapThatDoesNotExists";
+        final InstanceIdentifier<Interface> id =
+            InstanceIdentifier.create(InterfacesState.class).child(Interface.class, new InterfaceKey(ifcName));
+
+        when(dumpManager.getInterfaceDetail(id, ctx, ifcName)).thenReturn(null);
+
+        assertFalse(isInterfaceOfType(dumpManager, id, ctx, Tap.class));
+    }
+
+    private SwInterfaceDetails interfaceDetails(final String interfaceName) {
+        final SwInterfaceDetails details = new SwInterfaceDetails();
+        details.interfaceName = interfaceName.getBytes(StandardCharsets.UTF_8);
+        return details;
+    }
+
+
 }
