@@ -25,7 +25,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.fib.management.services.FibTableService;
 import io.fd.hc2vpp.routing.Ipv4RoutingNodes;
 import io.fd.hc2vpp.routing.Ipv6RoutingNodes;
 import io.fd.hc2vpp.routing.RoutingConfiguration;
@@ -64,9 +63,6 @@ public final class RoutingWriterFactory implements WriterFactory, Ipv4RoutingNod
     private RoutingConfiguration configuration;
 
     @Inject
-    private FibTableService fibTableService;
-
-    @Inject
     @Named("interface-context")
     private NamingContext interfaceContext;
 
@@ -93,7 +89,7 @@ public final class RoutingWriterFactory implements WriterFactory, Ipv4RoutingNod
                 new GenericWriter<>(RoutingIIds.ROUTING, new RoutingCustomizer()));
 
         registry.subtreeAdd(routingProtocolHandledChildren(),new GenericWriter<>(RoutingIIds.RT_CPS_CP,
-                new ControlPlaneProtocolCustomizer(routingProtocolContext, fibTableService)));
+                new ControlPlaneProtocolCustomizer(routingProtocolContext)));
 
         registry.subtreeAddAfter(ipv4RoutingHandledChildren(RoutingIIds.RT_CPS_CP_SR_SRV4_IPV4_RT_PARENT),
                                  new GenericWriter<>(RoutingIIds.RT_CPS_CP_SR_SRV4_IPV4_RT,

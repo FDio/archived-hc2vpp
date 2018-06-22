@@ -16,6 +16,8 @@
 
 package io.fd.hc2vpp.routing.write;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
@@ -29,6 +31,7 @@ import io.fd.hc2vpp.routing.write.factory.TableLookupRequestFactory;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.translate.MappingContext;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
+import io.fd.honeycomb.translate.util.RWUtils;
 import io.fd.honeycomb.translate.write.WriteContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
@@ -46,6 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.TableLookupCase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHop;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.TableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +105,18 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         final String parentProtocolName = instanceIdentifier.firstKeyOf(ControlPlaneProtocol.class).getName();
         final String routeName = routeNamesFactory.uniqueRouteName(parentProtocolName, route);
+        Optional<ControlPlaneProtocol> protocolOptional =
+                writeContext.readAfter(RWUtils.cutId(instanceIdentifier, ControlPlaneProtocol.class));
+        Preconditions.checkArgument(protocolOptional.isPresent(), "Control protocol cannot be null for route: {}",
+                instanceIdentifier);
+        TableKey key = new TableKey(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv4.class,
+                new VniReference(ControlPlaneProtocolCustomizer.extractTableId(protocolOptional.get())));
+
+        if (!ControlPlaneProtocolCustomizer.isTablePresent(key, writeContext)) {
+            throw new WriteFailedException(instanceIdentifier, "IPv4 FIB table does not exist!");
+        }
+
         writeRoute(instanceIdentifier, parentProtocolName, routeName, route, writeContext, true);
 
         // maps new route by next available index,
@@ -149,11 +166,8 @@ public class Ipv4RouteCustomizer extends FutureJVppCustomizer
         } else if (route.getNextHop().getNextHopOptions() instanceof SpecialNextHop) {
             writeSpecialHopRoute(identifier, route, parentProtocolName, writeContext, isAdd);
         } else if (route.getNextHop().getNextHopOptions() instanceof TableLookupCase) {
-            writeRoute(tableLookupRequestFactory.createV4TableLookupRouteRequest(isAdd,
-                                                                                 parentProtocolName,
-                                                                                 route,
-                                                                                 writeContext.getMappingContext()),
-                       identifier);
+            writeRoute(tableLookupRequestFactory
+                    .createV4TableLookupRouteRequest(isAdd, parentProtocolName, route, writeContext), identifier);
         } else {
             throw new IllegalArgumentException("Unsupported next-hop type");
         }

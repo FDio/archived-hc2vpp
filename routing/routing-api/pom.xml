@@ -65,6 +65,12 @@
         </dependency>
 
         <dependency>
+            <groupId>io.fd.hc2vpp.fib.management</groupId>
+            <artifactId>fib-management-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>

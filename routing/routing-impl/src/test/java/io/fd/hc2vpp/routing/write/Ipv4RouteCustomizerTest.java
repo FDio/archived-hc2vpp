@@ -19,21 +19,17 @@ package io.fd.hc2vpp.routing.write;
 import static io.fd.hc2vpp.routing.Ipv4RouteData.FIRST_ADDRESS_AS_ARRAY;
 import static io.fd.hc2vpp.routing.Ipv4RouteData.SECOND_ADDRESS_AS_ARRAY;
 import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_INDEX;
-import static io.fd.hc2vpp.routing.helpers.InterfaceTestHelper.INTERFACE_NAME;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
-import io.fd.hc2vpp.common.translate.util.MultiNamingContext;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.routing.helpers.ClassifyTableTestHelper;
-import io.fd.hc2vpp.routing.helpers.RoutingRequestTestHelper;
-import io.fd.hc2vpp.routing.helpers.SchemaContextTestHelper;
+import io.fd.hc2vpp.fib.management.FibManagementIIds;
 import io.fd.hc2vpp.routing.naming.Ipv4RouteNamesFactory;
-import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
 import io.fd.honeycomb.test.tools.HoneycombTestRunner;
 import io.fd.honeycomb.test.tools.annotations.InjectTestData;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -42,7 +38,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.StaticRoutes1;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.Ipv4;
@@ -50,55 +45,67 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicas
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.RouteKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv4.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv4.route.NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Static;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.TableLookupCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.ControlPlaneProtocols;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocol;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.ControlPlaneProtocolKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.routing.control.plane.protocols.control.plane.protocol.StaticRoutes;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.types.rev180406.VniReference;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.TableBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.TableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 @RunWith(HoneycombTestRunner.class)
-public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
-        implements ClassifyTableTestHelper, RoutingRequestTestHelper, SchemaContextTestHelper {
+public class Ipv4RouteCustomizerTest extends RouteCustomizerTest {
 
-    private static final int ROUTE_PROTOCOL_INDEX = 1;
+    private static final TableKey
+            SEC_TABLE_KEY = new TableKey(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv4.class,
+            SEC_TABLE_ID);
+    private static final Table
+            IPV4_TABLE = new TableBuilder().setName("VRF-IPV4-4")
+            .setKey(SEC_TABLE_KEY).setTableId(SEC_TABLE_KEY.getTableId())
+            .setAddressFamily(SEC_TABLE_KEY.getAddressFamily()).build();
+
+    private static final InstanceIdentifier<Route> ROUTE_IID = CONTROL_PROTOCOL_IID
+            .child(StaticRoutes.class)
+            .augmentation(StaticRoutes1.class)
+            .child(Ipv4.class)
+            .child(Route.class);
+    private static final InstanceIdentifier<Route> ROUTE_INVALID_IID = CONTROL_PROTOCOL_INVALID_IID
+            .child(StaticRoutes.class)
+            .augmentation(StaticRoutes1.class)
+            .child(Ipv4.class)
+            .child(Route.class);
+
     @Captor
     private ArgumentCaptor<IpAddDelRoute> requestCaptor;
 
-    @Mock
-    private VppClassifierContextManager classifyManager;
-
-    @Mock
-    private MultiNamingContext routeHopContext;
-
     private Ipv4RouteCustomizer customizer;
-    private InstanceIdentifier<Route> validId;
     private Ipv4RouteNamesFactory namesFactory;
-    private NamingContext routingProtocolContext;
 
     @Override
     protected void setUpTest() throws Exception {
-        NamingContext interfaceContext = new NamingContext("interface", "interface-context");
-        routingProtocolContext = new NamingContext("routing-protocol", "routing-protocol-context");
-        customizer = new Ipv4RouteCustomizer(api, interfaceContext,
-                new NamingContext("route", "route-context"),
+        super.setUpTest();
+        customizer = new Ipv4RouteCustomizer(api, interfaceContext, new NamingContext("route", "route-context"),
                 routingProtocolContext, routeHopContext, classifyManager);
-
-        validId = InstanceIdentifier.create(ControlPlaneProtocols.class)
-                .child(ControlPlaneProtocol.class, new ControlPlaneProtocolKey(ROUTE_PROTOCOL_NAME, Static.class))
-                .child(StaticRoutes.class)
-                .augmentation(StaticRoutes1.class)
-                .child(Ipv4.class)
-                .child(Route.class);
-
         namesFactory = new Ipv4RouteNamesFactory(interfaceContext, routingProtocolContext);
 
-        defineMapping(mappingContext, INTERFACE_NAME, INTERFACE_INDEX, "interface-context");
-        defineMapping(mappingContext, ROUTE_PROTOCOL_NAME, ROUTE_PROTOCOL_INDEX, "routing-protocol-context");
-        addMapping(classifyManager, CLASSIFY_TABLE_NAME, CLASSIFY_TABLE_INDEX, mappingContext);
-        whenAddRouteThenSuccess(api);
+        KeyedInstanceIdentifier<Table, TableKey> secondaryFibIid =
+                FibManagementIIds.FM_FIB_TABLES.child(Table.class, SEC_TABLE_KEY);
+
+        when(writeContext.readAfter(secondaryFibIid)).thenReturn(Optional.of(IPV4_TABLE));
+    }
+
+    @Test(expected = WriteFailedException.class)
+    public void testWriteSingleHopInvalid(
+            @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            throws WriteFailedException {
+        final Route route1 = getIpv4RouteWithId(route, new Ipv4Prefix("192.168.2.1/24"));
+        noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_INVALID_NAME, route1),
+                "route-context");
+
+        customizer.writeCurrentAttributes(ROUTE_INVALID_IID, route1, writeContext);
+        verifyInvocation(0, ImmutableList.of(), api, requestCaptor);
     }
 
     @Test
@@ -108,10 +115,10 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         final Route route1 = getIpv4RouteWithId(route, new Ipv4Prefix("192.168.2.1/24"));
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route1), "route-context");
 
-        customizer.writeCurrentAttributes(validId, route1, writeContext);
+        customizer.writeCurrentAttributes(ROUTE_IID, route1, writeContext);
         verifyInvocation(1, ImmutableList
                         .of(desiredFlaglessResult(1, 0, 0, FIRST_ADDRESS_AS_ARRAY, 24,
-                                SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, ROUTE_PROTOCOL_INDEX, 0,
+                                SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, TABLE_ID.intValue(), 0,
                                 CLASSIFY_TABLE_INDEX, 1)),
                 api, requestCaptor);
     }
@@ -125,13 +132,15 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
                 .setNextHop(new NextHopBuilder().setNextHopOptions(
                     new TableLookupCaseBuilder()
                         .setSecondaryVrf(new VniReference(4L))
+                            .setAddressFamily(
+                                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv4.class)
                                 .build()).build())
                 .build();
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route), "route-context");
-        customizer.writeCurrentAttributes(validId, route, writeContext);
+        customizer.writeCurrentAttributes(ROUTE_IID, route, writeContext);
         verifyInvocation(1, ImmutableList
                         .of(desiredFlaglessResult(1, 0, 0, FIRST_ADDRESS_AS_ARRAY, 24,
-                                new byte[4], ~0, 0, ROUTE_PROTOCOL_INDEX, 4,
+                                new byte[4], ~0, 0, TABLE_ID.intValue(), 4,
                                 0, 0)),
                 api, requestCaptor);
     }
@@ -144,14 +153,14 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         final Route route1 = getIpv4RouteWithId(route, new Ipv4Prefix("192.168.2.1/24"));
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route1), "route-context");
 
-        customizer.writeCurrentAttributes(validId, route1, writeContext);
+        customizer.writeCurrentAttributes(ROUTE_IID, route1, writeContext);
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(1, 0, 1, FIRST_ADDRESS_AS_ARRAY, 24,
-                                FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 0,
+                                FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, TABLE_ID.intValue(), 0,
                                 CLASSIFY_TABLE_INDEX, 1),
                         desiredFlaglessResult(1, 0, 1, FIRST_ADDRESS_AS_ARRAY, 24,
-                                SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 3, ROUTE_PROTOCOL_INDEX, 0,
+                                SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 3, TABLE_ID.intValue(), 0,
                                 CLASSIFY_TABLE_INDEX, 1)), api,
                 requestCaptor);
 
@@ -174,10 +183,10 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         final Route route1 = getIpv4RouteWithId(route, new Ipv4Prefix("192.168.2.1/24"));
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route1), "route-context");
 
-        customizer.writeCurrentAttributes(validId, route1, writeContext);
+        customizer.writeCurrentAttributes(ROUTE_IID, route1, writeContext);
         verifyInvocation(1, ImmutableList
                         .of(desiredSpecialResult(1, 0, FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0,
-                                                 ROUTE_PROTOCOL_INDEX, 0)),
+                                TABLE_ID.intValue(), 0)),
                          api, requestCaptor);
     }
 
@@ -185,7 +194,7 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
     public void testUpdate(
             @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route) {
         try {
-            customizer.updateCurrentAttributes(validId,
+            customizer.updateCurrentAttributes(ROUTE_IID,
                                                new RouteBuilder().build(),
                                                getIpv4RouteWithId(route,
                                                                   new Ipv4Prefix("192.168.2.1/24")), writeContext);
@@ -202,13 +211,13 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
     public void testDeleteSingleHop(
             @InjectTestData(resourcePath = "/ipv4/simplehop/simpleHopRouteWithClassifier.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
-        customizer.deleteCurrentAttributes(validId,
+        customizer.deleteCurrentAttributes(ROUTE_IID,
                                            getIpv4RouteWithId(route,
                                                               new Ipv4Prefix("192.168.2.1/24")), writeContext);
         verifyInvocation(1, ImmutableList
                 .of(desiredFlaglessResult(0, 0, 0, FIRST_ADDRESS_AS_ARRAY, 24,
                         SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX,
-                        0, ROUTE_PROTOCOL_INDEX, 0, CLASSIFY_TABLE_INDEX, 1)),
+                        0, TABLE_ID.intValue(), 0, CLASSIFY_TABLE_INDEX, 1)),
                          api, requestCaptor);
     }
 
@@ -219,14 +228,14 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
         final Route route1 = getIpv4RouteWithId(route, new Ipv4Prefix("192.168.2.1/24"));
         noMappingDefined(mappingContext, namesFactory.uniqueRouteName(ROUTE_PROTOCOL_NAME, route1), "route-context");
 
-        customizer.deleteCurrentAttributes(validId, route1, writeContext);
+        customizer.deleteCurrentAttributes(ROUTE_IID, route1, writeContext);
         verifyInvocation(2,
                 ImmutableList.of(
                         desiredFlaglessResult(0, 0, 1, FIRST_ADDRESS_AS_ARRAY, 24,
-                                FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, ROUTE_PROTOCOL_INDEX, 0,
+                                FIRST_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 2, TABLE_ID.intValue(), 0,
                                 CLASSIFY_TABLE_INDEX, 1),
                         desiredFlaglessResult(0, 0, 1, FIRST_ADDRESS_AS_ARRAY, 24,
-                                new byte[]{-64, -88, 2, 2}, INTERFACE_INDEX, 3, ROUTE_PROTOCOL_INDEX, 0,
+                                new byte[]{-64, -88, 2, 2}, INTERFACE_INDEX, 3, TABLE_ID.intValue(), 0,
                                 CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
 
         verify(routeHopContext, times(1))
@@ -245,11 +254,12 @@ public class Ipv4RouteCustomizerTest extends WriterCustomizerTest
     public void testDeleteSpecialHop(
             @InjectTestData(resourcePath = "/ipv4/specialhop/specialHopRouteBlackhole.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
             throws WriteFailedException {
-        customizer.deleteCurrentAttributes(validId, getIpv4RouteWithId(route, new Ipv4Prefix("192.168.2.1/24")), writeContext);
+        customizer.deleteCurrentAttributes(ROUTE_IID, getIpv4RouteWithId(route, new Ipv4Prefix("192.168.2.1/24")),
+                writeContext);
 
         verifyInvocation(1,
                 ImmutableList.of(desiredSpecialResult(0, 0, FIRST_ADDRESS_AS_ARRAY, 24, 1, 0, 0, 0,
-                                                      ROUTE_PROTOCOL_INDEX, 0)),
+                        TABLE_ID.intValue(), 0)),
                          api, requestCaptor);
     }
 }

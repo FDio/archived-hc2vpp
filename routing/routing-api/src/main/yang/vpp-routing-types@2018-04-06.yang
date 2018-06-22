@@ -33,11 +33,9 @@ module vpp-routing-types {
         description "Initial revision.";
     }
 
-    /*** Collection of types related to VPP routing ***/
-
-    typedef vni-reference {
-        type uint32;
-        description "Vrf index reference";
+    import vpp-fib-table-management {
+        prefix fib-management;
+        revision-date 2018-05-21;
     }
 
     /*** Groupings ***/
@@ -51,9 +49,13 @@ module vpp-routing-types {
 
     grouping table-lookup-case-params {
         leaf secondary-vrf {
-            type vni-reference;
+            type fib-management:fib-table-list-ref;
             mandatory true;
             description "Secondary vrf used to lookup in";
+        }
+        leaf address-family {
+            type fib-management:address-family-type;
+            description "Address family reference for secondary vrf.";
         }
         // uses special deaggregation address every time : 0.0.0.0
     }

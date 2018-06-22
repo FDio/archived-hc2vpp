@@ -31,7 +31,6 @@ import com.google.inject.name.Named;
 import com.google.inject.testing.fieldbinder.Bind;
 import com.google.inject.testing.fieldbinder.BoundFieldModule;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
-import io.fd.hc2vpp.fib.management.services.FibTableService;
 import io.fd.hc2vpp.routing.read.RoutingReaderFactory;
 import io.fd.hc2vpp.routing.write.RoutingWriterFactory;
 import io.fd.hc2vpp.vpp.classifier.context.VppClassifierContextManager;
@@ -72,10 +71,6 @@ public class RoutingModuleTest {
     @Bind
     @Mock
     private FutureJVppCore futureJVppCore;
-
-    @Bind
-    @Mock
-    private FibTableService fibTableService;
 
     @Inject
     private Set<ReaderFactory> readerFactories = new HashSet<>();

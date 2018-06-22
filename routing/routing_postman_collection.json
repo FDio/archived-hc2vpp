@@ -1,12 +1,90 @@
 {
 	"info": {
-		"_postman_id": "ad50e1ac-df20-4667-82cf-41321601c1f9",
+		"_postman_id": "ea03e25f-2a73-4fc1-a806-31b6f862ecc5",
 		"name": "Routing",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "IPv4",
+			"name": "1. Add FIB tables",
+			"description": "",
+			"item": [
+				{
+					"name": "write FIB tables",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fib-tables\": {\n        \"table\": [\n            {\n                \"table-id\": 0,\n                \"address-family\": \"vpp-fib-table-management:ipv4\",\n                \"name\": \"ipv4-VRF:0\"\n            },\n            {\n                \"table-id\": 0,\n                \"address-family\": \"vpp-fib-table-management:ipv6\",\n                \"name\": \"ipv6-VRF:0\"\n            },\n            {\n                \"table-id\": 1,\n                \"address-family\": \"vpp-fib-table-management:ipv4\",\n                \"name\": \"ipv4-VRF:1\"\n            },\n            {\n                \"table-id\": 1,\n                \"address-family\": \"vpp-fib-table-management:ipv6\",\n                \"name\": \"ipv6-VRF:1\"\n            }\n        ]\n    }\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-fib-table-management:fib-table-management/fib-tables/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-fib-table-management:fib-table-management",
+								"fib-tables",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "read all FIB tables - operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/vpp-fib-table-management:fib-table-management/fib-tables/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"vpp-fib-table-management:fib-table-management",
+								"fib-tables",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. IPv4",
 			"description": null,
 			"item": [
 				{
@@ -684,7 +762,7 @@
 			]
 		},
 		{
-			"name": "IPv6",
+			"name": "3. IPv6",
 			"description": null,
 			"item": [
 				{

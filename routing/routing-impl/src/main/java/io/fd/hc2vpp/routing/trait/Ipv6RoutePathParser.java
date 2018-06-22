@@ -43,7 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.next.hop.content.next.hop.options.next.hop.list.next.hop.list.NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentation;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.ipv6.unicast.routing.rev180319.VppIpv6NextHopAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.types.rev180406.VniReference;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 
 public interface Ipv6RoutePathParser extends RouteMapper {
 
@@ -65,7 +66,9 @@ public interface Ipv6RoutePathParser extends RouteMapper {
     static NextHopOptions tableLookup() {
         return new TableLookupCaseBuilder()
             // TODO - https://jira.fd.io/browse/VPP-994
-            .setSecondaryVrf(new VniReference(0L)).build();
+                .setSecondaryVrf(new VniReference(0L))
+                .setAddressFamily(Ipv6.class)
+                .build();
     }
 
     static SpecialNextHop specialHop(final FibPath fibPath) {

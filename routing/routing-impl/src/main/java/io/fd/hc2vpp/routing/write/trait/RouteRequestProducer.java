@@ -17,8 +17,6 @@
 package io.fd.hc2vpp.routing.write.trait;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import com.google.common.collect.ImmutableSet.Builder;
@@ -32,7 +30,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.vpp.routing.types.rev180406.VniReference;
 
 
 /**
@@ -48,16 +45,6 @@ public interface RouteRequestProducer extends ByteDataTranslator, AddressTransla
     byte DEFAULT_HOP_WEIGHT = 0;
 
     int MPLS_LABEL_INVALID = 0x100000;
-
-    default int mandatoryVni(final VniReference vniReference) {
-        return checkNotNull(vniReference, "Vni reference cannot be null").getValue().intValue();
-    }
-
-    default int optionalVni(final VniReference vniReference) {
-        return isNull(vniReference)
-                ? DEFAULT_VNI
-                : vniReference.getValue().intValue();
-    }
 
     default byte extractPrefix(final String value) {
         checkArgument(

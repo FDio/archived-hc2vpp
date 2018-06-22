@@ -16,9 +16,9 @@ module vpp-routing {
         revision-date 2018-03-13;
     }
 
-    import vpp-routing-types {
-        prefix vpp-routing-types;
-        revision-date 2018-04-06;
+    import vpp-fib-table-management {
+        prefix fib-management;
+        revision-date 2018-05-21;
     }
 
     organization
@@ -70,9 +70,13 @@ module vpp-routing {
     grouping vpp-routing-protocol-attributes{
         //vrf_id
         leaf primary-vrf{
-            type vpp-routing-types:vni-reference;
+            type fib-management:fib-table-list-ref;
             mandatory true;
             description "Main vrf associated to route";
+        }
+        leaf address-family {
+            type fib-management:address-family-type;
+            description "Address family reference for primary vrf.";
         }
     }
 
