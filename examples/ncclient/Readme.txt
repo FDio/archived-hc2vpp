@@ -33,7 +33,7 @@ c) (optional) build honeycomb package
 ./packaging/deb/xenial/debuild.sh
 
 4) Build ncclient
-git clone -b honeycomb https://github.com/marekgr/ncclient.git
+https://github.com/ncclient/ncclient.git
 cd ncclient
 sudo python setup.py install
 
