@@ -26,15 +26,14 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.IpAddDelRoute;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev171207.ipv4.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -58,7 +57,7 @@ final class Ipv4Writer implements RouteWriter<Ipv4Route>, Ipv4Translator, JvppRe
 
     @Override
     public void create(@Nonnull final InstanceIdentifier<Ipv4Route> id,
-                       @Nullable final Ipv4Route route)
+                       @Nonnull final Ipv4Route route)
         throws WriteFailedException.CreateFailedException {
         final IpAddDelRoute request = request(route, true);
         LOG.debug("Translating id={}, route={} to {}", id, route, request);
@@ -68,7 +67,7 @@ final class Ipv4Writer implements RouteWriter<Ipv4Route>, Ipv4Translator, JvppRe
 
     @Override
     public void delete(@Nonnull final InstanceIdentifier<Ipv4Route> id,
-                       @Nullable final Ipv4Route route)
+                       @Nonnull final Ipv4Route route)
         throws WriteFailedException.DeleteFailedException {
         LOG.debug("Removing id={}, route={}", id, route);
         getReplyForDelete(vppApi.ipAddDelRoute(request(route, false)).toCompletableFuture(), id);
@@ -77,8 +76,8 @@ final class Ipv4Writer implements RouteWriter<Ipv4Route>, Ipv4Translator, JvppRe
 
     @Override
     public void update(@Nonnull final InstanceIdentifier<Ipv4Route> id,
-                       @Nullable final Ipv4Route routeBefore,
-                       @Nullable final Ipv4Route routeAfter)
+                       @Nonnull final Ipv4Route routeBefore,
+                       @Nonnull final Ipv4Route routeAfter)
         throws WriteFailedException.UpdateFailedException {
         throw new WriteFailedException.UpdateFailedException(id, routeBefore, routeAfter,
             new UnsupportedOperationException("Operation not supported"));

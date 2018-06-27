@@ -24,7 +24,6 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.MplsRouteAddDel;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.LabeledUnicastRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev171207.labeled.unicast.routes.list.LabeledUnicastRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev171207.BgpRib;
@@ -60,7 +59,7 @@ final class BgpPrefixSidMplsWriter
 
     @Override
     public void create(@Nonnull final InstanceIdentifier<LabeledUnicastRoute> id,
-                       @Nullable final LabeledUnicastRoute route)
+                       @Nonnull final LabeledUnicastRoute route)
         throws WriteFailedException.CreateFailedException {
         LOG.debug("Translating id={}, route={}", id, route);
         // Compute label based on BGP Prefix SID TLVs and add following VPP FIB entries
@@ -82,7 +81,7 @@ final class BgpPrefixSidMplsWriter
 
     @Override
     public void delete(@Nonnull final InstanceIdentifier<LabeledUnicastRoute> id,
-                       @Nullable final LabeledUnicastRoute route)
+                       @Nonnull final LabeledUnicastRoute route)
         throws WriteFailedException.DeleteFailedException {
         LOG.debug("Removing id={}, route={}", id, route);
         // Remove non-eos VPP MPLS FIB entry:
@@ -101,8 +100,8 @@ final class BgpPrefixSidMplsWriter
 
     @Override
     public void update(@Nonnull final InstanceIdentifier<LabeledUnicastRoute> id,
-                       @Nullable final LabeledUnicastRoute routeBefore,
-                       @Nullable final LabeledUnicastRoute routeAfter)
+                       @Nonnull final LabeledUnicastRoute routeBefore,
+                       @Nonnull final LabeledUnicastRoute routeAfter)
         throws WriteFailedException.UpdateFailedException {
         throw new WriteFailedException.UpdateFailedException(id, routeBefore, routeAfter,
             new UnsupportedOperationException("Operation not supported"));
