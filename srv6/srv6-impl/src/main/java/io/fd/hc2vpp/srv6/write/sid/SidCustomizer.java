@@ -71,10 +71,6 @@ public class SidCustomizer extends FutureJVppCustomizer implements ListWriterCus
         Table vrfTable = getVrfTable(instanceIdentifier, writeContext, locatorIid, locatorOpt);
         LocalSidFunctionRequest request = bindRequest(extractLocPrefix(instanceIdentifier, locatorOpt, localSid),
                 localSid, vrfTable.getTableId().getValue().intValue(), writeContext);
-        if (request == null) {
-            throw new WriteFailedException(instanceIdentifier,
-                    String.format("Cannot create write request for %s", localSid));
-        }
         request.write(instanceIdentifier);
     }
 
@@ -117,11 +113,6 @@ public class SidCustomizer extends FutureJVppCustomizer implements ListWriterCus
         Table vrfTable = getVrfTable(instanceIdentifier, writeContext, locatorIid, locatorOpt);
         LocalSidFunctionRequest request = bindRequest(extractLocPrefix(instanceIdentifier, locatorOpt, localSid),
                 localSid, vrfTable.getTableId().getValue().intValue(), writeContext);
-
-        if (request == null) {
-            throw new WriteFailedException(instanceIdentifier,
-                    String.format("Cannot create delete request for %s", localSid));
-        }
         request.delete(instanceIdentifier);
     }
 
