@@ -16,8 +16,7 @@
 
 package io.fd.hc2vpp.lisp.translate.read.dump.executor.params;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
+import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.eid.table.grouping.eid.table.vni.table.BridgeDomainSubtable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.lisp.rev171013.eid.table.grouping.eid.table.vni.table.VrfSubtable;
@@ -50,7 +49,7 @@ public final class SubtableDumpParams {
 
         private final int value;
 
-        private MapLevel(final int value) {
+        MapLevel(final int value) {
             this.value = value;
         }
 
@@ -59,12 +58,12 @@ public final class SubtableDumpParams {
         }
     }
 
-    public static final class SubtableDumpParamsBuilder {
+    public static final class SubtableDumpParamsBuilder implements ByteDataTranslator {
 
         private byte isL2;
 
         public SubtableDumpParamsBuilder setL2(@Nonnull final MapLevel mapLevel) {
-            isL2 = Integer.valueOf(checkNotNull(mapLevel, "Cannot set null map level").getValue()).byteValue();
+            isL2 = booleanToByte(MapLevel.L2.equals(mapLevel));
             return this;
         }
 
