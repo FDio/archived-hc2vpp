@@ -96,8 +96,7 @@ public class SidCustomizer extends FutureJVppCustomizer implements ListWriterCus
         Preconditions.checkArgument(locatorOpt.isPresent(), "Cannot read locator for sid: {}, with IId: ", localSid,
                 instanceIdentifier);
         Locator loc = locatorOpt.get();
-        if (loc.getPrefix() == null || loc.getPrefix() == null || loc.getPrefix().getAddress() == null ||
-                loc.getPrefix().getLength() == null) {
+        if (loc.getPrefix() == null || loc.getPrefix().getAddress() == null || loc.getPrefix().getLength() == null) {
             throw new WriteFailedException(instanceIdentifier,
                     String.format("Cannot parse locator prefix for local sid %s", localSid));
         }
