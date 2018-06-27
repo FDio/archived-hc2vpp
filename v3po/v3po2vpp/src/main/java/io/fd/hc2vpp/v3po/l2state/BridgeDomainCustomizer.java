@@ -93,16 +93,14 @@ public final class BridgeDomainCustomizer extends FutureJVppCustomizer
 
     private void logBridgeDomainDetails(final BridgeDomainDetails bridgeDomainDetails) {
         LOG.debug("bridgeDomainDetails={}", bridgeDomainDetails);
-        if (bridgeDomainDetails != null) {
-            LOG.debug("bridgeDomainDetails.arpTerm={}", bridgeDomainDetails.arpTerm);
-            LOG.debug("bridgeDomainDetails.bdId={}", bridgeDomainDetails.bdId);
-            LOG.debug("bridgeDomainDetails.bviSwIfIndex={}", bridgeDomainDetails.bviSwIfIndex);
-            LOG.debug("bridgeDomainDetails.flood={}", bridgeDomainDetails.flood);
-            LOG.debug("bridgeDomainDetails.forward={}", bridgeDomainDetails.forward);
-            LOG.debug("bridgeDomainDetails.learn={}", bridgeDomainDetails.learn);
-            LOG.debug("bridgeDomainDetails.nSwIfs={}", bridgeDomainDetails.nSwIfs);
-            LOG.debug("bridgeDomainDetails.uuFlood={}", bridgeDomainDetails.uuFlood);
-        }
+        LOG.debug("bridgeDomainDetails.arpTerm={}", bridgeDomainDetails.arpTerm);
+        LOG.debug("bridgeDomainDetails.bdId={}", bridgeDomainDetails.bdId);
+        LOG.debug("bridgeDomainDetails.bviSwIfIndex={}", bridgeDomainDetails.bviSwIfIndex);
+        LOG.debug("bridgeDomainDetails.flood={}", bridgeDomainDetails.flood);
+        LOG.debug("bridgeDomainDetails.forward={}", bridgeDomainDetails.forward);
+        LOG.debug("bridgeDomainDetails.learn={}", bridgeDomainDetails.learn);
+        LOG.debug("bridgeDomainDetails.nSwIfs={}", bridgeDomainDetails.nSwIfs);
+        LOG.debug("bridgeDomainDetails.uuFlood={}", bridgeDomainDetails.uuFlood);
     }
 
     @Nonnull
