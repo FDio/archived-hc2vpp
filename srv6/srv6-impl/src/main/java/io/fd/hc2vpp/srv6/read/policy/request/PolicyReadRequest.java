@@ -251,9 +251,9 @@ public class PolicyReadRequest extends JVppRequest
                         }));
     }
 
-    private Segment parseSrv6Sid(final int i, final Srv6Sid srv6Sid) {
+    private Segment parseSrv6Sid(final long i, final Srv6Sid srv6Sid) {
         // shifting index by 1 so it matches original indexing
-        long index = i + 1;
+        long index = i + 1L;
         SegmentBuilder builder = new SegmentBuilder().setKey(new SegmentKey(index)).setState(
                 new org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.segment.properties.StateBuilder()
                         .setIndex(index)
