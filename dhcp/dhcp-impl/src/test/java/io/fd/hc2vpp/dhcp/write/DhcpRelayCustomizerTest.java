@@ -29,13 +29,14 @@ import io.fd.vpp.jvpp.core.dto.DhcpProxyConfig;
 import io.fd.vpp.jvpp.core.dto.DhcpProxyConfigReply;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Dhcp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.Relays;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.Relay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.RelayKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.Dhcp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.Relays;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.Relay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.RelayKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.AddressFamilyIdentity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(HoneycombTestRunner.class)
@@ -106,7 +107,7 @@ public class DhcpRelayCustomizerTest extends WriterCustomizerTest implements Sch
         verify(api).dhcpProxyConfig(request);
     }
 
-    private InstanceIdentifier<Relay> getId(final long rxVrfId, final Class<? extends AddressFamily> addressType) {
-        return RELAYS_IID.child(Relay.class, new RelayKey(addressType, rxVrfId));
+    private InstanceIdentifier<Relay> getId(final long rxVrfId, final Class<? extends AddressFamilyIdentity> addressType) {
+        return RELAYS_IID.child(Relay.class, new RelayKey(addressType, new VniReference(rxVrfId)));
     }
 }

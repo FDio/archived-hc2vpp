@@ -2,7 +2,7 @@
   "relays": {
     "relay": [
       {
-        "address-type": "ipv4",
+        "address-family": "vpp-fib-table-management:ipv4",
         "rx-vrf-id": 0,
         "gateway-address": "5.6.7.8",
         "server" : [

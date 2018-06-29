@@ -31,24 +31,25 @@ import io.fd.vpp.jvpp.core.dto.DhcpProxyDump;
 import io.fd.vpp.jvpp.core.types.DhcpServer;
 import java.util.List;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Dhcp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.Relays;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.RelaysBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.Relay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.RelayBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.RelayKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.relay.attributes.Server;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.Dhcp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.Relays;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.RelaysBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.Relay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.RelayBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.RelayKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.relay.attributes.Server;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTest<Relay, RelayKey, RelayBuilder> {
     private static InstanceIdentifier<Relays> RELAYS = InstanceIdentifier.create(Dhcp.class).child(Relays.class);
     private KeyedInstanceIdentifier<Relay, RelayKey> IP4_IID =
-        RELAYS.child(Relay.class, new RelayKey(Ipv4.class, 123L));
+        RELAYS.child(Relay.class, new RelayKey(Ipv4.class, new VniReference(123L)));
     private KeyedInstanceIdentifier<Relay, RelayKey> IP6_IID =
-        RELAYS.child(Relay.class, new RelayKey(Ipv6.class, 321L));
+        RELAYS.child(Relay.class, new RelayKey(Ipv6.class, new VniReference(321L)));
     public DhcpRelayCustomizerTest() {
         super(Relay.class, RelaysBuilder.class);
     }
@@ -104,7 +105,7 @@ public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTes
     public void testReadIp4() throws ReadFailedException {
         final RelayBuilder builder = new RelayBuilder();
         getCustomizer().readCurrentAttributes(IP4_IID, builder, ctx);
-        assertEquals(IP4_IID.getKey().getAddressType(), builder.getAddressType());
+        assertEquals(IP4_IID.getKey().getAddressFamily(), builder.getAddressFamily());
         assertEquals(IP4_IID.getKey().getRxVrfId(), builder.getRxVrfId());
         assertArrayEquals("1.2.3.4".toCharArray(), builder.getGatewayAddress().getValue());
         final List<Server> server = builder.getServer();
@@ -119,7 +120,7 @@ public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTes
     public void testReadIp6() throws ReadFailedException {
         final RelayBuilder builder = new RelayBuilder();
         getCustomizer().readCurrentAttributes(IP6_IID, builder, ctx);
-        assertEquals(IP6_IID.getKey().getAddressType(), builder.getAddressType());
+        assertEquals(IP6_IID.getKey().getAddressFamily(), builder.getAddressFamily());
         assertEquals(IP6_IID.getKey().getRxVrfId(), builder.getRxVrfId());
         assertEquals(22L, builder.getServer().get(0).getVrfId().longValue());
         assertArrayEquals("2001:db8:a0b:12f0::1".toCharArray(), builder.getGatewayAddress().getValue());

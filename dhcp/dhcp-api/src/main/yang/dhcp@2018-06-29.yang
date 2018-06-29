@@ -7,6 +7,12 @@ module dhcp {
         prefix inet;
     }
 
+    import vpp-fib-table-management {
+        prefix fib-management;
+        revision-date 2018-05-21;
+    }
+
+
     organization
         "FD.io - The Fast Data Project";
 
@@ -32,6 +38,13 @@ module dhcp {
          See the License for the specific language governing permissions and
          limitations under the License.";
 
+    revision "2018-06-29" {
+        description
+            "Uses references to vrf-management module insted of table identifiers.";
+        reference
+            "https://jira.fd.io/browse/HC2VPP-317";
+    }
+
     revision "2018-01-03" {
         description
             "Changes type of ip-addresses from inet:ip-address to inet:ip-address-no-zone.";
@@ -42,30 +55,6 @@ module dhcp {
     revision "2017-03-15" {
         description
             "Initial revision of dhcp model";
-    }
-
-    identity address-family {
-        description
-            "Base identity from which identities describing address
-            families are derived.";
-    }
-
-    identity ipv4 {
-        base address-family;
-        description
-            "This identity represents IPv4 address family.";
-    }
-
-    identity ipv6 {
-        base address-family;
-        description
-            "This identity represents IPv6 address family.";
-    }
-
-    typedef address-type {
-        type identityref {
-            base address-family;
-        }
     }
 
     grouping relay-attributes {
@@ -95,14 +84,14 @@ module dhcp {
     grouping dhcp-attributes {
         container relays {
             list relay {
-                key "address-type rx-vrf-id";
-                leaf address-type {
-                    type address-type;
+                key "address-family rx-vrf-id";
+                leaf address-family {
+                    type fib-management:address-family-type;
                 }
                 leaf rx-vrf-id {
-                    type uint32;
+                    type fib-management:fib-table-list-ref;
                     description
-                        "Used to receive DHCP messages from clients.";
+                        "VRF used to receive DHCP messages from clients.";
                 }
                 uses relay-attributes;
             }

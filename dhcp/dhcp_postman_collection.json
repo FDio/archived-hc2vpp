@@ -1,13 +1,12 @@
 {
 	"info": {
-		"_postman_id": "f5441117-e55c-ba3b-6673-aaa6d383e33c",
+		"_postman_id": "7053d779-442a-4ec9-bee0-70784789f19c",
 		"name": "DHCP",
 		"description": "Provides DHCP configuration examples for hc2vpp.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"_postman_id": "92a6f186-c4ea-4781-85a5-2b9c79884349",
 			"name": "Add IP4 DHCP Relay #1",
 			"request": {
 				"method": "PUT",
@@ -23,10 +22,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"gateway-address\": \"5.6.7.8\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.3\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.4\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 1,\n\t\t\t\t\t\"address\": \"1.2.3.5\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"gateway-address\": \"5.6.7.8\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.3\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.4\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 1,\n\t\t\t\t\t\"address\": \"1.2.3.5\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/0",
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/vpp-fib-table-management:ipv4/0",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -38,7 +37,7 @@
 						"dhcp:dhcp",
 						"relays",
 						"relay",
-						"dhcp:ipv4",
+						"vpp-fib-table-management:ipv4",
 						"0"
 					]
 				},
@@ -47,7 +46,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "e0eef0a4-fb27-4a99-933d-2ea4aff476f5",
 			"name": "Add IP4 DHCP Relay #2",
 			"request": {
 				"method": "PUT",
@@ -63,10 +61,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 1,\n\t\t\t\"gateway-address\": \"5.6.7.9\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.6\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 1,\n\t\t\t\"gateway-address\": \"5.6.7.9\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 0,\n\t\t\t\t\t\"address\": \"1.2.3.6\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv4/1",
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/vpp-fib-table-management:ipv4/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -78,7 +76,7 @@
 						"dhcp:dhcp",
 						"relays",
 						"relay",
-						"dhcp:ipv4",
+						"vpp-fib-table-management:ipv4",
 						"1"
 					]
 				},
@@ -87,7 +85,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "10d6a414-e469-4352-b905-a376bf04e530",
 			"name": "Configure IP6 DHCP Relay",
 			"request": {
 				"method": "PUT",
@@ -103,10 +100,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"relay\": [\n\t\t{\n\t        \"address-type\": \"ipv6\",\n\t        \"rx-vrf-id\": 1,\n\t        \"gateway-address\": \"2001::2\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 2,\n\t\t\t\t\t\"address\": \"2001::1\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t        \"address-family\": \"vpp-fib-table-management:ipv6\",\n\t        \"rx-vrf-id\": 1,\n\t        \"gateway-address\": \"2001::2\",\n\t\t\t\"server\" : [\n\t\t\t\t{\n\t\t\t\t\t\"vrf-id\": 2,\n\t\t\t\t\t\"address\": \"2001::1\"\n\t\t\t\t}\n        \t]\n\t\t}\n\t]\n}\n"
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/dhcp:ipv6/1",
+					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/relay/vpp-fib-table-management:ipv6/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -118,7 +115,7 @@
 						"dhcp:dhcp",
 						"relays",
 						"relay",
-						"dhcp:ipv6",
+						"vpp-fib-table-management:ipv6",
 						"1"
 					]
 				},
@@ -127,7 +124,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "ec6ef8ec-689b-4ca8-8b5d-93f5a00618af",
 			"name": "Delete one of DHCP servers",
 			"request": {
 				"method": "DELETE",
@@ -170,7 +166,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "f249a24a-d940-4a88-9738-b41e9fe16c92",
 			"name": "Delete IP4 DHCP Relay #1",
 			"request": {
 				"method": "DELETE",
@@ -210,7 +205,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "8d735396-317f-48c5-9af8-b51831f26084",
 			"name": "Delete IP4 DHCP Relay #2",
 			"request": {
 				"method": "DELETE",
@@ -250,7 +244,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "88cff2b2-7506-43db-abc3-3609f1c93622",
 			"name": "Show DHCP Relay cfg",
 			"request": {
 				"method": "GET",
@@ -266,7 +259,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/",
@@ -287,7 +280,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "49d460d8-688e-43b5-a29d-d8fab9a940bd",
 			"name": "Show DHCP Relay oper",
 			"request": {
 				"method": "GET",
@@ -303,7 +295,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-type\": \"ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/dhcp:dhcp/relays/",

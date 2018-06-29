@@ -48,5 +48,10 @@
       <groupId>org.opendaylight.mdsal.model</groupId>
       <artifactId>yang-ext</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.fib.management</groupId>
+      <artifactId>fib-management-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>

@@ -31,10 +31,10 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.Relay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.RelayKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.relay.attributes.Server;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.Relay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.RelayKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.relay.attributes.Server;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv6;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,8 +98,8 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer implements ListWrit
                           final boolean isAdd)
         throws WriteFailedException {
         final DhcpProxyConfig request = new DhcpProxyConfig();
-        request.rxVrfId = relay.getRxVrfId().byteValue();
-        final boolean isIpv6 = Ipv6.class == relay.getAddressType();
+        request.rxVrfId = relay.getRxVrfId().getValue().byteValue();
+        final boolean isIpv6 = Ipv6.class == relay.getAddressFamily();
         request.isIpv6 = booleanToByte(isIpv6);
         request.serverVrfId = server.getVrfId().intValue();
         request.isAdd = booleanToByte(isAdd);

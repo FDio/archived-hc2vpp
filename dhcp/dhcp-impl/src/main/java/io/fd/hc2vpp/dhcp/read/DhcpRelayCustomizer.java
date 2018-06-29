@@ -40,13 +40,14 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.RelaysBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.Relay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.RelayBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.dhcp.attributes.relays.RelayKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180103.relay.attributes.ServerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.RelaysBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.Relay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.RelayBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.dhcp.attributes.relays.RelayKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.dhcp.rev180629.relay.attributes.ServerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -96,7 +97,7 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer
         return dump.get().dhcpProxyDetails.stream().map(detail -> new RelayKey(detail.isIpv6 == 1
             ? Ipv6.class
             : Ipv4.class,
-            UnsignedInts.toLong(detail.rxVrfId))).collect(Collectors.toList());
+            new VniReference(UnsignedInts.toLong(detail.rxVrfId)))).collect(Collectors.toList());
     }
 
     @Override
@@ -121,17 +122,17 @@ final class DhcpRelayCustomizer extends FutureJVppCustomizer
 
         final RelayKey key = id.firstKeyOf(Relay.class);
 
-        final byte isIpv6 = (byte) (Ipv6.class == key.getAddressType()
+        final byte isIpv6 = (byte) (Ipv6.class == key.getAddressFamily()
             ? 1
             : 0);
-        final int rxVrfId = key.getRxVrfId().intValue();
+        final int rxVrfId = key.getRxVrfId().getValue().intValue();
 
         final java.util.Optional<DhcpProxyDetails> result =
             dump.get().dhcpProxyDetails.stream().filter(d -> d.isIpv6 == isIpv6 && d.rxVrfId == rxVrfId).findFirst();
 
         if (result.isPresent()) {
             final DhcpProxyDetails detail = result.get();
-            builder.setAddressType(key.getAddressType());
+            builder.setAddressFamily(key.getAddressFamily());
             builder.setRxVrfId(key.getRxVrfId());
             final boolean isIp6 = byteToBoolean(detail.isIpv6);
             builder.setGatewayAddress(readAddress(detail.dhcpSrcAddress, isIp6));
