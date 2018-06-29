@@ -65,7 +65,7 @@ public class AclUpdateBenchmark extends JVppBenchmark {
      * Initializes loopback interface, creates ACL and assigns it to loop0.
      */
     @Override
-    protected void iterationSetup() throws Exception {
+    protected void iterationSetup() throws ExecutionException, InterruptedException {
         aclProvider = new AclProviderImpl(aclSetSize, aclSize);
 
         // Init loop0 interface

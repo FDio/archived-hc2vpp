@@ -19,10 +19,6 @@ package io.fd.hc2vpp.it.jvpp.benchmark.util;
 import com.google.common.io.CharStreams;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.JVppRegistryImpl;
-import io.fd.vpp.jvpp.acl.JVppAclImpl;
-import io.fd.vpp.jvpp.acl.future.FutureJVppAclFacade;
-import io.fd.vpp.jvpp.core.JVppCoreImpl;
-import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
 import io.fd.vpp.jvpp.dto.JVppReply;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -81,14 +77,14 @@ public abstract class JVppBenchmark {
         // NOOP
     }
 
-    private void startVpp() throws Exception {
+    private void startVpp() throws IOException, InterruptedException {
         LOG.info("Starting VPP ...");
         final String[] cmd = {"/bin/sh", "-c", "sudo service vpp start"};
         exec(cmd);
         LOG.info("VPP started successfully");
     }
 
-    private void stopVpp() throws Exception {
+    private void stopVpp() throws IOException, InterruptedException {
         LOG.info("Stopping VPP ...");
         final String[] cmd = {"/bin/sh", "-c", "sudo service vpp stop"};
         exec(cmd);

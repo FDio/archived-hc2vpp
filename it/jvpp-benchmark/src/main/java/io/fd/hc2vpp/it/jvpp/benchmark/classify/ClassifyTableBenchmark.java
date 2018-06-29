@@ -22,6 +22,7 @@ import io.fd.vpp.jvpp.core.JVppCoreImpl;
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCoreFacade;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Param;
 import org.slf4j.Logger;
@@ -37,13 +38,13 @@ public class ClassifyTableBenchmark extends JVppBenchmark {
     private ClassifyTableProvider classifyTableProvider;
 
     @Benchmark
-    public ClassifyAddDelTableReply testCreate() throws Exception {
+    public ClassifyAddDelTableReply testCreate() throws ExecutionException, InterruptedException {
         // Caller may want to process reply, so return it to prevent JVM from dead code elimination
         return jvppCore.classifyAddDelTable(classifyTableProvider.next()).toCompletableFuture().get();
     }
 
     @Override
-    protected void iterationSetup() throws Exception {
+    protected void iterationSetup() {
         classifyTableProvider = new ClassifyTableProviderImpl(tableSetSize);
     }
 
