@@ -22,7 +22,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import io.fd.hc2vpp.common.test.read.ListReaderCustomizerTest;
+import io.fd.hc2vpp.common.test.read.InitializingListReaderCustomizerTest;
 import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.fib.management.FibManagementIIds;
 import io.fd.honeycomb.translate.ModificationCache;
@@ -52,8 +52,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.vpp.fib.table.management.fib.tables.TableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class FibTableCustomizerTest extends ListReaderCustomizerTest<Table, TableKey, TableBuilder> implements
-        AddressTranslator {
+public class FibTableCustomizerTest extends InitializingListReaderCustomizerTest<Table, TableKey, TableBuilder>
+    implements AddressTranslator {
 
     private static final String IPV4_VRF_1 = "IPV4_VRF_1";
     private static final IpAddress NEXT_HOP_1 = new IpAddress(new Ipv6Address("a::1"));
@@ -163,6 +163,12 @@ public class FibTableCustomizerTest extends ListReaderCustomizerTest<Table, Tabl
         Assert.assertEquals(Ipv4.class, builder.getAddressFamily());
         Assert.assertEquals(1L, builder.getTableId().getValue().longValue());
         Assert.assertEquals(IPV4_VRF_1, builder.getName());
+    }
+
+    @Test
+    public void testInit() {
+        final Table data = new TableBuilder().build();
+        invokeInitTest(TABLE_V4_ID, data, TABLE_V4_ID, data);
     }
 
     @Override

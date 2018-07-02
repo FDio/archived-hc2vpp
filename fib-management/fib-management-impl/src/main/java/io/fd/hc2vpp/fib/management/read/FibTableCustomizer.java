@@ -20,7 +20,8 @@ package io.fd.hc2vpp.fib.management.read;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.honeycomb.translate.read.ReadContext;
 import io.fd.honeycomb.translate.read.ReadFailedException;
-import io.fd.honeycomb.translate.spi.read.ListReaderCustomizer;
+import io.fd.honeycomb.translate.spi.read.Initialized;
+import io.fd.honeycomb.translate.spi.read.InitializingListReaderCustomizer;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
 import io.fd.vpp.jvpp.core.dto.Ip6FibDetailsReplyDump;
 import io.fd.vpp.jvpp.core.dto.IpFibDetailsReplyDump;
@@ -40,7 +41,7 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-class FibTableCustomizer implements ListReaderCustomizer<Table, TableKey, TableBuilder>, ByteDataTranslator {
+class FibTableCustomizer implements InitializingListReaderCustomizer<Table, TableKey, TableBuilder>, ByteDataTranslator {
     private final DumpCacheManager<IpFibDetailsReplyDump, Void> ipv4DumpManager;
     private final DumpCacheManager<Ip6FibDetailsReplyDump, Void> ipv6DumpManager;
 
@@ -115,5 +116,13 @@ class FibTableCustomizer implements ListReaderCustomizer<Table, TableKey, TableB
             // table name is optional
             builder.setName(toString(tableName));
         }
+    }
+
+    @Nonnull
+    @Override
+    public Initialized<Table> init(@Nonnull final InstanceIdentifier<Table> id,
+                                   @Nonnull final Table readValue,
+                                   @Nonnull final ReadContext ctx) {
+        return Initialized.create(id, readValue);
     }
 }

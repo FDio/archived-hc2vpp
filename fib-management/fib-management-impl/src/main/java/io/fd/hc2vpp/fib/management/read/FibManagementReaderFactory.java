@@ -19,7 +19,7 @@ package io.fd.hc2vpp.fib.management.read;
 import com.google.inject.Inject;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.hc2vpp.fib.management.FibManagementIIds;
-import io.fd.honeycomb.translate.impl.read.GenericListReader;
+import io.fd.honeycomb.translate.impl.read.GenericInitListReader;
 import io.fd.honeycomb.translate.read.ReaderFactory;
 import io.fd.honeycomb.translate.read.registry.ModifiableReaderRegistryBuilder;
 import io.fd.honeycomb.translate.util.read.cache.DumpCacheManager;
@@ -47,7 +47,7 @@ public final class FibManagementReaderFactory implements ReaderFactory, JvppRepl
 
         registry.addStructuralReader(FibManagementIIds.FIB_MNGMNT, FibTableManagementBuilder.class);
         registry.addStructuralReader(FibManagementIIds.FM_FIB_TABLES, FibTablesBuilder.class);
-        registry.add(new GenericListReader<>(FibManagementIIds.FM_FTBLS_TABLE,
+        registry.add(new GenericInitListReader<>(FibManagementIIds.FM_FTBLS_TABLE,
                 new FibTableCustomizer(ipv4DumpManager, ipv6DumpManager)));
     }
 
