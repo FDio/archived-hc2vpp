@@ -76,22 +76,11 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
         v.interfaceName = "vxlan-tunnel4".getBytes();
 
         when(dumpCacheManager.getInterfaceDetail(IID, ctx, IF_NAME)).thenReturn(v);
-
-        final VxlanTunnelDetailsReplyDump value = new VxlanTunnelDetailsReplyDump();
-        final VxlanTunnelDetails vxlanTunnelDetails = new VxlanTunnelDetails();
-        vxlanTunnelDetails.isIpv6 = 0;
-        vxlanTunnelDetails.dstAddress = InetAddresses.forString("1.2.3.4").getAddress();
-        vxlanTunnelDetails.srcAddress = InetAddresses.forString("1.2.3.5").getAddress();
-        vxlanTunnelDetails.encapVrfId = 55;
-        vxlanTunnelDetails.swIfIndex = 0;
-        vxlanTunnelDetails.vni = 9;
-        vxlanTunnelDetails.decapNextIndex = 1;
-        value.vxlanTunnelDetails = Lists.newArrayList(vxlanTunnelDetails);
-        doReturn(future(value)).when(api).vxlanTunnelDump(any(VxlanTunnelDump.class));
+        doReturn(future(getVxlanTunnelDetailsReplyDump(55))).when(api).vxlanTunnelDump(any(VxlanTunnelDump.class));
     }
 
     @Test
-    public void testReadCurrentAttributes() throws Exception {
+    public void testRead() throws Exception {
         final VxlanBuilder builder = getCustomizer().getBuilder(IID);
         getCustomizer().readCurrentAttributes(IID, builder, ctx);
 
@@ -110,8 +99,20 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
         verify(api).vxlanTunnelDump(any(VxlanTunnelDump.class));
     }
 
+    @Test
+    public void testReadVniOverflow() throws Exception {
+        final long encapVrfId = 4294967295L;
+        doReturn(future(getVxlanTunnelDetailsReplyDump((int) encapVrfId))).when(api)
+            .vxlanTunnelDump(any(VxlanTunnelDump.class));
+        final VxlanBuilder builder = getCustomizer().getBuilder(IID);
+        getCustomizer().readCurrentAttributes(IID, builder, ctx);
+
+        assertEquals(encapVrfId, builder.getEncapVrfId().getValue().longValue());
+        verify(api).vxlanTunnelDump(any(VxlanTunnelDump.class));
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testReadCurrentAttributesVppNameNotCached() throws Exception {
+    public void testReadVppNameNotCached() throws Exception {
         when(dumpCacheManager.getInterfaceDetail(IID, ctx, IF_NAME))
                 .thenThrow(new IllegalArgumentException("Detail for interface not found"));
 
@@ -120,7 +121,7 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
     }
 
     @Test
-    public void testReadCurrentAttributesWrongType() throws Exception {
+    public void testReadWrongType() throws Exception {
         final SwInterfaceDetails v = new SwInterfaceDetails();
         v.interfaceName = "tap-2".getBytes();
 
@@ -136,5 +137,19 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
     @Override
     protected ReaderCustomizer<Vxlan, VxlanBuilder> initCustomizer() {
         return new VxlanCustomizer(api, interfacesContext, dumpCacheManager);
+    }
+
+    private static VxlanTunnelDetailsReplyDump getVxlanTunnelDetailsReplyDump(final int encapVrfId) {
+        final VxlanTunnelDetailsReplyDump replyDump = new VxlanTunnelDetailsReplyDump();
+        final VxlanTunnelDetails vxlanTunnelDetails = new VxlanTunnelDetails();
+        vxlanTunnelDetails.isIpv6 = 0;
+        vxlanTunnelDetails.dstAddress = InetAddresses.forString("1.2.3.4").getAddress();
+        vxlanTunnelDetails.srcAddress = InetAddresses.forString("1.2.3.5").getAddress();
+        vxlanTunnelDetails.encapVrfId = encapVrfId;
+        vxlanTunnelDetails.swIfIndex = 0;
+        vxlanTunnelDetails.vni = 9;
+        vxlanTunnelDetails.decapNextIndex = 1;
+        replyDump.vxlanTunnelDetails = Lists.newArrayList(vxlanTunnelDetails);
+        return replyDump;
     }
 }

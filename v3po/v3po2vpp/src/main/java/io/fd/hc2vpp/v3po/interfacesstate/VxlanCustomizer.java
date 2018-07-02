@@ -126,7 +126,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer
             builder.setSrc(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanDetails.srcAddress)));
         }
         builder.setEncapVrfId(new VniReference(UnsignedInts.toLong(swInterfaceVxlanDetails.encapVrfId)));
-        builder.setVni(new VxlanVni((long) swInterfaceVxlanDetails.vni));
+        builder.setVni(new VxlanVni(UnsignedInts.toLong(swInterfaceVxlanDetails.vni)));
         switch (swInterfaceVxlanDetails.decapNextIndex) {
             case 1:
                 builder.setDecapNext(L2Input.class);
