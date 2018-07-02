@@ -12,6 +12,10 @@ module proxy-arp {
   import yang-ext {
     prefix "ext";
   }
+  import vpp-fib-table-management {
+    prefix fib-management;
+    revision-date 2018-05-21;
+  }
 
   organization
     "FD.io - The Fast Data Project";
@@ -38,6 +42,13 @@ module proxy-arp {
      See the License for the specific language governing permissions and
      limitations under the License.";
 
+  revision "2018-07-02" {
+    description
+      "Uses references to vrf-management module insted of table identifiers.";
+    reference
+      "https://jira.fd.io/browse/HC2VPP-317";
+  }
+
   revision "2017-03-15" {
     description "Initial revision of proxy ARP model for VPP";
   }
@@ -46,7 +57,7 @@ module proxy-arp {
     list proxy-range {
       key "vrf-id low-addr high-addr";
       leaf vrf-id {
-        type uint32;
+        type fib-management:fib-table-list-ref;
       }
       leaf low-addr {
         type inet:ipv4-address;

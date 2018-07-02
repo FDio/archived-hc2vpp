@@ -29,8 +29,8 @@ import io.fd.vpp.jvpp.core.types.ProxyArp;
 import java.net.InetAddress;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev170315.proxy.ranges.ProxyRange;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev170315.proxy.ranges.ProxyRangeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180702.proxy.ranges.ProxyRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180702.proxy.ranges.ProxyRangeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +64,7 @@ public class ProxyRangeCustomizer extends FutureJVppCustomizer
         throws WriteFailedException {
         final InetAddress srcAddress = InetAddresses.forString(proxyArp.getLowAddr().getValue());
         final InetAddress dstAddress = InetAddresses.forString(proxyArp.getHighAddr().getValue());
-        final int vrfId = proxyArp.getVrfId().intValue();
+        final int vrfId = proxyArp.getVrfId().getValue().intValue();
         return getFutureJVpp().proxyArpAddDel(
             getProxyArpConfRequest(operation, srcAddress.getAddress(), dstAddress.getAddress(), vrfId))
             .toCompletableFuture();
