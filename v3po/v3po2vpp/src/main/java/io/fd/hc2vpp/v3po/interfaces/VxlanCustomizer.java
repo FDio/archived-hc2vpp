@@ -87,7 +87,9 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
 
-        int encapVrfId = vxlan.getEncapVrfId().intValue();
+        checkArgument(vxlan.getEncapVrfId() != null && vxlan.getEncapVrfId().getValue() != null,
+            "encap-vrf-id is mandatory but was not given");
+        int encapVrfId = vxlan.getEncapVrfId().getValue().intValue();
         int vni = vxlan.getVni().getValue().intValue();
 
         int decapNext = -1;
@@ -157,7 +159,9 @@ public class VxlanCustomizer extends AbstractInterfaceTypeCustomizer<Vxlan> impl
         final InetAddress srcAddress = InetAddresses.forString(getAddressString(vxlan.getSrc()));
         final InetAddress dstAddress = InetAddresses.forString(getAddressString(vxlan.getDst()));
 
-        int encapVrfId = vxlan.getEncapVrfId().intValue();
+        checkArgument(vxlan.getEncapVrfId() != null && vxlan.getEncapVrfId().getValue() != null,
+            "encap-vrf-id is mandatory but was not given");
+        int encapVrfId = vxlan.getEncapVrfId().getValue().intValue();
         int vni = vxlan.getVni().getValue().intValue();
 
         int decapNext = -1;

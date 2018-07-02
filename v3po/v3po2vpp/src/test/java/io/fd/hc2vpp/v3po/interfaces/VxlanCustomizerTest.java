@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VxlanVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.VxlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class VxlanCustomizerTest extends WriterCustomizerTest {
@@ -67,7 +68,7 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
         final VxlanBuilder builder = new VxlanBuilder();
         builder.setSrc(new IpAddress(new Ipv4Address("192.168.20.10")));
         builder.setDst(new IpAddress(new Ipv4Address("192.168.20.11")));
-        builder.setEncapVrfId(Long.valueOf(123));
+        builder.setEncapVrfId(new VniReference(123L));
         builder.setVni(new VxlanVni(Long.valueOf(vni)));
         builder.setDecapNext(L2Input.class);
         return builder.build();
@@ -108,7 +109,7 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
                 actual.srcAddress);
         assertArrayEquals(InetAddresses.forString(vxlan.getDst().getIpv4Address().getValue()).getAddress(),
                 actual.dstAddress);
-        assertEquals(vxlan.getEncapVrfId().intValue(), actual.encapVrfId);
+        assertEquals(vxlan.getEncapVrfId().getValue().intValue(), actual.encapVrfId);
         assertEquals(vxlan.getVni().getValue().intValue(), actual.vni);
         return actual;
     }

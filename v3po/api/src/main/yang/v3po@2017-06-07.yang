@@ -18,6 +18,10 @@ module v3po {
   import yang-ext {
     prefix "ext";
   }
+  import vpp-fib-table-management {
+      prefix fib-management;
+      revision-date 2018-05-21;
+  }
 
   organization
     "FD.io - The Fast Data Project";
@@ -132,7 +136,7 @@ module v3po {
 
   typedef vxlan-vni {
     // FIXME: should be in a vxlan-specific model
-    description "VNI used in a VXLAN tunnel";
+    description "VXLAN Network Identifier";
     type uint32 {
       range "0..16777215";
     }
@@ -451,7 +455,8 @@ module v3po {
       type vxlan-vni;
     }
     leaf encap-vrf-id {
-      type uint32;
+      /*mandatory true;*/
+      type fib-management:fib-table-list-ref;
     }
     leaf decap-next {
       type vxlan-decap-node;

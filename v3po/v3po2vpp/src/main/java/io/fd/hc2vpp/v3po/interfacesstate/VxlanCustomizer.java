@@ -18,6 +18,7 @@ package io.fd.hc2vpp.v3po.interfacesstate;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import com.google.common.primitives.UnsignedInts;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.Ipv6Translator;
@@ -46,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VxlanVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.Vxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.VxlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -123,7 +125,7 @@ public class VxlanCustomizer extends FutureJVppCustomizer
             builder.setDst(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanDetails.dstAddress)));
             builder.setSrc(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanDetails.srcAddress)));
         }
-        builder.setEncapVrfId((long) swInterfaceVxlanDetails.encapVrfId);
+        builder.setEncapVrfId(new VniReference(UnsignedInts.toLong(swInterfaceVxlanDetails.encapVrfId)));
         builder.setVni(new VxlanVni((long) swInterfaceVxlanDetails.vni));
         switch (swInterfaceVxlanDetails.decapNextIndex) {
             case 1:
