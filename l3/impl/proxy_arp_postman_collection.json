@@ -1,0 +1,241 @@
+{
+	"info": {
+		"_postman_id": "1a5e64fa-9e35-4696-b268-8b96a294d7e4",
+		"name": "Hc2vpp: proxy Arp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Add arp proxy range #1",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"proxy-range\":{\r\n    \t\"vrf-id\":\"0\",\r\n    \t\"low-addr\":\"1.1.1.1\",\r\n    \t\"high-addr\":\"1.1.1.10\"\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/proxy-arp:proxy-ranges/proxy-range/0/1.1.1.1/1.1.1.10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"proxy-arp:proxy-ranges",
+						"proxy-range",
+						"0",
+						"1.1.1.1",
+						"1.1.1.10"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set ip arp proxy 1.1.1.1 - 1.1.1.10\n\nCan be verified with\n\nvppctl show ip arp"
+			},
+			"response": []
+		},
+		{
+			"name": "Add arp proxy range #2",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"proxy-range\":{\r\n    \t\"vrf-id\":\"0\",\r\n    \t\"low-addr\":\"2.2.2.2\",\r\n    \t\"high-addr\":\"2.2.2.42\"\r\n    }\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/proxy-arp:proxy-ranges/proxy-range/0/2.2.2.2/2.2.2.42",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"proxy-arp:proxy-ranges",
+						"proxy-range",
+						"0",
+						"2.2.2.2",
+						"2.2.2.42"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set ip arp proxy 2.2.2.2 - 2.2.2.42\n\nCan be verified with\n\nvppctl show ip arp"
+			},
+			"response": []
+		},
+		{
+			"name": "Enable proxy arp for local0",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"proxy-arp\": {}\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/proxy-arp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"ietf-interfaces:interfaces",
+						"interface",
+						"local0",
+						"proxy-arp"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set interface proxy-arp local0 enable"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete arp proxy range #1",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/proxy-arp:proxy-ranges/proxy-range/0/1.1.1.1/1.1.1.10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"proxy-arp:proxy-ranges",
+						"proxy-range",
+						"0",
+						"1.1.1.1",
+						"1.1.1.10"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set ip arp del proxy 1.1.1.1 - 1.1.1.10\n\nCan be verified with\n\nvppctl show ip arp"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete arp proxy range #2",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/proxy-arp:proxy-ranges/proxy-range/0/2.2.2.2/2.2.2.42",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"proxy-arp:proxy-ranges",
+						"proxy-range",
+						"0",
+						"2.2.2.2",
+						"2.2.2.42"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set ip arp del proxy 2.2.2.2 - 2.2.2.42\n\nCan be verified with\n\nvppctl show ip arp"
+			},
+			"response": []
+		},
+		{
+			"name": "Disable proxy arp for local0",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/local0/proxy-arp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"ietf-interfaces:interfaces",
+						"interface",
+						"local0",
+						"proxy-arp"
+					]
+				},
+				"description": "Equivalent of\n\nvppctl set interface proxy-arp local0 disable"
+			},
+			"response": []
+		}
+	]
+}
