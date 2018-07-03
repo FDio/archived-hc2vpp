@@ -16,8 +16,8 @@
 
 package io.fd.hc2vpp.l3.write.ipv4;
 
-import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.translate.util.FutureJVppCustomizer;
+import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
 import io.fd.hc2vpp.common.translate.util.JvppReplyConsumer;
 import io.fd.honeycomb.translate.spi.write.ListWriterCustomizer;
 import io.fd.honeycomb.translate.write.WriteContext;
@@ -26,9 +26,9 @@ import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import io.fd.vpp.jvpp.core.types.ProxyArp;
-import java.net.InetAddress;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.proxy.ranges.ProxyRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.proxy.ranges.ProxyRangeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -62,11 +62,9 @@ public class ProxyRangeCustomizer extends FutureJVppCustomizer
 
     private Future<ProxyArpAddDelReply> getProxyArpRequestFuture(ProxyRange proxyArp, byte operation)
         throws WriteFailedException {
-        final InetAddress srcAddress = InetAddresses.forString(proxyArp.getLowAddr().getValue());
-        final InetAddress dstAddress = InetAddresses.forString(proxyArp.getHighAddr().getValue());
         final int vrfId = proxyArp.getVrfId().getValue().intValue();
         return getFutureJVpp().proxyArpAddDel(
-            getProxyArpConfRequest(operation, srcAddress.getAddress(), dstAddress.getAddress(), vrfId))
+            getProxyArpConfRequest(operation, proxyArp.getLowAddr(), proxyArp.getHighAddr(), vrfId))
             .toCompletableFuture();
     }
 
@@ -85,13 +83,13 @@ public class ProxyRangeCustomizer extends FutureJVppCustomizer
         LOG.debug("Proxy ARP setting delete successful, with reply context:", reply.context);
     }
 
-    private static ProxyArpAddDel getProxyArpConfRequest(final byte isAdd, final byte[] lAddr, final byte[] hAddr,
-                                                         final int vrfId) {
+    private static ProxyArpAddDel getProxyArpConfRequest(final byte isAdd, final Ipv4AddressNoZone lAddr,
+                                                         final Ipv4AddressNoZone hAddr, final int vrfId) {
         final ProxyArpAddDel proxyArpAddDel = new ProxyArpAddDel();
         proxyArpAddDel.isAdd = isAdd;
         proxyArpAddDel.proxy = new ProxyArp();
-        proxyArpAddDel.proxy.lowAddress = lAddr;
-        proxyArpAddDel.proxy.hiAddress = hAddr;
+        proxyArpAddDel.proxy.lowAddress = Ipv4Translator.INSTANCE.ipv4AddressNoZoneToArray(lAddr);
+        proxyArpAddDel.proxy.hiAddress = Ipv4Translator.INSTANCE.ipv4AddressNoZoneToArray(hAddr);
         proxyArpAddDel.proxy.vrfId = vrfId;
         return proxyArpAddDel;
     }

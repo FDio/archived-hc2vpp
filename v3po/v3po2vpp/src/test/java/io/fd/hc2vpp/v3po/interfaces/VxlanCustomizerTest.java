@@ -27,8 +27,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -52,7 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class VxlanCustomizerTest extends WriterCustomizerTest {
+public class VxlanCustomizerTest extends WriterCustomizerTest implements AddressTranslator {
 
     private static final byte ADD_VXLAN = 1;
     private static final byte DEL_VXLAN = 0;
@@ -105,10 +105,9 @@ public class VxlanCustomizerTest extends WriterCustomizerTest {
         final VxlanAddDelTunnel actual = argumentCaptor.getValue();
         assertEquals(0, actual.isIpv6);
         assertEquals(1, actual.decapNextIndex);
-        assertArrayEquals(InetAddresses.forString(vxlan.getSrc().getIpv4AddressNoZone().getValue()).getAddress(),
-                actual.srcAddress);
-        assertArrayEquals(InetAddresses.forString(vxlan.getDst().getIpv4AddressNoZone().getValue()).getAddress(),
-                actual.dstAddress);
+
+        assertArrayEquals(ipAddressToArray(vxlan.getSrc()), actual.srcAddress);
+        assertArrayEquals(ipAddressToArray(vxlan.getDst()), actual.dstAddress);
         assertEquals(vxlan.getEncapVrfId().getValue().intValue(), actual.encapVrfId);
         assertEquals(vxlan.getVni().getValue().intValue(), actual.vni);
         return actual;

@@ -27,8 +27,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -49,7 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.interfaces.state._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, VxlanGpeBuilder> {
+public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, VxlanGpeBuilder>
+    implements AddressTranslator {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
     private static final String IF_NAME = "ifc2";
@@ -80,8 +81,8 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
         final VxlanGpeTunnelDetailsReplyDump value = new VxlanGpeTunnelDetailsReplyDump();
         final VxlanGpeTunnelDetails vxlanGpeTunnelDetails = new VxlanGpeTunnelDetails();
         vxlanGpeTunnelDetails.isIpv6 = 0;
-        vxlanGpeTunnelDetails.local = InetAddresses.forString("1.2.3.4").getAddress();
-        vxlanGpeTunnelDetails.remote = InetAddresses.forString("1.2.3.5").getAddress();
+        vxlanGpeTunnelDetails.local = ipv4AddressNoZoneToArray("1.2.3.4");
+        vxlanGpeTunnelDetails.remote = ipv4AddressNoZoneToArray("1.2.3.5");
         vxlanGpeTunnelDetails.vni = 9;
         vxlanGpeTunnelDetails.protocol = 1;
         vxlanGpeTunnelDetails.encapVrfId = 55;

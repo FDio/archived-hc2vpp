@@ -26,8 +26,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -48,7 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.interfaces.state._interface.GreBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
+public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> implements AddressTranslator {
 
     private static final String IFACE_NAME = "ifc1";
     private static final int IFACE_ID = 0;
@@ -79,8 +79,8 @@ public class GreCustomizerTest extends ReaderCustomizerTest<Gre, GreBuilder> {
         final GreTunnelDetailsReplyDump value = new GreTunnelDetailsReplyDump();
         final GreTunnelDetails greTunnelDetails = new GreTunnelDetails();
         greTunnelDetails.isIpv6 = 0;
-        greTunnelDetails.dstAddress = InetAddresses.forString("1.2.3.4").getAddress();
-        greTunnelDetails.srcAddress = InetAddresses.forString("1.2.3.5").getAddress();
+        greTunnelDetails.dstAddress = ipv4AddressNoZoneToArray("1.2.3.4");
+        greTunnelDetails.srcAddress = ipv4AddressNoZoneToArray("1.2.3.5");
         greTunnelDetails.outerFibId = 55;
         greTunnelDetails.swIfIndex = 0;
         value.greTunnelDetails = Lists.newArrayList(greTunnelDetails);

@@ -27,8 +27,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.DisabledInterfacesManager;
 import io.fd.honeycomb.translate.write.WriteFailedException;
@@ -50,7 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.interfaces._interface.VxlanGpeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
+public class VxlanGpeCustomizerTest extends WriterCustomizerTest implements AddressTranslator {
 
     private static final byte ADD_VXLAN_GPE = 1;
     private static final byte DEL_VXLAN_GPE = 0;
@@ -104,10 +104,8 @@ public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
         verify(api).vxlanGpeAddDelTunnel(argumentCaptor.capture());
         final VxlanGpeAddDelTunnel actual = argumentCaptor.getValue();
         assertEquals(0, actual.isIpv6);
-        assertArrayEquals(InetAddresses.forString(vxlanGpe.getLocal().getIpv4AddressNoZone().getValue()).getAddress(),
-            actual.local);
-        assertArrayEquals(InetAddresses.forString(vxlanGpe.getRemote().getIpv4AddressNoZone().getValue()).getAddress(),
-            actual.remote);
+        assertArrayEquals(ipAddressToArray(vxlanGpe.getLocal()), actual.local);
+        assertArrayEquals(ipAddressToArray(vxlanGpe.getRemote()), actual.remote);
         assertEquals(vxlanGpe.getVni().getValue().intValue(), actual.vni);
         assertEquals(vxlanGpe.getNextProtocol().getIntValue(), actual.protocol);
         assertEquals(vxlanGpe.getEncapVrfId().intValue(), actual.encapVrfId);

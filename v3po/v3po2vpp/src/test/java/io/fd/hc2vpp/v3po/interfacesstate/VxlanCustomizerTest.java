@@ -26,8 +26,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.read.ReaderCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.hc2vpp.v3po.interfacesstate.cache.InterfaceCacheDumpManager;
 import io.fd.honeycomb.translate.read.ReadFailedException;
@@ -143,8 +143,8 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
         final VxlanTunnelDetailsReplyDump replyDump = new VxlanTunnelDetailsReplyDump();
         final VxlanTunnelDetails vxlanTunnelDetails = new VxlanTunnelDetails();
         vxlanTunnelDetails.isIpv6 = 0;
-        vxlanTunnelDetails.dstAddress = InetAddresses.forString("1.2.3.4").getAddress();
-        vxlanTunnelDetails.srcAddress = InetAddresses.forString("1.2.3.5").getAddress();
+        vxlanTunnelDetails.dstAddress = AddressTranslator.INSTANCE.ipv4AddressNoZoneToArray("1.2.3.4");
+        vxlanTunnelDetails.srcAddress = AddressTranslator.INSTANCE.ipv4AddressNoZoneToArray("1.2.3.5");
         vxlanTunnelDetails.encapVrfId = encapVrfId;
         vxlanTunnelDetails.swIfIndex = 0;
         vxlanTunnelDetails.vni = 9;

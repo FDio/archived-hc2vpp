@@ -26,8 +26,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.net.InetAddresses;
 import io.fd.hc2vpp.common.test.write.WriterCustomizerTest;
+import io.fd.hc2vpp.common.translate.util.AddressTranslator;
 import io.fd.hc2vpp.common.translate.util.NamingContext;
 import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.VppBaseCallException;
@@ -46,7 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.interfaces._interface.GreBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class GreCustomizerTest extends WriterCustomizerTest {
+public class GreCustomizerTest extends WriterCustomizerTest implements AddressTranslator {
 
     private static final String IFC_TEST_INSTANCE = "ifc-test-instance";
     private static final byte ADD_GRE = 1;
@@ -87,10 +87,8 @@ public class GreCustomizerTest extends WriterCustomizerTest {
         verify(api).greAddDelTunnel(argumentCaptor.capture());
         final GreAddDelTunnel actual = argumentCaptor.getValue();
         assertEquals(0, actual.isIpv6);
-        assertArrayEquals(InetAddresses.forString(gre.getSrc().getIpv4AddressNoZone().getValue()).getAddress(),
-                actual.srcAddress);
-        assertArrayEquals(InetAddresses.forString(gre.getDst().getIpv4AddressNoZone().getValue()).getAddress(),
-                actual.dstAddress);
+        assertArrayEquals(ipAddressToArray(gre.getSrc()), actual.srcAddress);
+        assertArrayEquals(ipAddressToArray(gre.getDst()), actual.dstAddress);
         assertEquals(gre.getOuterFibId().intValue(), actual.outerFibId);
         return actual;
     }
