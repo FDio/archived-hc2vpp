@@ -48,6 +48,14 @@ module v3po {
      See the License for the specific language governing permissions and
      limitations under the License.";
 
+  revision "2018-07-03" {
+    description
+      "Revision changes:
+       - support for af-packet interface
+       - uses references to fib-management module insted of uint32 identifiers
+       - various fixes";
+  }
+
   revision "2017-06-07" {
     description "Eliminated config leafrefs in operational tree";
   }

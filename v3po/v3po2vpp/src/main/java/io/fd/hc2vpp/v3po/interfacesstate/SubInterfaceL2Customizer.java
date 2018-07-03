@@ -29,8 +29,8 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.state.attributes.interconnection.BridgeBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.state.attributes.interconnection.XconnectBased;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.l2.state.attributes.interconnection.BridgeBased;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.l2.state.attributes.interconnection.XconnectBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces.state._interface.sub.interfaces.SubInterfaceKey;
@@ -95,13 +95,13 @@ public class SubInterfaceL2Customizer
         if (readValue.getInterconnection() instanceof XconnectBased) {
             XconnectBased state = (XconnectBased) readValue.getInterconnection();
             builder.setInterconnection(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.config.attributes.interconnection.XconnectBasedBuilder()
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.l2.config.attributes.interconnection.XconnectBasedBuilder()
                             .setXconnectOutgoingInterface(state.getXconnectOutgoingInterface())
                             .build());
         } else {
             BridgeBased state = (BridgeBased) readValue.getInterconnection();
             builder.setInterconnection(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.l2.config.attributes.interconnection.BridgeBasedBuilder()
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.l2.config.attributes.interconnection.BridgeBasedBuilder()
                             .setBridgeDomain(state.getBridgeDomain())
                             .setBridgedVirtualInterface(state.isBridgedVirtualInterface())
                             .setSplitHorizonGroup(state.getSplitHorizonGroup())
