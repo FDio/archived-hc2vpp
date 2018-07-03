@@ -35,7 +35,7 @@ import io.fd.vpp.jvpp.core.dto.VxlanGpeTunnelDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.VppInterfaceAugmentation;
@@ -118,11 +118,11 @@ public class VxlanGpeCustomizer extends FutureJVppCustomizer
 
         final VxlanGpeTunnelDetails swInterfaceVxlanGpeDetails = reply.vxlanGpeTunnelDetails.get(0);
         if (swInterfaceVxlanGpeDetails.isIpv6 == 1) {
-            builder.setRemote(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceVxlanGpeDetails.remote)));
-            builder.setLocal(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceVxlanGpeDetails.local)));
+            builder.setRemote(new IpAddressNoZone(arrayToIpv6AddressNoZone(swInterfaceVxlanGpeDetails.remote)));
+            builder.setLocal(new IpAddressNoZone(arrayToIpv6AddressNoZone(swInterfaceVxlanGpeDetails.local)));
         } else {
-            builder.setRemote(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanGpeDetails.remote)));
-            builder.setLocal(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanGpeDetails.local)));
+            builder.setRemote(new IpAddressNoZone(arrayToIpv4AddressNoZone(swInterfaceVxlanGpeDetails.remote)));
+            builder.setLocal(new IpAddressNoZone(arrayToIpv4AddressNoZone(swInterfaceVxlanGpeDetails.local)));
         }
         builder.setVni(new VxlanGpeVni((long) swInterfaceVxlanGpeDetails.vni));
         builder.setNextProtocol(VxlanGpeNextProtocol.forValue(swInterfaceVxlanGpeDetails.protocol));

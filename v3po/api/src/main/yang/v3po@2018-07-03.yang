@@ -51,9 +51,10 @@ module v3po {
   revision "2018-07-03" {
     description
       "Revision changes:
-       - support for af-packet interface
-       - uses references to fib-management module insted of uint32 identifiers
-       - various fixes";
+       - adds support for af-packet interface
+       - uses references to fib-management module instead of uint32 identifiers
+       - changes type of IP addresses from inet:ip-address to inet:ip-address-no-zone
+       - fixes some minor issues";
   }
 
   revision "2017-06-07" {
@@ -253,8 +254,7 @@ module v3po {
       list arp-termination-table-entry {
         key "ip-address phys-address";
         leaf ip-address {
-          // FIXME: change to ip-address-no-zone after https://bugs.opendaylight.org/show_bug.cgi?id=6413 is resolved
-          type inet:ip-address;
+          type inet:ip-address-no-zone;
         }
         leaf phys-address {
           type yang:phys-address;
@@ -452,11 +452,11 @@ module v3po {
     // FIXME: this should be in an vxlan-specific extension
     leaf src {
       /*mandatory true;*/
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
     }
     leaf dst {
       /*mandatory true;*/
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
     }
     leaf vni {
       /*mandatory true;*/
@@ -475,11 +475,11 @@ module v3po {
   grouping gre-base-attributes {
     leaf src {
       /*mandatory true;*/
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
     }
     leaf dst {
       /*mandatory true;*/
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
     }
     leaf outer-fib-id {
       type uint32;
@@ -489,11 +489,11 @@ module v3po {
   grouping vxlan-gpe-base-attributes {
     leaf local {
       /*mandatory true;*/
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
     }
     leaf remote {
       /*mandatory true;*/
-      type inet:ip-address;
+      type inet:ip-address-no-zone;
     }
     leaf vni {
       /*mandatory true;*/

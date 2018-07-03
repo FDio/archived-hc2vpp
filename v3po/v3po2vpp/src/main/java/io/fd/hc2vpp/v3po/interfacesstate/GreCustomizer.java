@@ -34,7 +34,7 @@ import io.fd.vpp.jvpp.core.dto.GreTunnelDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.GreTunnel;
@@ -113,11 +113,11 @@ public class GreCustomizer extends FutureJVppCustomizer
 
         final GreTunnelDetails swInterfaceGreDetails = reply.greTunnelDetails.get(0);
         if (swInterfaceGreDetails.isIpv6 == 1) {
-            builder.setDst(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceGreDetails.dstAddress)));
-            builder.setSrc(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceGreDetails.srcAddress)));
+            builder.setDst(new IpAddressNoZone(arrayToIpv6AddressNoZone(swInterfaceGreDetails.dstAddress)));
+            builder.setSrc(new IpAddressNoZone(arrayToIpv6AddressNoZone(swInterfaceGreDetails.srcAddress)));
         } else {
-            builder.setDst(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceGreDetails.dstAddress)));
-            builder.setSrc(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceGreDetails.srcAddress)));
+            builder.setDst(new IpAddressNoZone(arrayToIpv4AddressNoZone(swInterfaceGreDetails.dstAddress)));
+            builder.setSrc(new IpAddressNoZone(arrayToIpv4AddressNoZone(swInterfaceGreDetails.srcAddress)));
         }
         builder.setOuterFibId((long) swInterfaceGreDetails.outerFibId);
         LOG.debug("Gre tunnel: {}, id: {} attributes read as: {}", key.getName(), index, builder);

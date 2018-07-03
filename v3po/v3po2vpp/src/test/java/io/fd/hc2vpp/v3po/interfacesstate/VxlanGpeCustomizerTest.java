@@ -96,13 +96,13 @@ public class VxlanGpeCustomizerTest extends ReaderCustomizerTest<VxlanGpe, Vxlan
         final VxlanGpeBuilder builder = getCustomizer().getBuilder(VXLAN_GPE_ID);
         getCustomizer().readCurrentAttributes(VXLAN_GPE_ID, builder, ctx);
 
-        assertNull(builder.getLocal().getIpv6Address());
-        assertNotNull(builder.getLocal().getIpv4Address());
-        assertEquals("1.2.3.4", builder.getLocal().getIpv4Address().getValue());
+        assertNull(builder.getLocal().getIpv6AddressNoZone());
+        assertNotNull(builder.getLocal().getIpv4AddressNoZone());
+        assertEquals("1.2.3.4", builder.getLocal().getIpv4AddressNoZone().getValue());
 
-        assertNull(builder.getRemote().getIpv6Address());
-        assertNotNull(builder.getRemote().getIpv4Address());
-        assertEquals("1.2.3.5", builder.getRemote().getIpv4Address().getValue());
+        assertNull(builder.getRemote().getIpv6AddressNoZone());
+        assertNotNull(builder.getRemote().getIpv4AddressNoZone());
+        assertEquals("1.2.3.5", builder.getRemote().getIpv4AddressNoZone().getValue());
 
         assertEquals(9, builder.getVni().getValue().intValue());
         assertEquals(1, builder.getNextProtocol().getIntValue());

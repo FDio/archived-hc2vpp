@@ -30,7 +30,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.net.InetAddress;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.GreTunnel;
@@ -118,21 +118,21 @@ public class GreCustomizer extends AbstractInterfaceTypeCustomizer<Gre> implemen
     }
 
     private boolean isIpv6(final Gre gre) {
-        if (gre.getSrc().getIpv4Address() == null) {
-            checkArgument(gre.getDst().getIpv4Address() == null, "Inconsistent ip addresses: %s, %s", gre.getSrc(),
+        if (gre.getSrc().getIpv4AddressNoZone() == null) {
+            checkArgument(gre.getDst().getIpv4AddressNoZone() == null, "Inconsistent ip addresses: %s, %s", gre.getSrc(),
                     gre.getDst());
             return true;
         } else {
-            checkArgument(gre.getDst().getIpv6Address() == null, "Inconsistent ip addresses: %s, %s", gre.getSrc(),
+            checkArgument(gre.getDst().getIpv6AddressNoZone() == null, "Inconsistent ip addresses: %s, %s", gre.getSrc(),
                     gre.getDst());
             return false;
         }
     }
 
-    private String getAddressString(final IpAddress addr) {
-        return addr.getIpv4Address() == null
-                ? addr.getIpv6Address().getValue()
-                : addr.getIpv4Address().getValue();
+    private String getAddressString(final IpAddressNoZone addr) {
+        return addr.getIpv4AddressNoZone() == null
+                ? addr.getIpv6AddressNoZone().getValue()
+                : addr.getIpv4AddressNoZone().getValue();
     }
 
     private void deleteGreTunnel(final InstanceIdentifier<Gre> id, final String swIfName, final Gre gre,

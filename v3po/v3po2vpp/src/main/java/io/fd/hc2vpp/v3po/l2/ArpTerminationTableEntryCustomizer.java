@@ -30,7 +30,7 @@ import io.fd.vpp.jvpp.core.dto.BdIpMacAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.bridge.domain.attributes.arp.termination.table.ArpTerminationTableEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.bridge.domains.BridgeDomain;
@@ -96,7 +96,7 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
         request.isAdd = booleanToByte(isAdd);
         request.macAddress = parseMac(entry.getPhysAddress().getValue());
 
-        final IpAddress ipAddress = entry.getIpAddress();
+        final IpAddressNoZone ipAddress = entry.getIpAddress();
 
         request.ipAddress = ipAddressToArray(ipAddress);
         request.isIpv6 = booleanToByte(isIpv6(ipAddress));

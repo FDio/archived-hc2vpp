@@ -36,8 +36,8 @@ import io.fd.vpp.jvpp.core.dto.GreAddDelTunnel;
 import io.fd.vpp.jvpp.core.dto.GreAddDelTunnelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -59,8 +59,8 @@ public class GreCustomizerTest extends WriterCustomizerTest {
 
     private static Gre generateGre() {
         final GreBuilder builder = new GreBuilder();
-        builder.setSrc(new IpAddress(new Ipv4Address("192.168.20.10")));
-        builder.setDst(new IpAddress(new Ipv4Address("192.168.20.11")));
+        builder.setSrc(new IpAddressNoZone(new Ipv4AddressNoZone("192.168.20.10")));
+        builder.setDst(new IpAddressNoZone(new Ipv4AddressNoZone("192.168.20.11")));
         builder.setOuterFibId(Long.valueOf(123));
         return builder.build();
     }
@@ -87,9 +87,9 @@ public class GreCustomizerTest extends WriterCustomizerTest {
         verify(api).greAddDelTunnel(argumentCaptor.capture());
         final GreAddDelTunnel actual = argumentCaptor.getValue();
         assertEquals(0, actual.isIpv6);
-        assertArrayEquals(InetAddresses.forString(gre.getSrc().getIpv4Address().getValue()).getAddress(),
+        assertArrayEquals(InetAddresses.forString(gre.getSrc().getIpv4AddressNoZone().getValue()).getAddress(),
                 actual.srcAddress);
-        assertArrayEquals(InetAddresses.forString(gre.getDst().getIpv4Address().getValue()).getAddress(),
+        assertArrayEquals(InetAddresses.forString(gre.getDst().getIpv4AddressNoZone().getValue()).getAddress(),
                 actual.dstAddress);
         assertEquals(gre.getOuterFibId().intValue(), actual.outerFibId);
         return actual;

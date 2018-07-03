@@ -88,13 +88,13 @@ public class VxlanCustomizerTest extends ReaderCustomizerTest<Vxlan, VxlanBuilde
         assertEquals(55, builder.getEncapVrfId().getValue().intValue());
         assertEquals(L2Input.class, builder.getDecapNext());
 
-        assertNull(builder.getSrc().getIpv6Address());
-        assertNotNull(builder.getSrc().getIpv4Address());
-        assertEquals("1.2.3.5", builder.getSrc().getIpv4Address().getValue());
+        assertNull(builder.getSrc().getIpv6AddressNoZone());
+        assertNotNull(builder.getSrc().getIpv4AddressNoZone());
+        assertEquals("1.2.3.5", builder.getSrc().getIpv4AddressNoZone().getValue());
 
-        assertNull(builder.getDst().getIpv6Address());
-        assertNotNull(builder.getDst().getIpv4Address());
-        assertEquals("1.2.3.4", builder.getDst().getIpv4Address().getValue());
+        assertNull(builder.getDst().getIpv6AddressNoZone());
+        assertNotNull(builder.getDst().getIpv4AddressNoZone());
+        assertEquals("1.2.3.4", builder.getDst().getIpv4AddressNoZone().getValue());
 
         verify(api).vxlanTunnelDump(any(VxlanTunnelDump.class));
     }

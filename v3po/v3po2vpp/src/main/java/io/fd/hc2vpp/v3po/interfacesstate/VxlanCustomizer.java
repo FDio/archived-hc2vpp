@@ -36,7 +36,7 @@ import io.fd.vpp.jvpp.core.dto.VxlanTunnelDump;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.L2Input;
@@ -119,11 +119,11 @@ public class VxlanCustomizer extends FutureJVppCustomizer
 
         final VxlanTunnelDetails swInterfaceVxlanDetails = reply.vxlanTunnelDetails.get(0);
         if (swInterfaceVxlanDetails.isIpv6 == 1) {
-            builder.setDst(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceVxlanDetails.dstAddress)));
-            builder.setSrc(new IpAddress(arrayToIpv6AddressNoZone(swInterfaceVxlanDetails.srcAddress)));
+            builder.setDst(new IpAddressNoZone(arrayToIpv6AddressNoZone(swInterfaceVxlanDetails.dstAddress)));
+            builder.setSrc(new IpAddressNoZone(arrayToIpv6AddressNoZone(swInterfaceVxlanDetails.srcAddress)));
         } else {
-            builder.setDst(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanDetails.dstAddress)));
-            builder.setSrc(new IpAddress(arrayToIpv4AddressNoZone(swInterfaceVxlanDetails.srcAddress)));
+            builder.setDst(new IpAddressNoZone(arrayToIpv4AddressNoZone(swInterfaceVxlanDetails.dstAddress)));
+            builder.setSrc(new IpAddressNoZone(arrayToIpv4AddressNoZone(swInterfaceVxlanDetails.srcAddress)));
         }
         builder.setEncapVrfId(new VniReference(UnsignedInts.toLong(swInterfaceVxlanDetails.encapVrfId)));
         builder.setVni(new VxlanVni(UnsignedInts.toLong(swInterfaceVxlanDetails.vni)));

@@ -38,8 +38,8 @@ import io.fd.vpp.jvpp.core.dto.VxlanGpeAddDelTunnelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -64,8 +64,8 @@ public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
 
     private static VxlanGpe generateVxlanGpe(long vni) {
         final VxlanGpeBuilder builder = new VxlanGpeBuilder();
-        builder.setLocal(new IpAddress(new Ipv4Address("192.168.20.10")));
-        builder.setRemote(new IpAddress(new Ipv4Address("192.168.20.11")));
+        builder.setLocal(new IpAddressNoZone(new Ipv4AddressNoZone("192.168.20.10")));
+        builder.setRemote(new IpAddressNoZone(new Ipv4AddressNoZone("192.168.20.11")));
         builder.setVni(new VxlanGpeVni(Long.valueOf(vni)));
         builder.setNextProtocol(VxlanGpeNextProtocol.forValue(1));
         builder.setEncapVrfId(Long.valueOf(123));
@@ -104,9 +104,9 @@ public class VxlanGpeCustomizerTest extends WriterCustomizerTest {
         verify(api).vxlanGpeAddDelTunnel(argumentCaptor.capture());
         final VxlanGpeAddDelTunnel actual = argumentCaptor.getValue();
         assertEquals(0, actual.isIpv6);
-        assertArrayEquals(InetAddresses.forString(vxlanGpe.getLocal().getIpv4Address().getValue()).getAddress(),
+        assertArrayEquals(InetAddresses.forString(vxlanGpe.getLocal().getIpv4AddressNoZone().getValue()).getAddress(),
             actual.local);
-        assertArrayEquals(InetAddresses.forString(vxlanGpe.getRemote().getIpv4Address().getValue()).getAddress(),
+        assertArrayEquals(InetAddresses.forString(vxlanGpe.getRemote().getIpv4AddressNoZone().getValue()).getAddress(),
             actual.remote);
         assertEquals(vxlanGpe.getVni().getValue().intValue(), actual.vni);
         assertEquals(vxlanGpe.getNextProtocol().getIntValue(), actual.protocol);

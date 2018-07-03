@@ -34,7 +34,7 @@ import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
 import io.fd.vpp.jvpp.core.dto.BdIpMacAddDelReply;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -60,13 +60,13 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     private byte[] ip6AddressRaw;
     private byte[] physAddressRaw;
     private PhysAddress physAddress;
-    private IpAddress ipAddress;
-    private IpAddress ip6Address;
+    private IpAddressNoZone ipAddress;
+    private IpAddressNoZone ip6Address;
     private ArpTerminationTableEntry entry;
     private ArpTerminationTableEntry ip6entry;
     private InstanceIdentifier<ArpTerminationTableEntry> id;
 
-    private static InstanceIdentifier<ArpTerminationTableEntry> getArpEntryId(final IpAddress ipAddress,
+    private static InstanceIdentifier<ArpTerminationTableEntry> getArpEntryId(final IpAddressNoZone ipAddress,
                                                                               final PhysAddress physAddress) {
         return InstanceIdentifier.create(BridgeDomains.class).child(BridgeDomain.class, new BridgeDomainKey(BD_NAME))
                 .child(ArpTerminationTable.class)
@@ -82,8 +82,8 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         physAddressRaw = new byte[]{1, 2, 3, 4, 5, 6};
         physAddress = new PhysAddress("01:02:03:04:05:06");
 
-        ipAddress = new IpAddress(Ipv4AddressNoZone.getDefaultInstance("1.2.3.4"));
-        ip6Address = new IpAddress(Ipv6AddressNoZone.getDefaultInstance("2001:0db8:0a0b:12f0:0000:0000:0000:0001"));
+        ipAddress = new IpAddressNoZone(Ipv4AddressNoZone.getDefaultInstance("1.2.3.4"));
+        ip6Address = new IpAddressNoZone(Ipv6AddressNoZone.getDefaultInstance("2001:0db8:0a0b:12f0:0000:0000:0000:0001"));
         entry = generateArpEntry(ipAddress, physAddress);
         ip6entry = generateArpEntry(ip6Address, physAddress);
         id = getArpEntryId(ipAddress, physAddress);
@@ -110,7 +110,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         return request;
     }
 
-    private ArpTerminationTableEntry generateArpEntry(final IpAddress ipAddress, final PhysAddress physAddress) {
+    private ArpTerminationTableEntry generateArpEntry(final IpAddressNoZone ipAddress, final PhysAddress physAddress) {
         final ArpTerminationTableEntryBuilder entry = new ArpTerminationTableEntryBuilder();
         entry.setKey(new ArpTerminationTableEntryKey(ipAddress, physAddress));
         entry.setPhysAddress(physAddress);
