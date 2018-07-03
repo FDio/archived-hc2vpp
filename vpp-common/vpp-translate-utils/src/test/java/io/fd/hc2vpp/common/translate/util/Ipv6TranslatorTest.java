@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -92,6 +93,16 @@ public class Ipv6TranslatorTest implements Ipv6Translator {
     @Test
     public void testIsIpv6Full() throws Exception {
         assertTrue(isIpv6(new IpAddress(new Ipv6Address(IPV6_FULL))));
+    }
+
+    @Test
+    public void testIsIpv6NoZoneCompressed() throws Exception {
+        assertTrue(isIpv6(new IpAddressNoZone(new Ipv6AddressNoZone(IPV6_COMPRESSED))));
+    }
+
+    @Test
+    public void testIsIpv6NoZoneFull() throws Exception {
+        assertTrue(isIpv6(new IpAddressNoZone(new Ipv6AddressNoZone(IPV6_FULL))));
     }
 
     @Test

@@ -24,6 +24,7 @@ import com.google.common.net.InetAddresses;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
@@ -88,6 +89,15 @@ public interface Ipv6Translator extends ByteDataTranslator {
     default boolean isIpv6(@Nonnull final IpAddress address) {
         checkState(!(address.getIpv4Address() == null && address.getIpv6Address() == null), "Invalid address");
         return address.getIpv6Address() != null;
+    }
+
+    /**
+     * Detects whether {@code IpAddressZone} is ipv6
+     */
+    default boolean isIpv6(@Nonnull final IpAddressNoZone address) {
+        checkState(!(address.getIpv4AddressNoZone() == null && address.getIpv6AddressNoZone() == null),
+            "Invalid address");
+        return address.getIpv6AddressNoZone() != null;
     }
 
     /**

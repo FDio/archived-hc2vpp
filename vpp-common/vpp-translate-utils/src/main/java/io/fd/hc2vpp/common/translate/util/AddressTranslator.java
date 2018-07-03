@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -56,6 +57,16 @@ public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTr
             return ipv6AddressNoZoneToArray(new Ipv6AddressNoZone(address.getIpv6Address()));
         } else {
             return ipv4AddressNoZoneToArray(new Ipv4AddressNoZone(address.getIpv4Address()));
+        }
+    }
+
+    default byte[] ipAddressToArray(IpAddressNoZone address) {
+        checkNotNull(address, "Cannot resolve null address");
+
+        if (isIpv6(address)) {
+            return ipv6AddressNoZoneToArray(address.getIpv6AddressNoZone());
+        } else {
+            return ipv4AddressNoZoneToArray(address.getIpv4AddressNoZone());
         }
     }
 

@@ -20,18 +20,23 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 
 public class AddressTranslatorTest {
 
     private final static IpAddress IPV6_ADDR = new IpAddress(new Ipv6Address("a::"));
+    private final static IpAddressNoZone IPV6_ADDR_NO_ZONE = new IpAddressNoZone(new Ipv6AddressNoZone("a::"));
     private final static IpPrefix IPV6_PREFIX = new IpPrefix(new Ipv6Prefix("a::/48"));
     private final static byte IPV6_BYTE_PREFIX = 48;
     private final static IpAddress IPV4_ADDR = new IpAddress(new Ipv4Address("10.0.0.1"));
+    private final static IpAddressNoZone IPV4_ADDR_NO_ZONE = new IpAddressNoZone(new Ipv4AddressNoZone("10.0.0.1"));
     private final static IpPrefix IPV4_PREFIX = new IpPrefix(new Ipv4Prefix("10.0.0.1/24"));
     private final static byte IPV4_BYTE_PREFIX = 24;
     private static final byte[] IPV6_BYTE_ARRAY =
@@ -46,6 +51,12 @@ public class AddressTranslatorTest {
         Assert.assertTrue(Arrays.equals(IPV6_BYTE_ARRAY, ADDR_TRANSLATOR.ipAddressToArray(true, IPV6_ADDR)));
         Assert.assertTrue(Arrays.equals(IPV4_BYTE_ARRAY, ADDR_TRANSLATOR.ipAddressToArray(IPV4_ADDR)));
         Assert.assertTrue(Arrays.equals(IPV4_BYTE_ARRAY, ADDR_TRANSLATOR.ipAddressToArray(false, IPV4_ADDR)));
+    }
+
+    @Test
+    public void ipAddressNoZoneToArrayTest() {
+        Assert.assertTrue(Arrays.equals(IPV6_BYTE_ARRAY, ADDR_TRANSLATOR.ipAddressToArray(IPV6_ADDR_NO_ZONE)));
+        Assert.assertTrue(Arrays.equals(IPV4_BYTE_ARRAY, ADDR_TRANSLATOR.ipAddressToArray(IPV4_ADDR_NO_ZONE)));
     }
 
     @Test
