@@ -353,10 +353,10 @@ module v3po {
 
   grouping routing-base-attributes {
     leaf ipv4-vrf-id {
-      type uint32;
+      type fib-management:fib-table-list-ref;
     }
     leaf ipv6-vrf-id {
-      type uint32;
+      type fib-management:fib-table-list-ref;
     }
     description
       "Defines VRF tables used for ipv4 and ipv6 traffic";

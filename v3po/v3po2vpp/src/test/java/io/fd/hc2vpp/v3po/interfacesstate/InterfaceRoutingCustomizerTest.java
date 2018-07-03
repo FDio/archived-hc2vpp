@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VppInterfaceStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces.state._interface.RoutingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceRoutingCustomizerTest extends ReaderCustomizerTest<Routing, RoutingBuilder> {
@@ -72,8 +73,8 @@ public class InterfaceRoutingCustomizerTest extends ReaderCustomizerTest<Routing
         when(api.swInterfaceGetTable(any())).thenReturn(future(tableReply(IP4_VRF_ID))).thenReturn(future(tableReply(IP6_VRF_ID)));
         getCustomizer().readCurrentAttributes(getRoutingId(IF_NAME), builder, ctx);
 
-        verify(builder).setIpv4VrfId(IP4_VRF_ID);
-        verify(builder).setIpv6VrfId(IP6_VRF_ID);
+        verify(builder).setIpv4VrfId(new VniReference(IP4_VRF_ID));
+        verify(builder).setIpv6VrfId(new VniReference(IP6_VRF_ID));
     }
 
     @Test

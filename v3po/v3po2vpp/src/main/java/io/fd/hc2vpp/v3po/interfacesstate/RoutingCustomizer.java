@@ -28,6 +28,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.RoutingBaseAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 abstract class RoutingCustomizer extends FutureJVppCustomizer implements JvppReplyConsumer {
@@ -40,8 +41,8 @@ abstract class RoutingCustomizer extends FutureJVppCustomizer implements JvppRep
     }
 
     protected void readInterfaceRouting(@Nonnull final InstanceIdentifier<? extends RoutingBaseAttributes> id,
-                                        @Nonnull final Consumer<Long> v4VrfConsumer,
-                                        @Nonnull final Consumer<Long> v6VrfConsumer,
+                                        @Nonnull final Consumer<VniReference> v4VrfConsumer,
+                                        @Nonnull final Consumer<VniReference> v6VrfConsumer,
                                         @Nonnull final ReadContext ctx, final String interfaceName)
             throws ReadFailedException {
         final SwInterfaceGetTable request = new SwInterfaceGetTable();
@@ -55,10 +56,10 @@ abstract class RoutingCustomizer extends FutureJVppCustomizer implements JvppRep
                 getReplyForRead(getFutureJVpp().swInterfaceGetTable(request).toCompletableFuture(), id);
 
         if (ip4Reply.vrfId != 0) {
-            v4VrfConsumer.accept(UnsignedInts.toLong(ip4Reply.vrfId));
+            v4VrfConsumer.accept(new VniReference(UnsignedInts.toLong(ip4Reply.vrfId)));
         }
         if (ip6Reply.vrfId != 0) {
-            v6VrfConsumer.accept(UnsignedInts.toLong(ip6Reply.vrfId));
+            v6VrfConsumer.accept(new VniReference(UnsignedInts.toLong(ip6Reply.vrfId)));
         }
     }
 }

@@ -83,8 +83,8 @@ public class SubInterfaceRoutingCustomizerTest extends ReaderCustomizerTest<Rout
         when(api.swInterfaceGetTable(request(true, SUBIF_ID))).thenReturn(future(reply(IPV6_VRF)));
         final RoutingBuilder routingBuilder = new RoutingBuilder();
         getCustomizer().readCurrentAttributes(VALID_ID, routingBuilder, ctx);
-        assertEquals(IPV4_VRF, routingBuilder.getIpv4VrfId().intValue());
-        assertEquals(IPV6_VRF, routingBuilder.getIpv6VrfId().intValue());
+        assertEquals(IPV4_VRF, routingBuilder.getIpv4VrfId().getValue().intValue());
+        assertEquals(IPV6_VRF, routingBuilder.getIpv6VrfId().getValue().intValue());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class SubInterfaceRoutingCustomizerTest extends ReaderCustomizerTest<Rout
         when(api.swInterfaceGetTable(request(true, SUBIF_ID))).thenReturn(future(reply(NO_VRF)));
         final RoutingBuilder routingBuilder = new RoutingBuilder();
         getCustomizer().readCurrentAttributes(VALID_ID, routingBuilder, ctx);
-        assertEquals(IPV4_VRF, routingBuilder.getIpv4VrfId().intValue());
+        assertEquals(IPV4_VRF, routingBuilder.getIpv4VrfId().getValue().intValue());
         assertNull(routingBuilder.getIpv6VrfId());
     }
 

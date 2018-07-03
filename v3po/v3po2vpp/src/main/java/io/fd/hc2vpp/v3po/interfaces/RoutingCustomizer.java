@@ -30,6 +30,7 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.RoutingBaseAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,13 +60,13 @@ abstract class RoutingCustomizer extends FutureJVppCustomizer implements JvppRep
     }
 
     private void setVrfId(final InstanceIdentifier<? extends RoutingBaseAttributes> id, final int swIfc,
-                          final Long vrfId, boolean isIp6)
+                          final VniReference vniRef, boolean isIp6)
             throws WriteFailedException {
-        if (vrfId == null) {
+        if (vniRef == null || vniRef.getValue() == null) {
             return;
         }
-        final CompletionStage<SwInterfaceSetTableReply> cs = getFutureJVpp()
-                .swInterfaceSetTable(getInterfaceSetTableRequest(swIfc, booleanToByte(isIp6), vrfId.intValue()));
+        final CompletionStage<SwInterfaceSetTableReply> cs = getFutureJVpp().swInterfaceSetTable(
+            getInterfaceSetTableRequest(swIfc, booleanToByte(isIp6), vniRef.getValue().intValue()));
         getReplyForWrite(cs.toCompletableFuture(), id);
     }
 

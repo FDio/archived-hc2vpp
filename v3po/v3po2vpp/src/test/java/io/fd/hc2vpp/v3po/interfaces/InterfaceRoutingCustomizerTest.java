@@ -41,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ip.rev14061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.VppInterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev170607.interfaces._interface.RoutingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class InterfaceRoutingCustomizerTest extends WriterCustomizerTest {
@@ -144,7 +145,7 @@ public class InterfaceRoutingCustomizerTest extends WriterCustomizerTest {
     }
 
     private Routing routing(final long vrfId) {
-        return new RoutingBuilder().setIpv4VrfId(vrfId).build();
+        return new RoutingBuilder().setIpv4VrfId(new VniReference(vrfId)).build();
     }
 
     private SwInterfaceSetTable expectedRequest(final int vrfId) {

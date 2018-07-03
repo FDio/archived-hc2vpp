@@ -37,6 +37,7 @@ import org.mockito.Captor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.SubinterfaceAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces._interface.SubInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.interfaces._interface.sub.interfaces.SubInterface;
@@ -82,21 +83,21 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
     @Test(expected = IllegalStateException.class)
     public void testWriteFailedV4AddressPresent() throws WriteFailedException {
         when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.of(v4AddressPresent()));
-        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(4L).build();
+        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(new VniReference(4L)).build();
         customizer.writeCurrentAttributes(VALID_ID, v4Routing, writeContext);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testWriteFailedV6AddressPresent() throws WriteFailedException {
         when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.of(v6AddressPresent()));
-        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(4L).build();
+        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(new VniReference(4L)).build();
         customizer.writeCurrentAttributes(VALID_ID, v4Routing, writeContext);
     }
 
     @Test
     public void testWriteIpv4Vrf() throws WriteFailedException {
         when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
-        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(4L).build();
+        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(new VniReference(4L)).build();
         customizer.writeCurrentAttributes(VALID_ID, v4Routing, writeContext);
         verifySetTableRequest(1, Collections.singleton(request(false, SUBIF_INDEX, 4)));
     }
@@ -105,7 +106,7 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
     @Test
     public void testWriteIpv6Vrf() throws WriteFailedException {
         when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
-        final Routing v6Routing = new RoutingBuilder().setIpv6VrfId(3L).build();
+        final Routing v6Routing = new RoutingBuilder().setIpv6VrfId(new VniReference(3L)).build();
         customizer.writeCurrentAttributes(VALID_ID, v6Routing, writeContext);
         verifySetTableRequest(1, Collections.singleton(request(true, SUBIF_INDEX, 3)));
     }
@@ -113,8 +114,10 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
     @Test
     public void testUpdateIpv4Vrf() throws WriteFailedException {
         when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
-        final Routing routingBefore = new RoutingBuilder().setIpv6VrfId(3L).setIpv4VrfId(4L).build();
-        final Routing routingAfter = new RoutingBuilder().setIpv6VrfId(3L).setIpv4VrfId(5L).build();
+        final Routing routingBefore = new RoutingBuilder().setIpv6VrfId(new VniReference(3L))
+            .setIpv4VrfId(new VniReference(4L)).build();
+        final Routing routingAfter = new RoutingBuilder().setIpv6VrfId(new VniReference(3L))
+            .setIpv4VrfId(new VniReference(5L)).build();
         customizer.updateCurrentAttributes(VALID_ID, routingBefore, routingAfter, writeContext);
         verifySetTableRequest(2, ImmutableSet.of(request(false, SUBIF_INDEX, 5),
                 request(true, SUBIF_INDEX, 3)));
@@ -123,8 +126,10 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
     @Test
     public void testUpdateIpv6Vrf() throws WriteFailedException {
         when(writeContext.readBefore(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
-        final Routing routingBefore = new RoutingBuilder().setIpv6VrfId(3L).setIpv4VrfId(4L).build();
-        final Routing routingAfter = new RoutingBuilder().setIpv6VrfId(8L).setIpv4VrfId(4L).build();
+        final Routing routingBefore = new RoutingBuilder().setIpv6VrfId(new VniReference(3L))
+            .setIpv4VrfId(new VniReference(4L)).build();
+        final Routing routingAfter = new RoutingBuilder().setIpv6VrfId(new VniReference(8L))
+            .setIpv4VrfId(new VniReference(4L)).build();
         customizer.updateCurrentAttributes(VALID_ID, routingBefore, routingAfter, writeContext);
         verifySetTableRequest(2, ImmutableSet.of(request(false, SUBIF_INDEX, 4),
                 request(true, SUBIF_INDEX, 8)));
@@ -133,7 +138,7 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
     @Test
     public void testDeleteIpv4Vrf() throws WriteFailedException {
         when(writeContext.readAfter(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
-        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(4L).build();
+        final Routing v4Routing = new RoutingBuilder().setIpv4VrfId(new VniReference(4L)).build();
         customizer.deleteCurrentAttributes(VALID_ID, v4Routing, writeContext);
         verifySetTableRequest(1, Collections.singleton(request(false, SUBIF_INDEX, DISABLE_VRF)));
     }
@@ -142,7 +147,7 @@ public class SubInterfaceRoutingCustomizerTest extends WriterCustomizerTest impl
     @Test
     public void testDeleteIpv6Vrf() throws WriteFailedException {
         when(writeContext.readAfter(any(InstanceIdentifier.class))).thenReturn(Optional.absent());
-        final Routing v6Routing = new RoutingBuilder().setIpv6VrfId(3L).build();
+        final Routing v6Routing = new RoutingBuilder().setIpv6VrfId(new VniReference(3L)).build();
         customizer.deleteCurrentAttributes(VALID_ID, v6Routing, writeContext);
         verifySetTableRequest(1, Collections.singleton(request(true, SUBIF_INDEX, DISABLE_VRF)));
     }
