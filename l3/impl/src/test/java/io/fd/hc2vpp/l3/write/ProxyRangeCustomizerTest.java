@@ -28,13 +28,12 @@ import io.fd.vpp.jvpp.core.dto.ProxyArpAddDel;
 import io.fd.vpp.jvpp.core.dto.ProxyArpAddDelReply;
 import io.fd.vpp.jvpp.core.types.ProxyArp;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.fib.table.management.rev180521.VniReference;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180702.ProxyRanges;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180702.proxy.ranges.ProxyRange;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180702.proxy.ranges.ProxyRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180702.proxy.ranges.ProxyRangeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.ProxyRanges;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.proxy.ranges.ProxyRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.proxy.ranges.ProxyRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.proxy.arp.rev180703.proxy.ranges.ProxyRangeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
@@ -46,8 +45,8 @@ public class ProxyRangeCustomizerTest extends WriterCustomizerTest implements By
 
     @Override
     public void setUpTest() throws Exception {
-        final Ipv4Address highAddr = new Ipv4AddressNoZone("10.1.1.2");
-        final Ipv4Address lowAddr = new Ipv4AddressNoZone("10.1.1.1");
+        final Ipv4AddressNoZone highAddr = new Ipv4AddressNoZone("10.1.1.2");
+        final Ipv4AddressNoZone lowAddr = new Ipv4AddressNoZone("10.1.1.1");
         final VniReference vrfId = new VniReference(123L);
         IID = InstanceIdentifier.create(ProxyRanges.class)
             .child(ProxyRange.class, new ProxyRangeKey(highAddr, lowAddr, vrfId));

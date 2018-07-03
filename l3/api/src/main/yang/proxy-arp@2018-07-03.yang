@@ -42,11 +42,11 @@ module proxy-arp {
      See the License for the specific language governing permissions and
      limitations under the License.";
 
-  revision "2018-07-02" {
+  revision "2018-07-03" {
     description
-      "Uses references to vrf-management module insted of table identifiers.";
-    reference
-      "https://jira.fd.io/browse/HC2VPP-317";
+      "Revision changes:
+       - uses references to fib-management module instead of uint32 identifiers
+       - changes type of IP addresses from inet:ipv4-address to inet:ipv4-address-no-zone";
   }
 
   revision "2017-03-15" {
@@ -60,10 +60,10 @@ module proxy-arp {
         type fib-management:fib-table-list-ref;
       }
       leaf low-addr {
-        type inet:ipv4-address;
+        type inet:ipv4-address-no-zone;
       }
       leaf high-addr {
-        type inet:ipv4-address;
+        type inet:ipv4-address-no-zone;
       }
       description
         "Parameters for configuring Proxy ARP on interfaces.";
