@@ -39,13 +39,13 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.mapping.entry.ExternalSrcPortBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.mapping.entry.InternalSrcPortBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.Instance;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.MappingTableBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntryKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.mapping.entry.ExternalSrcPortBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.mapping.entry.InternalSrcPortBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.Instance;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.MappingTableBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntryKey;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -113,7 +113,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
                                 final int index, final Nat44StaticMappingDetails detail) {
         builder.setIndex((long) index);
         builder.setType(
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.MappingEntry.Type.Static);
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.MappingEntry.Type.Static);
         builder.setExternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.externalIpAddress, 32)));
         builder.setInternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.localIpAddress, 32)));
 
@@ -130,10 +130,10 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
         builder.setIndex((long) index);
         if (detail.isStatic == 1) {
             builder.setType(
-                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.MappingEntry.Type.Static);
+                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.MappingEntry.Type.Static);
         } else {
             builder.setType(
-                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.MappingEntry.Type.DynamicImplicit);
+                    org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.MappingEntry.Type.DynamicImplicit);
         }
         builder.setExternalSrcAddress(new IpPrefix(toIpv4Prefix(detail.oAddr,32 )));
         builder.setInternalSrcAddress(new IpPrefix(toIpv6Prefix(detail.iAddr, 128)));
@@ -182,7 +182,7 @@ final class MappingEntryCustomizer implements Ipv4Translator, Ipv6Translator,
     }
 
     @Override
-    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180223.nat.instances.instance.mapping.table.MappingEntry> init(
+    public Initialized<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntry> init(
             @Nonnull final InstanceIdentifier<MappingEntry> id,
             @Nonnull final MappingEntry readValue,
             @Nonnull final ReadContext ctx) {

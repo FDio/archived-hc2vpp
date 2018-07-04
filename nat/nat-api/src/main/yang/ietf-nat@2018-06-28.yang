@@ -66,7 +66,7 @@ module ietf-nat {
      This version of this YANG module is part of RFC XXXX; see
      the RFC itself for full legal notices.";
 
-  revision 2018-02-23 {
+  revision 2018-06-28 {
     description
       "Initial revision.";
     reference
@@ -310,7 +310,6 @@ module ietf-nat {
       case port-range {
          uses port-number;
        }
-
       case port-set-algo {
         leaf psid-offset {
           type uint8 {
@@ -453,6 +452,7 @@ module ietf-nat {
       description
         "Source port of the packet sent on an external
          interface of the NAT.
+
          It is used also to indicate the external source ICMP
          identifier.";
 
@@ -502,7 +502,6 @@ module ietf-nat {
 
       uses port-number;
     }
-
     leaf lifetime {
       type uint32;
       units "seconds";
@@ -839,7 +838,6 @@ module ietf-nat {
            If supported, this mode of operation should be configurable,
            and it should be disabled by default in general-purpose NAT
            devices.
-
            If one single per-interface binding behavior is supported by
            a NAT, this parameter is by default set to that behavior.";
         reference
@@ -1032,7 +1030,6 @@ module ietf-nat {
            "Provides one or a list of NAT64 prefixes
             with or without a list of destination IPv4 prefixes.
             It allows mapping IPv4 address ranges to IPv6 prefixes.
-
             For example:
             192.0.2.0/24 is mapped to 2001:db8:122:300::/56.
             198.51.100.0/24 is mapped to 2001:db8:122::/48.";
@@ -1127,6 +1124,7 @@ module ietf-nat {
          default false;
          description
            "Enable/Disable destination NAT.
+
             A NAT44 may be configured to enable Destination
             NAT, too.";
         }
@@ -1368,7 +1366,6 @@ module ietf-nat {
               reference
                 "Section 5 of RFC 4787.";
             }
-
             enum "edf"  {
               description
                 "address-and-port-dependent-filtering";
@@ -1417,7 +1414,6 @@ module ietf-nat {
             "Configures a port quota to be assigned per subscriber.
              It corresponds to the maximum number of ports to be
              used by a subscriber.";
-
           leaf port-limit {
             type uint16;
             description
@@ -1659,7 +1655,6 @@ module ietf-nat {
                 "The transport protocol used by the ALG
                  (e.g., TCP, UDP).";
             }
-
             container dst-transport-port {
               uses port-number;
               description
@@ -1852,7 +1847,6 @@ module ietf-nat {
           description
             "Information about the configuration parameters that
              rate limit the translation based upon various criteria.";
-
           leaf limit-per-subscriber {
             type uint32;
             units "bits/second";
@@ -1864,8 +1858,6 @@ module ietf-nat {
           leaf limit-per-instance {
             type uint32;
             units "bits/second";
-            // TODO(HC2VPP-328)
-            // mandatory true;
             description
               "Rate-limit the number of new mappings and sessions
                per instance.";
@@ -1959,15 +1951,6 @@ module ietf-nat {
                Notification must be generated when the defined
                threshold is reached.";
          }
-        }
-
-        leaf logging-enable {
-          if-feature "basic-nat44 or napt44 or nat64";
-          type boolean;
-          description
-            "Enable logging features.";
-          reference
-            "Section 2.3 of RFC 6908 and REQ-12 of RFC 6888.";
         }
 
         container mapping-table {
@@ -2152,7 +2135,6 @@ module ietf-nat {
                  A subscriber is identified by a subnet,
                  subscriber-mask, etc.";
             }
-
             leaf total-address-mappings {
               if-feature "basic-nat44 or napt44 " +
                "or nat64 or clat or dst-nat";
