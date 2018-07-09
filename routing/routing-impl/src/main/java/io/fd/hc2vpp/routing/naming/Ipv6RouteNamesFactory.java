@@ -56,7 +56,7 @@ public final class Ipv6RouteNamesFactory implements RouteMapper, RouteRequestPro
         return bindName(parentProtocolName,
                 // to have address in compressed form
                 doubleDotlessAddress(route.getDestinationPrefix()),
-                String.valueOf(extractPrefix(route.getDestinationPrefix())));
+                route.getDestinationPrefix().getValue().substring(route.getDestinationPrefix().getValue().indexOf('/') + 1));
     }
 
     /**
@@ -72,7 +72,8 @@ public final class Ipv6RouteNamesFactory implements RouteMapper, RouteRequestPro
      * Construct unique name from provided parentProtocolName and {@code Ipv6Prefix}
      */
     public String uniqueRouteName(@Nonnull final String parentProtocolName, @Nonnull final Ipv6Prefix prefix) {
-        return bindName(parentProtocolName, doubleDotlessAddress(prefix), String.valueOf(extractPrefix(prefix)));
+        return bindName(parentProtocolName, doubleDotlessAddress(prefix),
+                prefix.getValue().substring(prefix.getValue().indexOf('/') + 1));
     }
 
 

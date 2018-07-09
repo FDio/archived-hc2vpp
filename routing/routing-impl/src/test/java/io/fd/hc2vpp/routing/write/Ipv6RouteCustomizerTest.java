@@ -60,6 +60,7 @@ public class Ipv6RouteCustomizerTest extends RouteCustomizerTest {
             .setKey(SEC_TABLE_KEY).setTableId(SEC_TABLE_KEY.getTableId())
             .setAddressFamily(SEC_TABLE_KEY.getAddressFamily()).build();
     private static final Ipv6Prefix IPV_6_PREFIX = new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/64");
+    private static final Ipv6Prefix IPV_6_PREFIX_128 = new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/128");
 
     private static final InstanceIdentifier<Route> ROUTE_IID = CONTROL_PROTOCOL_IID
             .child(StaticRoutes.class)
@@ -106,6 +107,18 @@ public class Ipv6RouteCustomizerTest extends RouteCustomizerTest {
         customizer.writeCurrentAttributes(ROUTE_IID, getIpv6RouteWithId(route, IPV_6_PREFIX), writeContext);
         verifyInvocation(1, ImmutableList
                 .of(desiredFlaglessResult(1, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
+                        Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, TABLE_ID.intValue(),
+                        0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
+    }
+
+    @Test
+    public void testWriteSingleHop128(
+            @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRoute128.json", id = STATIC_ROUTE_PATH) StaticRoutes route)
+            throws WriteFailedException {
+        whenAddRouteThenSuccess(api);
+        customizer.writeCurrentAttributes(ROUTE_IID, getIpv6RouteWithId(route, IPV_6_PREFIX_128), writeContext);
+        verifyInvocation(1, ImmutableList
+                .of(desiredFlaglessResult(1, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 128,
                         Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY, INTERFACE_INDEX, 0, TABLE_ID.intValue(),
                         0, CLASSIFY_TABLE_INDEX, 1)), api, requestCaptor);
     }

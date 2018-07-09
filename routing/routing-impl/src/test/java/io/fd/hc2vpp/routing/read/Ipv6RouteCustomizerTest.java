@@ -101,6 +101,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
     private InstanceIdentifier<Route> routeIdSpecialHop;
     private InstanceIdentifier<Route> routeIdSimpleHop;
+    private InstanceIdentifier<Route> routeIdSimpleHop128;
     private InstanceIdentifier<Route> routeIdListHop;
     private Ipv6RouteNamesFactory factory;
 
@@ -131,6 +132,8 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
             ipv6InstanceIdentifier.child(Route.class, new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/22")));
         routeIdListHop =
             ipv6InstanceIdentifier.child(Route.class, new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/16")));
+        routeIdSimpleHop128 =
+                ipv6InstanceIdentifier.child(Route.class, new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/128")));
 
         factory = new Ipv6RouteNamesFactory(interfaceContext, routingProtocolContext);
 
@@ -138,6 +141,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         final Ip6FibDetailsReplyDump replyDump = replyDump();
         when(executor.executeDump(routeIdSpecialHop, EntityDumpExecutor.NO_PARAMS)).thenReturn(replyDump);
         when(executor.executeDump(routeIdSimpleHop, EntityDumpExecutor.NO_PARAMS)).thenReturn(replyDump);
+        when(executor.executeDump(routeIdSimpleHop128, EntityDumpExecutor.NO_PARAMS)).thenReturn(replyDump);
         when(executor.executeDump(routeIdListHop, EntityDumpExecutor.NO_PARAMS)).thenReturn(replyDump);
 
         defineMapping(mappingContext, "iface-1", 1, "interface-context");
@@ -150,6 +154,8 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         Ip6FibDetails listRoute = replyDump.ip6FibDetails.get(2);
         String listRouteName = factory.uniqueRouteName(listRoute, mappingContext);
         defineMapping(mappingContext, listRouteName, 3, "route-context");
+        defineMapping(mappingContext, factory.uniqueRouteName(replyDump.ip6FibDetails.get(3), mappingContext), 4,
+                "route-context");
 
         addMapping(classifyManager, CLASSIFY_TABLE_NAME, CLASSIFY_TABLE_INDEX, mappingContext);
 
@@ -210,7 +216,21 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
         detail3.path = new FibPath[]{path3, path4};
 
-        replyDump.ip6FibDetails = Arrays.asList(detail1, detail2, detail3);
+        //second is simple
+        Ip6FibDetails detail4 = new Ip6FibDetails();
+        detail4.tableId = 1;
+        detail4.address = Ipv6RouteData.SECOND_ADDRESS_AS_ARRAY;
+        detail4.addressLength = (byte) 128;
+        detail4.path = new FibPath[]{};
+
+        FibPath path5 = new FibPath();
+        path5.weight = 3;
+        path5.nextHop = Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY;
+        path5.afi = 0;
+        path5.swIfIndex = 1;
+        detail4.path = new FibPath[]{path5};
+
+        replyDump.ip6FibDetails = Arrays.asList(detail1, detail2, detail3, detail4);
         return replyDump;
     }
 
@@ -218,9 +238,10 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
     public void getAllIds() throws Exception {
         final List<RouteKey> keys = getCustomizer().getAllIds(routeIdSpecialHop, ctx);
 
-        assertThat(keys, hasSize(3));
+        assertThat(keys, hasSize(4));
         assertThat(keys, hasItems(new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::1/24")),
                                   new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/22")),
+                                  new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/128")),
                                   new RouteKey(new Ipv6Prefix("2001:db8:a0b:12f0::2/16"))));
     }
 
@@ -253,6 +274,23 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         SimpleNextHop hop = SimpleNextHop.class.cast(hopOptions);
         assertEquals("2001:db8:a0b:12f0::1", hop.getAugmentation(SimpleNextHop1.class)
             .getNextHopAddress().getValue());
+        assertEquals("iface-1", hop.getOutgoingInterface());
+    }
+
+    @Test
+    public void readCurrentAttributesSimpleHop128() throws Exception {
+        final RouteBuilder builder = new RouteBuilder();
+        getCustomizer().readCurrentAttributes(routeIdSimpleHop128, builder, ctx);
+
+        assertEquals(new Ipv6Prefix("2001:db8:a0b:12f0::2/128"), builder.getDestinationPrefix());
+        assertEquals("2001:db8:a0b:12f0::2/128", builder.getDestinationPrefix().getValue());
+
+        NextHopOptions hopOptions = builder.getNextHop().getNextHopOptions();
+        assertTrue(hopOptions instanceof SimpleNextHop);
+
+        SimpleNextHop hop = SimpleNextHop.class.cast(hopOptions);
+        assertEquals("2001:db8:a0b:12f0::1", hop.getAugmentation(SimpleNextHop1.class)
+                .getNextHopAddress().getValue());
         assertEquals("iface-1", hop.getOutgoingInterface());
     }
 

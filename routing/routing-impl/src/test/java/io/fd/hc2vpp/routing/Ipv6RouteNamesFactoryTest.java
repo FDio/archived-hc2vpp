@@ -53,6 +53,7 @@ public class Ipv6RouteNamesFactoryTest implements RoutingRequestTestHelper, Sche
     private NamingContext interfaceContext;
     private NamingContext routingProtocolContext;
     private Ip6FibDetails vppRoute;
+    private Ip6FibDetails vppRoute128;
     private FibPath vppPath;
     private Ipv6RouteNamesFactory factory;
 
@@ -65,6 +66,11 @@ public class Ipv6RouteNamesFactoryTest implements RoutingRequestTestHelper, Sche
         vppRoute.address = FIRST_ADDRESS_AS_ARRAY;
         vppRoute.addressLength = 64;
         vppRoute.tableId = 1;
+
+        vppRoute128 = new Ip6FibDetails();
+        vppRoute128.address = FIRST_ADDRESS_AS_ARRAY;
+        vppRoute128.addressLength = (byte) 128;
+        vppRoute128.tableId = 1;
 
         vppPath = new FibPath();
         vppPath.nextHop = FIRST_ADDRESS_AS_ARRAY;
@@ -84,6 +90,17 @@ public class Ipv6RouteNamesFactoryTest implements RoutingRequestTestHelper, Sche
                                              getIpv6RouteWithId(data,
                                                 new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/64"))));
         assertEquals("tst-protocol_2001-db8-a0b-12f0--1_64", factory.uniqueRouteName(vppRoute, mappingContext));
+    }
+
+    @Test
+    public void testUniqueRouteName128(
+            @InjectTestData(resourcePath = "/ipv6/simplehop/simpleHopRoute128.json", id = STATIC_ROUTE_PATH)
+                    StaticRoutes data) {
+        assertEquals("tst-protocol_2001-db8-a0b-12f0--1_128",
+                factory.uniqueRouteName(ROUTE_PROTOCOL_NAME,
+                        getIpv6RouteWithId(data,
+                                new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/128"))));
+        assertEquals("tst-protocol_2001-db8-a0b-12f0--1_128", factory.uniqueRouteName(vppRoute128, mappingContext));
     }
 
     @Test
