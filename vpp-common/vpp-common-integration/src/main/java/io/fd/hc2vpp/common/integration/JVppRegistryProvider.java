@@ -16,6 +16,9 @@
 
 package io.fd.hc2vpp.common.integration;
 
+import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.common.primitives.UnsignedInts;
@@ -25,15 +28,11 @@ import io.fd.honeycomb.data.init.ShutdownHandler;
 import io.fd.vpp.jvpp.JVppRegistry;
 import io.fd.vpp.jvpp.JVppRegistryImpl;
 import io.fd.vpp.jvpp.VppJNIConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import static com.google.common.base.Preconditions.checkState;
-import static java.lang.String.format;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides JVppRegistry. Must be a singleton due to shutdown hook usage. Registers shutdown hook to disconnect from
@@ -54,7 +53,13 @@ public final class JVppRegistryProvider extends ProviderTrait<JVppRegistry> {
     protected JVppRegistry create() {
         final JVppRegistry registry;
         try {
-            registry = new JVppRegistryImpl(config.jvppConnectionName);
+            if (config.apiSegmentPrefix.isPresent()) {
+                // TODO(VPP-1342): JVppRegistryImpl requires full SHM region name
+                final String shmName = String.format("/%s-vpe-api", config.apiSegmentPrefix.get());
+                registry = new JVppRegistryImpl(config.jvppConnectionName, shmName);
+            } else {
+                registry = new JVppRegistryImpl(config.jvppConnectionName);
+            }
             connectedVppPid = initConnectedVppPid(registry);
             shutdownHandler.register("jvpp-registry", () -> {
                 // Closing JVpp connection with shutdown hook to erase the connection from VPP so HC will be able

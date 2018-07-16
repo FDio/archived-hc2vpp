@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.common.integration;
 
+import java.util.Optional;
 import net.jmob.guice.conf.core.BindConfig;
 import net.jmob.guice.conf.core.InjectConfig;
 import net.jmob.guice.conf.core.Syntax;
@@ -25,6 +26,9 @@ public class VppConfigAttributes {
 
     @InjectConfig("jvpp-connection-name")
     public String jvppConnectionName;
+
+    @InjectConfig("api-segment-prefix")
+    public Optional<String> apiSegmentPrefix;
 
     @InjectConfig("jvpp-request-timeout")
     public int jvppRequestTimeout;
