@@ -26,21 +26,6 @@ module hc2vpp-ietf-ipv6-unicast-routing {
        is required.";
   }
 
-  /*
-     Copied ietf-ip import from hc2vpp-ietf-ipv6-router-advertisements as a workaround
-     for https://jira.opendaylight.org/browse/YANGTOOLS-876.
-
-     TODO: Remove ietf-ip import once YANGTOOLS-876 is fixed and HC adapts to proper yangtools version.
-           Bug fix will be available in yangtools 2.0.4 version.
-  */
-  import ietf-ip {
-    prefix "ip";
-    description
-      "An 'ietf-ip' module version that is compatible with
-       the Network Management Datastore Architecture (NMDA)
-       is required.";
-  }
-
   include hc2vpp-ietf-ipv6-router-advertisements {
     revision-date 2018-03-13;
   }
