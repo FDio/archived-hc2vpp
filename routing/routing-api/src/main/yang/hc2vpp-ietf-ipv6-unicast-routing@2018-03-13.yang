@@ -149,8 +149,8 @@ module hc2vpp-ietf-ipv6-unicast-routing {
   }
   /*
   TODO(HC2VPP-298):
-  needed to comment out action which caused problems probapby simmilar to:
-  https://jira.opendaylight.org/browse/YANGTOOLS-841
+  action augmentation does not work:
+  https://jira.opendaylight.org/browse/MDSAL-300
 
   augment
     "/rt:routing/rt:ribs/rt:rib/rt:active-route/rt:input" {
@@ -339,8 +339,8 @@ module hc2vpp-ietf-ipv6-unicast-routing {
   }
   /*
     TODO(HC2VPP-298):
-    needed to comment out action which caused problems probapby simmilar to:
-    https://jira.opendaylight.org/browse/YANGTOOLS-841
+    action augmentation does not work:
+    https://jira.opendaylight.org/browse/MDSAL-300
 
   augment "/rt:routing-state/rt:ribs/rt:rib/"
           + "rt:active-route/rt:input" {

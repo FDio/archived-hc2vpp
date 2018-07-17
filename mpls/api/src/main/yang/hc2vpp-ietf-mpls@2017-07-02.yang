@@ -373,8 +373,8 @@ module hc2vpp-ietf-mpls {
 
   /*
     TODO(HC2VPP-298):
-    needed to comment out action augmentations which caused problems. probapby simmilar to:
-    https://jira.opendaylight.org/browse/YANGTOOLS-841
+    action augmentation does not work:
+    https://jira.opendaylight.org/browse/MDSAL-300
 
   augment
     "/rt:routing-state/rt:ribs/rt:rib/rt:active-route/rt:input" {

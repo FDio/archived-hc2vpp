@@ -509,10 +509,6 @@ module hc2vpp-ietf-routing {
             uses route-metadata;
           }
         }
-        /*
-        TODO(HC2VPP-298):
-        needed to comment out action which caused problems probapby simmilar to:
-        https://jira.opendaylight.org/browse/YANGTOOLS-841
 
         action active-route {
           description
@@ -540,7 +536,7 @@ module hc2vpp-ietf-routing {
             }
           }
         }
-        */
+
         leaf description {
           type string;
           description
@@ -690,10 +686,6 @@ module hc2vpp-ietf-routing {
             }
           }
         }
-        /*
-        TODO(HC2VPP-298):
-        needed to comment out action which caused problems probapby simmilar to:
-        https://jira.opendaylight.org/browse/YANGTOOLS-841
 
         action active-route {
           status obsolete;
@@ -733,7 +725,6 @@ module hc2vpp-ietf-routing {
             }
           }
         }
-        */
       }
     }
   }
