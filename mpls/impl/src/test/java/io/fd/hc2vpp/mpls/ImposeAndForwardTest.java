@@ -54,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.routing.Mpls;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Routing;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.MplsLabel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.MplsLabelGeneralUse;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDataTranslator, MplsLabelTranslator {
@@ -91,7 +92,7 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
                         new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.simple.path.simple.path.ConfigBuilder()
                             .setNextHop(nextHop)
                             .setOutgoingInterface(IF_NAME)
-                            .setOutgoingLabel(new MplsLabel(label))
+                            .setOutgoingLabel(new MplsLabel(new MplsLabelGeneralUse(label)))
                             .build()).build())
                     .build())
             .build();
@@ -133,13 +134,13 @@ public class ImposeAndForwardTest extends WriterCustomizerTest implements ByteDa
                                         new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.OutgoingLabelsBuilder()
                                             .setIndex((short) 0)
                                             .setConfig(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.outgoing.labels.ConfigBuilder()
-                                                           .setLabel(new MplsLabel(102L))
+                                                           .setLabel(new MplsLabel(new MplsLabelGeneralUse(102L)))
                                                            .build())
                                             .build(),
                                         new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.OutgoingLabelsBuilder()
                                             .setIndex((short) 1)
                                             .setConfig(new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.path.outgoing.labels.outgoing.labels.outgoing.labels.ConfigBuilder()
-                                                           .setLabel(new MplsLabel(104L))
+                                                           .setLabel(new MplsLabel(new MplsLabelGeneralUse(104L)))
                                                            .build())
                                             .build()))
                                     .build())

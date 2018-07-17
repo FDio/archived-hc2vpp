@@ -19,7 +19,7 @@ module hc2vpp-ietf-mpls-static {
     prefix "rt";
   }
 
-  import hc2vpp-ietf-routing-types {
+  import ietf-routing-types {
     prefix "rt-types";
   }
 

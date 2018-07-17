@@ -15,11 +15,9 @@ module hc2vpp-ietf-srv6-base {
     prefix "yang";
   }
 
-  // TODO: hc2vpp-298 - Renamed imports, because hc2vpp uses modified versions of these models.
-  import hc2vpp-ietf-routing-types {
+  import ietf-routing-types {
      prefix "rt-types";
   }
-
 
   // TODO: hc2vpp-298 - Renamed imports, because hc2vpp uses modified versions of these models.
   import hc2vpp-ietf-routing {

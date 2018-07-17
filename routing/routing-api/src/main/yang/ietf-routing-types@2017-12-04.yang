@@ -1,13 +1,7 @@
-module hc2vpp-ietf-routing-types {
+module ietf-routing-types {
 
   namespace "urn:ietf:params:xml:ns:yang:ietf-routing-types";
   prefix rt-types;
-
-  /*
-     This models was modified due to ODL bugs described here: https://jira.fd.io/browse/HC2VPP-298.
-     Affected sections are renamed or commented, see comments below.
-     TODO: revert these changes and rename model to ietf-routing-types once bugs are fixed.
-  */
 
   import ietf-yang-types {
     prefix yang;
@@ -684,16 +678,9 @@ module hc2vpp-ietf-routing-types {
   }
 
   typedef mpls-label {
-    /*
-    TODO: binding generator creates invalid type bindings, so we changed type to uint32.
-    Change back after https://jira.opendaylight.org/browse/MDSAL-269 is resolved.
     type union {
       type mpls-label-special-purpose;
       type mpls-label-general-use;
-    }
-    */
-    type uint32 {
-        range "0..1048575";
     }
     description
       "The 20-bit label value in an MPLS label stack as specified

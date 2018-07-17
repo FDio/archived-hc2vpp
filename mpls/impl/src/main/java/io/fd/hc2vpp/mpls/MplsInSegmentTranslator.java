@@ -27,12 +27,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._stati
 /**
  * Mixin that translates {@link InSegment} of {@link MplsLabel} type to {@link MplsRouteAddDel} message.
  */
-interface MplsInSegmentTranslator {
+interface MplsInSegmentTranslator extends MplsLabelReader {
+
     default void translate(@Nonnull final InSegment inSegment, @Nonnull final MplsRouteAddDel request) {
         checkArgument(inSegment != null, "Missing in-segment");
         final Type type = inSegment.getConfig().getType();
         checkArgument(type instanceof MplsLabel, "Expecting in-segment of type mpls-label, but %s given.", type);
-        final Long label = ((MplsLabel) type).getIncomingLabel().getValue();
-        request.mrLabel = label.intValue();
+        request.mrLabel = getLabelValue(((MplsLabel) type).getIncomingLabel());
     }
 }

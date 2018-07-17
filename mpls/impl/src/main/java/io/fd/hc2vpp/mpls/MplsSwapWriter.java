@@ -85,7 +85,7 @@ final class MplsSwapWriter implements LspWriter, Ipv4Translator, MplsInSegmentTr
 
         final MplsLabel outgoingLabel = path.getSimplePath().getConfig().getOutgoingLabel();
         checkArgument(outgoingLabel != null, "Configuring swap-and-forward, but outgoing-label is missing.");
-        request.mrNextHopOutLabelStack = new FibMplsLabel[] {translate(outgoingLabel.getValue())};
+        request.mrNextHopOutLabelStack = new FibMplsLabel[] {translate(getLabelValue(outgoingLabel))};
         request.mrNextHopNOutLabels = 1;
 
         final String outgoingInterface = path.getSimplePath().getConfig().getOutgoingInterface();

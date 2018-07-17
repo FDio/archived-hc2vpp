@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls.rev170702.routing.Mpls;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.rev180313.Routing;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.MplsLabel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.MplsLabelGeneralUse;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SwapAndForwardTest extends WriterCustomizerTest implements ByteDataTranslator, MplsLabelTranslator {
@@ -77,8 +78,9 @@ public class SwapAndForwardTest extends WriterCustomizerTest implements ByteData
                     new InSegmentBuilder()
                         .setConfig(
                             new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702.in.segment.in.segment.ConfigBuilder()
-                                .setType(new MplsLabelBuilder().setIncomingLabel(new MplsLabel((long) LOCAL_LABEL))
-                                             .build())
+                                .setType(new MplsLabelBuilder()
+                                    .setIncomingLabel(new MplsLabel(new MplsLabelGeneralUse((long) LOCAL_LABEL)))
+                                    .build())
                                 .build())
                     .build()
                 )
@@ -92,7 +94,7 @@ public class SwapAndForwardTest extends WriterCustomizerTest implements ByteData
                                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.mpls._static.rev170702._static.lsp.paths.out.segment.simple.path.simple.path.ConfigBuilder()
                                     .setNextHop(IpAddressBuilder.getDefaultInstance("10.10.24.4"))
                                     .setOutgoingInterface(IF_NAME)
-                                    .setOutgoingLabel(new MplsLabel((long) OUT_LABEL))
+                                    .setOutgoingLabel(new MplsLabel(new MplsLabelGeneralUse((long) OUT_LABEL)))
                                     .build())
                             .build())
                     .build())

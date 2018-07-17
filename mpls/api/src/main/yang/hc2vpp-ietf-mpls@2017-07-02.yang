@@ -16,7 +16,7 @@ module hc2vpp-ietf-mpls {
     prefix "if";
   }
 
-  import hc2vpp-ietf-routing-types {
+  import ietf-routing-types {
     prefix "rt-types";
   }
 

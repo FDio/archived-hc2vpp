@@ -50,7 +50,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  *
  * @see <a href="https://git.fd.io/vpp/tree/src/vnet/ip/ip.api">ip_add_del_route</a> definition
  */
-final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator, MplsLabelTranslator {
+final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator, MplsLabelReader, MplsLabelTranslator {
     private final FutureJVppCore vppApi;
     private final NamingContext interfaceContext;
 
@@ -119,7 +119,7 @@ final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator, MplsLab
 
         final MplsLabel outgoingLabel = path.getSimplePath().getConfig().getOutgoingLabel();
         checkArgument(outgoingLabel != null, "Configuring impose-and-forward, but outgoing-label is missing.");
-        request.nextHopOutLabelStack = new FibMplsLabel[] {translate(outgoingLabel.getValue())};
+        request.nextHopOutLabelStack = new FibMplsLabel[] {translate(getLabelValue(outgoingLabel))};
         request.nextHopNOutLabels = 1;
 
         return path.getSimplePath().getConfig().getOutgoingInterface();
@@ -145,8 +145,9 @@ final class ImposeAndForwardWriter implements LspWriter, Ipv4Translator, MplsLab
         checkArgument(numberOfLabels > 0 && numberOfLabels < MAX_LABELS, "Number of labels (%s) not in range (0, %s].",
             numberOfLabels, MAX_LABELS, numberOfLabels);
         request.nextHopNOutLabels = (byte) numberOfLabels;
-        request.nextHopOutLabelStack = labels.stream().map(label -> translate(label.getConfig().getLabel().getValue()))
-                .toArray(FibMplsLabel[]::new);
+        request.nextHopOutLabelStack = labels.stream()
+            .map(label -> translate(getLabelValue(label.getConfig().getLabel())))
+            .toArray(FibMplsLabel[]::new);
 
         return paths.getPath().get(0).getConfig().getOutgoingInterface();
     }
