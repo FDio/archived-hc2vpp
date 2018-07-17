@@ -468,11 +468,7 @@ module hc2vpp-ietf-routing-types {
   typedef ipv4-multicast-source-address {
     type union {
       type enumeration {
-      /* Needed to change '*' to 'any' otherwise it will fail to build java classes from this enum
-         bug in mdsal reported here: https://jira.opendaylight.org/browse/MDSAL-332
-         TODO(HC2VPP-298): change back to '*' when resolved
-      */
-        enum any {
+        enum '*' {
           description
             "Any source address.";
         }
@@ -486,11 +482,7 @@ module hc2vpp-ietf-routing-types {
   typedef ipv6-multicast-source-address {
     type union {
       type enumeration {
-      /* Needed to change '*' to 'any' otherwise it will fail to build java classes from this enum
-         bug in mdsal reported here: https://jira.opendaylight.org/browse/MDSAL-332
-         TODO(HC2VPP-298): change back to '*' when resolved
-      */
-        enum any {
+        enum '*' {
           description
             "Any source address.";
         }
