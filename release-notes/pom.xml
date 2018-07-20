@@ -106,9 +106,9 @@
                 <!-- Attributes below are inlined into resulting documentation,
                 making it much easier when bumping versions -->
                 <project-version>${project.version}</project-version>
-                <project-public-version>18.07</project-public-version>
-                <project-config-version>1-18-07</project-config-version>
-                <project-version-in-jira>11301</project-version-in-jira>
+                <project-public-version>18.10</project-public-version>
+                <project-config-version>1-18-10</project-config-version>
+                <project-version-in-jira>11305</project-version-in-jira>
                 <project-branch>master</project-branch>
                 <project-odl-version>oxygen</project-odl-version>
                 <project-vpp-version>18.07</project-vpp-version>
