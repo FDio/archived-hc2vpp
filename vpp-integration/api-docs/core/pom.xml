@@ -37,7 +37,7 @@
         <asm.version>5.2</asm.version>
         <asciidoctorj.version>1.5.4</asciidoctorj.version>
         <slf4j-simple.version>1.7.25</slf4j-simple.version>
-        <jvpp.version>18.07-SNAPSHOT</jvpp.version>
+        <jvpp.version>18.10-SNAPSHOT</jvpp.version>
         <guava.version>23.6-jre</guava.version>
         <reflections.version>0.9.11</reflections.version>
 

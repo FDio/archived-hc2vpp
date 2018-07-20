@@ -32,7 +32,7 @@
     <name>${project.artifactId}</name>
 
     <properties>
-        <jvpp.version>18.07-SNAPSHOT</jvpp.version>
+        <jvpp.version>18.10-SNAPSHOT</jvpp.version>
     </properties>
 
     <dependencies>
