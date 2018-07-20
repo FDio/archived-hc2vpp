@@ -16,7 +16,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>api-parent</artifactId>
-    <version>1.18.07-SNAPSHOT</version>
+    <version>1.18.10-SNAPSHOT</version>
     <relativePath>../../common/api-parent</relativePath>
   </parent>
 
@@ -24,7 +24,7 @@
   <groupId>io.fd.hc2vpp.dhcp</groupId>
   <artifactId>dhcp-api</artifactId>
   <name>dhcp-api</name>
-  <version>1.18.07-SNAPSHOT</version>
+  <version>1.18.10-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <dependencies>

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>hc2vpp-parent</artifactId>
         <groupId>io.fd.hc2vpp.common</groupId>
-        <version>1.18.07-SNAPSHOT</version>
+        <version>1.18.10-SNAPSHOT</version>
         <relativePath>../common/hc2vpp-parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
