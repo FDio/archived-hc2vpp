@@ -22,7 +22,7 @@
 
     <groupId>io.fd.hc2vpp.docs</groupId>
     <artifactId>scripts</artifactId>
-    <version>1.18.07-RC1</version>
+    <version>1.18.07-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <properties>
