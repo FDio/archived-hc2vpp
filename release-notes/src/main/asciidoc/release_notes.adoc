@@ -13,6 +13,8 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.18.07/hc2vp
 
 === Removed features
 
+* https://jira.fd.io/browse/HC2VPP-341[Postman collections in v1.0/v2.0 format]
+
 === Modified features
 
 === Deprecated features
