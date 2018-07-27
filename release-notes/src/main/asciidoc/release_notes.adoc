@@ -16,6 +16,7 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.18.04/hc2vp
 === Modified features
 
 === Deprecated features
+* https://jira.fd.io/browse/HC2VPP-340[Postman collections in v1 format] - scheduled for removal in 18.10
 
 == Backlog
 
