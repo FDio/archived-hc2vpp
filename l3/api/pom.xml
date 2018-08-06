@@ -22,14 +22,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>api-parent</artifactId>
-        <version>1.18.07</version>
+        <version>1.18.07.1-SNAPSHOT</version>
         <relativePath>../../common/api-parent</relativePath>
     </parent>
 
     <groupId>io.fd.hc2vpp.l3</groupId>
     <artifactId>l3-api</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.07</version>
+    <version>1.18.07.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

@@ -20,14 +20,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
-        <version>1.18.07</version>
+        <version>1.18.07.1-SNAPSHOT</version>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.fib.management</groupId>
     <artifactId>fib-management-impl</artifactId>
-    <version>1.18.07</version>
+    <version>1.18.07.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <packaging>bundle</packaging>
 

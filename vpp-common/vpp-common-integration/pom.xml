@@ -19,14 +19,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>impl-parent</artifactId>
-        <version>1.18.07</version>
+        <version>1.18.07.1-SNAPSHOT</version>
         <relativePath>../../common/impl-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>vpp-common-integration</artifactId>
-    <version>1.18.07</version>
+    <version>1.18.07.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <properties>
