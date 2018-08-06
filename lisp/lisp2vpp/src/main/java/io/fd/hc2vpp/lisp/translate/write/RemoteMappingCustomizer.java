@@ -155,7 +155,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
 
                         return remoteLocator;
                     }).toArray(OneRemoteLocator[]::new);
-            request.rlocNum = Integer.valueOf(rlocs.getLocator().size()).byteValue();
+            request.rlocNum = (byte) rlocs.getLocator().size();
         }
 
         getReply(getFutureJVpp().oneAddDelRemoteMapping(request).toCompletableFuture());

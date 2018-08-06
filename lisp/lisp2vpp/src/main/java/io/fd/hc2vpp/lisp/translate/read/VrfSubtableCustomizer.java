@@ -87,7 +87,7 @@ public class VrfSubtableCustomizer extends FutureJVppCustomizer
                         .collect(Collectors.toList());
         if (details.size() == 1) {
             final OneEidTableMapDetails detail = details.get(0);
-            builder.setTableId(Integer.valueOf(detail.dpTable).longValue());
+            builder.setTableId(Integer.toUnsignedLong(detail.dpTable));
 
             LOG.debug("Attributes for {} successfully loaded", id);
         }
