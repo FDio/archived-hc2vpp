@@ -10,10 +10,19 @@ https://wiki.fd.io/view/Hc2vpp/Release_Plans/Release_Plan_{project-public-versio
 Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.18.04/hc2vpp-parent/release-notes-aggregator/release_notes.html#_features[1804 feature list]:
 
 === New features
+* https://jira.fd.io/browse/HC2VPP-287[SRv6 support]
+* https://jira.fd.io/browse/HC2VPP-317[FIB table management]
+* https://jira.fd.io/browse/HC2VPP-88[AF_PACKET interface management]
+* https://jira.fd.io/browse/HC2VPP-176[api-segment prefix support]
 
 === Removed features
 
 === Modified features
+* https://jira.fd.io/browse/HC2VPP-253[Update hc2vpp-ietf-routing model to RFC 8349]
+* https://jira.fd.io/browse/HC2VPP-297[Update ietf-mpls-static.yang to 2017-07-02]
+* https://jira.fd.io/browse/HC2VPP-367[Update ietf-nat.yang to 2018-06-28]
+* https://jira.fd.io/browse/HC2VPP-79[Change inet:ip-address to ip-address-no-zone in yang models]
+* https://jira.fd.io/browse/HC2VPP-339[Postman collections in v2.1.0 format]
 
 === Deprecated features
 * https://jira.fd.io/browse/HC2VPP-340[Postman collections in v1 format] - scheduled for removal in 18.10
