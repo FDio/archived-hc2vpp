@@ -81,12 +81,12 @@
     <dependency>
         <groupId>io.fd.vpp</groupId>
         <artifactId>jvpp-registry</artifactId>
-        <version>18.07-SNAPSHOT</version>
+        <version>18.07</version>
     </dependency>
     <dependency>
         <groupId>io.fd.nsh_sfc</groupId>
         <artifactId>nsh-sfc</artifactId>
-        <version>18.07-SNAPSHOT</version>
+        <version>18.07</version>
     </dependency>
     <dependency>
       <groupId>io.fd.hc2vpp.common</groupId>

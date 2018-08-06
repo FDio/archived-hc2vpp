@@ -30,7 +30,7 @@
     <name>${project.artifactId}</name>
 
     <properties>
-        <jvpp.version>18.07-SNAPSHOT</jvpp.version>
+        <jvpp.version>18.07</jvpp.version>
         <hamcrest.version>1.3</hamcrest.version>
     </properties>
 
