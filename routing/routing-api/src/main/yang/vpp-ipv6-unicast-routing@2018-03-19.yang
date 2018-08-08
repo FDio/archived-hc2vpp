@@ -12,7 +12,7 @@ module vpp-ipv6-unicast-routing {
     }
 
     import hc2vpp-ietf-routing {
-        prefix "ietf-r";
+        prefix "rt";
         revision-date 2018-03-13;
     }
 
