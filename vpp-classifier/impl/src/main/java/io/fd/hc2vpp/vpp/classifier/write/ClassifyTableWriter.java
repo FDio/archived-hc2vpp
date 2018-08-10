@@ -145,6 +145,7 @@ public class ClassifyTableWriter extends VppNodeWriter
             request.nextTableIndex = ~0; // value not specified
         }
         request.mask = DatatypeConverter.parseHexBinary(table.getMask().getValue().replace(":", ""));
+        request.maskLen = request.mask.length;
         checkArgument(request.mask.length % 16 == 0, "Number of mask bytes must be multiple of 16.");
         request.matchNVectors = request.mask.length / 16;
 

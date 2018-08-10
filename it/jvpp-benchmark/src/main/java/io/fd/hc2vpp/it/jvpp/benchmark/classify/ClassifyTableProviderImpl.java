@@ -17,7 +17,6 @@
 package io.fd.hc2vpp.it.jvpp.benchmark.classify;
 
 import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTable;
-import java.io.Serializable;
 import java.util.Random;
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -66,6 +65,7 @@ class ClassifyTableProviderImpl implements ClassifyTableProvider {
         addDelTable.skipNVectors = 0;
         addDelTable.matchNVectors = 1;
         addDelTable.mask = new byte[16];
+        addDelTable.maskLen = 16;
         rnd.nextBytes(addDelTable.mask);
         return addDelTable;
     }

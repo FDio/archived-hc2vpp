@@ -166,6 +166,7 @@ public class ClassifySessionWriter extends VppNodeWriter
         request.advance = classifySession.getAdvance();
 
         request.match = DatatypeConverter.parseHexBinary(classifySession.getMatch().getValue().replace(":", ""));
+        request.matchLen = request.match.length;
         return request;
     }
 

@@ -88,6 +88,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
         request.mask =
                 new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
                         (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00};
+        request.maskLen = request.mask.length;
         return request;
     }
 
