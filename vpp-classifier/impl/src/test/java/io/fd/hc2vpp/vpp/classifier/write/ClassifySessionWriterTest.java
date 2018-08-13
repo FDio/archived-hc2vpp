@@ -78,15 +78,20 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
     private static ClassifyAddDelSession generateClassifyAddDelSession(final byte isAdd, final int tableIndex,
                                                                        final int sessionIndex) {
+        return generateClassifyAddDelSession(isAdd, tableIndex, sessionIndex,
+            new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
+                (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00});
+    }
+
+    private static ClassifyAddDelSession generateClassifyAddDelSession(final byte isAdd, final int tableIndex,
+                                                                       final int sessionIndex, final byte[] match) {
         final ClassifyAddDelSession request = new ClassifyAddDelSession();
         request.isAdd = isAdd;
         request.tableIndex = tableIndex;
         request.opaqueIndex = sessionIndex;
         request.hitNextIndex = 0;
         request.advance = 123;
-        request.match =
-                new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
-                        (byte) 0x05, (byte) 0x06, 0x00, 0x00, 0x00, 0x00};
+        request.match = match;
         request.matchLen = request.match.length;
         return request;
     }
@@ -193,19 +198,6 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
         customizer.writeCurrentAttributes(id, classifySession, writeContext);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateInvalidMatchLength() throws WriteFailedException {
-        final ClassifyTable table = mock(ClassifyTable.class);
-        when(table.getMask()).thenReturn(new HexString("00:00:00:00:00:00:ff:FF:ff:ff:ff:FF:00:00:00:00"));
-        when(table.getSkipNVectors()).thenReturn(1L);
-        when(writeContext.readAfter(ArgumentMatchers.any())).thenReturn(Optional.of(table));
-
-        final String match = "00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00";
-        final ClassifySession classifySession = generateClassifySession(SESSION_INDEX, match);
-        final InstanceIdentifier<ClassifySession> id = getClassifySessionId(TABLE_NAME, match);
-        customizer.writeCurrentAttributes(id, classifySession, writeContext);
-    }
-
     @Test
     public void testCreateSkipOneVector() throws WriteFailedException {
         final ClassifyTable table = mock(ClassifyTable.class);
@@ -214,10 +206,13 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
         when(writeContext.readAfter(ArgumentMatchers.any())).thenReturn(Optional.of(table));
         whenClassifyAddDelSessionThenSuccess();
 
-        final String match =
-            "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00";
+        final String match = "01:02:03:04:05:06:07:08:09:0a:0b:0c:0d:0e:0f:10";
         final ClassifySession classifySession = generateClassifySession(SESSION_INDEX, match);
         final InstanceIdentifier<ClassifySession> id = getClassifySessionId(TABLE_NAME, match);
         customizer.writeCurrentAttributes(id, classifySession, writeContext);
+        verify(api).classifyAddDelSession(generateClassifyAddDelSession((byte) 1, TABLE_INDEX, SESSION_INDEX,
+            new byte[] {
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}));
     }
 }

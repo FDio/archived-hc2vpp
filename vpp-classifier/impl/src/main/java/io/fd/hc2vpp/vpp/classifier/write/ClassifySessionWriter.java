@@ -16,7 +16,6 @@
 
 package io.fd.hc2vpp.vpp.classifier.write;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
@@ -115,7 +114,8 @@ public class ClassifySessionWriter extends VppNodeWriter
         final int tableIndex = classifyTableContext.getTableIndex(tableName, writeContext.getMappingContext());
 
         final ClassifyTable classifyTable = getClassifyTable(writeContext, id, isAdd);
-        final ClassifyAddDelSession request = getClassifyAddDelSessionRequest(isAdd, classifySession, tableIndex);
+        final ClassifyAddDelSession request =
+            getClassifyAddDelSessionRequest(isAdd, classifySession, classifyTable, tableIndex);
 
         // TODO(HC2VPP-9): registry of next_node translators would allow to weaken dependency between policer
         // and vpp-classifier models
@@ -127,14 +127,6 @@ public class ClassifySessionWriter extends VppNodeWriter
         }
         final CompletionStage<ClassifyAddDelSessionReply> createClassifyTableReplyCompletionStage = getFutureJVpp()
                 .classifyAddDelSession(request);
-
-        // VPP requires to prepend classify session with skip_n_vectors*16 bytes:
-        final long expectedMatchLen =
-            16 * classifyTable.getSkipNVectors() + getBinaryVector(classifyTable.getMask()).length;
-        final long actualMatchLen = Integer.toUnsignedLong(request.matchLen);
-        checkArgument(actualMatchLen == expectedMatchLen,
-            "Match length should be equal to table.skipNVectors*16 + table.mask length ("
-                + expectedMatchLen + ") but was: " + actualMatchLen);
         getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
     }
 
@@ -168,6 +160,7 @@ public class ClassifySessionWriter extends VppNodeWriter
 
     private ClassifyAddDelSession getClassifyAddDelSessionRequest(final boolean isAdd,
                                                                   @Nonnull final ClassifySession classifySession,
+                                                                  final ClassifyTable classifyTable,
                                                                   final int tableIndex) {
         ClassifyAddDelSession request = new ClassifyAddDelSession();
         request.isAdd = booleanToByte(isAdd);
@@ -176,8 +169,14 @@ public class ClassifySessionWriter extends VppNodeWriter
         // default 0:
         request.advance = classifySession.getAdvance();
 
-        request.match = getBinaryVector(classifySession.getMatch());
-        request.matchLen = request.match.length;
+        // VPP requires match vector of size mask + skip_n_vectors*16 bytes,
+        // so align it with zeros:
+        final int matchLength =
+            (int) (16 * classifyTable.getSkipNVectors() + getBinaryVector(classifyTable.getMask()).length);
+        request.match = new byte[matchLength];
+        final byte[] actualMatch = getBinaryVector(classifySession.getMatch());
+        System.arraycopy(actualMatch, 0, request.match, 0, actualMatch.length);
+        request.matchLen = matchLength;
         return request;
     }
 
