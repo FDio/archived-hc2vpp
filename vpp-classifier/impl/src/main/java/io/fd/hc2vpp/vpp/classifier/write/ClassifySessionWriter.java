@@ -113,8 +113,7 @@ public class ClassifySessionWriter extends VppNodeWriter
                 "Could not find classify table index for {} in the classify table context", tableName);
         final int tableIndex = classifyTableContext.getTableIndex(tableName, writeContext.getMappingContext());
 
-        final ClassifyTable classifyTable =
-                getClassifyTable(writeContext, id.firstIdentifierOf(ClassifyTable.class), isAdd);
+        final ClassifyTable classifyTable = getClassifyTable(writeContext, id, isAdd);
         final ClassifyAddDelSession request = getClassifyAddDelSessionRequest(isAdd, classifySession, tableIndex);
 
         // TODO(HC2VPP-9): registry of next_node translators would allow to weaken dependency between policer
@@ -143,14 +142,18 @@ public class ClassifySessionWriter extends VppNodeWriter
         request.opaqueIndex = policer.getColorClassfier().getIntValue();
     }
 
-    private ClassifyTable getClassifyTable(final WriteContext writeContext,
-                                           @Nonnull final InstanceIdentifier<ClassifyTable> id,
+    private ClassifyTable getClassifyTable(@Nonnull final WriteContext writeContext,
+                                           @Nonnull final InstanceIdentifier<ClassifySession> id,
                                            final boolean isAdd) {
+        final InstanceIdentifier<ClassifyTable>  tableId = id.firstIdentifierOf(ClassifyTable.class);
         final Optional<ClassifyTable> classifyTable;
         if (isAdd) {
-            classifyTable = writeContext.readAfter(id);
+            classifyTable = writeContext.readAfter(tableId);
         } else {
-            classifyTable = writeContext.readBefore(id);
+            classifyTable = writeContext.readBefore(tableId);
+        }
+        if (!classifyTable.isPresent()) {
+            throw new IllegalStateException("Missing classify table for session " + id);
         }
         return classifyTable.get();
     }

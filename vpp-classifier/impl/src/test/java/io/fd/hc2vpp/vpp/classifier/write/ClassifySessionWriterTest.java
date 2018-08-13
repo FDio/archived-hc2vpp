@@ -181,4 +181,13 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
 
         customizer.deleteCurrentAttributes(id, classifySession, writeContext);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDeleteMisssingTable() throws WriteFailedException {
+        when(writeContext.readAfter(ArgumentMatchers.any())).thenReturn(Optional.absent());
+        final String match = "00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00";
+        final ClassifySession classifySession = generateClassifySession(SESSION_INDEX, match);
+        final InstanceIdentifier<ClassifySession> id = getClassifySessionId(TABLE_NAME, match);
+        customizer.writeCurrentAttributes(id, classifySession, writeContext);
+    }
 }
