@@ -48,6 +48,9 @@ public class ClassifyTableBenchmark extends JVppBenchmark {
         classifyTableProvider = new ClassifyTableProviderImpl(tableSetSize);
     }
 
+    // Sonar reports unclosed resources, but jvpp connection is closed in JVppBenchmark.tearDown.
+    // It is only a benchmark, so if JMH would crash and not call tearDown, then we don't really care.
+    @SuppressWarnings("squid:S2095")
     @Override
     protected void connect(final JVppRegistry registry) throws IOException {
         jvppCore = new FutureJVppCoreFacade(registry, new JVppCoreImpl());
