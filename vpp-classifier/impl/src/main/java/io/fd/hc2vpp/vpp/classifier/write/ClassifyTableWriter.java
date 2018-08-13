@@ -33,7 +33,6 @@ import io.fd.vpp.jvpp.core.dto.ClassifyAddDelTableReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
-import javax.xml.bind.DatatypeConverter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev170327.vpp.classifier.ClassifyTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev170327.vpp.classifier.ClassifyTableKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -45,7 +44,8 @@ import org.slf4j.LoggerFactory;
  * VPP.<br> Equivalent to invoking {@code vppctl classify table} command.
  */
 public class ClassifyTableWriter extends VppNodeWriter
-        implements ListWriterCustomizer<ClassifyTable, ClassifyTableKey>, ByteDataTranslator, JvppReplyConsumer {
+    implements ListWriterCustomizer<ClassifyTable, ClassifyTableKey>, ByteDataTranslator, ClassifyWriter,
+    JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifyTableWriter.class);
     private final VppClassifierContextManager classifyTableContext;
@@ -144,7 +144,7 @@ public class ClassifyTableWriter extends VppNodeWriter
         } else {
             request.nextTableIndex = ~0; // value not specified
         }
-        request.mask = DatatypeConverter.parseHexBinary(table.getMask().getValue().replace(":", ""));
+        request.mask = getBinaryVector(table.getMask());
         request.maskLen = request.mask.length;
         checkArgument(request.mask.length % 16 == 0, "Number of mask bytes must be multiple of 16.");
         request.matchNVectors = request.mask.length / 16;

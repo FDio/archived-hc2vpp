@@ -16,6 +16,7 @@
 
 package io.fd.hc2vpp.vpp.classifier.write;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Optional;
@@ -35,7 +36,6 @@ import io.fd.vpp.jvpp.core.future.FutureJVppCore;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.xml.bind.DatatypeConverter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev170327.OpaqueIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev170327.classify.session.attributes.NextNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.classifier.rev170327.classify.session.attributes.next_node.Policer;
@@ -53,7 +53,8 @@ import org.slf4j.LoggerFactory;
  * to VPP.<br> Equivalent to invoking {@code vppctl classify table} command.
  */
 public class ClassifySessionWriter extends VppNodeWriter
-        implements ListWriterCustomizer<ClassifySession, ClassifySessionKey>, ByteDataTranslator, JvppReplyConsumer {
+    implements ListWriterCustomizer<ClassifySession, ClassifySessionKey>, ByteDataTranslator, ClassifyWriter,
+    JvppReplyConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassifySessionWriter.class);
     private final VppClassifierContextManager classifyTableContext;
@@ -127,6 +128,13 @@ public class ClassifySessionWriter extends VppNodeWriter
         final CompletionStage<ClassifyAddDelSessionReply> createClassifyTableReplyCompletionStage = getFutureJVpp()
                 .classifyAddDelSession(request);
 
+        // VPP requires to prepend classify session with skip_n_vectors*16 bytes:
+        final long expectedMatchLen =
+            16 * classifyTable.getSkipNVectors() + getBinaryVector(classifyTable.getMask()).length;
+        final long actualMatchLen = Integer.toUnsignedLong(request.matchLen);
+        checkArgument(actualMatchLen == expectedMatchLen,
+            "Match length should be equal to table.skipNVectors*16 + table.mask length ("
+                + expectedMatchLen + ") but was: " + actualMatchLen);
         getReplyForWrite(createClassifyTableReplyCompletionStage.toCompletableFuture(), id);
     }
 
@@ -168,7 +176,7 @@ public class ClassifySessionWriter extends VppNodeWriter
         // default 0:
         request.advance = classifySession.getAdvance();
 
-        request.match = DatatypeConverter.parseHexBinary(classifySession.getMatch().getValue().replace(":", ""));
+        request.match = getBinaryVector(classifySession.getMatch());
         request.matchLen = request.match.length;
         return request;
     }

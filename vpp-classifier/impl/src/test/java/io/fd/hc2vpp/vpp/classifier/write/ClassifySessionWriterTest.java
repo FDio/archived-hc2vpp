@@ -99,6 +99,8 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
         when(classfierContext.getTableIndex(TABLE_NAME, mappingContext)).thenReturn(TABLE_INDEX);
 
         final ClassifyTable table = mock(ClassifyTable.class);
+        when(table.getMask()).thenReturn(new HexString("00:00:00:00:00:00:ff:FF:ff:ff:ff:FF:00:00:00:00"));
+        when(table.getSkipNVectors()).thenReturn(0L);
         when(table.getClassifierNode()).thenReturn(new VppNodeName("ip4-classifier"));
         when(writeContext.readAfter(ArgumentMatchers.any())).thenReturn(Optional.of(table));
         when(writeContext.readBefore(ArgumentMatchers.any())).thenReturn(Optional.of(table));
@@ -186,6 +188,34 @@ public class ClassifySessionWriterTest extends WriterCustomizerTest {
     public void testDeleteMisssingTable() throws WriteFailedException {
         when(writeContext.readAfter(ArgumentMatchers.any())).thenReturn(Optional.absent());
         final String match = "00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00";
+        final ClassifySession classifySession = generateClassifySession(SESSION_INDEX, match);
+        final InstanceIdentifier<ClassifySession> id = getClassifySessionId(TABLE_NAME, match);
+        customizer.writeCurrentAttributes(id, classifySession, writeContext);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateInvalidMatchLength() throws WriteFailedException {
+        final ClassifyTable table = mock(ClassifyTable.class);
+        when(table.getMask()).thenReturn(new HexString("00:00:00:00:00:00:ff:FF:ff:ff:ff:FF:00:00:00:00"));
+        when(table.getSkipNVectors()).thenReturn(1L);
+        when(writeContext.readAfter(ArgumentMatchers.any())).thenReturn(Optional.of(table));
+
+        final String match = "00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00";
+        final ClassifySession classifySession = generateClassifySession(SESSION_INDEX, match);
+        final InstanceIdentifier<ClassifySession> id = getClassifySessionId(TABLE_NAME, match);
+        customizer.writeCurrentAttributes(id, classifySession, writeContext);
+    }
+
+    @Test
+    public void testCreateSkipOneVector() throws WriteFailedException {
+        final ClassifyTable table = mock(ClassifyTable.class);
+        when(table.getMask()).thenReturn(new HexString("00:00:00:00:00:00:ff:FF:ff:ff:ff:FF:00:00:00:00"));
+        when(table.getSkipNVectors()).thenReturn(1L);
+        when(writeContext.readAfter(ArgumentMatchers.any())).thenReturn(Optional.of(table));
+        whenClassifyAddDelSessionThenSuccess();
+
+        final String match =
+            "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:01:02:03:04:05:06:00:00:00:00";
         final ClassifySession classifySession = generateClassifySession(SESSION_INDEX, match);
         final InstanceIdentifier<ClassifySession> id = getClassifySessionId(TABLE_NAME, match);
         customizer.writeCurrentAttributes(id, classifySession, writeContext);
