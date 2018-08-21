@@ -6,13 +6,16 @@
   ~ and is available at http://www.eclipse.org/legal/epl-v10.html
   -->
 <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-    <nat-config xmlns="urn:ietf:params:xml:ns:yang:ietf-nat">
-        <nat-instances>
-            <nat-instance>
+    <nat xmlns="urn:ietf:params:xml:ns:yang:ietf-nat">
+        <instances>
+            <instance>
                 <id>0</id>
-            </nat-instance>
-        </nat-instances>
-    </nat-config>
+                <policy>
+                    <id>0</id>
+                </policy>
+            </instance>
+        </instances>
+    </nat>
     <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
         <interface>
             <name>local0</name>
@@ -72,8 +75,7 @@
                     <rule-name>imcp-v6-rule</rule-name>
                     <matches>
                         <vpp-ace-nodes xmlns="urn:opendaylight:params:xml:ns:yang:vpp:acl">
-                            <destination-ipv6-network>2001:0db8:0a0b:12f0:0000:0000:0000:0001/64
-                            </destination-ipv6-network>
+                            <destination-ipv6-network>2001:0db8:0a0b:12f0:0000:0000:0000:0001/64</destination-ipv6-network>
                             <source-ipv6-network>2001:0db8:0a0b:12f0:0000:0000:0000:0002/48</source-ipv6-network>
                             <icmp-v6-nodes>
                                 <icmp-type-range>

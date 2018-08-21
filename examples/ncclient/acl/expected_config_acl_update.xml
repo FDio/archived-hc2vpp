@@ -6,13 +6,16 @@
   ~ and is available at http://www.eclipse.org/legal/epl-v10.html
   -->
 <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-    <nat-config xmlns="urn:ietf:params:xml:ns:yang:ietf-nat">
-        <nat-instances>
-            <nat-instance>
+    <nat xmlns="urn:ietf:params:xml:ns:yang:ietf-nat">
+        <instances>
+            <instance>
                 <id>0</id>
-            </nat-instance>
-        </nat-instances>
-    </nat-config>
+                <policy>
+                    <id>0</id>
+                </policy>
+            </instance>
+        </instances>
+    </nat>
     <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
         <interface>
             <name>local0</name>
