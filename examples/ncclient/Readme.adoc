@@ -93,13 +93,28 @@ You can disable this behaviour using config/honeycomb.json.
 == <copy-config> examples
 
 === ACL
+
+Example configuration of ACLs on loopback interface.
+
 [source]
 ----
 ./acl/test_acl.sh
 ./acl/test_acl_updates.sh
 ----
 
+=== Bridge Domain
+
+Example configuration of loopback interface and bridge domain assignment.
+
+[source]
+----
+./bd/test_bd.sh
+----
+
 === NAT
+
+Example configuration of NAT on loopback interface.
+
 [source]
 ----
 ./acl/test_nat.sh
