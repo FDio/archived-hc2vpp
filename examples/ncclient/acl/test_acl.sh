@@ -15,4 +15,4 @@
 
 DIR_NAME=$(dirname $0)
 
-${DIR_NAME}/../test_copy_config.sh ${DIR_NAME}/copy_config_acl.xml ${DIR_NAME}/expected_config_acl.xml
+${DIR_NAME}/../test_copy_config.sh ${DIR_NAME}/config_acl.xml ${DIR_NAME}/expected_config_acl.xml

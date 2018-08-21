@@ -24,22 +24,42 @@ git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/81/71181/1 &&
 mvn clean install -pl netconf/netconf-util,netconf/netconf-netty-util,netconf/mdsal-netconf-connector
 ----
 
+=== <validate> support:
+
+[source]
+----
+git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/56/72756/4 && git cherry-pick FETCH_HEAD
+git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/34/73034/2 && git cherry-pick FETCH_HEAD
+git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/95/74795/3 && git cherry-pick FETCH_HEAD
+mvn clean install -pl netconf/mdsal-netconf-connector
+----
+
+== Custom Honeycomb build
+
+Clone project, checkout desired branch or use master branch:
+[source]
+----
+git clone https://gerrit.fd.io/r/honeycomb
+cd honeycomb
+----
+
+=== <validate> support:
+[source]
+----
+git fetch ssh://mgradzki@gerrit.fd.io:29418/honeycomb refs/changes/40/14040/3 && git cherry-pick FETCH_HEAD
+mvn clean install -pl infra/data-impl
+----
+
 == Custom HC2VPP build
 
+1. Clone project, checkout desired branch or use master branch:
 [source]
 ----
 git clone https://gerrit.fd.io/r/hc2vpp
 cd hc2vpp
 ----
 
-1. Checkout desired branch or use master branch, e.g.
-[source]
-----
-git checkout -b stable1804 origin/stable/1804
-----
-
 2. Build vpp-integration module from hc2vpp project:
-
 [source]
 ----
 mvn clean install -pl vpp-integration/minimal-distribution
@@ -67,21 +87,30 @@ Start vpp.
 Start honeycomb
 (either from hc2vpp builddir or using package built in previous steps).
 
-Then invoke:
+NOTE: Remember that HC by default persists config and restores it after restart.
+You can disable this behaviour using config/honeycomb.json.
 
-ACL:
+== <copy-config> examples
+
+=== ACL
 [source]
 ----
 ./acl/test_acl.sh
 ./acl/test_acl_updates.sh
 ----
 
-NAT:
+=== NAT
 [source]
 ----
 ./acl/test_nat.sh
 ./acl/test_nat_updates.sh
 ----
 
-NOTE: Remember that HC by default persists config and restores it after restart.
-You can disable this behaviour using config/honeycomb.json.
+== <validate> examples
+
+== ACL <edit-config> + <validate>
+[source]
+----
+./edit_config.py --validate acl/config_invalid_acl.xml
+----
+
