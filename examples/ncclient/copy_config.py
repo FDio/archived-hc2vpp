@@ -31,9 +31,15 @@ def _copy_config(config_filename, host='localhost', port=2831, username='admin',
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger("hc2vpp.examples.copy_config")
-    logging.basicConfig(level=logging.WARNING)
     argparser = argparse.ArgumentParser(description="Configures VPP using <copy-config> RPC")
     argparser.add_argument('config_filename', help="name of XML file with <config> element")
+    argparser.add_argument('--verbose', help="increase output verbosity", action="store_true")
     args = argparser.parse_args()
+
+    logger = logging.getLogger("hc2vpp.examples.copy_config")
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.WARNING)
+
     _copy_config(args.config_filename)

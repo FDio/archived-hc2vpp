@@ -31,9 +31,15 @@ def _get(reply_filename=None, host='localhost', port=2831, username='admin', pas
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger("hc2vpp.examples.get")
-    logging.basicConfig(level=logging.WARNING)
     argparser = argparse.ArgumentParser(description="Obtains VPP state data using <get> RPC")
     argparser.add_argument('--reply_filename', help="name of XML file to store received state data")
+    argparser.add_argument('--verbose', help="increase output verbosity", action="store_true")
     args = argparser.parse_args()
+
+    logger = logging.getLogger("hc2vpp.examples.get")
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.WARNING)
+
     _get(args.reply_filename)

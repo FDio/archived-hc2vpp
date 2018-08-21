@@ -31,9 +31,15 @@ def _get_config(reply_filename=None, host='localhost', port=2831, username='admi
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger("hc2vpp.examples.get_config")
-    logging.basicConfig(level=logging.WARNING)
     argparser = argparse.ArgumentParser(description="Obtains VPP configuration using <get-config> RPC")
     argparser.add_argument('--reply_filename', help="name of XML file to store received configuration")
+    argparser.add_argument('--verbose', help="increase output verbosity", action="store_true")
     args = argparser.parse_args()
+
+    logger = logging.getLogger("hc2vpp.examples.get_config")
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.WARNING)
+
     _get_config(args.reply_filename)
