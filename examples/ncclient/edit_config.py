@@ -25,10 +25,12 @@ def _edit_config(config_filename, host='localhost', port=2831, username='admin',
         with open(config_filename, 'r') as f:
             ret = m.edit_config(config=f.read())
             logger.info("<edit-config> successful:\n%s" % ret)
-            validate = m.validate()
-            logger.info("<validate> successful:\n%s" % validate)
-            commit = m.commit()
-            logger.info("<commit> successful:\n%s" % commit)
+            if validate:
+                ret = m.validate()
+                logger.info("<validate> successful:\n%s" % ret)
+            if commit:
+                ret = m.commit()
+                logger.info("<commit> successful:\n%s" % ret)
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Configures VPP using <edit-config> RPC")
