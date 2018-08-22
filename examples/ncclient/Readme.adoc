@@ -90,7 +90,7 @@ Start honeycomb
 NOTE: Remember that HC by default persists config and restores it after restart.
 You can disable this behaviour using config/honeycomb.json.
 
-== <copy-config> examples
+== <copy-config>
 
 === ACL
 
@@ -121,11 +121,27 @@ Example configuration of NAT on loopback interface.
 ./acl/test_nat_updates.sh
 ----
 
-== <validate> examples
+== <validate>
 
 == ACL <edit-config> + <validate>
 [source]
 ----
 ./edit_config.py --validate acl/config_invalid_acl.xml
 ----
+
+== URL capability
+
+Provide URL as source or target.
+Source URL can use file, http, https or ftp protocol.
+Target URL can use file protocol.
+
+When using file protocol, provided patch should correspond to a file accessible by Honeycomb.
+
+Example:
+
+[source]
+----
+./copy_config_url.py "file:///home/m/hc2vpp/examples/ncclient/bd/config_bd.xml" candidate
+----
+
 
