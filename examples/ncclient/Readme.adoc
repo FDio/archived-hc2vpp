@@ -73,7 +73,7 @@ Support for <validate> RPC requires ODL Fluorine, so custom build is required:
 
 [source]
 ----
-git fetch ssh://mgradzki@gerrit.fd.io:29418/honeycomb refs/changes/40/14040/3 && git cherry-pick FETCH_HEAD
+git fetch https://gerrit.fd.io/r/honeycomb refs/changes/40/14040/4 && git cherry-pick FETCH_HEAD
 mvn clean install -pl infra/data-impl
 ----
 
@@ -126,7 +126,7 @@ Example configuration of ACLs on loopback interface.
 [source]
 ----
 ./acl/test_acl.sh
-./acl/test_acl_updates.sh
+./acl/test_acl_update.sh
 ----
 
 === Bridge Domain
@@ -144,8 +144,8 @@ Example configuration of NAT on loopback interface.
 
 [source]
 ----
-./acl/test_nat.sh
-./acl/test_nat_updates.sh
+./nat/test_nat.sh
+./nat/test_nat_update.sh
 ----
 
 == <validate>
@@ -168,5 +168,5 @@ Example:
 
 [source]
 ----
-./copy_config_url.py "file:///home/m/hc2vpp/examples/ncclient/bd/config_bd.xml" candidate
+./copy_config_url.py "file:///[ABSOLUTE PATH TO hc2vpp]/examples/ncclient/bd/config_bd.xml" candidate
 ----
