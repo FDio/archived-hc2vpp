@@ -1,30 +1,42 @@
 = Building
 
-== Custom ODL Oxygen build:
+== Custom ODL Oxygen build
+
+Honeycomb currently uses ODL Oxygen SR3.
+Some additional features are planned
+in https://jira.fd.io/browse/HONEYCOMB-433[ODL Fluorine]
+and in https://jira.fd.io/browse/HONEYCOMB-443[ODL Neon]
+
+To support them in current honeycomb version,
+custom build of ODL Netconf project is required.
 
 [source]
 ----
 git clone https://git.opendaylight.org/gerrit/netconf
 cd netconf
-git checkout -b honeycomb release/oxygen
+git checkout -b honeycomb release/oxygen-sr3
 ----
 
-=== <copy-config> support:
+Here is a full list of patches required:
+https://git.opendaylight.org/gerrit/#/q/topic:oxygen-hc-improvements+(status:open+OR+status:merged)
+
+=== <copy-config> support
+
+https://jira.opendaylight.org/browse/NETCONF-529[The feature] will be present in https://jira.fd.io/browse/HONEYCOMB-433[ODL Fluorine]
+To make it work with ODL Oxygen SR3, following patches are required:
 
 [source]
 ----
-git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/06/69606/1 && git cherry-pick FETCH_HEAD
+git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/06/69606/4 && git cherry-pick FETCH_HEAD
+git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/54/72754/3 && git cherry-pick FETCH_HEAD
+git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/55/72755/3 && git cherry-pick FETCH_HEAD
+mvn clean install -pl netconf/mdsal-netconf-connector
 ----
 
-=== ncclient support:
+=== <validate> support
 
-[source]
-----
-git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/81/71181/1 && git cherry-pick FETCH_HEAD
-mvn clean install -pl netconf/netconf-util,netconf/netconf-netty-util,netconf/mdsal-netconf-connector
-----
-
-=== <validate> support:
+https://jira.opendaylight.org/browse/NETCONF-536[The feature] will be present in https://jira.fd.io/browse/HONEYCOMB-433[ODL Fluorine]
+To make it work with ODL Oxygen SR3, following patches are required:
 
 [source]
 ----
@@ -32,6 +44,18 @@ git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/56/72756/4 &&
 git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/34/73034/2 && git cherry-pick FETCH_HEAD
 git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/95/74795/3 && git cherry-pick FETCH_HEAD
 mvn clean install -pl netconf/mdsal-netconf-connector
+----
+
+== URL capability support
+
+https://jira.opendaylight.org/browse/NETCONF-557[The feature] will be present in https://jira.fd.io/browse/HONEYCOMB-443[ODL Neon].
+To make it work with ODL Oxygen SR3, following patch is required:
+
+[source]
+----
+git fetch https://git.opendaylight.org/gerrit/netconf refs/changes/68/75368/1 && git cherry-pick FETCH_HEAD
+mvn clean install -pl netconf/netconf-api/,netconf/netconf-impl/,netconf/mdsal-netconf-connector/
+
 ----
 
 == Custom Honeycomb build
@@ -43,7 +67,10 @@ git clone https://gerrit.fd.io/r/honeycomb
 cd honeycomb
 ----
 
-=== <validate> support:
+=== <validate> support
+
+Support for <validate> RPC requires ODL Fluorine, so custom build is required:
+
 [source]
 ----
 git fetch ssh://mgradzki@gerrit.fd.io:29418/honeycomb refs/changes/40/14040/3 && git cherry-pick FETCH_HEAD
@@ -143,5 +170,3 @@ Example:
 ----
 ./copy_config_url.py "file:///home/m/hc2vpp/examples/ncclient/bd/config_bd.xml" candidate
 ----
-
-
