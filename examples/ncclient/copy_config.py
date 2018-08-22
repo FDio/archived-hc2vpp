@@ -25,9 +25,9 @@ def _copy_config(config_filename, host='localhost', port=2831, username='admin',
         logger.info("Connected to HC")
         with open(config_filename, 'r') as f:
             ret = m.copy_config(target='candidate', source=_SOURCE_TEMPLATE % f.read())
-            logger.debug("CopyConfig successful:\n%s" % ret)
+            logger.info("<copy-config> successful:\n%s" % ret)
         ret = m.commit()
-        logger.debug("Commit successful:\n%s", ret)
+        logger.info("<commit> successful:\n%s", ret)
 
 
 if __name__ == '__main__':
@@ -40,6 +40,6 @@ if __name__ == '__main__':
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.INFO)
 
     _copy_config(args.config_filename)

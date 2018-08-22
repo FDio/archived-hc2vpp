@@ -22,7 +22,7 @@ def _get(reply_filename=None, host='localhost', port=2831, username='admin', pas
     with manager.connect(host=host, port=port, username=username, password=password, hostkey_verify=False) as m:
         logger.info("Connected to HC")
         state = m.get()
-        logger.debug("Get successful:\n%s" % state)
+        logger.info("<get> successful:\n%s" % state)
         if reply_filename:
             with open(reply_filename, 'w') as f:
                 f.write(state.data_xml)
@@ -40,6 +40,6 @@ if __name__ == '__main__':
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.INFO)
 
     _get(args.reply_filename)

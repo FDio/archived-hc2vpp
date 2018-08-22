@@ -24,11 +24,11 @@ def _edit_config(config_filename, host='localhost', port=2831, username='admin',
         logger.info("Connected to HC")
         with open(config_filename, 'r') as f:
             ret = m.edit_config(config=f.read())
-            logger.debug("EditConfig successful:\n%s" % ret)
+            logger.info("<edit-config> successful:\n%s" % ret)
             validate = m.validate()
-            logger.debug("Validate successful:\n%s" % validate)
+            logger.info("<validate> successful:\n%s" % validate)
             commit = m.commit()
-            logger.debug("Commit successful:\n%s" % commit)
+            logger.info("<commit> successful:\n%s" % commit)
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Configures VPP using <edit-config> RPC")
@@ -44,6 +44,6 @@ if __name__ == '__main__':
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.INFO)
 
     _edit_config(args.config_filename, validate=args.validate, commit=args.commit)

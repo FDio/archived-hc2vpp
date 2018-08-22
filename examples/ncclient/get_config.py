@@ -22,7 +22,7 @@ def _get_config(reply_filename=None, host='localhost', port=2831, username='admi
     with manager.connect(host=host, port=port, username=username, password=password, hostkey_verify=False) as m:
         logger.info("Connected to HC")
         config = m.get_config(source='running')
-        logger.debug("GetConfig successful:\n%s" % config)
+        logger.info("<get-config> successful:\n%s" % config)
         if reply_filename:
             with open(reply_filename, 'w') as f:
                 f.write(config.data_xml)
@@ -40,6 +40,6 @@ if __name__ == '__main__':
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.INFO)
 
     _get_config(args.reply_filename)
