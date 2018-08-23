@@ -47,11 +47,11 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
 
     private static final long NAT_INSTANCE_ID = 1;
     private static final long MAPPING_ID = 22;
-    private static final InstanceIdentifier<MappingEntry> IID = NAT_INSTANCES_ID
+    static final InstanceIdentifier<MappingEntry> IID = NAT_INSTANCES_ID
         .child(Instance.class, new InstanceKey(NAT_INSTANCE_ID))
         .child(MappingTable.class).child(MappingEntry.class, new MappingEntryKey(MAPPING_ID));
 
-    private static final String MAPPING_TABLE_PATH = "/ietf-nat:nat/ietf-nat:instances/"
+    static final String MAPPING_TABLE_PATH = "/ietf-nat:nat/ietf-nat:instances/"
         + "ietf-nat:instance[ietf-nat:id='" + NAT_INSTANCE_ID + "']/ietf-nat:mapping-table";
 
     @Mock
@@ -87,13 +87,6 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         verify(jvppNat).nat64AddDelStaticBib(expectedRequest);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWriteNat44UnsupportedProtocol(
-            @InjectTestData(resourcePath = "/nat44/static-mapping-unsupported-proto.json", id = MAPPING_TABLE_PATH) MappingTable data)
-            throws WriteFailedException {
-        customizer.writeCurrentAttributes(IID, extractMappingEntry(data), writeContext);
-    }
-
     @Test(expected = UnsupportedOperationException.class)
     public void testUpdateNat64(
             @InjectTestData(resourcePath = "/nat64/static-mapping.json", id = MAPPING_TABLE_PATH) MappingTable before,
@@ -123,7 +116,7 @@ public class MappingEntryCustomizerTest extends WriterCustomizerTest implements 
         verify(jvppNat).nat64AddDelStaticBib(getExpectedNat64Request());
     }
 
-    private static MappingEntry extractMappingEntry(MappingTable data) {
+    static MappingEntry extractMappingEntry(MappingTable data) {
         // assumes single nat instance and single mapping entry
         return data.getMappingEntry().get(0);
     }

@@ -54,8 +54,6 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
     public void writeCurrentAttributes(@Nonnull final InstanceIdentifier<ExternalIpAddressPool> id,
                                        @Nonnull final ExternalIpAddressPool dataAfter,
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
-        checkArgument(id.firstKeyOf(Instance.class).getId() == 0,
-                "External IP pools are only assignable for nat instance(vrf-id) with ID 0");
         LOG.trace("Adding address range:{}, as: {}", id, dataAfter);
         // TODO check overlaps ? VPP-478 maybe no necessary, depending on how VPP handles them
         configureAddressPool(id, dataAfter, true);

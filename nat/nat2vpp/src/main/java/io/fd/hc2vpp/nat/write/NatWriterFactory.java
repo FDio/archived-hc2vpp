@@ -58,14 +58,16 @@ public final class NatWriterFactory implements WriterFactory {
     public void init(@Nonnull final ModifiableWriterRegistryBuilder registry) {
         // +-- nat
         //    +-- instances/instance
-        registry.add(new GenericListWriter<>(NAT_INSTANCE_ID, new NatInstaceCustomizer()));
+        registry.add(new GenericListWriter<>(NAT_INSTANCE_ID, new NatInstaceCustomizer(), new NatInstanceValidator()));
         //       +-- mapping-table/mapping-entry
         registry.subtreeAdd(Sets.newHashSet(InstanceIdentifier.create(MappingEntry.class).child(ExternalSrcPort.class),
-                InstanceIdentifier.create(MappingEntry.class).child(InternalSrcPort.class)),
-                new GenericListWriter<>(MAPPING_ENTRY_ID, new MappingEntryCustomizer(jvppNat, mappingEntryContext)));
+            InstanceIdentifier.create(MappingEntry.class).child(InternalSrcPort.class)),
+            new GenericListWriter<>(MAPPING_ENTRY_ID,
+                new MappingEntryCustomizer(jvppNat, mappingEntryContext),
+                new MappingEntryValidator()));
 
         //       +-- policy
-        registry.add(new GenericListWriter<>(POLICY_ID, new PolicyCustomizer()));
+        registry.add(new GenericListWriter<>(POLICY_ID, new PolicyCustomizer(), new PolicyValidator()));
 
         //          +-- external-ip-address-pool
         registry.subtreeAddBefore(
@@ -73,11 +75,16 @@ public final class NatWriterFactory implements WriterFactory {
             // requires to already have an IP range predefined ... in some cases
             Sets.newHashSet(InstanceIdentifier.create(ExternalIpAddressPool.class)
                 .augmentation(ExternalIpAddressPoolAugmentation.class)),
-            new GenericListWriter<>(ADDRESS_POOL_ID, new ExternalIpPoolCustomizer(jvppNat)), MAPPING_ENTRY_ID);
+            new GenericListWriter<>(ADDRESS_POOL_ID,
+                new ExternalIpPoolCustomizer(jvppNat),
+                new ExternalIpPoolValidator()),
+            MAPPING_ENTRY_ID);
 
         //          +-- nat64-prefixes
         registry.subtreeAdd(
-                Sets.newHashSet(InstanceIdentifier.create(Nat64Prefixes.class).child(DestinationIpv4Prefix.class)),
-                new GenericListWriter<>(NAT64_PREFIXES_ID, new Nat64PrefixesCustomizer(jvppNat)));
+            Sets.newHashSet(InstanceIdentifier.create(Nat64Prefixes.class).child(DestinationIpv4Prefix.class)),
+            new GenericListWriter<>(NAT64_PREFIXES_ID,
+                new Nat64PrefixesCustomizer(jvppNat),
+                new Nat64PrefixesValidator()));
     }
 }

@@ -38,17 +38,6 @@ final class PolicyCustomizer implements ListWriterCustomizer<Policy, PolicyKey> 
                                        @Nonnull final Policy dataAfter, @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
         LOG.trace("Writing NAT policy: {}", id);
-
-        // HC supports only single NAT policy per NAT instance (VRF)
-        // To ensure that (and for simplicity), we require policy id = 0.
-        final Long policyId = id.firstKeyOf(Policy.class).getId();
-        checkArgument(policyId == 0,
-            "Only single policy per NAT instance (VRF) is supported (expected id=0, but %s given)", policyId);
-
-        if (dataAfter.getNat64Prefixes() != null) {
-            final int prefixCount = dataAfter.getNat64Prefixes().size();
-            checkArgument(prefixCount <= 1, "Only single nat64-prefix is supported, but %s given", prefixCount);
-        }
     }
 
     @Override

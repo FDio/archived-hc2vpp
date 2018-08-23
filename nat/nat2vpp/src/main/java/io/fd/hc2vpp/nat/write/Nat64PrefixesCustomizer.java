@@ -56,12 +56,6 @@ final class Nat64PrefixesCustomizer
                                        @Nonnull final WriteContext writeContext) throws WriteFailedException {
         final int natInstanceId = id.firstKeyOf(Instance.class).getId().intValue();
         LOG.debug("Configuring nat64 prefix: {} for nat-instance(vrf): {}", dataAfter, natInstanceId);
-
-        // VPP does not support configuring different nat64-prefixes depending on ipv4 destination prefix:
-        final List<DestinationIpv4Prefix> destinationIpv4PrefixList = dataAfter.getDestinationIpv4Prefix();
-        checkArgument(destinationIpv4PrefixList == null || destinationIpv4PrefixList.isEmpty(),
-                "destination-ipv4-prefix is not supported by VPP");
-
         addDelPrefix(id, dataAfter, natInstanceId, true);
         LOG.debug("Nat64 prefix written successfully: {} for nat-instance(vrf): {}", dataAfter, natInstanceId);
     }
@@ -83,10 +77,7 @@ final class Nat64PrefixesCustomizer
                               final int vrfId, final boolean isAdd)
             throws WriteFailedException {
 
-        // The nat64-prefix is optional in ietf-nat, but we require it
         final Ipv6Prefix nat64Prefix = data.getNat64Prefix();
-        checkArgument(nat64Prefix != null, "Missing nat64-prefix leaf value.");
-
         final Nat64AddDelPrefix request = new Nat64AddDelPrefix();
         request.prefix = ipv6AddressPrefixToArray(nat64Prefix);
         request.prefixLen = extractPrefix(nat64Prefix);

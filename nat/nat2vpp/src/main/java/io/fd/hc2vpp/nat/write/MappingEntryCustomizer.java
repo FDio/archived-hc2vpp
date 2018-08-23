@@ -16,9 +16,6 @@
 
 package io.fd.hc2vpp.nat.write;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-
 import com.google.common.base.Optional;
 import io.fd.hc2vpp.common.translate.util.ByteDataTranslator;
 import io.fd.hc2vpp.common.translate.util.Ipv4Translator;
@@ -61,10 +58,6 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
                                        @Nonnull final MappingEntry dataAfter,
                                        @Nonnull final WriteContext writeContext)
             throws WriteFailedException {
-        // Only static mapping supported by SNAT for now
-        checkArgument(dataAfter.getType() ==
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.MappingEntry.Type.Static,
-                "Only static NAT entries are supported currently. Trying to write: %s entry", dataAfter.getType());
         final Long natInstanceId = id.firstKeyOf(Instance.class).getId();
         final Long mappingEntryId = id.firstKeyOf(MappingEntry.class).getIndex();
         LOG.debug("Writing mapping entry: {} for nat-instance(vrf): {}", natInstanceId, mappingEntryId);
@@ -87,13 +80,10 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
                                   final boolean isAdd) throws WriteFailedException {
         final IpPrefix internalSrcPrefix = entry.getInternalSrcAddress();
         final Ipv4Prefix internalV4SrcPrefix = internalSrcPrefix.getIpv4Prefix();
-        final Ipv6Prefix internalV6SrcPrefix = internalSrcPrefix.getIpv6Prefix();
         if (internalV4SrcPrefix != null) {
             final Nat44AddDelStaticMapping request = getNat44Request(id, entry, natInstanceId, isAdd);
             getReplyForWrite(jvppNat.nat44AddDelStaticMapping(request).toCompletableFuture(), id);
         } else {
-            checkState(internalV6SrcPrefix != null,
-                    "internalSrcPrefix.getIpv4Prefix() should not return null if v4 prefix is not given");
             final Nat64AddDelStaticBib request = getNat64Request(id, entry, natInstanceId, isAdd);
             getReplyForWrite(jvppNat.nat64AddDelStaticBib(request).toCompletableFuture(), id);
         }
@@ -148,30 +138,22 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         request.vrfId = natInstanceId.intValue();
 
         final Ipv4Prefix internalAddress = mappingEntry.getInternalSrcAddress().getIpv4Prefix();
-        checkArgument(internalAddress != null, "No Ipv4 present in internal-src-address %s",
-            mappingEntry.getInternalSrcAddress());
-        checkArgument(extractPrefix(internalAddress) == 32,
-            "Only /32 prefix in internal-src-address is supported, but was %s", internalAddress);
-
         request.addrOnly = 1;
         request.localIpAddress = ipv4AddressPrefixToArray(internalAddress);
-        request.externalIpAddress = ipv4AddressPrefixToArray(getExternalAddress(mappingEntry));
+        request.externalIpAddress = ipv4AddressPrefixToArray(mappingEntry.getExternalSrcAddress().getIpv4Prefix());
         request.externalSwIfIndex = -1; // external ip address is ignored if externalSwIfIndex is given
         request.protocol = -1;
         final Short protocol = mappingEntry.getTransportProtocol();
         if (protocol != null) {
-            checkArgument(protocol == 1 || protocol == 6 || protocol == 17,
-                    "Unsupported protocol %s only ICMP(1), TCP(6) and UDP(17) are currently supported for Nat44",
-                    protocol);
             request.protocol = protocol.byteValue();
         }
 
-        final Short internalPortNumber = getPortNumber(id, mappingEntry.getInternalSrcPort());
-        final Short externalPortNumber = getPortNumber(id, mappingEntry.getExternalSrcPort());
+        final Integer internalPortNumber = getPortNumber(mappingEntry.getInternalSrcPort());
+        final Integer externalPortNumber = getPortNumber(mappingEntry.getExternalSrcPort());
         if (internalPortNumber != null && externalPortNumber != null) {
             request.addrOnly = 0;
-            request.localPort = internalPortNumber;
-            request.externalPort = externalPortNumber;
+            request.localPort = internalPortNumber.shortValue();
+            request.externalPort = externalPortNumber.shortValue();
         }
         return request;
     }
@@ -187,48 +169,26 @@ final class MappingEntryCustomizer implements ListWriterCustomizer<MappingEntry,
         request.vrfId = natInstanceId.intValue();
 
         final Ipv6Prefix internalAddress = mappingEntry.getInternalSrcAddress().getIpv6Prefix();
-        checkArgument(internalAddress != null, "No Ipv6 present in internal-src-address %s",
-                mappingEntry.getInternalSrcAddress());
-        checkArgument(extractPrefix(internalAddress) == (byte)128,
-            "Only /128 prefix in internal-src-address is supported, but was %s", internalAddress);
-
         request.iAddr = ipv6AddressPrefixToArray(internalAddress);
-        request.oAddr = ipv4AddressPrefixToArray(getExternalAddress(mappingEntry));
+        request.oAddr = ipv4AddressPrefixToArray(mappingEntry.getExternalSrcAddress().getIpv4Prefix());
         request.proto = -1;
         final Short protocol = mappingEntry.getTransportProtocol();
         if (protocol != null) {
-            checkArgument(protocol == 1 || protocol == 6 || protocol == 17 || protocol == 58,
-                    "Unsupported protocol %s only ICMP(1), IPv6-ICMP(58), TCP(6) and UDP(17) are currently supported for Nat64",
-                    protocol);
             request.proto = protocol.byteValue();
         }
 
-        final Short internalPortNumber = getPortNumber(id, mappingEntry.getInternalSrcPort());
-        final Short externalPortNumber = getPortNumber(id, mappingEntry.getExternalSrcPort());
+        final Integer internalPortNumber = getPortNumber(mappingEntry.getInternalSrcPort());
+        final Integer externalPortNumber = getPortNumber(mappingEntry.getExternalSrcPort());
         if (internalPortNumber != null && externalPortNumber != null) {
-            request.iPort = internalPortNumber;
-            request.oPort = externalPortNumber;
+            request.iPort = internalPortNumber.shortValue();
+            request.oPort = externalPortNumber.shortValue();
         }
         return request;
     }
 
-    private Ipv4Prefix getExternalAddress(final MappingEntry mappingEntry) {
-        final Ipv4Prefix externalAddress = mappingEntry.getExternalSrcAddress().getIpv4Prefix();
-        checkArgument(externalAddress != null, "No Ipv4 present in external-src-address %s",
-            mappingEntry.getExternalSrcAddress());
-        checkArgument(extractPrefix(externalAddress) == 32,
-            "Only /32 prefix in external-src-address is supported, but was %s", externalAddress);
-        return externalAddress;
-    }
-
-    private Short getPortNumber(final InstanceIdentifier<MappingEntry> id, final PortNumber portNumber) {
+    private Integer getPortNumber(final PortNumber portNumber) {
         if (portNumber != null) {
-            if (portNumber.getStartPortNumber() != null && portNumber.getEndPortNumber() == null) {
-                return portNumber.getStartPortNumber().getValue().shortValue();
-            } else {
-                throw new IllegalArgumentException(
-                    String.format("Only single port number supported. Submitted: %s for entry: %s", portNumber, id));
-            }
+            return portNumber.getStartPortNumber().getValue();
         }
         return null;
     }
