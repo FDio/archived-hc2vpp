@@ -89,7 +89,7 @@ public class InterfaceRoutingCustomizer extends RoutingCustomizer
 
         if (interfaceData.isPresent()) {
             final java.util.Optional<Interface1> augData = java.util.Optional.of(interfaceData.get())
-                    .map(iface -> iface.getAugmentation(Interface1.class));
+                    .map(iface -> iface.augmentation(Interface1.class));
 
             final boolean v4NotPresent =
                     augData.map(Interface1::getIpv4).map(Ipv4::getAddress).map(List::isEmpty).orElse(true);

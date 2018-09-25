@@ -141,7 +141,7 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
     }
 
     default Route getIpv4RouteWithId(final StaticRoutes staticRoutes, final Ipv4Prefix id) {
-        return staticRoutes.getAugmentation(StaticRoutes1.class)
+        return staticRoutes.augmentation(StaticRoutes1.class)
                 .getIpv4()
                 .getRoute()
                 .stream()
@@ -155,13 +155,13 @@ public interface RoutingRequestTestHelper extends ByteDataTranslator, FutureProd
                 .cast(route.getNextHop().getNextHopOptions())
                 .getNextHopList().getNextHop()
                 .stream()
-                .filter(nextHop -> Integer.valueOf(nextHop.getKey().getIndex()) == id)
+                .filter(nextHop -> Integer.valueOf(nextHop.key().getIndex()) == id)
                 .collect(RWUtils.singleItemCollector());
     }
 
     default org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.routing.control.plane.protocols.control.plane.protocol._static.routes.ipv6.Route getIpv6RouteWithId(
             final StaticRoutes staticRoutes, final Ipv6Prefix id) {
-        return staticRoutes.getAugmentation(
+        return staticRoutes.augmentation(
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ipv6.unicast.routing.rev180313.StaticRoutes1.class)
                 .getIpv6()
                 .getRoute()

@@ -146,21 +146,21 @@ public class MappingEntryContext implements Ipv4Translator, Ipv6Translator {
             @Nonnull final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.nat.instances.instance.mapping.table.MappingEntry entry,
             final long entryId) {
         return new MappingEntryBuilder()
-                .setKey(entryToKey(entry))
+                .withKey(entryToKey(entry))
                 .setIndex(entryId)
                 .build();
     }
 
     private MappingEntry toCtxMapEntry(@Nonnull final Nat44StaticMappingDetails details, final long entryId) {
         return new MappingEntryBuilder()
-                .setKey(entryToKey(details))
+                .withKey(entryToKey(details))
                 .setIndex(entryId)
                 .build();
     }
 
     private MappingEntry toCtxMapEntry(@Nonnull final Nat64BibDetails details, final long entryId) {
         return new MappingEntryBuilder()
-                .setKey(entryToKey(details))
+                .withKey(entryToKey(details))
                 .setIndex(entryId)
                 .build();
     }

@@ -63,7 +63,7 @@ public class InterfaceMirroredInterfacesCustomizer extends AbstractMirroredInter
                         .stream()
                         .map(mirroredInterface -> new MirroredInterfaceBuilder()
                                 .setState(mirroredInterface.getState())
-                                .setKey(new MirroredInterfaceKey(mirroredInterface.getKey().getIfaceRef()))
+                                .withKey(new MirroredInterfaceKey(mirroredInterface.key().getIfaceRef()))
                                 .setIfaceRef(mirroredInterface.getIfaceRef())
                                 .build())
                         .collect(Collectors.toList()))

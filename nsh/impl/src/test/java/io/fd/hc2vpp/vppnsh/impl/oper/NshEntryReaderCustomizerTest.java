@@ -106,10 +106,10 @@ public class NshEntryReaderCustomizerTest extends
         assertEquals(Ethernet.class, builder.getNextProtocol());
         assertEquals(123, builder.getNsp().intValue());
         assertEquals(4, builder.getNsi().intValue());
-        assertEquals(1, builder.getAugmentation(NshMdType1StateAugment.class).getC1().intValue());
-        assertEquals(2, builder.getAugmentation(NshMdType1StateAugment.class).getC2().intValue());
-        assertEquals(3, builder.getAugmentation(NshMdType1StateAugment.class).getC3().intValue());
-        assertEquals(4, builder.getAugmentation(NshMdType1StateAugment.class).getC4().intValue());
+        assertEquals(1, builder.augmentation(NshMdType1StateAugment.class).getC1().intValue());
+        assertEquals(2, builder.augmentation(NshMdType1StateAugment.class).getC2().intValue());
+        assertEquals(3, builder.augmentation(NshMdType1StateAugment.class).getC3().intValue());
+        assertEquals(4, builder.augmentation(NshMdType1StateAugment.class).getC4().intValue());
 
         verify(jvppNsh).nshEntryDump(any(NshEntryDump.class));
     }

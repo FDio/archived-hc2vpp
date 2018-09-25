@@ -116,7 +116,7 @@ public class MultiNamingContext {
             // overrides old data with new(without removed child)
             mappingContext.put(getMappingIid(parentName), new MappingBuilder()
                     .setName(mapping.getName())
-                    .setKey(mapping.getKey())
+                    .withKey(mapping.key())
                     .setValue(mapping.getValue()
                             .stream()
                             .filter(value -> !value.getName().equals(childName))

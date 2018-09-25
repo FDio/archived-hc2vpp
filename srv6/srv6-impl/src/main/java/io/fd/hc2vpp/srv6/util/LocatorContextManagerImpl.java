@@ -57,7 +57,7 @@ public final class LocatorContextManagerImpl implements LocatorContextManager {
                            @Nonnull final MappingContext ctx) {
         final KeyedInstanceIdentifier<Srv6LocatorMapping, Srv6LocatorMappingKey> mappingIid = getLocatorIid(name);
         final Srv6LocatorMappingBuilder builder = new Srv6LocatorMappingBuilder()
-                .setKey(new Srv6LocatorMappingKey(name)).setPrefix(ipv6Prefix).setName(name);
+                .withKey(new Srv6LocatorMappingKey(name)).setPrefix(ipv6Prefix).setName(name);
         ctx.put(mappingIid, builder.build());
     }
 

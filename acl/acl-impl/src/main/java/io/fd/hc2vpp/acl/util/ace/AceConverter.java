@@ -119,7 +119,7 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
 
             final String aceName = macipAclContext.getAceName(aclName, i++, mappingContext);
             ace.setRuleName(aceName);
-            ace.setKey(new AceKey(aceName));
+            ace.withKey(new AceKey(aceName));
 
             aces.add(ace.build());
         }
@@ -144,7 +144,7 @@ public interface AceConverter extends MacIpAceDataExtractor, StandardAceDataExtr
 
             final String aceName = standardAclContext.getAceName(aclName, i++, mappingContext);
             ace.setRuleName(aceName);
-            ace.setKey(new AceKey(aceName));
+            ace.withKey(new AceKey(aceName));
             aces.add(ace.build());
         }
         return aces;

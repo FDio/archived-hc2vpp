@@ -112,7 +112,7 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
 
     private ArpTerminationTableEntry generateArpEntry(final IpAddressNoZone ipAddress, final PhysAddress physAddress) {
         final ArpTerminationTableEntryBuilder entry = new ArpTerminationTableEntryBuilder();
-        entry.setKey(new ArpTerminationTableEntryKey(ipAddress, physAddress));
+        entry.withKey(new ArpTerminationTableEntryKey(ipAddress, physAddress));
         entry.setPhysAddress(physAddress);
         entry.setIpAddress(ipAddress);
         return entry.build();

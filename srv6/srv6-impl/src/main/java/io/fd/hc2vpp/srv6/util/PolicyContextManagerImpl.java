@@ -55,7 +55,7 @@ public class PolicyContextManagerImpl implements PolicyContextManager {
                           @Nonnull final Ipv6Address bsid, @Nonnull final MappingContext ctx) {
         final KeyedInstanceIdentifier<Srv6PolicyMapping, Srv6PolicyMappingKey> mappingIid = getPolicyIid(bsid);
         final Srv6PolicyMappingBuilder builder =
-                new Srv6PolicyMappingBuilder().setKey(new Srv6PolicyMappingKey(bsid)).setColor(color)
+                new Srv6PolicyMappingBuilder().withKey(new Srv6PolicyMappingKey(bsid)).setColor(color)
                         .setEndpoint(endpoint).setBsid(bsid).setName(name);
         ctx.put(mappingIid, builder.build());
     }

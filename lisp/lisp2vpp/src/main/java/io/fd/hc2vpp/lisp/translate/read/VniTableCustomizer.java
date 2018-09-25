@@ -135,7 +135,7 @@ public class VniTableCustomizer extends CheckedLispCustomizer
                 .collect(RWUtils.singleItemCollector());
 
         builder.setVirtualNetworkIdentifier((long) details.vni);
-        builder.setKey(new VniTableKey(Long.valueOf(details.vni)));
+        builder.withKey(new VniTableKey(Long.valueOf(details.vni)));
     }
 
     @Nonnull

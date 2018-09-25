@@ -84,7 +84,7 @@ public class ExternalIpPoolCustomizerTest
 
         assertEquals("192.168.44.3/32", builder.getExternalIpPool().getValue());
         assertEquals(poolId, builder.getPoolId().longValue());
-        assertEquals(Nat44, builder.getAugmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
+        assertEquals(Nat44, builder.augmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ExternalIpPoolCustomizerTest
 
         assertEquals("192.168.64.3/32", builder.getExternalIpPool().getValue());
         assertEquals(poolId, builder.getPoolId().longValue());
-        assertEquals(Nat64, builder.getAugmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
+        assertEquals(Nat64, builder.augmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ExternalIpPoolCustomizerTest
 
         assertEquals("192.168.64.3/32", builder.getExternalIpPool().getValue());
         assertEquals(poolId, builder.getPoolId().longValue());
-        assertEquals(Nat64, builder.getAugmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
+        assertEquals(Nat64, builder.augmentation(ExternalIpAddressPoolAugmentation.class).getPoolType());
     }
 
     @Test

@@ -67,7 +67,7 @@ public class InterfaceCustomizerTest extends SteeringTest {
         InterfaceBuilder builder = customizer.getBuilder(key);
         customizer.readCurrentAttributes(key, builder, readCtx);
 
-        Assert.assertEquals(L2_KEY, builder.getKey());
+        Assert.assertEquals(L2_KEY, builder.key());
         Assert.assertEquals(LOCAL_0, builder.getInputInterface());
 
         InterfacesBuilder policyBuilder = new InterfacesBuilder();

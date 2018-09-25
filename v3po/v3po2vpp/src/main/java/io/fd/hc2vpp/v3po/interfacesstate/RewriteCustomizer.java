@@ -132,7 +132,7 @@ public class RewriteCustomizer
     private PushTags buildTag(final short index, final Class<? extends Dot1qTagVlanType> tagType, final int vlanId) {
         final PushTagsBuilder tag = new PushTagsBuilder();
         tag.setIndex(index);
-        tag.setKey(new PushTagsKey(index));
+        tag.withKey(new PushTagsKey(index));
         final Dot1qTagBuilder dtag = new Dot1qTagBuilder();
         dtag.setTagType(tagType);
         dtag.setVlanId(new Dot1qVlanId(vlanId));

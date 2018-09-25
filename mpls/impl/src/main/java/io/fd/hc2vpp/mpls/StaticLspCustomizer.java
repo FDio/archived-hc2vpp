@@ -98,7 +98,7 @@ final class StaticLspCustomizer implements ListWriterCustomizer<StaticLsp, Stati
         if (ImposeAndForward.equals(operation)) {
             imposeAndForward.write(id, data, ctx, isAdd);
         } else if (PopAndLookup.equals(operation)) {
-            final VppLabelLookupAttributes vppAttributes = config.getAugmentation(StaticLspVppLookupAugmentation.class);
+            final VppLabelLookupAttributes vppAttributes = config.augmentation(StaticLspVppLookupAugmentation.class);
             checkArgument(vppAttributes != null && vppAttributes.getLabelLookup() != null,
                 "Configuring pop-and-lookup operation but label-lookup leaf is missing");
             final LookupType type = vppAttributes.getLabelLookup().getType();

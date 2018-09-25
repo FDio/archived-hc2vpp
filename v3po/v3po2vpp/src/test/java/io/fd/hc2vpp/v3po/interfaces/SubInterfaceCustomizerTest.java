@@ -87,7 +87,7 @@ public class SubInterfaceCustomizerTest extends WriterCustomizerTest {
                                    final Dot1qTag.VlanId vlanId) {
         TagBuilder tag = new TagBuilder();
         tag.setIndex(index);
-        tag.setKey(new TagKey(index));
+        tag.withKey(new TagKey(index));
         final Dot1qTagBuilder dtag = new Dot1qTagBuilder();
         dtag.setTagType(tagType);
         dtag.setVlanId(vlanId);

@@ -88,7 +88,7 @@ final class PrefixCustomizer extends FutureJVppCustomizer
         if (isDelete) {
             request.isNo = 1;
         } else {
-            parseControlAdvPrefixes(request, prefix.getControlAdvPrefixes(), prefix.getAugmentation(
+            parseControlAdvPrefixes(request, prefix.getControlAdvPrefixes(), prefix.augmentation(
                 ControlAdvPrefixesVppAugmentation.class));
         }
         LOG.debug("Setting Prefix for interface {}(id={}): {}", ifcName, ifcIndex, request);

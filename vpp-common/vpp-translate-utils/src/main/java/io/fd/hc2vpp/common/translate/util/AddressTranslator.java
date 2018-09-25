@@ -85,7 +85,7 @@ public interface AddressTranslator extends Ipv4Translator, Ipv6Translator, MacTr
     // safest way to compare addresses - prevents returning false while using different types from hierarchy
     // Ex. Key for MapResolver contains Ipv4Address as value but we translate addresses from binary data to Ipv4AddressNoZone
     default boolean addressesEqual(final IpAddress left, final IpAddress right) {
-        return Arrays.equals(left.getValue(), right.getValue());
+        return left.stringValue().equalsIgnoreCase(right.stringValue());
     }
 
     /**

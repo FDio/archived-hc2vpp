@@ -57,7 +57,7 @@ public class NshEntryWriterCustomizerTest extends WriterCustomizerTest {
     private static NshEntry generateNshEntry(final String name) {
         final NshEntryBuilder builder = new NshEntryBuilder();
         builder.setName(name);
-        builder.setKey(new NshEntryKey(name));
+        builder.withKey(new NshEntryKey(name));
         builder.setVersion((short) 0);
         builder.setLength((short) 6);
         builder.setMdType(MdType1.class);

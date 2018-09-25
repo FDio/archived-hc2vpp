@@ -97,7 +97,7 @@ final class RouterAdvertisementsCustomizer extends FutureJVppCustomizer
         request.managed = booleanToByte(dataAfter.isManagedFlag());
         request.other = booleanToByte(dataAfter.isOtherConfigFlag());
         final Ipv6RouterAdvertisementsVppAugmentation vppAugmentation =
-            dataAfter.getAugmentation(Ipv6RouterAdvertisementsVppAugmentation.class);
+            dataAfter.augmentation(Ipv6RouterAdvertisementsVppAugmentation.class);
         if (vppAugmentation != null) {
             request.llOption = booleanToByte(vppAugmentation.isSuppressLinkLayer());
             request.sendUnicast = booleanToByte(vppAugmentation.isSendUnicast());

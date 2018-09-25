@@ -113,10 +113,10 @@ public class ControlPlaneProtocolCustomizerTest extends WriterCustomizerTest {
         KeyedInstanceIdentifier<Table, TableKey> invalidVrfIidV6 =
                 FibManagementIIds.FM_FIB_TABLES.child(Table.class, invalidKeyV6);
         when(writeContext.readAfter(vrfIidV4)).thenReturn(Optional.of(
-                new TableBuilder().setKey(keyV4).setAddressFamily(keyV4.getAddressFamily())
+                new TableBuilder().withKey(keyV4).setAddressFamily(keyV4.getAddressFamily())
                         .setTableId(keyV4.getTableId()).setName("VRF-IPV4-1").build()));
         when(writeContext.readAfter(vrfIidV6)).thenReturn(Optional.of(
-                new TableBuilder().setKey(keyV6).setAddressFamily(keyV6.getAddressFamily())
+                new TableBuilder().withKey(keyV6).setAddressFamily(keyV6.getAddressFamily())
                         .setTableId(keyV6.getTableId()).setName("VRF-IPV6-1").build()));
         when(writeContext.readAfter(invalidVrfIidV4)).thenReturn(Optional.absent());
         when(writeContext.readAfter(invalidVrfIidV6)).thenReturn(Optional.absent());

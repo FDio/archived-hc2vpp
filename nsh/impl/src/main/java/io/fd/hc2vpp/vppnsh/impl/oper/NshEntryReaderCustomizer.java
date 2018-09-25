@@ -156,7 +156,7 @@ public class NshEntryReaderCustomizer extends FutureJVppNshCustomizer
 
         final NshEntryDetails nshEntryDetails = reply.nshEntryDetails.get(0);
         builder.setName(entryName);
-        builder.setKey(key);
+        builder.withKey(key);
         builder.setVersion((short) nshEntryDetails.verOC);
         builder.setLength((short) nshEntryDetails.length);
 

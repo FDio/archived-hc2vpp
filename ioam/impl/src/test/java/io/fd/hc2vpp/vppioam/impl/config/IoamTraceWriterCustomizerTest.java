@@ -50,7 +50,7 @@ public class IoamTraceWriterCustomizerTest extends WriterCustomizerTest {
     private static TraceConfig generateTraceConfig(final String name) {
         final TraceConfigBuilder builder = new TraceConfigBuilder();
         builder.setTraceConfigName(name);
-        builder.setKey(new TraceConfigKey(name));
+        builder.withKey(new TraceConfigKey(name));
         builder.setAclName(name);
         builder.setTraceType(Short.valueOf("31"));
         builder.setTraceNumElt(Short.valueOf("4"));

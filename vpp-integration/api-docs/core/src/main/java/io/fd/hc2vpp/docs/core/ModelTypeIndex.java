@@ -41,7 +41,7 @@ class ModelTypeIndex {
     ModelTypeIndex() throws IOException {
         namespaceToModuleIndex = collectAllModules(this.getClass().getClassLoader())
                 .stream()
-                .collect(toMap(YangModelKey::new, YangModuleInfo::getName));
+                .collect(toMap(YangModelKey::new, yangModuleInfo -> yangModuleInfo.getName().toString()));
     }
 
     private static YangModelBindingProvider getModuleBindingProviderInstance(final Class<?> aClass) {

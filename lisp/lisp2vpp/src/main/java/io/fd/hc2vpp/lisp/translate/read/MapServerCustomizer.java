@@ -131,8 +131,8 @@ public class MapServerCustomizer extends CheckedLispCustomizer
             final IpAddress currentAddress = instanceIdentifier.firstKeyOf(MapServer.class).getIpAddress();
 
             final OneMapServerDetails currentDetail = dump.get().oneMapServerDetails.stream()
-                    .filter(detail -> Arrays.equals(currentAddress.getValue(),
-                            arrayToIpAddress(byteToBoolean(detail.isIpv6), detail.ipAddress).getValue()))
+                    .filter(detail -> currentAddress.stringValue().equalsIgnoreCase(
+                            arrayToIpAddress(byteToBoolean(detail.isIpv6), detail.ipAddress).stringValue()))
                     .collect(RWUtils.singleItemCollector());
 
             mapServerBuilder

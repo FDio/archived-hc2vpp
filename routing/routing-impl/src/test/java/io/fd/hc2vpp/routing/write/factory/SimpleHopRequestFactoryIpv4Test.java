@@ -84,7 +84,7 @@ public class SimpleHopRequestFactoryIpv4Test
                     StaticRoutes ipv4StaticRouteWithoutClassifier) {
         final IpAddDelRoute request =
                 factory.createIpv4SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
-                        ipv4StaticRouteWithoutClassifier.getAugmentation(StaticRoutes1.class).getIpv4().getRoute()
+                        ipv4StaticRouteWithoutClassifier.augmentation(StaticRoutes1.class).getIpv4().getRoute()
                                 .get(0), mappingContext);
 
         assertEquals(
@@ -99,7 +99,7 @@ public class SimpleHopRequestFactoryIpv4Test
                     StaticRoutes ipv4StaticRouteWithoutRouteAttrs) {
         final IpAddDelRoute request =
                 factory.createIpv4SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
-                        ipv4StaticRouteWithoutRouteAttrs.getAugmentation(StaticRoutes1.class).getIpv4().getRoute()
+                        ipv4StaticRouteWithoutRouteAttrs.augmentation(StaticRoutes1.class).getIpv4().getRoute()
                                 .get(0), mappingContext);
 
         assertEquals(

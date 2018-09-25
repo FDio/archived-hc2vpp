@@ -264,7 +264,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <path-id>0</path-id>\n    <prefix>10.0.0.11/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>100</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
+					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <route-key>10.0.0.11/32</route-key>\n    <path-id>0</path-id>\n    <prefix>10.0.0.11/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>100</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0",
@@ -389,7 +389,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <path-id>0</path-id>\n    <prefix>10.0.0.12/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>100</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
+					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <route-key>10.0.0.12/32</route-key>\n    <path-id>0</path-id>\n    <prefix>10.0.0.12/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>100</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
@@ -474,7 +474,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <path-id>0</path-id>\n    <prefix>10.0.0.12/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>102</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
+					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <route-key>10.0.0.12/32</route-key>\n    <path-id>0</path-id>\n    <prefix>10.0.0.12/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>102</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",

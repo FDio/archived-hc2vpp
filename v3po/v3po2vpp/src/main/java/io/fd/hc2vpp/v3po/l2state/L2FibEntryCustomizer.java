@@ -97,7 +97,7 @@ public final class L2FibEntryCustomizer extends FutureJVppCustomizer
             }
             builder.setStaticConfig(byteToBoolean(entry.staticMac));
             builder.setPhysAddress(key.getPhysAddress());
-            builder.setKey(key);
+            builder.withKey(key);
         } catch (Exception e) {
             throw new ReadFailedException(id, e);
         }

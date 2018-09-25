@@ -77,9 +77,9 @@ public class SidCustomizer extends FutureJVppCustomizer implements ListWriterCus
     private Table getVrfTable(final @Nonnull InstanceIdentifier<Sid> iid, final @Nonnull WriteContext writeContext,
                               final InstanceIdentifier<Locator> locatorIid, final Optional<Locator> locatorOpt) {
         Preconditions.checkArgument(locatorOpt.isPresent(), "Locator: {} for SID: {} was not found.", locatorIid, iid);
-        Preconditions.checkNotNull(locatorOpt.get().getAugmentation(VppSrv6FibLocatorAugment.class),
+        Preconditions.checkNotNull(locatorOpt.get().augmentation(VppSrv6FibLocatorAugment.class),
                 "Vpp FIB table augmentation was not found for SID: {}.", iid);
-        FibTable fibTable = locatorOpt.get().getAugmentation(VppSrv6FibLocatorAugment.class).getFibTable();
+        FibTable fibTable = locatorOpt.get().augmentation(VppSrv6FibLocatorAugment.class).getFibTable();
         Preconditions.checkNotNull(fibTable, "Vpp FIB table configuration was not found for SID: {}.", iid);
         TableKey tableKey = new TableKey(fibTable.getAddressFamily(), fibTable.getTableId());
         KeyedInstanceIdentifier<Table, TableKey> vrfIid = FibManagementIIds.FM_FIB_TABLES.child(Table.class, tableKey);

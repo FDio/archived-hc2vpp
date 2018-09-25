@@ -107,13 +107,13 @@ public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTes
         getCustomizer().readCurrentAttributes(IP4_IID, builder, ctx);
         assertEquals(IP4_IID.getKey().getAddressFamily(), builder.getAddressFamily());
         assertEquals(IP4_IID.getKey().getRxVrfId(), builder.getRxVrfId());
-        assertArrayEquals("1.2.3.4".toCharArray(), builder.getGatewayAddress().getValue());
+        assertEquals("1.2.3.4", builder.getGatewayAddress().stringValue());
         final List<Server> server = builder.getServer();
         assertEquals(2, server.size());
         assertEquals(11L, server.get(0).getVrfId().longValue());
-        assertArrayEquals("8.8.8.8".toCharArray(), server.get(0).getAddress().getValue());
+        assertEquals("8.8.8.8", server.get(0).getAddress().stringValue());
         assertEquals(12L, server.get(1).getVrfId().longValue());
-        assertArrayEquals("8.8.8.4".toCharArray(), server.get(1).getAddress().getValue());
+        assertEquals("8.8.8.4", server.get(1).getAddress().stringValue());
     }
 
     @Test
@@ -123,8 +123,8 @@ public class DhcpRelayCustomizerTest extends InitializingListReaderCustomizerTes
         assertEquals(IP6_IID.getKey().getAddressFamily(), builder.getAddressFamily());
         assertEquals(IP6_IID.getKey().getRxVrfId(), builder.getRxVrfId());
         assertEquals(22L, builder.getServer().get(0).getVrfId().longValue());
-        assertArrayEquals("2001:db8:a0b:12f0::1".toCharArray(), builder.getGatewayAddress().getValue());
-        assertArrayEquals("2001:db8:a0b:12f0::2".toCharArray(), builder.getServer().get(0).getAddress().getValue());
+        assertEquals("2001:db8:a0b:12f0::1", builder.getGatewayAddress().stringValue());
+        assertEquals("2001:db8:a0b:12f0::2", builder.getServer().get(0).getAddress().stringValue());
     }
 
     @Test

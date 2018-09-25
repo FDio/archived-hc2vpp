@@ -132,7 +132,7 @@ public class SpecialNextHopRequestFactoryIpv4Test
     }
 
     private Route extractSingleRoute(final StaticRoutes staticRoutes, final Ipv4Prefix id) {
-        return staticRoutes.getAugmentation(StaticRoutes1.class).getIpv4().getRoute().stream()
+        return staticRoutes.augmentation(StaticRoutes1.class).getIpv4().getRoute().stream()
                 .filter(route -> route.getDestinationPrefix().getValue().equals(id.getValue()))
                 .collect(RWUtils.singleItemCollector());
     }

@@ -147,7 +147,7 @@ public class AdjacenciesMappingContextTest implements InjectablesProcessor {
 
         assertEquals(PARENT_4, key.getKey().getId());
         assertEquals(PARENT_4, mapping.getId());
-        assertEquals(PARENT_4, mapping.getKey().getId());
+        assertEquals(PARENT_4, mapping.key().getId());
 
         final EidIdentificatorPair pair = mapping.getEidIdentificatorPair();
         assertEquals(LOCAL_EID_ID_1, pair.getLocalEidId().getValue());

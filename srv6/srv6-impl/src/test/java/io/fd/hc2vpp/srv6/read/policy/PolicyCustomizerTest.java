@@ -87,7 +87,7 @@ public class PolicyCustomizerTest extends PoliciesTest {
         KeyedInstanceIdentifier<Policy, PolicyKey> key = Srv6PolicyIIds.SR_TE_PLS.child(Policy.class, POLICY_KEY);
         customizer.readCurrentAttributes(key, policyBuilder, readCtx);
 
-        Assert.assertEquals(POLICY_KEY, policyBuilder.getKey());
+        Assert.assertEquals(POLICY_KEY, policyBuilder.key());
         Assert.assertEquals(BSID_ADR.getValue(), policyBuilder.getName());
         Assert.assertNotNull(customizer.getBuilder(key));
 

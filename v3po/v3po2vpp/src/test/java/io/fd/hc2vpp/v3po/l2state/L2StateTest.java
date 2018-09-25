@@ -202,7 +202,7 @@ public class L2StateTest implements FutureProducer, NamingContextHelper {
 
         assertTrue(read.isPresent());
         assertEquals(readRoot.getBridgeDomain().stream().filter(
-            input -> input.getKey().getName().equals(bdName)).findFirst().get(),
+            input -> input.key().getName().equals(bdName)).findFirst().get(),
             read.get());
     }
 

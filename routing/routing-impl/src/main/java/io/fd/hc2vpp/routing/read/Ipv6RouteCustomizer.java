@@ -154,7 +154,7 @@ final class Ipv6RouteCustomizer
                 routeBuilder.setNextHop(
                         resolveHopType(mappedName, Arrays.asList(detail.path), interfaceContext, routeHopContext,
                                 readContext.getMappingContext(), namesFactory))
-                        .setKey(key)
+                        .withKey(key)
                         .setDestinationPrefix(key.getDestinationPrefix())
                         .setDestinationPrefix(toIpv6Prefix(detail.address, toJavaByte(detail.addressLength)))
                         .addAugmentation(VppIpv6RouteAttributesAugmentation.class,

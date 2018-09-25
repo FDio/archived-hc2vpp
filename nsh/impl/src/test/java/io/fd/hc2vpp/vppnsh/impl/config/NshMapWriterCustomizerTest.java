@@ -61,7 +61,7 @@ public class NshMapWriterCustomizerTest extends WriterCustomizerTest {
     private static NshMap generateNshMap(final String name) {
         final NshMapBuilder builder = new NshMapBuilder();
         builder.setName(name);
-        builder.setKey(new NshMapKey(name));
+        builder.withKey(new NshMapKey(name));
         builder.setNsp(184L);
         builder.setNsi((short) 255);
         builder.setMappedNsp(183L);

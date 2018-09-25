@@ -110,7 +110,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     private L2FibEntry generateL2FibFilterEntry(final PhysAddress address) {
         final L2FibEntryBuilder entry = new L2FibEntryBuilder();
-        entry.setKey(new L2FibEntryKey(address));
+        entry.withKey(new L2FibEntryKey(address));
         entry.setPhysAddress(address);
         entry.setStaticConfig(true);
         entry.setBridgedVirtualInterface(false);
@@ -120,7 +120,7 @@ public class L2FibEntryCustomizerTest extends WriterCustomizerTest {
 
     private L2FibEntry generateL2FibForwardEntry(final PhysAddress address) {
         final L2FibEntryBuilder entry = new L2FibEntryBuilder();
-        entry.setKey(new L2FibEntryKey(address));
+        entry.withKey(new L2FibEntryKey(address));
         entry.setPhysAddress(address);
         entry.setStaticConfig(true);
         entry.setBridgedVirtualInterface(false);

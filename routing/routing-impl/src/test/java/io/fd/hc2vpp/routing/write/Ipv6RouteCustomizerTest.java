@@ -57,7 +57,7 @@ public class Ipv6RouteCustomizerTest extends RouteCustomizerTest {
             SEC_TABLE_ID);
     private static final Table
             IPV6_TABLE = new TableBuilder().setName("VRF-IPV6-4")
-            .setKey(SEC_TABLE_KEY).setTableId(SEC_TABLE_KEY.getTableId())
+            .withKey(SEC_TABLE_KEY).setTableId(SEC_TABLE_KEY.getTableId())
             .setAddressFamily(SEC_TABLE_KEY.getAddressFamily()).build();
     private static final Ipv6Prefix IPV_6_PREFIX = new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/64");
     private static final Ipv6Prefix IPV_6_PREFIX_128 = new Ipv6Prefix("2001:0db8:0a0b:12f0:0000:0000:0000:0001/128");
@@ -127,7 +127,7 @@ public class Ipv6RouteCustomizerTest extends RouteCustomizerTest {
     @Test
     public void testWriteTableLookup() throws WriteFailedException {
         final Route route = new RouteBuilder()
-                .setKey(new RouteKey(IPV_6_PREFIX))
+                .withKey(new RouteKey(IPV_6_PREFIX))
                 .setDestinationPrefix(IPV_6_PREFIX)
                 .setNextHop(new NextHopBuilder().setNextHopOptions(new TableLookupCaseBuilder()
                         .setSecondaryVrf(new VniReference(4L))

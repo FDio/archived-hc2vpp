@@ -89,7 +89,7 @@ public class LocatorCustomizerTest extends LocalSidRequestTest {
         LocatorCustomizer customizer = new LocatorCustomizer(api, locatorContext);
         LocatorBuilder builder = new LocatorBuilder();
         customizer.readCurrentAttributes(SID_A_101.firstIdentifierOf(Locator.class), builder, readCtx);
-        Assert.assertEquals(SID_A_101.firstKeyOf(Locator.class), builder.getKey());
+        Assert.assertEquals(SID_A_101.firstKeyOf(Locator.class), builder.key());
         Assert.assertNotNull(customizer.getBuilder(SID_A_101.firstIdentifierOf(Locator.class)));
 
         LocatorsBuilder parentBuilder = new LocatorsBuilder();

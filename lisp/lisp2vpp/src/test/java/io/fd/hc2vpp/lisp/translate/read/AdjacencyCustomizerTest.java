@@ -123,7 +123,7 @@ public class AdjacencyCustomizerTest
         getCustomizer().readCurrentAttributes(identifier, builder, ctx);
 
         assertEquals("adj-one", builder.getId());
-        assertEquals(new AdjacencyKey("adj-one"), builder.getKey());
+        assertEquals(new AdjacencyKey("adj-one"), builder.key());
         assertEquals(ADDRESS_ONE.getValue(), Ipv4.class.cast(builder.getLocalEid().getAddress()).getIpv4().getValue());
         assertEquals(ADDRESS_THREE.getValue(),
                 Ipv4.class.cast(builder.getRemoteEid().getAddress()).getIpv4().getValue());
@@ -137,7 +137,7 @@ public class AdjacencyCustomizerTest
         getCustomizer().readCurrentAttributes(identifier, builder, ctx);
 
         assertEquals("adj-one", builder.getId());
-        assertEquals(new AdjacencyKey("adj-one"), builder.getKey());
+        assertEquals(new AdjacencyKey("adj-one"), builder.key());
         assertEquals(NORMALIZED_PREFIX_ONE,
                 Ipv4Prefix.class.cast(builder.getLocalEid().getAddress()).getIpv4Prefix().getValue());
         assertEquals(NORMALIZED_PREFIX_THREE,

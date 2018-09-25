@@ -50,7 +50,7 @@ final class ControlPlaneProtocolCustomizer
     }
 
     static Long extractTableId(final ControlPlaneProtocol protocol) {
-        final RoutingProtocolVppAttr vppAttr = protocol.getAugmentation(RoutingProtocolVppAttr.class);
+        final RoutingProtocolVppAttr vppAttr = protocol.augmentation(RoutingProtocolVppAttr.class);
 
         checkState(vppAttr != null && vppAttr.getVppProtocolAttributes() != null,
                 "Vpp routing protocol attributes not defined");

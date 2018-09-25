@@ -96,7 +96,7 @@ public class MapResolverCustomizer extends CheckedLispCustomizer
                                 arrayToIpAddress(byteToBoolean(a.isIpv6), a.ipAddress)))
                         .collect(RWUtils.singleItemCollector());
 
-        builder.setKey(key);
+        builder.withKey(key);
         builder.setIpAddress(
                 arrayToIpAddress(byteToBoolean(mapResolverDetails.isIpv6), mapResolverDetails.ipAddress));
     }

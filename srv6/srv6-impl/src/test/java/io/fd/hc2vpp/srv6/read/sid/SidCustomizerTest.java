@@ -96,7 +96,7 @@ public class SidCustomizerTest extends LocalSidRequestTest {
         SidCustomizer customizer = new SidCustomizer(api, READ_REGISTRY, locatorContext);
         SidBuilder builder = new SidBuilder();
         customizer.readCurrentAttributes(SID_A_101, builder, readCtx);
-        Assert.assertEquals(SID_A_101.firstKeyOf(Sid.class), builder.getKey());
+        Assert.assertEquals(SID_A_101.firstKeyOf(Sid.class), builder.key());
         Assert.assertNotNull(builder.getEnd());
         Assert.assertNotNull(customizer.getBuilder(SID_A_101));
 

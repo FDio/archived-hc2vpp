@@ -111,7 +111,7 @@ public class ControlPlaneProtocolCustomizerTest
         getCustomizer().readCurrentAttributes(identifier, builder, ctx);
 
         assertEquals(ROUTE_PROTOCOL_NAME, builder.getName());
-        assertEquals(ROUTE_PROTOCOL_NAME, builder.getKey().getName());
+        assertEquals(ROUTE_PROTOCOL_NAME, builder.key().getName());
         assertEquals(Static.class, builder.getType());
     }
 

@@ -121,11 +121,11 @@ public class AclCustomizerTest extends InitializingListReaderCustomizerTest<Acl,
     public void testReadStandardAcl() throws ReadFailedException {
         final AclBuilder builder = new AclBuilder();
         getCustomizer().readCurrentAttributes(ACL_IID, builder, ctx);
-        assertEquals(ACL_IID.getKey(), builder.getKey());
+        assertEquals(ACL_IID.getKey(), builder.key());
         final List<Ace> aces = builder.getAccessListEntries().getAce();
         assertEquals(1, aces.size());
         final Ace ace = aces.get(0);
-        assertEquals(ACE_NAME, ace.getKey().getRuleName());
+        assertEquals(ACE_NAME, ace.key().getRuleName());
         assertTrue(ace.getActions().getPacketHandling() instanceof Deny);
         final VppAceNodes nodes = ((VppAce) (ace.getMatches().getAceType())).getVppAceNodes();
         assertEquals(PROTOCOL, ((Other) nodes.getIpProtocol()).getOtherNodes().getProtocol().shortValue());
@@ -136,11 +136,11 @@ public class AclCustomizerTest extends InitializingListReaderCustomizerTest<Acl,
     public void testReadMacipAcl() throws ReadFailedException {
         final AclBuilder builder = new AclBuilder();
         getCustomizer().readCurrentAttributes(MACIP_ACL_IID, builder, ctx);
-        assertEquals(MACIP_ACL_IID.getKey(), builder.getKey());
+        assertEquals(MACIP_ACL_IID.getKey(), builder.key());
         final List<Ace> aces = builder.getAccessListEntries().getAce();
         assertEquals(1, aces.size());
         final Ace ace = aces.get(0);
-        assertEquals(MACIP_ACE_NAME, ace.getKey().getRuleName());
+        assertEquals(MACIP_ACE_NAME, ace.key().getRuleName());
         assertTrue(ace.getActions().getPacketHandling() instanceof Deny);
     }
 }

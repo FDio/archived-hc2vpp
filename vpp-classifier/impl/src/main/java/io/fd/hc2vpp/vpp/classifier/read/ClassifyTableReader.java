@@ -107,7 +107,7 @@ public class ClassifyTableReader extends FutureJVppCustomizer
 
         // mandatory values:
         builder.setName(tableName);
-        builder.setKey(key);
+        builder.withKey(key);
         builder.setNbuckets(UnsignedInts.toLong(reply.nbuckets));
         builder.setSkipNVectors(UnsignedInts.toLong(reply.skipNVectors));
 

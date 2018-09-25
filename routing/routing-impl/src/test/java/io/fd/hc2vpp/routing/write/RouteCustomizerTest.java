@@ -99,7 +99,7 @@ abstract class RouteCustomizerTest extends WriterCustomizerTest implements Routi
         whenAddRouteThenSuccess(api);
 
         when(writeContext.readAfter(CONTROL_PROTOCOL_IID)).thenReturn(Optional.of(new ControlPlaneProtocolBuilder()
-                .setKey(CONTROL_PLANE_PROTOCOL_KEY).setName(ROUTE_PROTOCOL_NAME).setType(Static.class)
+                .withKey(CONTROL_PLANE_PROTOCOL_KEY).setName(ROUTE_PROTOCOL_NAME).setType(Static.class)
                 .addAugmentation(RoutingProtocolVppAttr.class, new RoutingProtocolVppAttrBuilder()
                         .setVppProtocolAttributes(new VppProtocolAttributesBuilder()
                                 .setPrimaryVrf(new VniReference(TABLE_ID))
@@ -107,7 +107,7 @@ abstract class RouteCustomizerTest extends WriterCustomizerTest implements Routi
                 .build()));
 
         when(writeContext.readAfter(CONTROL_PROTOCOL_INVALID_IID)).thenReturn(Optional.of(
-                new ControlPlaneProtocolBuilder().setKey(CONTROL_PLANE_PROTOCOL_INVALID_KEY)
+                new ControlPlaneProtocolBuilder().withKey(CONTROL_PLANE_PROTOCOL_INVALID_KEY)
                         .setName(ROUTE_PROTOCOL_INVALID_NAME).setType(Static.class)
                         .addAugmentation(RoutingProtocolVppAttr.class, new RoutingProtocolVppAttrBuilder()
                                 .setVppProtocolAttributes(new VppProtocolAttributesBuilder()
@@ -115,10 +115,10 @@ abstract class RouteCustomizerTest extends WriterCustomizerTest implements Routi
                         .build()));
 
         when(writeContext.readAfter(TABLE_V4_IID)).thenReturn(Optional.of(
-                new TableBuilder().setKey(IPV4_TABLE_KEY).setAddressFamily(Ipv4.class)
+                new TableBuilder().withKey(IPV4_TABLE_KEY).setAddressFamily(Ipv4.class)
                         .setTableId(IPV4_TABLE_KEY.getTableId()).build()));
         when(writeContext.readAfter(TABLE_V6_IID)).thenReturn(Optional.of(
-                new TableBuilder().setKey(IPV6_TABLE_KEY).setAddressFamily(Ipv6.class)
+                new TableBuilder().withKey(IPV6_TABLE_KEY).setAddressFamily(Ipv6.class)
                         .setTableId(IPV6_TABLE_KEY.getTableId()).build()));
         when(writeContext.readAfter(INVALID_TABLE_V4_IID)).thenReturn(Optional.absent());
         when(writeContext.readAfter(INVALID_TABLE_V6_IID)).thenReturn(Optional.absent());

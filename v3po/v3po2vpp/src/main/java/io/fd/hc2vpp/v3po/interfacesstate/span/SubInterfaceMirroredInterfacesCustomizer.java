@@ -65,7 +65,7 @@ public class SubInterfaceMirroredInterfacesCustomizer extends AbstractMirroredIn
                         Optional.ofNullable(readValue.getMirroredInterface()).orElse(Collections.emptyList())
                                 .stream()
                                 .map(mirroredInterface -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.span.attributes.mirrored.interfaces.MirroredInterfaceBuilder()
-                                        .setKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.span.attributes.mirrored.interfaces.MirroredInterfaceKey(mirroredInterface.getKey().getIfaceRef()))
+                                        .withKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.span.attributes.mirrored.interfaces.MirroredInterfaceKey(mirroredInterface.key().getIfaceRef()))
                                         .setIfaceRef(mirroredInterface.getIfaceRef())
                                         .setState(mirroredInterface.getState())
                                         .build())

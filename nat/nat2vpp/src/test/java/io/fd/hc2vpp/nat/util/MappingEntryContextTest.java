@@ -188,7 +188,7 @@ public class MappingEntryContextTest implements Ipv4Translator {
 
     private static MappingEntry getEntry(final long id, final String longernalIpv4, final String externalIpv4) {
         return new MappingEntryBuilder()
-                .setKey(new MappingEntryKey(id))
+                .withKey(new MappingEntryKey(id))
                 .setType(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.nat.rev180628.MappingEntry.Type.Static)
                 .setInternalSrcAddress(new IpPrefix(new Ipv4Prefix(longernalIpv4)))
                 .setExternalSrcAddress(new IpPrefix(new Ipv4Prefix(externalIpv4)))

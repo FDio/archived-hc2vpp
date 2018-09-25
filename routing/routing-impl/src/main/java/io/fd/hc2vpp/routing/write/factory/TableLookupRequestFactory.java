@@ -77,7 +77,7 @@ public class TableLookupRequestFactory extends BasicHopRequestFactory implements
         }
 
         VppIpv4Route vppIpv4Route =
-            route.getAugmentation(VppIpv4RouteAttributesAugmentation.class) != null ? route.getAugmentation(
+            route.augmentation(VppIpv4RouteAttributesAugmentation.class) != null ? route.augmentation(
                 VppIpv4RouteAttributesAugmentation.class).getVppIpv4Route() : null;
 
         final Optional<String> optClassifyTable = Optional.ofNullable(vppIpv4Route)
@@ -118,8 +118,8 @@ public class TableLookupRequestFactory extends BasicHopRequestFactory implements
                     String.format("Lookup table: %s not found for route: %s", secondaryTableId, route));
         }
 
-        VppIpv6Route vppIpv6Route = route.getAugmentation(VppIpv6RouteAttributesAugmentation.class) != null
-            ? route.getAugmentation(VppIpv6RouteAttributesAugmentation.class).getVppIpv6Route() : null;
+        VppIpv6Route vppIpv6Route = route.augmentation(VppIpv6RouteAttributesAugmentation.class) != null
+            ? route.augmentation(VppIpv6RouteAttributesAugmentation.class).getVppIpv6Route() : null;
 
         final Optional<String> optClassifyTable = Optional.ofNullable(vppIpv6Route)
                 .map(VppRouteAttributes::getClassifyTable);

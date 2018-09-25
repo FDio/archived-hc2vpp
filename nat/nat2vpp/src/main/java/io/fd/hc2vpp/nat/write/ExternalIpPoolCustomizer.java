@@ -74,7 +74,7 @@ final class ExternalIpPoolCustomizer implements ListWriterCustomizer<ExternalIpA
                                       final boolean isAdd) throws WriteFailedException {
         boolean isNat64 = false;
         final ExternalIpAddressPoolAugmentation augmentation =
-                addressPool.getAugmentation(ExternalIpAddressPoolAugmentation.class);
+                addressPool.augmentation(ExternalIpAddressPoolAugmentation.class);
         if (augmentation != null) {
             isNat64 = Nat64.equals(augmentation.getPoolType());
         }

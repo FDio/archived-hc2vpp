@@ -66,7 +66,7 @@ public interface AclDataExtractor {
      * Convert {@link Acl} tag to byte array in US_ASCII
      */
     default byte[] getAclTag(@Nonnull final Acl acl) {
-        final VppAclAugmentation augmentation = acl.getAugmentation(VppAclAugmentation.class);
+        final VppAclAugmentation augmentation = acl.augmentation(VppAclAugmentation.class);
         if (augmentation != null && augmentation.getTag() != null) {
             return augmentation.getTag().getBytes(StandardCharsets.US_ASCII);
         }

@@ -105,7 +105,7 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
 
     private void getNshEntryMdType1Request(@Nonnull final NshEntry entry,
                                            @Nonnull NshAddDelEntry request) {
-        final NshMdType1Augment nshMdType1Augment = entry.getAugmentation(NshMdType1Augment.class);
+        final NshMdType1Augment nshMdType1Augment = entry.augmentation(NshMdType1Augment.class);
         if (nshMdType1Augment != null) {
             request.c1 = (int) nshMdType1Augment.getC1().longValue();
             request.c2 = (int) nshMdType1Augment.getC2().longValue();
@@ -115,7 +115,7 @@ public class NshEntryWriterCustomizer extends FutureJVppNshCustomizer
     }
 
     private void getNshEntryMdType2Request(@Nonnull final NshEntry entry, @Nonnull NshAddDelEntry request) {
-        final List<Md2Data> md2Datas = entry.getAugmentation(NshMdType2Augment.class).getMd2Data();
+        final List<Md2Data> md2Datas = entry.augmentation(NshMdType2Augment.class).getMd2Data();
         final byte md2_len = (byte) (entry.getLength() * 4 - 8);
         byte cur_len = 0;
         byte option_len;

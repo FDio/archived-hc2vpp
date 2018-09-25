@@ -119,7 +119,7 @@ public class InterfaceCustomizer
         builder.setPriority((short) Byte.toUnsignedInt(details.priority));
         builder.setWeight((short) Byte.toUnsignedInt(details.weight));
         builder.setInterfaceRef(interfaceRef);
-        builder.setKey(new InterfaceKey(interfaceRef));
+        builder.withKey(new InterfaceKey(interfaceRef));
     }
 
     @Override

@@ -89,7 +89,7 @@ public class LocatorSetCustomizerTest
 
         assertNotNull(builder);
         assertEquals("loc-set", builder.getName());
-        assertEquals("loc-set", builder.getKey().getName());
+        assertEquals("loc-set", builder.key().getName());
     }
 
     @Test

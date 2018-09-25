@@ -62,7 +62,7 @@ public class IoamPotWriterCustomizerTest extends WriterCustomizerTest {
         final PotProfileListBuilder builder= new PotProfileListBuilder();
         builder.setIndex(new ProfileIndexRange(1));
         builder.setNumberOfBits((short)56);
-        builder.setKey(new PotProfileListKey(new ProfileIndexRange(1)));
+        builder.withKey(new PotProfileListKey(new ProfileIndexRange(1)));
         builder.setLpc(new BigInteger("1233"));
         builder.setPrimeNumber(new BigInteger("1001"));
         builder.setPublicPolynomial(new BigInteger("1234"));

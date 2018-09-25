@@ -136,7 +136,7 @@ public class PolicyReadRequest extends JVppRequest
         Srv6PolicyMapping policy = policyCtx.getPolicy(bsid, ctx.getMappingContext());
         IpAddress endpoint = new IpAddress(policy.getEndpoint());
         builder.setName(policy.getName()).setEndpoint(endpoint).setColor(policy.getColor());
-        builder.setKey(new PolicyKey(policy.getColor(), endpoint));
+        builder.withKey(new PolicyKey(policy.getColor(), endpoint));
         builder.setBindingSid(new BindingSidBuilder().setState(
                 new StateBuilder().setType(DataplaneType.Srv6).setAllocMode(BindingSidAllocMode.Explicit)
                         .setValue(new SidValueType(new IpAddress(bsid))).build()).build());
@@ -225,7 +225,7 @@ public class PolicyReadRequest extends JVppRequest
                                      final ReadContext ctx)
             throws ReadFailedException {
         NamedSegmentListKey key = id.firstKeyOf(NamedSegmentList.class);
-        builder.setKey(key)
+        builder.withKey(key)
                 .setName(key.getName())
                 .setState(
                         new org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.segment.list.properties.StateBuilder()
@@ -254,7 +254,7 @@ public class PolicyReadRequest extends JVppRequest
     private Segment parseSrv6Sid(final long i, final Srv6Sid srv6Sid) {
         // shifting index by 1 so it matches original indexing
         long index = i + 1L;
-        SegmentBuilder builder = new SegmentBuilder().setKey(new SegmentKey(index)).setState(
+        SegmentBuilder builder = new SegmentBuilder().withKey(new SegmentKey(index)).setState(
                 new org.opendaylight.yang.gen.v1.http.cisco.com.ns.yang.oc.srte.policy.rev170918.segment.properties.StateBuilder()
                         .setIndex(index)
                         .setType(SegmentType.Type2)

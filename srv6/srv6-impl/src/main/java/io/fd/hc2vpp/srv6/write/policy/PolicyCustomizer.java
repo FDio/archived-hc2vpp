@@ -75,7 +75,7 @@ public class PolicyCustomizer extends FutureJVppCustomizer
         try {
             // Fib table must be created beforehand. First we check if all data is present, then we verify the existence
             // of FIB table in current configuration
-            VppSrPolicyAugmentation policyAugmentation = policy.getAugmentation(VppSrPolicyAugmentation.class);
+            VppSrPolicyAugmentation policyAugmentation = policy.augmentation(VppSrPolicyAugmentation.class);
 
             if (policyAugmentation != null && policyAugmentation.getVppSrPolicy() != null &&
                     policyAugmentation.getVppSrPolicy().getConfig() != null) {

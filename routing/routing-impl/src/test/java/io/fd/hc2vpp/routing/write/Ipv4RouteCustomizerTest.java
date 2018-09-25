@@ -63,7 +63,7 @@ public class Ipv4RouteCustomizerTest extends RouteCustomizerTest {
             SEC_TABLE_ID);
     private static final Table
             IPV4_TABLE = new TableBuilder().setName("VRF-IPV4-4")
-            .setKey(SEC_TABLE_KEY).setTableId(SEC_TABLE_KEY.getTableId())
+            .withKey(SEC_TABLE_KEY).setTableId(SEC_TABLE_KEY.getTableId())
             .setAddressFamily(SEC_TABLE_KEY.getAddressFamily()).build();
 
     private static final InstanceIdentifier<Route> ROUTE_IID = CONTROL_PROTOCOL_IID
@@ -127,7 +127,7 @@ public class Ipv4RouteCustomizerTest extends RouteCustomizerTest {
     @Test
     public void testWriteTableLookup() throws WriteFailedException {
         final Route route = new RouteBuilder()
-                .setKey(new RouteKey(new Ipv4Prefix("192.168.2.1/24")))
+                .withKey(new RouteKey(new Ipv4Prefix("192.168.2.1/24")))
                 .setDestinationPrefix(new Ipv4Prefix("192.168.2.1/24"))
                 .setNextHop(new NextHopBuilder().setNextHopOptions(
                     new TableLookupCaseBuilder()

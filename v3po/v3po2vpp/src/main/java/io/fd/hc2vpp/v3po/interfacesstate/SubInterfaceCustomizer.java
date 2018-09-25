@@ -98,7 +98,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
                                 final Dot1qTag.VlanId vlanId) {
         TagBuilder tag = new TagBuilder();
         tag.setIndex(index);
-        tag.setKey(new TagKey(index));
+        tag.withKey(new TagKey(index));
         final Dot1qTagBuilder dtag = new Dot1qTagBuilder();
         dtag.setTagType(tagType);
         dtag.setVlanId(vlanId);
@@ -157,7 +157,7 @@ public class SubInterfaceCustomizer extends FutureJVppCustomizer
         checkState(isSubInterface(iface), "Interface returned by the VPP is not a sub-interface");
 
         builder.setIdentifier((long) iface.subId);
-        builder.setKey(new SubInterfaceKey(builder.getIdentifier()));
+        builder.withKey(new SubInterfaceKey(builder.getIdentifier()));
 
         // sub-interface-base-attributes:
         builder.setTags(readTags(iface));

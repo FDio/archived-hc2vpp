@@ -157,7 +157,7 @@ final class Ipv4RouteCustomizer
                 routeBuilder.setNextHop(
                         resolveHopType(mappedName, Arrays.asList(detail.path), interfaceContext, routeHopContext,
                                 readContext.getMappingContext(), namesFactory))
-                        .setKey(key)
+                        .withKey(key)
                         .setDestinationPrefix(toIpv4Prefix(detail.address, toJavaByte(detail.addressLength)))
                         .addAugmentation(VppIpv4RouteAttributesAugmentation.class,
                                          new VppIpv4RouteAttributesAugmentationBuilder()

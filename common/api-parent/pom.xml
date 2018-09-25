@@ -17,6 +17,10 @@
     <version>1.18.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <javax.annotations.version>3.0.0</javax.annotations.version>
+    </properties>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -105,6 +109,12 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
+        </dependency>
+        <!-- Generated yang model classes use annotations -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${javax.annotations.version}</version>
         </dependency>
     </dependencies>
 </project>

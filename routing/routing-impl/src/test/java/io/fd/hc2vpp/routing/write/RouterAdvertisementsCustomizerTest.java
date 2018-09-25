@@ -107,9 +107,9 @@ public class RouterAdvertisementsCustomizerTest extends WriterCustomizerTest imp
     private static Ipv6RouterAdvertisements getRA(final Interfaces ifc) {
         return ifc.getInterface()
             .get(0)
-            .getAugmentation(Interface1.class)
+            .augmentation(Interface1.class)
             .getIpv6()
-            .getAugmentation(Ipv61.class)
+            .augmentation(Ipv61.class)
             .getIpv6RouterAdvertisements();
     }
 }

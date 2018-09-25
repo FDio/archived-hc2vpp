@@ -115,7 +115,7 @@ public class LocatorReadRequest extends JVppRequest implements ReadRequest<Locat
         Ipv6Address locator = extractLocator(arrayToIpv6AddressNoZone(detail.addr.addr), mappingContext, locName);
         int locLength = LocatorContextManager.parseLength(locatorCtx.getLocator(locName, mappingContext));
 
-        builder.setKey(new LocatorKey(locator.getValue()))
+        builder.withKey(new LocatorKey(locator.getValue()))
                 .setName(locator.getValue())
                 .setPrefix(
                         new PrefixBuilder()

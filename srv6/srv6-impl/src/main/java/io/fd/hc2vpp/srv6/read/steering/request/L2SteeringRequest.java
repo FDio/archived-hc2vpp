@@ -76,7 +76,7 @@ public class L2SteeringRequest extends SteeringRequest
     private void parseL2Steering(SrSteeringPolDetails srSteeringPolDetails, final InterfaceBuilder builder,
                                       ReadContext ctx) {
         String name = ifcNamingContext.getName(srSteeringPolDetails.swIfIndex, ctx.getMappingContext());
-        builder.setInputInterface(name).setKey(new InterfaceKey(name))
+        builder.setInputInterface(name).withKey(new InterfaceKey(name))
                 .setState(new StateBuilder().setInputInterface(name).build());
     }
 }

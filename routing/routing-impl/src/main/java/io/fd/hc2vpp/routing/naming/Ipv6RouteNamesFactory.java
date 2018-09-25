@@ -84,8 +84,8 @@ public final class Ipv6RouteNamesFactory implements RouteMapper, RouteRequestPro
 
     public String uniqueRouteHopName(@Nonnull final NextHop hop) {
         return bindName(hop.getOutgoingInterface(),
-                doubleDotlessAddress(hop.getAugmentation(NextHop1.class).getNextHopAddress()),
-                String.valueOf(hop.getAugmentation(VppIpv6NextHopAugmentation.class).getWeight()));
+                doubleDotlessAddress(hop.augmentation(NextHop1.class).getNextHopAddress()),
+                String.valueOf(hop.augmentation(VppIpv6NextHopAugmentation.class).getWeight()));
     }
 
     public String uniqueRouteHopName(@Nonnull final FibPath path, @Nonnull final MappingContext mappingContext) {

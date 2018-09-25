@@ -94,7 +94,7 @@ public class LocatorSetCustomizer extends CheckedLispCustomizer
             final String name = toString(details.get().lsName);
 
             builder.setName(name);
-            builder.setKey(new LocatorSetKey(name));
+            builder.withKey(new LocatorSetKey(name));
         } else {
             LOG.warn("Locator Set {} not found in dump", id);
         }

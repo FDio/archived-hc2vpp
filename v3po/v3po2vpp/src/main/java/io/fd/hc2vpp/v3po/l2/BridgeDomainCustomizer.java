@@ -127,7 +127,7 @@ public class BridgeDomainCustomizer extends FutureJVppCustomizer
             checkReferenceExist(id, Optional.ofNullable(after.get().getInterface())
                     .orElse(Collections.emptyList())
                     .stream()
-                    .map(iface -> Optional.ofNullable(iface.getAugmentation(VppInterfaceAugmentation.class))
+                    .map(iface -> Optional.ofNullable(iface.augmentation(VppInterfaceAugmentation.class))
                             .map(VppInterfaceAugmentation::getL2)
                             .map(L2ConfigAttributes::getInterconnection)
                             .orElse(null))

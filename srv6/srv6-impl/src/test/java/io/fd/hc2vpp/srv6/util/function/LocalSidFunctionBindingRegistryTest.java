@@ -94,11 +94,11 @@ public class LocalSidFunctionBindingRegistryTest extends JvppRequestTest {
         when(readCtx.getMappingContext()).thenReturn(mappingContext);
         when(ctx.readAfter(FibManagementIIds.FM_FIB_TABLES.child(Table.class, TABLE_4_IPV6_KEY)))
                 .thenReturn(Optional.of(
-                        new TableBuilder().setTableId(TABLE_4_IPV6_KEY.getTableId()).setKey(TABLE_4_IPV6_KEY)
+                        new TableBuilder().setTableId(TABLE_4_IPV6_KEY.getTableId()).withKey(TABLE_4_IPV6_KEY)
                                 .setAddressFamily(TABLE_4_IPV6_KEY.getAddressFamily()).build()));
         when(ctx.readAfter(FibManagementIIds.FM_FIB_TABLES.child(Table.class, TABLE_4_IPV4_KEY)))
                 .thenReturn(Optional.of(
-                        new TableBuilder().setTableId(TABLE_4_IPV4_KEY.getTableId()).setKey(TABLE_4_IPV4_KEY)
+                        new TableBuilder().setTableId(TABLE_4_IPV4_KEY.getTableId()).withKey(TABLE_4_IPV4_KEY)
                                 .setAddressFamily(TABLE_4_IPV4_KEY.getAddressFamily()).build()));
     }
 

@@ -143,7 +143,7 @@ public class AdjacencyCustomizer extends FutureJVppCustomizer
                 .collect(RWUtils.singleItemCollector());
 
         builder.setId(currentAdjacencyId)
-                .setKey(new AdjacencyKey(currentAdjacencyId))
+                .withKey(new AdjacencyKey(currentAdjacencyId))
                 .setLocalEid(getArrayAsLocalEid(
                         MappingsDumpParams.EidType.valueOf(currentAdjacency.eidType), currentAdjacency.leid,
                         currentAdjacency.leidPrefixLen, vni))

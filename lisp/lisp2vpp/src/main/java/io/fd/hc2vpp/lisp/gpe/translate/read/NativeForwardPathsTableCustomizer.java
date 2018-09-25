@@ -90,7 +90,7 @@ public class NativeForwardPathsTableCustomizer extends FutureJVppCustomizer impl
                 cfgKey = InstanceIdentifier.create(NativeForwardPathsTables.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801._native.forward.paths.tables.NativeForwardPathsTable.class,
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.gpe.rev170801._native.forward.paths.tables.NativeForwardPathsTableKey(
-                                cfgValue.getKey()));
+                                cfgValue.key()));
 
         return Initialized.create(cfgKey, cfgValue);
     }
@@ -136,7 +136,7 @@ public class NativeForwardPathsTableCustomizer extends FutureJVppCustomizer impl
         if (optionalTable.isPresent()) {
             final long existingTableId = optionalTable.getAsLong();
             builder.setTableId(existingTableId);
-            builder.setKey(new NativeForwardPathsTableKey(existingTableId));
+            builder.withKey(new NativeForwardPathsTableKey(existingTableId));
         }
     }
 

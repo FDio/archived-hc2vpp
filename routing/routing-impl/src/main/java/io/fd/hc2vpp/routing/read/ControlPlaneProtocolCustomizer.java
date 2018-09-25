@@ -125,7 +125,7 @@ final class ControlPlaneProtocolCustomizer
         final ControlPlaneProtocolKey key = instanceIdentifier.firstKeyOf(ControlPlaneProtocol.class);
         routingProtocolBuilder
             .setName(key.getName())
-            .setKey(key)
+            .withKey(key)
             .setType(Static.class)
             .addAugmentation(RoutingProtocolVppAttr.class, new RoutingProtocolVppAttrBuilder().setVppProtocolAttributes(
                 new VppProtocolAttributesBuilder()

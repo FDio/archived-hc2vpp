@@ -100,7 +100,7 @@ public class L2FibEntryCustomizerTest extends ListReaderCustomizerTest<L2FibEntr
         verify(builder).setOutgoingInterface(IFACE_NAME);
         verify(builder).setStaticConfig(false);
         verify(builder).setPhysAddress(address);
-        verify(builder).setKey(new L2FibEntryKey(address));
+        verify(builder).withKey(new L2FibEntryKey(address));
     }
 
     private L2FibTableDetails generateL2FibEntry(final byte[] mac) {

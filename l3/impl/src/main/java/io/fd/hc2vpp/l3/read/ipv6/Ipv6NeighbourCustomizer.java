@@ -72,7 +72,7 @@ public class Ipv6NeighbourCustomizer extends IpNeighbourReader
                     .filter(ipNeighborDetails -> ip.equals(arrayToIpv6AddressNoZone(ipNeighborDetails.ipAddress)))
                     .findFirst()
                     .ifPresent(ipNeighborDetails -> builder.setIp(arrayToIpv6AddressNoZone(ipNeighborDetails.ipAddress))
-                            .setKey(keyMapper().apply(ipNeighborDetails))
+                            .withKey(keyMapper().apply(ipNeighborDetails))
                             .setLinkLayerAddress(toPhysAddress(ipNeighborDetails.macAddress))
                             .setOrigin(ipNeighborDetails.isStatic == 0
                                     ? Dynamic

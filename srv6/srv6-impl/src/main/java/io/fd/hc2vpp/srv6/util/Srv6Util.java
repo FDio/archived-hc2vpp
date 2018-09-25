@@ -87,11 +87,11 @@ public final class Srv6Util {
                 ? writeContext.readAfter(RWUtils.cutId(instanceIdentifier, Policy.class))
                 : writeContext.readBefore(RWUtils.cutId(instanceIdentifier, Policy.class));
 
-        if (policyOptional.isPresent() && policyOptional.get().getAugmentation(VppSrPolicyAugmentation.class) != null &&
-                policyOptional.get().getAugmentation(VppSrPolicyAugmentation.class).getVppSrPolicy() != null) {
+        if (policyOptional.isPresent() && policyOptional.get().augmentation(VppSrPolicyAugmentation.class) != null &&
+                policyOptional.get().augmentation(VppSrPolicyAugmentation.class).getVppSrPolicy() != null) {
 
             VppSrPolicy vppSrPolicy =
-                    policyOptional.get().getAugmentation(VppSrPolicyAugmentation.class).getVppSrPolicy();
+                    policyOptional.get().augmentation(VppSrPolicyAugmentation.class).getVppSrPolicy();
             if (vppSrPolicy.getConfig() != null && vppSrPolicy.getConfig().getTableId() != null) {
                 return vppSrPolicy.getConfig().getTableId().getValue().intValue();
             }

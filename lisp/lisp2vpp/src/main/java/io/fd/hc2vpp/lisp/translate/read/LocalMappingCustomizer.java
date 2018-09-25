@@ -133,7 +133,7 @@ public class LocalMappingCustomizer
         checkState(locatorSetContext.containsName(details.locatorSetIndex, ctx.getMappingContext()),
                 "No Locator Set name found for index %s", details.locatorSetIndex);
         builder.setLocatorSet(locatorSetContext.getName(details.locatorSetIndex, ctx.getMappingContext()));
-        builder.setKey(new LocalMappingKey(new MappingId(id.firstKeyOf(LocalMapping.class).getId())));
+        builder.withKey(new LocalMappingKey(new MappingId(id.firstKeyOf(LocalMapping.class).getId())));
         builder.setEid(getArrayAsEidLocal(valueOf(details.eidType), details.eid, details.eidPrefixLen, details.vni));
 
         if (details.key != null) {

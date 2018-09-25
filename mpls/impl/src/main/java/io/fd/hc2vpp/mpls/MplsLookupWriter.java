@@ -55,7 +55,7 @@ final class MplsLookupWriter implements LspWriter, MplsInSegmentTranslator {
         request.mrIsAdd = booleanToByte(isAdd);
 
         translate(config.getInSegment(), request);
-        translate(config.getAugmentation(StaticLspVppLookupAugmentation.class), request);
+        translate(config.augmentation(StaticLspVppLookupAugmentation.class), request);
 
         // default values based on inspecting VPP's CLI and make test code
         request.mrClassifyTableIndex = -1;

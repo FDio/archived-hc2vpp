@@ -136,6 +136,6 @@ public class LocatorReadRequestTest extends LocalSidRequestTest {
         LocatorBuilder builder = new LocatorBuilder();
         request.readSpecific(ID_LOC, readCtx, builder);
 
-        Assert.assertEquals(new LocatorKey("a::"), builder.getKey());
+        Assert.assertEquals(new LocatorKey("a::"), builder.key());
     }
 }

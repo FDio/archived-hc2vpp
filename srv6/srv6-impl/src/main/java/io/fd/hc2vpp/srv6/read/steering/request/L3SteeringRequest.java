@@ -95,7 +95,7 @@ public class L3SteeringRequest extends SteeringRequest
 
     private void parseL3Steering(SrSteeringPolDetails srSteeringPolDetails, final PrefixBuilder builder) {
         PrefixKey key = parseL3SteeringKey(srSteeringPolDetails);
-        builder.setKey(key).setIpPrefix(key.getIpPrefix())
+        builder.withKey(key).setIpPrefix(key.getIpPrefix())
                 .setState(new StateBuilder().setIpPrefix(key.getIpPrefix()).build());
     }
 

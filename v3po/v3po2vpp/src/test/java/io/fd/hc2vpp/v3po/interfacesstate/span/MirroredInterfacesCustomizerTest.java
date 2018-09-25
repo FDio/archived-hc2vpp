@@ -117,7 +117,7 @@ public class MirroredInterfacesCustomizerTest
     private MirroredInterface mirroredInterface(final String ifaceName, final SpanState state) {
         return new MirroredInterfaceBuilder()
                 .setIfaceRef(ifaceName)
-                .setKey(new MirroredInterfaceKey(ifaceName))
+                .withKey(new MirroredInterfaceKey(ifaceName))
                 .setState(state)
                 .build();
     }

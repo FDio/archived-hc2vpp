@@ -57,7 +57,7 @@ public class ClassifyTableWriterTest extends WriterCustomizerTest {
         final ClassifyTableBuilder builder = new ClassifyTableBuilder();
         builder.setName(name);
         builder.setClassifierNode(new VppNodeName("ip4-classifier"));
-        builder.setKey(new ClassifyTableKey(name));
+        builder.withKey(new ClassifyTableKey(name));
         builder.setSkipNVectors(0L);
         builder.setNbuckets(2L);
         builder.setMemorySize(2L << 20);

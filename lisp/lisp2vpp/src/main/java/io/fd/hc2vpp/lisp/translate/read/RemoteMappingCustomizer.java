@@ -176,7 +176,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
                         RWUtils.singleItemCollector());
 
         builder.setEid(getArrayAsEidRemote(valueOf(details.eidType), details.eid, details.eidPrefixLen, details.vni));
-        builder.setKey(new RemoteMappingKey(new MappingId(id.firstKeyOf(RemoteMapping.class).getId())));
+        builder.withKey(new RemoteMappingKey(new MappingId(id.firstKeyOf(RemoteMapping.class).getId())));
         builder.setTtl(resolveTtl(details.ttl));
         builder.setAuthoritative(
                 new RemoteMapping.Authoritative(byteToBoolean(details.authoritative)));
@@ -279,7 +279,7 @@ public class RemoteMappingCustomizer extends FutureJVppCustomizer
         final IpAddress address = arrayToIpAddress(byteToBoolean(details.isIpv6), details.ipAddress);
         return new LocatorBuilder()
                 .setAddress(address)
-                .setKey(new LocatorKey(address))
+                .withKey(new LocatorKey(address))
                 .setPriority((short) details.priority)
                 .setWeight((short) details.weight)
                 .build();

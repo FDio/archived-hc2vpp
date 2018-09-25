@@ -55,7 +55,7 @@ public class PrefixCustomizerTest extends SteeringTest {
 
         customizer.readCurrentAttributes(key, builder, readCtx);
 
-        Assert.assertEquals(L3_KEY, builder.getKey());
+        Assert.assertEquals(L3_KEY, builder.key());
         Assert.assertEquals(IPV6_PREFIX, builder.getIpPrefix());
 
         PrefixesBuilder policyBuilder = new PrefixesBuilder();

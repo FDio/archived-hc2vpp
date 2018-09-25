@@ -79,7 +79,7 @@ public class MapResolverCustomizerTest
 
         final MapResolverKey key = keys.get(0);
         assertNotNull(key);
-        assertEquals("1.2.168.192", new String(key.getIpAddress().getValue()));
+        assertEquals("1.2.168.192", key.getIpAddress().stringValue());
 
     }
 

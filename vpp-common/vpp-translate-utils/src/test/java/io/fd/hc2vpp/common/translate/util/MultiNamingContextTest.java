@@ -194,7 +194,7 @@ public class MultiNamingContextTest implements InjectablesProcessor {
     }
 
     private Value valueFor(final String name, final int index) {
-        return new ValueBuilder().setName(name).setIndex(index).setKey(new ValueKey(name)).build();
+        return new ValueBuilder().setName(name).setIndex(index).withKey(new ValueKey(name)).build();
     }
 }
 

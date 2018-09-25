@@ -71,7 +71,7 @@ public class PolicyCustomizerTest extends JvppRequestTest {
     private static final PolicyKey POLICY_KEY = new PolicyKey(1L, new IpAddress(new Ipv6Address("e::1")));
     private static final KeyedInstanceIdentifier<Table, TableKey> VRF_IID =
             FibManagementIIds.FM_FIB_TABLES.child(Table.class, new TableKey(Ipv6.class, TABLE_ID));
-    private static final Table VRF_TABLE = new TableBuilder().setKey(VRF_IID.getKey()).setAddressFamily(Ipv6.class)
+    private static final Table VRF_TABLE = new TableBuilder().withKey(VRF_IID.getKey()).setAddressFamily(Ipv6.class)
             .setTableId(TABLE_ID).setName("VRF-0").build();
 
     @InjectTestData(resourcePath = "/named-segments.json", id = NAMED_SEG_LISTS_PATH)

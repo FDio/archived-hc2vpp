@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package io.fd.hc2vpp.docs.core;import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+package io.fd.hc2vpp.docs.core;
+
+import java.util.Optional;
+import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.yang.common.Revision;
 
 final class YangModelKey {
     private final String namespace;
     private final String revision;
 
     YangModelKey(final YangModuleInfo moduleInfo) {
-        this.namespace = moduleInfo.getNamespace();
-        this.revision = moduleInfo.getRevision();
+        this.namespace = moduleInfo.getName().getNamespace().toString();
+        Optional<Revision> optRevision = moduleInfo.getName().getRevision();
+        this.revision = optRevision.isPresent() ? optRevision.get().toString() : "";
     }
 
     YangModelKey(final String namespace, final String revision) {

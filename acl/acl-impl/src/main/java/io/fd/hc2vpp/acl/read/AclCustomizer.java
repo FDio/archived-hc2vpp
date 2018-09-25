@@ -148,7 +148,7 @@ public class AclCustomizer extends FutureJVppAclCustomizer
     public void readCurrentAttributes(@Nonnull final InstanceIdentifier<Acl> id, @Nonnull final AclBuilder builder,
                                       @Nonnull final ReadContext ctx) throws ReadFailedException {
         final AclKey key = id.firstKeyOf(Acl.class);
-        builder.setKey(key);
+        builder.withKey(key);
         final Class<? extends AclBase> aclType = key.getAclType();
         final String name = key.getAclName();
 

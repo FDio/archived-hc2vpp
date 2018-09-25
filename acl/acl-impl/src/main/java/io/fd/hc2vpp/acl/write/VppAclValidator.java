@@ -150,7 +150,7 @@ public final class VppAclValidator implements Validator<Acl>, AclDataExtractor {
 
         if (aclType.equals(VppAcl.class)) {
             return interfaces.stream()
-                .filter(iface -> ofNullable(iface.getAugmentation(VppAclInterfaceAugmentation.class))
+                .filter(iface -> ofNullable(iface.augmentation(VppAclInterfaceAugmentation.class))
                     .map(InterfaceAclAttributes::getAcl)
                     .filter(references ->
                         checkVppAcls(references.getIngress(), aclName) ||
@@ -158,7 +158,7 @@ public final class VppAclValidator implements Validator<Acl>, AclDataExtractor {
                 ).collect(Collectors.toList());
         } else if (aclType.equals(VppMacipAcl.class)) {
             return interfaces.stream()
-                .filter(iface -> ofNullable(iface.getAugmentation(VppAclInterfaceAugmentation.class))
+                .filter(iface -> ofNullable(iface.augmentation(VppAclInterfaceAugmentation.class))
                     .map(InterfaceAclAttributes::getAcl)
                     .map(aclAttr -> aclAttr.getIngress())
                     .map(VppMacipAclsBaseAttributes::getVppMacipAcl)

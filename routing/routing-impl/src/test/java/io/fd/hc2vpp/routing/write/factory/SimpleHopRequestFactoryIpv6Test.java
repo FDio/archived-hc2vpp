@@ -70,7 +70,7 @@ public class SimpleHopRequestFactoryIpv6Test
                     StaticRoutes ipv6StaticRouteWithClassifier) {
         final IpAddDelRoute request =
                 factory.createIpv6SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
-                        ipv6StaticRouteWithClassifier.getAugmentation(StaticRoutes1.class).getIpv6().getRoute().get(0),
+                        ipv6StaticRouteWithClassifier.augmentation(StaticRoutes1.class).getIpv6().getRoute().get(0),
                         mappingContext);
 
         assertEquals(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
@@ -84,8 +84,7 @@ public class SimpleHopRequestFactoryIpv6Test
                     StaticRoutes ipv6StaticRouteWithoutClassifier) {
         final IpAddDelRoute request =
                 factory.createIpv6SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
-                        ipv6StaticRouteWithoutClassifier.getAugmentation(StaticRoutes1.class).getIpv6().getRoute()
-                                .get(0),
+                        ipv6StaticRouteWithoutClassifier.augmentation(StaticRoutes1.class).getIpv6().getRoute().get(0),
                         mappingContext);
 
         assertEquals(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,
@@ -97,8 +96,7 @@ public class SimpleHopRequestFactoryIpv6Test
                                                       StaticRoutes ipv6StaticRouteWithoutRouteAttrs) {
         final IpAddDelRoute request =
                 factory.createIpv6SimpleHopRequest(false, ROUTE_PROTOCOL_NAME,
-                        ipv6StaticRouteWithoutRouteAttrs.getAugmentation(StaticRoutes1.class).getIpv6().getRoute()
-                                .get(0),
+                        ipv6StaticRouteWithoutRouteAttrs.augmentation(StaticRoutes1.class).getIpv6().getRoute().get(0),
                         mappingContext);
 
         assertEquals(desiredFlaglessResult(0, 1, 0, Ipv6RouteData.FIRST_ADDRESS_AS_ARRAY, 64,

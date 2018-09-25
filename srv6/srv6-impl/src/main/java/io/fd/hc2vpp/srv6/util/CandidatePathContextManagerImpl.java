@@ -60,7 +60,7 @@ public class CandidatePathContextManagerImpl implements CandidatePathContextMana
         final KeyedInstanceIdentifier<Srv6CandidatePathMapping, Srv6CandidatePathMappingKey> mappingIid =
                 getCandidatePathIid(bsid);
         final Srv6CandidatePathMappingBuilder builder =
-                new Srv6CandidatePathMappingBuilder().setKey(new Srv6CandidatePathMappingKey(bsid))
+                new Srv6CandidatePathMappingBuilder().withKey(new Srv6CandidatePathMappingKey(bsid))
                         .setProvisioningMethod(provisioningMethod).setPreference(preference)
                         .setDistinguisher(distinguisher).setBsid(bsid).setName(name);
         ctx.put(mappingIid, builder.build());

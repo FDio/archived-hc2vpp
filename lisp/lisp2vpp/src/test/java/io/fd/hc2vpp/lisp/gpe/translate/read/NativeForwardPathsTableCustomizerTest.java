@@ -79,7 +79,7 @@ public class NativeForwardPathsTableCustomizerTest extends
         getCustomizer().readCurrentAttributes(validId, builder, ctx);
         final long lTableId = TABLE_0_IDX;
         assertEquals(lTableId, builder.getTableId().intValue());
-        assertEquals(lTableId, builder.getKey().getTableId().intValue());
+        assertEquals(lTableId, builder.key().getTableId().intValue());
     }
 
     private IpFibDetailsReplyDump getReplyV4() {

@@ -131,7 +131,7 @@ public class SpecialNextHopRequestFactoryIpv6Test
     }
 
     private Route extractSingleRoute(final StaticRoutes staticRoutes, final Ipv6Prefix id) {
-        return staticRoutes.getAugmentation(StaticRoutes1.class).getIpv6().getRoute().stream()
+        return staticRoutes.augmentation(StaticRoutes1.class).getIpv6().getRoute().stream()
                 .filter(route -> route.getDestinationPrefix().getValue().equals(id.getValue())).collect(
                         RWUtils.singleItemCollector());
     }

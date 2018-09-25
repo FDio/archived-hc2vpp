@@ -53,7 +53,7 @@ public class NamedSegmentCustomizerTest extends PoliciesTest {
                 key = Srv6PolicyIIds.SR_TE_NSLS.child(NamedSegmentList.class, SEGMENT_KEY_1);
         customizer.readCurrentAttributes(key, segmentListBuilder, readCtx);
 
-        Assert.assertEquals(SEGMENT_KEY_1, segmentListBuilder.getKey());
+        Assert.assertEquals(SEGMENT_KEY_1, segmentListBuilder.key());
         Assert.assertEquals(SEGMENT_KEY_1.getName(), segmentListBuilder.getName());
         Assert.assertNotNull(customizer.getBuilder(key));
 

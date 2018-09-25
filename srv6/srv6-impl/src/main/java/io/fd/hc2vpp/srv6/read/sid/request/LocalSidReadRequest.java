@@ -175,7 +175,7 @@ public class LocalSidReadRequest extends JVppRequest implements ReadRequest<Sid,
                               final Ipv6Address sidAddress, final SidBuilder builder) {
         Class<? extends Srv6EndpointType> behaviorType = parseEndBehaviorType(detail.behavior);
         Srv6FuncOpcodeUnreserved opcode = extractOpCode(sidAddress, readContext.getMappingContext(), locName);
-        builder.setEndBehaviorType(behaviorType).setKey(new SidKey(opcode)).setOpcode(opcode);
+        builder.setEndBehaviorType(behaviorType).withKey(new SidKey(opcode)).setOpcode(opcode);
         parseEndFunction(builder, detail, readContext);
     }
 

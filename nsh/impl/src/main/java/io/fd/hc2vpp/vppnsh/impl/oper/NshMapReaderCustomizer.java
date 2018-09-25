@@ -115,7 +115,7 @@ implements InitializingListReaderCustomizer<NshMap, NshMapKey, NshMapBuilder>, J
 
         final NshMapDetails nshMapDetails = reply.nshMapDetails.get(0);
         builder.setName(mapName);
-        builder.setKey(key);
+        builder.withKey(key);
 
         builder.setNsp((long) ((nshMapDetails.nspNsi >> 8) & 0xFFFFFF));
         builder.setNsi((short) (nshMapDetails.nspNsi & 0xFF));

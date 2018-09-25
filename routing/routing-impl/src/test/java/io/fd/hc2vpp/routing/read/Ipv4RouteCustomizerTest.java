@@ -229,7 +229,7 @@ public class Ipv4RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         assertTrue(hopOptions instanceof SimpleNextHop);
 
         SimpleNextHop hop = SimpleNextHop.class.cast(hopOptions);
-        assertEquals("192.168.2.1", hop.getAugmentation(SimpleNextHop1.class).getNextHopAddress().getValue());
+        assertEquals("192.168.2.1", hop.augmentation(SimpleNextHop1.class).getNextHopAddress().getValue());
         assertEquals("iface-1", hop.getOutgoingInterface());
     }
 
@@ -255,10 +255,10 @@ public class Ipv4RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
     private boolean areEqual(final NextHop first, final NextHop second) {
         return new EqualsBuilder()
-                .append(true, first.getAugmentation(NextHop1.class).getNextHopAddress().getValue()
-                    .equals(second.getAugmentation(NextHop1.class).getNextHopAddress().getValue()))
+                .append(true, first.augmentation(NextHop1.class).getNextHopAddress().getValue()
+                    .equals(second.augmentation(NextHop1.class).getNextHopAddress().getValue()))
                 .append(true, first.getIndex().equals(second.getIndex()))
-                .append(true, first.getKey().equals(second.getKey()))
+                .append(true, first.key().equals(second.key()))
                 .append(true, first.getOutgoingInterface().equals(second.getOutgoingInterface()))
                 .isEquals();
     }
@@ -267,7 +267,7 @@ public class Ipv4RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         return new NextHopBuilder()
             .setOutgoingInterface(iface)
             .setIndex(id)
-            .setKey(new NextHopKey(id))
+            .withKey(new NextHopKey(id))
             .addAugmentation(VppIpv4NextHopAugmentation.class,
                              new VppIpv4NextHopAugmentationBuilder().setWeight((short) weight).build())
             .addAugmentation(NextHop1.class, new NextHop1Builder().setNextHopAddress(new Ipv4Address(address)).build())

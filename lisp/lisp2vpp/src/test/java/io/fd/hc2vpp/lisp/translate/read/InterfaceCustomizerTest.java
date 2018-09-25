@@ -106,7 +106,7 @@ public class InterfaceCustomizerTest
 
         final Interface iface = builder.build();
         assertEquals("interface-1", iface.getInterfaceRef());
-        assertEquals("interface-1", iface.getKey().getInterfaceRef());
+        assertEquals("interface-1", iface.key().getInterfaceRef());
 
     }
 

@@ -88,7 +88,7 @@ abstract class AbstractMirroredInterfacesCustomizer
                                             ifcContext.getName(detail.swIfIndexFrom, ctx.getMappingContext());
                                     return new MirroredInterfaceBuilder()
                                             .setIfaceRef(interfaceName)
-                                            .setKey(new MirroredInterfaceKey(interfaceName))
+                                            .withKey(new MirroredInterfaceKey(interfaceName))
                                             .setState(SpanState.forValue(detail.state))
                                             .build();
                                 }

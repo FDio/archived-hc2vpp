@@ -272,7 +272,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         assertTrue(hopOptions instanceof SimpleNextHop);
 
         SimpleNextHop hop = SimpleNextHop.class.cast(hopOptions);
-        assertEquals("2001:db8:a0b:12f0::1", hop.getAugmentation(SimpleNextHop1.class)
+        assertEquals("2001:db8:a0b:12f0::1", hop.augmentation(SimpleNextHop1.class)
             .getNextHopAddress().getValue());
         assertEquals("iface-1", hop.getOutgoingInterface());
     }
@@ -289,7 +289,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         assertTrue(hopOptions instanceof SimpleNextHop);
 
         SimpleNextHop hop = SimpleNextHop.class.cast(hopOptions);
-        assertEquals("2001:db8:a0b:12f0::1", hop.getAugmentation(SimpleNextHop1.class)
+        assertEquals("2001:db8:a0b:12f0::1", hop.augmentation(SimpleNextHop1.class)
                 .getNextHopAddress().getValue());
         assertEquals("iface-1", hop.getOutgoingInterface());
     }
@@ -318,10 +318,10 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
 
     private boolean areEqual(final NextHop first, final NextHop second) {
         return new EqualsBuilder()
-                .append(true, first.getAugmentation(NextHop1.class).getNextHopAddress().getValue()
-                    .equals(second.getAugmentation(NextHop1.class).getNextHopAddress().getValue()))
+                .append(true, first.augmentation(NextHop1.class).getNextHopAddress().getValue()
+                    .equals(second.augmentation(NextHop1.class).getNextHopAddress().getValue()))
                 .append(true, first.getIndex().equals(second.getIndex()))
-                .append(true, first.getKey().equals(second.getKey()))
+                .append(true, first.key().equals(second.key()))
                 .append(true, first.getOutgoingInterface().equals(second.getOutgoingInterface()))
                 .isEquals();
     }
@@ -330,7 +330,7 @@ public class Ipv6RouteCustomizerTest extends ListReaderCustomizerTest<Route, Rou
         return new NextHopBuilder()
             .setOutgoingInterface(iface)
             .setIndex(id)
-            .setKey(new NextHopKey(id))
+            .withKey(new NextHopKey(id))
             .addAugmentation(NextHop1.class, new NextHop1Builder().setNextHopAddress(new Ipv6Address(address)).build())
             .addAugmentation(VppIpv6NextHopAugmentation.class,
                              new VppIpv6NextHopAugmentationBuilder().setWeight((short) weight).build())
