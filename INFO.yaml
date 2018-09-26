@@ -1,0 +1,66 @@
+---
+project: 'hc2vpp'
+project_creation_date: '2016-01-10'
+project_category: ''
+lifecycle_state: 'Incubation'
+project_lead: &hc2vpp_ptl
+    name: 'Michal Cmarada'
+    email: 'mcmarada@cisco.com'
+    id: 'mcmarada'
+    company: 'cisco'
+    timezone: ''
+primary_contact: *hc2vpp_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.fd.io/projects/HC2VPP'
+    key: 'HC2VPP'
+mailing_list:
+    type: 'groups.io'
+    url: 'https://lists.fd.io/g/hc2vpp'
+    tag: ''
+realtime_discussion:
+    type: 'irc'
+    server: 'freenode'
+    channel: 'fdio-honeycomb'
+meetings:
+    - type: 'zoom'
+      agenda: 'https://wiki.fd.io/view/Honeycomb/Meeting'
+      url: 'https://wiki.fd.io/view/Honeycomb/Meeting'
+      server: 'n/a'
+      channel: 'fdio-honeycomb'
+      repeats: 'bi-weekly'
+      time: '17:00 CET'
+repositories:
+    - 'hc2vpp'
+committers:
+    - <<: *hc2vpp_ptl
+    - name: 'Hongjun Ni'
+      company: 'intel'
+      email: 'hongjun.ni@intel.com'
+      id: 'Henry_Ni'
+      timezone: ''
+    - name: 'Michal Cmarada'
+      company: 'cisco'
+      email: 'mcmarada@cisco.com'
+      id: 'mcmarada'
+      timezone: ''
+    - name: 'Marek Gradzki'
+      company: ''
+      email: 'margradz@gmail.com'
+      id: 'mgradzki'
+      timezone: ''
+    - name: 'Maroš Maršalek'
+      company: ''
+      email: 'maros.mars@gmail.com'
+      id: 'mmarsale'
+      timezone: ''
+tsc:
+    # yamllint disable rule:line-length
+    approval: ''
+    changes:
+        - type: 'removal'
+          name: ''
+          link: ''
+        - type: 'promotion'
+          name: ''
+          link: ''
