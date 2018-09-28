@@ -31,6 +31,7 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Bridge;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
+import io.fd.vpp.jvpp.core.types.L2PortType;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -137,7 +138,7 @@ public class L2CustomizerTest extends WriterCustomizerTest implements ByteDataTr
         final SwInterfaceSetL2Bridge request = new SwInterfaceSetL2Bridge();
         request.bdId = BD_INDEX;
         request.rxSwIfIndex = IF1_INDEX;
-        request.bvi = booleanToByte(bvi);
+        request.portType = bvi ? L2PortType.L2_API_PORT_TYPE_BVI : L2PortType.L2_API_PORT_TYPE_NORMAL;
         request.enable = booleanToByte(enable);
         request.shg = 123;
         return request;

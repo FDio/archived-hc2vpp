@@ -28,11 +28,13 @@ import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2BridgeReply;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2Xconnect;
 import io.fd.vpp.jvpp.core.dto.SwInterfaceSetL2XconnectReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.L2PortType;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.l2.config.attributes.Interconnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.l2.config.attributes.interconnection.BridgeBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev180703.l2.config.attributes.interconnection.XconnectBased;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.vpp.vlan.rev180319.sub._interface.l2.state.attributes.L2;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -103,28 +105,27 @@ final class InterconnectionWriteUtils implements JvppReplyConsumer {
         checkArgument(bdId > 0, "Unable to set Interconnection for Interface: %s, bridge domain: %s does not exist",
                 ifcName, bdName);
 
-        byte bvi = bb.isBridgedVirtualInterface()
-                ? (byte) 1
-                : (byte) 0;
         byte shg = 0;
         if (bb.getSplitHorizonGroup() != null) {
             shg = bb.getSplitHorizonGroup().byteValue();
         }
 
         final CompletionStage<SwInterfaceSetL2BridgeReply> swInterfaceSetL2BridgeReplyCompletionStage = futureJVppCore
-                .swInterfaceSetL2Bridge(getL2BridgeRequest(swIfIndex, bdId, shg, bvi, enabled));
+                .swInterfaceSetL2Bridge(getL2BridgeRequest(swIfIndex, bdId, shg, bb.isBridgedVirtualInterface(), enabled));
         getReplyForWrite(swInterfaceSetL2BridgeReplyCompletionStage.toCompletableFuture(), id);
 
         LOG.debug("Bridge based interconnection updated successfully for: {}, interconnection: {}", ifcName, bb);
     }
 
     private SwInterfaceSetL2Bridge getL2BridgeRequest(final int swIfIndex, final int bdId, final byte shg,
-                                                      final byte bvi, final byte enabled) {
+                                                      final Boolean bvi, final byte enabled) {
         final SwInterfaceSetL2Bridge swInterfaceSetL2Bridge = new SwInterfaceSetL2Bridge();
         swInterfaceSetL2Bridge.rxSwIfIndex = swIfIndex;
         swInterfaceSetL2Bridge.bdId = bdId;
         swInterfaceSetL2Bridge.shg = shg;
-        swInterfaceSetL2Bridge.bvi = bvi;
+
+        // TODO HC2VPP-389: add support for unknown unicast type
+        swInterfaceSetL2Bridge.portType = bvi ? L2PortType.L2_API_PORT_TYPE_BVI : L2PortType.L2_API_PORT_TYPE_NORMAL;
         swInterfaceSetL2Bridge.enable = enabled;
         return swInterfaceSetL2Bridge;
     }
