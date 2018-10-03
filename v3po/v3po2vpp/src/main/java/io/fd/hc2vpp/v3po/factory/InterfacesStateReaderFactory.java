@@ -27,6 +27,7 @@ import io.fd.hc2vpp.v3po.interfacesstate.InterfaceCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.InterfaceRoutingCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.L2Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.TapCustomizer;
+import io.fd.hc2vpp.v3po.interfacesstate.TapV2Customizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.AfPacketCustomizer;
 import io.fd.hc2vpp.v3po.interfacesstate.VxlanCustomizer;
@@ -52,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.Span;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.SpanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.Tap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.TapV2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.AfPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces.state._interface.Vxlan;
@@ -118,6 +120,9 @@ public final class InterfacesStateReaderFactory implements ReaderFactory {
         //    Tap
         registry.add(new GenericInitReader<>(vppIfcAugId.child(Tap.class),
                 new TapCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
+        //    TapV2
+        registry.add(new GenericInitReader<>(vppIfcAugId.child(TapV2.class),
+                new TapV2Customizer(jvpp, ifcNamingCtx, ifaceDumpManager)));
         //    VhostUser
         registry.add(new GenericInitReader<>(vppIfcAugId.child(VhostUser.class),
                 new VhostUserCustomizer(jvpp, ifcNamingCtx, ifaceDumpManager)));

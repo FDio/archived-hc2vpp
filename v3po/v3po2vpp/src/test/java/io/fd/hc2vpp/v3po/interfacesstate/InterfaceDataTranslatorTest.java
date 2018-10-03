@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.AfPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.Tap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.TapV2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VxlanTunnel;
@@ -61,7 +62,8 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
 
     @Test
     public void testGetInterfaceType() {
-        assertEquals(Tap.class, getInterfaceType("tap0"));
+        assertEquals(Tap.class, getInterfaceType("tapcli-0"));
+        assertEquals(TapV2.class, getInterfaceType("tap0"));
         assertEquals(VxlanTunnel.class, getInterfaceType("vxlan0"));
         assertEquals(VxlanGpeTunnel.class, getInterfaceType("vxlan_gpe0"));
         assertEquals(VhostUser.class, getInterfaceType("VirtualEthernet0/0/0"));
@@ -72,7 +74,8 @@ public class InterfaceDataTranslatorTest implements InterfaceDataTranslator {
 
     @Test
     public void testIsInterfaceOfType() {
-        assertTrue(isInterfaceOfType(Tap.class, interfaceDetails("tap0")));
+        assertTrue(isInterfaceOfType(Tap.class, interfaceDetails("tapcli-0")));
+        assertTrue(isInterfaceOfType(TapV2.class, interfaceDetails("tap0")));
         assertTrue(isInterfaceOfType(VxlanTunnel.class, interfaceDetails("vxlan0")));
         assertTrue(isInterfaceOfType(VxlanGpeTunnel.class, interfaceDetails("vxlan_gpe0")));
         assertTrue(isInterfaceOfType(VhostUser.class, interfaceDetails("VirtualEthernet0/0/0")));

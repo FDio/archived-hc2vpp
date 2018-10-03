@@ -44,7 +44,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class TapCustomizerTest extends ReaderCustomizerTest<Tap, TapBuilder> implements InterfaceDumpHelper {
 
     private static final String IFC_CTX_NAME = "ifc-test-instance";
-    private static final String IF_NAME = "tap1";
+    private static final String IF_NAME = "tapcli-1";
     private static final String TAP_NAME = "testTapName";
     private static final int IF_INDEX = 1;
     private static final InstanceIdentifier<Tap> IID =

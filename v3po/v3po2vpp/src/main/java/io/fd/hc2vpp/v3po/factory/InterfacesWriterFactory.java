@@ -29,6 +29,7 @@ import io.fd.hc2vpp.v3po.interfaces.InterfaceUnnumberedCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.L2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.LoopbackCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.TapCustomizer;
+import io.fd.hc2vpp.v3po.interfaces.TapV2Customizer;
 import io.fd.hc2vpp.v3po.interfaces.VhostUserCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.AfPacketCustomizer;
 import io.fd.hc2vpp.v3po.interfaces.VxlanCustomizer;
@@ -53,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Routing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Span;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Tap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.TapV2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.AfPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.interfaces._interface.Vxlan;
@@ -120,6 +122,10 @@ public final class InterfacesWriterFactory implements WriterFactory {
         final InstanceIdentifier<Tap> tapId = VPP_IFC_AUG_ID.child(Tap.class);
         registry.addBefore(new GenericWriter<>(tapId, new TapCustomizer(jvpp, ifcNamingContext)),
                 ifcId);
+        // TapV2(Needs to be executed before Interface customizer) =
+        final InstanceIdentifier<TapV2> tapV2Id = VPP_IFC_AUG_ID.child(TapV2.class);
+        registry.addBefore(new GenericWriter<>(tapV2Id, new TapV2Customizer(jvpp, ifcNamingContext)),
+                ifcId);
         // Loopback(Needs to be executed before Interface customizer) =
         final InstanceIdentifier<Loopback> loopbackId = VPP_IFC_AUG_ID.child(Loopback.class);
         registry.addBefore(new GenericWriter<>(loopbackId, new LoopbackCustomizer(jvpp, ifcNamingContext)),
@@ -131,7 +137,7 @@ public final class InterfacesWriterFactory implements WriterFactory {
                 ifcId);
 
         final Set<InstanceIdentifier<?>> specificIfcTypes =
-            Sets.newHashSet(vhostId, afpacketId, vxlanId, vxlanGpeId, tapId, loopbackId);
+            Sets.newHashSet(vhostId, afpacketId, vxlanId, vxlanGpeId, tapId, tapV2Id, loopbackId);
 
         // Ethernet =
         registry.add(new GenericWriter<>(VPP_IFC_AUG_ID.child(Ethernet.class),

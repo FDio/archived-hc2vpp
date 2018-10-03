@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "8204419d-8019-4b29-b758-4a0693efe2cb",
+		"_postman_id": "b7fd7461-3b63-40ed-9aee-dd9668109865",
 		"name": "Honeycomb V3PO RESTCONF calls",
 		"description": "Common mgmt operations on VPP core using Honeycomb REST interface",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -8,7 +8,6 @@
 	"item": [
 		{
 			"name": "Loopback",
-			"description": null,
 			"item": [
 				{
 					"name": "Add loopback ifc - cfg ",
@@ -88,7 +87,6 @@
 		},
 		{
 			"name": "Bridge Domain management",
-			"description": null,
 			"item": [
 				{
 					"name": "Create bridge domain - cfg",
@@ -599,7 +597,6 @@
 		},
 		{
 			"name": "Context",
-			"description": null,
 			"item": [
 				{
 					"name": "List naming contexts - context",
@@ -710,7 +707,6 @@
 		},
 		{
 			"name": "ETH",
-			"description": "Example requests for management of Ethernet type interfaces",
 			"item": [
 				{
 					"name": "Set interface mtu",
@@ -822,11 +818,11 @@
 					},
 					"response": []
 				}
-			]
+			],
+			"description": "Example requests for management of Ethernet type interfaces"
 		},
 		{
 			"name": "GRE-TUNNEL",
-			"description": null,
 			"item": [
 				{
 					"name": "Add gre ifc - cfg",
@@ -904,7 +900,6 @@
 		},
 		{
 			"name": "PBB",
-			"description": null,
 			"item": [
 				{
 					"name": "Enable local0 + configure Pbb",
@@ -1055,7 +1050,6 @@
 		},
 		{
 			"name": "IP",
-			"description": null,
 			"item": [
 				{
 					"name": "Ip Neighbour Get",
@@ -1489,7 +1483,6 @@
 		},
 		{
 			"name": "SPAN",
-			"description": null,
 			"item": [
 				{
 					"name": "Set port mirroring local0 -> GigabiteEthernet0/8/0",
@@ -1608,7 +1601,6 @@
 		},
 		{
 			"name": "TAP",
-			"description": null,
 			"item": [
 				{
 					"name": "Add simple tap ifc -cfg",
@@ -1757,8 +1749,85 @@
 			]
 		},
 		{
+			"name": "TAPV2",
+			"item": [
+				{
+					"name": "Add tapV2 ifc -cfg",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"interface\": [\n        {\n            \"name\": \"tap-v2\",\n            \"description\": \"for testing purposes\",\n            \"type\": \"v3po:tap-v2\",\n            \"tap-v2\" :{\n                \"mac\" : \"00:ff:ff:ff:ff:ff\",\n                \"tx-ring-size\" : 512,\n                \"rx-ring-size\" : 512,\n                \"host-mac\" : \"00:ee:ee:ee:ee:ee\",\n                \"host-interface-name\" : \"vpp-tap-v2\",\n                \"host-bridge\" : \"testBridge\",\n                \"host-ipv4-address\" : \"192.168.20.100/24\",\n                \"host-ipv6-address\" : \"a::100/96\",\n                \"host-ipv4-gateway\" : \"192.168.20.1\",\n                \"host-ipv6-gateway\" : \"a::1\",\n                \"tag\": \"tap-v2_tag\"\n            }\n        }\n    ]\n\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/tap-v2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"tap-v2"
+							]
+						},
+						"description": "When adding Tap to a bridge it is needed that the bridge exists. You can create it with these commands:\n\nsudo brctl addbr testBridge\nsudo brctl stp   testBridge off\nsudo ip link set dev testBridge up"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete tapV2 ifc - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/tap-v2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"tap-v2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "VHOST",
-			"description": null,
 			"item": [
 				{
 					"name": "Add vhost user ifc - cfg",
@@ -1875,7 +1944,6 @@
 		},
 		{
 			"name": "VLAN",
-			"description": null,
 			"item": [
 				{
 					"name": "Add sub interface - cfg",
@@ -2207,7 +2275,6 @@
 		},
 		{
 			"name": "VXLAN-GPE-TUNNEL",
-			"description": null,
 			"item": [
 				{
 					"name": "Add vxlan-gpe - cfg",
@@ -2285,7 +2352,6 @@
 		},
 		{
 			"name": "VXLAN-TUNNEL",
-			"description": null,
 			"item": [
 				{
 					"name": "Add virtual ifc - cfg",
@@ -2363,7 +2429,6 @@
 		},
 		{
 			"name": "AF_PACKET",
-			"description": null,
 			"item": [
 				{
 					"name": "Add af_packet interface",

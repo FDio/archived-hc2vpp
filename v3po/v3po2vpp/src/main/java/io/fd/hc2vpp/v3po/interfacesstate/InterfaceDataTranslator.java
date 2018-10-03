@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.GreTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.Loopback;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.Tap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.TapV2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VhostUser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VxlanGpeTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.v3po.rev181008.VxlanTunnel;
@@ -138,8 +139,12 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
      */
     @Nonnull
     default Class<? extends InterfaceType> getInterfaceType(@Nonnull final String interfaceName) {
-        if (interfaceName.startsWith("tap")) {
+        if (interfaceName.startsWith("tapcli-")) {
             return Tap.class;
+        }
+
+        if (interfaceName.startsWith("tap")) {
+            return TapV2.class;
         }
 
         if (interfaceName.startsWith("vxlan_gpe")) {
