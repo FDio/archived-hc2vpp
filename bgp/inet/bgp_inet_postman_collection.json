@@ -1,13 +1,12 @@
 {
 	"info": {
-		"_postman_id": "4092bf75-52e9-d793-36ab-c78696e33253",
+		"_postman_id": "33515a05-1b90-4460-b444-797c58f68eda",
 		"name": "Hc2vpp BGP RESTCONF calls",
 		"description": "Examples of BGP configration based on \nhttp://docs.opendaylight.org/en/stable-nitrogen/user-guide/bgp-user-guide.html",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"_postman_id": "f3e0f4e3-1faa-43e8-aeb2-3ac1525de40b",
 			"name": "show hc-bgp-instance",
 			"request": {
 				"method": "GET",
@@ -23,7 +22,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+					"raw": ""
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance",
@@ -44,7 +43,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "7407ceb8-f112-4ac0-b40a-c07da58ff698",
 			"name": "add bgp peer",
 			"request": {
 				"method": "PUT",
@@ -60,7 +58,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"neighbor\": {\n  \"neighbor-address\": \"127.0.0.2\",\n  \"config\": {\n    \"peer-type\": \"INTERNAL\"\n  },\n  \"timers\": {\n    \"config\": {\n      \"connect-retry\": 10,\n      \"hold-time\": 90\n    }\n  },\n  \"transport\": {\n    \"config\": {\n      \"remote-port\": 17900,\n      \"passive-mode\": false\n    }\n  },\n  \"afi-safis\": {\n    \"afi-safi\": [\n      {\n        \"afi-safi-name\": \"openconfig-bgp-types:IPV4-UNICAST\",\n        \"receive\": true,\n        \"send-max\": 0\n      }\n    ]\n  }\n}\n}"
+					"raw": "{  \n  \"neighbor\":{  \n    \"neighbor-address\":\"127.0.0.2\",\n    \"config\":{  \n      \"peer-type\":\"INTERNAL\"\n    },\n    \"timers\":{  \n      \"config\":{  \n        \"connect-retry\":10,\n        \"hold-time\":90\n      }\n    },\n    \"transport\":{  \n      \"config\":{  \n        \"remote-port\":17900,\n        \"passive-mode\":false\n      }\n    },\n    \"afi-safis\":{  \n      \"afi-safi\":[  \n        {  \n          \"afi-safi-name\":\"openconfig-bgp-types:IPV4-UNICAST\"\n        }\n      ]\n    }\n  }\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/127.0.0.2",
@@ -89,7 +87,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "99c2a219-4942-43d8-af21-437f9d8ae0c2",
 			"name": "read network instance (config)",
 			"request": {
 				"method": "GET",
@@ -105,7 +102,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+					"raw": ""
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/",
@@ -125,7 +122,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "10da8355-7d52-45f6-8b8e-fb5020f52b88",
 			"name": "show 127.0.0.2 peer state",
 			"request": {
 				"method": "GET",
@@ -141,7 +137,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+					"raw": ""
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F127.0.0.2",
@@ -164,7 +160,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "20661906-559e-46c5-8fa0-afa5b010b004",
 			"name": "add application peer",
 			"request": {
 				"method": "PUT",
@@ -180,10 +175,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"neighbor\": {\n    \"neighbor-address\": \"10.25.1.9\",\n    \"config\": {\n      \"peer-group\": \"application-peers\"\n    },\n    \"afi-safis\": {\n      \"afi-safi\": [\n        {\n          \"afi-safi-name\": \"openconfig-bgp-types:IPV4-UNICAST\",\n          \"receive\": true,\n          \"send-max\": 0\n        }\n      ]\n    }\n  }\n}"
+					"raw": "{\n  \"neighbor\": {\n    \"neighbor-address\": \"127.0.0.1\",\n    \"config\": {\n      \"peer-group\": \"application-peers\"\n    },\n    \"afi-safis\": {\n      \"afi-safi\": [\n        {\n          \"afi-safi-name\": \"openconfig-bgp-types:IPV4-UNICAST\"\n        }\n      ]\n    }\n  }\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/10.25.1.9",
+					"raw": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/127.0.0.1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -202,15 +197,14 @@
 						"bgp",
 						"bgp-openconfig-extensions:neighbors",
 						"neighbor",
-						"10.25.1.9"
+						"127.0.0.1"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"_postman_id": "b33d307d-ff95-4ed5-ab59-22ed0e88e6aa",
-			"name": "show 10.25.1.9 app peer state",
+			"name": "show 127.0.0.1 app peer state",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -225,10 +219,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F10.25.1.9",
+					"raw": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F127.0.0.1",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -241,14 +235,13 @@
 						"rib",
 						"hc-bgp-instance",
 						"peer",
-						"bgp:%2F%2F10.25.1.9"
+						"bgp:%2F%2F127.0.0.1"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"_postman_id": "2c3d280e-a98a-4b98-9204-a775124107bf",
 			"name": "add ipv4unicast route",
 			"request": {
 				"method": "PUT",
@@ -267,7 +260,7 @@
 					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <route-key>10.0.0.11/32</route-key>\n    <path-id>0</path-id>\n    <prefix>10.0.0.11/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>100</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0",
+					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/127.0.0.1/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -277,7 +270,7 @@
 						"restconf",
 						"config",
 						"bgp-rib:application-rib",
-						"10.25.1.9",
+						"127.0.0.1",
 						"tables",
 						"bgp-types:ipv4-address-family",
 						"bgp-types:unicast-subsequent-address-family",
@@ -291,7 +284,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "436ccd51-3548-4d3e-967e-74ffb9a5e601",
 			"name": "show 127.0.0.2 peer's adj-rib-out",
 			"request": {
 				"method": "GET",
@@ -307,7 +299,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>192.0.2.1</neighbor-address>\n    <timers>\n        <config>\n            <hold-time>90</hold-time>\n            <connect-retry>10</connect-retry>\n        </config>\n    </timers>\n    <transport>\n        <config>\n            <remote-port>179</remote-port>\n            <passive-mode>false</passive-mode>\n        </config>\n    </transport>\n    <config>\n        <peer-type>INTERNAL</peer-type>\n    </config>\n</neighbor>"
+					"raw": ""
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/peer/bgp:%2F%2F127.0.0.2/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes",
@@ -335,7 +327,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "bf72955c-8d25-41c0-a34c-25bf909a65e7",
 			"name": "show speeker's Loc-RIB",
 			"request": {
 				"method": "GET",
@@ -351,7 +342,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "<neighbor xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions\">\n    <neighbor-address>10.25.1.9</neighbor-address>\n    <config>\n        <peer-group>application-peers</peer-group>\n    </config>\n</neighbor>"
+					"raw": ""
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/operational/bgp-rib:bgp-rib/rib/hc-bgp-instance/loc-rib",
@@ -373,7 +364,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "2d83d868-e8f6-40dc-aa6e-401a7fa61a36",
 			"name": "add another ipv4unicast route",
 			"request": {
 				"method": "PUT",
@@ -392,7 +382,7 @@
 					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <route-key>10.0.0.12/32</route-key>\n    <path-id>0</path-id>\n    <prefix>10.0.0.12/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>100</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
+					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/127.0.0.1/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -402,7 +392,7 @@
 						"restconf",
 						"config",
 						"bgp-rib:application-rib",
-						"10.25.1.9",
+						"127.0.0.1",
 						"tables",
 						"bgp-types:ipv4-address-family",
 						"bgp-types:unicast-subsequent-address-family",
@@ -416,7 +406,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "9a436548-aa9e-4389-a4a9-1b5cfb89aaa3",
 			"name": "get VPP IPv4 routes",
 			"request": {
 				"method": "GET",
@@ -432,10 +421,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"routing-instance\":\n  {\n    \"name\":\"routing-1\",\n    \"enabled\":\"true\",\n    \"router-id\":\"192.168.2.1\",\n    \"description\":\"Test routing instance\",\n    \"routing-protocols\":{\n      \"routing-protocol\":[\n        {\n          \"name\":\"test-routing-protocol\",\n          \"description\":\"Test routing protocol\",\n          \"enabled\":\"true\",\n          \"type\":\"static\",\n          \"static-routes\":{\n            \"ipv4\":{\n              \"route\":[\n                {\n                  \"id\":1,\n                  \"description\":\"Test static route\",\n                  \"destination-prefix\":\"192.168.2.3/32\",\n                  \"next-hop\":\"192.168.2.8\"\n                }\n              ]\n            }\n          }\n        }  \n      ]\n    }\n  }  \n}"
+					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing-state/routing-instance/vpp-routing-instance/routing-protocols/routing-protocol/learned-protocol-0/static-routes/hc2vpp-ietf-ipv4-unicast-routing:ipv4",
+					"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-routing:routing/control-plane-protocols/control-plane-protocol/hc2vpp-ietf-routing:static/learned-protocol-0/static-routes/ipv4",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -444,21 +433,19 @@
 					"path": [
 						"restconf",
 						"operational",
-						"hc2vpp-ietf-routing:routing-state",
-						"routing-instance",
-						"vpp-routing-instance",
-						"routing-protocols",
-						"routing-protocol",
+						"hc2vpp-ietf-routing:routing",
+						"control-plane-protocols",
+						"control-plane-protocol",
+						"hc2vpp-ietf-routing:static",
 						"learned-protocol-0",
 						"static-routes",
-						"hc2vpp-ietf-ipv4-unicast-routing:ipv4"
+						"ipv4"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"_postman_id": "bb9ae871-9ca1-4456-be14-2d9a1d2ef152",
 			"name": "update second ipv4unicast route",
 			"request": {
 				"method": "PUT",
@@ -477,7 +464,7 @@
 					"raw": "<ipv4-route xmlns=\"urn:opendaylight:params:xml:ns:yang:bgp-inet\">\n    <route-key>10.0.0.12/32</route-key>\n    <path-id>0</path-id>\n    <prefix>10.0.0.12/32</prefix>\n    <attributes>\n        <as-path></as-path>\n        <origin>\n            <value>igp</value>\n        </origin>\n        <local-pref>\n            <pref>102</pref>\n        </local-pref>\n        <ipv4-next-hop>\n            <global>10.11.1.1</global>\n        </ipv4-next-hop>\n    </attributes>\n</ipv4-route>"
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
+					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/127.0.0.1/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -487,7 +474,7 @@
 						"restconf",
 						"config",
 						"bgp-rib:application-rib",
-						"10.25.1.9",
+						"127.0.0.1",
 						"tables",
 						"bgp-types:ipv4-address-family",
 						"bgp-types:unicast-subsequent-address-family",
@@ -501,7 +488,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "7acec3bd-ff58-46ca-b3d4-2d5c91a507cc",
 			"name": "remove second ipv4unicast route",
 			"request": {
 				"method": "DELETE",
@@ -520,7 +506,7 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
+					"raw": "http://localhost:8183/restconf/config/bgp-rib:application-rib/127.0.0.1/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.12%2F32/0",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -530,7 +516,7 @@
 						"restconf",
 						"config",
 						"bgp-rib:application-rib",
-						"10.25.1.9",
+						"127.0.0.1",
 						"tables",
 						"bgp-types:ipv4-address-family",
 						"bgp-types:unicast-subsequent-address-family",
@@ -544,7 +530,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "fa920481-50f0-4754-8260-929bbe1e86ae",
 			"name": "update bgp peer",
 			"request": {
 				"method": "PUT",
@@ -560,7 +545,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"neighbor\": {\n  \"neighbor-address\": \"127.0.0.2\",\n  \"config\": {\n    \"peer-type\": \"INTERNAL\"\n  },\n  \"timers\": {\n    \"config\": {\n      \"connect-retry\": 10,\n      \"hold-time\": 91\n    }\n  },\n  \"transport\": {\n    \"config\": {\n      \"remote-port\": 17900,\n      \"passive-mode\": false\n    }\n  },\n  \"afi-safis\": {\n    \"afi-safi\": [\n      {\n        \"afi-safi-name\": \"openconfig-bgp-types:IPV4-UNICAST\",\n        \"receive\": true,\n        \"send-max\": 0\n      }\n    ]\n  }\n}\n}"
+					"raw": "{\n  \"neighbor\": {\n    \"neighbor-address\": \"127.0.0.2\",\n    \"config\": {\n      \"peer-type\": \"INTERNAL\"\n  },\n  \"timers\": {\n    \"config\": {\n      \"connect-retry\": 10,\n      \"hold-time\": 91\n    }\n  },\n  \"transport\": {\n    \"config\": {\n      \"remote-port\": 17900,\n      \"passive-mode\": false\n    }\n  },\n  \"afi-safis\": {\n    \"afi-safi\": [\n      {\n        \"afi-safi-name\": \"openconfig-bgp-types:IPV4-UNICAST\"\n      }\n    ]\n  }\n}\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8183/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/hc-bgp-instance/bgp/bgp-openconfig-extensions:neighbors/neighbor/127.0.0.2",
@@ -589,7 +574,6 @@
 			"response": []
 		},
 		{
-			"_postman_id": "dfd36e6b-95bc-4b17-84fd-a72672e1e075",
 			"name": "delete bgp peer",
 			"request": {
 				"method": "DELETE",
