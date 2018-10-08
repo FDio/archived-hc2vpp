@@ -1,18 +1,15 @@
 {
 	"info": {
-		"_postman_id": "a9a935b5-9481-e4f7-44fb-17d13ef726f9",
+		"_postman_id": "6db7950e-08eb-49c2-849d-a9b810b100ca",
 		"name": "Honeycomb RESTCONF calls for NSH_SFC",
 		"description": "Common mgmt operations on VPP using Honeycomb REST interface",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"_postman_id": "f148a03d-b523-4021-b29a-ef11e838b005",
 			"name": "NSH_Egress_Classifier",
-			"description": "",
 			"item": [
 				{
-					"_postman_id": "11f8adf3-f1a7-4627-9cd4-40c7d0107286",
 					"name": "1_Add vxlan-gpe from SFF2 - cfg",
 					"request": {
 						"method": "PUT",
@@ -49,7 +46,42 @@
 					"response": []
 				},
 				{
-					"_postman_id": "e116a3af-1e53-4d80-953d-0729f8210a28",
+					"name": "1_Get vxlan-gpe - cfg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/vxlanGpeTun6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"vxlanGpeTun6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "2_Add nsh-entry from SFF2 - cfg",
 					"request": {
 						"method": "PUT",
@@ -87,7 +119,43 @@
 					"response": []
 				},
 				{
-					"_postman_id": "c772a561-eec4-459a-93de-69d3defb9d69",
+					"name": "2_Get nsh-entry - cfg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-nsh:vpp-nsh",
+								"nsh-entries",
+								"nsh-entry",
+								"nshEntry6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "3_Add nsh-map from SFF2 to Egress - cfg",
 					"request": {
 						"method": "PUT",
@@ -125,10 +193,9 @@
 					"response": []
 				},
 				{
-					"_postman_id": "2253230d-165d-415e-ab77-1f9f89d5461d",
-					"name": "1_Delete nsh-map from SFF2 to Egress - cfg",
+					"name": "3_Get nsh-map - cfg",
 					"request": {
-						"method": "DELETE",
+						"method": "GET",
 						"header": [
 							{
 								"key": "Authorization",
@@ -141,7 +208,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap6\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"253\",\r\n            \"mapped-nsp\": \"185\",\r\n            \"mapped-nsi\": \"253\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap6",
@@ -163,7 +230,43 @@
 					"response": []
 				},
 				{
-					"_postman_id": "38161a1f-bc24-4774-91c7-2da84d5e3423",
+					"name": "1_Delete nsh-map from SFF2 to Egress - cfg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-nsh:vpp-nsh",
+								"nsh-maps",
+								"nsh-map",
+								"nshMap6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "2_Delete nsh-entry from SFF2 - cfg",
 					"request": {
 						"method": "DELETE",
@@ -179,7 +282,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-entry\": [\r\n        {\r\n            \"name\": \"nshEntry6\",\r\n            \"version\": \"0\",\r\n            \"length\": \"6\",\r\n            \"md-type\": \"md-type1\",\r\n            \"next-protocol\": \"ethernet\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"253\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry6",
@@ -201,7 +304,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0f76e2d8-13dd-4e62-86aa-587639f3f25c",
 					"name": "3_Delete vxlan-gpe from SFF2 - cfg",
 					"request": {
 						"method": "DELETE",
@@ -240,12 +342,9 @@
 			]
 		},
 		{
-			"_postman_id": "d607bb1c-f786-48df-ab83-76d7a67651dc",
 			"name": "NSH_Ingress_Classifier",
-			"description": "",
 			"item": [
 				{
-					"_postman_id": "cf42f487-81ba-4144-917a-813fa66c1d84",
 					"name": "1_Add classify table1 - cfg",
 					"request": {
 						"method": "PUT",
@@ -283,7 +382,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "104d7192-8acd-4a2a-96d9-ca7bea73cbf3",
 					"name": "2_Add classify session - cfg",
 					"request": {
 						"method": "PUT",
@@ -323,7 +421,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "94160375-c879-49d3-a0d5-8e0c1bc570e1",
 					"name": "3_Create bridge domain - cfg",
 					"request": {
 						"method": "PUT",
@@ -342,7 +439,7 @@
 							"raw": "{\r\n    \"bridge-domain\": [\r\n        {\r\n            \"name\": \"l2_classifier_bd\",\r\n            \"flood\": \"true\",\r\n            \"forward\": \"false\",\r\n            \"learn\": \"false\",\r\n            \"unknown-unicast-flood\": \"false\",\r\n            \"arp-termination\": \"false\"\r\n        }\r\n    ]\r\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/config/v3po:vpp/bridge-domains/bridge-domain/l2_classifier_bd",
+							"raw": "http://localhost:8183/restconf/config/v3po:bridge-domains/bridge-domain/l2_classifier_bd",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -351,8 +448,7 @@
 							"path": [
 								"restconf",
 								"config",
-								"v3po:vpp",
-								"bridge-domains",
+								"v3po:bridge-domains",
 								"bridge-domain",
 								"l2_classifier_bd"
 							]
@@ -362,7 +458,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "fe67be3b-5f4f-4889-8945-d7b25173a0fc",
 					"name": "4_Add interface to bridge domain - cfg",
 					"request": {
 						"method": "PUT",
@@ -381,7 +476,7 @@
 							"raw": "{\r\n    \"l2\": {\r\n            \"bridge-domain\": \"l2_classifier_bd\",\r\n            \"split-horizon-group\": 1,\r\n            \"bridged-virtual-interface\": \"false\"\r\n          }\r\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/TenGigabitEthernet5%2F0%2F0/v3po:l2",
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/v3po:l2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -392,7 +487,7 @@
 								"config",
 								"ietf-interfaces:interfaces",
 								"interface",
-								"TenGigabitEthernet5%2F0%2F0",
+								"GigabitEthernet0%2F9%2F0",
 								"v3po:l2"
 							]
 						},
@@ -401,7 +496,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "42984d8e-7adc-4120-8794-d312dc00cc7c",
 					"name": "5_Enable Ipv4 ACL on interface - cfg",
 					"request": {
 						"method": "PUT",
@@ -420,7 +514,7 @@
 							"raw": "{\n    \"ingress\": {\n      \"ip4-acl\": {\n        \"classify-table\": \"table1\"\n      }\n    }\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/TenGigabitEthernet5%2F0%2F0/v3po:acl/ingress",
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-interface-acl:acl/ingress",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -431,8 +525,8 @@
 								"config",
 								"ietf-interfaces:interfaces",
 								"interface",
-								"TenGigabitEthernet5%2F0%2F0",
-								"v3po:acl",
+								"GigabitEthernet0%2F9%2F0",
+								"vpp-interface-acl:acl",
 								"ingress"
 							]
 						},
@@ -441,7 +535,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "ea995b78-3fa2-45e2-961f-2a2379054360",
 					"name": "6_Add vxlan-gpe from Classifier to SFF - cfg",
 					"request": {
 						"method": "PUT",
@@ -478,7 +571,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "5214e0b9-c05a-46d3-b0d5-737da1827821",
 					"name": "7_Add nsh-entry from Classifier to SFF - cfg",
 					"request": {
 						"method": "PUT",
@@ -516,7 +608,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "0d63e012-ba1e-425a-82aa-9826db072a8a",
 					"name": "8_Add nsh-map from Classifier to SFF - cfg",
 					"request": {
 						"method": "PUT",
@@ -554,7 +645,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "3d94f238-f88f-4b94-b37a-c02b1ec3874d",
 					"name": "1_Delete nsh-map from SF to SFF2 - cfg",
 					"request": {
 						"method": "DELETE",
@@ -570,7 +660,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap7\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"255\",\r\n            \"mapped-nsp\": \"185\",\r\n            \"mapped-nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap7",
@@ -592,7 +682,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "3f253302-8c73-4a63-81ca-7ad88835c8c8",
 					"name": "2_Delete nsh-entry from SF- cfg",
 					"request": {
 						"method": "DELETE",
@@ -608,7 +697,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-entry\": [\r\n        {\r\n            \"name\": \"nshEntry7\",\r\n            \"version\": \"0\",\r\n            \"length\": \"6\",\r\n            \"md-type\": \"md-type1\",\r\n            \"next-protocol\": \"ethernet\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry7",
@@ -630,7 +719,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "143080d0-b9f6-4ac8-8cb9-6597ad821a64",
 					"name": "3_Delete vxlan-gpe to SFF2 - cfg",
 					"request": {
 						"method": "DELETE",
@@ -667,7 +755,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "53bd2b44-61fe-48f8-aa9c-5ae37956f9c5",
 					"name": "4_Disable Ipv4 ACL on interface - cfg",
 					"request": {
 						"method": "DELETE",
@@ -683,10 +770,10 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"ingress\": {\n      \"ip4-acl\": {\n        \"classify-table\": \"table1\"\n      }\n    }\n}"
+							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/TenGigabitEthernet5%2F0%2F0/v3po:acl/ingress",
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/vpp-interface-acl:acl/ingress",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -697,8 +784,8 @@
 								"config",
 								"ietf-interfaces:interfaces",
 								"interface",
-								"TenGigabitEthernet5%2F0%2F0",
-								"v3po:acl",
+								"GigabitEthernet0%2F9%2F0",
+								"vpp-interface-acl:acl",
 								"ingress"
 							]
 						},
@@ -707,7 +794,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "8f2a164b-b1c7-4d02-a808-fc9e3ace630a",
 					"name": "5_Remove interface from bridge domain",
 					"request": {
 						"method": "DELETE",
@@ -726,7 +812,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/TenGigabitEthernet5%2F0%2F0/v3po:l2",
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/GigabitEthernet0%2F9%2F0/v3po:l2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -737,7 +823,7 @@
 								"config",
 								"ietf-interfaces:interfaces",
 								"interface",
-								"TenGigabitEthernet5%2F0%2F0",
+								"GigabitEthernet0%2F9%2F0",
 								"v3po:l2"
 							]
 						},
@@ -746,7 +832,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "5b787fdf-6382-48dc-9811-99c368ed4892",
 					"name": "6_Remove bridge domain - cfg",
 					"request": {
 						"method": "DELETE",
@@ -765,7 +850,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/config/v3po:vpp/bridge-domains/bridge-domain/l2_classifier_bd",
+							"raw": "http://localhost:8183/restconf/config/v3po:bridge-domains/bridge-domain/l2_classifier_bd",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -774,8 +859,7 @@
 							"path": [
 								"restconf",
 								"config",
-								"v3po:vpp",
-								"bridge-domains",
+								"v3po:bridge-domains",
 								"bridge-domain",
 								"l2_classifier_bd"
 							]
@@ -785,7 +869,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "4ed80356-38a3-4a1a-9587-25ed0017d732",
 					"name": "7_Remove classify session - cfg",
 					"request": {
 						"method": "DELETE",
@@ -825,7 +908,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "d1401afd-b70b-42b0-a6db-502d5034ff77",
 					"name": "8_Remove classify table1 - cfg",
 					"request": {
 						"method": "DELETE",
@@ -865,12 +947,9 @@
 			]
 		},
 		{
-			"_postman_id": "48cab136-e8bc-4ead-8bd8-74648133b73d",
 			"name": "NSH_Proxy",
-			"description": "",
 			"item": [
 				{
-					"_postman_id": "2d426a91-b2b3-47a9-a2c7-680b8d7c3773",
 					"name": "1_Add vxlan-gpe from SFF - cfg",
 					"request": {
 						"method": "PUT",
@@ -907,7 +986,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "51a993db-254c-45f6-9583-73a00ec8d14a",
 					"name": "2_Add vxlan to SF - cfg",
 					"request": {
 						"method": "PUT",
@@ -944,7 +1022,41 @@
 					"response": []
 				},
 				{
-					"_postman_id": "72f81bfd-0761-4904-93c9-43ca8099e5b6",
+					"name": "2_Get vxlans",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "3_Add nsh-entry from SFF - cfg",
 					"request": {
 						"method": "PUT",
@@ -982,7 +1094,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "48b9e015-a5ce-4697-84c2-4567b64762c2",
 					"name": "4_Add nsh-entry to SFF - cfg",
 					"request": {
 						"method": "PUT",
@@ -1020,7 +1131,42 @@
 					"response": []
 				},
 				{
-					"_postman_id": "bfbc6fe5-a625-4ab2-bd9a-baf4b9e79a2b",
+					"name": "4_Get nsh-entries",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-nsh:vpp-nsh",
+								"nsh-entries",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "5_Add nsh-map from SFF to SF - cfg ",
 					"request": {
 						"method": "PUT",
@@ -1058,7 +1204,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "9b5a7e35-ec09-4dc4-b99b-8fa7f8f2ab2f",
 					"name": "6_Add nsh-map from SF to SFF - cfg",
 					"request": {
 						"method": "PUT",
@@ -1096,7 +1241,42 @@
 					"response": []
 				},
 				{
-					"_postman_id": "47f6b0c3-f519-447c-99e8-88066457af23",
+					"name": "6_Get nsh-maps",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"vpp-nsh:vpp-nsh",
+								"nsh-maps"
+							]
+						},
+						"description": "nshMap8 was not created"
+					},
+					"response": []
+				},
+				{
 					"name": "1_Delete nsh-map from SF to SFF - cfg",
 					"request": {
 						"method": "DELETE",
@@ -1112,7 +1292,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap5\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"254\",\r\n            \"mapped-nsp\": \"185\",\r\n            \"mapped-nsi\": \"254\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap5",
@@ -1134,7 +1314,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "f165f910-c38f-41bb-a954-283ec956e6ce",
 					"name": "2_Delete nsh-map from SFF to SF - cfg",
 					"request": {
 						"method": "DELETE",
@@ -1150,7 +1329,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap4\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"255\",\r\n            \"mapped-nsp\": \"185\",\r\n            \"mapped-nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap4",
@@ -1172,7 +1351,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "d6863d8b-8968-4423-8f2e-34988fea8135",
 					"name": "3_Delete nsh-entry to SFF - cfg",
 					"request": {
 						"method": "DELETE",
@@ -1188,7 +1366,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-entry\": [\r\n        {\r\n            \"name\": \"nshEntry5\",\r\n            \"version\": \"0\",\r\n            \"length\": \"6\",\r\n            \"md-type\": \"md-type1\",\r\n            \"next-protocol\": \"ethernet\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"254\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry5",
@@ -1210,7 +1388,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "d0577b9a-2a60-4a4d-8af8-54f9e71018ff",
 					"name": "4_Delete nsh-entry from SFF - cfg",
 					"request": {
 						"method": "DELETE",
@@ -1226,7 +1403,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-entry\": [\r\n        {\r\n            \"name\": \"nshEntry4\",\r\n            \"version\": \"0\",\r\n            \"length\": \"6\",\r\n            \"md-type\": \"md-type1\",\r\n            \"next-protocol\": \"ethernet\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry4",
@@ -1248,7 +1425,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "4beb8c9d-409c-409b-86af-dc1c33cdcbde",
 					"name": "5_Delete vxlan to SF - cfg",
 					"request": {
 						"method": "DELETE",
@@ -1285,7 +1461,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "d7c95a73-1dad-4e64-98ff-bd6c1da247ef",
 					"name": "6_Delete vxlan-gpe from SFF - cfg",
 					"request": {
 						"method": "DELETE",
@@ -1324,13 +1499,154 @@
 			]
 		},
 		{
-			"_postman_id": "d437b704-19e1-491a-94e5-c810296ca71e",
 			"name": "NSH_SFC Basic Test",
-			"description": "",
 			"item": [
 				{
-					"_postman_id": "209daf36-e8df-40e2-8c7d-1d244cb96232",
-					"name": "Add nsh-entry - cfg",
+					"name": "1_Add vxlan-gpeTun3",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanGpeTun3\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-gpe-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"ipv4-vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan-gpe\" : {\r\n                    \"local\" : \"192.168.50.77\",\r\n                    \"remote\" : \"192.168.50.73\",\r\n                    \"vni\" : \"9\",\r\n                    \"next-protocol\" : \"nsh\",\r\n                    \"encap-vrf-id\" : \"0\",\r\n                    \"decap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/vxlanGpeTun3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"vxlanGpeTun3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1_GET vxlan-gpeTun3 Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/vxlanGpeTun3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"vxlanGpeTun3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1_GET vxlan-gpeTun3 Operational",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/vxlanGpeTun3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"operational",
+								"ietf-interfaces:interfaces-state",
+								"interface",
+								"vxlanGpeTun3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1_Delete vxlan-gpeTun3",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/vxlanGpeTun3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								"interface",
+								"vxlanGpeTun3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2_Add nsh-entry - cfg",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -1367,8 +1683,7 @@
 					"response": []
 				},
 				{
-					"_postman_id": "38935d2e-37f1-436f-bbf0-0507dd8d9bc6",
-					"name": "Get nsh-entry - cfg",
+					"name": "2_Get nsh-entry - oper",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -1383,45 +1698,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"nsh-entry\": [\r\n            {\r\n                \"name\": \"nshEntry5\",\r\n                \"description\": \"for testing nshEntry\",\r\n                \"version\": \"0\",\r\n                \"length\": \"6\",\r\n                \"next-protocol\": \"Ethernet\",\r\n                \"md-type\": \"MdType1\",\r\n                \"nsp\": \"185\",\r\n                \"nsi\": \"255\"             \r\n            }\r\n        ]\r\n    \r\n}"
-						},
-						"url": {
-							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry6",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8183",
-							"path": [
-								"restconf",
-								"config",
-								"vpp-nsh:vpp-nsh",
-								"nsh-entries",
-								"nsh-entry",
-								"nshEntry6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"_postman_id": "e9ec3136-e562-43aa-ada5-dfad3fe1680a",
-					"name": "Get nsh-entry - oper",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Basic YWRtaW46YWRtaW4="
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"nsh-entry\": [\r\n            {\r\n                \"name\": \"nshEntry5\",\r\n                \"description\": \"for testing nshEntry\",\r\n                \"version\": \"0\",\r\n                \"length\": \"6\",\r\n                \"next-protocol\": \"Ethernet\",\r\n                \"md-type\": \"MdType1\",\r\n                \"nsp\": \"185\",\r\n                \"nsi\": \"255\"             \r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/vpp-nsh:vpp-nsh-state/nsh-entries/",
@@ -1442,8 +1719,7 @@
 					"response": []
 				},
 				{
-					"_postman_id": "6e1864f9-edf0-4370-963e-2d48fd324d5d",
-					"name": "Delete nsh-entry - cfg",
+					"name": "3_Delete nsh-entry - cfg",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -1458,7 +1734,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-entry\": [\r\n        {\r\n            \"name\": \"nshEntry3\",\r\n            \"version\": \"0\",\r\n            \"length\": \"6\",\r\n            \"md-type\": \"md-type1\",\r\n            \"next-protocol\": \"ethernet\",\r\n            \"nsp\": \"184\",\r\n            \"nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry3",
@@ -1480,8 +1756,7 @@
 					"response": []
 				},
 				{
-					"_postman_id": "a0be1af6-b38c-406b-9590-157d96c12848",
-					"name": "Add nsh-map - cfg",
+					"name": "4_Add nsh-map - cfg",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -1499,7 +1774,7 @@
 							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap5\",\r\n            \"nsp\": \"184\",\r\n            \"nsi\": \"255\",\r\n            \"mapped-nsp\": \"183\",\r\n            \"mapped-nsi\": \"254\",\r\n            \"nsh-action\": \"push\",\r\n            \"encap-type\": \"vxlan-gpe\",\r\n            \"encap-if-name\": \"vxlanGpeTun3\"\r\n        }\r\n    ]\r\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap6",
+							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap5",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1511,53 +1786,15 @@
 								"vpp-nsh:vpp-nsh",
 								"nsh-maps",
 								"nsh-map",
-								"nshMap6"
+								"nshMap5"
 							]
-						}
-					},
-					"response": []
-				},
-				{
-					"_postman_id": "59dcc79d-0872-4b51-9fe5-ce85b134d400",
-					"name": "Get nsh-map - cfg",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Basic YWRtaW46YWRtaW4="
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"nsh-entry\": [\r\n            {\r\n                \"name\": \"nshEntry5\",\r\n                \"description\": \"for testing nshEntry\",\r\n                \"version\": \"0\",\r\n                \"length\": \"6\",\r\n                \"next-protocol\": \"Ethernet\",\r\n                \"md-type\": \"MdType1\",\r\n                \"nsp\": \"185\",\r\n                \"nsi\": \"255\"             \r\n            }\r\n        ]\r\n    \r\n}"
 						},
-						"url": {
-							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap6",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8183",
-							"path": [
-								"restconf",
-								"config",
-								"vpp-nsh:vpp-nsh",
-								"nsh-maps",
-								"nsh-map",
-								"nshMap6"
-							]
-						}
+						"description": "Precondition: VXLAN-GPE-TUNNEL Basic Test.Add vxlan-gpe-cfg"
 					},
 					"response": []
 				},
 				{
-					"_postman_id": "2deb0e4c-2d13-4e82-bc01-4b81f122e741",
-					"name": "Get nsh-map - oper",
+					"name": "4_Get nsh-map - oper",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -1572,7 +1809,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"nsh-entry\": [\r\n            {\r\n                \"name\": \"nshEntry5\",\r\n                \"description\": \"for testing nshEntry\",\r\n                \"version\": \"0\",\r\n                \"length\": \"6\",\r\n                \"next-protocol\": \"Ethernet\",\r\n                \"md-type\": \"MdType1\",\r\n                \"nsp\": \"185\",\r\n                \"nsi\": \"255\"             \r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/vpp-nsh:vpp-nsh-state/nsh-maps/",
@@ -1593,8 +1830,7 @@
 					"response": []
 				},
 				{
-					"_postman_id": "1b7aa2b6-2bba-4656-bd5a-2c484fa568ac",
-					"name": "Delete nsh-map - cfg",
+					"name": "5_Delete nsh-map - cfg",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -1609,7 +1845,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap5\",\r\n            \"nsp\": \"184\",\r\n            \"nsi\": \"255\",\r\n            \"mapped-nsp\": \"183\",\r\n            \"mapped-nsi\": \"254\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap5",
@@ -1631,7 +1867,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "3a6a0f9d-845d-42e1-b686-876a62edcff8",
 					"name": "Get nsh-map-for-proxy - cfg",
 					"request": {
 						"method": "GET",
@@ -1647,7 +1882,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"nsh-entry\": [\r\n            {\r\n                \"name\": \"nshEntry5\",\r\n                \"description\": \"for testing nshEntry\",\r\n                \"version\": \"0\",\r\n                \"length\": \"6\",\r\n                \"next-protocol\": \"Ethernet\",\r\n                \"md-type\": \"MdType1\",\r\n                \"nsp\": \"185\",\r\n                \"nsi\": \"255\"             \r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap8",
@@ -1664,13 +1899,13 @@
 								"nsh-map",
 								"nshMap8"
 							]
-						}
+						},
+						"description": "nshMap8 was not created"
 					},
 					"response": []
 				},
 				{
-					"_postman_id": "2d6b3d64-48c6-4678-8cdc-0f6df8e2dd21",
-					"name": "Get nsh-map-for-proxy - oper",
+					"name": "6_Get nsh-map-for-proxy - oper",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -1685,7 +1920,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"nsh-entry\": [\r\n            {\r\n                \"name\": \"nshEntry5\",\r\n                \"description\": \"for testing nshEntry\",\r\n                \"version\": \"0\",\r\n                \"length\": \"6\",\r\n                \"next-protocol\": \"Ethernet\",\r\n                \"md-type\": \"MdType1\",\r\n                \"nsp\": \"185\",\r\n                \"nsi\": \"255\"             \r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/vpp-nsh:vpp-nsh-state/nsh-maps/",
@@ -1706,7 +1941,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "dc885c86-47d1-4072-9769-aa41d531dd01",
 					"name": "Delete nsh-map-for-proxy - cfg",
 					"request": {
 						"method": "DELETE",
@@ -1722,7 +1956,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap8\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"255\",\r\n            \"mapped-nsp\": \"185\",\r\n            \"mapped-nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap8",
@@ -1739,13 +1973,13 @@
 								"nsh-map",
 								"nshMap8"
 							]
-						}
+						},
+						"description": "nshMap8 was not created"
 					},
 					"response": []
 				},
 				{
-					"_postman_id": "333de667-07d6-4cfb-a0ee-f10984d97640",
-					"name": "Add nsh-entry-for-md2 - cfg",
+					"name": "7_Add nsh-entry-for-md2 - cfg",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -1782,8 +2016,7 @@
 					"response": []
 				},
 				{
-					"_postman_id": "a7de009f-3ee4-42e4-9207-2b10e6db77ea",
-					"name": "Get nsh-entry-for-md2 - cfg",
+					"name": "8_Get nsh-entry-for-md2 - cfg",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -1798,7 +2031,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"nsh-entry\": [\r\n            {\r\n                \"name\": \"nshEntry5\",\r\n                \"description\": \"for testing nshEntry\",\r\n                \"version\": \"0\",\r\n                \"length\": \"6\",\r\n                \"next-protocol\": \"Ethernet\",\r\n                \"md-type\": \"MdType1\",\r\n                \"nsp\": \"185\",\r\n                \"nsi\": \"255\"             \r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry2",
@@ -1820,8 +2053,7 @@
 					"response": []
 				},
 				{
-					"_postman_id": "378141e3-6dfc-4513-a857-d2326324ff42",
-					"name": "Get nsh-entry-for-md2 - oper",
+					"name": "8_Get nsh-entry-for-md2 - oper",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -1836,7 +2068,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"nsh-entry\": [\r\n            {\r\n                \"name\": \"nshEntry5\",\r\n                \"description\": \"for testing nshEntry\",\r\n                \"version\": \"0\",\r\n                \"length\": \"6\",\r\n                \"next-protocol\": \"Ethernet\",\r\n                \"md-type\": \"MdType1\",\r\n                \"nsp\": \"185\",\r\n                \"nsi\": \"255\"             \r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/vpp-nsh:vpp-nsh-state/nsh-entries/",
@@ -1857,8 +2089,7 @@
 					"response": []
 				},
 				{
-					"_postman_id": "03cd675e-5ca4-4513-a659-0244bfad6a9f",
-					"name": "Delete nsh-entry-for-md2 - cfg",
+					"name": "9_Delete nsh-entry-for-md2 - cfg",
 					"request": {
 						"method": "DELETE",
 						"header": [
@@ -1873,7 +2104,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-entry\": [\r\n        {\r\n            \"name\": \"nshEntry2\",\r\n            \"version\": \"0\",\r\n            \"length\": \"12\",\r\n            \"md-type\": \"md-type2\",\r\n            \"next-protocol\": \"ethernet\",\r\n            \"nsp\": \"182\",\r\n            \"nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry2",
@@ -1897,12 +2128,9 @@
 			]
 		},
 		{
-			"_postman_id": "9007e698-d4ae-4f33-bc88-e32b7c8e2ea3",
 			"name": "NSH_SFF1",
-			"description": "",
 			"item": [
 				{
-					"_postman_id": "a644ae32-1cfe-44a7-99d5-89d7855aac9b",
 					"name": "1_Add vxlan-gpe from Classifier - cfg",
 					"request": {
 						"method": "PUT",
@@ -1939,7 +2167,41 @@
 					"response": []
 				},
 				{
-					"_postman_id": "e0049b34-bc86-4629-8d35-c9338f3e0722",
+					"name": "Get vxlan-gpe - cfg",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46YWRtaW4="
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8183",
+							"path": [
+								"restconf",
+								"config",
+								"ietf-interfaces:interfaces",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "2_Add vxlan-gpe to SF or Proxy - cfg",
 					"request": {
 						"method": "PUT",
@@ -1976,7 +2238,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "9242b859-bd10-486b-9532-0f02b0d03763",
 					"name": "3_Add vxlan-gpe to SFF2 - cfg",
 					"request": {
 						"method": "PUT",
@@ -2013,7 +2274,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "fc4b5148-92a8-4629-925e-1ca3feafcbee",
 					"name": "4_Add nsh-entry from Classifier - cfg",
 					"request": {
 						"method": "PUT",
@@ -2051,7 +2311,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "5c21f59e-7596-445e-b97e-22fec906336c",
 					"name": "5_Add nsh-entry from SF or Proxy - cfg",
 					"request": {
 						"method": "PUT",
@@ -2089,7 +2348,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "bc048fb0-b05a-453f-94da-e0cb9b9d2758",
 					"name": "6_Add nsh-map from Classifier to SF - cfg",
 					"request": {
 						"method": "PUT",
@@ -2127,7 +2385,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "a8bc5662-44ba-4a3b-97c6-365d52dc51d9",
 					"name": "7_Add nsh-map from SF to SFF2 - cfg",
 					"request": {
 						"method": "PUT",
@@ -2165,7 +2422,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "309ac505-9a0d-4799-8a5c-a58055eacb63",
 					"name": "1_Delete nsh-map from SF to SFF2 - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2181,7 +2437,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap2\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"254\",\r\n            \"mapped-nsp\": \"185\",\r\n            \"mapped-nsi\": \"254\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap2",
@@ -2203,7 +2459,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "8d91e795-7fa1-48e3-ba29-a4bddb3fe61d",
 					"name": "2_Delete nsh-map from Classifier to SF - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2219,7 +2474,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-map\": [\r\n        {\r\n            \"name\": \"nshMap1\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"255\",\r\n            \"mapped-nsp\": \"185\",\r\n            \"mapped-nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-maps/nsh-map/nshMap1",
@@ -2241,7 +2496,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "b3ac194e-3747-4773-ba9f-8c7be38a36c3",
 					"name": "3_Delete nsh-entry from SF- cfg",
 					"request": {
 						"method": "DELETE",
@@ -2257,7 +2511,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-entry\": [\r\n        {\r\n            \"name\": \"nshEntry2\",\r\n            \"version\": \"0\",\r\n            \"length\": \"6\",\r\n            \"md-type\": \"md-type1\",\r\n            \"next-protocol\": \"ethernet\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"254\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry2",
@@ -2279,7 +2533,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "7e42095b-cb35-4525-9058-2e5a325cfd6c",
 					"name": "4_Delete nsh-entry from Classifier- cfg",
 					"request": {
 						"method": "DELETE",
@@ -2295,7 +2548,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nsh-entry\": [\r\n        {\r\n            \"name\": \"nshEntry1\",\r\n            \"version\": \"0\",\r\n            \"length\": \"6\",\r\n            \"md-type\": \"md-type1\",\r\n            \"next-protocol\": \"ethernet\",\r\n            \"nsp\": \"185\",\r\n            \"nsi\": \"255\"             \r\n        }\r\n    ]\r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/vpp-nsh:vpp-nsh/nsh-entries/nsh-entry/nshEntry1",
@@ -2317,7 +2570,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "e325791c-b117-4fa7-b82f-a5772b737f76",
 					"name": "5_Delete vxlan-gpe to SFF2 - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2354,7 +2606,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "cea24665-90ca-46b7-84dc-77ccb3b606a1",
 					"name": "6_Delete vxlan-gpe to SF or Proxy - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2391,7 +2642,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "f66c32c9-e288-450c-8087-ce2a79e18bef",
 					"name": "7_Delete vxlan-gpe from Classifier - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2430,12 +2680,9 @@
 			]
 		},
 		{
-			"_postman_id": "52511e11-7192-4511-9599-cf8f945304c5",
 			"name": "VXLAN-GPE-TUNNEL Basic Test",
-			"description": "",
 			"item": [
 				{
-					"_postman_id": "2a7a29a3-1aec-48e8-95a0-ddbd0e2b0152",
 					"name": "Add vxlan-gpe - cfg",
 					"request": {
 						"method": "PUT",
@@ -2472,7 +2719,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "bececff3-0409-40b3-9168-5edd52278753",
 					"name": "Get vxlan-gpe - cfg",
 					"request": {
 						"method": "GET",
@@ -2488,7 +2734,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanGpeTun3\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-gpe-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan-gpe\" : {\r\n                    \"local\" : \"192.168.50.76\",\r\n                    \"remote\" : \"192.168.50.71\",\r\n                    \"vni\" : \"9\",\r\n                    \"next-protocol\" : \"ethernet\",\r\n                    \"encap-vrf-id\" : \"0\",\r\n                    \"decap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/vxlanGpeTun3",
@@ -2509,7 +2755,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "48847e8b-ce14-48a8-b50d-27638c5b741f",
 					"name": "Get vxlan-gpe - oper",
 					"request": {
 						"method": "GET",
@@ -2525,7 +2770,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanGpeTun3\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-gpe-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan-gpe\" : {\r\n                    \"local\" : \"192.168.50.76\",\r\n                    \"remote\" : \"192.168.50.71\",\r\n                    \"vni\" : \"9\",\r\n                    \"next-protocol\" : \"ethernet\",\r\n                    \"encap-vrf-id\" : \"0\",\r\n                    \"decap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/vxlanGpeTun3",
@@ -2546,7 +2791,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "cfad207d-48b0-4e7b-98a8-64c1a29bb700",
 					"name": "Delete vxlan-gpe - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2585,12 +2829,9 @@
 			]
 		},
 		{
-			"_postman_id": "372eab23-a88d-44d9-8e69-e9b4d5722ba2",
 			"name": "VXLAN-TUNNEL  Basic Test",
-			"description": "",
 			"item": [
 				{
-					"_postman_id": "0e46f0e8-ec35-4fed-a413-633f4a526b97",
 					"name": "Add virtual ifc - cfg",
 					"request": {
 						"method": "PUT",
@@ -2627,7 +2868,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "adb1d5ed-a856-4903-bf9a-88defb35798f",
 					"name": "Get virtual ifc - cfg",
 					"request": {
 						"method": "GET",
@@ -2643,7 +2883,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanGpeTun3\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-gpe-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan-gpe\" : {\r\n                    \"local\" : \"192.168.50.76\",\r\n                    \"remote\" : \"192.168.50.71\",\r\n                    \"vni\" : \"9\",\r\n                    \"next-protocol\" : \"ethernet\",\r\n                    \"encap-vrf-id\" : \"0\",\r\n                    \"decap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/config/ietf-interfaces:interfaces/interface/vxlanTun1",
@@ -2664,7 +2904,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "b2e22cc7-f89f-43b8-b571-fc695ae8ac69",
 					"name": "Get virtual ifc - oper",
 					"request": {
 						"method": "GET",
@@ -2680,7 +2919,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n        \"interface\": [\r\n            {\r\n                \"name\": \"vxlanGpeTun3\",\r\n                \"description\": \"for testing purposes\",\r\n                \"type\": \"v3po:vxlan-gpe-tunnel\",\r\n                \"enabled\": \"true\",\r\n                \"link-up-down-trap-enable\": \"enabled\",\r\n                \"routing\" : {\r\n                    \"vrf-id\" : \"0\"\r\n                },\r\n                \"vxlan-gpe\" : {\r\n                    \"local\" : \"192.168.50.76\",\r\n                    \"remote\" : \"192.168.50.71\",\r\n                    \"vni\" : \"9\",\r\n                    \"next-protocol\" : \"ethernet\",\r\n                    \"encap-vrf-id\" : \"0\",\r\n                    \"decap-vrf-id\" : \"0\"\r\n                }\r\n            }\r\n        ]\r\n    \r\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "http://localhost:8183/restconf/operational/ietf-interfaces:interfaces-state/interface/vxlanTun1",
@@ -2701,7 +2940,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "00cfde94-dc84-4758-b05b-485a0d1c39b8",
 					"name": "Delete virtual ifc - cfg",
 					"request": {
 						"method": "DELETE",
@@ -2738,7 +2976,6 @@
 					"response": []
 				},
 				{
-					"_postman_id": "536465d1-18e4-4cef-8d01-2503ffd62645",
 					"name": "Add virtual ifc with nsh-proxy - cfg",
 					"request": {
 						"method": "PUT",
