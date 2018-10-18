@@ -1,5 +1,5 @@
 #!/bin/sh
-echo master
+echo rls1810
 
 # Determines which CSIT branch to use for integration testing
 # (see hc2vpp job definition in the jjb/hc2vpp dir of ci-management project).
