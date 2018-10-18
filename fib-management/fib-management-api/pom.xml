@@ -18,14 +18,14 @@
     <parent>
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>api-parent</artifactId>
-        <version>1.18.10-SNAPSHOT</version>
+        <version>1.18.10-RC1</version>
         <relativePath>../../common/api-parent</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.fib.management</groupId>
     <artifactId>fib-management-api</artifactId>
-    <version>1.18.10-SNAPSHOT</version>
+    <version>1.18.10-RC1</version>
     <name>${project.artifactId}</name>
     <packaging>bundle</packaging>
 </project>

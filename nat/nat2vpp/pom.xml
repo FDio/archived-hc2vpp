@@ -18,18 +18,18 @@
         <groupId>io.fd.hc2vpp.common</groupId>
         <artifactId>vpp-impl-parent</artifactId>
         <relativePath>../../vpp-common/vpp-impl-parent</relativePath>
-        <version>1.18.10-SNAPSHOT</version>
+        <version>1.18.10-RC1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fd.hc2vpp.nat</groupId>
     <artifactId>nat2vpp</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.18.10-SNAPSHOT</version>
+    <version>1.18.10-RC1</version>
     <packaging>bundle</packaging>
 
     <properties>
-        <hc2vpp.common.version>1.18.10-SNAPSHOT</hc2vpp.common.version>
+        <hc2vpp.common.version>1.18.10-RC1</hc2vpp.common.version>
     </properties>
 
     <dependencies>
