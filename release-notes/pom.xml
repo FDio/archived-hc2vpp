@@ -109,7 +109,7 @@
                 <project-public-version>18.10</project-public-version>
                 <project-config-version>1-18-10</project-config-version>
                 <project-version-in-jira>11305</project-version-in-jira>
-                <project-branch>master</project-branch>
+                <project-branch>stable/1810</project-branch>
                 <project-odl-version>oxygen</project-odl-version>
                 <project-vpp-version>18.10</project-vpp-version>
                 <!-- TODO set snapshot version to project-vpp-version after VPP is released-->
