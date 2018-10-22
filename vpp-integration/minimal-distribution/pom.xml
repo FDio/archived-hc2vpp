@@ -19,7 +19,7 @@
   <parent>
     <groupId>io.fd.hc2vpp.common</groupId>
     <artifactId>minimal-distribution-parent</artifactId>
-    <version>1.18.10-RC1</version>
+    <version>1.18.10-SNAPSHOT</version>
     <relativePath>../../common/minimal-distribution-parent</relativePath>
   </parent>
 
@@ -27,24 +27,24 @@
   <groupId>io.fd.hc2vpp.integration</groupId>
   <artifactId>vpp-integration-distribution</artifactId>
   <name>${project.artifactId}</name>
-  <version>1.18.10-RC1</version>
+  <version>1.18.10-SNAPSHOT</version>
 
   <properties>
     <main.class>io.fd.honeycomb.infra.distro.Main</main.class>
-    <v3po.version>1.18.10-RC1</v3po.version>
-    <lisp.version>1.18.10-RC1</lisp.version>
-    <vpp.common.integration.version>1.18.10-RC1</vpp.common.integration.version>
-    <vppnsh.version>1.18.10-RC1</vppnsh.version>
-    <nat.version>1.18.10-RC1</nat.version>
-    <ioam.version>1.18.10-RC1</ioam.version>
-    <routing.version>1.18.10-RC1</routing.version>
-    <acl.version>1.18.10-RC1</acl.version>
-    <dhcp.version>1.18.10-RC1</dhcp.version>
-    <vpp.classifier.version>1.18.10-RC1</vpp.classifier.version>
-    <l3-impl.version>1.18.10-RC1</l3-impl.version>
-    <vpp-management-impl.version>1.18.10-RC1</vpp-management-impl.version>
-    <iface.role.version>1.18.10-RC1</iface.role.version>
-    <hc2vpp.bgp.version>1.18.10-RC1</hc2vpp.bgp.version>
+    <v3po.version>1.18.10-SNAPSHOT</v3po.version>
+    <lisp.version>1.18.10-SNAPSHOT</lisp.version>
+    <vpp.common.integration.version>1.18.10-SNAPSHOT</vpp.common.integration.version>
+    <vppnsh.version>1.18.10-SNAPSHOT</vppnsh.version>
+    <nat.version>1.18.10-SNAPSHOT</nat.version>
+    <ioam.version>1.18.10-SNAPSHOT</ioam.version>
+    <routing.version>1.18.10-SNAPSHOT</routing.version>
+    <acl.version>1.18.10-SNAPSHOT</acl.version>
+    <dhcp.version>1.18.10-SNAPSHOT</dhcp.version>
+    <vpp.classifier.version>1.18.10-SNAPSHOT</vpp.classifier.version>
+    <l3-impl.version>1.18.10-SNAPSHOT</l3-impl.version>
+    <vpp-management-impl.version>1.18.10-SNAPSHOT</vpp-management-impl.version>
+    <iface.role.version>1.18.10-SNAPSHOT</iface.role.version>
+    <hc2vpp.bgp.version>1.18.10-SNAPSHOT</hc2vpp.bgp.version>
 
     <distribution.modules>
       io.fd.hc2vpp.common.integration.VppCommonModule,
