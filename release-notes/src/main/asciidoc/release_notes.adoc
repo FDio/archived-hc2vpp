@@ -11,6 +11,12 @@ Adding to the list of existing features: https://docs.fd.io/hc2vpp/1.18.07/hc2vp
 
 === New features
 
+* https://jira.fd.io/browse/HC2VPP-390[Add support for VPP features: TAPv2 interface]
+* https://jira.fd.io/browse/HC2VPP-377[URL capability (1.18.10 extension)]
+* https://jira.fd.io/browse/HC2VPP-343[Validation support for ACL module]
+* https://jira.fd.io/browse/HC2VPP-379[Validation support for NAT module]
+* https://jira.fd.io/browse/HC2VPP-338[Update postman collections to v2.1.0 format]
+
 === Removed features
 
 * https://jira.fd.io/browse/HC2VPP-341[Postman collections in v1.0/v2.0 format]
