@@ -49,42 +49,19 @@ public interface InterfaceDataTranslator extends ByteDataTranslator, JvppReplyCo
     InterfaceDataTranslator INSTANCE = new InterfaceDataTranslator() {
     };
 
-    Gauge64 vppLinkSpeed0 = new Gauge64(BigInteger.ZERO);
-    Gauge64 vppLinkSpeed1 = new Gauge64(BigInteger.valueOf(10L * 1000000));
-    Gauge64 vppLinkSpeed2 = new Gauge64(BigInteger.valueOf(100L * 1000000));
-    Gauge64 vppLinkSpeed4 = new Gauge64(BigInteger.valueOf(1000L * 1000000));
-    Gauge64 vppLinkSpeed8 = new Gauge64(BigInteger.valueOf(10000L * 1000000));
-    Gauge64 vppLinkSpeed16 = new Gauge64(BigInteger.valueOf(40000L * 1000000));
-    Gauge64 vppLinkSpeed32 = new Gauge64(BigInteger.valueOf(100000L * 1000000));
-
     int PHYSICAL_ADDRESS_LENGTH = 6;
 
     Collector<SwInterfaceDetails, ?, SwInterfaceDetails> SINGLE_ITEM_COLLECTOR =
             RWUtils.singleItemCollector();
 
     /**
-     * Convert VPP's link speed bitmask to Yang type. 1 = 10M, 2 = 100M, 4 = 1G, 8 = 10G, 16 = 40G, 32 = 100G
+     * Convert VPP's link speed in kbits per second to Yang type.
      *
-     * @param vppLinkSpeed Link speed in bitmask format from VPP.
+     * @param vppLinkSpeed Link speed in kbits per second from VPP.
      * @return Converted value from VPP link speed
      */
-    default Gauge64 vppInterfaceSpeedToYang(byte vppLinkSpeed) {
-        switch (vppLinkSpeed) {
-            case 1:
-                return vppLinkSpeed1;
-            case 2:
-                return vppLinkSpeed2;
-            case 4:
-                return vppLinkSpeed4;
-            case 8:
-                return vppLinkSpeed8;
-            case 16:
-                return vppLinkSpeed16;
-            case 32:
-                return vppLinkSpeed32;
-            default:
-                return vppLinkSpeed0;
-        }
+    default Gauge64 vppInterfaceSpeedToYang(int vppLinkSpeed) {
+        return new Gauge64(BigInteger.valueOf(Integer.toUnsignedLong(vppLinkSpeed) * 1000));
     }
 
     /**

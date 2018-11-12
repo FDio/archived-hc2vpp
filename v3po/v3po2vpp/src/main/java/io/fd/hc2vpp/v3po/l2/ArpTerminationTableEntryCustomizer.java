@@ -28,6 +28,11 @@ import io.fd.honeycomb.translate.write.WriteFailedException;
 import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
 import io.fd.vpp.jvpp.core.dto.BdIpMacAddDelReply;
 import io.fd.vpp.jvpp.core.future.FutureJVppCore;
+import io.fd.vpp.jvpp.core.types.Address;
+import io.fd.vpp.jvpp.core.types.AddressFamily;
+import io.fd.vpp.jvpp.core.types.AddressUnion;
+import io.fd.vpp.jvpp.core.types.Ip4Address;
+import io.fd.vpp.jvpp.core.types.MacAddress;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -94,12 +99,16 @@ public class ArpTerminationTableEntryCustomizer extends FutureJVppCustomizer
         final BdIpMacAddDel request = new BdIpMacAddDel();
         request.bdId = bdId;
         request.isAdd = booleanToByte(isAdd);
-        request.macAddress = parseMac(entry.getPhysAddress().getValue());
-
+        MacAddress macAddress = new MacAddress();
+        macAddress.bytes = parseMac(entry.getPhysAddress().getValue());
+        request.mac = macAddress;
         final IpAddressNoZone ipAddress = entry.getIpAddress();
-
-        request.ipAddress = ipAddressToArray(ipAddress);
-        request.isIpv6 = booleanToByte(isIpv6(ipAddress));
+        Ip4Address ip4Address = new Ip4Address();
+        ip4Address.address = ipAddressToArray(ipAddress);
+        Address address = new Address();
+        address.af = AddressFamily.ADDRESS_IP4;
+        address.un = new AddressUnion(ip4Address);
+        request.ip = address;
 
         return request;
     }

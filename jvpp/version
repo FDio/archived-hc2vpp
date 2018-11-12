@@ -5,4 +5,4 @@
 #
 # Version should match the one used in pom files.
 #
-echo 18.10-SNAPSHOT
+echo 19.01-SNAPSHOT

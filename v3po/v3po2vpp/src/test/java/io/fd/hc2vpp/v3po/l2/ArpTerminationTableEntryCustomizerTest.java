@@ -32,6 +32,11 @@ import io.fd.vpp.jvpp.VppBaseCallException;
 import io.fd.vpp.jvpp.VppInvocationException;
 import io.fd.vpp.jvpp.core.dto.BdIpMacAddDel;
 import io.fd.vpp.jvpp.core.dto.BdIpMacAddDelReply;
+import io.fd.vpp.jvpp.core.types.Address;
+import io.fd.vpp.jvpp.core.types.AddressFamily;
+import io.fd.vpp.jvpp.core.types.AddressUnion;
+import io.fd.vpp.jvpp.core.types.Ip4Address;
+import io.fd.vpp.jvpp.core.types.MacAddress;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -83,7 +88,8 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         physAddress = new PhysAddress("01:02:03:04:05:06");
 
         ipAddress = new IpAddressNoZone(Ipv4AddressNoZone.getDefaultInstance("1.2.3.4"));
-        ip6Address = new IpAddressNoZone(Ipv6AddressNoZone.getDefaultInstance("2001:0db8:0a0b:12f0:0000:0000:0000:0001"));
+        ip6Address =
+                new IpAddressNoZone(Ipv6AddressNoZone.getDefaultInstance("2001:0db8:0a0b:12f0:0000:0000:0000:0001"));
         entry = generateArpEntry(ipAddress, physAddress);
         ip6entry = generateArpEntry(ip6Address, physAddress);
         id = getArpEntryId(ipAddress, physAddress);
@@ -103,8 +109,15 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
     private BdIpMacAddDel generateBdIpMacAddDelRequest(final byte[] ipAddress, final byte[] macAddress,
                                                        final byte isAdd) {
         final BdIpMacAddDel request = new BdIpMacAddDel();
-        request.ipAddress = ipAddress;
-        request.macAddress = macAddress;
+        Address address = new Address();
+        address.af = AddressFamily.ADDRESS_IP4;
+        Ip4Address ip4Address = new Ip4Address();
+        ip4Address.address = ipAddress;
+        address.un = new AddressUnion(ip4Address);
+        request.ip = address;
+        MacAddress macAddr = new MacAddress();
+        macAddr.bytes = macAddress;
+        request.mac = macAddr;
         request.bdId = BD_ID;
         request.isAdd = isAdd;
         return request;
@@ -123,8 +136,8 @@ public class ArpTerminationTableEntryCustomizerTest extends WriterCustomizerTest
         ArgumentCaptor<BdIpMacAddDel> argumentCaptor = ArgumentCaptor.forClass(BdIpMacAddDel.class);
         verify(api).bdIpMacAddDel(argumentCaptor.capture());
         final BdIpMacAddDel actual = argumentCaptor.getValue();
-        assertArrayEquals(expected.macAddress, actual.macAddress);
-        assertArrayEquals(expected.ipAddress, actual.ipAddress);
+        assertArrayEquals(expected.mac.bytes, actual.mac.bytes);
+        assertArrayEquals(expected.ip.un.getIp4().address, actual.ip.un.getIp4().address);
         assertEquals(expected.bdId, actual.bdId);
         assertEquals(expected.isAdd, actual.isAdd);
     }
