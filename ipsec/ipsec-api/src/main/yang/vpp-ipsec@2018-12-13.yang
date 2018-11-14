@@ -1,0 +1,147 @@
+module vpp-ipsec {
+  yang-version 1;
+  namespace "http://fd.io/hc2vpp/yang/vpp-ipsec";
+  prefix "vpp-ipsec";
+
+  import hc2vpp-ietf-ipsec {
+    prefix "hc2vpp-ietf-ipsec";
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  import yang-ext {
+    prefix "ext";
+  }
+
+  import ietf-interfaces {
+    prefix "if";
+  }
+
+  revision "2018-12-13" {
+    description "Initial revision of ipsec model";
+  }
+
+  grouping vpp-ipsec-spd-entry-grouping {
+    description
+      "common information when using IPsec tunnel mode";
+    leaf spi {
+      type int32;
+    }
+
+    leaf priority {
+      type int32;
+    }
+
+    leaf direction {
+      type hc2vpp-ietf-ipsec:ipsec-traffic-direction;
+    }
+
+    leaf is-ipv6 {
+      type boolean;
+    }
+
+    leaf operation {
+      type hc2vpp-ietf-ipsec:ipsec-spd-operation;
+    }
+
+    leaf protect-sa-id {
+      type int32;
+    }
+
+    leaf laddr-start {
+      type inet:ip-address;
+    }
+
+    leaf laddr-stop {
+      type inet:ip-address;
+    }
+
+    leaf raddr-start {
+      type inet:ip-address;
+    }
+
+    leaf raddr-stop {
+      type inet:ip-address;
+    }
+  }
+
+  grouping spd-interfaces-grouping {
+    container spd-interfaces {
+      list interface {
+        key "interface-ref";
+
+        leaf interface-ref {
+          type if:interface-ref;
+        }
+      }
+    }
+  }
+
+  grouping ikev2-policy-aug-grouping {
+    leaf certificate {
+      type string;
+      description "Local file with RSA signature";
+    }
+
+    list traffic-selectors {
+      key "ts-name";
+      description "List of traffic selectors of profile";
+      leaf ts-name {
+        type string;
+      }
+      uses hc2vpp-ietf-ipsec:traffic-selector;
+      leaf protocol {
+        type uint8;
+        description "Protocol. If zero not relevant.";
+      }
+    }
+  }
+
+  augment /hc2vpp-ietf-ipsec:ipsec/hc2vpp-ietf-ipsec:sad/hc2vpp-ietf-ipsec:sad-entries {
+    ext:augment-identifier "ipsec-sad-entries-augmentation";
+    leaf sa-id {
+      type int32;
+    }
+  }
+
+  augment /hc2vpp-ietf-ipsec:ikev2/hc2vpp-ietf-ipsec:ike-global-configuration {
+    ext:augment-identifier "ipsec-ike-global-conf-augmentation";
+    leaf local-key-file {
+      type string;
+      description "Local file with RSA signature";
+    }
+  }
+
+  augment /hc2vpp-ietf-ipsec:ikev2/hc2vpp-ietf-ipsec:policy {
+    ext:augment-identifier "ipsec-ikev2-policy-augmentation";
+      uses ikev2-policy-aug-grouping;
+  }
+
+  augment /hc2vpp-ietf-ipsec:ipsec/hc2vpp-ietf-ipsec:spd {
+    ext:augment-identifier "ipsec-spd-enabled-interfaces-augmentation";
+    uses spd-interfaces-grouping;
+  }
+
+  augment /hc2vpp-ietf-ipsec:ipsec/hc2vpp-ietf-ipsec:spd/hc2vpp-ietf-ipsec:spd-entries {
+    ext:augment-identifier "ipsec-spd-entries-augmentation";
+    uses vpp-ipsec-spd-entry-grouping;
+  }
+
+  augment /hc2vpp-ietf-ipsec:ipsec-state {
+    ext:augment-identifier "ipsec-state-spd-augmentation";
+    list spd {
+      key "spd-id";
+
+      leaf spd-id {
+        type int32;
+      }
+      list spd-entries {
+        uses vpp-ipsec-spd-entry-grouping;
+      }
+
+      uses spd-interfaces-grouping;
+    }
+  }
+}

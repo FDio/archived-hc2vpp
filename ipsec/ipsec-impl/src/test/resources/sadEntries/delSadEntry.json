@@ -1,0 +1,11 @@
+{
+    "sad": {
+      "sad-entries": [
+        {
+          "spi": 1002,
+          "direction": "outbound",
+          "sa-id": 10
+        }
+      ]
+    }
+}

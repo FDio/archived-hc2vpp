@@ -1,0 +1,21 @@
+{
+  "ipsec" : {
+    "spd": [
+      {
+        "spd-entries": [
+          {
+            "name": "TestSPDEntryUpdate",
+            "priority":100,
+            "direction":"outbound",
+            "operation":"discard",
+            "laddr-start":"192.168.124.0",
+            "laddr-stop":"192.168.124.255",
+            "raddr-start":"192.168.125.0",
+            "raddr-stop":"192.168.125.255"
+          }
+        ],
+        "spd-id": 10
+      }
+    ]
+  }
+}

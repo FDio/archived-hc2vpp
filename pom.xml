@@ -57,5 +57,6 @@
     <module>bgp</module>
     <module>mpls</module>
     <module>srv6</module>
+    <module>ipsec</module>
   </modules>
 </project>

@@ -1,0 +1,32 @@
+{
+    "sad": {
+      "sad-entries": [
+        {
+          "spi": 1002,
+          "direction": "outbound",
+          "sa-id": 10,
+          "security-protocol": "esp",
+          "sa-mode": "tunnel",
+          "esp": {
+            "authentication": {
+              "hmac-sha1-96": {
+                "key-str": "0123456789012346"
+              }
+            },
+            "encryption": {
+              "aes-128-cbc": {
+                "key-str": "9876543210987654"
+              }
+            }
+          },
+          "source-address": {
+            "ipv4-address": "192.168.1.1"
+          },
+          "destination-address": {
+            "ipv4-address": "192.168.1.2"
+          },
+          "anti-replay-window": 0
+        }
+      ]
+    }
+}

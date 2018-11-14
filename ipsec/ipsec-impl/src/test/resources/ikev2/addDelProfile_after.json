@@ -1,0 +1,25 @@
+{
+  "ikev2": {
+    "policy": [
+      {
+        "name": "testPolicy",
+        "lifetime": 0,
+        "connection-type": "both",
+        "authentication" : {
+          "rsa-signature" : "true"
+        },
+        "certificate": "/home/localadmin/certs/server-cert.pem",
+        "traffic-selectors": [
+          {
+            "ts-name":"TS1",
+            "protocol":0,
+            "remote-address-low":"192.168.124.0",
+            "remote-address-high":"192.168.124.255",
+            "remote-port-low":0,
+            "remote-port-high":65535
+          }
+        ]
+      }
+    ]
+  }
+}

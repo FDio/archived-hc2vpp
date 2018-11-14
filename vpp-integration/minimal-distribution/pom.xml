@@ -67,6 +67,7 @@
       io.fd.hc2vpp.policer.PolicerModule,
       io.fd.hc2vpp.mpls.MplsModule,
       io.fd.hc2vpp.srv6.Srv6Module,
+      io.fd.hc2vpp.ipsec.IpsecModule
       <!-- Nsh module by default disabled, because it needs vpp-nsh plugin, which is not part of vpp codebase.-->
       // io.fd.hc2vpp.vppnsh.impl.VppNshModule,
       <!-- iOAM module by default disabled, because it needs ioam plugin (not part of vpp codebase.)-->
@@ -190,6 +191,11 @@
       <groupId>io.fd.hc2vpp.bgp</groupId>
       <artifactId>bgp-prefix-sid</artifactId>
       <version>${hc2vpp.bgp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fd.hc2vpp.ipsec</groupId>
+      <artifactId>ipsec-impl</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

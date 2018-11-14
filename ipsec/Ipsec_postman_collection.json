@@ -1,0 +1,486 @@
+{
+	"info": {
+		"_postman_id": "d17abd36-ad9a-4b5f-bb10-fe09c412dbe6",
+		"name": "IPsec",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Add Sad Entry - ESP",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sad-entries\": [\n\t\t{\n\t\t\t\"sa-id\":10,\n\t\t\t\"spi\": 1001,\n\t\t\t\"anti-replay-window\": 88,\n\t\t\t\"direction\": \"outbound\",\n\t\t\t\"security-protocol\": \"esp\",\n\t\t\t\"esp\": {\n\t\t\t\t\"authentication\" : {\n\t\t\t\t\t\"hmac-sha1-96\" : {\n\t\t\t\t\t\t\"key-str\" : \"0123456789012345\"\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"encryption\" : {\n\t\t\t\t\t\"aes-128-cbc\": {\n\t\t\t\t\t\t\"key-str\" : \"0123456789012345\"\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"source-address\": {\n\t\t\t\t\"ipv4-address\": \"192.168.100.3\"\n\t\t\t},\n\t\t\t\"destination-address\": {\n\t\t\t\t\"ipv4-address\": \"192.168.100.2\"\n\t\t\t}\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ipsec/sad/sad-entries/1001/outbound",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ipsec",
+						"sad",
+						"sad-entries",
+						"1001",
+						"outbound"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Sad Entry - ESP inbound",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sad-entries\": [\n\t\t{\n\t\t\t\"sa-id\":20,\n\t\t\t\"spi\": 1002,\n\t\t\t\"anti-replay-window\": 88,\n\t\t\t\"direction\": \"inbound\",\n\t\t\t\"security-protocol\": \"esp\",\n\t\t\t\"esp\": {\n\t\t\t\t\"authentication\" : {\n\t\t\t\t\t\"hmac-sha1-96\" : {\n\t\t\t\t\t\t\"key-str\" : \"0123456789012345\"\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"encryption\" : {\n\t\t\t\t\t\"aes-128-cbc\": {\n\t\t\t\t\t\t\"key-str\" : \"0123456789012345\"\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"source-address\": {\n\t\t\t\t\"ipv4-address\": \"192.168.100.3\"\n\t\t\t},\n\t\t\t\"destination-address\": {\n\t\t\t\t\"ipv4-address\": \"192.168.100.2\"\n\t\t\t}\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ipsec/sad/sad-entries/1002/inbound",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ipsec",
+						"sad",
+						"sad-entries",
+						"1002",
+						"inbound"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Sad Entry- AH",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"sad-entries\": [\n\t\t{\n\t\t\t\"sa-id\":50,\n\t\t\t\"spi\": 1005,\n\t\t\t\"anti-replay-window\": 55,\n\t\t\t\"direction\": \"inbound\",\n\t\t\t\"security-protocol\": \"ah\",\n\t\t\t\"ah\": {\n\t\t\t\t\"hmac-sha1-96\" : {\n\t\t\t\t\t\"key-str\" : \"0123456789055555\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"source-address\": {\n\t\t\t\t\"ipv4-address\": \"192.168.100.5\"\n\t\t\t},\n\t\t\t\"destination-address\": {\n\t\t\t\t\"ipv4-address\": \"192.168.100.55\"\n\t\t\t}\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ipsec/sad/sad-entries/1005/inbound",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ipsec",
+						"sad",
+						"sad-entries",
+						"1005",
+						"inbound"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add SPD",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"spd\": [\n\t\t{\n\t\t\t\"spd-id\":10,\n\t\t\t\"spd-entries\": [\n\t\t\t\t{\n\t\t\t\t\t\"name\":\"testEntry1\",\n\t\t\t\t\t\"priority\":10,\n\t\t\t\t\t\"direction\":\"inbound\",\n\t\t\t\t\t\"operation\":\"bypass\",\n\t\t\t\t\t\"laddr-start\":\"192.168.4.4\",\n\t\t\t\t\t\"laddr-stop\":\"192.168.4.4\",\n\t\t\t\t\t\"raddr-start\":\"192.168.3.3\",\n\t\t\t\t\t\"raddr-stop\":\"192.168.3.3\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"name\":\"testEntry2\",\n\t\t\t\t\t\"priority\":100,\n\t\t\t\t\t\"direction\":\"outbound\",\n\t\t\t\t\t\"operation\":\"discard\",\n\t\t\t\t\t\"laddr-start\":\"192.168.5.5\",\n\t\t\t\t\t\"laddr-stop\":\"192.168.5.5\",\n\t\t\t\t\t\"raddr-start\":\"192.168.6.6\",\n\t\t\t\t\t\"raddr-stop\":\"192.168.6.6\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ipsec/spd/10",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ipsec",
+						"spd",
+						"10"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Ikev2 profile SHARED-KEY",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"policy\": [\n\t\t{\n\t\t\t\"name\":\"testPolicy\",\n\t\t\t\"lifetime\": 0,\n\t\t\t\"connection-type\":\"both\",\n\t\t\t\"description\": \"policy profile named testPolicy\",\n\t\t\t\"authentication\": {\n\t\t\t\t\"preshared-key\":\"true\"\n\t\t\t},\n\t\t\t\"pre-shared-key\":\"Vpp0123456789123\",\n\t\t\t\"traffic-selectors\": [\n\t\t\t\t{\n\t\t\t\t\t\"ts-name\":\"ts1\",\n\t\t\t\t\t\"protocol\":0,\n\t\t\t\t\t\"local-address-low\":\"192.168.124.0\",\n\t\t\t\t\t\"local-address-high\":\"192.168.124.255\",\n\t\t\t\t\t\"local-port-low\":0,\n\t\t\t\t\t\"local-port-high\":65535\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ikev2/policy/testPolicy",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ikev2",
+						"policy",
+						"testPolicy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Ikev2 profile RSA",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"policy\": [\n\t\t{\n\t\t\t\"name\":\"testPolicyRsa\",\n\t\t\t\"lifetime\": 0,\n\t\t\t\"connection-type\":\"both\",\n\t\t\t\"description\": \"policy profile named testPolicyRsa\",\n\t\t\t\"authentication\": {\n\t\t\t\t\"rsa-signature\":\"true\"\n\t\t\t},\n\t\t\t\"certificate\":\"/home/localadmin/certs/server-cert.pem\"\n\t\t}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ikev2/policy/testPolicyRsa",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ikev2",
+						"policy",
+						"testPolicyRsa"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Ikev2 profile local ID FQDN",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"identity\": {\n\t\t\"local\": {\n\t\t\t\"fqdn-string\":\"vpp.home\"\n\t\t}\n\t}\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ikev2/policy/testPolicy/identity",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ikev2",
+						"policy",
+						"testPolicy",
+						"identity"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Ikev2 profile remote ID IPv4",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"identity\": {\n\t\t\"remote\": {\n\t\t\t\"ipv4-address\":\"192.168.123.20\"\n\t\t}\n\t}\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ikev2/policy/testPolicy/identity",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ikev2",
+						"policy",
+						"testPolicy",
+						"identity"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show SAD 1001 outbound - config",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ipsec/sad/sad-entries/1001/outbound",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ipsec",
+						"sad",
+						"sad-entries",
+						"1001",
+						"outbound"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show IPSEC - oper",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-ipsec:ipsec-state/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"hc2vpp-ietf-ipsec:ipsec-state",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show IPSEC - oper SPD",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/operational/hc2vpp-ietf-ipsec:ipsec-state/spd/10/spd-interfaces/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"operational",
+						"hc2vpp-ietf-ipsec:ipsec-state",
+						"spd",
+						"10",
+						"spd-interfaces",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show IPSEC Config",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ipsec/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ipsec",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show Ikev2",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46YWRtaW4="
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"relay\": [\n\t\t{\n\t\t\t\"address-family\": \"vpp-fib-table-management:ipv4\",\n\t\t\t\"rx-vrf-id\": 0,\n\t\t\t\"server-address\": \"1.2.3.4\",\n\t\t\t\"gateway-address\": \"5.6.7.8\"}\n\t]\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:8183/restconf/config/hc2vpp-ietf-ipsec:ikev2/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8183",
+					"path": [
+						"restconf",
+						"config",
+						"hc2vpp-ietf-ipsec:ikev2",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

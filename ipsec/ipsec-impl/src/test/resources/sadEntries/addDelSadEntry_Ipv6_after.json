@@ -1,0 +1,25 @@
+{
+  "sad": {
+    "sad-entries": [
+      {
+        "spi": 1002,
+        "direction": "inbound",
+        "sa-id": 10,
+        "security-protocol": "ah",
+        "sa-mode": "transport",
+        "ah": {
+          "hmac-md5-96": {
+            "key-str": "0123456789012346"
+          }
+        },
+        "source-address": {
+          "ipv6-address": "2001::11"
+        },
+        "destination-address": {
+          "ipv6-address": "2001::12"
+        },
+        "anti-replay-window": 32
+      }
+    ]
+  }
+}

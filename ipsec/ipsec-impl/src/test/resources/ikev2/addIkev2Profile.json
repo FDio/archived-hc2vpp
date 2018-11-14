@@ -1,0 +1,25 @@
+{
+  "ikev2": {
+    "policy": [
+      {
+        "name": "testPolicy",
+        "lifetime": 0,
+        "connection-type": "both",
+        "authentication" : {
+          "preshared-key" : "true"
+        },
+        "pre-shared-key": "0123456789012345",
+        "traffic-selectors": [
+          {
+            "ts-name":"TS1",
+            "protocol":0,
+            "local-address-low":"192.168.124.0",
+            "local-address-high":"192.168.124.255",
+            "local-port-low":0,
+            "local-port-high":65535
+          }
+        ]
+      }
+    ]
+  }
+}

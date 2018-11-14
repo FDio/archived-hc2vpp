@@ -1,0 +1,21 @@
+{
+  "ipsec" : {
+    "spd": [
+      {
+        "spd-entries": [
+          {
+            "name": "TestSPDEntryUpdate",
+            "priority":80,
+            "direction":"inbound",
+            "operation":"bypass",
+            "laddr-start":"2001::1",
+            "laddr-stop":"2001::100",
+            "raddr-start":"2001::101",
+            "raddr-stop":"2001::200"
+          }
+        ],
+        "spd-id": 10
+      }
+    ]
+  }
+}
